@@ -16,14 +16,14 @@ export class DatabaseStorage implements IStorage {
     // Depreciation rates for direct imports (updated to match KRA rates)
     this.directImportDepreciation = [
       { minYears: 0, maxYears: 0.5, rate: 0.05 },   // 0-6 months: 5%
-      { minYears: 0.5, maxYears: 1, rate: 0.10 },   // Over 6 months: 10%
+      { minYears: 0.5, maxYears: 1, rate: 0.10 },   // Over 6 months up to 1 year: 10%
       { minYears: 1, maxYears: 2, rate: 0.15 },     // >1 <=2 years: 15%
       { minYears: 2, maxYears: 3, rate: 0.20 },     // >2 <=3 years: 20%
       { minYears: 3, maxYears: 4, rate: 0.30 },     // >3 <=4 years: 30%
       { minYears: 4, maxYears: 5, rate: 0.40 },     // >4 <=5 years: 40%
       { minYears: 5, maxYears: 6, rate: 0.50 },     // >5 <=6 years: 50%
-      { minYears: 6, maxYears: 7, rate: 0.60 },     // >6 <=7 years: 60%
-      { minYears: 7, maxYears: 8, rate: 0.65 }      // >7 <=8 years: 65%
+      { minYears: 6, maxYears: 7, rate: 0.60 },     // >6 <7 years: 60%
+      { minYears: 7, maxYears: 8, rate: 0.65 }      // >=7 <=8 years: 65%
     ];
 
     // Depreciation rates for previously registered vehicles
@@ -51,9 +51,18 @@ export class DatabaseStorage implements IStorage {
   private getDepreciationRate(vehicleType: 'direct' | 'previouslyRegistered', ageYears: number): number {
     if (vehicleType === 'direct') {
       // Find the appropriate depreciation rate based on age range
-      for (const range of this.directImportDepreciation) {
-        if (ageYears > range.minYears && ageYears <= range.maxYears) {
-          return range.rate;
+      // Check ranges in reverse order to handle boundary cases correctly
+      for (let i = this.directImportDepreciation.length - 1; i >= 0; i--) {
+        const range = this.directImportDepreciation[i];
+        // For 7+ years, use >= comparison for minYears
+        if (i === this.directImportDepreciation.length - 1) {
+          if (ageYears >= range.minYears && ageYears <= range.maxYears) {
+            return range.rate;
+          }
+        } else {
+          if (ageYears > range.minYears && ageYears <= range.maxYears) {
+            return range.rate;
+          }
         }
       }
       // For vehicles older than 8 years, apply maximum depreciation

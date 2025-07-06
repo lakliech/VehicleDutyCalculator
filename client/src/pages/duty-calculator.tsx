@@ -171,6 +171,19 @@ export default function DutyCalculator() {
     form.setValue('vehicleAge', Math.max(0, age));
   }, [yearOfManufacture, form]);
 
+  // Watch import type changes
+  const isDirectImport = form.watch('isDirectImport');
+
+  // Reset year when switching import type if year is out of range
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    const minAllowedYear = currentYear - (isDirectImport ? 8 : 20);
+    
+    if (yearOfManufacture < minAllowedYear) {
+      setYearOfManufacture(currentYear);
+    }
+  }, [isDirectImport, yearOfManufacture]);
+
   const calculateDutyMutation = useMutation({
     mutationFn: async (data: DutyCalculation) => {
       const response = await apiRequest("POST", "/api/calculate-duty", data);
@@ -244,7 +257,6 @@ export default function DutyCalculator() {
           </div>
         </div>
       </header>
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Calculator Form */}
@@ -264,49 +276,13 @@ export default function DutyCalculator() {
                         <h3 className="text-lg font-semibold text-gray-900">Vehicle Selection</h3>
                       </div>
                       
-                      {/* Vehicle Selection from Database */}
-                      <div>
-                        <div className="p-3 bg-white rounded-md mb-3">
-                          <p className="text-sm font-medium text-gray-700">
-                            Select from over 2,800 vehicles with current market prices
-                          </p>
-                        </div>
-                        <VehicleSelector onVehicleSelect={handleVehicleSelect} />
-                      </div>
-
-                      {/* Year of Manufacture */}
-                      <div>
-                        <Label htmlFor="yearOfManufacture" className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                          <Calendar className="h-4 w-4 mr-2 text-green-600" />
-                          Year of Manufacture
-                        </Label>
-                        <Select
-                          value={yearOfManufacture.toString()}
-                          onValueChange={(value) => setYearOfManufacture(Number(value))}
-                        >
-                          <SelectTrigger id="yearOfManufacture">
-                            <SelectValue placeholder="Select year" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from({ length: 20 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-                              <SelectItem key={year} value={year.toString()}>
-                                {year}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <p className="text-sm text-gray-500 mt-1">
-                          Vehicle age: {form.watch('vehicleAge')} year{form.watch('vehicleAge') !== 1 ? 's' : ''}
-                        </p>
-                      </div>
-
-                      {/* Import Type */}
+                      {/* Import Type - First Step */}
                       <FormField
                         control={form.control}
                         name="isDirectImport"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-sm font-medium text-gray-700 mb-2">Import Type</FormLabel>
+                            <FormLabel className="text-sm font-medium text-gray-700 mb-2">Step 1: Vehicle Locale</FormLabel>
                             <FormControl>
                               <RadioGroup
                                 value={field.value ? "direct" : "registered"}
@@ -324,12 +300,55 @@ export default function DutyCalculator() {
                               </RadioGroup>
                             </FormControl>
                             <FormDescription>
-                              Direct imports include RDL and IDF fees
+                              Direct imports include RDL and IDF fees • Year range: {new Date().getFullYear() - 8} - {new Date().getFullYear()}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
+
+                      {/* Vehicle Selection from Database */}
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700 mb-2">Step 2: Select Vehicle</Label>
+                        <div className="p-3 bg-white rounded-md mb-3">
+                          <p className="text-sm text-gray-600">
+                            Select from over 2,800 vehicles with current market prices
+                          </p>
+                        </div>
+                        <VehicleSelector onVehicleSelect={handleVehicleSelect} />
+                      </div>
+
+                      {/* Year of Manufacture */}
+                      <div>
+                        <Label htmlFor="yearOfManufacture" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                          <Calendar className="h-4 w-4 mr-2 text-green-600" />
+                          Step 3: Year of Manufacture
+                        </Label>
+                        <Select
+                          value={yearOfManufacture.toString()}
+                          onValueChange={(value) => setYearOfManufacture(Number(value))}
+                        >
+                          <SelectTrigger id="yearOfManufacture">
+                            <SelectValue placeholder="Select year" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(() => {
+                              const currentYear = new Date().getFullYear();
+                              const isDirectImport = form.watch('isDirectImport');
+                              const yearRange = isDirectImport ? 8 : 20;
+                              
+                              return Array.from({ length: yearRange }, (_, i) => currentYear - i).map((year) => (
+                                <SelectItem key={year} value={year.toString()}>
+                                  {year}
+                                </SelectItem>
+                              ));
+                            })()}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Vehicle age: {form.watch('vehicleAge')} year{form.watch('vehicleAge') !== 1 ? 's' : ''}
+                        </p>
+                      </div>
 
                       {/* Selected Vehicle CRSP Display */}
                       {selectedVehicle && selectedVehicle.crspKes && (

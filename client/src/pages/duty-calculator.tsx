@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { generateDutyCalculationPDF } from "@/lib/pdf-generator";
 import { dutyCalculationSchema, type DutyCalculation, type DutyResult, type VehicleReference } from "@shared/schema";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { 
@@ -470,15 +471,23 @@ export default function DutyCalculator() {
                     <Button 
                       variant="outline" 
                       size="sm"
+                      title="Download PDF Report"
                       onClick={() => {
-                        // Implement download functionality
+                        generateDutyCalculationPDF(
+                          calculationResult,
+                          selectedVehicle,
+                          yearOfManufacture,
+                          form.getValues("engineSize"),
+                          form.getValues("isDirectImport")
+                        );
                         toast({
-                          title: "Download Feature",
-                          description: "Coming soon!",
+                          title: "PDF Downloaded",
+                          description: "Your duty calculation report has been downloaded.",
                         });
                       }}
                     >
-                      <Download className="h-4 w-4" />
+                      <Download className="h-4 w-4 mr-2" />
+                      Download PDF
                     </Button>
                   </CardTitle>
                 </CardHeader>

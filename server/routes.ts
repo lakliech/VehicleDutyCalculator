@@ -1,8 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { dutyCalculationSchema } from "@shared/schema";
+import { dutyCalculationSchema, vehicleReferences } from "@shared/schema";
 import { z } from "zod";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Calculate duty
@@ -67,6 +69,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Failed to fetch calculation history:", error);
       res.status(500).json({ 
         error: "Failed to fetch calculation history" 
+      });
+    }
+  });
+
+  // Search vehicle references
+  app.get("/api/vehicle-references/search", async (req, res) => {
+    try {
+      const { make, model, limit = "20" } = req.query;
+      
+      // Build base query
+      let results;
+      
+      if (make && model && typeof make === 'string' && typeof model === 'string') {
+        results = await db
+          .select()
+          .from(vehicleReferences)
+          .where(sql`LOWER(${vehicleReferences.make}) LIKE LOWER(${`%${make}%`}) AND LOWER(${vehicleReferences.model}) LIKE LOWER(${`%${model}%`})`)
+          .orderBy(vehicleReferences.make, vehicleReferences.model)
+          .limit(parseInt(limit as string));
+      } else if (make && typeof make === 'string') {
+        results = await db
+          .select()
+          .from(vehicleReferences)
+          .where(sql`LOWER(${vehicleReferences.make}) LIKE LOWER(${`%${make}%`})`)
+          .orderBy(vehicleReferences.make, vehicleReferences.model)
+          .limit(parseInt(limit as string));
+      } else if (model && typeof model === 'string') {
+        results = await db
+          .select()
+          .from(vehicleReferences)
+          .where(sql`LOWER(${vehicleReferences.model}) LIKE LOWER(${`%${model}%`})`)
+          .orderBy(vehicleReferences.make, vehicleReferences.model)
+          .limit(parseInt(limit as string));
+      } else {
+        results = await db
+          .select()
+          .from(vehicleReferences)
+          .orderBy(vehicleReferences.make, vehicleReferences.model)
+          .limit(parseInt(limit as string));
+      }
+        
+      res.json(results);
+    } catch (error) {
+      console.error("Failed to search vehicle references:", error);
+      res.status(500).json({ 
+        error: "Failed to search vehicle references" 
+      });
+    }
+  });
+
+  // Get all distinct makes
+  app.get("/api/vehicle-references/makes", async (req, res) => {
+    try {
+      const results = await db
+        .selectDistinct({ make: vehicleReferences.make })
+        .from(vehicleReferences)
+        .orderBy(vehicleReferences.make);
+        
+      res.json(results.map(r => r.make));
+    } catch (error) {
+      console.error("Failed to fetch vehicle makes:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch vehicle makes" 
+      });
+    }
+  });
+
+  // Get models for a specific make
+  app.get("/api/vehicle-references/makes/:make/models", async (req, res) => {
+    try {
+      const { make } = req.params;
+      const results = await db
+        .select({ 
+          model: vehicleReferences.model,
+          engineCapacity: vehicleReferences.engineCapacity,
+          bodyType: vehicleReferences.bodyType,
+          fuelType: vehicleReferences.fuelType,
+          crspKes: vehicleReferences.crspKes
+        })
+        .from(vehicleReferences)
+        .where(sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`)
+        .orderBy(vehicleReferences.model);
+        
+      res.json(results);
+    } catch (error) {
+      console.error("Failed to fetch models for make:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch models" 
       });
     }
   });

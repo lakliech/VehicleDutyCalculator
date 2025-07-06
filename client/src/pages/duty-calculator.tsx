@@ -13,9 +13,11 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { dutyCalculationSchema, type DutyCalculation, type DutyResult } from "@shared/schema";
+import { dutyCalculationSchema, type DutyCalculation, type DutyResult, type VehicleReference } from "@shared/schema";
+import { VehicleSelector } from "@/components/vehicle-selector";
 import { 
   Calculator, 
   Car, 
@@ -97,6 +99,8 @@ const vehicleCategoryInfo = {
 export default function DutyCalculator() {
   const { toast } = useToast();
   const [calculationResult, setCalculationResult] = useState<DutyResult | null>(null);
+  const [useVehicleDatabase, setUseVehicleDatabase] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
 
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
@@ -109,6 +113,44 @@ export default function DutyCalculator() {
       fuelType: "petrol",
     },
   });
+
+  // Handle vehicle selection from database
+  const handleVehicleSelect = (vehicle: VehicleReference | null) => {
+    setSelectedVehicle(vehicle);
+    if (vehicle && vehicle.crspKes) {
+      // Update form with vehicle data
+      const crspValue = typeof vehicle.crspKes === 'string' ? parseFloat(vehicle.crspKes) : vehicle.crspKes;
+      form.setValue('vehicleValue', crspValue);
+      
+      // Update engine size if available
+      if (vehicle.engineCapacity) {
+        form.setValue('engineSize', vehicle.engineCapacity);
+        
+        // Auto-detect vehicle category based on engine size
+        if (vehicle.engineCapacity < 1500) {
+          form.setValue('vehicleCategory', 'under1500cc');
+        } else if (vehicle.engineCapacity >= 3000 && vehicle.fuelType?.toLowerCase() === 'petrol') {
+          form.setValue('vehicleCategory', 'largeEngine');
+        } else if (vehicle.engineCapacity >= 2500 && vehicle.fuelType?.toLowerCase() === 'diesel') {
+          form.setValue('vehicleCategory', 'largeEngine');
+        } else {
+          form.setValue('vehicleCategory', 'over1500cc');
+        }
+      }
+      
+      // Update fuel type if available
+      if (vehicle.fuelType) {
+        const fuelMap: Record<string, string> = {
+          'petrol': 'petrol',
+          'diesel': 'diesel',
+          'electric': 'electric',
+          'hybrid': 'hybrid'
+        };
+        const mappedFuel = fuelMap[vehicle.fuelType.toLowerCase()] || 'other';
+        form.setValue('fuelType', mappedFuel as any);
+      }
+    }
+  };
 
   const calculateDutyMutation = useMutation({
     mutationFn: async (data: DutyCalculation) => {
@@ -176,6 +218,31 @@ export default function DutyCalculator() {
               <CardContent>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    {/* Toggle for Vehicle Database */}
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div>
+                        <Label htmlFor="use-database" className="text-sm font-medium">
+                          Use Vehicle Database
+                        </Label>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Select from over 2,800 vehicles with current market prices
+                        </p>
+                      </div>
+                      <Switch
+                        id="use-database"
+                        checked={useVehicleDatabase}
+                        onCheckedChange={setUseVehicleDatabase}
+                      />
+                    </div>
+
+                    {/* Vehicle Selection from Database */}
+                    {useVehicleDatabase && (
+                      <>
+                        <VehicleSelector onVehicleSelect={handleVehicleSelect} />
+                        <Separator />
+                      </>
+                    )}
+
                     {/* Vehicle Category Selection */}
                     <FormField
                       control={form.control}

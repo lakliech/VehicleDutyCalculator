@@ -36,6 +36,20 @@ export const dutyRates = pgTable("duty_rates", {
   engineSurchargeRate: decimal("engine_surcharge_rate", { precision: 5, scale: 4 }),
 });
 
+export const vehicleReferences = pgTable("vehicle_references", {
+  id: serial("id").primaryKey(),
+  make: text("make").notNull(),
+  model: text("model").notNull(),
+  engineCapacity: integer("engine_capacity"),
+  bodyType: text("body_type"),
+  driveConfiguration: text("drive_configuration"),
+  seating: text("seating"),
+  fuelType: text("fuel_type"),
+  gvw: text("gvw"),
+  crspKes: decimal("crsp_kes", { precision: 12, scale: 2 }),
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
 export const insertVehicleSchema = createInsertSchema(vehicles).omit({
   id: true,
   createdAt: true,
@@ -92,5 +106,6 @@ export type Vehicle = typeof vehicles.$inferSelect;
 export type InsertCalculation = z.infer<typeof insertCalculationSchema>;
 export type Calculation = typeof calculations.$inferSelect;
 export type DutyRate = typeof dutyRates.$inferSelect;
+export type VehicleReference = typeof vehicleReferences.$inferSelect;
 export type DutyCalculation = z.infer<typeof dutyCalculationSchema>;
 export type DutyResult = z.infer<typeof dutyResultSchema>;

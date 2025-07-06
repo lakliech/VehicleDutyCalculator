@@ -1,13 +1,4 @@
-import { dutyRates, type DutyRate, type DutyCalculation, type DutyResult } from "@shared/schema";
-
-export interface IStorage {
-  calculateDuty(calculation: DutyCalculation): Promise<DutyResult>;
-}
-
-export class MemStorage implements IStorage {
-  private directImportDepreciation: Array<{ minYears: number; maxYears: number; rate: number }>;
-  private previouslyRegisteredDepreciation: Array<{ years: number; rate: number }>;
-
+class KenyaVehicleValuation {
   constructor() {
     // Depreciation rates for direct imports
     this.directImportDepreciation = [
@@ -42,7 +33,7 @@ export class MemStorage implements IStorage {
   }
 
   // Get depreciation rate based on vehicle type and age
-  private getDepreciationRate(vehicleType: 'direct' | 'previouslyRegistered', ageYears: number): number {
+  getDepreciationRate(vehicleType, ageYears) {
     if (vehicleType === 'direct') {
       for (const range of this.directImportDepreciation) {
         if (ageYears > range.minYears && ageYears <= range.maxYears) {
@@ -61,19 +52,18 @@ export class MemStorage implements IStorage {
     return 0;
   }
 
-  async calculateDuty(calculation: DutyCalculation): Promise<DutyResult> {
-    const { vehicleCategory, vehicleValue, vehicleAge, isDirectImport } = calculation;
-
+  // Calculate taxes for a vehicle
+  calculateTaxes(price, vehicleCategory, isDirectImport = true, ageYears = 0) {
     // Apply depreciation
     const depreciationRate = this.getDepreciationRate(
       isDirectImport ? 'direct' : 'previouslyRegistered',
-      vehicleAge
+      ageYears
     );
-    const depreciatedPrice = vehicleValue * (1 - depreciationRate);
+    const depreciatedPrice = price * (1 - depreciationRate);
 
     // Initialize result object
-    const result: DutyResult = {
-      currentRetailPrice: vehicleValue,
+    const result = {
+      currentRetailPrice: price,
       depreciationRate: depreciationRate,
       depreciatedPrice: depreciatedPrice,
       customsValue: 0,
@@ -84,8 +74,7 @@ export class MemStorage implements IStorage {
       vat: 0,
       rdl: 0,
       idfFees: 0,
-      totalTaxes: 0,
-      breakdown: []
+      totalTaxes: 0
     };
 
     // Calculate based on vehicle category
@@ -94,7 +83,7 @@ export class MemStorage implements IStorage {
         result.customsValue = depreciatedPrice * 0.45977;
         result.importDuty = result.customsValue * 0.35;
         result.exciseValue = result.customsValue + result.importDuty;
-        result.exciseDuty = result.exciseValue * 0.2;
+        result.exciseDuty = isDirectImport ? result.exciseValue * 0.2 : result.exciseValue * 0.2;
         result.vatValue = result.exciseValue + result.exciseDuty;
         result.vat = result.vatValue * 0.16;
         result.rdl = result.vatValue * 0.0069;
@@ -105,7 +94,7 @@ export class MemStorage implements IStorage {
         result.customsValue = depreciatedPrice * 0.45977;
         result.importDuty = result.customsValue * 0.35;
         result.exciseValue = result.customsValue + result.importDuty;
-        result.exciseDuty = result.exciseValue * 0.25;
+        result.exciseDuty = isDirectImport ? result.exciseValue * 0.25 : result.exciseValue * 0.25;
         result.vatValue = result.exciseValue + result.exciseDuty;
         result.vat = result.vatValue * 0.16;
         result.rdl = result.vatValue * 0.0069;
@@ -117,7 +106,7 @@ export class MemStorage implements IStorage {
         result.customsValue = depreciatedPrice * 0.4244;
         result.importDuty = result.customsValue * 0.35;
         result.exciseValue = result.customsValue + result.importDuty;
-        result.exciseDuty = result.exciseValue * 0.35;
+        result.exciseDuty = isDirectImport ? result.exciseValue * 0.35 : result.exciseValue * 0.35;
         result.vatValue = result.exciseValue + result.exciseDuty;
         result.vat = result.vatValue * 0.16;
         result.rdl = result.vatValue * 0.0064;
@@ -128,7 +117,7 @@ export class MemStorage implements IStorage {
         result.customsValue = depreciatedPrice * 0.45977;
         result.importDuty = result.customsValue * 0.25;
         result.exciseValue = result.customsValue + result.importDuty;
-        result.exciseDuty = result.exciseValue * 0.1;
+        result.exciseDuty = isDirectImport ? result.exciseValue * 0.1 : result.exciseValue * 0.1;
         result.vatValue = result.exciseValue + result.exciseDuty;
         result.vat = result.vatValue * 0.16;
         result.rdl = result.vatValue * 0.0069;
@@ -139,7 +128,7 @@ export class MemStorage implements IStorage {
         result.customsValue = depreciatedPrice * 0.45977;
         result.importDuty = result.customsValue * 0.35;
         result.exciseValue = result.customsValue + result.importDuty;
-        result.exciseDuty = result.exciseValue * 0.25;
+        result.exciseDuty = isDirectImport ? result.exciseValue * 0.25 : result.exciseValue * 0.25;
         result.vatValue = result.exciseValue + result.exciseDuty;
         result.vat = result.vatValue * 0.16;
         result.rdl = result.vatValue * 0.0069;
@@ -172,7 +161,7 @@ export class MemStorage implements IStorage {
         result.customsValue = depreciatedPrice * 0.57471;
         result.importDuty = 0;
         result.exciseValue = result.customsValue;
-        result.exciseDuty = result.exciseValue * 0.25;
+        result.exciseDuty = isDirectImport ? result.exciseValue * 0.25 : result.exciseValue * 0.25;
         result.vatValue = result.exciseValue + result.exciseDuty;
         result.vat = result.vatValue * 0.16;
         result.rdl = result.vatValue * 0.0086;
@@ -183,7 +172,9 @@ export class MemStorage implements IStorage {
         result.customsValue = depreciatedPrice * 0.55172;
         result.importDuty = result.customsValue * 0.25;
         result.exciseValue = 0;
-        result.exciseDuty = 12952.83; // Fixed amount
+        // Note: There seems to be an error in the template with excise duty of 12952.83
+        // This needs to be verified with actual regulations
+        result.exciseDuty = 12952.83; // This seems incorrect - needs verification
         result.vatValue = result.customsValue + result.importDuty + result.exciseDuty;
         result.vat = result.vatValue * 0.16;
         result.rdl = result.vatValue * 0.0083;
@@ -202,11 +193,11 @@ export class MemStorage implements IStorage {
         break;
 
       case 'heavyMachinery':
-        result.customsValue = isDirectImport ? depreciatedPrice * 0.68966 : 800;
+        result.customsValue = isDirectImport ? depreciatedPrice * 0.68966 : 800; // Template shows 800 for previously registered
         result.importDuty = 0;
         result.exciseValue = 0;
         result.exciseDuty = 0;
-        result.vatValue = 800;
+        result.vatValue = 800; // Both cases show 800 in template
         result.vat = result.vatValue * 0.16;
         result.rdl = result.vatValue * 0.0103;
         result.idfFees = result.vatValue * 0.0172;
@@ -223,74 +214,24 @@ export class MemStorage implements IStorage {
       result.totalTaxes = result.importDuty + result.exciseDuty + result.vat;
     }
 
-    // Build breakdown
-    result.breakdown = [];
-    
-    if (depreciationRate > 0) {
-      result.breakdown.push({
-        label: `Depreciation (${(depreciationRate * 100).toFixed(0)}%)`,
-        amount: -(vehicleValue - depreciatedPrice),
-        description: `${isDirectImport ? 'Direct import' : 'Previously registered'} vehicle ${vehicleAge} years old`
-      });
-    }
-
-    if (result.importDuty > 0) {
-      result.breakdown.push({
-        label: "Import Duty",
-        amount: result.importDuty,
-        description: "Customs duty on imported vehicles"
-      });
-    }
-
-    if (result.exciseDuty > 0) {
-      result.breakdown.push({
-        label: "Excise Duty",
-        amount: result.exciseDuty,
-        description: vehicleCategory === 'motorcycle' ? "Fixed excise duty for motorcycles" : "Excise tax based on vehicle type"
-      });
-    }
-
-    if (result.vat > 0) {
-      result.breakdown.push({
-        label: "VAT (16%)",
-        amount: result.vat,
-        description: "Value Added Tax"
-      });
-    }
-
-    if (isDirectImport) {
-      if (result.rdl > 0) {
-        result.breakdown.push({
-          label: "Railway Development Levy",
-          amount: result.rdl,
-          description: "RDL for infrastructure development"
-        });
-      }
-
-      if (result.idfFees > 0) {
-        result.breakdown.push({
-          label: "Import Declaration Fee",
-          amount: result.idfFees,
-          description: "IDF processing fee"
-        });
-      }
-    }
-
     // Round all values to 2 decimal places
     for (const key in result) {
-      if (typeof result[key as keyof DutyResult] === 'number') {
-        (result as any)[key] = Math.round((result as any)[key] * 100) / 100;
+      if (typeof result[key] === 'number') {
+        result[key] = Math.round(result[key] * 100) / 100;
       }
     }
-
-    // Round breakdown amounts
-    result.breakdown = result.breakdown.map(item => ({
-      ...item,
-      amount: Math.round(item.amount * 100) / 100
-    }));
 
     return result;
   }
 }
 
-export const storage = new MemStorage();
+// Example usage:
+const calculator = new KenyaVehicleValuation();
+
+// Calculate for a direct import under 1500cc, 3 years old, price 1,000,000 KES
+const result = calculator.calculateTaxes(1000000, 'under1500cc', true, 3);
+console.log(result);
+
+// Calculate for a previously registered over 1500cc, 5 years old, price 1,500,000 KES
+const result2 = calculator.calculateTaxes(1500000, 'over1500cc', false, 5);
+console.log(result2);

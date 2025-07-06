@@ -4,13 +4,12 @@ import { z } from "zod";
 
 export const vehicles = pgTable("vehicles", {
   id: serial("id").primaryKey(),
-  vehicleType: text("vehicle_type").notNull(),
+  vehicleCategory: text("vehicle_category").notNull(),
   vehicleValue: decimal("vehicle_value", { precision: 10, scale: 2 }).notNull(),
   engineSize: integer("engine_size").notNull(),
   vehicleAge: integer("vehicle_age").notNull(),
-  fuelType: text("fuel_type").notNull(),
-  state: text("state"),
-  usage: text("usage").notNull(),
+  isDirectImport: boolean("is_direct_import").notNull(),
+  fuelType: text("fuel_type"),
 });
 
 export const dutyRates = pgTable("duty_rates", {
@@ -22,31 +21,48 @@ export const dutyRates = pgTable("duty_rates", {
 });
 
 export const insertVehicleSchema = createInsertSchema(vehicles).pick({
-  vehicleType: true,
+  vehicleCategory: true,
   vehicleValue: true,
   engineSize: true,
   vehicleAge: true,
+  isDirectImport: true,
   fuelType: true,
-  state: true,
-  usage: true,
 });
 
 export const dutyCalculationSchema = z.object({
-  vehicleType: z.enum(["car", "motorcycle", "truck", "suv", "van", "bus"]),
+  vehicleCategory: z.enum([
+    "under1500cc",
+    "over1500cc",
+    "largeEngine",
+    "electric",
+    "schoolBus",
+    "primeMover",
+    "trailer",
+    "ambulance",
+    "motorcycle",
+    "specialPurpose",
+    "heavyMachinery"
+  ]),
   vehicleValue: z.number().min(0),
-  engineSize: z.number().min(0),
-  vehicleAge: z.number().min(0).max(20),
-  fuelType: z.enum(["gasoline", "diesel", "hybrid", "electric", "other"]),
-  state: z.string().optional(),
-  usage: z.enum(["personal", "commercial"]),
+  engineSize: z.number().min(0).optional(),
+  vehicleAge: z.number().min(0).max(50),
+  isDirectImport: z.boolean(),
+  fuelType: z.enum(["petrol", "diesel", "electric", "hybrid", "other"]).optional(),
 });
 
 export const dutyResultSchema = z.object({
-  baseFee: z.number(),
-  valueDuty: z.number(),
-  engineSurcharge: z.number(),
-  ageDiscount: z.number(),
-  totalDuty: z.number(),
+  currentRetailPrice: z.number(),
+  depreciationRate: z.number(),
+  depreciatedPrice: z.number(),
+  customsValue: z.number(),
+  importDuty: z.number(),
+  exciseValue: z.number(),
+  exciseDuty: z.number(),
+  vatValue: z.number(),
+  vat: z.number(),
+  rdl: z.number(),
+  idfFees: z.number(),
+  totalTaxes: z.number(),
   breakdown: z.array(z.object({
     label: z.string(),
     amount: z.number(),

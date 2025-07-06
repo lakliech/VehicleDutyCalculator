@@ -1,8 +1,8 @@
-# Vehicle Duty Calculator
+# Kenya Motor Vehicle Duty Calculator
 
 ## Overview
 
-This is a full-stack web application that calculates vehicle duty fees based on various vehicle parameters. The application features a modern React frontend with shadcn/ui components and an Express.js backend with PostgreSQL database integration using Drizzle ORM.
+This is a full-stack web application that calculates Kenya Revenue Authority (KRA) import duties and taxes for motor vehicles. The application implements the official KRA valuation formula for various vehicle categories, including depreciation rates for both direct imports and previously registered vehicles. The application features a modern React frontend with shadcn/ui components and an Express.js backend.
 
 ## System Architecture
 
@@ -30,27 +30,53 @@ This is a full-stack web application that calculates vehicle duty fees based on 
 ## Key Components
 
 ### Database Schema
-- **duty_rates**: Stores duty calculation rates by vehicle type
-- **vehicles**: Stores vehicle information (currently defined but not actively used)
+- **vehicles**: Stores vehicle information with Kenya-specific fields
+- **duty_rates**: Legacy table (not used in current Kenya implementation)
 
 ### API Endpoints
-- `GET /api/duty-rates` - Retrieve all duty rates
-- `GET /api/duty-rates/:vehicleType` - Get specific duty rate by vehicle type
-- `POST /api/calculate-duty` - Calculate duty fees for a vehicle
+- `POST /api/calculate-duty` - Calculate import duties and taxes for a vehicle using KRA formulas
 
 ### Frontend Components
-- **DutyCalculator**: Main page with form for duty calculation
-- **UI Components**: Comprehensive set of shadcn/ui components for consistent design
-- **Form Validation**: Zod schemas ensure data integrity
+- **DutyCalculator**: Main page with comprehensive form for Kenya vehicle duty calculation
+- **UI Components**: Comprehensive set of shadcn/ui components with Kenya-themed green color scheme
+- **Form Validation**: Zod schemas ensure data integrity for Kenya-specific requirements
+
+## Vehicle Categories
+The calculator supports all major Kenya vehicle import categories:
+- **Under 1500cc**: Standard vehicles with engine capacity below 1500cc
+- **Over 1500cc**: Vehicles with engine capacity 1500cc and above
+- **Large Engine**: Petrol >3000cc or Diesel >2500cc (higher tax rates)
+- **Electric**: Fully electric vehicles (reduced import duty and excise duty)
+- **School Bus**: Designated student transport vehicles
+- **Prime Mover**: Heavy duty truck heads
+- **Trailer**: Transport trailers
+- **Ambulance**: Emergency medical vehicles (no import duty)
+- **Motorcycle**: Two-wheeled vehicles (fixed excise duty)
+- **Special Purpose**: Specialized vehicles
+- **Heavy Machinery**: Construction and industrial equipment
+
+## Tax Components
+The calculator computes the following Kenya-specific taxes:
+1. **Import Duty**: Varies by vehicle type (0-35%)
+2. **Excise Duty**: Based on vehicle category (0-35%)
+3. **VAT**: 16% on the cumulative value
+4. **Railway Development Levy (RDL)**: For direct imports only
+5. **Import Declaration Fee (IDF)**: For direct imports only
+
+## Depreciation Rates
+The system implements official KRA depreciation rates:
+- **Direct Imports**: Progressive depreciation from 20% (1-2 years) to 65% (7-8 years)
+- **Previously Registered**: Higher depreciation from 20% (1 year) to 95% (over 15 years)
 
 ## Data Flow
 
-1. User fills out vehicle information form
-2. Form data is validated using Zod schemas
+1. User selects vehicle category and enters details (value, age, import type)
+2. Form data is validated using Kenya-specific Zod schemas
 3. Data is sent to backend API for duty calculation
-4. Backend retrieves appropriate duty rates from database
-5. Calculation is performed based on vehicle parameters
-6. Results are returned and displayed to user
+4. Backend applies depreciation based on vehicle age and import type
+5. Calculation is performed using KRA formulas for the specific vehicle category
+6. Results include customs value, all applicable taxes, and total payable amount
+7. Detailed breakdown is displayed showing each tax component
 
 ## External Dependencies
 
@@ -94,6 +120,7 @@ This is a full-stack web application that calculates vehicle duty fees based on 
 
 Changelog:
 - July 06, 2025. Initial setup
+- January 09, 2025. Converted to Kenya Motor Vehicle Duty Calculator using official KRA valuation formulas and tax rates
 
 ## User Preferences
 

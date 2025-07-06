@@ -149,6 +149,16 @@ export function generateDutyCalculationPDF(
     yPosition += 7;
   });
   
+  // Registration fees
+  if (result.registrationFees > 0) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.text("Registration Fees (Estimate)", marginLeft, yPosition);
+    doc.text("-", marginLeft + 100, yPosition);
+    doc.text(formatCurrency(result.registrationFees), marginLeft + 130, yPosition);
+    yPosition += 7;
+  }
+  
   // Total line
   doc.setLineWidth(0.3);
   doc.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
@@ -156,8 +166,8 @@ export function generateDutyCalculationPDF(
   
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.text("TOTAL TAXES PAYABLE", marginLeft, yPosition);
-  doc.text(formatCurrency(result.totalTaxes), marginLeft + 130, yPosition);
+  doc.text("TOTAL AMOUNT PAYABLE", marginLeft, yPosition);
+  doc.text(formatCurrency(result.totalPayable), marginLeft + 130, yPosition);
   yPosition += 15;
   
   // Footer

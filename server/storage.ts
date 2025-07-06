@@ -42,7 +42,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async calculateDuty(calculation: DutyCalculation): Promise<DutyResult> {
-    const { vehicleCategory, vehicleValue, vehicleAge, isDirectImport } = calculation;
+    const { vehicleCategory, vehicleValue, vehicleAge, isDirectImport, engineSize } = calculation;
 
     // Apply depreciation
     const depreciationRate = await this.getDepreciationRate(
@@ -78,6 +78,8 @@ export class DatabaseStorage implements IStorage {
       rdl: 0,
       idfFees: 0,
       totalTaxes: 0,
+      registrationFees: 0,
+      totalPayable: 0,
       breakdown: []
     };
 
@@ -122,12 +124,18 @@ export class DatabaseStorage implements IStorage {
       result.idfFees = 0;
     }
 
+    // Calculate registration fees based on engine size
+    result.registrationFees = engineSize < 2000 ? 10000 : 13000;
+
     // Calculate total taxes
     if (isDirectImport) {
       result.totalTaxes = result.importDuty + result.exciseDuty + result.vat + result.rdl + result.idfFees;
     } else {
       result.totalTaxes = result.importDuty + result.exciseDuty + result.vat;
     }
+
+    // Calculate total payable including registration fees
+    result.totalPayable = result.totalTaxes + result.registrationFees;
 
     // Build breakdown
     result.breakdown = [];
@@ -180,6 +188,15 @@ export class DatabaseStorage implements IStorage {
           description: "IDF processing fee"
         });
       }
+    }
+
+    // Add registration fees to breakdown
+    if (result.registrationFees > 0) {
+      result.breakdown.push({
+        label: "Registration Fees (Estimate)",
+        amount: result.registrationFees,
+        description: `Estimated registration fees for ${engineSize < 2000 ? 'vehicles below 2000cc' : 'vehicles 2000cc and above'}`
+      });
     }
 
     // Round all values to 2 decimal places

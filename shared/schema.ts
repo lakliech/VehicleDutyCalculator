@@ -126,6 +126,8 @@ export const dutyResultSchema = z.object({
   rdl: z.number(),
   idfFees: z.number(),
   totalTaxes: z.number(),
+  registrationFees: z.number(),
+  totalPayable: z.number(),
   breakdown: z.array(z.object({
     label: z.string(),
     amount: z.number(),

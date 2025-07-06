@@ -258,54 +258,7 @@ export default function DutyCalculator() {
                       </>
                     )}
 
-                    {/* Vehicle Category Selection - Hide when using database */}
-                    {!useVehicleDatabase && (
-                      <FormField
-                        control={form.control}
-                        name="vehicleCategory"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-3">
-                              <Car className="h-4 w-4 mr-2 text-green-600" />
-                              Vehicle Category
-                            </FormLabel>
-                            <FormControl>
-                              <RadioGroup
-                                value={field.value}
-                                onValueChange={field.onChange}
-                                className="grid grid-cols-2 gap-3"
-                              >
-                                {Object.entries(vehicleCategoryInfo).map(([key, info]) => {
-                                  const Icon = info.icon;
-                                  return (
-                                    <div key={key} className="relative">
-                                      <RadioGroupItem value={key} id={key} className="sr-only" />
-                                      <Label
-                                        htmlFor={key}
-                                        className={`border-2 rounded-lg p-3 cursor-pointer hover:border-green-300 transition-all ${
-                                          field.value === key
-                                            ? "border-green-600 bg-green-50"
-                                            : "border-gray-200"
-                                        }`}
-                                      >
-                                        <div className="flex items-start space-x-3">
-                                          <Icon className="h-5 w-5 text-gray-600 mt-0.5" />
-                                          <div className="flex-1">
-                                            <div className="text-sm font-medium text-gray-900">{info.label}</div>
-                                            <div className="text-xs text-gray-500 mt-0.5">{info.description}</div>
-                                          </div>
-                                        </div>
-                                      </Label>
-                                    </div>
-                                  );
-                                })}
-                              </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
+
 
                     {/* Vehicle Details */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -416,44 +369,42 @@ export default function DutyCalculator() {
                       )}
                     />
 
-                    {/* Engine Size - Required when using database */}
-                    {(useVehicleDatabase || ["under1500cc", "over1500cc", "largeEngine"].includes(form.watch("vehicleCategory"))) && (
-                      <FormField
-                        control={form.control}
-                        name="engineSize"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                              <Wrench className="h-4 w-4 mr-2 text-green-600" />
-                              Engine Size (cc) {useVehicleDatabase && <span className="text-red-500 ml-1">*</span>}
-                            </FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input
-                                  type="number"
-                                  {...field}
-                                  onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                                  className="pr-12"
-                                  placeholder="1500"
-                                  min="0"
-                                  step="50"
-                                />
-                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                  <span className="text-gray-500 sm:text-sm">cc</span>
-                                </div>
+                    {/* Engine Size - Always Required */}
+                    <FormField
+                      control={form.control}
+                      name="engineSize"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                            <Wrench className="h-4 w-4 mr-2 text-green-600" />
+                            Engine Size (cc) <span className="text-red-500 ml-1">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type="number"
+                                {...field}
+                                onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                                className="pr-12"
+                                placeholder="1500"
+                                min="0"
+                                step="50"
+                              />
+                              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span className="text-gray-500 sm:text-sm">cc</span>
                               </div>
-                            </FormControl>
-                            <FormDescription>
-                              {useVehicleDatabase ? "Enter engine size to determine vehicle category" : "Engine displacement in cubic centimeters"}
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
+                            </div>
+                          </FormControl>
+                          <FormDescription>
+                            Engine displacement in cubic centimeters - vehicle category will be auto-detected
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     {/* Auto-detected Category Display */}
-                    {useVehicleDatabase && engineSize && (
+                    {engineSize && (
                       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                         <div className="flex items-start space-x-2">
                           <Info className="h-5 w-5 text-blue-600 mt-0.5" />

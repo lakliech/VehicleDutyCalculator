@@ -124,6 +124,12 @@ The system implements official KRA depreciation rates:
 Changelog:
 - July 06, 2025. Initial setup
 - January 09, 2025. Converted to Kenya Motor Vehicle Duty Calculator using official KRA valuation formulas and tax rates
+- January 10, 2025. Updated vehicle selection flow:
+  - Removed manual vehicle category selection
+  - Made engine size required for all calculations
+  - Vehicle category now auto-detects based on engine size
+  - Fixed vehicle model dropdown issues
+  - Workflow: Select make/model from database → Enter engine size → Auto-calculate duty
 
 ## User Preferences
 

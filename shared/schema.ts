@@ -75,7 +75,7 @@ export const dutyCalculationSchema = z.object({
     "heavyMachinery"
   ]),
   vehicleValue: z.number().min(0),
-  engineSize: z.number().min(0).optional(),
+  engineSize: z.number().min(1, "Engine size is required"),
   vehicleAge: z.number().min(0).max(50),
   isDirectImport: z.boolean(),
   fuelType: z.enum(["petrol", "diesel", "electric", "hybrid", "other"]).optional(),

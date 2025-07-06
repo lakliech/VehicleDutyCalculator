@@ -62,12 +62,28 @@ The calculator supports all major Kenya vehicle import categories:
 - **Heavy Machinery**: Construction and industrial equipment
 
 ## Tax Components
-The calculator computes the following Kenya-specific taxes:
-1. **Import Duty**: Varies by vehicle type (0-35%)
-2. **Excise Duty**: Based on vehicle category (0-35%)
+The calculator computes the following Kenya-specific taxes (Updated per KRA official rates):
+1. **Import Duty**: 
+   - Under 1500cc: 35%
+   - 1500cc-3000cc (petrol) / 1500cc-2500cc (diesel): 35%
+   - Over 3000cc (petrol) / Over 2500cc (diesel): 35%
+   - Electric: 25%
+   - School Bus: 35%
+   - Prime Mover: 25%
+   - Trailer: 35%
+   - Ambulance: 0%
+2. **Excise Duty**: 
+   - Under 1500cc: 20%
+   - 1500cc-3000cc (petrol) / 1500cc-2500cc (diesel): 20%
+   - Over 3000cc (petrol) / Over 2500cc (diesel): 35%
+   - Electric: 10%
+   - School Bus: 25%
+   - Prime Mover: 0%
+   - Trailer: 0%
+   - Ambulance: 25%
 3. **VAT**: 16% on the cumulative value
-4. **Railway Development Levy (RDL)**: For direct imports only
-5. **Import Declaration Fee (IDF)**: For direct imports only
+4. **Railway Development Levy (RDL)**: 1.5% for direct imports only
+5. **Import Declaration Fee (IDF)**: 2.5% for direct imports only
 
 ## Depreciation Rates
 The system implements official KRA depreciation rates:
@@ -179,6 +195,12 @@ Changelog:
     - >=7 but <=8 years: 65% depreciation
   - Ensures vehicles aged exactly 7 years get 65% depreciation
   - Numeric comparisons prevent string sorting issues (e.g., "10" < "2")
+- January 10, 2025. Updated tax rates per official KRA template:
+  - Import Duty: All standard vehicles now 35% (except Electric 25%, Prime Mover 25%, Ambulance 0%)
+  - Excise Duty: Under 3000cc petrol/2500cc diesel now 20%, over these limits 35%
+  - Electric vehicles: 25% import duty, 10% excise duty
+  - Prime Movers and Trailers: 0% excise duty
+  - All rates updated to match KRA Motor Vehicle Valuation Template effective July 2023
 
 ## User Preferences
 

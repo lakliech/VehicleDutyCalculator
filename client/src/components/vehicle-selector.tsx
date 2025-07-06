@@ -5,18 +5,22 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Car, DollarSign, Settings, Fuel } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Car, DollarSign, Settings, Fuel, AlertCircle } from "lucide-react";
 import type { VehicleReference } from "@shared/schema";
 
 interface VehicleSelectorProps {
   onVehicleSelect: (vehicle: VehicleReference | null) => void;
+  onManualEngineSize?: (engineSize: number | null) => void;
 }
 
-export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
+export function VehicleSelector({ onVehicleSelect, onManualEngineSize }: VehicleSelectorProps) {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [selectedEngineSize, setSelectedEngineSize] = useState<string>("");
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
+  const [manualEngineSize, setManualEngineSize] = useState<string>("");
+  const [useManualEngine, setUseManualEngine] = useState<boolean>(false);
 
   // Fetch all makes
   const { data: makes = [], isLoading: makesLoading } = useQuery<string[]>({
@@ -40,18 +44,61 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
   // Search for specific vehicle
   const { data: vehicleDetails = [] } = useQuery<VehicleReference[]>({
     queryKey: [`/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}&engineCapacity=${selectedEngineSize}`],
-    enabled: !!selectedMake && !!selectedModel && !!selectedEngineSize,
+    enabled: !!selectedMake && !!selectedModel && (!!selectedEngineSize || (useManualEngine && !!manualEngineSize)),
   });
+
+  // Check if we need manual engine input when engine sizes load
+  useEffect(() => {
+    if (!engineSizesLoading && engineSizes.length === 0 && selectedModel) {
+      setUseManualEngine(true);
+    } else if (engineSizes.length > 0) {
+      setUseManualEngine(false);
+      setManualEngineSize("");
+    }
+  }, [engineSizes, engineSizesLoading, selectedModel]);
 
   useEffect(() => {
     if (vehicleDetails.length === 1) {
-      setSelectedVehicle(vehicleDetails[0]);
-      onVehicleSelect(vehicleDetails[0]);
+      const vehicle = vehicleDetails[0];
+      // If using manual engine size, add it to the vehicle object
+      if (useManualEngine && manualEngineSize) {
+        const vehicleWithEngine = {
+          ...vehicle,
+          engineCapacity: parseInt(manualEngineSize)
+        };
+        setSelectedVehicle(vehicleWithEngine);
+        onVehicleSelect(vehicleWithEngine);
+      } else {
+        setSelectedVehicle(vehicle);
+        onVehicleSelect(vehicle);
+      }
+    } else if (vehicleDetails.length === 0 && selectedMake && selectedModel && useManualEngine && manualEngineSize) {
+      // For vehicles without engine capacity in DB, find by make and model only
+      const searchQuery = `/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}`;
+      fetch(searchQuery)
+        .then(res => res.json())
+        .then(vehicles => {
+          if (vehicles.length === 1) {
+            const vehicleWithEngine = {
+              ...vehicles[0],
+              engineCapacity: parseInt(manualEngineSize)
+            };
+            setSelectedVehicle(vehicleWithEngine);
+            onVehicleSelect(vehicleWithEngine);
+          }
+        });
     } else {
       setSelectedVehicle(null);
       onVehicleSelect(null);
     }
-  }, [vehicleDetails, onVehicleSelect]);
+  }, [vehicleDetails, onVehicleSelect, useManualEngine, manualEngineSize, selectedMake, selectedModel]);
+
+  // Notify parent when manual engine size changes
+  useEffect(() => {
+    if (onManualEngineSize) {
+      onManualEngineSize(manualEngineSize ? parseInt(manualEngineSize) : null);
+    }
+  }, [manualEngineSize, onManualEngineSize]);
 
   const handleMakeChange = (make: string) => {
     setSelectedMake(make);
@@ -64,6 +111,8 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
     setSelectedModel(value);
     setSelectedEngineSize("");
     setSelectedVehicle(null);
+    setManualEngineSize("");
+    setUseManualEngine(false);
   };
 
   const handleEngineSizeChange = (engineSize: string) => {
@@ -130,26 +179,47 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
             <Settings className="h-4 w-4 mr-2 text-green-600" />
             Engine Size
           </Label>
-          <Select 
-            value={selectedEngineSize} 
-            onValueChange={handleEngineSizeChange}
-            disabled={!selectedModel}
-          >
-            <SelectTrigger id="engineSize">
-              <SelectValue placeholder={
-                !selectedModel ? "Select a model first" : 
-                engineSizesLoading ? "Loading..." : 
-                "Select engine size"
-              } />
-            </SelectTrigger>
-            <SelectContent>
-              {engineSizes.map((size: number) => (
-                <SelectItem key={`engine-${size}`} value={size.toString()}>
-                  {size}cc
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {useManualEngine ? (
+            <div className="space-y-2">
+              <Input
+                id="manualEngineSize"
+                type="number"
+                value={manualEngineSize}
+                onChange={(e) => setManualEngineSize(e.target.value)}
+                placeholder="Enter engine size in cc"
+                className="w-full"
+                min="0"
+                step="100"
+              />
+              <Alert className="p-2 bg-amber-50 border-amber-200">
+                <AlertCircle className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="text-sm text-amber-800 ml-2">
+                  No engine sizes found in database. Please enter manually.
+                </AlertDescription>
+              </Alert>
+            </div>
+          ) : (
+            <Select 
+              value={selectedEngineSize} 
+              onValueChange={handleEngineSizeChange}
+              disabled={!selectedModel}
+            >
+              <SelectTrigger id="engineSize">
+                <SelectValue placeholder={
+                  !selectedModel ? "Select a model first" : 
+                  engineSizesLoading ? "Loading..." : 
+                  "Select engine size"
+                } />
+              </SelectTrigger>
+              <SelectContent>
+                {engineSizes.map((size: number) => (
+                  <SelectItem key={`engine-${size}`} value={size.toString()}>
+                    {size}cc
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </div>
 

@@ -118,6 +118,7 @@ export default function DutyCalculator() {
   const [useManualCategory, setUseManualCategory] = useState<boolean>(false);
   const [categoryConflict, setCategoryConflict] = useState<string | null>(null);
   const [yearOfManufacture, setYearOfManufacture] = useState<number>(0); // 0 means not selected
+  const [manualEngineSize, setManualEngineSize] = useState<number | null>(null);
   
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
@@ -141,6 +142,7 @@ export default function DutyCalculator() {
       // Set engine size from selected vehicle
       if (vehicle.engineCapacity) {
         form.setValue('engineSize', vehicle.engineCapacity);
+        setManualEngineSize(null); // Clear manual engine size when vehicle has capacity
       }
       
       // Auto-fill fuel type if available
@@ -154,6 +156,14 @@ export default function DutyCalculator() {
         const mappedFuel = fuelMap[vehicle.fuelType.toLowerCase()] || 'other';
         form.setValue('fuelType', mappedFuel as any);
       }
+    }
+  };
+
+  // Handle manual engine size input
+  const handleManualEngineSize = (engineSize: number | null) => {
+    setManualEngineSize(engineSize);
+    if (engineSize) {
+      form.setValue('engineSize', engineSize);
     }
   };
 
@@ -452,7 +462,10 @@ export default function DutyCalculator() {
                             Select from over 2,800 vehicles with current market prices
                           </p>
                         </div>
-                        <VehicleSelector onVehicleSelect={handleVehicleSelect} />
+                        <VehicleSelector 
+                          onVehicleSelect={handleVehicleSelect} 
+                          onManualEngineSize={handleManualEngineSize}
+                        />
                       </div>
 
                       {/* Year of Manufacture */}

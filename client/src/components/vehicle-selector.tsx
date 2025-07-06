@@ -61,9 +61,7 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
   };
 
   const handleModelChange = (value: string) => {
-    // Extract the actual model name from the value (format: "index|modelName")
-    const modelName = value.split('|')[1] || value;
-    setSelectedModel(modelName);
+    setSelectedModel(value);
     setSelectedEngineSize("");
     setSelectedVehicle(null);
   };
@@ -118,8 +116,8 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
               } />
             </SelectTrigger>
             <SelectContent>
-              {models.map((model: any, index: number) => (
-                <SelectItem key={`model-${index}`} value={`${index}|${model.model}`}>
+              {models.map((model: any) => (
+                <SelectItem key={`model-${model.model}`} value={model.model}>
                   <span>{model.model}</span>
                 </SelectItem>
               ))}
@@ -145,8 +143,8 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
               } />
             </SelectTrigger>
             <SelectContent>
-              {engineSizes.map((size: number, index: number) => (
-                <SelectItem key={`engine-${index}`} value={size.toString()}>
+              {engineSizes.map((size: number) => (
+                <SelectItem key={`engine-${size}`} value={size.toString()}>
                   {size}cc
                 </SelectItem>
               ))}

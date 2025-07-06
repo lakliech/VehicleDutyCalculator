@@ -350,42 +350,6 @@ export default function DutyCalculator() {
                       )}
                     </div>
 
-                    <Separator />
-
-                    {/* Engine Size - Separate from selections */}
-                    <FormField
-                      control={form.control}
-                      name="engineSize"
-                      render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                              <Wrench className="h-4 w-4 mr-2 text-green-600" />
-                              Engine Size (cc) <span className="text-red-500 ml-1">*</span>
-                            </FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input
-                                  type="number"
-                                  {...field}
-                                  onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                                  className="pr-12"
-                                  placeholder="1500"
-                                  min="0"
-                                  step="50"
-                                />
-                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                  <span className="text-gray-500 sm:text-sm">cc</span>
-                                </div>
-                              </div>
-                            </FormControl>
-                            <FormDescription>
-                              Engine displacement in cubic centimeters - vehicle category will be auto-detected
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
                     {/* Auto-detected Category Display */}
                     {engineSize && (
                       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">

@@ -282,10 +282,10 @@ export default function DutyCalculator() {
                           <FormItem>
                             <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-2">
                               <DollarSign className="h-4 w-4 mr-2 text-green-600" />
-                              Current Retail Selling Price (KES)
-                              {selectedVehicle && (
+                              {useVehicleDatabase ? "Current Retail Selling Price (CRSP)" : "Vehicle Value (KES)"}
+                              {useVehicleDatabase && (
                                 <Badge variant="secondary" className="ml-2 bg-green-100 text-green-800">
-                                  From Database
+                                  Database Only
                                 </Badge>
                               )}
                             </FormLabel>
@@ -302,14 +302,16 @@ export default function DutyCalculator() {
                                   placeholder="1,000,000"
                                   min="0"
                                   step="1000"
-                                  disabled={useVehicleDatabase && selectedVehicle !== null}
+                                  disabled={useVehicleDatabase}
                                 />
                               </div>
                             </FormControl>
                             <FormDescription>
-                              {selectedVehicle 
-                                ? `Using ${selectedVehicle.make} ${selectedVehicle.model} market price`
-                                : "Enter the current market value of the vehicle"
+                              {useVehicleDatabase 
+                                ? (selectedVehicle 
+                                  ? `CRSP from database: ${selectedVehicle.make} ${selectedVehicle.model}`
+                                  : "CRSP will be automatically loaded from database after vehicle selection")
+                                : "Enter the estimated value of the vehicle for duty calculation"
                               }
                             </FormDescription>
                             <FormMessage />

@@ -152,6 +152,10 @@ Changelog:
   - Created vehicle_category_rules table for automatic category detection
   - Updated DatabaseStorage to fetch rates from database instead of hardcoded values
   - Allows dynamic configuration of tax rates without code changes
+- January 10, 2025. Added Nexa logo to frontend:
+  - Integrated Nexa company logo in the header
+  - Responsive design: Full logo with title on desktop, compact view on mobile
+  - Professional branding with "discover what is possible" tagline
 
 ## User Preferences
 

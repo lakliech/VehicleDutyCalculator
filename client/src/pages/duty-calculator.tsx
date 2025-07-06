@@ -19,6 +19,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { generateDutyCalculationPDF } from "@/lib/pdf-generator";
 import { dutyCalculationSchema, type DutyCalculation, type DutyResult, type VehicleReference } from "@shared/schema";
 import { VehicleSelector } from "@/components/vehicle-selector";
+import nexaLogo from "@assets/nexalogo_1751834730316.png";
 import { 
   Calculator, 
   Car, 
@@ -214,20 +215,25 @@ export default function DutyCalculator() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <div className="bg-green-600 p-2 rounded-lg">
-                <Calculator className="h-6 w-6 text-white" />
+          <div className="flex items-center justify-between h-20 py-2">
+            <div className="flex items-center space-x-3 sm:space-x-6">
+              <img 
+                src={nexaLogo} 
+                alt="Nexa Logo" 
+                className="h-10 sm:h-12 w-auto"
+              />
+              <div className="hidden sm:block border-l border-gray-300 pl-6">
+                <h1 className="text-xl font-semibold text-gray-900">Motor Vehicle Duty Calculator</h1>
+                <p className="text-sm text-gray-500">Calculate Kenya import duties and taxes</p>
               </div>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">Kenya Motor Vehicle Duty Calculator</h1>
-                <p className="text-sm text-gray-500">Calculate import duties and taxes for vehicles</p>
+              <div className="sm:hidden">
+                <h1 className="text-base font-semibold text-gray-900">Duty Calculator</h1>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-4">
               <Badge variant="secondary" className="bg-green-100 text-green-800">
                 <Shield className="h-3 w-3 mr-1" />
-                Official Rates
+                KRA Official Rates
               </Badge>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import type { DutyResult, VehicleReference } from '@shared/schema';
+import nexaLogo from '@assets/nexalogo_1751834730316.png';
 
 export function generateDutyCalculationPDF(
   result: DutyResult,
@@ -30,13 +31,19 @@ export function generateDutyCalculationPDF(
     doc.text(text, x, y);
   };
 
+  // Add Nexa Logo
+  const logoWidth = 50;
+  const logoHeight = 20;
+  const logoX = (pageWidth - logoWidth) / 2;
+  doc.addImage(nexaLogo, 'PNG', logoX, 10, logoWidth, logoHeight);
+  
   // Title
   doc.setFont("helvetica", "bold");
-  addCenteredText("KENYA MOTOR VEHICLE DUTY CALCULATION", 20, 16);
+  addCenteredText("KENYA MOTOR VEHICLE DUTY CALCULATION", 40, 16);
   
   // Subtitle
   doc.setFont("helvetica", "normal");
-  addCenteredText("Kenya Revenue Authority (KRA) Import Duty Assessment", 30, 10);
+  addCenteredText("Kenya Revenue Authority (KRA) Import Duty Assessment", 50, 10);
   
   // Date
   const currentDate = new Date().toLocaleDateString('en-KE', {
@@ -45,13 +52,13 @@ export function generateDutyCalculationPDF(
     day: 'numeric'
   });
   doc.setFontSize(10);
-  doc.text(`Report Date: ${currentDate}`, marginLeft, 40);
+  doc.text(`Report Date: ${currentDate}`, marginLeft, 60);
   
   // Line separator
   doc.setLineWidth(0.5);
-  doc.line(marginLeft, 45, pageWidth - marginRight, 45);
+  doc.line(marginLeft, 65, pageWidth - marginRight, 65);
   
-  let yPosition = 55;
+  let yPosition = 75;
   
   // Vehicle Information Section
   doc.setFont("helvetica", "bold");

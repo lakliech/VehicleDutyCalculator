@@ -30,13 +30,13 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
     fuelType: string | null;
     crspKes: string | null;
   }[]>({
-    queryKey: ["/api/vehicle-references/makes", selectedMake, "models"],
+    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models`],
     enabled: !!selectedMake,
   });
 
   // Search for specific vehicle
   const { data: vehicleDetails = [] } = useQuery<VehicleReference[]>({
-    queryKey: ["/api/vehicle-references/search", { make: selectedMake, model: selectedModel }],
+    queryKey: [`/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}`],
     enabled: !!selectedMake && !!selectedModel,
   });
 
@@ -56,8 +56,10 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
     setSelectedVehicle(null);
   };
 
-  const handleModelChange = (model: string) => {
-    setSelectedModel(model);
+  const handleModelChange = (value: string) => {
+    // Extract the actual model name from the value (format: "index|modelName")
+    const modelName = value.split('|')[1] || value;
+    setSelectedModel(modelName);
   };
 
   const formatCurrency = (amount: string | number | null) => {
@@ -107,7 +109,7 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
             </SelectTrigger>
             <SelectContent>
               {models.map((model: any, index: number) => (
-                <SelectItem key={`model-${index}-${model.model}`} value={model.model}>
+                <SelectItem key={`model-${index}`} value={`${index}|${model.model}`}>
                   <div className="flex items-center justify-between w-full">
                     <span>{model.model}</span>
                     {model.engineCapacity && (

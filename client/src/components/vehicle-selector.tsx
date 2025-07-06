@@ -79,8 +79,8 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
               <SelectValue placeholder={makesLoading ? "Loading..." : "Select a make"} />
             </SelectTrigger>
             <SelectContent>
-              {makes.map((make: string) => (
-                <SelectItem key={make} value={make}>
+              {makes.map((make: string, index: number) => (
+                <SelectItem key={`make-${index}-${make}`} value={make}>
                   {make}
                 </SelectItem>
               ))}
@@ -106,8 +106,8 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
               } />
             </SelectTrigger>
             <SelectContent>
-              {models.map((model: any) => (
-                <SelectItem key={model.model} value={model.model}>
+              {models.map((model: any, index: number) => (
+                <SelectItem key={`model-${index}-${model.model}`} value={model.model}>
                   <div className="flex items-center justify-between w-full">
                     <span>{model.model}</span>
                     {model.engineCapacity && (

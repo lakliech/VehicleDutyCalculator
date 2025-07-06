@@ -45,6 +45,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
 
         await storage.saveCalculation(vehicleData, calculationData);
+        console.log("Calculation saved successfully");
       } catch (saveError) {
         console.error("Failed to save calculation:", saveError);
         // Continue without failing the request

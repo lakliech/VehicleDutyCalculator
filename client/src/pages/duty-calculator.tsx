@@ -174,6 +174,17 @@ export default function DutyCalculator() {
   });
 
   const onSubmit = (data: DutyCalculation) => {
+    // Add vehicle reference info if using database
+    const submissionData = {
+      ...data,
+      vehicleReference: selectedVehicle && useVehicleDatabase ? {
+        make: selectedVehicle.make,
+        model: selectedVehicle.model,
+        engineCapacity: selectedVehicle.engineCapacity,
+        bodyType: selectedVehicle.bodyType,
+        fuelType: selectedVehicle.fuelType
+      } : undefined
+    };
     calculateDutyMutation.mutate(data);
   };
 
@@ -300,6 +311,11 @@ export default function DutyCalculator() {
                             <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-2">
                               <DollarSign className="h-4 w-4 mr-2 text-green-600" />
                               Current Retail Selling Price (KES)
+                              {selectedVehicle && (
+                                <Badge variant="secondary" className="ml-2 bg-green-100 text-green-800">
+                                  From Database
+                                </Badge>
+                              )}
                             </FormLabel>
                             <FormControl>
                               <div className="relative">
@@ -314,10 +330,16 @@ export default function DutyCalculator() {
                                   placeholder="1,000,000"
                                   min="0"
                                   step="1000"
+                                  disabled={useVehicleDatabase && selectedVehicle !== null}
                                 />
                               </div>
                             </FormControl>
-                            <FormDescription>Enter the current market value of the vehicle</FormDescription>
+                            <FormDescription>
+                              {selectedVehicle 
+                                ? `Using ${selectedVehicle.make} ${selectedVehicle.model} market price`
+                                : "Enter the current market value of the vehicle"
+                              }
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -506,6 +528,13 @@ export default function DutyCalculator() {
                     <div className="text-2xl font-bold text-green-900">
                       {formatCurrency(calculationResult.totalTaxes)}
                     </div>
+                    {selectedVehicle && useVehicleDatabase && (
+                      <div className="mt-3 pt-3 border-t border-green-200">
+                        <p className="text-xs text-green-700">
+                          Calculated for: <span className="font-medium">{selectedVehicle.make} {selectedVehicle.model}</span>
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Value Summary */}

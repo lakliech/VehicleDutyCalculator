@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -118,27 +118,12 @@ export default function DutyCalculator() {
   const handleVehicleSelect = (vehicle: VehicleReference | null) => {
     setSelectedVehicle(vehicle);
     if (vehicle && vehicle.crspKes) {
-      // Update form with vehicle data
+      // Update form with vehicle CRSP only
       const crspValue = typeof vehicle.crspKes === 'string' ? parseFloat(vehicle.crspKes) : vehicle.crspKes;
       form.setValue('vehicleValue', crspValue);
       
-      // Update engine size if available
-      if (vehicle.engineCapacity) {
-        form.setValue('engineSize', vehicle.engineCapacity);
-        
-        // Auto-detect vehicle category based on engine size
-        if (vehicle.engineCapacity < 1500) {
-          form.setValue('vehicleCategory', 'under1500cc');
-        } else if (vehicle.engineCapacity >= 3000 && vehicle.fuelType?.toLowerCase() === 'petrol') {
-          form.setValue('vehicleCategory', 'largeEngine');
-        } else if (vehicle.engineCapacity >= 2500 && vehicle.fuelType?.toLowerCase() === 'diesel') {
-          form.setValue('vehicleCategory', 'largeEngine');
-        } else {
-          form.setValue('vehicleCategory', 'over1500cc');
-        }
-      }
-      
-      // Update fuel type if available
+      // Do NOT auto-fill engine size - user must select it manually
+      // Only auto-fill fuel type if available
       if (vehicle.fuelType) {
         const fuelMap: Record<string, string> = {
           'petrol': 'petrol',
@@ -151,6 +136,25 @@ export default function DutyCalculator() {
       }
     }
   };
+
+  // Watch engine size changes to auto-update vehicle category
+  const engineSize = form.watch('engineSize');
+  const fuelType = form.watch('fuelType');
+  
+  useEffect(() => {
+    if (engineSize) {
+      // Auto-detect vehicle category based on engine size
+      if (engineSize < 1500) {
+        form.setValue('vehicleCategory', 'under1500cc');
+      } else if (engineSize >= 3000 && fuelType === 'petrol') {
+        form.setValue('vehicleCategory', 'largeEngine');
+      } else if (engineSize >= 2500 && fuelType === 'diesel') {
+        form.setValue('vehicleCategory', 'largeEngine');
+      } else {
+        form.setValue('vehicleCategory', 'over1500cc');
+      }
+    }
+  }, [engineSize, fuelType, form]);
 
   const calculateDutyMutation = useMutation({
     mutationFn: async (data: DutyCalculation) => {
@@ -254,52 +258,54 @@ export default function DutyCalculator() {
                       </>
                     )}
 
-                    {/* Vehicle Category Selection */}
-                    <FormField
-                      control={form.control}
-                      name="vehicleCategory"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-3">
-                            <Car className="h-4 w-4 mr-2 text-green-600" />
-                            Vehicle Category
-                          </FormLabel>
-                          <FormControl>
-                            <RadioGroup
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              className="grid grid-cols-2 gap-3"
-                            >
-                              {Object.entries(vehicleCategoryInfo).map(([key, info]) => {
-                                const Icon = info.icon;
-                                return (
-                                  <div key={key} className="relative">
-                                    <RadioGroupItem value={key} id={key} className="sr-only" />
-                                    <Label
-                                      htmlFor={key}
-                                      className={`border-2 rounded-lg p-3 cursor-pointer hover:border-green-300 transition-all ${
-                                        field.value === key
-                                          ? "border-green-600 bg-green-50"
-                                          : "border-gray-200"
-                                      }`}
-                                    >
-                                      <div className="flex items-start space-x-3">
-                                        <Icon className="h-5 w-5 text-gray-600 mt-0.5" />
-                                        <div className="flex-1">
-                                          <div className="text-sm font-medium text-gray-900">{info.label}</div>
-                                          <div className="text-xs text-gray-500 mt-0.5">{info.description}</div>
+                    {/* Vehicle Category Selection - Hide when using database */}
+                    {!useVehicleDatabase && (
+                      <FormField
+                        control={form.control}
+                        name="vehicleCategory"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-3">
+                              <Car className="h-4 w-4 mr-2 text-green-600" />
+                              Vehicle Category
+                            </FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                className="grid grid-cols-2 gap-3"
+                              >
+                                {Object.entries(vehicleCategoryInfo).map(([key, info]) => {
+                                  const Icon = info.icon;
+                                  return (
+                                    <div key={key} className="relative">
+                                      <RadioGroupItem value={key} id={key} className="sr-only" />
+                                      <Label
+                                        htmlFor={key}
+                                        className={`border-2 rounded-lg p-3 cursor-pointer hover:border-green-300 transition-all ${
+                                          field.value === key
+                                            ? "border-green-600 bg-green-50"
+                                            : "border-gray-200"
+                                        }`}
+                                      >
+                                        <div className="flex items-start space-x-3">
+                                          <Icon className="h-5 w-5 text-gray-600 mt-0.5" />
+                                          <div className="flex-1">
+                                            <div className="text-sm font-medium text-gray-900">{info.label}</div>
+                                            <div className="text-xs text-gray-500 mt-0.5">{info.description}</div>
+                                          </div>
                                         </div>
-                                      </div>
-                                    </Label>
-                                  </div>
-                                );
-                              })}
-                            </RadioGroup>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                                      </Label>
+                                    </div>
+                                  );
+                                })}
+                              </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
 
                     {/* Vehicle Details */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -410,15 +416,16 @@ export default function DutyCalculator() {
                       )}
                     />
 
-                    {/* Optional Engine Size */}
-                    {["under1500cc", "over1500cc", "largeEngine"].includes(form.watch("vehicleCategory")) && (
+                    {/* Engine Size - Required when using database */}
+                    {(useVehicleDatabase || ["under1500cc", "over1500cc", "largeEngine"].includes(form.watch("vehicleCategory"))) && (
                       <FormField
                         control={form.control}
                         name="engineSize"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-sm font-medium text-gray-700 mb-2">
-                              Engine Size (cc) - Optional
+                            <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                              <Wrench className="h-4 w-4 mr-2 text-green-600" />
+                              Engine Size (cc) {useVehicleDatabase && <span className="text-red-500 ml-1">*</span>}
                             </FormLabel>
                             <FormControl>
                               <div className="relative">
@@ -436,10 +443,28 @@ export default function DutyCalculator() {
                                 </div>
                               </div>
                             </FormControl>
+                            <FormDescription>
+                              {useVehicleDatabase ? "Enter engine size to determine vehicle category" : "Engine displacement in cubic centimeters"}
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
+                    )}
+
+                    {/* Auto-detected Category Display */}
+                    {useVehicleDatabase && engineSize && (
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-start space-x-2">
+                          <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-blue-900">Auto-detected Category</p>
+                            <p className="text-sm text-blue-700 mt-1">
+                              Based on {engineSize}cc engine: <span className="font-semibold">{vehicleCategoryInfo[form.watch('vehicleCategory')].label}</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     )}
 
                     {/* Optional Fuel Type */}

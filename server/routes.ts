@@ -77,30 +77,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Search vehicle references
   app.get("/api/vehicle-references/search", async (req, res) => {
     try {
-      const { make, model, limit = "20" } = req.query;
+      const { make, model, engineCapacity, limit = "20" } = req.query;
       
       // Build base query
-      let results;
+      let whereConditions = [];
       
-      if (make && model && typeof make === 'string' && typeof model === 'string') {
+      if (make && typeof make === 'string') {
+        whereConditions.push(sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`);
+      }
+      
+      if (model && typeof model === 'string') {
+        whereConditions.push(sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`);
+      }
+      
+      if (engineCapacity && typeof engineCapacity === 'string') {
+        whereConditions.push(sql`${vehicleReferences.engineCapacity} = ${parseInt(engineCapacity)}`);
+      }
+      
+      let results;
+      if (whereConditions.length > 0) {
+        const whereClause = sql.join(whereConditions, sql` AND `);
         results = await db
           .select()
           .from(vehicleReferences)
-          .where(sql`LOWER(${vehicleReferences.make}) LIKE LOWER(${`%${make}%`}) AND LOWER(${vehicleReferences.model}) LIKE LOWER(${`%${model}%`})`)
-          .orderBy(vehicleReferences.make, vehicleReferences.model)
-          .limit(parseInt(limit as string));
-      } else if (make && typeof make === 'string') {
-        results = await db
-          .select()
-          .from(vehicleReferences)
-          .where(sql`LOWER(${vehicleReferences.make}) LIKE LOWER(${`%${make}%`})`)
-          .orderBy(vehicleReferences.make, vehicleReferences.model)
-          .limit(parseInt(limit as string));
-      } else if (model && typeof model === 'string') {
-        results = await db
-          .select()
-          .from(vehicleReferences)
-          .where(sql`LOWER(${vehicleReferences.model}) LIKE LOWER(${`%${model}%`})`)
+          .where(whereClause)
           .orderBy(vehicleReferences.make, vehicleReferences.model)
           .limit(parseInt(limit as string));
       } else {
@@ -142,12 +142,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { make } = req.params;
       const results = await db
-        .select({ 
-          model: vehicleReferences.model,
-          engineCapacity: vehicleReferences.engineCapacity,
-          bodyType: vehicleReferences.bodyType,
-          fuelType: vehicleReferences.fuelType,
-          crspKes: vehicleReferences.crspKes
+        .selectDistinct({ 
+          model: vehicleReferences.model
         })
         .from(vehicleReferences)
         .where(sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`)
@@ -158,6 +154,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Failed to fetch models for make:", error);
       res.status(500).json({ 
         error: "Failed to fetch models" 
+      });
+    }
+  });
+
+  // Get engine sizes for a specific make and model
+  app.get("/api/vehicle-references/makes/:make/models/:model/engines", async (req, res) => {
+    try {
+      const { make, model } = req.params;
+      const results = await db
+        .selectDistinct({ 
+          engineCapacity: vehicleReferences.engineCapacity
+        })
+        .from(vehicleReferences)
+        .where(
+          sql`LOWER(${vehicleReferences.make}) = LOWER(${make}) 
+          AND LOWER(${vehicleReferences.model}) = LOWER(${model})
+          AND ${vehicleReferences.engineCapacity} IS NOT NULL`
+        )
+        .orderBy(vehicleReferences.engineCapacity);
+        
+      res.json(results.map(r => r.engineCapacity).filter(Boolean));
+    } catch (error) {
+      console.error("Failed to fetch engine sizes:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch engine sizes" 
       });
     }
   });

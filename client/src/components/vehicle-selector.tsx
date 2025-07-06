@@ -15,6 +15,7 @@ interface VehicleSelectorProps {
 export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
+  const [selectedEngineSize, setSelectedEngineSize] = useState<string>("");
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
 
   // Fetch all makes
@@ -25,19 +26,21 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
   // Fetch models for selected make
   const { data: models = [], isLoading: modelsLoading } = useQuery<{
     model: string;
-    engineCapacity: number | null;
-    bodyType: string | null;
-    fuelType: string | null;
-    crspKes: string | null;
   }[]>({
     queryKey: [`/api/vehicle-references/makes/${selectedMake}/models`],
     enabled: !!selectedMake,
   });
 
+  // Fetch engine sizes for selected make and model
+  const { data: engineSizes = [], isLoading: engineSizesLoading } = useQuery<number[]>({
+    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/engines`],
+    enabled: !!selectedMake && !!selectedModel,
+  });
+
   // Search for specific vehicle
   const { data: vehicleDetails = [] } = useQuery<VehicleReference[]>({
-    queryKey: [`/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}`],
-    enabled: !!selectedMake && !!selectedModel,
+    queryKey: [`/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}&engineCapacity=${selectedEngineSize}`],
+    enabled: !!selectedMake && !!selectedModel && !!selectedEngineSize,
   });
 
   useEffect(() => {
@@ -53,6 +56,7 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
   const handleMakeChange = (make: string) => {
     setSelectedMake(make);
     setSelectedModel("");
+    setSelectedEngineSize("");
     setSelectedVehicle(null);
   };
 
@@ -60,6 +64,12 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
     // Extract the actual model name from the value (format: "index|modelName")
     const modelName = value.split('|')[1] || value;
     setSelectedModel(modelName);
+    setSelectedEngineSize("");
+    setSelectedVehicle(null);
+  };
+
+  const handleEngineSizeChange = (engineSize: string) => {
+    setSelectedEngineSize(engineSize);
   };
 
   const formatCurrency = (amount: string | number | null) => {
@@ -110,14 +120,34 @@ export function VehicleSelector({ onVehicleSelect }: VehicleSelectorProps) {
             <SelectContent>
               {models.map((model: any, index: number) => (
                 <SelectItem key={`model-${index}`} value={`${index}|${model.model}`}>
-                  <div className="flex items-center justify-between w-full">
-                    <span>{model.model}</span>
-                    {model.engineCapacity && (
-                      <Badge variant="secondary" className="ml-2">
-                        {model.engineCapacity}cc
-                      </Badge>
-                    )}
-                  </div>
+                  <span>{model.model}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="engineSize" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+            <Settings className="h-4 w-4 mr-2 text-green-600" />
+            Engine Size
+          </Label>
+          <Select 
+            value={selectedEngineSize} 
+            onValueChange={handleEngineSizeChange}
+            disabled={!selectedModel}
+          >
+            <SelectTrigger id="engineSize">
+              <SelectValue placeholder={
+                !selectedModel ? "Select a model first" : 
+                engineSizesLoading ? "Loading..." : 
+                "Select engine size"
+              } />
+            </SelectTrigger>
+            <SelectContent>
+              {engineSizes.map((size: number, index: number) => (
+                <SelectItem key={`engine-${index}`} value={size.toString()}>
+                  {size}cc
                 </SelectItem>
               ))}
             </SelectContent>

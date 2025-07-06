@@ -102,6 +102,8 @@ export default function DutyCalculator() {
   const [useVehicleDatabase, setUseVehicleDatabase] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
 
+  const [yearOfManufacture, setYearOfManufacture] = useState<number>(new Date().getFullYear());
+  
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
     defaultValues: {
@@ -118,12 +120,16 @@ export default function DutyCalculator() {
   const handleVehicleSelect = (vehicle: VehicleReference | null) => {
     setSelectedVehicle(vehicle);
     if (vehicle && vehicle.crspKes) {
-      // Update form with vehicle CRSP only
+      // Update form with vehicle data
       const crspValue = typeof vehicle.crspKes === 'string' ? parseFloat(vehicle.crspKes) : vehicle.crspKes;
       form.setValue('vehicleValue', crspValue);
       
-      // Do NOT auto-fill engine size - user must select it manually
-      // Only auto-fill fuel type if available
+      // Set engine size from selected vehicle
+      if (vehicle.engineCapacity) {
+        form.setValue('engineSize', vehicle.engineCapacity);
+      }
+      
+      // Auto-fill fuel type if available
       if (vehicle.fuelType) {
         const fuelMap: Record<string, string> = {
           'petrol': 'petrol',
@@ -155,6 +161,13 @@ export default function DutyCalculator() {
       }
     }
   }, [engineSize, fuelType, form]);
+
+  // Update vehicle age when year of manufacture changes
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    const age = currentYear - yearOfManufacture;
+    form.setValue('vehicleAge', Math.max(0, age));
+  }, [yearOfManufacture, form]);
 
   const calculateDutyMutation = useMutation({
     mutationFn: async (data: DutyCalculation) => {
@@ -304,38 +317,30 @@ export default function DutyCalculator() {
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="vehicleAge"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                              <Calendar className="h-4 w-4 mr-2 text-green-600" />
-                              Vehicle Age (years)
-                            </FormLabel>
-                            <FormControl>
-                              <Select
-                                value={field.value.toString()}
-                                onValueChange={(value) => field.onChange(Number(value))}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select age" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((year) => (
-                                    <SelectItem key={year} value={year.toString()}>
-                                      {year === 0 ? "New (0 years)" : `${year} year${year > 1 ? 's' : ''}`}
-                                    </SelectItem>
-                                  ))}
-                                  <SelectItem value="16">Over 15 years</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormDescription>Age affects depreciation rate</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div>
+                        <Label htmlFor="yearOfManufacture" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                          <Calendar className="h-4 w-4 mr-2 text-green-600" />
+                          Year of Manufacture
+                        </Label>
+                        <Select
+                          value={yearOfManufacture.toString()}
+                          onValueChange={(value) => setYearOfManufacture(Number(value))}
+                        >
+                          <SelectTrigger id="yearOfManufacture">
+                            <SelectValue placeholder="Select year" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({ length: 20 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                              <SelectItem key={year} value={year.toString()}>
+                                {year}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Vehicle age: {form.watch('vehicleAge')} year{form.watch('vehicleAge') !== 1 ? 's' : ''}
+                        </p>
+                      </div>
                     </div>
 
                     {/* Import Type */}
@@ -369,39 +374,41 @@ export default function DutyCalculator() {
                       )}
                     />
 
-                    {/* Engine Size - Always Required */}
-                    <FormField
-                      control={form.control}
-                      name="engineSize"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                            <Wrench className="h-4 w-4 mr-2 text-green-600" />
-                            Engine Size (cc) <span className="text-red-500 ml-1">*</span>
-                          </FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                {...field}
-                                onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                                className="pr-12"
-                                placeholder="1500"
-                                min="0"
-                                step="50"
-                              />
-                              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <span className="text-gray-500 sm:text-sm">cc</span>
+                    {/* Engine Size - Display only when not using database */}
+                    {!useVehicleDatabase && (
+                      <FormField
+                        control={form.control}
+                        name="engineSize"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                              <Wrench className="h-4 w-4 mr-2 text-green-600" />
+                              Engine Size (cc) <span className="text-red-500 ml-1">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input
+                                  type="number"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                                  className="pr-12"
+                                  placeholder="1500"
+                                  min="0"
+                                  step="50"
+                                />
+                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                  <span className="text-gray-500 sm:text-sm">cc</span>
+                                </div>
                               </div>
-                            </div>
-                          </FormControl>
-                          <FormDescription>
-                            Engine displacement in cubic centimeters - vehicle category will be auto-detected
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                            </FormControl>
+                            <FormDescription>
+                              Engine displacement in cubic centimeters - vehicle category will be auto-detected
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
 
                     {/* Auto-detected Category Display */}
                     {engineSize && (

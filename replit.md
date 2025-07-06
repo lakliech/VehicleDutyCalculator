@@ -129,7 +129,9 @@ Changelog:
   - Made engine size required for all calculations
   - Vehicle category now auto-detects based on engine size
   - Fixed vehicle model dropdown issues
-  - Workflow: Select make/model from database → Enter engine size → Auto-calculate duty
+  - Modified workflow to fetch engine sizes from database
+  - Replaced vehicle age field with year of manufacture selector
+  - Workflow: Select make → Select model → Select engine size (from database) → Select year of manufacture → Auto-calculate duty with CRSP
 
 ## User Preferences
 

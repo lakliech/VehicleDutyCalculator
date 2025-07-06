@@ -206,6 +206,29 @@ export default function DutyCalculator() {
   });
 
   const onSubmit = (data: DutyCalculation) => {
+    // Validate all required fields are selected
+    if (!selectedVehicle) {
+      toast({
+        title: "Vehicle Required",
+        description: "Please select a vehicle from the database",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!yearOfManufacture || yearOfManufacture === new Date().getFullYear()) {
+      // Check if year is actually selected (not just default current year)
+      const currentYear = new Date().getFullYear();
+      if (!form.getValues('vehicleAge') || form.getValues('vehicleAge') === 0) {
+        toast({
+          title: "Year Required", 
+          description: "Please select the year of manufacture",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     // Add fuel type from selected vehicle
     const fuelType = selectedVehicle?.fuelType?.toLowerCase();
     const validFuelTypes = ["petrol", "diesel", "electric", "hybrid", "other"];
@@ -271,9 +294,12 @@ export default function DutyCalculator() {
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     {/* All Selection Fields Grouped Together */}
                     <div className="space-y-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
-                      <div className="flex items-center mb-4">
-                        <Settings className="h-5 w-5 mr-2 text-green-600" />
-                        <h3 className="text-lg font-semibold text-gray-900">Vehicle Selection</h3>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center">
+                          <Settings className="h-5 w-5 mr-2 text-green-600" />
+                          <h3 className="text-lg font-semibold text-gray-900">Vehicle Selection</h3>
+                        </div>
+                        <p className="text-sm text-gray-500">All fields required <span className="text-red-500">*</span></p>
                       </div>
                       
                       {/* Import Type - First Step */}
@@ -309,7 +335,7 @@ export default function DutyCalculator() {
 
                       {/* Vehicle Selection from Database */}
                       <div>
-                        <Label className="text-sm font-medium text-gray-700 mb-2">Step 2: Select Vehicle</Label>
+                        <Label className="text-sm font-medium text-gray-700 mb-2">Step 2: Select Vehicle <span className="text-red-500">*</span></Label>
                         <div className="p-3 bg-white rounded-md mb-3">
                           <p className="text-sm text-gray-600">
                             Select from over 2,800 vehicles with current market prices
@@ -322,7 +348,7 @@ export default function DutyCalculator() {
                       <div>
                         <Label htmlFor="yearOfManufacture" className="flex items-center text-sm font-medium text-gray-700 mb-2">
                           <Calendar className="h-4 w-4 mr-2 text-green-600" />
-                          Step 3: Year of Manufacture
+                          Step 3: Year of Manufacture <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           value={yearOfManufacture.toString()}

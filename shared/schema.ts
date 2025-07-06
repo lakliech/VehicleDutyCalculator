@@ -28,12 +28,44 @@ export const calculations = pgTable("calculations", {
   createdAt: text("created_at").default("now()").notNull(),
 });
 
-export const dutyRates = pgTable("duty_rates", {
+// Depreciation rates for different import types and age ranges
+export const depreciationRates = pgTable("depreciation_rates", {
   id: serial("id").primaryKey(),
-  vehicleType: text("vehicle_type").notNull(),
-  baseFee: decimal("base_fee", { precision: 10, scale: 2 }).notNull(),
-  valueRate: decimal("value_rate", { precision: 5, scale: 4 }).notNull(),
-  engineSurchargeRate: decimal("engine_surcharge_rate", { precision: 5, scale: 4 }),
+  importType: text("import_type").notNull(), // 'direct' or 'previouslyRegistered'
+  minYears: decimal("min_years", { precision: 5, scale: 2 }).notNull(),
+  maxYears: decimal("max_years", { precision: 5, scale: 2 }).notNull(),
+  rate: decimal("rate", { precision: 5, scale: 4 }).notNull(), // Depreciation percentage as decimal (0.05 = 5%)
+  description: text("description"),
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
+// Tax rates for different vehicle categories
+export const taxRates = pgTable("tax_rates", {
+  id: serial("id").primaryKey(),
+  vehicleCategory: text("vehicle_category").notNull(),
+  importDutyRate: decimal("import_duty_rate", { precision: 5, scale: 4 }).notNull(), // as decimal (0.25 = 25%)
+  exciseDutyRate: decimal("excise_duty_rate", { precision: 5, scale: 4 }).notNull(),
+  exciseDutyFixed: integer("excise_duty_fixed"), // For motorcycles (fixed amount in KES)
+  vatRate: decimal("vat_rate", { precision: 5, scale: 4 }).notNull(),
+  rdlRate: decimal("rdl_rate", { precision: 5, scale: 4 }), // Railway Development Levy (for direct imports)
+  idfRate: decimal("idf_rate", { precision: 5, scale: 4 }), // Import Declaration Fee (for direct imports)
+  effectiveDate: text("effective_date").default("now()").notNull(),
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
+// Vehicle category rules for automatic category detection
+export const vehicleCategoryRules = pgTable("vehicle_category_rules", {
+  id: serial("id").primaryKey(),
+  category: text("category").notNull(),
+  minEngineSize: integer("min_engine_size"), // in cc
+  maxEngineSize: integer("max_engine_size"), // in cc
+  fuelType: text("fuel_type"), // 'petrol', 'diesel', 'electric', null for any
+  priority: integer("priority").notNull().default(0), // Higher priority rules are checked first
+  description: text("description"),
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
 });
 
 export const vehicleReferences = pgTable("vehicle_references", {
@@ -105,7 +137,9 @@ export type InsertVehicle = z.infer<typeof insertVehicleSchema>;
 export type Vehicle = typeof vehicles.$inferSelect;
 export type InsertCalculation = z.infer<typeof insertCalculationSchema>;
 export type Calculation = typeof calculations.$inferSelect;
-export type DutyRate = typeof dutyRates.$inferSelect;
+export type DepreciationRate = typeof depreciationRates.$inferSelect;
+export type TaxRate = typeof taxRates.$inferSelect;
+export type VehicleCategoryRule = typeof vehicleCategoryRules.$inferSelect;
 export type VehicleReference = typeof vehicleReferences.$inferSelect;
 export type DutyCalculation = z.infer<typeof dutyCalculationSchema>;
 export type DutyResult = z.infer<typeof dutyResultSchema>;

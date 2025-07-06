@@ -33,7 +33,10 @@ This is a full-stack web application that calculates Kenya Revenue Authority (KR
 ### Database Schema
 - **vehicles**: Stores vehicle information with Kenya-specific fields including category, value, age, import type
 - **calculations**: Stores calculation results linked to vehicles with all tax components
-- **duty_rates**: Legacy table (not used in current Kenya implementation)
+- **depreciation_rates**: Stores depreciation rates for different import types and age ranges
+- **tax_rates**: Stores tax rates (import duty, excise duty, VAT, RDL, IDF) for each vehicle category
+- **vehicle_category_rules**: Stores rules for automatic vehicle category detection based on engine size and fuel type
+- **vehicle_references**: Stores the comprehensive vehicle database with make, model, engine capacity, and CRSP values
 
 ### API Endpoints
 - `POST /api/calculate-duty` - Calculate import duties and taxes for a vehicle using KRA formulas
@@ -143,6 +146,12 @@ Changelog:
   - Workflow: Select make → Select model → Select engine size (from database) → Select year of manufacture → Auto-calculate duty with CRSP
   - Removed toggle option - database is now the only entry point for vehicle selection
   - CRSP field is always disabled and automatically populated from database
+- January 10, 2025. Stored computation logic in database:
+  - Created depreciation_rates table to store age-based depreciation rates
+  - Created tax_rates table to store category-specific tax percentages
+  - Created vehicle_category_rules table for automatic category detection
+  - Updated DatabaseStorage to fetch rates from database instead of hardcoded values
+  - Allows dynamic configuration of tax rates without code changes
 
 ## User Preferences
 

@@ -1,10 +1,14 @@
-import { dutyRates, type DutyRate, type DutyCalculation, type DutyResult } from "@shared/schema";
+import { vehicles, calculations, type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   calculateDuty(calculation: DutyCalculation): Promise<DutyResult>;
+  saveCalculation(vehicleData: InsertVehicle, calculationData: Omit<InsertCalculation, 'vehicleId'>): Promise<{ vehicle: Vehicle; calculation: Calculation }>;
+  getCalculationHistory(limit?: number): Promise<Array<Vehicle & { calculation: Calculation }>>;
 }
 
-export class MemStorage implements IStorage {
+export class DatabaseStorage implements IStorage {
   private directImportDepreciation: Array<{ minYears: number; maxYears: number; rate: number }>;
   private previouslyRegisteredDepreciation: Array<{ years: number; rate: number }>;
 
@@ -291,6 +295,51 @@ export class MemStorage implements IStorage {
 
     return result;
   }
+
+  async saveCalculation(vehicleData: InsertVehicle, calculationData: Omit<InsertCalculation, 'vehicleId'>): Promise<{ vehicle: Vehicle; calculation: Calculation }> {
+    try {
+      // Insert vehicle first
+      const [vehicle] = await db
+        .insert(vehicles)
+        .values(vehicleData)
+        .returning();
+
+      // Insert calculation with vehicle ID
+      const [calculation] = await db
+        .insert(calculations)
+        .values({
+          ...calculationData,
+          vehicleId: vehicle.id,
+        })
+        .returning();
+
+      return { vehicle, calculation };
+    } catch (error) {
+      console.error("Failed to save calculation:", error);
+      throw new Error("Failed to save calculation to database");
+    }
+  }
+
+  async getCalculationHistory(limit: number = 10): Promise<Array<Vehicle & { calculation: Calculation }>> {
+    try {
+      const results = await db
+        .select()
+        .from(vehicles)
+        .leftJoin(calculations, eq(vehicles.id, calculations.vehicleId))
+        .orderBy(vehicles.createdAt)
+        .limit(limit);
+
+      return results
+        .filter(result => result.calculations) // Only return vehicles that have calculations
+        .map(result => ({
+          ...result.vehicles,
+          calculation: result.calculations!,
+        }));
+    } catch (error) {
+      console.error("Failed to fetch calculation history:", error);
+      throw new Error("Failed to fetch calculation history");
+    }
+  }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

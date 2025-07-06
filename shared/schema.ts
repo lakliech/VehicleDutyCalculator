@@ -6,10 +6,26 @@ export const vehicles = pgTable("vehicles", {
   id: serial("id").primaryKey(),
   vehicleCategory: text("vehicle_category").notNull(),
   vehicleValue: decimal("vehicle_value", { precision: 10, scale: 2 }).notNull(),
-  engineSize: integer("engine_size").notNull(),
+  engineSize: integer("engine_size"),
   vehicleAge: integer("vehicle_age").notNull(),
   isDirectImport: boolean("is_direct_import").notNull(),
   fuelType: text("fuel_type"),
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
+export const calculations = pgTable("calculations", {
+  id: serial("id").primaryKey(),
+  vehicleId: integer("vehicle_id").references(() => vehicles.id),
+  customsValue: decimal("customs_value", { precision: 10, scale: 2 }).notNull(),
+  importDuty: decimal("import_duty", { precision: 10, scale: 2 }).notNull(),
+  exciseDuty: decimal("excise_duty", { precision: 10, scale: 2 }).notNull(),
+  vat: decimal("vat", { precision: 10, scale: 2 }).notNull(),
+  rdl: decimal("rdl", { precision: 10, scale: 2 }).notNull(),
+  idfFees: decimal("idf_fees", { precision: 10, scale: 2 }).notNull(),
+  totalTaxes: decimal("total_taxes", { precision: 10, scale: 2 }).notNull(),
+  depreciationRate: decimal("depreciation_rate", { precision: 5, scale: 4 }).notNull(),
+  depreciatedPrice: decimal("depreciated_price", { precision: 10, scale: 2 }).notNull(),
+  createdAt: text("created_at").default("now()").notNull(),
 });
 
 export const dutyRates = pgTable("duty_rates", {
@@ -20,13 +36,14 @@ export const dutyRates = pgTable("duty_rates", {
   engineSurchargeRate: decimal("engine_surcharge_rate", { precision: 5, scale: 4 }),
 });
 
-export const insertVehicleSchema = createInsertSchema(vehicles).pick({
-  vehicleCategory: true,
-  vehicleValue: true,
-  engineSize: true,
-  vehicleAge: true,
-  isDirectImport: true,
-  fuelType: true,
+export const insertVehicleSchema = createInsertSchema(vehicles).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCalculationSchema = createInsertSchema(calculations).omit({
+  id: true,
+  createdAt: true,
 });
 
 export const dutyCalculationSchema = z.object({
@@ -72,6 +89,8 @@ export const dutyResultSchema = z.object({
 
 export type InsertVehicle = z.infer<typeof insertVehicleSchema>;
 export type Vehicle = typeof vehicles.$inferSelect;
+export type InsertCalculation = z.infer<typeof insertCalculationSchema>;
+export type Calculation = typeof calculations.$inferSelect;
 export type DutyRate = typeof dutyRates.$inferSelect;
 export type DutyCalculation = z.infer<typeof dutyCalculationSchema>;
 export type DutyResult = z.infer<typeof dutyResultSchema>;

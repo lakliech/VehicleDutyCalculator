@@ -19,7 +19,8 @@ This is a full-stack web application that calculates Kenya Revenue Authority (KR
 - **Database**: PostgreSQL with Drizzle ORM
 - **Database Provider**: Neon Database (@neondatabase/serverless)
 - **Validation**: Zod schemas shared between frontend and backend
-- **API**: RESTful endpoints for duty calculation and rate retrieval
+- **API**: RESTful endpoints for duty calculation and history retrieval
+- **Storage**: DatabaseStorage class handles all database operations
 
 ### Project Structure
 - `client/` - React frontend application
@@ -30,11 +31,13 @@ This is a full-stack web application that calculates Kenya Revenue Authority (KR
 ## Key Components
 
 ### Database Schema
-- **vehicles**: Stores vehicle information with Kenya-specific fields
+- **vehicles**: Stores vehicle information with Kenya-specific fields including category, value, age, import type
+- **calculations**: Stores calculation results linked to vehicles with all tax components
 - **duty_rates**: Legacy table (not used in current Kenya implementation)
 
 ### API Endpoints
 - `POST /api/calculate-duty` - Calculate import duties and taxes for a vehicle using KRA formulas
+- `GET /api/calculations/history` - Retrieve calculation history with vehicle details
 
 ### Frontend Components
 - **DutyCalculator**: Main page with comprehensive form for Kenya vehicle duty calculation

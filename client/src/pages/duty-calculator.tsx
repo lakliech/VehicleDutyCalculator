@@ -113,7 +113,6 @@ export default function DutyCalculator() {
       engineSize: 1500,
       vehicleAge: 0,
       isDirectImport: true,
-      fuelType: "petrol",
     },
   });
 
@@ -146,22 +145,23 @@ export default function DutyCalculator() {
 
   // Watch engine size changes to auto-update vehicle category
   const engineSize = form.watch('engineSize');
-  const fuelType = form.watch('fuelType');
   
   useEffect(() => {
     if (engineSize) {
-      // Auto-detect vehicle category based on engine size
+      // Auto-detect vehicle category based on engine size and fuel type from selected vehicle
+      const vehicleFuelType = selectedVehicle?.fuelType?.toLowerCase();
+      
       if (engineSize < 1500) {
         form.setValue('vehicleCategory', 'under1500cc');
-      } else if (engineSize >= 3000 && fuelType === 'petrol') {
+      } else if (engineSize >= 3000 && vehicleFuelType === 'petrol') {
         form.setValue('vehicleCategory', 'largeEngine');
-      } else if (engineSize >= 2500 && fuelType === 'diesel') {
+      } else if (engineSize >= 2500 && vehicleFuelType === 'diesel') {
         form.setValue('vehicleCategory', 'largeEngine');
       } else {
         form.setValue('vehicleCategory', 'over1500cc');
       }
     }
-  }, [engineSize, fuelType, form]);
+  }, [engineSize, selectedVehicle, form]);
 
   // Update vehicle age when year of manufacture changes
   useEffect(() => {
@@ -192,9 +192,13 @@ export default function DutyCalculator() {
   });
 
   const onSubmit = (data: DutyCalculation) => {
-    // Add vehicle reference info from database
+    // Add fuel type from selected vehicle
+    const fuelType = selectedVehicle?.fuelType?.toLowerCase();
+    const validFuelTypes = ["petrol", "diesel", "electric", "hybrid", "other"];
+    
     const submissionData = {
       ...data,
+      fuelType: fuelType && validFuelTypes.includes(fuelType) ? fuelType as "petrol" | "diesel" | "electric" | "hybrid" | "other" : undefined,
       vehicleReference: selectedVehicle ? {
         make: selectedVehicle.make,
         model: selectedVehicle.model,
@@ -203,7 +207,7 @@ export default function DutyCalculator() {
         fuelType: selectedVehicle.fuelType
       } : undefined
     };
-    calculateDutyMutation.mutate(data);
+    calculateDutyMutation.mutate(submissionData);
   };
 
   const formatCurrency = (amount: number) => {
@@ -413,37 +417,26 @@ export default function DutyCalculator() {
                       </div>
                     )}
 
-                    {/* Optional Fuel Type */}
-                    {["under1500cc", "over1500cc", "largeEngine"].includes(form.watch("vehicleCategory")) && (
-                      <FormField
-                        control={form.control}
-                        name="fuelType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium text-gray-700 mb-2">
-                              Fuel Type - Optional
-                            </FormLabel>
-                            <FormControl>
-                              <Select value={field.value || ""} onValueChange={field.onChange}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select fuel type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="petrol">Petrol</SelectItem>
-                                  <SelectItem value="diesel">Diesel</SelectItem>
-                                  <SelectItem value="electric">Electric</SelectItem>
-                                  <SelectItem value="hybrid">Hybrid</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormDescription>
-                              Required for large engine categorization
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    {/* Display Vehicle Info from Database */}
+                    {selectedVehicle && (selectedVehicle.fuelType || selectedVehicle.bodyType) && (
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-start space-x-2">
+                          <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-blue-900">Vehicle Details from Database</p>
+                            {selectedVehicle.fuelType && (
+                              <p className="text-sm text-blue-700 mt-1">
+                                Fuel Type: <span className="font-semibold capitalize">{selectedVehicle.fuelType}</span>
+                              </p>
+                            )}
+                            {selectedVehicle.bodyType && (
+                              <p className="text-sm text-blue-700">
+                                Body Type: <span className="font-semibold">{selectedVehicle.bodyType}</span>
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     )}
 
                     {/* Submit Button */}

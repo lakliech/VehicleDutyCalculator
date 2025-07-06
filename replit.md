@@ -156,6 +156,11 @@ Changelog:
   - Integrated Nexa company logo in the header
   - Responsive design: Full logo with title on desktop, compact view on mobile
   - Professional branding with "discover what is possible" tagline
+- January 10, 2025. Fuel type from database:
+  - Removed manual fuel type selection field
+  - Fuel type now automatically fetched from vehicle database
+  - Normalized all fuel types to lowercase in database
+  - Vehicle category detection uses fuel type from selected vehicle
 
 ## User Preferences
 

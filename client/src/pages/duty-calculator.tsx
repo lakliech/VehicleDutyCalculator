@@ -99,7 +99,6 @@ const vehicleCategoryInfo = {
 export default function DutyCalculator() {
   const { toast } = useToast();
   const [calculationResult, setCalculationResult] = useState<DutyResult | null>(null);
-  const [useVehicleDatabase, setUseVehicleDatabase] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
 
   const [yearOfManufacture, setYearOfManufacture] = useState<number>(new Date().getFullYear());
@@ -191,10 +190,10 @@ export default function DutyCalculator() {
   });
 
   const onSubmit = (data: DutyCalculation) => {
-    // Add vehicle reference info if using database
+    // Add vehicle reference info from database
     const submissionData = {
       ...data,
-      vehicleReference: selectedVehicle && useVehicleDatabase ? {
+      vehicleReference: selectedVehicle ? {
         make: selectedVehicle.make,
         model: selectedVehicle.model,
         engineCapacity: selectedVehicle.engineCapacity,
@@ -246,30 +245,16 @@ export default function DutyCalculator() {
               <CardContent>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    {/* Toggle for Vehicle Database */}
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div>
-                        <Label htmlFor="use-database" className="text-sm font-medium">
-                          Use Vehicle Database
-                        </Label>
-                        <p className="text-xs text-gray-500 mt-1">
+                    {/* Vehicle Selection from Database */}
+                    <div className="mb-6">
+                      <div className="p-4 bg-gray-50 rounded-lg mb-4">
+                        <p className="text-sm font-medium text-gray-700">
                           Select from over 2,800 vehicles with current market prices
                         </p>
                       </div>
-                      <Switch
-                        id="use-database"
-                        checked={useVehicleDatabase}
-                        onCheckedChange={setUseVehicleDatabase}
-                      />
+                      <VehicleSelector onVehicleSelect={handleVehicleSelect} />
                     </div>
-
-                    {/* Vehicle Selection from Database */}
-                    {useVehicleDatabase && (
-                      <>
-                        <VehicleSelector onVehicleSelect={handleVehicleSelect} />
-                        <Separator />
-                      </>
-                    )}
+                    <Separator />
 
 
 
@@ -282,12 +267,10 @@ export default function DutyCalculator() {
                           <FormItem>
                             <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-2">
                               <DollarSign className="h-4 w-4 mr-2 text-green-600" />
-                              {useVehicleDatabase ? "Current Retail Selling Price (CRSP)" : "Vehicle Value (KES)"}
-                              {useVehicleDatabase && (
-                                <Badge variant="secondary" className="ml-2 bg-green-100 text-green-800">
-                                  Database Only
-                                </Badge>
-                              )}
+                              Current Retail Selling Price (CRSP)
+                              <Badge variant="secondary" className="ml-2 bg-green-100 text-green-800">
+                                Database Only
+                              </Badge>
                             </FormLabel>
                             <FormControl>
                               <div className="relative">
@@ -302,16 +285,14 @@ export default function DutyCalculator() {
                                   placeholder="1,000,000"
                                   min="0"
                                   step="1000"
-                                  disabled={useVehicleDatabase}
+                                  disabled={true}
                                 />
                               </div>
                             </FormControl>
                             <FormDescription>
-                              {useVehicleDatabase 
-                                ? (selectedVehicle 
-                                  ? `CRSP from database: ${selectedVehicle.make} ${selectedVehicle.model}`
-                                  : "CRSP will be automatically loaded from database after vehicle selection")
-                                : "Enter the estimated value of the vehicle for duty calculation"
+                              {selectedVehicle 
+                                ? `CRSP from database: ${selectedVehicle.make} ${selectedVehicle.model}`
+                                : "CRSP will be automatically loaded from database after vehicle selection"
                               }
                             </FormDescription>
                             <FormMessage />
@@ -376,12 +357,11 @@ export default function DutyCalculator() {
                       )}
                     />
 
-                    {/* Engine Size - Display only when not using database */}
-                    {!useVehicleDatabase && (
-                      <FormField
-                        control={form.control}
-                        name="engineSize"
-                        render={({ field }) => (
+                    {/* Engine Size */}
+                    <FormField
+                      control={form.control}
+                      name="engineSize"
+                      render={({ field }) => (
                           <FormItem>
                             <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-2">
                               <Wrench className="h-4 w-4 mr-2 text-green-600" />
@@ -410,7 +390,6 @@ export default function DutyCalculator() {
                           </FormItem>
                         )}
                       />
-                    )}
 
                     {/* Auto-detected Category Display */}
                     {engineSize && (
@@ -513,7 +492,7 @@ export default function DutyCalculator() {
                     <div className="text-2xl font-bold text-green-900">
                       {formatCurrency(calculationResult.totalTaxes)}
                     </div>
-                    {selectedVehicle && useVehicleDatabase && (
+                    {selectedVehicle && (
                       <div className="mt-3 pt-3 border-t border-green-200">
                         <p className="text-xs text-green-700">
                           Calculated for: <span className="font-medium">{selectedVehicle.make} {selectedVehicle.model}</span>

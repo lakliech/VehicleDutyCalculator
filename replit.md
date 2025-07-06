@@ -132,6 +132,8 @@ Changelog:
   - Modified workflow to fetch engine sizes from database
   - Replaced vehicle age field with year of manufacture selector
   - Workflow: Select make → Select model → Select engine size (from database) → Select year of manufacture → Auto-calculate duty with CRSP
+  - Removed toggle option - database is now the only entry point for vehicle selection
+  - CRSP field is always disabled and automatically populated from database
 
 ## User Preferences
 

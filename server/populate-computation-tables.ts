@@ -19,8 +19,8 @@ async function populateComputationTables() {
       { importType: 'direct', minYears: '3', maxYears: '4', rate: '0.30', description: '>3 <=4 years: 30%' },
       { importType: 'direct', minYears: '4', maxYears: '5', rate: '0.40', description: '>4 <=5 years: 40%' },
       { importType: 'direct', minYears: '5', maxYears: '6', rate: '0.50', description: '>5 <=6 years: 50%' },
-      { importType: 'direct', minYears: '6', maxYears: '7', rate: '0.60', description: '>6 <7 years: 60%' },
-      { importType: 'direct', minYears: '7', maxYears: '8', rate: '0.65', description: '>=7 <=8 years: 65%' }
+      { importType: 'direct', minYears: '6.01', maxYears: '7', rate: '0.60', description: '>6 <=7 years: 60%' },
+      { importType: 'direct', minYears: '7.01', maxYears: '8', rate: '0.65', description: '>7 <=8 years: 65%' }
     ];
 
     // Insert depreciation rates for previously registered vehicles

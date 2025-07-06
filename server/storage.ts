@@ -1,6 +1,6 @@
 import { vehicles, calculations, depreciationRates, taxRates, vehicleCategoryRules, type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, type DepreciationRate, type TaxRate, type VehicleCategoryRule } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, or, desc } from "drizzle-orm";
+import { eq, and, gte, lte, or, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   calculateDuty(calculation: DutyCalculation): Promise<DutyResult>;
@@ -21,8 +21,8 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(depreciationRates.importType, vehicleType),
-          lte(depreciationRates.minYears, String(ageYears)),
-          gte(depreciationRates.maxYears, String(ageYears))
+          sql`CAST(${depreciationRates.minYears} AS DECIMAL) <= ${ageYears}`,
+          sql`CAST(${depreciationRates.maxYears} AS DECIMAL) >= ${ageYears}`
         )
       )
       .limit(1);

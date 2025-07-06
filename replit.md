@@ -161,6 +161,11 @@ Changelog:
   - Fuel type now automatically fetched from vehicle database
   - Normalized all fuel types to lowercase in database
   - Vehicle category detection uses fuel type from selected vehicle
+- January 10, 2025. UI improvements:
+  - Grouped all selection dropdowns (vehicle, year, import type) in one area
+  - Removed CRSP input textbox - values only from database
+  - CRSP displays within selection area when vehicle is selected
+  - Enhanced visual grouping with gray background container
 
 ## User Preferences
 

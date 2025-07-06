@@ -37,7 +37,8 @@ import {
   Building,
   Heart,
   Wrench,
-  Package
+  Package,
+  Settings
 } from "lucide-react";
 
 const vehicleCategoryInfo = {
@@ -256,61 +257,24 @@ export default function DutyCalculator() {
               <CardContent>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    {/* Vehicle Selection from Database */}
-                    <div className="mb-6">
-                      <div className="p-4 bg-gray-50 rounded-lg mb-4">
-                        <p className="text-sm font-medium text-gray-700">
-                          Select from over 2,800 vehicles with current market prices
-                        </p>
+                    {/* All Selection Fields Grouped Together */}
+                    <div className="space-y-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex items-center mb-4">
+                        <Settings className="h-5 w-5 mr-2 text-green-600" />
+                        <h3 className="text-lg font-semibold text-gray-900">Vehicle Selection</h3>
                       </div>
-                      <VehicleSelector onVehicleSelect={handleVehicleSelect} />
-                    </div>
-                    <Separator />
+                      
+                      {/* Vehicle Selection from Database */}
+                      <div>
+                        <div className="p-3 bg-white rounded-md mb-3">
+                          <p className="text-sm font-medium text-gray-700">
+                            Select from over 2,800 vehicles with current market prices
+                          </p>
+                        </div>
+                        <VehicleSelector onVehicleSelect={handleVehicleSelect} />
+                      </div>
 
-
-
-                    {/* Vehicle Details */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="vehicleValue"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                              <DollarSign className="h-4 w-4 mr-2 text-green-600" />
-                              Current Retail Selling Price (CRSP)
-                              <Badge variant="secondary" className="ml-2 bg-green-100 text-green-800">
-                                Database Only
-                              </Badge>
-                            </FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                  <span className="text-gray-500 sm:text-sm">KES</span>
-                                </div>
-                                <Input
-                                  type="number"
-                                  {...field}
-                                  onChange={(e) => field.onChange(Number(e.target.value))}
-                                  className="pl-12"
-                                  placeholder="1,000,000"
-                                  min="0"
-                                  step="1000"
-                                  disabled={true}
-                                />
-                              </div>
-                            </FormControl>
-                            <FormDescription>
-                              {selectedVehicle 
-                                ? `CRSP from database: ${selectedVehicle.make} ${selectedVehicle.model}`
-                                : "CRSP will be automatically loaded from database after vehicle selection"
-                              }
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
+                      {/* Year of Manufacture */}
                       <div>
                         <Label htmlFor="yearOfManufacture" className="flex items-center text-sm font-medium text-gray-700 mb-2">
                           <Calendar className="h-4 w-4 mr-2 text-green-600" />
@@ -335,40 +299,60 @@ export default function DutyCalculator() {
                           Vehicle age: {form.watch('vehicleAge')} year{form.watch('vehicleAge') !== 1 ? 's' : ''}
                         </p>
                       </div>
+
+                      {/* Import Type */}
+                      <FormField
+                        control={form.control}
+                        name="isDirectImport"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium text-gray-700 mb-2">Import Type</FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                value={field.value ? "direct" : "registered"}
+                                onValueChange={(value) => field.onChange(value === "direct")}
+                                className="flex space-x-4"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="direct" id="direct" />
+                                  <Label htmlFor="direct">Direct Import</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="registered" id="registered" />
+                                  <Label htmlFor="registered">Previously Registered</Label>
+                                </div>
+                              </RadioGroup>
+                            </FormControl>
+                            <FormDescription>
+                              Direct imports include RDL and IDF fees
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* Selected Vehicle CRSP Display */}
+                      {selectedVehicle && selectedVehicle.crspKes && (
+                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-start space-x-2">
+                            <DollarSign className="h-5 w-5 text-green-600 mt-0.5" />
+                            <div className="w-full">
+                              <p className="text-sm font-medium text-green-900">Current Retail Selling Price (CRSP)</p>
+                              <p className="text-xl font-bold text-green-800 mt-1">
+                                KES {form.watch('vehicleValue')?.toLocaleString('en-KE') || '0'}
+                              </p>
+                              <p className="text-xs text-green-700 mt-1">
+                                {selectedVehicle.make} {selectedVehicle.model}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Import Type */}
-                    <FormField
-                      control={form.control}
-                      name="isDirectImport"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700 mb-2">Import Type</FormLabel>
-                          <FormControl>
-                            <RadioGroup
-                              value={field.value ? "direct" : "registered"}
-                              onValueChange={(value) => field.onChange(value === "direct")}
-                              className="flex space-x-4"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="direct" id="direct" />
-                                <Label htmlFor="direct">Direct Import</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="registered" id="registered" />
-                                <Label htmlFor="registered">Previously Registered</Label>
-                              </div>
-                            </RadioGroup>
-                          </FormControl>
-                          <FormDescription>
-                            Direct imports include RDL and IDF fees
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <Separator />
 
-                    {/* Engine Size */}
+                    {/* Engine Size - Separate from selections */}
                     <FormField
                       control={form.control}
                       name="engineSize"

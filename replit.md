@@ -201,6 +201,12 @@ Changelog:
   - Electric vehicles: 25% import duty, 10% excise duty
   - Prime Movers and Trailers: 0% excise duty
   - All rates updated to match KRA Motor Vehicle Valuation Template effective July 2023
+- January 10, 2025. Added emoji-based vehicle category selector:
+  - Created VehicleCategorySelector component with visual emoji icons for each category
+  - Added toggle to switch between auto-detection and manual category selection
+  - Each category card shows emoji, description, and applicable tax rates
+  - Manual selection overrides auto-detection based on engine size
+  - Enhanced user experience with visual category identification
 
 ## User Preferences
 

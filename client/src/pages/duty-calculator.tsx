@@ -19,6 +19,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { generateDutyCalculationPDF } from "@/lib/pdf-generator";
 import { dutyCalculationSchema, type DutyCalculation, type DutyResult, type VehicleReference } from "@shared/schema";
 import { VehicleSelector } from "@/components/vehicle-selector";
+import { VehicleCategorySelector } from "@/components/vehicle-category-selector";
 import nexaLogo from "@assets/nexalogo_1751834730316.png";
 import { 
   Calculator, 
@@ -43,56 +44,67 @@ import {
 
 const vehicleCategoryInfo = {
   under1500cc: { 
+    emoji: "🚗",
     label: "Under 1500cc",
     description: "Vehicles with engine capacity below 1500cc",
     icon: Car
   },
   over1500cc: { 
+    emoji: "🚙", 
     label: "Over 1500cc", 
     description: "Vehicles with engine capacity 1500cc and above",
     icon: Car
   },
   largeEngine: { 
+    emoji: "🚛",
     label: "Large Engine", 
     description: "Petrol >3000cc or Diesel >2500cc",
     icon: Truck
   },
   electric: { 
+    emoji: "⚡",
     label: "Electric", 
     description: "Fully electric vehicles (tax incentives apply)",
     icon: Zap
   },
   schoolBus: { 
+    emoji: "🚌",
     label: "School Bus", 
     description: "Vehicles designated for student transport",
     icon: Bus
   },
   primeMover: { 
+    emoji: "🚚",
     label: "Prime Mover", 
     description: "Heavy duty truck heads",
     icon: Building
   },
   trailer: { 
+    emoji: "🚛",
     label: "Trailer", 
     description: "Transport trailers",
     icon: Package
   },
   ambulance: { 
+    emoji: "🚑",
     label: "Ambulance", 
     description: "Emergency medical vehicles",
     icon: Heart
   },
   motorcycle: { 
+    emoji: "🏍️",
     label: "Motorcycle", 
     description: "Two-wheeled vehicles",
     icon: Bike
   },
   specialPurpose: { 
+    emoji: "🚜",
     label: "Special Purpose", 
     description: "Specialized vehicles",
     icon: Wrench
   },
   heavyMachinery: { 
+    emoji: "🏗️",
     label: "Heavy Machinery", 
     description: "Construction and industrial equipment",
     icon: Building
@@ -103,7 +115,7 @@ export default function DutyCalculator() {
   const { toast } = useToast();
   const [calculationResult, setCalculationResult] = useState<DutyResult | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
-
+  const [useManualCategory, setUseManualCategory] = useState<boolean>(false);
   const [yearOfManufacture, setYearOfManufacture] = useState<number>(0); // 0 means not selected
   
   const form = useForm<DutyCalculation>({
@@ -144,11 +156,11 @@ export default function DutyCalculator() {
     }
   };
 
-  // Watch engine size changes to auto-update vehicle category
+  // Watch engine size changes to auto-update vehicle category (only when not using manual selection)
   const engineSize = form.watch('engineSize');
   
   useEffect(() => {
-    if (engineSize) {
+    if (engineSize && !useManualCategory) {
       // Auto-detect vehicle category based on engine size and fuel type from selected vehicle
       const vehicleFuelType = selectedVehicle?.fuelType?.toLowerCase();
       
@@ -162,7 +174,7 @@ export default function DutyCalculator() {
         form.setValue('vehicleCategory', 'over1500cc');
       }
     }
-  }, [engineSize, selectedVehicle, form]);
+  }, [engineSize, selectedVehicle, form, useManualCategory]);
 
   // Update vehicle age when year of manufacture changes
   useEffect(() => {
@@ -226,6 +238,15 @@ export default function DutyCalculator() {
       toast({
         title: "Year Required", 
         description: "Please select the year of manufacture",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (useManualCategory && !data.vehicleCategory) {
+      toast({
+        title: "Category Required",
+        description: "Please select a vehicle category",
         variant: "destructive",
       });
       return;
@@ -399,8 +420,39 @@ export default function DutyCalculator() {
                       )}
                     </div>
 
+                    {/* Category Selection Toggle */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="manual-category"
+                            checked={useManualCategory}
+                            onCheckedChange={setUseManualCategory}
+                          />
+                          <Label htmlFor="manual-category" className="text-sm font-medium">
+                            Manual Category Selection
+                          </Label>
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          {useManualCategory ? "Manual" : "Auto-detect"}
+                        </Badge>
+                      </div>
+                      
+                      {useManualCategory ? (
+                        <VehicleCategorySelector
+                          value={form.watch('vehicleCategory')}
+                          onValueChange={(value) => form.setValue('vehicleCategory', value as any)}
+                          disabled={false}
+                        />
+                      ) : (
+                        <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">
+                          Category will be automatically detected based on engine size and fuel type from your selected vehicle.
+                        </div>
+                      )}
+                    </div>
+
                     {/* Auto-detected Category Display */}
-                    {engineSize && (
+                    {engineSize && !useManualCategory && (
                       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                         <div className="flex items-start space-x-2">
                           <Info className="h-5 w-5 text-blue-600 mt-0.5" />

@@ -174,8 +174,10 @@ Changelog:
   - Error messages displayed when attempting to calculate without selecting all fields
 - January 10, 2025. Fixed depreciation rate calculation logic:
   - Corrected SQL comparison from string to numeric for age calculations
-  - Fixed depreciation rate ranges to eliminate gaps (e.g., >6 <=7 instead of >6 <7)
-  - Ensures vehicles aged exactly 7 years get 60% depreciation (not 65%)
+  - Fixed depreciation rate ranges per KRA requirements:
+    - >6 but <7 years: 60% depreciation
+    - >=7 but <=8 years: 65% depreciation
+  - Ensures vehicles aged exactly 7 years get 65% depreciation
   - Numeric comparisons prevent string sorting issues (e.g., "10" < "2")
 
 ## User Preferences

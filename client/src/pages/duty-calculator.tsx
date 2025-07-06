@@ -104,7 +104,7 @@ export default function DutyCalculator() {
   const [calculationResult, setCalculationResult] = useState<DutyResult | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
 
-  const [yearOfManufacture, setYearOfManufacture] = useState<number>(new Date().getFullYear());
+  const [yearOfManufacture, setYearOfManufacture] = useState<number>(0); // 0 means not selected
   
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
@@ -166,9 +166,13 @@ export default function DutyCalculator() {
 
   // Update vehicle age when year of manufacture changes
   useEffect(() => {
-    const currentYear = new Date().getFullYear();
-    const age = currentYear - yearOfManufacture;
-    form.setValue('vehicleAge', Math.max(0, age));
+    if (yearOfManufacture && yearOfManufacture > 0) {
+      const currentYear = new Date().getFullYear();
+      const age = currentYear - yearOfManufacture;
+      form.setValue('vehicleAge', Math.max(0, age));
+    } else {
+      form.setValue('vehicleAge', 0);
+    }
   }, [yearOfManufacture, form]);
 
   // Watch import type changes
@@ -176,11 +180,13 @@ export default function DutyCalculator() {
 
   // Reset year when switching import type if year is out of range
   useEffect(() => {
-    const currentYear = new Date().getFullYear();
-    const minAllowedYear = currentYear - (isDirectImport ? 8 : 20);
-    
-    if (yearOfManufacture < minAllowedYear) {
-      setYearOfManufacture(currentYear);
+    if (yearOfManufacture > 0) {
+      const currentYear = new Date().getFullYear();
+      const minAllowedYear = currentYear - (isDirectImport ? 8 : 20);
+      
+      if (yearOfManufacture < minAllowedYear) {
+        setYearOfManufacture(0); // Reset to unselected state
+      }
     }
   }, [isDirectImport, yearOfManufacture]);
 
@@ -216,17 +222,13 @@ export default function DutyCalculator() {
       return;
     }
 
-    if (!yearOfManufacture || yearOfManufacture === new Date().getFullYear()) {
-      // Check if year is actually selected (not just default current year)
-      const currentYear = new Date().getFullYear();
-      if (!form.getValues('vehicleAge') || form.getValues('vehicleAge') === 0) {
-        toast({
-          title: "Year Required", 
-          description: "Please select the year of manufacture",
-          variant: "destructive",
-        });
-        return;
-      }
+    if (!yearOfManufacture || yearOfManufacture === 0) {
+      toast({
+        title: "Year Required", 
+        description: "Please select the year of manufacture",
+        variant: "destructive",
+      });
+      return;
     }
 
     // Add fuel type from selected vehicle
@@ -351,7 +353,7 @@ export default function DutyCalculator() {
                           Step 3: Year of Manufacture <span className="text-red-500">*</span>
                         </Label>
                         <Select
-                          value={yearOfManufacture.toString()}
+                          value={yearOfManufacture === 0 ? "" : yearOfManufacture.toString()}
                           onValueChange={(value) => setYearOfManufacture(Number(value))}
                         >
                           <SelectTrigger id="yearOfManufacture">
@@ -371,9 +373,11 @@ export default function DutyCalculator() {
                             })()}
                           </SelectContent>
                         </Select>
-                        <p className="text-sm text-gray-500 mt-1">
-                          Vehicle age: {form.watch('vehicleAge')} year{form.watch('vehicleAge') !== 1 ? 's' : ''}
-                        </p>
+                        {yearOfManufacture > 0 && (
+                          <p className="text-sm text-gray-500 mt-1">
+                            Vehicle age: {form.watch('vehicleAge')} year{form.watch('vehicleAge') !== 1 ? 's' : ''}
+                          </p>
+                        )}
                       </div>
 
                       {/* Selected Vehicle CRSP Display */}

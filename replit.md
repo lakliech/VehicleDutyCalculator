@@ -166,6 +166,12 @@ Changelog:
   - Removed CRSP input textbox - values only from database
   - CRSP displays within selection area when vehicle is selected
   - Enhanced visual grouping with gray background container
+- January 10, 2025. Form validation and workflow updates:
+  - Added mandatory validation for all fields before calculation
+  - Import Type selection moved to Step 1 
+  - Year of Manufacture limited to 8 years for Direct Import, 20 years for Previously Registered
+  - Clear visual indicators with red asterisks (*) for required fields
+  - Error messages displayed when attempting to calculate without selecting all fields
 
 ## User Preferences
 

@@ -116,6 +116,7 @@ export default function DutyCalculator() {
   const [calculationResult, setCalculationResult] = useState<DutyResult | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
   const [useManualCategory, setUseManualCategory] = useState<boolean>(false);
+  const [categoryConflict, setCategoryConflict] = useState<string | null>(null);
   const [yearOfManufacture, setYearOfManufacture] = useState<number>(0); // 0 means not selected
   
   const form = useForm<DutyCalculation>({
@@ -187,6 +188,83 @@ export default function DutyCalculator() {
     }
   }, [yearOfManufacture, form]);
 
+  // Validate manual category selection against vehicle specs
+  const validateCategorySelection = (category: string) => {
+    if (!selectedVehicle || !useManualCategory) {
+      setCategoryConflict(null);
+      return true;
+    }
+
+    const engineCapacity = selectedVehicle.engineCapacity;
+    const fuelType = selectedVehicle.fuelType?.toLowerCase();
+    const bodyType = selectedVehicle.bodyType?.toLowerCase();
+
+    // Check for conflicts
+    if (category === 'under1500cc' && engineCapacity && engineCapacity >= 1500) {
+      setCategoryConflict(`Vehicle has ${engineCapacity}cc engine, which is not under 1500cc`);
+      return false;
+    }
+    
+    if (category === 'over1500cc' && engineCapacity) {
+      if (engineCapacity < 1500) {
+        setCategoryConflict(`Vehicle has ${engineCapacity}cc engine, which is under 1500cc`);
+        return false;
+      }
+      if ((fuelType === 'petrol' && engineCapacity >= 3000) || (fuelType === 'diesel' && engineCapacity >= 2500)) {
+        setCategoryConflict(`This ${engineCapacity}cc ${fuelType} vehicle should be categorized as "Large Engine"`);
+        return false;
+      }
+    }
+    
+    if (category === 'largeEngine' && engineCapacity) {
+      if (fuelType === 'petrol' && engineCapacity < 3000) {
+        setCategoryConflict(`Petrol vehicles need >3000cc for Large Engine category (current: ${engineCapacity}cc)`);
+        return false;
+      }
+      if (fuelType === 'diesel' && engineCapacity < 2500) {
+        setCategoryConflict(`Diesel vehicles need >2500cc for Large Engine category (current: ${engineCapacity}cc)`);
+        return false;
+      }
+    }
+    
+    if (category === 'electric' && fuelType && fuelType !== 'electric') {
+      setCategoryConflict(`Vehicle fuel type is ${fuelType}, not electric`);
+      return false;
+    }
+    
+    if (category === 'motorcycle' && bodyType && !bodyType.includes('motorcycle') && !bodyType.includes('bike')) {
+      setCategoryConflict(`Vehicle appears to be a ${bodyType}, not a motorcycle`);
+      return false;
+    }
+    
+    if ((category === 'schoolBus' || category === 'ambulance') && selectedVehicle.model) {
+      const modelLower = selectedVehicle.model.toLowerCase();
+      if (category === 'schoolBus' && !modelLower.includes('bus')) {
+        setCategoryConflict(`Vehicle model "${selectedVehicle.model}" doesn't appear to be a bus`);
+        return false;
+      }
+      if (category === 'ambulance' && !modelLower.includes('ambulance')) {
+        setCategoryConflict(`Vehicle model "${selectedVehicle.model}" doesn't appear to be an ambulance`);
+        return false;
+      }
+    }
+    
+    setCategoryConflict(null);
+    return true;
+  };
+
+  // Watch for manual category changes
+  const manualCategory = form.watch('vehicleCategory');
+  
+  useEffect(() => {
+    if (useManualCategory) {
+      validateCategorySelection(manualCategory);
+    } else {
+      // Clear conflict when switching to auto-detection
+      setCategoryConflict(null);
+    }
+  }, [manualCategory, useManualCategory, selectedVehicle]);
+
   // Watch import type changes
   const isDirectImport = form.watch('isDirectImport');
 
@@ -247,6 +325,16 @@ export default function DutyCalculator() {
       toast({
         title: "Category Required",
         description: "Please select a vehicle category",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check for category conflicts before submitting
+    if (useManualCategory && categoryConflict) {
+      toast({
+        title: "Category Conflict",
+        description: categoryConflict,
         variant: "destructive",
       });
       return;
@@ -439,11 +527,23 @@ export default function DutyCalculator() {
                       </div>
                       
                       {useManualCategory ? (
-                        <VehicleCategorySelector
-                          value={form.watch('vehicleCategory')}
-                          onValueChange={(value) => form.setValue('vehicleCategory', value as any)}
-                          disabled={false}
-                        />
+                        <>
+                          <VehicleCategorySelector
+                            value={form.watch('vehicleCategory')}
+                            onValueChange={(value) => form.setValue('vehicleCategory', value as any)}
+                            disabled={false}
+                          />
+                          
+                          {/* Category Conflict Warning */}
+                          {categoryConflict && (
+                            <Alert variant="destructive">
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertDescription>
+                                <strong>Category Conflict:</strong> {categoryConflict}
+                              </AlertDescription>
+                            </Alert>
+                          )}
+                        </>
                       ) : (
                         <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">
                           Category will be automatically detected based on engine size and fuel type from your selected vehicle.

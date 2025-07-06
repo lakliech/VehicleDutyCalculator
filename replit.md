@@ -207,6 +207,13 @@ Changelog:
   - Each category card shows emoji, description, and applicable tax rates
   - Manual selection overrides auto-detection based on engine size
   - Enhanced user experience with visual category identification
+- January 10, 2025. Implemented category conflict validation:
+  - Added validation to prevent manual category selection from conflicting with vehicle specs
+  - Real-time conflict warnings for engine size mismatches (e.g., selecting "Under 1500cc" for 2000cc vehicle)
+  - Fuel type validation (e.g., prevents selecting "Electric" for petrol vehicles)
+  - Body type checks for specialized categories (motorcycle, bus, ambulance)
+  - Form submission blocked when conflicts exist with clear error messages
+  - Conflicts automatically clear when switching back to auto-detection mode
 
 ## User Preferences
 

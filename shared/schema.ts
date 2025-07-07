@@ -79,6 +79,7 @@ export const vehicleReferences = pgTable("vehicle_references", {
   fuelType: text("fuel_type"),
   gvw: text("gvw"),
   crspKes: decimal("crsp_kes", { precision: 12, scale: 2 }),
+  crsp2020: decimal("crsp_2020", { precision: 12, scale: 2 }),
   discontinuationYear: integer("discontinuation_year"),
   createdAt: text("created_at").default("now()").notNull(),
 });
@@ -129,6 +130,7 @@ export const dutyResultSchema = z.object({
   totalTaxes: z.number(),
   registrationFees: z.number(),
   totalPayable: z.number(),
+  usedCrsp2020: z.boolean().optional(),
   breakdown: z.array(z.object({
     label: z.string(),
     amount: z.number(),

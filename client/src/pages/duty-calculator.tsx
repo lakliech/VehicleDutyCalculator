@@ -136,10 +136,25 @@ export default function DutyCalculator() {
   // Handle vehicle selection from database
   const handleVehicleSelect = (vehicle: VehicleReference | null) => {
     setSelectedVehicle(vehicle);
-    if (vehicle && vehicle.crspKes) {
-      // Update form with vehicle data
-      const crspValue = typeof vehicle.crspKes === 'string' ? parseFloat(vehicle.crspKes) : vehicle.crspKes;
-      form.setValue('vehicleValue', crspValue);
+    if (vehicle) {
+      // Determine which CRSP value to use (current CRSP_KES has priority over CRSP2020)
+      let crspValue = 0;
+      let usedCrsp2020 = false;
+      
+      if (vehicle.crspKes) {
+        crspValue = typeof vehicle.crspKes === 'string' ? parseFloat(vehicle.crspKes) : vehicle.crspKes;
+        usedCrsp2020 = false;
+      } else if (vehicle.crsp2020) {
+        crspValue = typeof vehicle.crsp2020 === 'string' ? parseFloat(vehicle.crsp2020) : vehicle.crsp2020;
+        usedCrsp2020 = true;
+      }
+      
+      if (crspValue > 0) {
+        form.setValue('vehicleValue', crspValue);
+        
+        // Store information about CRSP source for display
+        (vehicle as any).usedCrsp2020 = usedCrsp2020;
+      }
       
       // Set engine size from selected vehicle
       if (vehicle.engineCapacity) {
@@ -305,10 +320,20 @@ export default function DutyCalculator() {
       return response.json();
     },
     onSuccess: (result: DutyResult) => {
+      // Check if we used 2020 CRSP and update the result
+      if (selectedVehicle && (selectedVehicle as any).usedCrsp2020) {
+        result.usedCrsp2020 = true;
+      }
+      
       setCalculationResult(result);
+      
+      // Show appropriate toast based on CRSP source
+      const baseMessage = `Total payable: KES ${result.totalPayable.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (includes estimated registration fees)`;
+      const crspMessage = result.usedCrsp2020 ? " - Based on 2020 CRSP values" : "";
+      
       toast({
         title: "Calculation Complete",
-        description: `Total payable: KES ${result.totalPayable.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (includes estimated registration fees)`,
+        description: baseMessage + crspMessage,
       });
     },
     onError: (error) => {
@@ -518,17 +543,29 @@ export default function DutyCalculator() {
                       </div>
 
                       {/* Selected Vehicle CRSP Display */}
-                      {selectedVehicle && selectedVehicle.crspKes && (
+                      {selectedVehicle && (selectedVehicle.crspKes || selectedVehicle.crsp2020) && (
                         <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                           <div className="flex items-start space-x-2">
                             <DollarSign className="h-5 w-5 text-green-600 mt-0.5" />
                             <div className="w-full">
-                              <p className="text-sm font-medium text-green-900">Current Retail Selling Price (CRSP)</p>
+                              <p className="text-sm font-medium text-green-900">
+                                Current Retail Selling Price (CRSP)
+                                {(selectedVehicle as any).usedCrsp2020 && (
+                                  <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
+                                    2020 CRSP
+                                  </span>
+                                )}
+                              </p>
                               <p className="text-xl font-bold text-green-800 mt-1">
                                 KES {form.watch('vehicleValue')?.toLocaleString('en-KE') || '0'}
                               </p>
                               <p className="text-xs text-green-700 mt-1">
                                 {selectedVehicle.make} {selectedVehicle.model}
+                                {(selectedVehicle as any).usedCrsp2020 && (
+                                  <span className="block text-orange-700 font-medium mt-1">
+                                    ⚠️ Using 2020 CRSP value - current pricing may differ
+                                  </span>
+                                )}
                               </p>
                             </div>
                           </div>
@@ -726,8 +763,20 @@ export default function DutyCalculator() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Current Retail Price:</span>
-                      <span className="font-medium">{formatCurrency(calculationResult.currentRetailPrice)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(calculationResult.currentRetailPrice)}
+                        {calculationResult.usedCrsp2020 && (
+                          <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
+                            2020 CRSP
+                          </span>
+                        )}
+                      </span>
                     </div>
+                    {calculationResult.usedCrsp2020 && (
+                      <div className="text-xs text-orange-700 mt-2 p-2 bg-orange-50 rounded border-l-4 border-orange-300">
+                        ⚠️ Calculation based on 2020 CRSP values - current market prices may differ significantly
+                      </div>
+                    )}
                     {calculationResult.depreciationRate > 0 && (
                       <>
                         <div className="flex justify-between">

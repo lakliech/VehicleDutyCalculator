@@ -212,6 +212,9 @@ export class DatabaseStorage implements IStorage {
       amount: Math.round(item.amount * 100) / 100
     }));
 
+    // Check if we need to use CRSP 2020 based on vehicle value source
+    result.usedCrsp2020 = false; // Will be updated by frontend if 2020 CRSP was used
+
     return result;
   }
 

@@ -7,6 +7,8 @@ import {
   taxRates, 
   vehicleCategoryRules, 
   depreciationRates,
+  trailers,
+  heavyMachinery,
   insertVehicleReferenceSchema
 } from "@shared/schema";
 import { z } from "zod";
@@ -158,6 +160,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         error: "Failed to search vehicle references" 
       });
+    }
+  });
+
+  // Trailers endpoints
+  app.get('/api/trailers', async (req, res) => {
+    try {
+      const trailersList = await db
+        .select()
+        .from(trailers)
+        .orderBy(trailers.type, trailers.make);
+      
+      res.json(trailersList);
+    } catch (error) {
+      console.error("Error fetching trailers:", error);
+      res.status(500).json({ message: "Failed to fetch trailers" });
+    }
+  });
+
+  // Heavy machinery endpoints
+  app.get('/api/heavy-machinery', async (req, res) => {
+    try {
+      const machineryList = await db
+        .select()
+        .from(heavyMachinery)
+        .orderBy(heavyMachinery.category, heavyMachinery.make, heavyMachinery.model);
+      
+      res.json(machineryList);
+    } catch (error) {
+      console.error("Error fetching heavy machinery:", error);
+      res.status(500).json({ message: "Failed to fetch heavy machinery" });
+    }
+  });
+
+  // Heavy machinery categories
+  app.get('/api/heavy-machinery/categories', async (req, res) => {
+    try {
+      const categories = await db
+        .selectDistinct({ category: heavyMachinery.category })
+        .from(heavyMachinery)
+        .orderBy(heavyMachinery.category);
+      
+      res.json(categories.map(row => row.category));
+    } catch (error) {
+      console.error("Error fetching machinery categories:", error);
+      res.status(500).json({ message: "Failed to fetch machinery categories" });
     }
   });
 

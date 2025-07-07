@@ -18,9 +18,11 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { generateDutyCalculationPDF } from "@/lib/pdf-generator";
-import { dutyCalculationSchema, type DutyCalculation, type DutyResult, type VehicleReference, type ManualVehicleData } from "@shared/schema";
+import { dutyCalculationSchema, type DutyCalculation, type DutyResult, type VehicleReference, type ManualVehicleData, type Trailer, type HeavyMachinery } from "@shared/schema";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { VehicleCategorySelector } from "@/components/vehicle-category-selector";
+import { TrailerSelector } from "@/components/trailer-selector";
+import { HeavyMachinerySelector } from "@/components/heavy-machinery-selector";
 import gariyangu from "@assets/gariyangu_1751901637375.png";
 import { 
   Calculator, 
@@ -122,6 +124,9 @@ export default function DutyCalculator() {
   const [yearOfManufacture, setYearOfManufacture] = useState<number>(0); // 0 means not selected
   const [manualEngineSize, setManualEngineSize] = useState<number | null>(null);
   const [manualVehicleData, setManualVehicleData] = useState<ManualVehicleData | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedTrailer, setSelectedTrailer] = useState<Trailer | null>(null);
+  const [selectedMachinery, setSelectedMachinery] = useState<HeavyMachinery | null>(null);
   
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
@@ -537,6 +542,24 @@ export default function DutyCalculator() {
         engineCapacity: selectedVehicle.engineCapacity,
         bodyType: selectedVehicle.bodyType,
         fuelType: selectedVehicle.fuelType
+      } : manualVehicleData ? {
+        make: manualVehicleData.make,
+        model: manualVehicleData.model,
+        engineCapacity: manualVehicleData.engineCapacity,
+        bodyType: manualVehicleData.referenceVehicle.bodyType || "",
+        fuelType: manualVehicleData.referenceVehicle.fuelType || "",
+      } : selectedTrailer ? {
+        make: selectedTrailer.make,
+        model: selectedTrailer.description || selectedTrailer.type,
+        engineCapacity: 0, // Trailers don't have engines
+        bodyType: selectedTrailer.type,
+        fuelType: "other",
+      } : selectedMachinery ? {
+        make: selectedMachinery.make,
+        model: selectedMachinery.model,
+        engineCapacity: selectedMachinery.powerValue || 0, // Use power value as "engine capacity"
+        bodyType: selectedMachinery.category,
+        fuelType: "diesel", // Most heavy machinery is diesel
       } : undefined
     };
     calculateDutyMutation.mutate(submissionData);
@@ -634,85 +657,135 @@ export default function DutyCalculator() {
                         <p className="text-sm text-purple-700">All fields required <span className="text-red-500">*</span></p>
                       </div>
                       
-                      {/* Import Type - First Step */}
-                      <FormField
-                        control={form.control}
-                        name="isDirectImport"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium text-gray-700 mb-2">Step 1: Vehicle Locale</FormLabel>
-                            <FormControl>
-                              <RadioGroup
-                                value={field.value ? "direct" : "registered"}
-                                onValueChange={(value) => field.onChange(value === "direct")}
-                                className="flex space-x-4"
-                              >
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="direct" id="direct" />
-                                  <Label htmlFor="direct">Direct Import</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="registered" id="registered" />
-                                  <Label htmlFor="registered">Previously Registered</Label>
-                                </div>
-                              </RadioGroup>
-                            </FormControl>
-                            <FormDescription>
-                              Direct imports include RDL and IDF fees • Year range: {new Date().getFullYear() - 8} - {new Date().getFullYear()}
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* Vehicle Selection from Database */}
+                      {/* Step 1: Category Selection */}
                       <div>
-                        <Label className="text-sm font-medium text-gray-700 mb-2">Step 2: Select Vehicle <span className="text-red-500">*</span></Label>
-                        <div className="p-3 bg-white rounded-md mb-3">
-                          <p className="text-sm text-gray-600">
-                            Select from over 2,800 vehicles with current market prices
-                          </p>
-                        </div>
-                        <VehicleSelector 
-                          onVehicleSelect={handleVehicleSelect} 
-                          onManualEngineSize={handleManualEngineSize}
-                          onManualVehicleData={handleManualVehicleData}
+                        <Label className="text-sm font-medium text-gray-700 mb-2">Step 1: Vehicle Category <span className="text-red-500">*</span></Label>
+                        <VehicleCategorySelector 
+                          value={selectedCategory}
+                          onValueChange={(category) => {
+                            setSelectedCategory(category);
+                            form.setValue('vehicleCategory', category);
+                            // Reset other selections when category changes
+                            setSelectedVehicle(null);
+                            setSelectedTrailer(null);
+                            setSelectedMachinery(null);
+                            setManualVehicleData(null);
+                            setYearOfManufacture(0);
+                          }}
+                          disabled={false}
                         />
                       </div>
 
-                      {/* Year of Manufacture */}
-                      <div>
-                        <Label htmlFor="yearOfManufacture" className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                          <Calendar className="h-4 w-4 mr-2 text-purple-600" />
-                          Step 3: Year of Manufacture <span className="text-red-500">*</span>
-                        </Label>
-                        <Select
-                          value={yearOfManufacture === 0 ? "" : yearOfManufacture.toString()}
-                          onValueChange={(value) => setYearOfManufacture(Number(value))}
-                        >
-                          <SelectTrigger id="yearOfManufacture">
-                            <SelectValue placeholder="Select year" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {(() => {
-                              const currentYear = new Date().getFullYear();
-                              const isDirectImport = form.watch('isDirectImport');
-                              const yearRange = isDirectImport ? 8 : 20;
-                              
-                              return Array.from({ length: yearRange }, (_, i) => currentYear - i).map((year) => (
-                                <SelectItem key={year} value={year.toString()}>
-                                  {year}
-                                </SelectItem>
-                              ));
-                            })()}
-                          </SelectContent>
-                        </Select>
-                        {yearOfManufacture > 0 && (
-                          <p className="text-sm text-gray-500 mt-1">
-                            Vehicle age: {form.watch('vehicleAge')} year{form.watch('vehicleAge') !== 1 ? 's' : ''} (for duty calculation)
-                          </p>
-                        )}
-                      </div>
+                      {selectedCategory && (
+                        <>
+                          {/* Import Type - Second Step */}
+                          <FormField
+                            control={form.control}
+                            name="isDirectImport"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium text-gray-700 mb-2">Step 2: Import Type</FormLabel>
+                                <FormControl>
+                                  <RadioGroup
+                                    value={field.value ? "direct" : "registered"}
+                                    onValueChange={(value) => field.onChange(value === "direct")}
+                                    className="flex space-x-4"
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem value="direct" id="direct" />
+                                      <Label htmlFor="direct">Direct Import</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem value="registered" id="registered" />
+                                      <Label htmlFor="registered">Previously Registered</Label>
+                                    </div>
+                                  </RadioGroup>
+                                </FormControl>
+                                <FormDescription>
+                                  Direct imports include RDL and IDF fees • Year range: {new Date().getFullYear() - 8} - {new Date().getFullYear()}
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Vehicle Selection - Third Step */}
+                          <div>
+                            <Label className="text-sm font-medium text-gray-700 mb-2">
+                              Step 3: Select {selectedCategory === "trailer" ? "Trailer" : selectedCategory === "heavyMachinery" ? "Equipment" : "Vehicle"} <span className="text-red-500">*</span>
+                            </Label>
+                            
+                            {selectedCategory === "trailer" ? (
+                              <TrailerSelector
+                                onTrailerSelect={(trailer) => {
+                                  setSelectedTrailer(trailer);
+                                  if (trailer) {
+                                    form.setValue('vehicleValue', Number(trailer.crspKes));
+                                  }
+                                }}
+                              />
+                            ) : selectedCategory === "heavyMachinery" ? (
+                              <HeavyMachinerySelector
+                                onMachinerySelect={(machinery) => {
+                                  setSelectedMachinery(machinery);
+                                  if (machinery) {
+                                    form.setValue('vehicleValue', Number(machinery.crspKes));
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <>
+                                <div className="p-3 bg-white rounded-md mb-3">
+                                  <p className="text-sm text-gray-600">
+                                    Select from over 2,800 vehicles with current market prices
+                                  </p>
+                                </div>
+                                <VehicleSelector 
+                                  onVehicleSelect={handleVehicleSelect} 
+                                  onManualEngineSize={handleManualEngineSize}
+                                  onManualVehicleData={handleManualVehicleData}
+                                />
+                              </>
+                            )}
+                          </div>
+
+                          {/* Year of Manufacture - Step 4 */}
+                          {(selectedVehicle || manualVehicleData || selectedTrailer || selectedMachinery) && (
+                            <div>
+                              <Label htmlFor="yearOfManufacture" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <Calendar className="h-4 w-4 mr-2 text-purple-600" />
+                                Step 4: Year of Manufacture <span className="text-red-500">*</span>
+                              </Label>
+                              <Select
+                                value={yearOfManufacture === 0 ? "" : yearOfManufacture.toString()}
+                                onValueChange={(value) => setYearOfManufacture(Number(value))}
+                              >
+                                <SelectTrigger id="yearOfManufacture">
+                                  <SelectValue placeholder="Select year" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {(() => {
+                                    const currentYear = new Date().getFullYear();
+                                    const isDirectImport = form.watch('isDirectImport');
+                                    const yearRange = isDirectImport ? 8 : 20;
+                                    
+                                    return Array.from({ length: yearRange }, (_, i) => currentYear - i).map((year) => (
+                                      <SelectItem key={year} value={year.toString()}>
+                                        {year}
+                                      </SelectItem>
+                                    ));
+                                  })()}
+                                </SelectContent>
+                              </Select>
+                              {yearOfManufacture > 0 && (
+                                <p className="text-sm text-gray-500 mt-1">
+                                  Vehicle age: {form.watch('vehicleAge')} year{form.watch('vehicleAge') !== 1 ? 's' : ''} (for duty calculation)
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      )}
 
                       {/* Selected Vehicle CRSP Display */}
                       {selectedVehicle && (selectedVehicle.crspKes || selectedVehicle.crsp2020) && (

@@ -1,4 +1,4 @@
-import { vehicles, calculations, depreciationRates, taxRates, vehicleCategoryRules, type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, type DepreciationRate, type TaxRate, type VehicleCategoryRule } from "@shared/schema";
+import { vehicles, calculations, depreciationRates, taxRates, vehicleCategoryRules, trailers, heavyMachinery, type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, type DepreciationRate, type TaxRate, type VehicleCategoryRule, type Trailer, type HeavyMachinery } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, desc, sql } from "drizzle-orm";
 

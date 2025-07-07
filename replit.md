@@ -221,6 +221,14 @@ Changelog:
   - Warning messages inform users that 2020 prices may differ from current market
   - Enhanced calculation results and toast notifications to indicate CRSP source
   - Created add-missing-vehicles.ts script for future vehicle database expansions
+- January 10, 2025. Enhanced admin dashboard with comprehensive management features:
+  - Added additional columns to vehicle table (GVW, CRSP 2020 with visual indicators)
+  - Implemented vehicle editing functionality with comprehensive form including all fields
+  - Added vehicle deletion capability with confirmation prompts and proper cleanup
+  - Created tax rate addition functionality allowing admins to add new vehicle categories
+  - Enhanced backend with PUT/DELETE endpoints for vehicle management and POST for tax rates
+  - Updated validation schemas to include crsp2020 and discontinuationYear fields
+  - Improved UX with edit/delete buttons, dialogs, and proper error handling
 
 ## User Preferences
 

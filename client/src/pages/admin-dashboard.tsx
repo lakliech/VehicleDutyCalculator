@@ -53,6 +53,8 @@ const vehicleReferenceSchema = z.object({
   fuelType: z.string().optional(),
   gvw: z.string().optional(),
   crspKes: z.number().optional(),
+  crsp2020: z.number().optional(),
+  discontinuationYear: z.number().optional(),
 });
 
 const taxRateSchema = z.object({
@@ -332,7 +334,43 @@ function VehicleReferencesTab({
   formatCurrency: (amount: string | number) => string;
 }) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<VehicleReference | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  // Edit vehicle mutation
+  const editVehicleMutation = useMutation({
+    mutationFn: async (data: { id: number; vehicle: Partial<VehicleReferenceForm> }) => {
+      const response = await apiRequest("PUT", `/api/admin/vehicle-references/${data.id}`, data.vehicle);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/vehicle-references"] });
+      toast({ title: "Success", description: "Vehicle updated successfully" });
+      setIsEditDialogOpen(false);
+      setEditingVehicle(null);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Delete vehicle mutation
+  const deleteVehicleMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/admin/vehicle-references/${id}`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/vehicle-references"] });
+      toast({ title: "Success", description: "Vehicle deleted successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
 
   const form = useForm<VehicleReferenceForm>({
     resolver: zodResolver(vehicleReferenceSchema),
@@ -558,6 +596,20 @@ function VehicleReferencesTab({
               </Form>
             </DialogContent>
           </Dialog>
+
+          {/* Edit Vehicle Dialog */}
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Edit Vehicle</DialogTitle>
+              </DialogHeader>
+              {editingVehicle && <EditVehicleForm 
+                vehicle={editingVehicle} 
+                onSave={(data) => editVehicleMutation.mutate({ id: editingVehicle.id, vehicle: data })}
+                onCancel={() => setIsEditDialogOpen(false)}
+              />}
+            </DialogContent>
+          </Dialog>
         </div>
       </CardHeader>
       <CardContent>
@@ -579,7 +631,9 @@ function VehicleReferencesTab({
                   <TableHead>Fuel Type</TableHead>
                   <TableHead>Drive</TableHead>
                   <TableHead>Seating</TableHead>
+                  <TableHead>GVW</TableHead>
                   <TableHead>CRSP Value</TableHead>
+                  <TableHead>CRSP 2020</TableHead>
                   <TableHead>Disc. Year</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -605,8 +659,19 @@ function VehicleReferencesTab({
                       </TableCell>
                       <TableCell>{vehicle.driveConfiguration || "N/A"}</TableCell>
                       <TableCell>{vehicle.seating || "N/A"}</TableCell>
+                      <TableCell>{vehicle.gvw || "N/A"}</TableCell>
                       <TableCell>
                         {vehicle.crspKes ? formatCurrency(vehicle.crspKes) : "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        {vehicle.crsp2020 ? (
+                          <div className="flex items-center gap-1">
+                            <span>{formatCurrency(vehicle.crsp2020)}</span>
+                            <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800">
+                              2020
+                            </Badge>
+                          </div>
+                        ) : "N/A"}
                       </TableCell>
                       <TableCell>
                         {vehicle.discontinuationYear ? (
@@ -631,9 +696,30 @@ function VehicleReferencesTab({
                         )}
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setEditingVehicle(vehicle);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              if (confirm("Are you sure you want to delete this vehicle?")) {
+                                deleteVehicleMutation.mutate(vehicle.id);
+                              }
+                            }}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -650,6 +736,236 @@ function VehicleReferencesTab({
   );
 }
 
+// Edit Vehicle Form Component
+function EditVehicleForm({ 
+  vehicle, 
+  onSave, 
+  onCancel 
+}: {
+  vehicle: VehicleReference;
+  onSave: (data: VehicleReferenceForm) => void;
+  onCancel: () => void;
+}) {
+  const form = useForm<VehicleReferenceForm>({
+    resolver: zodResolver(vehicleReferenceSchema),
+    defaultValues: {
+      make: vehicle.make || "",
+      model: vehicle.model || "",
+      engineCapacity: vehicle.engineCapacity || undefined,
+      bodyType: vehicle.bodyType || "",
+      driveConfiguration: vehicle.driveConfiguration || "",
+      seating: vehicle.seating || "",
+      fuelType: vehicle.fuelType || "",
+      gvw: vehicle.gvw || "",
+      crspKes: vehicle.crspKes ? parseFloat(vehicle.crspKes.toString()) : undefined,
+      crsp2020: vehicle.crsp2020 ? parseFloat(vehicle.crsp2020.toString()) : undefined,
+      discontinuationYear: vehicle.discontinuationYear || undefined,
+    },
+  });
+
+  const onSubmit = (data: VehicleReferenceForm) => {
+    onSave(data);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="make"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Make</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., TOYOTA" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="model"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Model</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., CAMRY" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="engineCapacity"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Engine Capacity (cc)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    {...field} 
+                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                    placeholder="e.g., 2000" 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="bodyType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Body Type</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., Sedan, SUV, Hatchback" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="fuelType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fuel Type</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select fuel type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="petrol">Petrol</SelectItem>
+                      <SelectItem value="diesel">Diesel</SelectItem>
+                      <SelectItem value="electric">Electric</SelectItem>
+                      <SelectItem value="hybrid">Hybrid</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="driveConfiguration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Drive Configuration</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select drive type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2WD">2WD</SelectItem>
+                      <SelectItem value="4WD">4WD</SelectItem>
+                      <SelectItem value="AWD">AWD</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="seating"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Seating Capacity</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., 5, 7, 9" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="gvw"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Gross Vehicle Weight (GVW)</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., 3500kg, 5000kg" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="crspKes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>CRSP Value (KES)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    {...field} 
+                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                    placeholder="e.g., 2500000" 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="crsp2020"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>CRSP 2020 Value (KES)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    {...field} 
+                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                    placeholder="e.g., 2200000" 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="discontinuationYear"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Discontinuation Year</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    {...field} 
+                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                    placeholder="e.g., 2020 (leave empty if current)" 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="flex justify-end space-x-2">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit">Save Changes</Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
+
 // Tax Rates Tab Component  
 function TaxRatesTab({ 
   taxRates, 
@@ -660,13 +976,49 @@ function TaxRatesTab({
   isLoading: boolean;
   onUpdate: (params: { id: number; data: Partial<TaxRateForm> }) => void;
 }) {
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  // Add tax rate mutation
+  const addTaxRateMutation = useMutation({
+    mutationFn: async (data: TaxRateForm) => {
+      const response = await apiRequest("POST", "/api/admin/tax-rates", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/tax-rates"] });
+      toast({ title: "Success", description: "Tax rate added successfully" });
+      setIsAddDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Percent className="h-5 w-5" />
-          Tax Rates by Category
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Percent className="h-5 w-5" />
+            Tax Rates by Category
+          </CardTitle>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Add Tax Rate
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Tax Rate</DialogTitle>
+              </DialogHeader>
+              <AddTaxRateForm onSubmit={addTaxRateMutation.mutate} onCancel={() => setIsAddDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="rounded-md border">
@@ -793,6 +1145,174 @@ function TaxRateRow({
         </Button>
       </TableCell>
     </TableRow>
+  );
+}
+
+// Add Tax Rate Form Component
+function AddTaxRateForm({ 
+  onSubmit, 
+  onCancel 
+}: {
+  onSubmit: (data: TaxRateForm) => void;
+  onCancel: () => void;
+}) {
+  const form = useForm<TaxRateForm>({
+    resolver: zodResolver(taxRateSchema),
+    defaultValues: {
+      vehicleCategory: "",
+      importDuty: 0,
+      exciseDuty: 0,
+      vat: 16,
+      rdl: 1.5,
+      idf: 2.5,
+    },
+  });
+
+  const handleSubmit = (data: TaxRateForm) => {
+    onSubmit(data);
+  };
+
+  const vehicleCategories = [
+    { value: "under1500cc", label: "Under 1500cc" },
+    { value: "over1500cc", label: "Over 1500cc" },
+    { value: "largeEngine", label: "Large Engine" },
+    { value: "electric", label: "Electric" },
+    { value: "schoolBus", label: "School Bus" },
+    { value: "primeMover", label: "Prime Mover" },
+    { value: "trailer", label: "Trailer" },
+    { value: "ambulance", label: "Ambulance" },
+    { value: "motorcycle", label: "Motorcycle" },
+    { value: "specialPurpose", label: "Special Purpose" },
+    { value: "heavyMachinery", label: "Heavy Machinery" },
+  ];
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="vehicleCategory"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Vehicle Category</FormLabel>
+              <FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select vehicle category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {vehicleCategories.map((category) => (
+                      <SelectItem key={category.value} value={category.value}>
+                        {category.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="importDuty"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Import Duty (%)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    {...field} 
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    placeholder="e.g., 35" 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="exciseDuty"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Excise Duty (%)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    {...field} 
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    placeholder="e.g., 20" 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="vat"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>VAT (%)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    {...field} 
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    placeholder="e.g., 16" 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="rdl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>RDL (%)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    {...field} 
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    placeholder="e.g., 1.5" 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="idf"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>IDF (%)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    {...field} 
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    placeholder="e.g., 2.5" 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="flex justify-end space-x-2">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit">Add Tax Rate</Button>
+        </div>
+      </form>
+    </Form>
   );
 }
 

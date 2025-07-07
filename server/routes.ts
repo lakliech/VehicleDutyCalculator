@@ -250,6 +250,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fuelType: z.string().optional(),
         gvw: z.string().optional(),
         crspKes: z.number().optional(),
+        crsp2020: z.number().optional(),
+        discontinuationYear: z.number().optional(),
       }).safeParse(req.body);
 
       if (!validation.success) {
@@ -292,9 +294,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Add missing fields for update
+      const enhancedValidation = z.object({
+        make: z.string().optional(),
+        model: z.string().optional(),
+        engineCapacity: z.number().optional(),
+        bodyType: z.string().optional(),
+        fuelType: z.string().optional(),
+        driveConfiguration: z.string().optional(),
+        seating: z.string().optional(),
+        gvw: z.string().optional(),
+        crspKes: z.number().optional(),
+        crsp2020: z.number().optional(),
+        discontinuationYear: z.number().optional(),
+      }).safeParse(req.body);
+
+      if (!enhancedValidation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: enhancedValidation.error.issues 
+        });
+      }
+
+      // Format data properly
+      const updateData = { ...enhancedValidation.data };
+      if (updateData.make) updateData.make = updateData.make.toUpperCase();
+      if (updateData.model) updateData.model = updateData.model.toUpperCase();
+      if (updateData.fuelType) updateData.fuelType = updateData.fuelType.toLowerCase();
+
       const [result] = await db
         .update(vehicleReferences)
-        .set(validation.data)
+        .set(updateData)
         .where(eq(vehicleReferences.id, id))
         .returning();
 
@@ -309,6 +339,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete vehicle reference
+  app.delete("/api/admin/vehicle-references/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const vehicleId = parseInt(req.params.id);
+      
+      const [result] = await db
+        .delete(vehicleReferences)
+        .where(eq(vehicleReferences.id, vehicleId))
+        .returning();
+      
+      if (!result) {
+        return res.status(404).json({ error: "Vehicle not found" });
+      }
+      
+      res.json({ message: "Vehicle deleted successfully", id: vehicleId });
+    } catch (error) {
+      console.error("Failed to delete vehicle reference:", error);
+      res.status(400).json({ error: "Failed to delete vehicle reference" });
+    }
+  });
+
   // Get all tax rates
   app.get("/api/admin/tax-rates", authenticateAdmin, async (req, res) => {
     try {
@@ -320,6 +371,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to fetch tax rates:", error);
       res.status(500).json({ error: "Failed to fetch tax rates" });
+    }
+  });
+
+  // Add new tax rate
+  app.post("/api/admin/tax-rates", authenticateAdmin, async (req, res) => {
+    try {
+      const validation = z.object({
+        vehicleCategory: z.string().min(1),
+        importDuty: z.number().min(0).max(100),
+        exciseDuty: z.number().min(0).max(100),
+        vat: z.number().min(0).max(100),
+        rdl: z.number().min(0).max(100),
+        idf: z.number().min(0).max(100),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const [result] = await db
+        .insert(taxRates)
+        .values(validation.data)
+        .returning();
+
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to add tax rate:", error);
+      res.status(500).json({ error: "Failed to add tax rate" });
     }
   });
 

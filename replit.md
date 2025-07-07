@@ -271,6 +271,13 @@ Changelog:
   - Imported comprehensive equipment data including CRSP values, specifications, and categories
   - Added automated import scripts for both databases with data cleaning and categorization
   - Extended database schema to support trailers and heavy machinery duty calculations
+- January 10, 2025. Fixed category validation and Heavy Machinery logic:
+  - Removed duplicate category selection section from frontend for cleaner UX
+  - Updated validation logic to work with category-first selection flow
+  - Fixed Heavy Machinery validation that was incorrectly checking for regular vehicles
+  - Category validation now properly handles all three equipment types: vehicles, trailers, heavy machinery
+  - Year of manufacture validation now skips trailers and heavy machinery (not required)
+  - Submit button correctly disables when category conflicts exist across all equipment types
 
 ## User Preferences
 

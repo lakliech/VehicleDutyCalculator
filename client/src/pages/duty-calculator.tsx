@@ -449,23 +449,49 @@ export default function DutyCalculator() {
   });
 
   const onSubmit = (data: DutyCalculation) => {
-    // Validate all required fields are selected
-    if (!selectedVehicle) {
-      toast({
-        title: "Vehicle Required",
-        description: "Please select a vehicle from the database",
-        variant: "destructive",
-      });
-      return;
+    // Validate all required fields are selected based on category
+    const currentCategory = form.getValues('vehicleCategory');
+    
+    if (currentCategory === 'trailer') {
+      if (!selectedTrailer) {
+        toast({
+          title: "Trailer Required",
+          description: "Please select a trailer from the database",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else if (currentCategory === 'heavyMachinery') {
+      if (!selectedMachinery) {
+        toast({
+          title: "Heavy Machinery Required",
+          description: "Please select heavy machinery from the database",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      // Regular vehicle categories
+      if (!selectedVehicle && !manualVehicleData) {
+        toast({
+          title: "Vehicle Required",
+          description: "Please select a vehicle from the database or use manual entry",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
-    if (!yearOfManufacture || yearOfManufacture === 0) {
-      toast({
-        title: "Year Required", 
-        description: "Please select the year of manufacture",
-        variant: "destructive",
-      });
-      return;
+    // Year validation (only for regular vehicles, not for trailers/machinery that may not need it)
+    if (currentCategory !== 'trailer' && currentCategory !== 'heavyMachinery') {
+      if (!yearOfManufacture || yearOfManufacture === 0) {
+        toast({
+          title: "Year Required", 
+          description: "Please select the year of manufacture",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     // Category validation is now handled in the main validation above
@@ -488,7 +514,6 @@ export default function DutyCalculator() {
     }
 
     // Additional validation: ensure category is selected
-    const currentCategory = form.getValues('vehicleCategory');
     if (!currentCategory) {
       toast({
         title: "Category Required",

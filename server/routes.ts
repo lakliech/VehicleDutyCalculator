@@ -1,10 +1,17 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { dutyCalculationSchema, vehicleReferences } from "@shared/schema";
+import { 
+  dutyCalculationSchema, 
+  vehicleReferences, 
+  taxRates, 
+  vehicleCategoryRules, 
+  depreciationRates,
+  insertVehicleReferenceSchema
+} from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Calculate duty
@@ -180,6 +187,274 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         error: "Failed to fetch engine sizes" 
       });
+    }
+  });
+
+  // ===============================
+  // ADMIN API ROUTES
+  // ===============================
+
+  // Get all vehicle references for admin
+  app.get("/api/admin/vehicle-references", async (req, res) => {
+    try {
+      const results = await db
+        .select()
+        .from(vehicleReferences)
+        .orderBy(vehicleReferences.make, vehicleReferences.model)
+        .limit(1000);
+      res.json(results);
+    } catch (error) {
+      console.error("Failed to fetch vehicle references:", error);
+      res.status(500).json({ error: "Failed to fetch vehicle references" });
+    }
+  });
+
+  // Add new vehicle reference
+  app.post("/api/admin/vehicle-references", async (req, res) => {
+    try {
+      const validation = z.object({
+        make: z.string().min(1),
+        model: z.string().min(1),
+        engineCapacity: z.number().optional(),
+        bodyType: z.string().optional(),
+        fuelType: z.string().optional(),
+        driveConfiguration: z.string().optional(),
+        crspKes: z.string().min(1),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const [result] = await db
+        .insert(vehicleReferences)
+        .values(validation.data)
+        .returning();
+
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to add vehicle reference:", error);
+      res.status(500).json({ error: "Failed to add vehicle reference" });
+    }
+  });
+
+  // Update vehicle reference
+  app.put("/api/admin/vehicle-references/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validation = z.object({
+        make: z.string().optional(),
+        model: z.string().optional(),
+        engineCapacity: z.number().optional(),
+        bodyType: z.string().optional(),
+        fuelType: z.string().optional(),
+        driveConfiguration: z.string().optional(),
+        crspKes: z.string().optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const [result] = await db
+        .update(vehicleReferences)
+        .set(validation.data)
+        .where(eq(vehicleReferences.id, id))
+        .returning();
+
+      if (!result) {
+        return res.status(404).json({ error: "Vehicle reference not found" });
+      }
+
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to update vehicle reference:", error);
+      res.status(500).json({ error: "Failed to update vehicle reference" });
+    }
+  });
+
+  // Get all tax rates
+  app.get("/api/admin/tax-rates", async (req, res) => {
+    try {
+      const results = await db
+        .select()
+        .from(taxRates)
+        .orderBy(taxRates.vehicleCategory);
+      res.json(results);
+    } catch (error) {
+      console.error("Failed to fetch tax rates:", error);
+      res.status(500).json({ error: "Failed to fetch tax rates" });
+    }
+  });
+
+  // Update tax rate
+  app.put("/api/admin/tax-rates/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validation = z.object({
+        importDuty: z.number().min(0).max(100).optional(),
+        exciseDuty: z.number().min(0).max(100).optional(),
+        vat: z.number().min(0).max(100).optional(),
+        rdl: z.number().min(0).max(100).optional(),
+        idf: z.number().min(0).max(100).optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const [result] = await db
+        .update(taxRates)
+        .set(validation.data)
+        .where(eq(taxRates.id, id))
+        .returning();
+
+      if (!result) {
+        return res.status(404).json({ error: "Tax rate not found" });
+      }
+
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to update tax rate:", error);
+      res.status(500).json({ error: "Failed to update tax rate" });
+    }
+  });
+
+  // Get all category rules
+  app.get("/api/admin/category-rules", async (req, res) => {
+    try {
+      const results = await db
+        .select()
+        .from(vehicleCategoryRules)
+        .orderBy(vehicleCategoryRules.vehicleCategory);
+      res.json(results);
+    } catch (error) {
+      console.error("Failed to fetch category rules:", error);
+      res.status(500).json({ error: "Failed to fetch category rules" });
+    }
+  });
+
+  // Add new category rule
+  app.post("/api/admin/category-rules", async (req, res) => {
+    try {
+      const validation = z.object({
+        vehicleCategory: z.string().min(1),
+        minEngineSize: z.number().optional(),
+        maxEngineSize: z.number().optional(),
+        fuelType: z.string().optional(),
+        bodyType: z.string().optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const [result] = await db
+        .insert(vehicleCategoryRules)
+        .values(validation.data)
+        .returning();
+
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to add category rule:", error);
+      res.status(500).json({ error: "Failed to add category rule" });
+    }
+  });
+
+  // Update category rule
+  app.put("/api/admin/category-rules/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validation = z.object({
+        vehicleCategory: z.string().optional(),
+        minEngineSize: z.number().optional(),
+        maxEngineSize: z.number().optional(),
+        fuelType: z.string().optional(),
+        bodyType: z.string().optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const [result] = await db
+        .update(vehicleCategoryRules)
+        .set(validation.data)
+        .where(eq(vehicleCategoryRules.id, id))
+        .returning();
+
+      if (!result) {
+        return res.status(404).json({ error: "Category rule not found" });
+      }
+
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to update category rule:", error);
+      res.status(500).json({ error: "Failed to update category rule" });
+    }
+  });
+
+  // Get all depreciation rates
+  app.get("/api/admin/depreciation-rates", async (req, res) => {
+    try {
+      const results = await db
+        .select()
+        .from(depreciationRates)
+        .orderBy(depreciationRates.vehicleType, depreciationRates.minAgeMonths);
+      res.json(results);
+    } catch (error) {
+      console.error("Failed to fetch depreciation rates:", error);
+      res.status(500).json({ error: "Failed to fetch depreciation rates" });
+    }
+  });
+
+  // Update depreciation rate
+  app.put("/api/admin/depreciation-rates/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validation = z.object({
+        vehicleType: z.enum(["direct", "previouslyRegistered"]).optional(),
+        minAgeMonths: z.number().min(0).optional(),
+        maxAgeMonths: z.number().min(0).optional(),
+        depreciationPercentage: z.number().min(0).max(100).optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const [result] = await db
+        .update(depreciationRates)
+        .set(validation.data)
+        .where(eq(depreciationRates.id, id))
+        .returning();
+
+      if (!result) {
+        return res.status(404).json({ error: "Depreciation rate not found" });
+      }
+
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to update depreciation rate:", error);
+      res.status(500).json({ error: "Failed to update depreciation rate" });
     }
   });
 

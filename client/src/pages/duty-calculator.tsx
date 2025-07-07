@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,7 +40,8 @@ import {
   Heart,
   Wrench,
   Package,
-  Settings
+  Settings,
+  Database
 } from "lucide-react";
 
 const vehicleCategoryInfo = {
@@ -397,6 +399,12 @@ export default function DutyCalculator() {
                 <Shield className="h-3 w-3 mr-1" />
                 KRA Official Rates
               </Badge>
+              <Link href="/admin">
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <Database className="h-4 w-4" />
+                  Admin
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

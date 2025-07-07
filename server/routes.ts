@@ -365,7 +365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const results = await db
         .select()
         .from(vehicleCategoryRules)
-        .orderBy(vehicleCategoryRules.vehicleCategory);
+        .orderBy(vehicleCategoryRules.category);
       res.json(results);
     } catch (error) {
       console.error("Failed to fetch category rules:", error);

@@ -79,6 +79,7 @@ export const vehicleReferences = pgTable("vehicle_references", {
   fuelType: text("fuel_type"),
   gvw: text("gvw"),
   crspKes: decimal("crsp_kes", { precision: 12, scale: 2 }),
+  discontinuationYear: integer("discontinuation_year"),
   createdAt: text("created_at").default("now()").notNull(),
 });
 

@@ -416,7 +416,7 @@ export default function DutyCalculator() {
             <Card className="shadow-sm">
               <CardHeader>
                 <CardTitle className="text-2xl">Vehicle Information</CardTitle>
-                <p className="text-gray-600">Enter your vehicle details to calculate applicable duties and taxes</p>
+                <p className="text-gray-600">Select your vehicle details to calculate applicable duties and taxes</p>
               </CardHeader>
               <CardContent>
                 <Form {...form}>
@@ -527,6 +527,34 @@ export default function DutyCalculator() {
                           </div>
                         </div>
                       )}
+
+                      {/* Discontinuation Warning */}
+                      {selectedVehicle && selectedVehicle.discontinuationYear && (
+                        (() => {
+                          const currentYear = new Date().getFullYear();
+                          const yearsSinceDiscontinuation = currentYear - selectedVehicle.discontinuationYear;
+                          const isImportRestricted = yearsSinceDiscontinuation > 8;
+                          
+                          return (
+                            <Alert variant={isImportRestricted ? "destructive" : "default"} className={isImportRestricted ? "border-red-200 bg-red-50" : "border-orange-200 bg-orange-50"}>
+                              <AlertCircle className={`h-4 w-4 ${isImportRestricted ? "text-red-600" : "text-orange-600"}`} />
+                              <AlertDescription className={isImportRestricted ? "text-red-800" : "text-orange-800"}>
+                                {isImportRestricted ? (
+                                  <div>
+                                    <strong className="font-semibold">THIS MODEL WAS DISCONTINUED IN {selectedVehicle.discontinuationYear} AND CANNOT BE IMPORTED INTO KENYA</strong>
+                                    <p className="mt-1 text-sm">This vehicle was discontinued {yearsSinceDiscontinuation} years ago, exceeding the 8-year import limit.</p>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <strong className="font-semibold">Vehicle Discontinued Notice</strong>
+                                    <p className="mt-1 text-sm">This model was discontinued in {selectedVehicle.discontinuationYear} ({yearsSinceDiscontinuation} years ago). It can still be imported but may have limited parts availability.</p>
+                                  </div>
+                                )}
+                              </AlertDescription>
+                            </Alert>
+                          );
+                        })()
+                      )}
                     </div>
 
                     {/* Category Selection Toggle */}
@@ -613,10 +641,15 @@ export default function DutyCalculator() {
                     <Button 
                       type="submit" 
                       className="w-full bg-green-600 hover:bg-green-700"
-                      disabled={calculateDutyMutation.isPending}
+                      disabled={calculateDutyMutation.isPending || (selectedVehicle?.discontinuationYear && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8)}
                     >
                       {calculateDutyMutation.isPending ? (
                         <>Calculating...</>
+                      ) : selectedVehicle?.discontinuationYear && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8 ? (
+                        <>
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          Cannot Import (Discontinued)
+                        </>
                       ) : (
                         <>
                           <Calculator className="h-4 w-4 mr-2" />

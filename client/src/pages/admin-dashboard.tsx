@@ -527,6 +527,27 @@ function VehicleReferencesTab({
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="discontinuationYear"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Discontinuation Year</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            {...field} 
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            placeholder="e.g., 2020 (leave empty if current)" 
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Leave empty for current models. Vehicles discontinued over 8 years ago cannot be imported.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <div className="flex justify-end space-x-2">
                     <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                       Cancel
@@ -559,6 +580,7 @@ function VehicleReferencesTab({
                   <TableHead>Drive</TableHead>
                   <TableHead>Seating</TableHead>
                   <TableHead>CRSP Value</TableHead>
+                  <TableHead>Disc. Year</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -585,6 +607,28 @@ function VehicleReferencesTab({
                       <TableCell>{vehicle.seating || "N/A"}</TableCell>
                       <TableCell>
                         {vehicle.crspKes ? formatCurrency(vehicle.crspKes) : "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        {vehicle.discontinuationYear ? (
+                          <div className="flex items-center space-x-1">
+                            <span>{vehicle.discontinuationYear}</span>
+                            {(() => {
+                              const yearsSince = new Date().getFullYear() - vehicle.discontinuationYear;
+                              const isRestricted = yearsSince > 8;
+                              return isRestricted ? (
+                                <Badge variant="destructive" className="text-xs">
+                                  Cannot Import
+                                </Badge>
+                              ) : yearsSince > 5 ? (
+                                <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800">
+                                  Limited
+                                </Badge>
+                              ) : null;
+                            })()}
+                          </div>
+                        ) : (
+                          <Badge variant="outline" className="text-xs">Current</Badge>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="sm">
@@ -785,7 +829,7 @@ function CategoryRulesTab({
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center">Loading...</TableCell>
+                  <TableCell colSpan={10} className="text-center">Loading...</TableCell>
                 </TableRow>
               ) : (
                 categoryRules.map((rule) => (

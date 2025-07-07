@@ -846,66 +846,7 @@ export default function DutyCalculator() {
                       )}
                     </div>
 
-                    {/* Category Selection Toggle */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Switch
-                            id="manual-category"
-                            checked={useManualCategory}
-                            onCheckedChange={setUseManualCategory}
-                          />
-                          <Label htmlFor="manual-category" className="text-sm font-medium">
-                            Manual Category Selection
-                          </Label>
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          {useManualCategory ? "Manual" : "Auto-detect"}
-                        </Badge>
-                      </div>
-                      
-                      {useManualCategory ? (
-                        <>
-                          <VehicleCategorySelector
-                            value={form.watch('vehicleCategory')}
-                            onValueChange={(value) => form.setValue('vehicleCategory', value as any)}
-                            disabled={false}
-                          />
-                          
-                          {/* Category Conflict Warning */}
-                          {categoryConflict && (
-                            <Alert variant="destructive" className="border-red-300 bg-red-50">
-                              <AlertCircle className="h-4 w-4 text-red-600" />
-                              <AlertDescription className="text-red-800">
-                                <strong>Category Conflict:</strong> {categoryConflict}
-                                <div className="mt-2 text-sm">
-                                  Switch to auto-detection or select the appropriate category for this vehicle.
-                                </div>
-                              </AlertDescription>
-                            </Alert>
-                          )}
-                        </>
-                      ) : (
-                        <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">
-                          Category will be automatically detected based on engine size and fuel type from your selected vehicle.
-                        </div>
-                      )}
-                    </div>
 
-                    {/* Auto-detected Category Display */}
-                    {engineSize && !useManualCategory && (
-                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div className="flex items-start space-x-2">
-                          <Info className="h-5 w-5 text-blue-600 mt-0.5" />
-                          <div>
-                            <p className="text-sm font-medium text-blue-900">Auto-detected Category</p>
-                            <p className="text-sm text-blue-700 mt-1">
-                              Based on {engineSize}cc engine: <span className="font-semibold">{vehicleCategoryInfo[form.watch('vehicleCategory')].label}</span>
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
 
                     {/* Display Vehicle Info from Database */}
                     {selectedVehicle && (selectedVehicle.fuelType || selectedVehicle.bodyType) && (

@@ -244,7 +244,7 @@ export default function DutyCalculator() {
   useEffect(() => {
     if (yearOfManufacture && yearOfManufacture > 0) {
       const currentYear = new Date().getFullYear();
-      const age = currentYear - yearOfManufacture;
+      const age = currentYear - yearOfManufacture + 1; // Always add 1 year to age calculation
       form.setValue('vehicleAge', Math.max(0, age));
     } else {
       form.setValue('vehicleAge', 0);
@@ -709,7 +709,7 @@ export default function DutyCalculator() {
                         </Select>
                         {yearOfManufacture > 0 && (
                           <p className="text-sm text-gray-500 mt-1">
-                            Vehicle age: {form.watch('vehicleAge')} year{form.watch('vehicleAge') !== 1 ? 's' : ''}
+                            Vehicle age: {form.watch('vehicleAge')} year{form.watch('vehicleAge') !== 1 ? 's' : ''} (for duty calculation)
                           </p>
                         )}
                       </div>

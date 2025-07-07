@@ -254,6 +254,17 @@ Changelog:
   - Contact information: 0736 272719 for Japan/UK/South Africa/Dubai/Australia/Singapore/Thailand imports
   - Professional styling with gradient background and responsive design
   - Clear call-to-action for users interested in car import services
+- January 10, 2025. Fixed category validation system:
+  - Completely resolved issue where multiple conflicting categories could be selected
+  - Enhanced validation with comprehensive conflict detection for Electric vs petrol/diesel
+  - Added specialized category validation for Prime Mover, Trailer, School Bus, etc.
+  - Submit button now disables when conflicts exist with clear error messages
+  - Updated Gariyangu purple/cyan branding throughout category selector
+- January 10, 2025. Updated depreciation rates and age calculation:
+  - Modified depreciation rates to match user specifications: 2018 (65%), 2019 (60%), 2020 (55%)
+  - Updated age calculation to always add 1 year: age = current_year - manufacture_year + 1
+  - Adjusted intermediate depreciation rates for consistent progression
+  - Updated documentation to reflect new depreciation schedule
 
 ## User Preferences
 

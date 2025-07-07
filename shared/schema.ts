@@ -84,6 +84,31 @@ export const vehicleReferences = pgTable("vehicle_references", {
   createdAt: text("created_at").default("now()").notNull(),
 });
 
+// Trailers reference table
+export const trailers = pgTable("trailers", {
+  id: serial("id").primaryKey(),
+  type: text("type").notNull(), // e.g., "Skeleton Trailer", "Flatbed Trailer"
+  specifications: text("specifications"), // e.g., "3 Axel", "3 Axel/ 6.4 Ton"
+  make: text("make").notNull(), // e.g., "CMC", "KEHAR", "RANDON"
+  crspKes: decimal("crsp_kes", { precision: 12, scale: 2 }).notNull(),
+  description: text("description"), // Full description combining type and specs
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
+// Tractors and heavy machinery reference table
+export const heavyMachinery = pgTable("heavy_machinery", {
+  id: serial("id").primaryKey(),
+  make: text("make").notNull(), // e.g., "MASSEY FERGUSON", "VOLVO CE EQUIPMENTS"
+  model: text("model").notNull(), // e.g., "MF-385-2WD", "BACKHOE LOADER(BL61B)"
+  powerSpec: text("power_spec"), // Horsepower/CC/KW specification
+  powerValue: integer("power_value"), // Extracted numeric power value
+  category: text("category"), // e.g., "Tractor", "Excavator", "Wheel Loader"
+  driveType: text("drive_type"), // e.g., "2WD", "4WD"
+  crspKes: decimal("crsp_kes", { precision: 12, scale: 2 }).notNull(),
+  description: text("description"), // Full description
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
 export const insertVehicleSchema = createInsertSchema(vehicles).omit({
   id: true,
   createdAt: true,
@@ -146,6 +171,8 @@ export type DepreciationRate = typeof depreciationRates.$inferSelect;
 export type TaxRate = typeof taxRates.$inferSelect;
 export type VehicleCategoryRule = typeof vehicleCategoryRules.$inferSelect;
 export type VehicleReference = typeof vehicleReferences.$inferSelect;
+export type Trailer = typeof trailers.$inferSelect;
+export type HeavyMachinery = typeof heavyMachinery.$inferSelect;
 export type DutyCalculation = z.infer<typeof dutyCalculationSchema>;
 export type DutyResult = z.infer<typeof dutyResultSchema>;
 

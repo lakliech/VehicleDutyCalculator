@@ -265,6 +265,12 @@ Changelog:
   - Updated age calculation to always add 1 year: age = current_year - manufacture_year + 1
   - Adjusted intermediate depreciation rates for consistent progression
   - Updated documentation to reflect new depreciation schedule
+- January 10, 2025. Added specialized equipment databases:
+  - Created trailers table with 28 records from trailers CSV data
+  - Created heavy_machinery table with 112 records from tractors/equipment CSV data
+  - Imported comprehensive equipment data including CRSP values, specifications, and categories
+  - Added automated import scripts for both databases with data cleaning and categorization
+  - Extended database schema to support trailers and heavy machinery duty calculations
 
 ## User Preferences
 

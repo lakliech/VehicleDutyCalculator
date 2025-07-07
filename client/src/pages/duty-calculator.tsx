@@ -119,7 +119,7 @@ export default function DutyCalculator() {
   const { toast } = useToast();
   const [calculationResult, setCalculationResult] = useState<DutyResult | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
-  const [useManualCategory, setUseManualCategory] = useState<boolean>(false);
+
   const [categoryConflict, setCategoryConflict] = useState<string | null>(null);
   const [yearOfManufacture, setYearOfManufacture] = useState<number>(0); // 0 means not selected
   const [manualEngineSize, setManualEngineSize] = useState<number | null>(null);
@@ -205,10 +205,7 @@ export default function DutyCalculator() {
       form.setValue("vehicleValue", data.proratedCrsp);
       form.setValue("engineSize", data.engineCapacity);
       
-      // Auto-detect category based on engine size
-      if (!useManualCategory) {
-        detectVehicleCategory(data.engineCapacity, 'petrol'); // Default to petrol for manual entries
-      }
+      // Note: Category should already be selected in Step 1
 
       // Show notification about proration
       toast({
@@ -234,16 +231,8 @@ export default function DutyCalculator() {
     }
   };
 
-  // Watch engine size changes to auto-update vehicle category (only when not using manual selection)
+  // Get engine size from form for validation
   const engineSize = form.watch('engineSize');
-  
-  useEffect(() => {
-    if (engineSize && !useManualCategory) {
-      // Auto-detect vehicle category based on engine size and fuel type from selected vehicle
-      const vehicleFuelType = selectedVehicle?.fuelType?.toLowerCase() || manualVehicleData?.referenceVehicle.fuelType?.toLowerCase() || 'petrol';
-      detectVehicleCategory(engineSize, vehicleFuelType);
-    }
-  }, [engineSize, selectedVehicle, manualVehicleData, form, useManualCategory]);
 
   // Update vehicle age when year of manufacture changes
   useEffect(() => {
@@ -258,7 +247,7 @@ export default function DutyCalculator() {
 
   // Validate manual category selection against vehicle specs
   const validateCategorySelection = (category: string) => {
-    if (!useManualCategory || !category) {
+    if (!category) {
       setCategoryConflict(null);
       return true;
     }
@@ -397,32 +386,21 @@ export default function DutyCalculator() {
     return true;
   };
 
-  // Watch for manual category changes
-  const manualCategory = form.watch('vehicleCategory');
+  // Watch for category changes and validate
+  const currentCategory = form.watch('vehicleCategory');
   
   useEffect(() => {
-    if (useManualCategory) {
-      console.log('Manual category changed:', manualCategory, 'validating...');
-      validateCategorySelection(manualCategory);
-    } else {
-      // Clear conflict when switching to auto-detection
-      setCategoryConflict(null);
-      
-      // Force auto-detection when switching from manual mode
-      if (engineSize) {
-        const vehicleFuelType = selectedVehicle?.fuelType?.toLowerCase() || manualVehicleData?.referenceVehicle.fuelType?.toLowerCase() || 'petrol';
-        detectVehicleCategory(engineSize, vehicleFuelType);
-      }
-    }
-  }, [manualCategory, useManualCategory, selectedVehicle, engineSize, manualVehicleData]);
+    console.log('Category changed:', currentCategory, 'validating...');
+    validateCategorySelection(currentCategory);
+  }, [currentCategory, selectedVehicle, selectedTrailer, selectedMachinery, manualVehicleData]);
 
-  // Additional effect to validate when vehicle is selected while in manual mode
+  // Additional effect to validate when vehicle is selected
   useEffect(() => {
-    if (useManualCategory && selectedVehicle) {
-      console.log('Vehicle selected while in manual mode, re-validating category...');
-      validateCategorySelection(manualCategory);
+    if (selectedVehicle || selectedTrailer || selectedMachinery) {
+      console.log('Vehicle/equipment selected, re-validating category...');
+      validateCategorySelection(currentCategory);
     }
-  }, [selectedVehicle, useManualCategory, manualCategory]);
+  }, [selectedVehicle, selectedTrailer, selectedMachinery, currentCategory]);
 
   // Watch import type changes
   const isDirectImport = form.watch('isDirectImport');
@@ -490,32 +468,23 @@ export default function DutyCalculator() {
       return;
     }
 
-    if (useManualCategory && !data.vehicleCategory) {
-      toast({
-        title: "Category Required",
-        description: "Please select a vehicle category",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Category validation is now handled in the main validation above
 
     // Check for category conflicts before submitting
     // CRITICAL: Enhanced category conflict validation - prevent submission with conflicts
-    if (useManualCategory) {
-      console.log('Checking for conflicts before submission:', { categoryConflict, currentCategory: form.getValues('vehicleCategory') });
-      
-      // Re-validate the current selection to catch any missed conflicts
-      const isValid = validateCategorySelection(form.getValues('vehicleCategory'));
-      
-      if (categoryConflict || !isValid) {
-        console.log('BLOCKING SUBMISSION due to category conflict:', categoryConflict);
-        toast({
-          title: "Category Conflict Detected",
-          description: categoryConflict || "Selected category conflicts with vehicle specifications. Please choose the correct category or switch to auto-detection.",
-          variant: "destructive",
-        });
-        return;
-      }
+    console.log('Checking for conflicts before submission:', { categoryConflict, currentCategory: form.getValues('vehicleCategory') });
+    
+    // Re-validate the current selection to catch any missed conflicts
+    const isValid = validateCategorySelection(form.getValues('vehicleCategory'));
+    
+    if (categoryConflict || !isValid) {
+      console.log('BLOCKING SUBMISSION due to category conflict:', categoryConflict);
+      toast({
+        title: "Category Conflict Detected",
+        description: categoryConflict || "Selected category conflicts with vehicle specifications. Please choose the correct category.",
+        variant: "destructive",
+      });
+      return;
     }
 
     // Additional validation: ensure category is selected
@@ -877,7 +846,7 @@ export default function DutyCalculator() {
                       disabled={
                         calculateDutyMutation.isPending || 
                         (selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
-                        (useManualCategory && categoryConflict)
+                        categoryConflict
                       }
                     >
                       {calculateDutyMutation.isPending ? (

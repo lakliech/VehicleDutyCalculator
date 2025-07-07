@@ -325,8 +325,14 @@ export default function DutyCalculator() {
     } else {
       // Clear conflict when switching to auto-detection
       setCategoryConflict(null);
+      
+      // Force auto-detection when switching from manual mode
+      if (engineSize) {
+        const vehicleFuelType = selectedVehicle?.fuelType?.toLowerCase() || manualVehicleData?.referenceVehicle.fuelType?.toLowerCase() || 'petrol';
+        detectVehicleCategory(engineSize, vehicleFuelType);
+      }
     }
-  }, [manualCategory, useManualCategory, selectedVehicle]);
+  }, [manualCategory, useManualCategory, selectedVehicle, engineSize, manualVehicleData]);
 
   // Watch import type changes
   const isDirectImport = form.watch('isDirectImport');
@@ -404,10 +410,22 @@ export default function DutyCalculator() {
     }
 
     // Check for category conflicts before submitting
+    // Enhanced category conflict validation
     if (useManualCategory && categoryConflict) {
       toast({
         title: "Category Conflict",
-        description: categoryConflict,
+        description: categoryConflict + " Please select the correct category or switch to auto-detection.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Additional validation: ensure only one category is selected
+    const currentCategory = form.getValues('vehicleCategory');
+    if (!currentCategory) {
+      toast({
+        title: "Category Required",
+        description: "Please select a vehicle category.",
         variant: "destructive",
       });
       return;

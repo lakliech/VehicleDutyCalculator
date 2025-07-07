@@ -113,6 +113,19 @@ interface VehicleCategorySelectorProps {
 export function VehicleCategorySelector({ value, onValueChange, disabled }: VehicleCategorySelectorProps) {
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
 
+  const handleCategorySelect = (categoryValue: string) => {
+    if (disabled) return;
+    
+    // Ensure only one category can be selected at a time
+    if (value === categoryValue) {
+      // If clicking the same category, keep it selected (don't deselect)
+      return;
+    }
+    
+    // Set the new category
+    onValueChange(categoryValue);
+  };
+
   return (
     <div className="space-y-4">
       <Label className="text-base font-semibold">
@@ -125,11 +138,11 @@ export function VehicleCategorySelector({ value, onValueChange, disabled }: Vehi
             className={cn(
               "cursor-pointer transition-all duration-200 hover:shadow-md",
               value === category.value 
-                ? "ring-2 ring-green-500 bg-green-50 dark:bg-green-900/20" 
-                : "hover:ring-1 hover:ring-gray-300",
+                ? "ring-2 ring-purple-500 bg-purple-50 dark:bg-purple-900/20" 
+                : "hover:ring-1 hover:ring-purple-300",
               disabled && "opacity-50 cursor-not-allowed"
             )}
-            onClick={() => !disabled && onValueChange(category.value)}
+            onClick={() => handleCategorySelect(category.value)}
             onMouseEnter={() => setHoveredCategory(category.value)}
             onMouseLeave={() => setHoveredCategory(null)}
           >
@@ -161,12 +174,12 @@ export function VehicleCategorySelector({ value, onValueChange, disabled }: Vehi
       </div>
       
       {value && (
-        <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <div className="mt-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
           <div className="flex items-center space-x-2">
             <span className="text-lg">
               {categoryOptions.find(cat => cat.value === value)?.emoji}
             </span>
-            <span className="font-medium text-sm">
+            <span className="font-medium text-sm text-purple-900 dark:text-purple-100">
               Selected: {categoryOptions.find(cat => cat.value === value)?.label}
             </span>
           </div>

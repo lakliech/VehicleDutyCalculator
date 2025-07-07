@@ -528,8 +528,8 @@ export default function DutyCalculator() {
                         </div>
                       )}
 
-                      {/* Discontinuation Warning */}
-                      {selectedVehicle && selectedVehicle.discontinuationYear && (
+                      {/* Discontinuation Warning - Only for Direct Import */}
+                      {selectedVehicle && selectedVehicle.discontinuationYear && form.watch('importType') === 'direct' && (
                         (() => {
                           const currentYear = new Date().getFullYear();
                           const yearsSinceDiscontinuation = currentYear - selectedVehicle.discontinuationYear;
@@ -542,7 +542,7 @@ export default function DutyCalculator() {
                                 {isImportRestricted ? (
                                   <div>
                                     <strong className="font-semibold">THIS MODEL WAS DISCONTINUED IN {selectedVehicle.discontinuationYear} AND CANNOT BE IMPORTED INTO KENYA</strong>
-                                    <p className="mt-1 text-sm">This vehicle was discontinued {yearsSinceDiscontinuation} years ago, exceeding the 8-year import limit.</p>
+                                    <p className="mt-1 text-sm">This vehicle was discontinued {yearsSinceDiscontinuation} years ago, exceeding the 8-year import limit for direct imports.</p>
                                   </div>
                                 ) : (
                                   <div>
@@ -641,11 +641,11 @@ export default function DutyCalculator() {
                     <Button 
                       type="submit" 
                       className="w-full bg-green-600 hover:bg-green-700"
-                      disabled={calculateDutyMutation.isPending || (selectedVehicle?.discontinuationYear && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8)}
+                      disabled={calculateDutyMutation.isPending || (selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8)}
                     >
                       {calculateDutyMutation.isPending ? (
                         <>Calculating...</>
-                      ) : selectedVehicle?.discontinuationYear && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8 ? (
+                      ) : selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8 ? (
                         <>
                           <AlertCircle className="h-4 w-4 mr-2" />
                           Cannot Import (Discontinued)

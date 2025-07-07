@@ -253,65 +253,141 @@ export default function DutyCalculator() {
 
   // Validate manual category selection against vehicle specs
   const validateCategorySelection = (category: string) => {
-    if (!selectedVehicle || !useManualCategory) {
+    if (!useManualCategory || !category) {
       setCategoryConflict(null);
       return true;
     }
 
-    const engineCapacity = selectedVehicle.engineCapacity;
-    const fuelType = selectedVehicle.fuelType?.toLowerCase();
-    const bodyType = selectedVehicle.bodyType?.toLowerCase();
+    // Get vehicle data from either selected vehicle or manual entry
+    const vehicleData = selectedVehicle || manualVehicleData?.referenceVehicle;
+    if (!vehicleData) {
+      setCategoryConflict(null);
+      return true;
+    }
 
-    // Check for conflicts
+    const engineCapacity = vehicleData.engineCapacity || form.getValues('engineSize');
+    const fuelType = vehicleData.fuelType?.toLowerCase();
+    const bodyType = vehicleData.bodyType?.toLowerCase();
+
+    console.log('Validating category:', category, 'for vehicle:', { engineCapacity, fuelType, bodyType });
+
+    // Enhanced conflict detection
     if (category === 'under1500cc' && engineCapacity && engineCapacity >= 1500) {
-      setCategoryConflict(`Vehicle has ${engineCapacity}cc engine, which is not under 1500cc`);
+      const conflictMsg = `Vehicle has ${engineCapacity}cc engine, which is not under 1500cc`;
+      setCategoryConflict(conflictMsg);
+      console.log('Conflict detected:', conflictMsg);
       return false;
     }
     
     if (category === 'over1500cc' && engineCapacity) {
       if (engineCapacity < 1500) {
-        setCategoryConflict(`Vehicle has ${engineCapacity}cc engine, which is under 1500cc`);
+        const conflictMsg = `Vehicle has ${engineCapacity}cc engine, which is under 1500cc`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
         return false;
       }
       if ((fuelType === 'petrol' && engineCapacity >= 3000) || (fuelType === 'diesel' && engineCapacity >= 2500)) {
-        setCategoryConflict(`This ${engineCapacity}cc ${fuelType} vehicle should be categorized as "Large Engine"`);
+        const conflictMsg = `This ${engineCapacity}cc ${fuelType} vehicle should be categorized as "Large Engine"`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
         return false;
       }
     }
     
-    if (category === 'largeEngine' && engineCapacity) {
+    if (category === 'largeEngine' && engineCapacity && fuelType) {
       if (fuelType === 'petrol' && engineCapacity < 3000) {
-        setCategoryConflict(`Petrol vehicles need >3000cc for Large Engine category (current: ${engineCapacity}cc)`);
+        const conflictMsg = `Petrol vehicles need >3000cc for Large Engine category (current: ${engineCapacity}cc)`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
         return false;
       }
       if (fuelType === 'diesel' && engineCapacity < 2500) {
-        setCategoryConflict(`Diesel vehicles need >2500cc for Large Engine category (current: ${engineCapacity}cc)`);
+        const conflictMsg = `Diesel vehicles need >2500cc for Large Engine category (current: ${engineCapacity}cc)`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
         return false;
       }
     }
     
+    // CRITICAL: Electric category validation
     if (category === 'electric' && fuelType && fuelType !== 'electric') {
-      setCategoryConflict(`Vehicle fuel type is ${fuelType}, not electric`);
+      const conflictMsg = `Vehicle fuel type is "${fuelType}", not electric. Cannot select Electric category for non-electric vehicles.`;
+      setCategoryConflict(conflictMsg);
+      console.log('ELECTRIC CONFLICT:', conflictMsg);
+      return false;
+    }
+
+    // Non-electric categories with electric fuel type
+    if (fuelType === 'electric' && !['electric'].includes(category)) {
+      const conflictMsg = `Electric vehicle cannot be categorized as "${category}". Please select Electric category.`;
+      setCategoryConflict(conflictMsg);
+      console.log('ELECTRIC VEHICLE CONFLICT:', conflictMsg);
       return false;
     }
     
+    // Specialized vehicle category validation
     if (category === 'motorcycle' && bodyType && !bodyType.includes('motorcycle') && !bodyType.includes('bike')) {
-      setCategoryConflict(`Vehicle appears to be a ${bodyType}, not a motorcycle`);
+      const conflictMsg = `Vehicle appears to be a ${bodyType}, not a motorcycle`;
+      setCategoryConflict(conflictMsg);
+      console.log('Conflict detected:', conflictMsg);
       return false;
     }
-    
-    if ((category === 'schoolBus' || category === 'ambulance') && selectedVehicle.model) {
-      const modelLower = selectedVehicle.model.toLowerCase();
-      if (category === 'schoolBus' && !modelLower.includes('bus')) {
-        setCategoryConflict(`Vehicle model "${selectedVehicle.model}" doesn't appear to be a bus`);
-        return false;
-      }
-      if (category === 'ambulance' && !modelLower.includes('ambulance')) {
-        setCategoryConflict(`Vehicle model "${selectedVehicle.model}" doesn't appear to be an ambulance`);
+
+    if (category === 'primeMover' && bodyType && !bodyType.toLowerCase().includes('truck') && !bodyType.toLowerCase().includes('tractor')) {
+      const conflictMsg = `Prime Mover category is for heavy duty truck heads, not ${bodyType}`;
+      setCategoryConflict(conflictMsg);
+      console.log('Conflict detected:', conflictMsg);
+      return false;
+    }
+
+    if (category === 'trailer' && bodyType && !bodyType.toLowerCase().includes('trailer')) {
+      const conflictMsg = `Trailer category is for transport trailers, not ${bodyType}`;
+      setCategoryConflict(conflictMsg);
+      console.log('Conflict detected:', conflictMsg);
+      return false;
+    }
+
+    if (category === 'heavyMachinery' && bodyType) {
+      const machineryTypes = ['excavator', 'bulldozer', 'crane', 'loader', 'grader'];
+      const isHeavyMachinery = machineryTypes.some(type => bodyType.toLowerCase().includes(type));
+      if (!isHeavyMachinery) {
+        const conflictMsg = `Heavy Machinery category is for construction equipment, not ${bodyType}`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
         return false;
       }
     }
     
+    if ((category === 'schoolBus' || category === 'ambulance') && vehicleData.model) {
+      const modelLower = vehicleData.model.toLowerCase();
+      const bodyLower = bodyType || '';
+      
+      if (category === 'schoolBus' && !modelLower.includes('bus') && !bodyLower.includes('bus')) {
+        const conflictMsg = `School Bus category requires a bus vehicle, not "${vehicleData.model}"`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
+        return false;
+      }
+      if (category === 'ambulance' && !modelLower.includes('ambulance') && !bodyLower.includes('ambulance')) {
+        const conflictMsg = `Ambulance category requires an ambulance vehicle, not "${vehicleData.model}"`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
+        return false;
+      }
+    }
+
+    // Generic vehicle validation for specialized categories
+    if (['primeMover', 'trailer', 'schoolBus', 'ambulance', 'heavyMachinery'].includes(category)) {
+      const normalVehicleTypes = ['hatchback', 'sedan', 'suv', 'wagon', 'coupe', 'convertible'];
+      if (bodyType && normalVehicleTypes.some(type => bodyType.toLowerCase().includes(type))) {
+        const conflictMsg = `"${category}" category cannot be used for regular ${bodyType} vehicles`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
+        return false;
+      }
+    }
+    
+    console.log('No conflicts detected for category:', category);
     setCategoryConflict(null);
     return true;
   };
@@ -321,6 +397,7 @@ export default function DutyCalculator() {
   
   useEffect(() => {
     if (useManualCategory) {
+      console.log('Manual category changed:', manualCategory, 'validating...');
       validateCategorySelection(manualCategory);
     } else {
       // Clear conflict when switching to auto-detection
@@ -333,6 +410,14 @@ export default function DutyCalculator() {
       }
     }
   }, [manualCategory, useManualCategory, selectedVehicle, engineSize, manualVehicleData]);
+
+  // Additional effect to validate when vehicle is selected while in manual mode
+  useEffect(() => {
+    if (useManualCategory && selectedVehicle) {
+      console.log('Vehicle selected while in manual mode, re-validating category...');
+      validateCategorySelection(manualCategory);
+    }
+  }, [selectedVehicle, useManualCategory, manualCategory]);
 
   // Watch import type changes
   const isDirectImport = form.watch('isDirectImport');
@@ -410,17 +495,25 @@ export default function DutyCalculator() {
     }
 
     // Check for category conflicts before submitting
-    // Enhanced category conflict validation
-    if (useManualCategory && categoryConflict) {
-      toast({
-        title: "Category Conflict",
-        description: categoryConflict + " Please select the correct category or switch to auto-detection.",
-        variant: "destructive",
-      });
-      return;
+    // CRITICAL: Enhanced category conflict validation - prevent submission with conflicts
+    if (useManualCategory) {
+      console.log('Checking for conflicts before submission:', { categoryConflict, currentCategory: form.getValues('vehicleCategory') });
+      
+      // Re-validate the current selection to catch any missed conflicts
+      const isValid = validateCategorySelection(form.getValues('vehicleCategory'));
+      
+      if (categoryConflict || !isValid) {
+        console.log('BLOCKING SUBMISSION due to category conflict:', categoryConflict);
+        toast({
+          title: "Category Conflict Detected",
+          description: categoryConflict || "Selected category conflicts with vehicle specifications. Please choose the correct category or switch to auto-detection.",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
-    // Additional validation: ensure only one category is selected
+    // Additional validation: ensure category is selected
     const currentCategory = form.getValues('vehicleCategory');
     if (!currentCategory) {
       toast({
@@ -708,10 +801,13 @@ export default function DutyCalculator() {
                           
                           {/* Category Conflict Warning */}
                           {categoryConflict && (
-                            <Alert variant="destructive">
-                              <AlertCircle className="h-4 w-4" />
-                              <AlertDescription>
+                            <Alert variant="destructive" className="border-red-300 bg-red-50">
+                              <AlertCircle className="h-4 w-4 text-red-600" />
+                              <AlertDescription className="text-red-800">
                                 <strong>Category Conflict:</strong> {categoryConflict}
+                                <div className="mt-2 text-sm">
+                                  Switch to auto-detection or select the appropriate category for this vehicle.
+                                </div>
                               </AlertDescription>
                             </Alert>
                           )}
@@ -764,7 +860,11 @@ export default function DutyCalculator() {
                     <Button 
                       type="submit" 
                       className="w-full bg-purple-600 hover:bg-purple-700"
-                      disabled={calculateDutyMutation.isPending || (selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8)}
+                      disabled={
+                        calculateDutyMutation.isPending || 
+                        (selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
+                        (useManualCategory && categoryConflict)
+                      }
                     >
                       {calculateDutyMutation.isPending ? (
                         <>Calculating...</>

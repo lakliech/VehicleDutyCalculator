@@ -125,7 +125,7 @@ export default function DutyCalculator() {
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
     defaultValues: {
-      vehicleCategory: "under1500cc",
+      vehicleCategory: "under1500cc", 
       vehicleValue: 1000000,
       engineSize: 1500,
       vehicleAge: 0,
@@ -145,6 +145,13 @@ export default function DutyCalculator() {
       if (vehicle.engineCapacity) {
         form.setValue('engineSize', vehicle.engineCapacity);
         setManualEngineSize(null); // Clear manual engine size when vehicle has capacity
+      } else {
+        // If vehicle doesn't have engine capacity, keep the current form value or default
+        // Don't override with null/undefined to avoid validation errors
+        const currentEngineSize = form.getValues('engineSize');
+        if (!currentEngineSize || currentEngineSize === 0) {
+          form.setValue('engineSize', 1500); // Set reasonable default
+        }
       }
       
       // Auto-fill fuel type if available
@@ -164,7 +171,7 @@ export default function DutyCalculator() {
   // Handle manual engine size input
   const handleManualEngineSize = (engineSize: number | null) => {
     setManualEngineSize(engineSize);
-    if (engineSize) {
+    if (engineSize && engineSize > 0) {
       form.setValue('engineSize', engineSize);
     }
   };

@@ -216,25 +216,29 @@ export default function DutyCalculator() {
     setCategoryConflict(null);
   };
 
+  // Function to detect vehicle category based on engine size and fuel type
+  const detectVehicleCategory = (engineCapacity: number, fuelType: string = 'petrol') => {
+    if (engineCapacity < 1500) {
+      form.setValue('vehicleCategory', 'under1500cc');
+    } else if (engineCapacity >= 3000 && fuelType.toLowerCase() === 'petrol') {
+      form.setValue('vehicleCategory', 'largeEngine');
+    } else if (engineCapacity >= 2500 && fuelType.toLowerCase() === 'diesel') {
+      form.setValue('vehicleCategory', 'largeEngine');
+    } else {
+      form.setValue('vehicleCategory', 'over1500cc');
+    }
+  };
+
   // Watch engine size changes to auto-update vehicle category (only when not using manual selection)
   const engineSize = form.watch('engineSize');
   
   useEffect(() => {
     if (engineSize && !useManualCategory) {
       // Auto-detect vehicle category based on engine size and fuel type from selected vehicle
-      const vehicleFuelType = selectedVehicle?.fuelType?.toLowerCase();
-      
-      if (engineSize < 1500) {
-        form.setValue('vehicleCategory', 'under1500cc');
-      } else if (engineSize >= 3000 && vehicleFuelType === 'petrol') {
-        form.setValue('vehicleCategory', 'largeEngine');
-      } else if (engineSize >= 2500 && vehicleFuelType === 'diesel') {
-        form.setValue('vehicleCategory', 'largeEngine');
-      } else {
-        form.setValue('vehicleCategory', 'over1500cc');
-      }
+      const vehicleFuelType = selectedVehicle?.fuelType?.toLowerCase() || manualVehicleData?.referenceVehicle.fuelType?.toLowerCase() || 'petrol';
+      detectVehicleCategory(engineSize, vehicleFuelType);
     }
-  }, [engineSize, selectedVehicle, form, useManualCategory]);
+  }, [engineSize, selectedVehicle, manualVehicleData, form, useManualCategory]);
 
   // Update vehicle age when year of manufacture changes
   useEffect(() => {

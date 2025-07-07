@@ -214,6 +214,13 @@ Changelog:
   - Body type checks for specialized categories (motorcycle, bus, ambulance)
   - Form submission blocked when conflicts exist with clear error messages
   - Conflicts automatically clear when switching back to auto-detection mode
+- January 10, 2025. Added CRSP2020 comprehensive vehicle coverage:
+  - Added 634 new vehicles from CRSP2020 CSV to database (total now 3,504 vehicles)
+  - Implemented fallback system: Current CRSP_KES takes priority, falls back to CRSP2020
+  - Added visual indicators (orange badges) when 2020 CRSP values are used
+  - Warning messages inform users that 2020 prices may differ from current market
+  - Enhanced calculation results and toast notifications to indicate CRSP source
+  - Created add-missing-vehicles.ts script for future vehicle database expansions
 
 ## User Preferences
 

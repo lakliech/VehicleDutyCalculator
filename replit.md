@@ -229,6 +229,15 @@ Changelog:
   - Enhanced backend with PUT/DELETE endpoints for vehicle management and POST for tax rates
   - Updated validation schemas to include crsp2020 and discontinuationYear fields
   - Improved UX with edit/delete buttons, dialogs, and proper error handling
+- January 10, 2025. Implemented CRSP proration for vehicles not in database:
+  - Added manual entry mode in vehicle selector with toggle between database and manual entry
+  - Users can input make, model, and engine capacity for vehicles not in database
+  - System searches for reference vehicles from same make with CRSP values and engine capacity
+  - Prorates CRSP value using formula: reference_crsp × manual_engine_capacity ÷ reference_engine_capacity
+  - Example: Peugeot 2008 (1200cc) uses Peugeot 3008 (1598cc) reference: 5,499,000 × 1200 ÷ 1598
+  - Enhanced UI with proration calculation display and clear data source indicators
+  - Updated backend search endpoint to filter reference vehicles with valid CRSP and engine data
+  - Integrated manual vehicle data into duty calculation workflow with appropriate notifications
 
 ## User Preferences
 

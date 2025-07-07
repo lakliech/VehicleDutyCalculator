@@ -148,3 +148,12 @@ export type VehicleCategoryRule = typeof vehicleCategoryRules.$inferSelect;
 export type VehicleReference = typeof vehicleReferences.$inferSelect;
 export type DutyCalculation = z.infer<typeof dutyCalculationSchema>;
 export type DutyResult = z.infer<typeof dutyResultSchema>;
+
+// Manual vehicle data for proration
+export interface ManualVehicleData {
+  make: string;
+  model: string;
+  engineCapacity: number;
+  referenceVehicle: VehicleReference;
+  proratedCrsp: number;
+}

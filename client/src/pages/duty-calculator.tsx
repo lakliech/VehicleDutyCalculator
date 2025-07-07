@@ -18,7 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { generateDutyCalculationPDF } from "@/lib/pdf-generator";
-import { dutyCalculationSchema, type DutyCalculation, type DutyResult, type VehicleReference } from "@shared/schema";
+import { dutyCalculationSchema, type DutyCalculation, type DutyResult, type VehicleReference, type ManualVehicleData } from "@shared/schema";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { VehicleCategorySelector } from "@/components/vehicle-category-selector";
 import nexaLogo from "@assets/nexalogo_1751834730316.png";
@@ -121,6 +121,7 @@ export default function DutyCalculator() {
   const [categoryConflict, setCategoryConflict] = useState<string | null>(null);
   const [yearOfManufacture, setYearOfManufacture] = useState<number>(0); // 0 means not selected
   const [manualEngineSize, setManualEngineSize] = useState<number | null>(null);
+  const [manualVehicleData, setManualVehicleData] = useState<ManualVehicleData | null>(null);
   
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
@@ -189,6 +190,30 @@ export default function DutyCalculator() {
     if (engineSize && engineSize > 0) {
       form.setValue('engineSize', engineSize);
     }
+  };
+
+  // Handle manual vehicle data with proration
+  const handleManualVehicleData = (data: ManualVehicleData | null) => {
+    setManualVehicleData(data);
+    if (data) {
+      // Use prorated CRSP value
+      form.setValue("vehicleValue", data.proratedCrsp);
+      form.setValue("engineSize", data.engineCapacity);
+      
+      // Auto-detect category based on engine size
+      if (!useManualCategory) {
+        detectVehicleCategory(data.engineCapacity, 'petrol'); // Default to petrol for manual entries
+      }
+
+      // Show notification about proration
+      toast({
+        title: "Using Prorated CRSP Value",
+        description: `CRSP value calculated based on ${data.referenceVehicle.make} ${data.referenceVehicle.model} reference vehicle.`,
+        variant: "default",
+      });
+    }
+    
+    setCategoryConflict(null);
   };
 
   // Watch engine size changes to auto-update vehicle category (only when not using manual selection)
@@ -505,6 +530,7 @@ export default function DutyCalculator() {
                         <VehicleSelector 
                           onVehicleSelect={handleVehicleSelect} 
                           onManualEngineSize={handleManualEngineSize}
+                          onManualVehicleData={handleManualVehicleData}
                         />
                       </div>
 

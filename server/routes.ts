@@ -128,6 +128,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (engineCapacity && typeof engineCapacity === 'string') {
         whereConditions.push(sql`${vehicleReferences.engineCapacity} = ${parseInt(engineCapacity)}`);
       }
+
+      // For proration reference vehicles (make only search), ensure vehicles have CRSP values and engine capacity
+      if (make && !model && !engineCapacity) {
+        whereConditions.push(sql`(${vehicleReferences.crspKes} IS NOT NULL OR ${vehicleReferences.crsp2020} IS NOT NULL)`);
+        whereConditions.push(sql`${vehicleReferences.engineCapacity} IS NOT NULL`);
+      }
       
       let results;
       if (whereConditions.length > 0) {

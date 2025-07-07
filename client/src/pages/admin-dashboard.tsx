@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   Settings, 
   Car, 
@@ -28,7 +29,8 @@ import {
   TrendingUp,
   Shield,
   Calculator,
-  ArrowLeft
+  ArrowLeft,
+  LogOut
 } from "lucide-react";
 import { z } from "zod";
 import type { 
@@ -37,6 +39,8 @@ import type {
   VehicleCategoryRule, 
   DepreciationRate 
 } from "@shared/schema";
+import { useAuth } from "@/components/auth-provider";
+import { AdminLogin } from "@/components/admin-login";
 
 // Form schemas for validation
 const vehicleReferenceSchema = z.object({
@@ -44,9 +48,11 @@ const vehicleReferenceSchema = z.object({
   model: z.string().min(1, "Model is required"),
   engineCapacity: z.number().optional(),
   bodyType: z.string().optional(),
-  fuelType: z.string().optional(),
   driveConfiguration: z.string().optional(),
-  crspKes: z.string().min(1, "CRSP value is required"),
+  seating: z.string().optional(),
+  fuelType: z.string().optional(),
+  gvw: z.string().optional(),
+  crspKes: z.number().optional(),
 });
 
 const taxRateSchema = z.object({
@@ -81,29 +87,70 @@ type DepreciationRateForm = z.infer<typeof depreciationRateSchema>;
 export default function AdminDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isAuthenticated, logout, getAuthHeaders } = useAuth();
   const [activeTab, setActiveTab] = useState("vehicles");
 
-  // Queries for fetching data
+  if (!isAuthenticated) {
+    return <AdminLogin />;
+  }
+
+  // Queries for fetching data with authentication
   const { data: vehicleReferences = [], isLoading: vehiclesLoading } = useQuery<VehicleReference[]>({
     queryKey: ["/api/admin/vehicle-references"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/vehicle-references", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
   });
 
   const { data: taxRates = [], isLoading: taxRatesLoading } = useQuery<TaxRate[]>({
     queryKey: ["/api/admin/tax-rates"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/tax-rates", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
   });
 
   const { data: categoryRules = [], isLoading: categoryRulesLoading } = useQuery<VehicleCategoryRule[]>({
     queryKey: ["/api/admin/category-rules"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/category-rules", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
   });
 
   const { data: depreciationRates = [], isLoading: depreciationRatesLoading } = useQuery<DepreciationRate[]>({
     queryKey: ["/api/admin/depreciation-rates"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/depreciation-rates", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
   });
 
-  // Vehicle reference mutations
+  // Vehicle reference mutations with authentication
   const addVehicleMutation = useMutation({
     mutationFn: async (data: VehicleReferenceForm) => {
-      const response = await apiRequest("POST", "/api/admin/vehicle-references", data);
+      const response = await fetch("/api/admin/vehicle-references", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
       return response.json();
     },
     onSuccess: () => {
@@ -185,6 +232,15 @@ export default function AdminDashboard() {
                   Back to Calculator
                 </Button>
               </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={logout}
+                className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Button>
               <Badge variant="secondary" className="bg-green-100 text-green-800">
                 <Shield className="h-3 w-3 mr-1" />
                 Admin Access
@@ -363,12 +419,103 @@ function VehicleReferencesTab({
                   />
                   <FormField
                     control={form.control}
+                    name="bodyType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Body Type</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="e.g., Sedan, SUV, Hatchback" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="driveConfiguration"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Drive Configuration</FormLabel>
+                        <FormControl>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select drive type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="FWD">Front Wheel Drive (FWD)</SelectItem>
+                              <SelectItem value="RWD">Rear Wheel Drive (RWD)</SelectItem>
+                              <SelectItem value="AWD">All Wheel Drive (AWD)</SelectItem>
+                              <SelectItem value="4WD">Four Wheel Drive (4WD)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="seating"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Seating Capacity</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="e.g., 5, 7, 2+2" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="fuelType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Fuel Type</FormLabel>
+                        <FormControl>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select fuel type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="petrol">Petrol</SelectItem>
+                              <SelectItem value="diesel">Diesel</SelectItem>
+                              <SelectItem value="electric">Electric</SelectItem>
+                              <SelectItem value="hybrid">Hybrid</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="gvw"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Gross Vehicle Weight (GVW)</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="e.g., 3500kg, 5000kg" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name="crspKes"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>CRSP Value (KES)</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="e.g., 2500000" />
+                          <Input 
+                            type="number" 
+                            {...field} 
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            placeholder="e.g., 2500000" 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -401,6 +548,10 @@ function VehicleReferencesTab({
                   <TableHead>Make</TableHead>
                   <TableHead>Model</TableHead>
                   <TableHead>Engine (cc)</TableHead>
+                  <TableHead>Body Type</TableHead>
+                  <TableHead>Fuel Type</TableHead>
+                  <TableHead>Drive</TableHead>
+                  <TableHead>Seating</TableHead>
                   <TableHead>CRSP Value</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -418,6 +569,14 @@ function VehicleReferencesTab({
                       <TableCell>
                         {vehicle.engineCapacity ? `${vehicle.engineCapacity}cc` : "N/A"}
                       </TableCell>
+                      <TableCell>{vehicle.bodyType || "N/A"}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="capitalize">
+                          {vehicle.fuelType || "N/A"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{vehicle.driveConfiguration || "N/A"}</TableCell>
+                      <TableCell>{vehicle.seating || "N/A"}</TableCell>
                       <TableCell>
                         {vehicle.crspKes ? formatCurrency(vehicle.crspKes) : "N/A"}
                       </TableCell>
@@ -620,7 +779,7 @@ function CategoryRulesTab({
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">Loading...</TableCell>
+                  <TableCell colSpan={9} className="text-center">Loading...</TableCell>
                 </TableRow>
               ) : (
                 categoryRules.map((rule) => (

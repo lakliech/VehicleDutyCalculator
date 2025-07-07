@@ -13,7 +13,35 @@ import { z } from "zod";
 import { db } from "./db";
 import { sql, eq } from "drizzle-orm";
 
+// Simple authentication middleware
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+
+const authenticateAdmin = (req: any, res: any, next: any) => {
+  const auth = req.headers.authorization;
+  
+  if (!auth || !auth.startsWith('Bearer ')) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  
+  const token = auth.substring(7);
+  if (token !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: "Invalid credentials" });
+  }
+  
+  next();
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Admin login endpoint
+  app.post("/api/admin/login", async (req, res) => {
+    const { password } = req.body;
+    
+    if (password === ADMIN_PASSWORD) {
+      res.json({ token: ADMIN_PASSWORD, success: true });
+    } else {
+      res.status(401).json({ error: "Invalid password" });
+    }
+  });
   // Calculate duty
   app.post("/api/calculate-duty", async (req, res) => {
     try {
@@ -195,7 +223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all vehicle references for admin
-  app.get("/api/admin/vehicle-references", async (req, res) => {
+  app.get("/api/admin/vehicle-references", authenticateAdmin, async (req, res) => {
     try {
       const results = await db
         .select()
@@ -210,16 +238,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add new vehicle reference
-  app.post("/api/admin/vehicle-references", async (req, res) => {
+  app.post("/api/admin/vehicle-references", authenticateAdmin, async (req, res) => {
     try {
       const validation = z.object({
         make: z.string().min(1),
         model: z.string().min(1),
         engineCapacity: z.number().optional(),
         bodyType: z.string().optional(),
-        fuelType: z.string().optional(),
         driveConfiguration: z.string().optional(),
-        crspKes: z.string().min(1),
+        seating: z.string().optional(),
+        fuelType: z.string().optional(),
+        gvw: z.string().optional(),
+        crspKes: z.number().optional(),
       }).safeParse(req.body);
 
       if (!validation.success) {
@@ -242,7 +272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update vehicle reference
-  app.put("/api/admin/vehicle-references/:id", async (req, res) => {
+  app.put("/api/admin/vehicle-references/:id", authenticateAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
@@ -280,7 +310,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all tax rates
-  app.get("/api/admin/tax-rates", async (req, res) => {
+  app.get("/api/admin/tax-rates", authenticateAdmin, async (req, res) => {
     try {
       const results = await db
         .select()
@@ -294,7 +324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update tax rate
-  app.put("/api/admin/tax-rates/:id", async (req, res) => {
+  app.put("/api/admin/tax-rates/:id", authenticateAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
@@ -330,7 +360,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all category rules
-  app.get("/api/admin/category-rules", async (req, res) => {
+  app.get("/api/admin/category-rules", authenticateAdmin, async (req, res) => {
     try {
       const results = await db
         .select()
@@ -344,14 +374,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add new category rule
-  app.post("/api/admin/category-rules", async (req, res) => {
+  app.post("/api/admin/category-rules", authenticateAdmin, async (req, res) => {
     try {
       const validation = z.object({
-        vehicleCategory: z.string().min(1),
+        category: z.string().min(1),
         minEngineSize: z.number().optional(),
         maxEngineSize: z.number().optional(),
         fuelType: z.string().optional(),
-        bodyType: z.string().optional(),
+        priority: z.number().default(0),
+        description: z.string().optional(),
       }).safeParse(req.body);
 
       if (!validation.success) {
@@ -374,15 +405,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update category rule
-  app.put("/api/admin/category-rules/:id", async (req, res) => {
+  app.put("/api/admin/category-rules/:id", authenticateAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
-        vehicleCategory: z.string().optional(),
+        category: z.string().optional(),
         minEngineSize: z.number().optional(),
         maxEngineSize: z.number().optional(),
         fuelType: z.string().optional(),
-        bodyType: z.string().optional(),
+        priority: z.number().optional(),
+        description: z.string().optional(),
       }).safeParse(req.body);
 
       if (!validation.success) {
@@ -410,12 +442,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all depreciation rates
-  app.get("/api/admin/depreciation-rates", async (req, res) => {
+  app.get("/api/admin/depreciation-rates", authenticateAdmin, async (req, res) => {
     try {
       const results = await db
         .select()
         .from(depreciationRates)
-        .orderBy(depreciationRates.vehicleType, depreciationRates.minAgeMonths);
+        .orderBy(depreciationRates.importType, depreciationRates.minYears);
       res.json(results);
     } catch (error) {
       console.error("Failed to fetch depreciation rates:", error);
@@ -424,14 +456,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update depreciation rate
-  app.put("/api/admin/depreciation-rates/:id", async (req, res) => {
+  app.put("/api/admin/depreciation-rates/:id", authenticateAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
-        vehicleType: z.enum(["direct", "previouslyRegistered"]).optional(),
-        minAgeMonths: z.number().min(0).optional(),
-        maxAgeMonths: z.number().min(0).optional(),
-        depreciationPercentage: z.number().min(0).max(100).optional(),
+        importType: z.enum(["direct", "previouslyRegistered"]).optional(),
+        minYears: z.number().min(0).optional(),
+        maxYears: z.number().min(0).optional(),
+        rate: z.number().min(0).max(1).optional(),
+        description: z.string().optional(),
       }).safeParse(req.body);
 
       if (!validation.success) {

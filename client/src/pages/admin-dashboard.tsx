@@ -221,21 +221,21 @@ function AuthenticatedAdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-gradient-to-r from-purple-50 to-purple-100 shadow-sm border-b border-purple-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
-              <Database className="h-8 w-8 text-green-600" />
+              <Database className="h-8 w-8 text-purple-600" />
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Admin Dashboard</h1>
-                <p className="text-sm text-gray-500">Manage vehicle data, tax rates, and categories</p>
+                <h1 className="text-xl font-semibold text-purple-900">Admin Dashboard</h1>
+                <p className="text-sm text-purple-700">Manage vehicle data, tax rates, and categories</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/">
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="flex items-center gap-2 border-purple-300 text-purple-700 hover:bg-purple-50">
                   <ArrowLeft className="h-4 w-4" />
                   Back to Calculator
                 </Button>
@@ -249,7 +249,7 @@ function AuthenticatedAdminDashboard() {
                 <LogOut className="h-4 w-4" />
                 Logout
               </Button>
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
+              <Badge variant="secondary" className="bg-cyan-100 text-purple-800">
                 <Shield className="h-3 w-3 mr-1" />
                 Admin Access
               </Badge>

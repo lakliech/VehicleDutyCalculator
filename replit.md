@@ -238,6 +238,22 @@ Changelog:
   - Enhanced UI with proration calculation display and clear data source indicators
   - Updated backend search endpoint to filter reference vehicles with valid CRSP and engine data
   - Integrated manual vehicle data into duty calculation workflow with appropriate notifications
+- January 10, 2025. Complete branding transformation to Gariyangu:
+  - Updated from Nexa to Gariyangu branding with new logo integration
+  - Implemented Satoshi font throughout the application for modern typography
+  - Transformed color scheme from green theme to purple/cyan palette:
+    - Primary: Purple (hsl(267, 83%, 57%))
+    - Secondary: Cyan (hsl(196, 100%, 85%))
+    - Gradients: Purple header gradients and purple-to-cyan contact section
+  - Updated all UI components including headers, buttons, badges, and backgrounds
+  - Enhanced visual hierarchy with gradient backgrounds (purple-to-cyan on pages)
+  - Updated tagline from "discover what is possible" to "All About Cars"
+- January 10, 2025. Added professional car import contact integration:
+  - Implemented WhatsApp contact section below header with car import services promotion
+  - Direct WhatsApp link with pre-filled message for car import inquiries
+  - Contact information: 0736 272719 for Japan/UK/South Africa/Dubai/Australia/Singapore/Thailand imports
+  - Professional styling with gradient background and responsive design
+  - Clear call-to-action for users interested in car import services
 
 ## User Preferences
 

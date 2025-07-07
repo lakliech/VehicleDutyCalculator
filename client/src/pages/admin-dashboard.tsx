@@ -85,14 +85,20 @@ type CategoryRuleForm = z.infer<typeof categoryRuleSchema>;
 type DepreciationRateForm = z.infer<typeof depreciationRateSchema>;
 
 export default function AdminDashboard() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { isAuthenticated, logout, getAuthHeaders } = useAuth();
-  const [activeTab, setActiveTab] = useState("vehicles");
+  const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
     return <AdminLogin />;
   }
+
+  return <AuthenticatedAdminDashboard />;
+}
+
+function AuthenticatedAdminDashboard() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { logout, getAuthHeaders } = useAuth();
+  const [activeTab, setActiveTab] = useState("vehicles");
 
   // Queries for fetching data with authentication
   const { data: vehicleReferences = [], isLoading: vehiclesLoading } = useQuery<VehicleReference[]>({

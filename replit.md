@@ -86,15 +86,15 @@ The calculator computes the following Kenya-specific taxes (Updated per KRA offi
 5. **Import Declaration Fee (IDF)**: 2.5% for direct imports only
 
 ## Depreciation Rates
-The system implements official KRA depreciation rates:
+The system implements updated depreciation rates:
 - **Direct Imports**: 
   - 0-6 months: 5%
-  - Over 6 months: 10%
-  - >1 ≤2 years: 15%
-  - >2 ≤3 years: 20%
-  - >3 ≤4 years: 30%
-  - >4 ≤5 years: 40%
-  - >5 ≤6 years: 50%
+  - Over 6 months to 1 year: 10%
+  - >1 ≤2 years: 25%
+  - >2 ≤3 years: 35%
+  - >3 ≤4 years: 45%
+  - >4 ≤5 years: 55%
+  - >5 ≤6 years: 60%
   - >6 ≤7 years: 60%
   - >7 ≤8 years: 65%
 - **Previously Registered**: Higher depreciation from 20% (1 year) to 95% (over 15 years)

@@ -166,6 +166,13 @@ export default function DutyCalculator() {
       if (vehicle.engineCapacity) {
         form.setValue('engineSize', vehicle.engineCapacity);
         setManualEngineSize(null); // Clear manual engine size when vehicle has capacity
+        
+        // Auto-filter category based on engine size and fuel type
+        if (vehicle.fuelType) {
+          detectVehicleCategory(vehicle.engineCapacity, vehicle.fuelType);
+        } else {
+          detectVehicleCategory(vehicle.engineCapacity);
+        }
       } else {
         // If vehicle doesn't have engine capacity, keep the current form value or default
         // Don't override with null/undefined to avoid validation errors
@@ -194,6 +201,10 @@ export default function DutyCalculator() {
     setManualEngineSize(engineSize);
     if (engineSize && engineSize > 0) {
       form.setValue('engineSize', engineSize);
+      
+      // Auto-filter category based on engine size
+      const currentFuelType = form.getValues('fuelType') || 'petrol';
+      detectVehicleCategory(engineSize, currentFuelType);
     }
   };
 
@@ -220,19 +231,42 @@ export default function DutyCalculator() {
 
   // Function to detect vehicle category based on engine size and fuel type
   const detectVehicleCategory = (engineCapacity: number, fuelType: string = 'petrol') => {
+    let autoSelectedCategory = '';
+    
     if (engineCapacity < 1500) {
-      form.setValue('vehicleCategory', 'under1500cc');
+      autoSelectedCategory = 'under1500cc';
     } else if (engineCapacity >= 3000 && fuelType.toLowerCase() === 'petrol') {
-      form.setValue('vehicleCategory', 'largeEngine');
+      autoSelectedCategory = 'largeEngine';
     } else if (engineCapacity >= 2500 && fuelType.toLowerCase() === 'diesel') {
-      form.setValue('vehicleCategory', 'largeEngine');
+      autoSelectedCategory = 'largeEngine';
     } else {
-      form.setValue('vehicleCategory', 'over1500cc');
+      autoSelectedCategory = 'over1500cc';
     }
+    
+    // Update both form and category state
+    form.setValue('vehicleCategory', autoSelectedCategory);
+    setSelectedCategory(autoSelectedCategory);
+    
+    // Clear any existing category conflicts
+    setCategoryConflict(null);
+    
+    // Show notification about auto-category selection
+    const categoryNames: Record<string, string> = {
+      'under1500cc': 'Under 1500cc',
+      'over1500cc': 'Over 1500cc',
+      'largeEngine': 'Large Engine'
+    };
+    
+    toast({
+      title: "Category Auto-Selected",
+      description: `Vehicle category automatically set to: ${categoryNames[autoSelectedCategory]}`,
+      variant: "default",
+    });
   };
 
   // Get engine size from form for validation
   const engineSize = form.watch('engineSize');
+  const fuelType = form.watch('fuelType');
 
   // Update vehicle age when year of manufacture changes
   useEffect(() => {
@@ -244,6 +278,16 @@ export default function DutyCalculator() {
       form.setValue('vehicleAge', 0);
     }
   }, [yearOfManufacture, form]);
+
+  // Auto-filter category when fuel type changes (if engine size is available)
+  useEffect(() => {
+    if (engineSize && engineSize > 0 && fuelType && !selectedTrailer && !selectedMachinery) {
+      // Only auto-detect for regular vehicles, not trailers or machinery
+      if (selectedVehicle || manualEngineSize || manualVehicleData) {
+        detectVehicleCategory(engineSize, fuelType);
+      }
+    }
+  }, [fuelType, engineSize, selectedVehicle, manualEngineSize, manualVehicleData, selectedTrailer, selectedMachinery]);
 
   // Validate manual category selection against vehicle specs
   const validateCategorySelection = (category: string) => {
@@ -760,7 +804,7 @@ export default function DutyCalculator() {
                                     const isDirectImport = form.watch('isDirectImport');
                                     const yearRange = isDirectImport ? 8 : 20;
                                     
-                                    return Array.from({ length: yearRange }, (_, i) => currentYear - i).map((year) => (
+                                    return Array.from({ length: yearRange }, (_, i) => currentYear - yearRange + 1 + i).map((year) => (
                                       <SelectItem key={year} value={year.toString()}>
                                         {year}
                                       </SelectItem>

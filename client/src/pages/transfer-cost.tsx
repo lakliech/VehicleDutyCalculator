@@ -332,38 +332,7 @@ export default function TransferCost() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Required Documents</CardTitle>
-              <CardDescription>
-                Essential documents needed for vehicle transfer
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-semibold mb-3 text-purple-900 dark:text-purple-100">Seller Requirements</h4>
-                  <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                    <li>• Original logbook</li>
-                    <li>• Copy of ID/Passport</li>
-                    <li>• KRA PIN certificate</li>
-                    <li>• Police clearance (if required)</li>
-                    <li>• Insurance certificate</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-3 text-cyan-900 dark:text-cyan-100">Buyer Requirements</h4>
-                  <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                    <li>• Copy of ID/Passport</li>
-                    <li>• KRA PIN certificate</li>
-                    <li>• Signed sale agreement</li>
-                    <li>• Proof of payment</li>
-                    <li>• New insurance policy</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          
         </div>
       </div>
     </div>

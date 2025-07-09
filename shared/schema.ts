@@ -186,6 +186,19 @@ export const registrationFees = pgTable("registration_fees", {
   createdAt: text("created_at").default("now()").notNull(),
 });
 
+// Vehicle transfer rates table
+export const vehicleTransferRates = pgTable("vehicle_transfer_rates", {
+  id: serial("id").primaryKey(),
+  vehicleType: text("vehicle_type").notNull(), // 'vehicle', 'trailer', 'tractor'
+  minEngineCapacity: integer("min_engine_capacity"), // null for trailers/tractors
+  maxEngineCapacity: integer("max_engine_capacity"), // null for trailers/tractors
+  specialType: text("special_type"), // 'trailer_less_than_four_wheels', 'trailer_four_wheels_or_more', 'tractor'
+  transferFee: decimal("transfer_fee", { precision: 10, scale: 2 }).notNull(),
+  description: text("description").notNull(),
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
 export type InsertVehicle = z.infer<typeof insertVehicleSchema>;
 export type Vehicle = typeof vehicles.$inferSelect;
 export type InsertCalculation = z.infer<typeof insertCalculationSchema>;
@@ -198,6 +211,7 @@ export type VehicleReference = typeof vehicleReferences.$inferSelect;
 export type Trailer = typeof trailers.$inferSelect;
 export type HeavyMachinery = typeof heavyMachinery.$inferSelect;
 export type RegistrationFee = typeof registrationFees.$inferSelect;
+export type VehicleTransferRate = typeof vehicleTransferRates.$inferSelect;
 export type DutyCalculation = z.infer<typeof dutyCalculationSchema>;
 export type DutyResult = z.infer<typeof dutyResultSchema>;
 

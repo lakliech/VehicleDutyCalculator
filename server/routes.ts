@@ -10,7 +10,8 @@ import {
   depreciationRates,
   trailers,
   heavyMachinery,
-  insertVehicleReferenceSchema
+  insertVehicleReferenceSchema,
+  vehicleTransferRates
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -905,6 +906,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: "Failed to process CSV file",
         details: error.message 
       });
+    }
+  });
+
+  // ===============================
+  // TRANSFER COST CALCULATION
+  // ===============================
+
+  // Calculate transfer cost based on vehicle engine capacity
+  app.post("/api/calculate-transfer-cost", async (req, res) => {
+    try {
+      const { vehicleId, vehicleType, engineCapacity, specialType } = req.body;
+      
+      // Validate input
+      if (!vehicleType || (vehicleType === 'vehicle' && !engineCapacity)) {
+        return res.status(400).json({ 
+          error: "Vehicle type and engine capacity are required for vehicles" 
+        });
+      }
+
+      let transferRate;
+
+      if (vehicleType === 'vehicle') {
+        // Find appropriate transfer rate based on engine capacity
+        transferRate = await db
+          .select()
+          .from(vehicleTransferRates)
+          .where(sql`
+            ${vehicleTransferRates.vehicleType} = 'vehicle' AND
+            ${engineCapacity} >= ${vehicleTransferRates.minEngineCapacity} AND
+            ${engineCapacity} <= ${vehicleTransferRates.maxEngineCapacity}
+          `)
+          .limit(1);
+      } else {
+        // For trailers and tractors, use special type
+        transferRate = await db
+          .select()
+          .from(vehicleTransferRates)
+          .where(sql`
+            ${vehicleTransferRates.vehicleType} = ${vehicleType} AND
+            ${vehicleTransferRates.specialType} = ${specialType}
+          `)
+          .limit(1);
+      }
+
+      if (!transferRate || transferRate.length === 0) {
+        return res.status(404).json({ 
+          error: "No transfer rate found for this vehicle specification" 
+        });
+      }
+
+      const rate = transferRate[0];
+      
+      // Calculate additional costs (estimates)
+      const governmentFees = {
+        transferTax: 0, // Will be calculated as 2% of vehicle value if provided
+        registrationFee: parseFloat(rate.transferFee.toString()),
+        inspectionCertificate: 3000,
+        numberPlateChange: 2000, // Optional
+      };
+
+      const legalFees = {
+        saleAgreement: 5000,
+        advocateFees: 10000,
+        notarization: 2000,
+        documentProcessing: 3000,
+      };
+
+      const additionalCosts = {
+        insuranceTransfer: 5000,
+        valuationFees: 8000,
+        clearanceFees: 3000, // For outstanding fines/HP
+      };
+
+      const totalGovernmentFees = Object.values(governmentFees).reduce((sum, fee) => sum + fee, 0);
+      const totalLegalFees = Object.values(legalFees).reduce((sum, fee) => sum + fee, 0);
+      const totalAdditionalCosts = Object.values(additionalCosts).reduce((sum, fee) => sum + fee, 0);
+
+      const result = {
+        vehicleType,
+        engineCapacity: vehicleType === 'vehicle' ? engineCapacity : null,
+        specialType: vehicleType !== 'vehicle' ? specialType : null,
+        transferRate: rate,
+        breakdown: {
+          governmentFees,
+          legalFees,
+          additionalCosts,
+        },
+        totals: {
+          governmentFees: totalGovernmentFees,
+          legalFees: totalLegalFees,
+          additionalCosts: totalAdditionalCosts,
+          grandTotal: totalGovernmentFees + totalLegalFees + totalAdditionalCosts,
+        },
+        notes: [
+          "Transfer tax (2% of vehicle value) not included - depends on vehicle valuation",
+          "Advocate fees may vary depending on complexity",
+          "Some costs are optional depending on specific requirements",
+          "Prices are estimates and may vary by location and service provider"
+        ]
+      };
+
+      res.json(result);
+    } catch (error) {
+      console.error("Transfer cost calculation error:", error);
+      res.status(500).json({ error: "Failed to calculate transfer cost" });
     }
   });
 

@@ -146,9 +146,7 @@ export default function VehicleLoans() {
                 <div className="text-purple-200 text-sm">Maximum Loan Term</div>
               </div>
             </div>
-            <div className="text-center mt-6 text-purple-200 text-sm">
-              Expected Launch: Q2 2025 • Contact: 0736 272719
-            </div>
+            <div className="text-center mt-6 text-purple-200 text-sm">Expected Launch: Q2 2025 • Place your financial products here; Contact: 0736 272719</div>
           </div>
         </div>
       </div>

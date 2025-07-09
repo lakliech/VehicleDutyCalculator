@@ -15,10 +15,11 @@ export function generateDutyCalculationPDF(
   const marginRight = 20;
   const contentWidth = pageWidth - marginLeft - marginRight;
   
-  // Modern color scheme (Gariyangu purple/cyan theme)
-  const primaryColor = [146, 85, 224]; // Purple
-  const secondaryColor = [168, 252, 255]; // Cyan
-  const darkGray = [55, 65, 81];
+  // Modern color scheme (New Gariyangu brand colors)
+  const primaryColor = [116, 10, 114]; // #740a72 - medium purple
+  const secondaryColor = [177, 5, 115]; // #b10573 - purple-pink
+  const accentColor = [238, 0, 116]; // #ee0074 - bright pink
+  const darkColor = [56, 16, 114]; // #381072 - dark purple
   const lightGray = [156, 163, 175];
   
   // Helper function to format currency
@@ -38,7 +39,7 @@ export function generateDutyCalculationPDF(
     doc.text(text, x, y);
   };
 
-  // Add compact header background
+  // Add compact header background with gradient effect
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.rect(0, 0, pageWidth, 28, 'F');
 
@@ -57,7 +58,7 @@ export function generateDutyCalculationPDF(
   doc.text("Japan • UK • South Africa • Dubai • Australia • Singapore • Thailand", logoX + logoWidth + 8, 18);
   
   // Reset text color
-  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   
   // Title with modern styling (compact)
   doc.setFont("helvetica", "bold");
@@ -73,7 +74,7 @@ export function generateDutyCalculationPDF(
     month: 'long',
     day: 'numeric'
   });
-  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   doc.setFontSize(8);
   doc.text(`Report Date: ${currentDate}`, marginLeft, 55);
   
@@ -94,7 +95,7 @@ export function generateDutyCalculationPDF(
   doc.text("VEHICLE INFORMATION", marginLeft + 3, yPosition + 7);
   yPosition += 12;
   
-  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   
@@ -141,7 +142,7 @@ export function generateDutyCalculationPDF(
   doc.text("VALUATION", marginLeft + 3, yPosition + 7);
   yPosition += 12;
   
-  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   
@@ -159,10 +160,10 @@ export function generateDutyCalculationPDF(
   doc.text("TAX BREAKDOWN", marginLeft, yPosition);
   yPosition += 10;
   
-  // Modern table header (compact)
-  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  // Modern table header (compact) with secondary color
+  doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   doc.rect(marginLeft, yPosition - 3, contentWidth, 10, 'F');
-  doc.setTextColor(255, 255, 255);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.text("TAX TYPE", marginLeft + 3, yPosition + 3);
@@ -171,7 +172,7 @@ export function generateDutyCalculationPDF(
   yPosition += 12;
   
   // Reset colors for content
-  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   
@@ -231,8 +232,8 @@ export function generateDutyCalculationPDF(
     yPosition += 3;
   }
   
-  // Modern total section (compact)
-  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  // Modern total section (compact) with accent color
+  doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
   doc.roundedRect(marginLeft, yPosition, contentWidth, 12, 2, 2, 'F');
   
   doc.setTextColor(255, 255, 255);
@@ -261,7 +262,7 @@ export function generateDutyCalculationPDF(
   doc.setFontSize(9);
   addCenteredText("GARIYANGU - ALL ABOUT CARS", actualFooterY + 6, 9, "bold");
   
-  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
   addCenteredText("Need help importing? Contact: 0736 272719 • Japan • UK • SA • Dubai • Australia", actualFooterY + 12, 7);

@@ -277,8 +277,9 @@ Changelog:
   - Applied new color scheme (#ffffff, #381072, #740a72, #b10573, #ee0074) throughout application
   - Updated header heights and spacing to accommodate larger logo
   - Modernized color scheme in both light and dark modes
-  - Updated PDF generator to use new logo and color scheme
+  - Updated PDF generator to use new logo and color scheme with full brand colors
   - Applied consistent branding across admin dashboard and main calculator
+  - Enhanced PDF styling with gradient effects and modern color palette
 - January 10, 2025. Added specialized equipment databases:
   - Created trailers table with 28 records from trailers CSV data
   - Created heavy_machinery table with 112 records from tractors/equipment CSV data

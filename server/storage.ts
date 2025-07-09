@@ -1,4 +1,4 @@
-import { vehicles, calculations, depreciationRates, taxRates, vehicleCategoryRules, registrationFees, trailers, heavyMachinery, type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, type DepreciationRate, type TaxRate, type VehicleCategoryRule, type RegistrationFee, type Trailer, type HeavyMachinery } from "@shared/schema";
+import { vehicles, calculations, depreciationRates, taxRates, processingFees, vehicleCategoryRules, registrationFees, trailers, heavyMachinery, type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, type DepreciationRate, type TaxRate, type ProcessingFee, type VehicleCategoryRule, type RegistrationFee, type Trailer, type HeavyMachinery } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, desc, sql } from "drizzle-orm";
 
@@ -134,13 +134,31 @@ export class DatabaseStorage implements IStorage {
     // Apply VAT
     result.vat = result.vatValue * Number(taxRate.vatRate);
     
-    // Apply RDL and IDF only for direct imports - calculated on customs value
-    if (isDirectImport && taxRate.rdlRate && taxRate.idfRate) {
-      result.rdl = result.customsValue * Number(taxRate.rdlRate);
-      result.idfFees = result.customsValue * Number(taxRate.idfRate);
-    } else {
-      result.rdl = 0;
-      result.idfFees = 0;
+    // Apply processing fees (RDL and IDF) based on import type
+    const processingFeeData = await db
+      .select()
+      .from(processingFees)
+      .where(
+        and(
+          eq(processingFees.isActive, true),
+          or(
+            eq(processingFees.applicableToImportType, isDirectImport ? 'direct' : 'previouslyRegistered'),
+            eq(processingFees.applicableToImportType, 'both')
+          )
+        )
+      );
+
+    result.rdl = 0;
+    result.idfFees = 0;
+
+    for (const fee of processingFeeData) {
+      const feeAmount = result.customsValue * Number(fee.rate);
+      
+      if (fee.feeType === 'rdl') {
+        result.rdl = feeAmount;
+      } else if (fee.feeType === 'idf') {
+        result.idfFees = feeAmount;
+      }
     }
 
     // Calculate registration fees based on detailed engine capacity ranges

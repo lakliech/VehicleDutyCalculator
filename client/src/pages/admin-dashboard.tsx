@@ -40,6 +40,7 @@ import { z } from "zod";
 import type { 
   VehicleReference, 
   TaxRate, 
+  ProcessingFee,
   VehicleCategoryRule, 
   DepreciationRate 
 } from "@shared/schema";
@@ -63,11 +64,19 @@ const vehicleReferenceSchema = z.object({
 
 const taxRateSchema = z.object({
   vehicleCategory: z.string().min(1, "Vehicle category is required"),
-  importDuty: z.number().min(0).max(100),
-  exciseDuty: z.number().min(0).max(100),
-  vat: z.number().min(0).max(100),
-  rdl: z.number().min(0).max(100),
-  idf: z.number().min(0).max(100),
+  importDutyRate: z.string().min(1, "Import duty rate is required"),
+  exciseDutyRate: z.string().min(1, "Excise duty rate is required"),
+  vatRate: z.string().min(1, "VAT rate is required"),
+});
+
+const processingFeeSchema = z.object({
+  feeType: z.string().min(1, "Fee type is required"),
+  feeName: z.string().min(1, "Fee name is required"),
+  rate: z.string().min(1, "Rate is required"),
+  applicableToImportType: z.enum(["direct", "previouslyRegistered", "both"]),
+  calculationBase: z.string().min(1, "Calculation base is required"),
+  description: z.string().optional(),
+  isActive: z.boolean().default(true),
 });
 
 const categoryRuleSchema = z.object({
@@ -87,6 +96,7 @@ const depreciationRateSchema = z.object({
 
 type VehicleReferenceForm = z.infer<typeof vehicleReferenceSchema>;
 type TaxRateForm = z.infer<typeof taxRateSchema>;
+type ProcessingFeeForm = z.infer<typeof processingFeeSchema>;
 type CategoryRuleForm = z.infer<typeof categoryRuleSchema>;
 type DepreciationRateForm = z.infer<typeof depreciationRateSchema>;
 
@@ -151,6 +161,17 @@ function AuthenticatedAdminDashboard() {
     queryKey: ["/api/admin/depreciation-rates"],
     queryFn: async () => {
       const response = await fetch("/api/admin/depreciation-rates", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: processingFees = [], isLoading: processingFeesLoading } = useQuery<ProcessingFee[]>({
+    queryKey: ["/api/admin/processing-fees"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/processing-fees", {
         headers: getAuthHeaders(),
       });
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
@@ -254,6 +275,51 @@ function AuthenticatedAdminDashboard() {
     },
   });
 
+  // Processing fees mutations
+  const addProcessingFeeMutation = useMutation({
+    mutationFn: async (data: ProcessingFeeForm) => {
+      const response = await fetch("/api/admin/processing-fees", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/processing-fees"] });
+      toast({ title: "Success", description: "Processing fee added successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const updateProcessingFeeMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<ProcessingFeeForm> }) => {
+      const response = await fetch(`/api/admin/processing-fees/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/processing-fees"] });
+      toast({ title: "Success", description: "Processing fee updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
   const formatCurrency = (amount: string | number) => {
     const num = typeof amount === 'string' ? parseFloat(amount) : amount;
     return `KES ${num.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -299,7 +365,7 @@ function AuthenticatedAdminDashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="vehicles" className="flex items-center gap-2">
               <Car className="h-4 w-4" />
               Vehicle References
@@ -311,6 +377,10 @@ function AuthenticatedAdminDashboard() {
             <TabsTrigger value="tax-rates" className="flex items-center gap-2">
               <Percent className="h-4 w-4" />
               Tax Rates
+            </TabsTrigger>
+            <TabsTrigger value="processing-fees" className="flex items-center gap-2">
+              <Calculator className="h-4 w-4" />
+              Processing Fees
             </TabsTrigger>
             <TabsTrigger value="categories" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -348,6 +418,16 @@ function AuthenticatedAdminDashboard() {
               taxRates={taxRates}
               isLoading={taxRatesLoading}
               onUpdate={updateTaxRateMutation.mutate}
+            />
+          </TabsContent>
+
+          {/* Processing Fees Tab */}
+          <TabsContent value="processing-fees">
+            <ProcessingFeesTab 
+              processingFees={processingFees}
+              isLoading={processingFeesLoading}
+              onAdd={addProcessingFeeMutation.mutate}
+              onUpdate={updateProcessingFeeMutation.mutate}
             />
           </TabsContent>
 
@@ -1079,18 +1159,16 @@ function TaxRatesTab({
             <TableHeader>
               <TableRow>
                 <TableHead>Vehicle Category</TableHead>
-                <TableHead>Import Duty (%)</TableHead>
-                <TableHead>Excise Duty (%)</TableHead>
-                <TableHead>VAT (%)</TableHead>
-                <TableHead>RDL (%)</TableHead>
-                <TableHead>IDF (%)</TableHead>
+                <TableHead>Import Duty Rate</TableHead>
+                <TableHead>Excise Duty Rate</TableHead>
+                <TableHead>VAT Rate</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center">Loading...</TableCell>
+                  <TableCell colSpan={5} className="text-center">Loading...</TableCell>
                 </TableRow>
               ) : (
                 taxRates.map((rate) => (
@@ -1114,11 +1192,9 @@ function TaxRateRow({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
-    importDuty: rate.importDuty,
-    exciseDuty: rate.exciseDuty,
-    vat: rate.vat,
-    rdl: rate.rdl,
-    idf: rate.idf,
+    importDutyRate: rate.importDutyRate,
+    exciseDutyRate: rate.exciseDutyRate,
+    vatRate: rate.vatRate,
   });
 
   const handleSave = () => {
@@ -1132,42 +1208,26 @@ function TaxRateRow({
         <TableCell className="font-medium">{rate.vehicleCategory}</TableCell>
         <TableCell>
           <Input
-            type="number"
-            value={editData.importDuty}
-            onChange={(e) => setEditData({ ...editData, importDuty: parseFloat(e.target.value) })}
+            value={editData.importDutyRate}
+            onChange={(e) => setEditData({ ...editData, importDutyRate: e.target.value })}
             className="w-20"
+            placeholder="0.35"
           />
         </TableCell>
         <TableCell>
           <Input
-            type="number"
-            value={editData.exciseDuty}
-            onChange={(e) => setEditData({ ...editData, exciseDuty: parseFloat(e.target.value) })}
+            value={editData.exciseDutyRate}
+            onChange={(e) => setEditData({ ...editData, exciseDutyRate: e.target.value })}
             className="w-20"
+            placeholder="0.20"
           />
         </TableCell>
         <TableCell>
           <Input
-            type="number"
-            value={editData.vat}
-            onChange={(e) => setEditData({ ...editData, vat: parseFloat(e.target.value) })}
+            value={editData.vatRate}
+            onChange={(e) => setEditData({ ...editData, vatRate: e.target.value })}
             className="w-20"
-          />
-        </TableCell>
-        <TableCell>
-          <Input
-            type="number"
-            value={editData.rdl}
-            onChange={(e) => setEditData({ ...editData, rdl: parseFloat(e.target.value) })}
-            className="w-20"
-          />
-        </TableCell>
-        <TableCell>
-          <Input
-            type="number"
-            value={editData.idf}
-            onChange={(e) => setEditData({ ...editData, idf: parseFloat(e.target.value) })}
-            className="w-20"
+            placeholder="0.16"
           />
         </TableCell>
         <TableCell>
@@ -1187,11 +1247,9 @@ function TaxRateRow({
   return (
     <TableRow>
       <TableCell className="font-medium">{rate.vehicleCategory}</TableCell>
-      <TableCell>{rate.importDuty}%</TableCell>
-      <TableCell>{rate.exciseDuty}%</TableCell>
-      <TableCell>{rate.vat}%</TableCell>
-      <TableCell>{rate.rdl}%</TableCell>
-      <TableCell>{rate.idf}%</TableCell>
+      <TableCell>{(parseFloat(rate.importDutyRate) * 100).toFixed(1)}%</TableCell>
+      <TableCell>{(parseFloat(rate.exciseDutyRate) * 100).toFixed(1)}%</TableCell>
+      <TableCell>{(parseFloat(rate.vatRate) * 100).toFixed(1)}%</TableCell>
       <TableCell>
         <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
           <Edit className="h-4 w-4" />
@@ -1213,11 +1271,9 @@ function AddTaxRateForm({
     resolver: zodResolver(taxRateSchema),
     defaultValues: {
       vehicleCategory: "",
-      importDuty: 0,
-      exciseDuty: 0,
-      vat: 16,
-      rdl: 1.5,
-      idf: 2.5,
+      importDutyRate: "0.35",
+      exciseDutyRate: "0.20",
+      vatRate: "0.16",
     },
   });
 
@@ -1266,20 +1322,15 @@ function AddTaxRateForm({
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <FormField
             control={form.control}
-            name="importDuty"
+            name="importDutyRate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Import Duty (%)</FormLabel>
+                <FormLabel>Import Duty Rate</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
-                    {...field} 
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                    placeholder="e.g., 35" 
-                  />
+                  <Input {...field} placeholder="0.35" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -1287,17 +1338,12 @@ function AddTaxRateForm({
           />
           <FormField
             control={form.control}
-            name="exciseDuty"
+            name="exciseDutyRate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Excise Duty (%)</FormLabel>
+                <FormLabel>Excise Duty Rate</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
-                    {...field} 
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                    placeholder="e.g., 20" 
-                  />
+                  <Input {...field} placeholder="0.20" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -1305,53 +1351,12 @@ function AddTaxRateForm({
           />
           <FormField
             control={form.control}
-            name="vat"
+            name="vatRate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>VAT (%)</FormLabel>
+                <FormLabel>VAT Rate</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
-                    {...field} 
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                    placeholder="e.g., 16" 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="rdl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>RDL (%)</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    {...field} 
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                    placeholder="e.g., 1.5" 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="idf"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>IDF (%)</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    {...field} 
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                    placeholder="e.g., 2.5" 
-                  />
+                  <Input {...field} placeholder="0.16" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -1363,6 +1368,340 @@ function AddTaxRateForm({
             Cancel
           </Button>
           <Button type="submit">Add Tax Rate</Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
+
+// Processing Fees Tab Component  
+function ProcessingFeesTab({ 
+  processingFees, 
+  isLoading, 
+  onAdd,
+  onUpdate 
+}: {
+  processingFees: ProcessingFee[];
+  isLoading: boolean;
+  onAdd: (data: ProcessingFeeForm) => void;
+  onUpdate: (params: { id: number; data: Partial<ProcessingFeeForm> }) => void;
+}) {
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Calculator className="h-5 w-5" />
+            Processing Fees (RDL & IDF)
+          </CardTitle>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Add Processing Fee
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Processing Fee</DialogTitle>
+              </DialogHeader>
+              <AddProcessingFeeForm 
+                onSubmit={(data) => {
+                  onAdd(data);
+                  setIsAddDialogOpen(false);
+                }} 
+                onCancel={() => setIsAddDialogOpen(false)} 
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Fee Type</TableHead>
+                <TableHead>Fee Name</TableHead>
+                <TableHead>Rate</TableHead>
+                <TableHead>Applicable To</TableHead>
+                <TableHead>Calculation Base</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center">Loading...</TableCell>
+                </TableRow>
+              ) : (
+                processingFees.map((fee) => (
+                  <ProcessingFeeRow key={fee.id} fee={fee} onUpdate={onUpdate} />
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ProcessingFeeRow({ 
+  fee, 
+  onUpdate 
+}: { 
+  fee: ProcessingFee; 
+  onUpdate: (params: { id: number; data: Partial<ProcessingFeeForm> }) => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    feeName: fee.feeName,
+    rate: fee.rate,
+    applicableToImportType: fee.applicableToImportType as "direct" | "previouslyRegistered" | "both",
+    calculationBase: fee.calculationBase,
+    description: fee.description || "",
+    isActive: fee.isActive,
+  });
+
+  const handleSave = () => {
+    onUpdate({ id: fee.id, data: editData });
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      <TableRow>
+        <TableCell className="font-medium">{fee.feeType.toUpperCase()}</TableCell>
+        <TableCell>
+          <Input
+            value={editData.feeName}
+            onChange={(e) => setEditData({ ...editData, feeName: e.target.value })}
+            className="w-32"
+          />
+        </TableCell>
+        <TableCell>
+          <Input
+            value={editData.rate}
+            onChange={(e) => setEditData({ ...editData, rate: e.target.value })}
+            className="w-20"
+            placeholder="0.015"
+          />
+        </TableCell>
+        <TableCell>
+          <Select 
+            value={editData.applicableToImportType} 
+            onValueChange={(value: "direct" | "previouslyRegistered" | "both") => 
+              setEditData({ ...editData, applicableToImportType: value })
+            }
+          >
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="direct">Direct Import</SelectItem>
+              <SelectItem value="previouslyRegistered">Previously Registered</SelectItem>
+              <SelectItem value="both">Both</SelectItem>
+            </SelectContent>
+          </Select>
+        </TableCell>
+        <TableCell>
+          <Input
+            value={editData.calculationBase}
+            onChange={(e) => setEditData({ ...editData, calculationBase: e.target.value })}
+            className="w-32"
+          />
+        </TableCell>
+        <TableCell>
+          <Button
+            variant={editData.isActive ? "default" : "secondary"}
+            size="sm"
+            onClick={() => setEditData({ ...editData, isActive: !editData.isActive })}
+          >
+            {editData.isActive ? "Active" : "Inactive"}
+          </Button>
+        </TableCell>
+        <TableCell>
+          <div className="flex space-x-2">
+            <Button variant="ghost" size="sm" onClick={handleSave}>
+              <Save className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>
+              Cancel
+            </Button>
+          </div>
+        </TableCell>
+      </TableRow>
+    );
+  }
+
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{fee.feeType.toUpperCase()}</TableCell>
+      <TableCell>{fee.feeName}</TableCell>
+      <TableCell>{(parseFloat(fee.rate) * 100).toFixed(2)}%</TableCell>
+      <TableCell>
+        <Badge variant="outline" className="capitalize">
+          {fee.applicableToImportType.replace(/([A-Z])/g, ' $1').trim()}
+        </Badge>
+      </TableCell>
+      <TableCell className="capitalize">{fee.calculationBase}</TableCell>
+      <TableCell>
+        <Badge variant={fee.isActive ? "default" : "secondary"}>
+          {fee.isActive ? "Active" : "Inactive"}
+        </Badge>
+      </TableCell>
+      <TableCell>
+        <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+          <Edit className="h-4 w-4" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+// Add Processing Fee Form Component
+function AddProcessingFeeForm({ 
+  onSubmit, 
+  onCancel 
+}: {
+  onSubmit: (data: ProcessingFeeForm) => void;
+  onCancel: () => void;
+}) {
+  const form = useForm<ProcessingFeeForm>({
+    resolver: zodResolver(processingFeeSchema),
+    defaultValues: {
+      feeType: "rdl",
+      feeName: "",
+      rate: "0.015",
+      applicableToImportType: "direct",
+      calculationBase: "customsValue",
+      description: "",
+      isActive: true,
+    },
+  });
+
+  const handleSubmit = (data: ProcessingFeeForm) => {
+    onSubmit(data);
+  };
+
+  const feeTypes = [
+    { value: "rdl", label: "Railway Development Levy (RDL)" },
+    { value: "idf", label: "Import Declaration Fee (IDF)" },
+    { value: "other", label: "Other Processing Fee" },
+  ];
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="feeType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fee Type</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select fee type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {feeTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="feeName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fee Name</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., Railway Development Levy" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="rate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Rate (decimal)</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="0.015 (for 1.5%)" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="applicableToImportType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Applicable To</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="direct">Direct Import Only</SelectItem>
+                      <SelectItem value="previouslyRegistered">Previously Registered Only</SelectItem>
+                      <SelectItem value="both">Both Import Types</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="calculationBase"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Calculation Base</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., customsValue, vatValue" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Optional description" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="flex justify-end space-x-2">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit">Add Processing Fee</Button>
         </div>
       </form>
     </Form>

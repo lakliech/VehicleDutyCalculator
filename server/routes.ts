@@ -5,6 +5,7 @@ import {
   dutyCalculationSchema, 
   vehicleReferences, 
   taxRates, 
+  processingFees,
   vehicleCategoryRules, 
   depreciationRates,
   trailers,
@@ -434,11 +435,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validation = z.object({
         vehicleCategory: z.string().min(1),
-        importDuty: z.number().min(0).max(100),
-        exciseDuty: z.number().min(0).max(100),
-        vat: z.number().min(0).max(100),
-        rdl: z.number().min(0).max(100),
-        idf: z.number().min(0).max(100),
+        importDutyRate: z.string(),
+        exciseDutyRate: z.string(),
+        vatRate: z.string(),
       }).safeParse(req.body);
 
       if (!validation.success) {
@@ -465,11 +464,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
-        importDuty: z.number().min(0).max(100).optional(),
-        exciseDuty: z.number().min(0).max(100).optional(),
-        vat: z.number().min(0).max(100).optional(),
-        rdl: z.number().min(0).max(100).optional(),
-        idf: z.number().min(0).max(100).optional(),
+        importDutyRate: z.string().optional(),
+        exciseDutyRate: z.string().optional(),
+        vatRate: z.string().optional(),
       }).safeParse(req.body);
 
       if (!validation.success) {
@@ -495,6 +492,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to update tax rate" });
     }
   });
+
+  // ===============================
+  // PROCESSING FEES API ROUTES
+  // ===============================
+
+  // Get all processing fees
+  app.get("/api/admin/processing-fees", authenticateAdmin, async (req, res) => {
+    try {
+      const results = await db
+        .select()
+        .from(processingFees)
+        .orderBy(processingFees.feeType);
+      res.json(results);
+    } catch (error) {
+      console.error("Failed to fetch processing fees:", error);
+      res.status(500).json({ error: "Failed to fetch processing fees" });
+    }
+  });
+
+  // Add new processing fee
+  app.post("/api/admin/processing-fees", authenticateAdmin, async (req, res) => {
+    try {
+      const validation = z.object({
+        feeType: z.string().min(1),
+        feeName: z.string().min(1),
+        rate: z.string(),
+        applicableToImportType: z.enum(["direct", "previouslyRegistered", "both"]),
+        calculationBase: z.string(),
+        description: z.string().optional(),
+        isActive: z.boolean().default(true),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const [result] = await db
+        .insert(processingFees)
+        .values(validation.data)
+        .returning();
+
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to add processing fee:", error);
+      res.status(500).json({ error: "Failed to add processing fee" });
+    }
+  });
+
+  // Update processing fee
+  app.put("/api/admin/processing-fees/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validation = z.object({
+        feeName: z.string().optional(),
+        rate: z.string().optional(),
+        applicableToImportType: z.enum(["direct", "previouslyRegistered", "both"]).optional(),
+        calculationBase: z.string().optional(),
+        description: z.string().optional(),
+        isActive: z.boolean().optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const [result] = await db
+        .update(processingFees)
+        .set(validation.data)
+        .where(eq(processingFees.id, id))
+        .returning();
+
+      if (!result) {
+        return res.status(404).json({ error: "Processing fee not found" });
+      }
+
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to update processing fee:", error);
+      res.status(500).json({ error: "Failed to update processing fee" });
+    }
+  });
+
+  // Delete processing fee
+  app.delete("/api/admin/processing-fees/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      const [result] = await db
+        .delete(processingFees)
+        .where(eq(processingFees.id, id))
+        .returning();
+      
+      if (!result) {
+        return res.status(404).json({ error: "Processing fee not found" });
+      }
+      
+      res.json({ message: "Processing fee deleted successfully", id });
+    } catch (error) {
+      console.error("Failed to delete processing fee:", error);
+      res.status(400).json({ error: "Failed to delete processing fee" });
+    }
+  });
+
+  // ===============================
+  // CATEGORY RULES API ROUTES
+  // ===============================
 
   // Get all category rules
   app.get("/api/admin/category-rules", authenticateAdmin, async (req, res) => {

@@ -40,7 +40,7 @@ export const depreciationRates = pgTable("depreciation_rates", {
   updatedAt: text("updated_at").default("now()").notNull(),
 });
 
-// Tax rates for different vehicle categories
+// Tax rates for different vehicle categories (main taxes only)
 export const taxRates = pgTable("tax_rates", {
   id: serial("id").primaryKey(),
   vehicleCategory: text("vehicle_category").notNull(),
@@ -48,8 +48,21 @@ export const taxRates = pgTable("tax_rates", {
   exciseDutyRate: decimal("excise_duty_rate", { precision: 5, scale: 4 }).notNull(),
   exciseDutyFixed: integer("excise_duty_fixed"), // For motorcycles (fixed amount in KES)
   vatRate: decimal("vat_rate", { precision: 5, scale: 4 }).notNull(),
-  rdlRate: decimal("rdl_rate", { precision: 5, scale: 4 }), // Railway Development Levy (for direct imports)
-  idfRate: decimal("idf_rate", { precision: 5, scale: 4 }), // Import Declaration Fee (for direct imports)
+  effectiveDate: text("effective_date").default("now()").notNull(),
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
+// Processing fees table for fixed percentage fees like IDF and RDL
+export const processingFees = pgTable("processing_fees", {
+  id: serial("id").primaryKey(),
+  feeType: text("fee_type").notNull(), // 'rdl', 'idf', etc.
+  feeName: text("fee_name").notNull(), // 'Railway Development Levy', 'Import Declaration Fee'
+  rate: decimal("rate", { precision: 5, scale: 4 }).notNull(), // Fee percentage as decimal (0.015 = 1.5%)
+  applicableToImportType: text("applicable_to_import_type").notNull(), // 'direct', 'previouslyRegistered', 'both'
+  calculationBase: text("calculation_base").notNull(), // 'customsValue', 'vatValue', etc.
+  description: text("description"),
+  isActive: boolean("is_active").notNull().default(true),
   effectiveDate: text("effective_date").default("now()").notNull(),
   createdAt: text("created_at").default("now()").notNull(),
   updatedAt: text("updated_at").default("now()").notNull(),
@@ -179,6 +192,7 @@ export type InsertCalculation = z.infer<typeof insertCalculationSchema>;
 export type Calculation = typeof calculations.$inferSelect;
 export type DepreciationRate = typeof depreciationRates.$inferSelect;
 export type TaxRate = typeof taxRates.$inferSelect;
+export type ProcessingFee = typeof processingFees.$inferSelect;
 export type VehicleCategoryRule = typeof vehicleCategoryRules.$inferSelect;
 export type VehicleReference = typeof vehicleReferences.$inferSelect;
 export type Trailer = typeof trailers.$inferSelect;

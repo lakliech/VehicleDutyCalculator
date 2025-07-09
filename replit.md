@@ -297,6 +297,12 @@ Changelog:
   - Removed fee tiles at bottom of transfer cost page for cleaner UI
   - Improved query structure in VehicleSelector with proper queryFn functions and category support
   - Enhanced cache management with more specific query keys to avoid conflicts
+- January 10, 2025. Fixed transfer cost calculator issues:
+  - Resolved API call parameter order error in frontend (apiRequest expects method, url, data)
+  - Populated empty vehicle database with 2,836 vehicle records from import scripts
+  - Imported 11 transfer rates for proper cost calculations
+  - Populated all computation tables (depreciation rates, tax rates, vehicle category rules)
+  - Vehicle make and model selection now returns proper results for all vehicle types
 - January 10, 2025. Added specialized equipment databases:
   - Created trailers table with 28 records from trailers CSV data
   - Created heavy_machinery table with 112 records from tractors/equipment CSV data

@@ -29,17 +29,8 @@ interface TransferResult {
     transferFee: string;
     description: string;
   };
-  breakdown: {
-    governmentFees: Record<string, number>;
-    legalFees: Record<string, number>;
-    additionalCosts: Record<string, number>;
-  };
-  totals: {
-    governmentFees: number;
-    legalFees: number;
-    additionalCosts: number;
-    grandTotal: number;
-  };
+  transferFee: number;
+  description: string;
   notes: string[];
 }
 
@@ -113,7 +104,8 @@ export default function TransferCost() {
         });
         return;
       }
-      calculationData.engineCapacity = selectedVehicle.engineCapacity;
+      // Handle vehicles with or without engine capacity
+      calculationData.engineCapacity = selectedVehicle.engineCapacity || null;
     } else if (vehicleType === 'trailer') {
       if (!specialType) {
         toast({
@@ -189,6 +181,7 @@ export default function TransferCost() {
                     <VehicleSelector 
                       onVehicleSelect={setSelectedVehicle}
                       disabled={!vehicleType}
+                      hideCrsp={true}
                     />
                     {selectedVehicle && (
                       <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
@@ -196,7 +189,7 @@ export default function TransferCost() {
                           {selectedVehicle.make} {selectedVehicle.model}
                         </p>
                         <p className="text-sm text-purple-600 dark:text-purple-400">
-                          Engine: {selectedVehicle.engineCapacity}cc
+                          Engine: {selectedVehicle.engineCapacity ? `${selectedVehicle.engineCapacity}cc` : 'Not specified'}
                         </p>
                       </div>
                     )}
@@ -260,7 +253,7 @@ export default function TransferCost() {
                     Transfer Cost Breakdown
                   </CardTitle>
                   <CardDescription>
-                    Detailed cost analysis for your vehicle transfer
+                    Official government transfer fee based on vehicle specifications
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -280,71 +273,12 @@ export default function TransferCost() {
                     </p>
                   </div>
 
-                  {/* Cost Breakdown */}
-                  <div className="space-y-4">
-                    {/* Government Fees */}
-                    <div>
-                      <h4 className="font-semibold mb-2 text-purple-900 dark:text-purple-100">Government Fees</h4>
-                      <div className="space-y-1">
-                        {Object.entries(transferResult.breakdown.governmentFees).map(([key, value]) => (
-                          <div key={key} className="flex justify-between text-sm">
-                            <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                            <span>{formatCurrency(value)}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex justify-between font-semibold text-purple-600 border-t pt-2 mt-2">
-                        <span>Subtotal</span>
-                        <span>{formatCurrency(transferResult.totals.governmentFees)}</span>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Legal Fees */}
-                    <div>
-                      <h4 className="font-semibold mb-2 text-cyan-900 dark:text-cyan-100">Legal Fees</h4>
-                      <div className="space-y-1">
-                        {Object.entries(transferResult.breakdown.legalFees).map(([key, value]) => (
-                          <div key={key} className="flex justify-between text-sm">
-                            <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                            <span>{formatCurrency(value)}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex justify-between font-semibold text-cyan-600 border-t pt-2 mt-2">
-                        <span>Subtotal</span>
-                        <span>{formatCurrency(transferResult.totals.legalFees)}</span>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Additional Costs */}
-                    <div>
-                      <h4 className="font-semibold mb-2 text-pink-900 dark:text-pink-100">Additional Costs</h4>
-                      <div className="space-y-1">
-                        {Object.entries(transferResult.breakdown.additionalCosts).map(([key, value]) => (
-                          <div key={key} className="flex justify-between text-sm">
-                            <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                            <span>{formatCurrency(value)}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex justify-between font-semibold text-pink-600 border-t pt-2 mt-2">
-                        <span>Subtotal</span>
-                        <span>{formatCurrency(transferResult.totals.additionalCosts)}</span>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Grand Total */}
-                    <div className="p-4 bg-gradient-to-r from-purple-50 to-cyan-50 dark:from-purple-900/20 dark:to-cyan-900/20 rounded-lg">
-                      <div className="flex justify-between items-center">
-                        <span className="text-lg font-bold text-gray-900 dark:text-white">Total Transfer Cost</span>
-                        <span className="text-2xl font-bold text-purple-600">{formatCurrency(transferResult.totals.grandTotal)}</span>
-                      </div>
+                  {/* Transfer Fee */}
+                  <div className="p-6 bg-gradient-to-r from-purple-50 to-cyan-50 dark:from-purple-900/20 dark:to-cyan-900/20 rounded-lg">
+                    <div className="text-center space-y-2">
+                      <p className="text-lg font-medium text-gray-900 dark:text-white">Official Transfer Fee</p>
+                      <p className="text-4xl font-bold text-purple-600">{formatCurrency(transferResult.transferFee)}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{transferResult.description}</p>
                     </div>
                   </div>
 

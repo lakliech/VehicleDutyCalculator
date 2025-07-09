@@ -14,6 +14,7 @@ interface VehicleSelectorProps {
   onManualEngineSize?: (engineSize: number | null) => void;
   onManualVehicleData?: (data: ManualVehicleData | null) => void;
   categoryFilter?: string; // Filter vehicles by category
+  hideCrsp?: boolean; // Hide CRSP information (for transfer cost calculator)
 }
 
 interface ManualVehicleData {
@@ -24,7 +25,7 @@ interface ManualVehicleData {
   proratedCrsp: number;
 }
 
-export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualVehicleData, categoryFilter }: VehicleSelectorProps) {
+export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualVehicleData, categoryFilter, hideCrsp }: VehicleSelectorProps) {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [selectedEngineSize, setSelectedEngineSize] = useState<string>("");
@@ -168,25 +169,47 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
     }
   }, [manualEngineSize, onManualEngineSize]);
 
-  // Handle manual vehicle data with proration
+  // Handle manual vehicle data with proration or simple manual entry
   useEffect(() => {
-    if (isManualMode && manualMake && manualModel && manualEngineCapacity && selectedReferenceVehicle && onManualVehicleData) {
-      const referenceCrsp = selectedReferenceVehicle.crspKes || selectedReferenceVehicle.crsp2020;
-      if (referenceCrsp && selectedReferenceVehicle.engineCapacity) {
-        const proratedCrsp = (referenceCrsp * manualEngineCapacity) / selectedReferenceVehicle.engineCapacity;
-        const manualData: ManualVehicleData = {
+    if (isManualMode && manualMake && manualModel && manualEngineCapacity) {
+      if (hideCrsp) {
+        // For transfer cost calculator - create simple vehicle entry without CRSP
+        const simpleVehicle: VehicleReference = {
+          id: 0, // Temporary ID for manual entry
           make: manualMake,
           model: manualModel,
           engineCapacity: manualEngineCapacity,
-          referenceVehicle: selectedReferenceVehicle,
-          proratedCrsp: Math.round(proratedCrsp)
+          bodyType: null,
+          driveConfiguration: null,
+          seating: null,
+          fuelType: null,
+          gvw: null,
+          crspKes: null,
+          crsp2020: null,
+          discontinuationYear: null,
+          createdAt: new Date(),
+          updatedAt: new Date()
         };
-        onManualVehicleData(manualData);
+        onVehicleSelect(simpleVehicle);
+      } else if (selectedReferenceVehicle && onManualVehicleData) {
+        // For duty calculator - use CRSP proration
+        const referenceCrsp = selectedReferenceVehicle.crspKes || selectedReferenceVehicle.crsp2020;
+        if (referenceCrsp && selectedReferenceVehicle.engineCapacity) {
+          const proratedCrsp = (referenceCrsp * manualEngineCapacity) / selectedReferenceVehicle.engineCapacity;
+          const manualData: ManualVehicleData = {
+            make: manualMake,
+            model: manualModel,
+            engineCapacity: manualEngineCapacity,
+            referenceVehicle: selectedReferenceVehicle,
+            proratedCrsp: Math.round(proratedCrsp)
+          };
+          onManualVehicleData(manualData);
+        }
       }
     } else if (onManualVehicleData) {
       onManualVehicleData(null);
     }
-  }, [isManualMode, manualMake, manualModel, manualEngineCapacity, selectedReferenceVehicle, onManualVehicleData]);
+  }, [isManualMode, manualMake, manualModel, manualEngineCapacity, selectedReferenceVehicle, onManualVehicleData, hideCrsp, onVehicleSelect]);
 
   // Clear vehicle selection when switching modes
   useEffect(() => {
@@ -360,7 +383,7 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
         <Card className="bg-green-50 border-green-200">
           <CardContent className="pt-6">
             <div className="space-y-3">
-              <div className="flex justify-between items-start">
+              <div className={hideCrsp ? "text-center" : "flex justify-between items-start"}>
                 <div>
                   <h3 className="font-semibold text-lg text-green-900">
                     {selectedVehicle.make} {selectedVehicle.model}
@@ -369,12 +392,14 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
                     Selected from Kenya vehicle database
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">Current Retail Price</p>
-                  <p className="text-xl font-bold text-green-900">
-                    {formatCurrency(selectedVehicle.crspKes)}
-                  </p>
-                </div>
+                {!hideCrsp && (
+                  <div className="text-right">
+                    <p className="text-sm text-gray-600">Current Retail Price</p>
+                    <p className="text-xl font-bold text-green-900">
+                      {formatCurrency(selectedVehicle.crspKes)}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-3 border-t border-green-200">
@@ -426,12 +451,22 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
       ) : (
         /* Manual Entry Mode */
         <div className="space-y-4">
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Vehicle not in database? Enter details manually and select a reference vehicle for CRSP proration.
-            </AlertDescription>
-          </Alert>
+          {!hideCrsp && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Vehicle not in database? Enter details manually and select a reference vehicle for CRSP proration.
+              </AlertDescription>
+            </Alert>
+          )}
+          {hideCrsp && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Vehicle not in database? Enter details manually to proceed with transfer cost calculation.
+              </AlertDescription>
+            </Alert>
+          )}
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
@@ -466,7 +501,7 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
             </div>
           </div>
 
-          {manualMake && referenceVehicles.length > 0 && (
+          {!hideCrsp && manualMake && referenceVehicles.length > 0 && (
             <div className="space-y-2">
               <Label>Select Reference Vehicle for Proration *</Label>
               <Select onValueChange={(value) => {
@@ -489,7 +524,7 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
             </div>
           )}
 
-          {selectedReferenceVehicle && manualEngineCapacity && (
+          {!hideCrsp && selectedReferenceVehicle && manualEngineCapacity && (
             <Card className="bg-blue-50 border-blue-200">
               <CardContent className="pt-4">
                 <div className="space-y-2">

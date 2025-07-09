@@ -919,25 +919,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { vehicleId, vehicleType, engineCapacity, specialType } = req.body;
       
       // Validate input
-      if (!vehicleType || (vehicleType === 'vehicle' && !engineCapacity)) {
+      if (!vehicleType) {
         return res.status(400).json({ 
-          error: "Vehicle type and engine capacity are required for vehicles" 
+          error: "Vehicle type is required" 
         });
       }
 
       let transferRate;
 
       if (vehicleType === 'vehicle') {
-        // Find appropriate transfer rate based on engine capacity
-        transferRate = await db
-          .select()
-          .from(vehicleTransferRates)
-          .where(sql`
-            ${vehicleTransferRates.vehicleType} = 'vehicle' AND
-            ${engineCapacity} >= ${vehicleTransferRates.minEngineCapacity} AND
-            ${engineCapacity} <= ${vehicleTransferRates.maxEngineCapacity}
-          `)
-          .limit(1);
+        // Handle vehicles with or without engine capacity
+        if (engineCapacity && engineCapacity > 0) {
+          // Find appropriate transfer rate based on engine capacity
+          transferRate = await db
+            .select()
+            .from(vehicleTransferRates)
+            .where(sql`
+              ${vehicleTransferRates.vehicleType} = 'vehicle' AND
+              ${engineCapacity} >= ${vehicleTransferRates.minEngineCapacity} AND
+              ${engineCapacity} <= ${vehicleTransferRates.maxEngineCapacity}
+            `)
+            .limit(1);
+        } else {
+          // For vehicles without engine capacity, default to the lowest rate (1000cc & below)
+          transferRate = await db
+            .select()
+            .from(vehicleTransferRates)
+            .where(sql`
+              ${vehicleTransferRates.vehicleType} = 'vehicle' AND
+              ${vehicleTransferRates.minEngineCapacity} = 0 AND
+              ${vehicleTransferRates.maxEngineCapacity} = 1000
+            `)
+            .limit(1);
+        }
       } else {
         // For trailers and tractors, use special type
         transferRate = await db
@@ -958,52 +972,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const rate = transferRate[0];
       
-      // Calculate additional costs (estimates)
-      const governmentFees = {
-        transferTax: 0, // Will be calculated as 2% of vehicle value if provided
-        registrationFee: parseFloat(rate.transferFee.toString()),
-        inspectionCertificate: 3000,
-        numberPlateChange: 2000, // Optional
-      };
-
-      const legalFees = {
-        saleAgreement: 5000,
-        advocateFees: 10000,
-        notarization: 2000,
-        documentProcessing: 3000,
-      };
-
-      const additionalCosts = {
-        insuranceTransfer: 5000,
-        valuationFees: 8000,
-        clearanceFees: 3000, // For outstanding fines/HP
-      };
-
-      const totalGovernmentFees = Object.values(governmentFees).reduce((sum, fee) => sum + fee, 0);
-      const totalLegalFees = Object.values(legalFees).reduce((sum, fee) => sum + fee, 0);
-      const totalAdditionalCosts = Object.values(additionalCosts).reduce((sum, fee) => sum + fee, 0);
-
+      // Simplified result - only return the actual transfer fee from CSV
       const result = {
         vehicleType,
         engineCapacity: vehicleType === 'vehicle' ? engineCapacity : null,
         specialType: vehicleType !== 'vehicle' ? specialType : null,
         transferRate: rate,
-        breakdown: {
-          governmentFees,
-          legalFees,
-          additionalCosts,
-        },
-        totals: {
-          governmentFees: totalGovernmentFees,
-          legalFees: totalLegalFees,
-          additionalCosts: totalAdditionalCosts,
-          grandTotal: totalGovernmentFees + totalLegalFees + totalAdditionalCosts,
-        },
+        transferFee: parseFloat(rate.transferFee.toString()),
+        description: rate.description,
         notes: [
-          "Transfer tax (2% of vehicle value) not included - depends on vehicle valuation",
-          "Advocate fees may vary depending on complexity",
-          "Some costs are optional depending on specific requirements",
-          "Prices are estimates and may vary by location and service provider"
+          "This is the official government transfer fee based on vehicle specifications",
+          engineCapacity ? 
+            `Fee calculated based on engine capacity: ${engineCapacity}cc` : 
+            "Fee calculated using default rate for vehicles without engine capacity specification"
         ]
       };
 

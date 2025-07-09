@@ -11,7 +11,7 @@ export default function ImportationEstimator() {
             Vehicle Importation Estimator
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">Get comprehensive cost estimates for importing your vehicle to Kenya, including buying, inspection,shipping, clearing, and documentation fees.</p>
-          <Badge variant="secondary" className="mt-4 bg-orange-100 text-orange-800">
+          <Badge variant="secondary" className="mt-4 bg-orange-100 text-orange-800 text-[18px]">
             <Clock className="h-3 w-3 mr-1" />
             Coming Soon
           </Badge>
@@ -89,7 +89,7 @@ export default function ImportationEstimator() {
               helping you budget accurately for your import project.
             </p>
             <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
-              <span>Expected Launch: Q2 2025</span>
+              <span>Expected Launch: Q3 2025</span>
               <span>•</span>
               <span>Contact: 0736 272719</span>
             </div>

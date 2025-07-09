@@ -11,8 +11,8 @@ export function generateDutyCalculationPDF(
 ) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
-  const marginLeft = 25;
-  const marginRight = 25;
+  const marginLeft = 20;
+  const marginRight = 20;
   const contentWidth = pageWidth - marginLeft - marginRight;
   
   // Modern color scheme (Gariyangu purple/cyan theme)
@@ -38,133 +38,142 @@ export function generateDutyCalculationPDF(
     doc.text(text, x, y);
   };
 
-  // Add header background
+  // Add compact header background
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(0, 0, pageWidth, 35, 'F');
+  doc.rect(0, 0, pageWidth, 28, 'F');
 
-  // Add Gariyangu Logo
-  const logoWidth = 45;
-  const logoHeight = 18;
+  // Add Gariyangu Logo (smaller)
+  const logoWidth = 35;
+  const logoHeight = 14;
   const logoX = marginLeft;
-  doc.addImage(gariyanGuLogo, 'PNG', logoX, 8, logoWidth, logoHeight);
+  doc.addImage(gariyanGuLogo, 'PNG', logoX, 7, logoWidth, logoHeight);
   
-  // Add call-to-action text in header
+  // Add call-to-action text in header (compact)
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.text("Do you wish to import a car? Contact us: 0736 272719", logoX + logoWidth + 10, 15);
   doc.setFontSize(9);
-  doc.text("Japan • UK • South Africa • Dubai • Australia • Singapore • Thailand", logoX + logoWidth + 10, 22);
+  doc.text("Do you wish to import a car? Contact: 0736 272719", logoX + logoWidth + 8, 12);
+  doc.setFontSize(7);
+  doc.text("Japan • UK • South Africa • Dubai • Australia • Singapore • Thailand", logoX + logoWidth + 8, 18);
   
   // Reset text color
   doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
   
-  // Title with modern styling
+  // Title with modern styling (compact)
   doc.setFont("helvetica", "bold");
-  addCenteredText("KENYA MOTOR VEHICLE DUTY CALCULATION", 50, 18, "bold");
+  addCenteredText("KENYA MOTOR VEHICLE DUTY CALCULATION", 38, 15, "bold");
   
   // Subtitle
   doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-  addCenteredText("Kenya Revenue Authority (KRA) Import Duty Assessment", 60, 11);
+  addCenteredText("Kenya Revenue Authority (KRA) Import Duty Assessment", 46, 9);
   
-  // Date with modern styling
+  // Date with modern styling (compact)
   const currentDate = new Date().toLocaleDateString('en-KE', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
   doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  doc.setFontSize(10);
-  doc.text(`Report Date: ${currentDate}`, marginLeft, 72);
+  doc.setFontSize(8);
+  doc.text(`Report Date: ${currentDate}`, marginLeft, 55);
   
-  // Modern line separator
+  // Modern line separator (compact)
   doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.setLineWidth(1);
-  doc.line(marginLeft, 78, pageWidth - marginRight, 78);
+  doc.setLineWidth(0.8);
+  doc.line(marginLeft, 58, pageWidth - marginRight, 58);
   
-  let yPosition = 92;
+  let yPosition = 68;
   
-  // Vehicle Information Section with modern card-like styling
+  // Vehicle Information Section with modern card-like styling (compact)
   doc.setFillColor(248, 250, 252); // Light background
-  doc.roundedRect(marginLeft, yPosition - 5, contentWidth, 85, 3, 3, 'F');
+  doc.roundedRect(marginLeft, yPosition - 3, contentWidth, 65, 2, 2, 'F');
   
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.text("VEHICLE INFORMATION", marginLeft + 5, yPosition + 5);
-  yPosition += 15;
+  doc.setFontSize(11);
+  doc.text("VEHICLE INFORMATION", marginLeft + 3, yPosition + 7);
+  yPosition += 12;
   
   doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
+  doc.setFontSize(9);
+  
+  // Use two-column layout for vehicle info to save space
+  const leftCol = marginLeft + 3;
+  const rightCol = marginLeft + contentWidth / 2 + 5;
+  let leftY = yPosition;
+  let rightY = yPosition;
   
   if (selectedVehicle) {
-    doc.text(`Make: ${selectedVehicle.make}`, marginLeft + 5, yPosition);
-    yPosition += 8;
-    doc.text(`Model: ${selectedVehicle.model}`, marginLeft + 5, yPosition);
-    yPosition += 8;
-    doc.text(`Body Type: ${selectedVehicle.bodyType || 'N/A'}`, marginLeft + 5, yPosition);
-    yPosition += 8;
-    doc.text(`Fuel Type: ${selectedVehicle.fuelType || 'N/A'}`, marginLeft + 5, yPosition);
-    yPosition += 8;
+    doc.text(`Make: ${selectedVehicle.make}`, leftCol, leftY);
+    leftY += 6;
+    doc.text(`Model: ${selectedVehicle.model}`, leftCol, leftY);
+    leftY += 6;
+    doc.text(`Body: ${selectedVehicle.bodyType || 'N/A'}`, leftCol, leftY);
+    leftY += 6;
+    
+    doc.text(`Fuel: ${selectedVehicle.fuelType || 'N/A'}`, rightCol, rightY);
+    rightY += 6;
+    doc.text(`Engine: ${engineSize}cc`, rightCol, rightY);
+    rightY += 6;
+    doc.text(`Year: ${yearOfManufacture}`, rightCol, rightY);
+    rightY += 6;
+  } else {
+    doc.text(`Engine Size: ${engineSize}cc`, leftCol, leftY);
+    leftY += 6;
+    doc.text(`Year of Manufacture: ${yearOfManufacture}`, leftCol, leftY);
+    leftY += 6;
   }
   
-  doc.text(`Engine Size: ${engineSize}cc`, marginLeft + 5, yPosition);
-  yPosition += 8;
-  doc.text(`Year of Manufacture: ${yearOfManufacture}`, marginLeft + 5, yPosition);
-  yPosition += 8;
-  
   const vehicleAge = new Date().getFullYear() - yearOfManufacture + 1;
-  doc.text(`Vehicle Age: ${vehicleAge} years`, marginLeft + 5, yPosition);
-  yPosition += 8;
+  doc.text(`Age: ${vehicleAge} years`, leftCol, leftY);
+  doc.text(`Import: ${isDirectImport ? 'Direct' : 'Previously Reg'}`, rightCol, rightY);
   
-  doc.text(`Import Type: ${isDirectImport ? 'Direct Import' : 'Previously Registered'}`, marginLeft + 5, yPosition);
-  yPosition += 20;
+  yPosition = Math.max(leftY, rightY) + 12;
   
-  // Valuation Section with modern card styling
+  // Valuation Section with modern card styling (compact)
   doc.setFillColor(248, 250, 252);
-  doc.roundedRect(marginLeft, yPosition - 5, contentWidth, 50, 3, 3, 'F');
+  doc.roundedRect(marginLeft, yPosition - 3, contentWidth, 32, 2, 2, 'F');
   
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.text("VALUATION", marginLeft + 5, yPosition + 5);
-  yPosition += 15;
+  doc.setFontSize(11);
+  doc.text("VALUATION", marginLeft + 3, yPosition + 7);
+  yPosition += 12;
   
   doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
+  doc.setFontSize(9);
   
-  doc.text(`Current Retail Selling Price (CRSP): ${formatCurrency(result.currentRetailPrice)}`, marginLeft + 5, yPosition);
-  yPosition += 8;
-  doc.text(`Depreciation Rate: ${(result.depreciationRate * 100).toFixed(0)}%`, marginLeft + 5, yPosition);
-  yPosition += 8;
+  doc.text(`CRSP: ${formatCurrency(result.currentRetailPrice)}`, marginLeft + 3, yPosition);
+  doc.text(`Depreciation: ${(result.depreciationRate * 100).toFixed(0)}%`, marginLeft + contentWidth / 2 + 5, yPosition);
+  yPosition += 6;
   doc.setFont("helvetica", "bold");
-  doc.text(`Customs Value: ${formatCurrency(result.customsValue)}`, marginLeft + 5, yPosition);
-  yPosition += 20;
+  doc.text(`Customs Value: ${formatCurrency(result.customsValue)}`, marginLeft + 3, yPosition);
+  yPosition += 12;
   
-  // Tax Breakdown Section with modern table design
+  // Tax Breakdown Section with modern table design (compact)
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
+  doc.setFontSize(11);
   doc.text("TAX BREAKDOWN", marginLeft, yPosition);
-  yPosition += 15;
+  yPosition += 10;
   
-  // Modern table header
+  // Modern table header (compact)
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(marginLeft, yPosition - 5, contentWidth, 12, 'F');
+  doc.rect(marginLeft, yPosition - 3, contentWidth, 10, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.text("TAX TYPE", marginLeft + 5, yPosition + 3);
-  doc.text("RATE", marginLeft + 100, yPosition + 3);
-  doc.text("AMOUNT", marginLeft + 130, yPosition + 3);
-  yPosition += 15;
+  doc.setFontSize(8);
+  doc.text("TAX TYPE", marginLeft + 3, yPosition + 3);
+  doc.text("RATE", marginLeft + 85, yPosition + 3);
+  doc.text("AMOUNT", marginLeft + 115, yPosition + 3);
+  yPosition += 12;
   
   // Reset colors for content
   doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
+  doc.setFontSize(8);
   
   // Extract tax items from breakdown
   const taxItems: { name: string, rate: string, amount: number }[] = [];
@@ -196,68 +205,72 @@ export function generateDutyCalculationPDF(
     taxItems.push({ name: "Import Declaration Fee (IDF)", rate: "2.5%", amount: result.idfFees });
   }
   
-  // Draw tax items with alternating row colors
+  // Draw tax items with alternating row colors (compact)
   taxItems.forEach((item, index) => {
     if (index % 2 === 0) {
       doc.setFillColor(248, 250, 252);
-      doc.rect(marginLeft, yPosition - 3, contentWidth, 10, 'F');
+      doc.rect(marginLeft, yPosition - 2, contentWidth, 8, 'F');
     }
-    doc.text(item.name, marginLeft + 5, yPosition + 2);
-    doc.text(item.rate, marginLeft + 100, yPosition + 2);
-    doc.text(formatCurrency(item.amount), marginLeft + 130, yPosition + 2);
-    yPosition += 10;
+    doc.text(item.name, marginLeft + 3, yPosition + 2);
+    doc.text(item.rate, marginLeft + 85, yPosition + 2);
+    doc.text(formatCurrency(item.amount), marginLeft + 115, yPosition + 2);
+    yPosition += 8;
   });
   
-  // Registration fees
+  // Registration fees (compact)
   if (result.registrationFees > 0) {
     if (taxItems.length % 2 === 0) {
       doc.setFillColor(248, 250, 252);
-      doc.rect(marginLeft, yPosition - 3, contentWidth, 10, 'F');
+      doc.rect(marginLeft, yPosition - 2, contentWidth, 8, 'F');
     }
-    doc.text("Registration Fees (Estimate)", marginLeft + 5, yPosition + 2);
-    doc.text("-", marginLeft + 100, yPosition + 2);
-    doc.text(formatCurrency(result.registrationFees), marginLeft + 130, yPosition + 2);
-    yPosition += 15;
+    doc.text("Registration Fees", marginLeft + 3, yPosition + 2);
+    doc.text("-", marginLeft + 85, yPosition + 2);
+    doc.text(formatCurrency(result.registrationFees), marginLeft + 115, yPosition + 2);
+    yPosition += 10;
   } else {
-    yPosition += 5;
+    yPosition += 3;
   }
   
-  // Modern total section
+  // Modern total section (compact)
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.roundedRect(marginLeft, yPosition, contentWidth, 15, 3, 3, 'F');
+  doc.roundedRect(marginLeft, yPosition, contentWidth, 12, 2, 2, 'F');
   
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.text("TOTAL AMOUNT PAYABLE", marginLeft + 5, yPosition + 10);
-  doc.text(formatCurrency(result.totalPayable), marginLeft + 130, yPosition + 10);
-  yPosition += 25;
+  doc.setFontSize(10);
+  doc.text("TOTAL AMOUNT PAYABLE", marginLeft + 3, yPosition + 8);
+  doc.text(formatCurrency(result.totalPayable), marginLeft + 115, yPosition + 8);
+  yPosition += 18;
   
-  // Modern footer with contact information
-  const footerY = doc.internal.pageSize.height - 40;
+  // Compact footer - ensure it fits in remaining space
+  const pageHeight = doc.internal.pageSize.height;
+  const remainingSpace = pageHeight - yPosition;
+  const footerHeight = 25;
+  const footerY = pageHeight - footerHeight;
   
-  // Footer background
+  // Only add footer if there's space, otherwise adjust position
+  const actualFooterY = Math.max(yPosition + 5, footerY - 5);
+  
+  // Footer background (compact)
   doc.setFillColor(248, 250, 252);
-  doc.rect(0, footerY - 5, pageWidth, 45, 'F');
+  doc.rect(0, actualFooterY, pageWidth, footerHeight, 'F');
   
-  // Contact section
+  // Contact section (compact)
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  addCenteredText("GARIYANGU - ALL ABOUT CARS", footerY + 5, 11, "bold");
+  doc.setFontSize(9);
+  addCenteredText("GARIYANGU - ALL ABOUT CARS", actualFooterY + 6, 9, "bold");
   
   doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  addCenteredText("Need help importing your vehicle? Contact us: 0736 272719", footerY + 12, 9);
-  addCenteredText("Professional car import services from Japan, UK, South Africa, Dubai, Australia, Singapore & Thailand", footerY + 18, 8);
+  doc.setFontSize(7);
+  addCenteredText("Need help importing? Contact: 0736 272719 • Japan • UK • SA • Dubai • Australia", actualFooterY + 12, 7);
   
-  // Disclaimer
+  // Disclaimer (compact)
   doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
   doc.setFont("helvetica", "italic");
-  doc.setFontSize(8);
-  addCenteredText("This calculation is based on official KRA valuation formulas and current tax rates.", footerY + 28, 8);
-  addCenteredText("Please verify with KRA for final assessment.", footerY + 33, 8);
+  doc.setFontSize(6);
+  addCenteredText("Based on official KRA formulas. Please verify with KRA for final assessment.", actualFooterY + 18, 6);
   
   // Reset text color
   doc.setTextColor(0);

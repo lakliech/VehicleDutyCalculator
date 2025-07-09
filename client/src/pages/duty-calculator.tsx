@@ -604,26 +604,15 @@ export default function DutyCalculator() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-purple-50 to-purple-100 shadow-sm border-b border-purple-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-40 py-2">
-            <div className="flex items-center space-x-3 sm:space-x-6">
-              <img 
-                src={gariyangu} 
-                alt="Gariyangu Logo" 
-                className="h-32 w-auto"
-                style={{ minWidth: '250px', minHeight: '150px' }}
-              />
-              <div className="hidden sm:block border-l border-purple-300 pl-6">
-                <h1 className="text-xl font-semibold text-purple-700">Motor Vehicle Duty Calculator</h1>
-                <p className="text-sm text-cyan-600">All About Cars - Calculate Kenya import duties and taxes</p>
-              </div>
-              <div className="sm:hidden">
-                <h1 className="text-base font-semibold text-purple-700">Duty Calculator</h1>
-              </div>
+      {/* Page Header */}
+      <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Motor Vehicle Duty Calculator</h1>
+              <p className="text-lg text-gray-600">Calculate Kenya import duties and taxes accurately</p>
             </div>
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="flex items-center space-x-4">
               <Badge variant="secondary" className="bg-cyan-100 text-purple-800">
                 <Shield className="h-3 w-3 mr-1" />
                 KRA Official Rates
@@ -637,7 +626,7 @@ export default function DutyCalculator() {
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Contact Section */}
       <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4">

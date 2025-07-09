@@ -303,6 +303,13 @@ Changelog:
   - Category validation was incorrectly using reference vehicle's engine capacity instead of manual vehicle's capacity
   - Updated validation logic to use manual vehicle's engine capacity when in proration mode
   - Proration functionality now works correctly from manual entry to duty calculation
+- January 10, 2025. Repositioned app as automotive tools aggregator:
+  - Added top navigation menu bar with multiple automotive tools
+  - Created placeholder pages for Vehicle Importation Estimator, Vehicle Service Estimator, and Vehicle Transfer Cost
+  - Restructured app architecture with Navigation component and updated routing
+  - Motor Vehicle Duty Calculator is now one tool among four in the aggregator
+  - Updated branding to position as comprehensive automotive tools platform
+  - Enhanced user experience with modern navigation and tool categorization
 
 ## User Preferences
 

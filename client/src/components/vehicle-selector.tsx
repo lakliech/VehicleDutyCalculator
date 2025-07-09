@@ -13,6 +13,7 @@ interface VehicleSelectorProps {
   onVehicleSelect: (vehicle: VehicleReference | null) => void;
   onManualEngineSize?: (engineSize: number | null) => void;
   onManualVehicleData?: (data: ManualVehicleData | null) => void;
+  categoryFilter?: string; // Filter vehicles by category
 }
 
 interface ManualVehicleData {
@@ -23,7 +24,7 @@ interface ManualVehicleData {
   proratedCrsp: number;
 }
 
-export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualVehicleData }: VehicleSelectorProps) {
+export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualVehicleData, categoryFilter }: VehicleSelectorProps) {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [selectedEngineSize, setSelectedEngineSize] = useState<string>("");
@@ -38,22 +39,49 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
   const [manualEngineCapacity, setManualEngineCapacity] = useState<number | null>(null);
   const [selectedReferenceVehicle, setSelectedReferenceVehicle] = useState<VehicleReference | null>(null);
 
-  // Fetch all makes
+  // Fetch all makes (filtered by category if provided)
   const { data: makes = [], isLoading: makesLoading } = useQuery<string[]>({
-    queryKey: ["/api/vehicle-references/makes"],
+    queryKey: ["/api/vehicle-references/makes", categoryFilter],
+    queryFn: async () => {
+      let url = "/api/vehicle-references/makes";
+      if (categoryFilter) {
+        url += `?category=${categoryFilter}`;
+      }
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch makes');
+      return response.json();
+    },
   });
 
-  // Fetch models for selected make
+  // Fetch models for selected make (filtered by category if provided)
   const { data: models = [], isLoading: modelsLoading } = useQuery<{
     model: string;
   }[]>({
-    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models`],
+    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models`, categoryFilter],
+    queryFn: async () => {
+      let url = `/api/vehicle-references/makes/${selectedMake}/models`;
+      if (categoryFilter) {
+        url += `?category=${categoryFilter}`;
+      }
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch models');
+      return response.json();
+    },
     enabled: !!selectedMake,
   });
 
-  // Fetch engine sizes for selected make and model
+  // Fetch engine sizes for selected make and model (filtered by category if provided)
   const { data: engineSizes = [], isLoading: engineSizesLoading } = useQuery<number[]>({
-    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/engines`],
+    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/engines`, categoryFilter],
+    queryFn: async () => {
+      let url = `/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/engines`;
+      if (categoryFilter) {
+        url += `?category=${categoryFilter}`;
+      }
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch engine sizes');
+      return response.json();
+    },
     enabled: !!selectedMake && !!selectedModel,
   });
 

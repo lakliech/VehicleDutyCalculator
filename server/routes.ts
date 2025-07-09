@@ -36,6 +36,20 @@ const authenticateAdmin = (req: any, res: any, next: any) => {
   next();
 };
 
+// Helper function to get engine capacity filter based on category
+function getEngineCapacityFilter(category: string) {
+  switch (category) {
+    case 'under1500cc':
+      return sql`${vehicleReferences.engineCapacity} < 1500 AND ${vehicleReferences.engineCapacity} IS NOT NULL`;
+    case 'over1500cc':
+      return sql`${vehicleReferences.engineCapacity} >= 1500 AND ${vehicleReferences.engineCapacity} < 3000 AND ${vehicleReferences.engineCapacity} IS NOT NULL`;
+    case 'largeEngine':
+      return sql`${vehicleReferences.engineCapacity} >= 2500 AND ${vehicleReferences.engineCapacity} IS NOT NULL`;
+    default:
+      return null;
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Admin login endpoint
   app.post("/api/admin/login", async (req, res) => {
@@ -211,14 +225,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all distinct makes
+  // Get all distinct makes (with optional category filtering)
   app.get("/api/vehicle-references/makes", async (req, res) => {
     try {
-      const results = await db
+      const { category } = req.query;
+      
+      let query = db
         .selectDistinct({ make: vehicleReferences.make })
         .from(vehicleReferences)
         .orderBy(vehicleReferences.make);
-        
+      
+      // Apply category filtering based on engine capacity
+      if (category && typeof category === 'string') {
+        const engineFilter = getEngineCapacityFilter(category);
+        if (engineFilter) {
+          query = query.where(engineFilter);
+        }
+      }
+      
+      const results = await query;
       res.json(results.map(r => r.make));
     } catch (error) {
       console.error("Failed to fetch vehicle makes:", error);
@@ -228,16 +253,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get models for a specific make
+  // Get models for a specific make (with optional category filtering)
   app.get("/api/vehicle-references/makes/:make/models", async (req, res) => {
     try {
       const { make } = req.params;
+      const { category } = req.query;
+      
+      let whereConditions = [sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`];
+      
+      // Apply category filtering based on engine capacity
+      if (category && typeof category === 'string') {
+        const engineFilter = getEngineCapacityFilter(category);
+        if (engineFilter) {
+          whereConditions.push(engineFilter);
+        }
+      }
+      
       const results = await db
         .selectDistinct({ 
           model: vehicleReferences.model
         })
         .from(vehicleReferences)
-        .where(sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`)
+        .where(sql.join(whereConditions, sql` AND `))
         .orderBy(vehicleReferences.model);
         
       res.json(results);
@@ -249,20 +286,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get engine sizes for a specific make and model
+  // Get engine sizes for a specific make and model (with optional category filtering)
   app.get("/api/vehicle-references/makes/:make/models/:model/engines", async (req, res) => {
     try {
       const { make, model } = req.params;
+      const { category } = req.query;
+      
+      let whereConditions = [
+        sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`,
+        sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`,
+        sql`${vehicleReferences.engineCapacity} IS NOT NULL`
+      ];
+      
+      // Apply category filtering based on engine capacity
+      if (category && typeof category === 'string') {
+        const engineFilter = getEngineCapacityFilter(category);
+        if (engineFilter) {
+          whereConditions.push(engineFilter);
+        }
+      }
+      
       const results = await db
         .selectDistinct({ 
           engineCapacity: vehicleReferences.engineCapacity
         })
         .from(vehicleReferences)
-        .where(
-          sql`LOWER(${vehicleReferences.make}) = LOWER(${make}) 
-          AND LOWER(${vehicleReferences.model}) = LOWER(${model})
-          AND ${vehicleReferences.engineCapacity} IS NOT NULL`
-        )
+        .where(sql.join(whereConditions, sql` AND `))
         .orderBy(vehicleReferences.engineCapacity);
         
       res.json(results.map(r => r.engineCapacity).filter(Boolean));

@@ -166,13 +166,6 @@ export default function DutyCalculator() {
       if (vehicle.engineCapacity) {
         form.setValue('engineSize', vehicle.engineCapacity);
         setManualEngineSize(null); // Clear manual engine size when vehicle has capacity
-        
-        // Auto-filter category based on engine size and fuel type
-        if (vehicle.fuelType) {
-          detectVehicleCategory(vehicle.engineCapacity, vehicle.fuelType);
-        } else {
-          detectVehicleCategory(vehicle.engineCapacity);
-        }
       } else {
         // If vehicle doesn't have engine capacity, keep the current form value or default
         // Don't override with null/undefined to avoid validation errors
@@ -201,10 +194,6 @@ export default function DutyCalculator() {
     setManualEngineSize(engineSize);
     if (engineSize && engineSize > 0) {
       form.setValue('engineSize', engineSize);
-      
-      // Auto-filter category based on engine size
-      const currentFuelType = form.getValues('fuelType') || 'petrol';
-      detectVehicleCategory(engineSize, currentFuelType);
     }
   };
 
@@ -229,39 +218,17 @@ export default function DutyCalculator() {
     setCategoryConflict(null);
   };
 
-  // Function to detect vehicle category based on engine size and fuel type
+  // Function to detect vehicle category based on engine size and fuel type (for validation only)
   const detectVehicleCategory = (engineCapacity: number, fuelType: string = 'petrol') => {
-    let autoSelectedCategory = '';
-    
     if (engineCapacity < 1500) {
-      autoSelectedCategory = 'under1500cc';
+      return 'under1500cc';
     } else if (engineCapacity >= 3000 && fuelType.toLowerCase() === 'petrol') {
-      autoSelectedCategory = 'largeEngine';
+      return 'largeEngine';
     } else if (engineCapacity >= 2500 && fuelType.toLowerCase() === 'diesel') {
-      autoSelectedCategory = 'largeEngine';
+      return 'largeEngine';
     } else {
-      autoSelectedCategory = 'over1500cc';
+      return 'over1500cc';
     }
-    
-    // Update both form and category state
-    form.setValue('vehicleCategory', autoSelectedCategory);
-    setSelectedCategory(autoSelectedCategory);
-    
-    // Clear any existing category conflicts
-    setCategoryConflict(null);
-    
-    // Show notification about auto-category selection
-    const categoryNames: Record<string, string> = {
-      'under1500cc': 'Under 1500cc',
-      'over1500cc': 'Over 1500cc',
-      'largeEngine': 'Large Engine'
-    };
-    
-    toast({
-      title: "Category Auto-Selected",
-      description: `Vehicle category automatically set to: ${categoryNames[autoSelectedCategory]}`,
-      variant: "default",
-    });
   };
 
   // Get engine size from form for validation
@@ -279,15 +246,42 @@ export default function DutyCalculator() {
     }
   }, [yearOfManufacture, form]);
 
-  // Auto-filter category when fuel type changes (if engine size is available)
+  // Clear selections when category changes to ensure proper filtering
   useEffect(() => {
-    if (engineSize && engineSize > 0 && fuelType && !selectedTrailer && !selectedMachinery) {
-      // Only auto-detect for regular vehicles, not trailers or machinery
-      if (selectedVehicle || manualEngineSize || manualVehicleData) {
-        detectVehicleCategory(engineSize, fuelType);
+    if (selectedCategory) {
+      // Clear vehicle selections when category changes to trigger re-filtering
+      setSelectedVehicle(null);
+      setManualEngineSize(null);
+      setManualVehicleData(null);
+      setCategoryConflict(null);
+      
+      // Update form category
+      form.setValue('vehicleCategory', selectedCategory);
+      
+      // Show notification about category filter
+      const categoryNames: Record<string, string> = {
+        'under1500cc': 'Under 1500cc',
+        'over1500cc': 'Over 1500cc',
+        'largeEngine': 'Large Engine',
+        'electric': 'Electric',
+        'schoolBus': 'School Bus',
+        'primeMover': 'Prime Mover',
+        'trailer': 'Trailer',
+        'ambulance': 'Ambulance',
+        'motorcycle': 'Motorcycle',
+        'specialPurpose': 'Special Purpose',
+        'heavyMachinery': 'Heavy Machinery'
+      };
+      
+      if (selectedCategory !== 'trailer' && selectedCategory !== 'heavyMachinery') {
+        toast({
+          title: "Vehicle Filter Applied",
+          description: `Vehicle database filtered for: ${categoryNames[selectedCategory]}`,
+          variant: "default",
+        });
       }
     }
-  }, [fuelType, engineSize, selectedVehicle, manualEngineSize, manualVehicleData, selectedTrailer, selectedMachinery]);
+  }, [selectedCategory, form, toast]);
 
   // Validate manual category selection against vehicle specs
   const validateCategorySelection = (category: string) => {
@@ -779,6 +773,7 @@ export default function DutyCalculator() {
                                   onVehicleSelect={handleVehicleSelect} 
                                   onManualEngineSize={handleManualEngineSize}
                                   onManualVehicleData={handleManualVehicleData}
+                                  categoryFilter={selectedCategory}
                                 />
                               </>
                             )}

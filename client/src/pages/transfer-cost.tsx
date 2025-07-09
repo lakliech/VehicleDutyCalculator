@@ -141,9 +141,7 @@ export default function TransferCost() {
             <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Vehicle Transfer Cost Calculator
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Calculate the total cost of transferring vehicle ownership in Kenya. Get detailed breakdown of government fees, legal costs, and additional expenses.
-            </p>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Calculate the total cost of transferring vehicle ownership in Kenya. </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8 mb-8">

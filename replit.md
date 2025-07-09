@@ -310,6 +310,15 @@ Changelog:
   - Motor Vehicle Duty Calculator is now one tool among four in the aggregator
   - Updated branding to position as comprehensive automotive tools platform
   - Enhanced user experience with modern navigation and tool categorization
+- January 10, 2025. Transformed into Kenya's Car Marketplace:
+  - Changed branding from "Automotive Tools" to "Kenya's Car Marketplace"
+  - Increased logo size for better visibility and brand presence
+  - Separated MyCar's Worth and Transfer Cost into distinct tools
+  - Added "Sell My Car" marketplace functionality page
+  - Created comprehensive home page with hero section, featured tools, and company contact
+  - Moved duty calculator from root (/) to inner page (/duty-calculator)
+  - Expanded navigation to 7 tools: Duty Calculator, Import Calculator, Service Estimates, MyCar's Worth, Transfer Cost, Sell My Car, Vehicle Loan Products
+  - Enhanced home page with marketplace positioning, WhatsApp contact integration, and professional landing experience
 
 ## User Preferences
 

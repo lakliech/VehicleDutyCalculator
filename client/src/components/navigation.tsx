@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Calculator, Car, Wrench, DollarSign, CreditCard } from "lucide-react";
+import { Calculator, Car, Wrench, DollarSign, CreditCard, FileText, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import gariyangu from "@assets/gylogo_1752064168868.png";
 
@@ -12,7 +12,7 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
   {
-    href: "/",
+    href: "/duty-calculator",
     label: "Duty Calculator",
     icon: <Calculator className="h-8 w-8" />,
     description: "Calculate import duties and taxes"
@@ -30,10 +30,22 @@ const navigationItems: NavigationItem[] = [
     description: "Estimate service and maintenance costs"
   },
   {
-    href: "/transfer-cost",
+    href: "/mycars-worth",
     label: "MyCar's Worth",
     icon: <DollarSign className="h-8 w-8" />,
-    description: "Calculate vehicle value and transfer costs"
+    description: "Calculate current vehicle value"
+  },
+  {
+    href: "/transfer-cost",
+    label: "Transfer Cost",
+    icon: <FileText className="h-8 w-8" />,
+    description: "Calculate ownership transfer fees"
+  },
+  {
+    href: "/sell-my-car",
+    label: "Sell My Car",
+    icon: <ShoppingCart className="h-8 w-8" />,
+    description: "List and sell your vehicle"
   },
   {
     href: "/vehicle-loans",
@@ -50,16 +62,16 @@ export function Navigation() {
     <div className="bg-white shadow-sm border-b border-gray-200">
       {/* Header with Logo */}
       <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-center space-x-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-center space-x-6">
             <img 
               src={gariyangu} 
               alt="Gariyangu Logo" 
-              className="h-12 w-auto"
+              className="h-20 w-auto"
             />
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900">Automotive Tools</h1>
-              <p className="text-sm text-gray-600">All About Cars</p>
+              <h1 className="text-3xl font-bold text-gray-900">Kenya's Car Marketplace</h1>
+              <p className="text-lg text-gray-600">All About Cars</p>
             </div>
           </div>
         </div>
@@ -67,7 +79,7 @@ export function Navigation() {
 
       {/* Navigation Tiles */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
           {navigationItems.map((item) => {
             const isActive = location === item.href;
             return (

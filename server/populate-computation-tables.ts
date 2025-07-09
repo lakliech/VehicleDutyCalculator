@@ -48,17 +48,17 @@ async function populateComputationTables() {
 
     // Insert tax rates for different vehicle categories (Updated per KRA official rates)
     const taxRateData = [
-      { vehicleCategory: 'under1500cc', importDutyRate: '0.35', exciseDutyRate: '0.20', vatRate: '0.16', rdlRate: '0.015', idfRate: '0.025' },
-      { vehicleCategory: 'over1500cc', importDutyRate: '0.35', exciseDutyRate: '0.20', vatRate: '0.16', rdlRate: '0.015', idfRate: '0.025' },
-      { vehicleCategory: 'largeEngine', importDutyRate: '0.35', exciseDutyRate: '0.35', vatRate: '0.16', rdlRate: '0.015', idfRate: '0.025' },
-      { vehicleCategory: 'electric', importDutyRate: '0.25', exciseDutyRate: '0.10', vatRate: '0.16', rdlRate: '0.015', idfRate: '0.025' },
-      { vehicleCategory: 'schoolBus', importDutyRate: '0.35', exciseDutyRate: '0.25', vatRate: '0.16', rdlRate: '0.015', idfRate: '0.025' },
-      { vehicleCategory: 'primeMover', importDutyRate: '0.25', exciseDutyRate: '0', vatRate: '0.16', rdlRate: '0.015', idfRate: '0.025' },
-      { vehicleCategory: 'trailer', importDutyRate: '0.35', exciseDutyRate: '0', vatRate: '0.16', rdlRate: '0.015', idfRate: '0.025' },
-      { vehicleCategory: 'ambulance', importDutyRate: '0', exciseDutyRate: '0.25', vatRate: '0.16', rdlRate: '0.015', idfRate: '0.025' },
-      { vehicleCategory: 'motorcycle', importDutyRate: '0.25', exciseDutyRate: '0', exciseDutyFixed: 12195, vatRate: '0.16', rdlRate: '0.015', idfRate: '0.025' },
-      { vehicleCategory: 'specialPurpose', importDutyRate: '0.25', exciseDutyRate: '0.10', vatRate: '0.16', rdlRate: '0.015', idfRate: '0.025' },
-      { vehicleCategory: 'heavyMachinery', importDutyRate: '0.10', exciseDutyRate: '0.25', vatRate: '0.16', rdlRate: '0.015', idfRate: '0.025' }
+      { vehicleCategory: 'under1500cc', importDutyRate: '0.35', exciseDutyRate: '0.20', vatRate: '0.16', rdlRate: '0.02', idfRate: '0.025' },
+      { vehicleCategory: 'over1500cc', importDutyRate: '0.35', exciseDutyRate: '0.20', vatRate: '0.16', rdlRate: '0.02', idfRate: '0.025' },
+      { vehicleCategory: 'largeEngine', importDutyRate: '0.35', exciseDutyRate: '0.35', vatRate: '0.16', rdlRate: '0.02', idfRate: '0.025' },
+      { vehicleCategory: 'electric', importDutyRate: '0.25', exciseDutyRate: '0.10', vatRate: '0.16', rdlRate: '0.02', idfRate: '0.025' },
+      { vehicleCategory: 'schoolBus', importDutyRate: '0.35', exciseDutyRate: '0.25', vatRate: '0.16', rdlRate: '0.02', idfRate: '0.025' },
+      { vehicleCategory: 'primeMover', importDutyRate: '0.25', exciseDutyRate: '0', vatRate: '0.16', rdlRate: '0.02', idfRate: '0.025' },
+      { vehicleCategory: 'trailer', importDutyRate: '0.35', exciseDutyRate: '0', vatRate: '0.16', rdlRate: '0.02', idfRate: '0.025' },
+      { vehicleCategory: 'ambulance', importDutyRate: '0', exciseDutyRate: '0.25', vatRate: '0.16', rdlRate: '0.02', idfRate: '0.025' },
+      { vehicleCategory: 'motorcycle', importDutyRate: '0.25', exciseDutyRate: '0', exciseDutyFixed: 12195, vatRate: '0.16', rdlRate: '0.02', idfRate: '0.025' },
+      { vehicleCategory: 'specialPurpose', importDutyRate: '0.25', exciseDutyRate: '0.10', vatRate: '0.16', rdlRate: '0.02', idfRate: '0.025' },
+      { vehicleCategory: 'heavyMachinery', importDutyRate: '0.10', exciseDutyRate: '0.25', vatRate: '0.16', rdlRate: '0.02', idfRate: '0.025' }
     ];
 
     await db.insert(taxRates).values(taxRateData);

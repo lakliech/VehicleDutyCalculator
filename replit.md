@@ -82,7 +82,7 @@ The calculator computes the following Kenya-specific taxes (Updated per KRA offi
    - Trailer: 0%
    - Ambulance: 25%
 3. **VAT**: 16% on the cumulative value
-4. **Railway Development Levy (RDL)**: 1.5% for direct imports only
+4. **Railway Development Levy (RDL)**: 2% for direct imports only
 5. **Import Declaration Fee (IDF)**: 2.5% for direct imports only
 
 ## Depreciation Rates
@@ -265,6 +265,12 @@ Changelog:
   - Updated age calculation to always add 1 year: age = current_year - manufacture_year + 1
   - Adjusted intermediate depreciation rates for consistent progression
   - Updated documentation to reflect new depreciation schedule
+- January 10, 2025. Updated Railway Development Levy (RDL) to 2%:
+  - Changed RDL rate from 1.5% to 2% across all system components
+  - Updated backend storage calculations and breakdown descriptions
+  - Modified PDF generator to display 2% RDL rate
+  - Updated database processing fees and computation tables
+  - Updated all documentation to reflect new 2% RDL rate
 - January 10, 2025. Added specialized equipment databases:
   - Created trailers table with 28 records from trailers CSV data
   - Created heavy_machinery table with 112 records from tractors/equipment CSV data
@@ -279,7 +285,7 @@ Changelog:
   - Year of manufacture validation now skips trailers and heavy machinery (not required)
   - Submit button correctly disables when category conflicts exist across all equipment types
 - January 10, 2025. Fixed RDL and IDF calculations:
-  - Corrected Railway Development Levy (RDL) to use 1.5% of customs value instead of VAT value
+  - Corrected Railway Development Levy (RDL) to use 2% of customs value instead of VAT value
   - Corrected Import Declaration Fee (IDF) to use 2.5% of customs value instead of VAT value
   - Updated breakdown descriptions to clearly show percentages and calculation base
   - Ensured compliance with proper duty calculation standards

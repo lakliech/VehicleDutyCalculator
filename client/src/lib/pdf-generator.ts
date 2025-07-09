@@ -197,7 +197,7 @@ export function generateDutyCalculationPDF(
   
   // RDL
   if (result.rdl > 0) {
-    taxItems.push({ name: "Railway Development Levy (RDL)", rate: "1.5%", amount: result.rdl });
+    taxItems.push({ name: "Railway Development Levy (RDL)", rate: "2%", amount: result.rdl });
   }
   
   // IDF

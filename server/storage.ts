@@ -212,9 +212,9 @@ export class DatabaseStorage implements IStorage {
     if (isDirectImport) {
       if (result.rdl > 0) {
         result.breakdown.push({
-          label: "Railway Development Levy (1.5%)",
+          label: "Railway Development Levy (2%)",
           amount: result.rdl,
-          description: "RDL for infrastructure development - 1.5% of customs value"
+          description: "RDL for infrastructure development - 2% of customs value"
         });
       }
 

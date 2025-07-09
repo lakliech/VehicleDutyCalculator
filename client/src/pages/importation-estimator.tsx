@@ -10,10 +10,7 @@ export default function ImportationEstimator() {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Vehicle Importation Estimator
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Get comprehensive cost estimates for importing your vehicle to Kenya, 
-            including shipping, clearing, and documentation fees.
-          </p>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">Get comprehensive cost estimates for importing your vehicle to Kenya, including buying, inspection,shipping, clearing, and documentation fees.</p>
           <Badge variant="secondary" className="mt-4 bg-orange-100 text-orange-800">
             <Clock className="h-3 w-3 mr-1" />
             Coming Soon

@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Navigation } from "@/components/navigation";
+import { Footer } from "@/components/footer";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import DutyCalculator from "@/pages/duty-calculator";
@@ -19,21 +20,24 @@ import { AuthProvider } from "@/components/auth-provider";
 
 function Router() {
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <Navigation />
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/duty-calculator" component={DutyCalculator} />
-        <Route path="/importation-estimator" component={ImportationEstimator} />
-        <Route path="/service-estimator" component={ServiceEstimator} />
-        <Route path="/transfer-cost" component={TransferCost} />
-        <Route path="/mycars-worth" component={MyCarsWorth} />
-        <Route path="/buy-a-car" component={BuyACar} />
-        <Route path="/sell-my-car" component={SellMyCar} />
-        <Route path="/vehicle-loans" component={VehicleLoans} />
-        <Route path="/admin" component={AdminDashboard} />
-        <Route component={NotFound} />
-      </Switch>
+      <main className="flex-1">
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/duty-calculator" component={DutyCalculator} />
+          <Route path="/importation-estimator" component={ImportationEstimator} />
+          <Route path="/service-estimator" component={ServiceEstimator} />
+          <Route path="/transfer-cost" component={TransferCost} />
+          <Route path="/mycars-worth" component={MyCarsWorth} />
+          <Route path="/buy-a-car" component={BuyACar} />
+          <Route path="/sell-my-car" component={SellMyCar} />
+          <Route path="/vehicle-loans" component={VehicleLoans} />
+          <Route path="/admin" component={AdminDashboard} />
+          <Route component={NotFound} />
+        </Switch>
+      </main>
+      <Footer />
     </div>
   );
 }

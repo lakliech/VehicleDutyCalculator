@@ -1,4 +1,4 @@
-import { vehicles, calculations, depreciationRates, taxRates, vehicleCategoryRules, trailers, heavyMachinery, type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, type DepreciationRate, type TaxRate, type VehicleCategoryRule, type Trailer, type HeavyMachinery } from "@shared/schema";
+import { vehicles, calculations, depreciationRates, taxRates, vehicleCategoryRules, registrationFees, trailers, heavyMachinery, type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, type DepreciationRate, type TaxRate, type VehicleCategoryRule, type RegistrationFee, type Trailer, type HeavyMachinery } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, desc, sql } from "drizzle-orm";
 
@@ -14,6 +14,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Get depreciation rate based on vehicle type and age from database
+  private async getRegistrationFee(engineCapacity: number): Promise<number> {
+    // Query registration fees table for the appropriate fee based on engine capacity
+    const feeResult = await db
+      .select()
+      .from(registrationFees)
+      .where(
+        sql`${engineCapacity} >= ${registrationFees.minEngineCapacity} AND ${engineCapacity} <= ${registrationFees.maxEngineCapacity}`
+      )
+      .limit(1);
+
+    if (feeResult.length > 0) {
+      return feeResult[0].fee;
+    }
+
+    // Fallback to highest fee if no range matches (should not happen with proper data)
+    console.warn(`No registration fee found for engine capacity ${engineCapacity}cc, using highest fee`);
+    return 21215; // Highest fee for 3000cc+
+  }
+
   private async getDepreciationRate(vehicleType: 'direct' | 'previouslyRegistered', ageYears: number): Promise<number> {
     const rates = await db
       .select()
@@ -124,8 +143,8 @@ export class DatabaseStorage implements IStorage {
       result.idfFees = 0;
     }
 
-    // Calculate registration fees based on engine size
-    result.registrationFees = engineSize < 2000 ? 10000 : 13000;
+    // Calculate registration fees based on detailed engine capacity ranges
+    result.registrationFees = await this.getRegistrationFee(engineSize);
 
     // Calculate total taxes
     if (isDirectImport) {

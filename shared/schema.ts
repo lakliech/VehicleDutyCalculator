@@ -163,6 +163,16 @@ export const dutyResultSchema = z.object({
   })),
 });
 
+// Registration fees table based on engine capacity ranges
+export const registrationFees = pgTable("registration_fees", {
+  id: serial("id").primaryKey(),
+  minEngineCapacity: integer("min_engine_capacity").notNull(),
+  maxEngineCapacity: integer("max_engine_capacity").notNull(),
+  fee: integer("fee").notNull(), // in KES
+  description: text("description"),
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
 export type InsertVehicle = z.infer<typeof insertVehicleSchema>;
 export type Vehicle = typeof vehicles.$inferSelect;
 export type InsertCalculation = z.infer<typeof insertCalculationSchema>;
@@ -173,6 +183,7 @@ export type VehicleCategoryRule = typeof vehicleCategoryRules.$inferSelect;
 export type VehicleReference = typeof vehicleReferences.$inferSelect;
 export type Trailer = typeof trailers.$inferSelect;
 export type HeavyMachinery = typeof heavyMachinery.$inferSelect;
+export type RegistrationFee = typeof registrationFees.$inferSelect;
 export type DutyCalculation = z.infer<typeof dutyCalculationSchema>;
 export type DutyResult = z.infer<typeof dutyResultSchema>;
 

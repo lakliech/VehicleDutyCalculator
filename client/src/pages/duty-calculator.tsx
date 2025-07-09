@@ -730,11 +730,7 @@ export default function DutyCalculator() {
                               />
                             ) : (
                               <>
-                                <div className="p-3 bg-white rounded-md mb-3">
-                                  <p className="text-sm text-gray-600">
-                                    Select from over 2,800 vehicles with current market prices
-                                  </p>
-                                </div>
+                                
                                 <VehicleSelector 
                                   onVehicleSelect={handleVehicleSelect} 
                                   onManualEngineSize={handleManualEngineSize}

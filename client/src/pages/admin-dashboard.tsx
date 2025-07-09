@@ -30,7 +30,11 @@ import {
   Shield,
   Calculator,
   ArrowLeft,
-  LogOut
+  LogOut,
+  Upload,
+  FileText,
+  CheckCircle,
+  XCircle
 } from "lucide-react";
 import { z } from "zod";
 import type { 
@@ -101,6 +105,13 @@ function AuthenticatedAdminDashboard() {
   const queryClient = useQueryClient();
   const { logout, getAuthHeaders } = useAuth();
   const [activeTab, setActiveTab] = useState("vehicles");
+  const [uploadResults, setUploadResults] = useState<{
+    total: number;
+    added: number;
+    updated: number;
+    failed: number;
+    errors: string[];
+  } | null>(null);
 
   // Queries for fetching data with authentication
   const { data: vehicleReferences = [], isLoading: vehiclesLoading } = useQuery<VehicleReference[]>({
@@ -144,6 +155,34 @@ function AuthenticatedAdminDashboard() {
       });
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
       return response.json();
+    },
+  });
+
+  // CSV Upload mutation
+  const uploadCsvMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await fetch("/api/admin/upload-vehicle-csv", {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: formData,
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: (result) => {
+      setUploadResults(result);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/vehicle-references"] });
+      toast({
+        title: "CSV Upload Complete",
+        description: `Added: ${result.added}, Updated: ${result.updated}, Failed: ${result.failed}`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -260,10 +299,14 @@ function AuthenticatedAdminDashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="vehicles" className="flex items-center gap-2">
               <Car className="h-4 w-4" />
               Vehicle References
+            </TabsTrigger>
+            <TabsTrigger value="csv-upload" className="flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              CSV Upload
             </TabsTrigger>
             <TabsTrigger value="tax-rates" className="flex items-center gap-2">
               <Percent className="h-4 w-4" />
@@ -286,6 +329,16 @@ function AuthenticatedAdminDashboard() {
               isLoading={vehiclesLoading}
               onAdd={addVehicleMutation.mutate}
               formatCurrency={formatCurrency}
+            />
+          </TabsContent>
+
+          {/* CSV Upload Tab */}
+          <TabsContent value="csv-upload">
+            <CsvUploadTab 
+              onUpload={uploadCsvMutation.mutate}
+              isUploading={uploadCsvMutation.isPending}
+              uploadResults={uploadResults}
+              onClearResults={() => setUploadResults(null)}
             />
           </TabsContent>
 
@@ -1421,6 +1474,169 @@ function DepreciationRatesTab({
             </TableBody>
           </Table>
         </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// CSV Upload Tab Component
+function CsvUploadTab({ 
+  onUpload, 
+  isUploading, 
+  uploadResults, 
+  onClearResults 
+}: {
+  onUpload: (formData: FormData) => void;
+  isUploading: boolean;
+  uploadResults: {
+    total: number;
+    added: number;
+    updated: number;
+    failed: number;
+    errors: string[];
+  } | null;
+  onClearResults: () => void;
+}) {
+  const [dragActive, setDragActive] = useState(false);
+  const [fileInputRef, setFileInputRef] = useState<HTMLInputElement | null>(null);
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (file.type === "text/csv" || file.name.endsWith('.csv')) {
+        uploadFile(file);
+      } else {
+        alert("Please upload a CSV file only.");
+      }
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      uploadFile(e.target.files[0]);
+    }
+  };
+
+  const uploadFile = (file: File) => {
+    const formData = new FormData();
+    formData.append('csv', file);
+    onUpload(formData);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Upload className="h-5 w-5" />
+          Upload Vehicle References CSV
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Upload Instructions */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">CSV Format Requirements:</h3>
+          <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+            <p><strong>Column Order:</strong> Make, Model, Engine Capacity, Body Type, Drive Config, [Empty], Fuel Type, [Empty], CRSP Value</p>
+            <p><strong>Example:</strong> TOYOTA,CAMRY,2000,SALOON,FWD,,Petrol,,"2,500,000"</p>
+            <p><strong>Note:</strong> CRSP values can include commas and quotes. System will clean them automatically.</p>
+          </div>
+        </div>
+
+        {/* File Upload Area */}
+        <div
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            dragActive 
+              ? 'border-purple-400 bg-purple-50 dark:bg-purple-900/20' 
+              : 'border-gray-300 dark:border-gray-600 hover:border-purple-300'
+          }`}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+        >
+          <div className="space-y-4">
+            <div className="mx-auto w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
+              <FileText className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <p className="text-lg font-medium">Drop your CSV file here</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">or click to browse</p>
+            </div>
+            <input
+              ref={setFileInputRef}
+              type="file"
+              accept=".csv"
+              onChange={handleFileChange}
+              className="hidden"
+              disabled={isUploading}
+            />
+            <Button 
+              onClick={() => fileInputRef?.click()}
+              disabled={isUploading}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              {isUploading ? "Uploading..." : "Select CSV File"}
+            </Button>
+          </div>
+        </div>
+
+        {/* Upload Results */}
+        {uploadResults && (
+          <div className="bg-white dark:bg-gray-800 border rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">Upload Results</h3>
+              <Button variant="outline" size="sm" onClick={onClearResults}>
+                Clear Results
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{uploadResults.total}</div>
+                <div className="text-sm text-blue-700 dark:text-blue-300">Total Processed</div>
+              </div>
+              <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">{uploadResults.added}</div>
+                <div className="text-sm text-green-700 dark:text-green-300">Added New</div>
+              </div>
+              <div className="text-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{uploadResults.updated}</div>
+                <div className="text-sm text-yellow-700 dark:text-yellow-300">Updated</div>
+              </div>
+              <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <div className="text-2xl font-bold text-red-600 dark:text-red-400">{uploadResults.failed}</div>
+                <div className="text-sm text-red-700 dark:text-red-300">Failed</div>
+              </div>
+            </div>
+
+            {uploadResults.errors && uploadResults.errors.length > 0 && (
+              <div className="mt-4">
+                <h4 className="text-sm font-medium text-red-600 dark:text-red-400 mb-2">Errors:</h4>
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 max-h-32 overflow-y-auto">
+                  {uploadResults.errors.map((error, index) => (
+                    <div key={index} className="text-xs text-red-700 dark:text-red-300 mb-1">
+                      {error}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

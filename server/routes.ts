@@ -14,6 +14,8 @@ import {
 import { z } from "zod";
 import { db } from "./db";
 import { sql, eq } from "drizzle-orm";
+import multer from "multer";
+import { parse } from "csv-parse/sync";
 
 // Simple authentication middleware
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
@@ -623,6 +625,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to update depreciation rate:", error);
       res.status(500).json({ error: "Failed to update depreciation rate" });
+    }
+  });
+
+  // CSV Upload functionality for vehicle references
+  const upload = multer({ storage: multer.memoryStorage() });
+
+  app.post("/api/admin/upload-vehicle-csv", authenticateAdmin, upload.single('csv'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No CSV file uploaded" });
+      }
+
+      const csvContent = req.file.buffer.toString('utf8');
+      
+      // Parse CSV with flexible options to handle quoted values and commas
+      const records = parse(csvContent, {
+        delimiter: ',',
+        skip_empty_lines: true,
+        relax_quotes: true,
+        escape: '"',
+        quote: '"',
+        trim: true
+      });
+
+      const results = {
+        total: 0,
+        added: 0,
+        updated: 0,
+        failed: 0,
+        errors: [] as string[]
+      };
+
+      for (const [index, record] of records.entries()) {
+        try {
+          // Skip empty rows
+          if (!record || record.length === 0 || record.every((cell: string) => !cell?.trim())) {
+            continue;
+          }
+
+          results.total++;
+
+          // Parse CSV format: Make, Model, Engine Capacity, Body Type, Drive Config, [Empty], Fuel Type, [Empty], CRSP Value
+          const [
+            make,
+            model, 
+            engineCapacityStr,
+            bodyType,
+            driveConfiguration,
+            ,  // Skip empty column
+            fuelType,
+            ,  // Skip empty column  
+            crspStr
+          ] = record;
+
+          // Validate required fields
+          if (!make?.trim() || !model?.trim()) {
+            results.failed++;
+            results.errors.push(`Row ${index + 1}: Missing make or model`);
+            continue;
+          }
+
+          // Clean and parse numeric values
+          const engineCapacity = engineCapacityStr ? parseInt(engineCapacityStr.toString().trim()) : null;
+          
+          // Clean CRSP value - remove commas, quotes, and parse
+          let crspKes = null;
+          if (crspStr) {
+            const cleanCrsp = crspStr.toString().replace(/[",]/g, '').trim();
+            if (cleanCrsp && !isNaN(Number(cleanCrsp))) {
+              crspKes = parseFloat(cleanCrsp);
+            }
+          }
+
+          const vehicleData = {
+            make: make.toString().trim().toUpperCase(),
+            model: model.toString().trim().toUpperCase(),
+            engineCapacity,
+            bodyType: bodyType?.toString().trim() || null,
+            driveConfiguration: driveConfiguration?.toString().trim() || null,
+            fuelType: fuelType?.toString().trim().toLowerCase() || null,
+            crspKes
+          };
+
+          // Check if vehicle already exists (by make, model, engine capacity)
+          const existing = await db
+            .select()
+            .from(vehicleReferences)
+            .where(sql`
+              LOWER(${vehicleReferences.make}) = LOWER(${vehicleData.make}) AND
+              LOWER(${vehicleReferences.model}) = LOWER(${vehicleData.model}) AND
+              ${vehicleReferences.engineCapacity} = ${vehicleData.engineCapacity}
+            `)
+            .limit(1);
+
+          if (existing.length > 0) {
+            // Update existing vehicle
+            await db
+              .update(vehicleReferences)
+              .set(vehicleData)
+              .where(eq(vehicleReferences.id, existing[0].id));
+            results.updated++;
+          } else {
+            // Insert new vehicle
+            await db
+              .insert(vehicleReferences)
+              .values(vehicleData);
+            results.added++;
+          }
+
+        } catch (error: any) {
+          results.failed++;
+          results.errors.push(`Row ${index + 1}: ${error.message}`);
+        }
+      }
+
+      res.json(results);
+    } catch (error: any) {
+      console.error("CSV upload error:", error);
+      res.status(500).json({ 
+        error: "Failed to process CSV file",
+        details: error.message 
+      });
     }
   });
 

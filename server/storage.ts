@@ -134,10 +134,10 @@ export class DatabaseStorage implements IStorage {
     // Apply VAT
     result.vat = result.vatValue * Number(taxRate.vatRate);
     
-    // Apply RDL and IDF only for direct imports
+    // Apply RDL and IDF only for direct imports - calculated on customs value
     if (isDirectImport && taxRate.rdlRate && taxRate.idfRate) {
-      result.rdl = result.vatValue * Number(taxRate.rdlRate);
-      result.idfFees = result.vatValue * Number(taxRate.idfRate);
+      result.rdl = result.customsValue * Number(taxRate.rdlRate);
+      result.idfFees = result.customsValue * Number(taxRate.idfRate);
     } else {
       result.rdl = 0;
       result.idfFees = 0;
@@ -194,17 +194,17 @@ export class DatabaseStorage implements IStorage {
     if (isDirectImport) {
       if (result.rdl > 0) {
         result.breakdown.push({
-          label: "Railway Development Levy",
+          label: "Railway Development Levy (1.5%)",
           amount: result.rdl,
-          description: "RDL for infrastructure development"
+          description: "RDL for infrastructure development - 1.5% of customs value"
         });
       }
 
       if (result.idfFees > 0) {
         result.breakdown.push({
-          label: "Import Declaration Fee",
+          label: "Import Declaration Fee (2.5%)",
           amount: result.idfFees,
-          description: "IDF processing fee"
+          description: "IDF processing fee - 2.5% of customs value"
         });
       }
     }

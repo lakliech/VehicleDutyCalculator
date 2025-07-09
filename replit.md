@@ -278,6 +278,11 @@ Changelog:
   - Category validation now properly handles all three equipment types: vehicles, trailers, heavy machinery
   - Year of manufacture validation now skips trailers and heavy machinery (not required)
   - Submit button correctly disables when category conflicts exist across all equipment types
+- January 10, 2025. Fixed RDL and IDF calculations:
+  - Corrected Railway Development Levy (RDL) to use 1.5% of customs value instead of VAT value
+  - Corrected Import Declaration Fee (IDF) to use 2.5% of customs value instead of VAT value
+  - Updated breakdown descriptions to clearly show percentages and calculation base
+  - Ensured compliance with proper duty calculation standards
 
 ## User Preferences
 

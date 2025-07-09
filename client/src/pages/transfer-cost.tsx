@@ -61,10 +61,8 @@ export default function TransferCost() {
       specialType?: string;
       vehicleValue?: number;
     }) => {
-      return await apiRequest('/api/calculate-transfer-cost', {
-        method: 'POST',
-        body: data,
-      });
+      const response = await apiRequest('POST', '/api/calculate-transfer-cost', data);
+      return await response.json();
     },
     onSuccess: (result: TransferResult) => {
       setTransferResult(result);

@@ -46,6 +46,7 @@ import type {
 } from "@shared/schema";
 import { useAuth } from "@/components/auth-provider";
 import { AdminLogin } from "@/components/admin-login";
+import gariyangu from "@assets/gylogo_1752062701015.png";
 
 // Form schemas for validation
 const vehicleReferenceSchema = z.object({
@@ -330,9 +331,13 @@ function AuthenticatedAdminDashboard() {
       {/* Header */}
       <header className="bg-gradient-to-r from-purple-50 to-purple-100 shadow-sm border-b border-purple-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20">
             <div className="flex items-center space-x-4">
-              <Database className="h-8 w-8 text-purple-600" />
+              <img 
+                src={gariyangu} 
+                alt="Gariyangu Logo" 
+                className="h-16 w-auto"
+              />
               <div>
                 <h1 className="text-xl font-semibold text-purple-900">Admin Dashboard</h1>
                 <p className="text-sm text-purple-700">Manage vehicle data, tax rates, and categories</p>
@@ -354,7 +359,7 @@ function AuthenticatedAdminDashboard() {
                 <LogOut className="h-4 w-4" />
                 Logout
               </Button>
-              <Badge variant="secondary" className="bg-cyan-100 text-purple-800">
+              <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800">
                 <Shield className="h-3 w-3 mr-1" />
                 Admin Access
               </Badge>

@@ -23,7 +23,7 @@ import { VehicleSelector } from "@/components/vehicle-selector";
 import { VehicleCategorySelector } from "@/components/vehicle-category-selector";
 import { TrailerSelector } from "@/components/trailer-selector";
 import { HeavyMachinerySelector } from "@/components/heavy-machinery-selector";
-import gariyangu from "@assets/gariyangu_1751901637375.png";
+import gariyangu from "@assets/gylogo_1752062701015.png";
 import { 
   Calculator, 
   Car, 
@@ -607,12 +607,13 @@ export default function DutyCalculator() {
       {/* Header */}
       <header className="bg-gradient-to-r from-purple-50 to-purple-100 shadow-sm border-b border-purple-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20 py-2">
+          <div className="flex items-center justify-between h-40 py-2">
             <div className="flex items-center space-x-3 sm:space-x-6">
               <img 
                 src={gariyangu} 
                 alt="Gariyangu Logo" 
-                className="h-10 sm:h-12 w-auto"
+                className="h-32 w-auto"
+                style={{ minWidth: '250px', minHeight: '150px' }}
               />
               <div className="hidden sm:block border-l border-purple-300 pl-6">
                 <h1 className="text-xl font-semibold text-purple-700">Motor Vehicle Duty Calculator</h1>
@@ -639,7 +640,7 @@ export default function DutyCalculator() {
       </header>
 
       {/* Contact Section */}
-      <div className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white py-4">
+      <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
             <div className="text-center sm:text-left">

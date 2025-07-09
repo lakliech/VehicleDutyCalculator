@@ -5,48 +5,48 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(0, 0%, 100%);
-  --foreground: hsl(224, 71.4%, 4.1%);
+  --background: #ffffff;
+  --foreground: #381072;
   --muted: hsl(220, 14.3%, 95.9%);
   --muted-foreground: hsl(220, 8.9%, 46.1%);
-  --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(224, 71.4%, 4.1%);
-  --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(224, 71.4%, 4.1%);
+  --popover: #ffffff;
+  --popover-foreground: #381072;
+  --card: #ffffff;
+  --card-foreground: #381072;
   --border: hsl(220, 13%, 91%);
   --input: hsl(220, 13%, 91%);
-  --primary: hsl(267, 83%, 57%);
-  --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(196, 100%, 85%);
-  --secondary-foreground: hsl(267, 83%, 17%);
-  --accent: hsl(196, 100%, 85%);
-  --accent-foreground: hsl(267, 83%, 17%);
+  --primary: #740a72;
+  --primary-foreground: #ffffff;
+  --secondary: #b10573;
+  --secondary-foreground: #ffffff;
+  --accent: #ee0074;
+  --accent-foreground: #ffffff;
   --destructive: hsl(0, 84.2%, 60.2%);
   --destructive-foreground: hsl(210, 40%, 98%);
-  --ring: hsl(267, 83%, 57%);
+  --ring: #740a72;
   --radius: 0.75rem;
 }
 
 .dark {
-  --background: hsl(267, 83%, 17%);
-  --foreground: hsl(0, 0%, 100%);
-  --muted: hsl(267, 83%, 27%);
+  --background: #381072;
+  --foreground: #ffffff;
+  --muted: #740a72;
   --muted-foreground: hsl(215, 13.8%, 34.1%);
-  --popover: hsl(267, 83%, 17%);
-  --popover-foreground: hsl(0, 0%, 100%);
-  --card: hsl(267, 83%, 17%);
-  --card-foreground: hsl(0, 0%, 100%);
-  --border: hsl(267, 83%, 27%);
-  --input: hsl(267, 83%, 27%);
-  --primary: hsl(267, 83%, 57%);
-  --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(267, 83%, 27%);
-  --secondary-foreground: hsl(196, 100%, 85%);
-  --accent: hsl(267, 83%, 27%);
-  --accent-foreground: hsl(196, 100%, 85%);
+  --popover: #381072;
+  --popover-foreground: #ffffff;
+  --card: #381072;
+  --card-foreground: #ffffff;
+  --border: #740a72;
+  --input: #740a72;
+  --primary: #b10573;
+  --primary-foreground: #ffffff;
+  --secondary: #ee0074;
+  --secondary-foreground: #ffffff;
+  --accent: #ee0074;
+  --accent-foreground: #ffffff;
   --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(210, 40%, 98%);
-  --ring: hsl(267, 83%, 57%);
+  --ring: #b10573;
   --radius: 0.75rem;
 }
 

@@ -87,13 +87,31 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
 
   // Search for specific vehicle
   const { data: vehicleDetails = [] } = useQuery<VehicleReference[]>({
-    queryKey: [`/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}&engineCapacity=${selectedEngineSize}`],
+    queryKey: [`/api/vehicle-references/search`, selectedMake, selectedModel, selectedEngineSize, categoryFilter],
+    queryFn: async () => {
+      let url = `/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}&engineCapacity=${selectedEngineSize}`;
+      if (categoryFilter) {
+        url += `&category=${categoryFilter}`;
+      }
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch vehicle details');
+      return response.json();
+    },
     enabled: !!selectedMake && !!selectedModel && (!!selectedEngineSize || (useManualEngine && !!manualEngineSize)),
   });
 
   // Fetch potential reference vehicles for manual mode
   const { data: referenceVehicles = [] } = useQuery<VehicleReference[]>({
-    queryKey: [`/api/vehicle-references/search?make=${manualMake}`],
+    queryKey: [`/api/vehicle-references/search`, manualMake, 'manual-mode', categoryFilter],
+    queryFn: async () => {
+      let url = `/api/vehicle-references/search?make=${manualMake}`;
+      if (categoryFilter) {
+        url += `&category=${categoryFilter}`;
+      }
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch reference vehicles');
+      return response.json();
+    },
     enabled: isManualMode && !!manualMake,
   });
 
@@ -234,7 +252,7 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
             className="h-4 w-4"
           />
           <Label htmlFor="manual-mode" className="text-sm font-medium">
-            Manual Entry with Proration
+            Enter Vehicle manually
           </Label>
         </div>
       </div>

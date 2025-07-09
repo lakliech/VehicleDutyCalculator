@@ -48,7 +48,7 @@ export default function TransferCost() {
   const [selectedTrailer, setSelectedTrailer] = useState<Trailer | null>(null);
   const [selectedMachinery, setSelectedMachinery] = useState<HeavyMachinery | null>(null);
   const [vehicleType, setVehicleType] = useState<string>("");
-  const [vehicleValue, setVehicleValue] = useState<string>("");
+
   const [specialType, setSpecialType] = useState<string>("");
   const [transferResult, setTransferResult] = useState<TransferResult | null>(null);
   
@@ -130,9 +130,7 @@ export default function TransferCost() {
       calculationData.specialType = 'tractor';
     }
 
-    if (vehicleValue && parseFloat(vehicleValue) > 0) {
-      calculationData.vehicleValue = parseFloat(vehicleValue);
-    }
+
 
     calculateTransferMutation.mutate(calculationData);
   };
@@ -243,20 +241,7 @@ export default function TransferCost() {
                   </div>
                 )}
 
-                {/* Optional Vehicle Value */}
-                <div className="space-y-2">
-                  <Label htmlFor="vehicle-value">Vehicle Value (Optional)</Label>
-                  <Input
-                    id="vehicle-value"
-                    type="number"
-                    placeholder="Enter vehicle value in KES"
-                    value={vehicleValue}
-                    onChange={(e) => setVehicleValue(e.target.value)}
-                  />
-                  <p className="text-xs text-gray-500">
-                    Used to calculate 2% transfer tax. Leave blank if unknown.
-                  </p>
-                </div>
+
 
                 <Button 
                   onClick={handleCalculateTransfer}
@@ -381,65 +366,7 @@ export default function TransferCost() {
             )}
           </div>
 
-          {/* Information Cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            <Card className="relative overflow-hidden border-purple-200 dark:border-purple-800">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-purple-600/10" />
-              <CardHeader className="relative">
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
-                  <FileText className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <CardTitle className="text-purple-900 dark:text-purple-100">Government Fees</CardTitle>
-                <CardDescription>Official transfer fees and registration costs</CardDescription>
-              </CardHeader>
-              <CardContent className="relative">
-                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                  <li>• Transfer fee (engine capacity based)</li>
-                  <li>• Transfer tax (2% of vehicle value)</li>
-                  <li>• Inspection certificate</li>
-                  <li>• Number plate change</li>
-                </ul>
-              </CardContent>
-            </Card>
 
-            <Card className="relative overflow-hidden border-cyan-200 dark:border-cyan-800">
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-cyan-600/10" />
-              <CardHeader className="relative">
-                <div className="w-12 h-12 bg-cyan-100 dark:bg-cyan-900 rounded-lg flex items-center justify-center mb-4">
-                  <Users className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
-                </div>
-                <CardTitle className="text-cyan-900 dark:text-cyan-100">Legal Fees</CardTitle>
-                <CardDescription>Documentation and advocate fees</CardDescription>
-              </CardHeader>
-              <CardContent className="relative">
-                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                  <li>• Sale agreement preparation</li>
-                  <li>• Advocate fees</li>
-                  <li>• Document notarization</li>
-                  <li>• Processing charges</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="relative overflow-hidden border-pink-200 dark:border-pink-800">
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-pink-600/10" />
-              <CardHeader className="relative">
-                <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900 rounded-lg flex items-center justify-center mb-4">
-                  <CreditCard className="w-6 h-6 text-pink-600 dark:text-pink-400" />
-                </div>
-                <CardTitle className="text-pink-900 dark:text-pink-100">Additional Costs</CardTitle>
-                <CardDescription>Insurance and clearance fees</CardDescription>
-              </CardHeader>
-              <CardContent className="relative">
-                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                  <li>• Insurance transfer</li>
-                  <li>• Vehicle valuation</li>
-                  <li>• Clearance certificate</li>
-                  <li>• Document search fees</li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
 
           <Card className="mb-8">
             <CardHeader>

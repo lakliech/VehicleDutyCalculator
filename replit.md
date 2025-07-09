@@ -290,6 +290,13 @@ Changelog:
   - Implemented transfer process timeline and required documents guide for user education
   - Included comprehensive notes and disclaimers for accurate user expectations
   - Applied consistent Gariyangu branding with purple-cyan color scheme throughout transfer module
+- January 10, 2025. Enhanced Vehicle Transfer Cost Calculator:
+  - Fixed broken filters in vehicle selector by restructuring query keys and adding proper category filtering
+  - Renamed "Manual Entry with Proration" to "Enter Vehicle manually" as requested
+  - Removed vehicle value option from transfer cost calculator form
+  - Removed fee tiles at bottom of transfer cost page for cleaner UI
+  - Improved query structure in VehicleSelector with proper queryFn functions and category support
+  - Enhanced cache management with more specific query keys to avoid conflicts
 - January 10, 2025. Added specialized equipment databases:
   - Created trailers table with 28 records from trailers CSV data
   - Created heavy_machinery table with 112 records from tractors/equipment CSV data

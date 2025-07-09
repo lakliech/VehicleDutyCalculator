@@ -283,6 +283,11 @@ Changelog:
   - Corrected Import Declaration Fee (IDF) to use 2.5% of customs value instead of VAT value
   - Updated breakdown descriptions to clearly show percentages and calculation base
   - Ensured compliance with proper duty calculation standards
+- January 10, 2025. Fixed CRSP proration submit button issue:
+  - Resolved bug where calculate duty button was disabled after proration
+  - Category validation was incorrectly using reference vehicle's engine capacity instead of manual vehicle's capacity
+  - Updated validation logic to use manual vehicle's engine capacity when in proration mode
+  - Proration functionality now works correctly from manual entry to duty calculation
 
 ## User Preferences
 

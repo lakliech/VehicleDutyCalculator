@@ -259,7 +259,8 @@ export default function DutyCalculator() {
       return true;
     }
 
-    const engineCapacity = vehicleData.engineCapacity || form.getValues('engineSize');
+    // CRITICAL FIX: For manual vehicle data, use the manual engine capacity, not the reference vehicle's capacity
+    const engineCapacity = manualVehicleData ? manualVehicleData.engineCapacity : (vehicleData.engineCapacity || form.getValues('engineSize'));
     const fuelType = vehicleData.fuelType?.toLowerCase();
     const bodyType = vehicleData.bodyType?.toLowerCase();
 

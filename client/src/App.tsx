@@ -9,6 +9,7 @@ import DutyCalculator from "@/pages/duty-calculator";
 import ImportationEstimator from "@/pages/importation-estimator";
 import ServiceEstimator from "@/pages/service-estimator";
 import TransferCost from "@/pages/transfer-cost";
+import VehicleLoans from "@/pages/vehicle-loans";
 import AdminDashboard from "@/pages/admin-dashboard";
 import { AuthProvider } from "@/components/auth-provider";
 
@@ -21,6 +22,7 @@ function Router() {
         <Route path="/importation-estimator" component={ImportationEstimator} />
         <Route path="/service-estimator" component={ServiceEstimator} />
         <Route path="/transfer-cost" component={TransferCost} />
+        <Route path="/vehicle-loans" component={VehicleLoans} />
         <Route path="/admin" component={AdminDashboard} />
         <Route component={NotFound} />
       </Switch>

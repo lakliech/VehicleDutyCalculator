@@ -606,11 +606,11 @@ export default function DutyCalculator() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
       {/* Page Header */}
       <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Motor Vehicle Duty Calculator</h1>
-              <p className="text-lg text-gray-600">Calculate Kenya import duties and taxes accurately</p>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">Duty Calculator</h1>
+              <p className="text-gray-600">Calculate Kenya import duties and taxes accurately</p>
             </div>
             <div className="flex items-center space-x-4">
               <Badge variant="secondary" className="bg-cyan-100 text-purple-800">

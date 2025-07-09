@@ -20,7 +20,7 @@ const categoryOptions: VehicleCategoryOption[] = [
     label: "Under 1500cc",
     description: "Standard cars with engine below 1500cc",
     importDuty: "35%",
-    exciseDuty: "20%"
+    exciseDuty: "25%"
   },
   {
     value: "over1500cc",
@@ -28,7 +28,7 @@ const categoryOptions: VehicleCategoryOption[] = [
     label: "Over 1500cc",
     description: "Cars with engine 1500cc-3000cc (petrol) / 1500cc-2500cc (diesel)",
     importDuty: "35%",
-    exciseDuty: "20%"
+    exciseDuty: "25%"
   },
   {
     value: "largeEngine",

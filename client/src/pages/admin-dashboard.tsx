@@ -46,7 +46,7 @@ import type {
 } from "@shared/schema";
 import { useAuth } from "@/components/auth-provider";
 import { AdminLogin } from "@/components/admin-login";
-import gariyangu from "@assets/gylogo_1752062701015.png";
+import gariyangu from "@assets/gylogo_1752064168868.png";
 
 // Form schemas for validation
 const vehicleReferenceSchema = z.object({

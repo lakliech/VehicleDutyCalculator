@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import type { DutyResult, VehicleReference } from '@shared/schema';
-import gariyanGuLogo from '@assets/gylogo_1752062701015.png';
+import gariyanGuLogo from '@assets/gylogo_1752064168868.png';
 
 export function generateDutyCalculationPDF(
   result: DutyResult,

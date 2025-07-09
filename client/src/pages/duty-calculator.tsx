@@ -23,7 +23,7 @@ import { VehicleSelector } from "@/components/vehicle-selector";
 import { VehicleCategorySelector } from "@/components/vehicle-category-selector";
 import { TrailerSelector } from "@/components/trailer-selector";
 import { HeavyMachinerySelector } from "@/components/heavy-machinery-selector";
-import gariyangu from "@assets/gylogo_1752062701015.png";
+import gariyangu from "@assets/gylogo_1752064168868.png";
 import { 
   Calculator, 
   Car, 

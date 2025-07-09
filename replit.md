@@ -272,7 +272,7 @@ Changelog:
   - Updated database processing fees and computation tables
   - Updated all documentation to reflect new 2% RDL rate
 - January 10, 2025. Updated brand identity and logo:
-  - Changed logo from gariyangu_1751901637375.png to gylogo_1752062701015.png
+  - Changed logo from gariyangu_1751901637375.png to gylogo_1752064168868.png
   - Updated logo sizing to meet minimum requirement of 250x150px
   - Applied new color scheme (#ffffff, #381072, #740a72, #b10573, #ee0074) throughout application
   - Updated header heights and spacing to accommodate larger logo

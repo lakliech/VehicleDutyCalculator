@@ -77,12 +77,11 @@ export function Navigation() {
             />
             <div className="text-center">
               <h1 className="text-2xl lg:text-4xl font-bold text-gray-900">Kenya's Car Marketplace</h1>
-              <p className="text-lg text-gray-600">All About Cars</p>
+              <p className="text-lg text-gray-600">we get super excited about cars</p>
             </div>
           </div>
         </div>
       </div>
-
       {/* Import Call to Action */}
       <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -112,7 +111,6 @@ export function Navigation() {
           </div>
         </div>
       </div>
-
       {/* Navigation Tiles */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-4">

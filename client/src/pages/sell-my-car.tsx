@@ -41,6 +41,7 @@ const listingSchema = z.object({
   negotiable: z.boolean(),
   description: z.string().min(50, "Description must be at least 50 characters"),
   features: z.array(z.string()),
+  images: z.array(z.string()).max(8, "Maximum 8 photos allowed").optional(),
   location: z.string().min(1, "Location is required"),
   phoneNumber: z.string().min(10, "Valid phone number required"),
   whatsappNumber: z.string().optional(),
@@ -58,13 +59,26 @@ export default function SellMyCar() {
   const listingForm = useForm<ListingForm>({
     resolver: zodResolver(listingSchema),
     defaultValues: {
+      title: "",
+      make: "",
+      model: "",
+      year: 2020,
+      engineSize: 1500,
+      mileage: 0,
       fuelType: "petrol",
       bodyType: "sedan",
       transmission: "manual",
+      color: "",
       condition: "locally_used",
       driveConfiguration: "2wd",
+      price: 0,
       negotiable: true,
+      description: "",
       features: [],
+      images: [],
+      location: "",
+      phoneNumber: "",
+      whatsappNumber: "",
     },
   });
 
@@ -180,6 +194,38 @@ export default function SellMyCar() {
     );
   };
 
+  // Image upload handlers
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    // Convert files to base64 for demo (in production, upload to storage service)
+    Array.from(files).forEach((file) => {
+      if (uploadedImages.length >= 8) {
+        toast({
+          title: "Maximum Photos Reached",
+          description: "You can upload a maximum of 8 photos.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setUploadedImages(prev => [...prev, result]);
+        listingForm.setValue("images", [...uploadedImages, result]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = uploadedImages.filter((_, i) => i !== index);
+    setUploadedImages(newImages);
+    listingForm.setValue("images", newImages);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -243,14 +289,20 @@ export default function SellMyCar() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Year *</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="number" 
-                                  placeholder="2018" 
-                                  {...field}
-                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
-                                />
-                              </FormControl>
+                              <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select year" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {Array.from({ length: 2025 - 1975 + 1 }, (_, i) => 2025 - i).map((year) => (
+                                    <SelectItem key={year} value={year.toString()}>
+                                      {year}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -265,8 +317,8 @@ export default function SellMyCar() {
                                 <Input 
                                   type="number" 
                                   placeholder="50000" 
-                                  {...field}
-                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                  value={field.value || ""}
+                                  onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -301,7 +353,7 @@ export default function SellMyCar() {
                             <FormItem>
                               <FormLabel>Color *</FormLabel>
                               <FormControl>
-                                <Input placeholder="White" {...field} />
+                                <Input placeholder="White" value={field.value || ""} onChange={field.onChange} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -369,8 +421,8 @@ export default function SellMyCar() {
                                 <Input 
                                   type="number" 
                                   placeholder="2500000" 
-                                  {...field}
-                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                  value={field.value || ""}
+                                  onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
                                 />
                               </FormControl>
                               {watchedPrice && getPriceIndicator(watchedPrice) && (
@@ -419,6 +471,59 @@ export default function SellMyCar() {
                       </div>
                     </div>
 
+                    {/* Photo Upload */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Photos</h3>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors">
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          id="photo-upload"
+                          disabled={uploadedImages.length >= 8}
+                        />
+                        <label htmlFor="photo-upload" className="cursor-pointer">
+                          <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-600 mb-2">Upload vehicle photos</p>
+                          <p className="text-sm text-gray-500">
+                            {uploadedImages.length >= 8 
+                              ? "Maximum 8 photos reached" 
+                              : `Add up to ${8 - uploadedImages.length} more photos (JPG, PNG)`
+                            }
+                          </p>
+                        </label>
+                      </div>
+                      
+                      {/* Image Preview Grid */}
+                      {uploadedImages.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                          {uploadedImages.map((image, index) => (
+                            <div key={index} className="relative group">
+                              <img 
+                                src={image} 
+                                alt={`Vehicle photo ${index + 1}`}
+                                className="w-full h-32 object-cover rounded-lg border"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                              {index === 0 && (
+                                <div className="absolute bottom-2 left-2 bg-purple-600 text-white text-xs px-2 py-1 rounded">
+                                  Main Photo
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                     {/* Description */}
                     <div>
                       <h3 className="text-lg font-semibold mb-4">Description</h3>
@@ -439,19 +544,6 @@ export default function SellMyCar() {
                           </FormItem>
                         )}
                       />
-                    </div>
-
-                    {/* Photos */}
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4">Photos</h3>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                        <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-600 mb-2">Upload vehicle photos</p>
-                        <p className="text-sm text-gray-500">Support for JPG, PNG up to 5MB each. Maximum 10 photos.</p>
-                        <Button type="button" variant="outline" className="mt-4">
-                          Choose Photos
-                        </Button>
-                      </div>
                     </div>
 
                     {/* Contact Information */}
@@ -487,7 +579,7 @@ export default function SellMyCar() {
                             <FormItem>
                               <FormLabel>Phone Number *</FormLabel>
                               <FormControl>
-                                <Input placeholder="0712345678" {...field} />
+                                <Input placeholder="0712345678" value={field.value || ""} onChange={field.onChange} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -500,7 +592,7 @@ export default function SellMyCar() {
                             <FormItem>
                               <FormLabel>WhatsApp Number (Optional)</FormLabel>
                               <FormControl>
-                                <Input placeholder="0712345678" {...field} />
+                                <Input placeholder="0712345678" value={field.value || ""} onChange={field.onChange} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>

@@ -1,8 +1,153 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Clock, Camera, Users, MessageSquare, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { z } from "zod";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  Car, ImagePlus, MapPin, Phone, Mail, Star, 
+  Clock, Camera, Users, MessageSquare, Shield, CheckCircle, 
+  Upload, Search, CarFront 
+} from "lucide-react";
+import { VehicleSelector } from "@/components/vehicle-selector";
+import type { VehicleReference } from "@shared/schema";
+
+// Car listing form schema
+const listingSchema = z.object({
+  title: z.string().min(10, "Title must be at least 10 characters"),
+  make: z.string().min(1, "Make is required"),
+  model: z.string().min(1, "Model is required"),
+  year: z.number().min(1990).max(2025),
+  engineSize: z.number().min(500).max(10000),
+  mileage: z.number().min(0).max(999999),
+  fuelType: z.enum(["petrol", "diesel", "electric", "hybrid"]),
+  bodyType: z.enum(["sedan", "hatchback", "suv", "estate", "coupe", "convertible", "pickup", "van"]),
+  transmission: z.enum(["manual", "automatic"]),
+  color: z.string().min(1, "Color is required"),
+  condition: z.enum(["excellent", "good", "fair", "poor"]),
+  price: z.number().min(50000, "Price must be at least KES 50,000"),
+  negotiable: z.boolean(),
+  description: z.string().min(50, "Description must be at least 50 characters"),
+  features: z.array(z.string()),
+  location: z.string().min(1, "Location is required"),
+  phoneNumber: z.string().min(10, "Valid phone number required"),
+  whatsappNumber: z.string().optional(),
+});
+
+type ListingForm = z.infer<typeof listingSchema>;
 
 export default function SellMyCar() {
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
+  const { toast } = useToast();
+
+  // Listing form
+  const listingForm = useForm<ListingForm>({
+    resolver: zodResolver(listingSchema),
+    defaultValues: {
+      fuelType: "petrol",
+      bodyType: "sedan",
+      transmission: "manual",
+      condition: "good",
+      negotiable: true,
+      features: [],
+    },
+  });
+
+  // Handle vehicle selection from database
+  const handleVehicleSelect = (vehicle: VehicleReference | null) => {
+    setSelectedVehicle(vehicle);
+    if (vehicle) {
+      // Auto-populate form fields from selected vehicle
+      listingForm.setValue("make", vehicle.make);
+      listingForm.setValue("model", vehicle.model);
+      listingForm.setValue("engineSize", vehicle.engineCapacity);
+      listingForm.setValue("fuelType", vehicle.fuel as any);
+      
+      // Map body type if available
+      if (vehicle.bodyType) {
+        const bodyTypeMapping: Record<string, string> = {
+          "wagon": "estate",
+          "suv/4x4": "suv",
+          "4x4": "suv",
+          "truck": "pickup",
+          "lorry": "van"
+        };
+        const mappedBodyType = bodyTypeMapping[vehicle.bodyType.toLowerCase()] || vehicle.bodyType.toLowerCase();
+        
+        // Only set if it's a valid option in our schema
+        const validBodyTypes = ["sedan", "hatchback", "suv", "estate", "coupe", "convertible", "pickup", "van"];
+        if (validBodyTypes.includes(mappedBodyType)) {
+          listingForm.setValue("bodyType", mappedBodyType as any);
+        }
+      }
+    } else {
+      // Clear form fields when no vehicle selected
+      listingForm.setValue("make", "");
+      listingForm.setValue("model", "");
+      listingForm.setValue("engineSize", 0);
+    }
+  };
+
+  // Mutations
+  const listingMutation = useMutation({
+    mutationFn: async (data: ListingForm & { images: string[] }) => {
+      return apiRequest("POST", "/api/marketplace/listings", data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Listing Created",
+        description: "Your car has been listed successfully. We'll review it shortly.",
+      });
+      listingForm.reset();
+      setSelectedFeatures([]);
+      setUploadedImages([]);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to create listing. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Feature options
+  const featureOptions = [
+    "Air Conditioning", "Power Steering", "ABS", "Airbags", "Alloy Wheels",
+    "Sunroof", "Leather Seats", "Navigation System", "Reverse Camera",
+    "Bluetooth", "USB/AUX", "Cruise Control", "Parking Sensors",
+    "Electric Windows", "Central Locking", "4WD/AWD"
+  ];
+
+  const onListingSubmit = (data: ListingForm) => {
+    listingMutation.mutate({
+      ...data,
+      features: selectedFeatures,
+      images: uploadedImages,
+    });
+  };
+
+  const handleFeatureToggle = (feature: string) => {
+    setSelectedFeatures(prev => 
+      prev.includes(feature) 
+        ? prev.filter(f => f !== feature)
+        : [...prev, feature]
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -14,10 +159,344 @@ export default function SellMyCar() {
             List your vehicle on Kenya's most trusted car marketplace. Get maximum exposure 
             to genuine buyers and sell your car quickly at the best price.
           </p>
-          <Badge variant="secondary" className="mt-4 bg-orange-100 text-orange-800">
-            <Clock className="h-3 w-3 mr-1" />
-            Coming Soon
-          </Badge>
+        </div>
+
+        {/* Create Listing */}
+        <div className="mb-12">
+            <Card className="max-w-6xl mx-auto">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CarFront className="h-5 w-5 text-purple-600" />
+                  Create Car Listing
+                </CardTitle>
+                <CardDescription>
+                  List your car for sale with detailed information and photos to attract serious buyers.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Form {...listingForm}>
+                  <form onSubmit={listingForm.handleSubmit(onListingSubmit)} className="space-y-8">
+                    {/* Vehicle Selection */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Select Your Vehicle</h3>
+                      <div className="mb-6">
+                        <VehicleSelector 
+                          onVehicleSelect={handleVehicleSelect}
+                          hideCrsp={true}
+                        />
+                      </div>
+                      {selectedVehicle && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                          <div className="flex items-start gap-3">
+                            <Car className="h-5 w-5 text-green-600 mt-1" />
+                            <div>
+                              <h4 className="font-semibold text-green-800">Vehicle Selected</h4>
+                              <p className="text-green-700">
+                                {selectedVehicle.make} {selectedVehicle.model} - {selectedVehicle.engineCapacity}cc
+                                {selectedVehicle.fuel && ` | ${selectedVehicle.fuel.charAt(0).toUpperCase() + selectedVehicle.fuel.slice(1)}`}
+                                {selectedVehicle.driveConfiguration && ` | ${selectedVehicle.driveConfiguration}`}
+                                {selectedVehicle.seating && ` | ${selectedVehicle.seating} seats`}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Basic Information */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Listing Details</h3>
+                      <div className="grid grid-cols-1 gap-6">
+                        <FormField
+                          control={listingForm.control}
+                          name="title"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Listing Title *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="2018 Toyota Corolla - Excellent Condition" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Vehicle Details */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Vehicle Details</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <FormField
+                          control={listingForm.control}
+                          name="year"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Year *</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  placeholder="2018" 
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="mileage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Mileage (km) *</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  placeholder="50000" 
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="transmission"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Transmission *</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select transmission" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="manual">Manual</SelectItem>
+                                  <SelectItem value="automatic">Automatic</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="color"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Color *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="White" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="condition"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Condition *</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select condition" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="excellent">Excellent</SelectItem>
+                                  <SelectItem value="good">Good</SelectItem>
+                                  <SelectItem value="fair">Fair</SelectItem>
+                                  <SelectItem value="poor">Poor</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        {/* Show additional vehicle info if available */}
+                        {selectedVehicle && (
+                          <>
+                            {selectedVehicle.driveConfiguration && (
+                              <div className="bg-gray-50 p-3 rounded-lg">
+                                <Label className="text-sm font-medium text-gray-700">Drive Configuration</Label>
+                                <p className="text-sm text-gray-900 mt-1">{selectedVehicle.driveConfiguration}</p>
+                              </div>
+                            )}
+                            {selectedVehicle.seating && (
+                              <div className="bg-gray-50 p-3 rounded-lg">
+                                <Label className="text-sm font-medium text-gray-700">Seating</Label>
+                                <p className="text-sm text-gray-900 mt-1">{selectedVehicle.seating} seats</p>
+                              </div>
+                            )}
+                            {selectedVehicle.gvw && (
+                              <div className="bg-gray-50 p-3 rounded-lg">
+                                <Label className="text-sm font-medium text-gray-700">GVW</Label>
+                                <p className="text-sm text-gray-900 mt-1">{selectedVehicle.gvw}</p>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Pricing */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Pricing</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={listingForm.control}
+                          name="price"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Price (KES) *</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  placeholder="2500000" 
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="negotiable"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-8">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>Price is negotiable</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Features */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Features & Accessories</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {featureOptions.map((feature) => (
+                          <div key={feature} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={feature}
+                              checked={selectedFeatures.includes(feature)}
+                              onCheckedChange={() => handleFeatureToggle(feature)}
+                            />
+                            <Label htmlFor={feature} className="text-sm">{feature}</Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Description</h3>
+                      <FormField
+                        control={listingForm.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Detailed Description *</FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                placeholder="Describe your vehicle's condition, history, and any other relevant details..."
+                                className="min-h-[120px]"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Photos */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Photos</h3>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                        <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-600 mb-2">Upload vehicle photos</p>
+                        <p className="text-sm text-gray-500">Support for JPG, PNG up to 5MB each. Maximum 10 photos.</p>
+                        <Button type="button" variant="outline" className="mt-4">
+                          Choose Photos
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Contact Information */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <FormField
+                          control={listingForm.control}
+                          name="location"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Location *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Nairobi" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="phoneNumber"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Phone Number *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="0712345678" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="whatsappNumber"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>WhatsApp Number (Optional)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="0712345678" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-purple-600 hover:bg-purple-700 text-lg py-6"
+                      disabled={listingMutation.isPending}
+                    >
+                      {listingMutation.isPending ? "Creating Listing..." : "Create Listing"}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

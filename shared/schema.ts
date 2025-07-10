@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, decimal, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, decimal, boolean, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -214,6 +214,119 @@ export type RegistrationFee = typeof registrationFees.$inferSelect;
 export type VehicleTransferRate = typeof vehicleTransferRates.$inferSelect;
 export type DutyCalculation = z.infer<typeof dutyCalculationSchema>;
 export type DutyResult = z.infer<typeof dutyResultSchema>;
+
+// Car marketplace tables for selling and buying
+export const carListings = pgTable("car_listings", {
+  id: serial("id").primaryKey(),
+  sellerId: varchar("seller_id", { length: 255 }).notNull(), // User ID from auth system
+  title: text("title").notNull(),
+  make: text("make").notNull(),
+  model: text("model").notNull(),
+  year: integer("year").notNull(),
+  engineSize: integer("engine_size"), // in cc
+  mileage: integer("mileage"), // in km
+  fuelType: text("fuel_type"), // petrol, diesel, electric, hybrid
+  bodyType: text("body_type"), // sedan, hatchback, suv, etc.
+  transmission: text("transmission"), // manual, automatic
+  color: text("color"),
+  condition: text("condition"), // excellent, good, fair, poor
+  price: decimal("price", { precision: 12, scale: 2 }).notNull(),
+  negotiable: boolean("negotiable").default(true),
+  description: text("description"),
+  features: text("features").array(), // Array of features/accessories
+  images: text("images").array(), // Array of image URLs
+  location: text("location").notNull(),
+  phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
+  whatsappNumber: varchar("whatsapp_number", { length: 20 }),
+  status: text("status").notNull().default("active"), // active, sold, suspended
+  isVerified: boolean("is_verified").default(false),
+  viewCount: integer("view_count").default(0),
+  favoriteCount: integer("favorite_count").default(0),
+  featured: boolean("featured").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const carInquiries = pgTable("car_inquiries", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  buyerName: text("buyer_name").notNull(),
+  buyerPhone: varchar("buyer_phone", { length: 20 }).notNull(),
+  buyerEmail: varchar("buyer_email", { length: 255 }),
+  message: text("message"),
+  inquiryType: text("inquiry_type").notNull(), // viewing, purchase, finance, trade
+  preferredContactMethod: text("preferred_contact_method"), // phone, whatsapp, email
+  status: text("status").notNull().default("pending"), // pending, contacted, completed
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const carValuations = pgTable("car_valuations", {
+  id: serial("id").primaryKey(),
+  registrationNumber: varchar("registration_number", { length: 20 }),
+  make: text("make").notNull(),
+  model: text("model").notNull(),
+  year: integer("year").notNull(),
+  engineSize: integer("engine_size"), // in cc
+  mileage: integer("mileage"), // in km
+  condition: text("condition").notNull(), // excellent, good, fair, poor
+  estimatedValue: decimal("estimated_value", { precision: 12, scale: 2 }),
+  sellerName: text("seller_name").notNull(),
+  sellerPhone: varchar("seller_phone", { length: 20 }).notNull(),
+  sellerEmail: varchar("seller_email", { length: 255 }),
+  purpose: text("purpose").notNull(), // selling, insurance, loan, curiosity
+  status: text("status").notNull().default("pending"), // pending, completed
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const savedSearches = pgTable("saved_searches", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  searchName: text("search_name").notNull(),
+  filters: text("filters").notNull(), // JSON string of search filters
+  alertEnabled: boolean("alert_enabled").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const favoriteListings = pgTable("favorite_listings", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Schemas for marketplace functionality
+export const carListingSchema = createInsertSchema(carListings).omit({
+  id: true,
+  sellerId: true,
+  status: true,
+  isVerified: true,
+  viewCount: true,
+  favoriteCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const carInquirySchema = createInsertSchema(carInquiries).omit({
+  id: true,
+  status: true,
+  createdAt: true,
+});
+
+export const carValuationSchema = createInsertSchema(carValuations).omit({
+  id: true,
+  estimatedValue: true,
+  status: true,
+  createdAt: true,
+});
+
+export type CarListing = typeof carListings.$inferSelect;
+export type InsertCarListing = z.infer<typeof carListingSchema>;
+export type CarInquiry = typeof carInquiries.$inferSelect;
+export type InsertCarInquiry = z.infer<typeof carInquirySchema>;
+export type CarValuation = typeof carValuations.$inferSelect;
+export type InsertCarValuation = z.infer<typeof carValuationSchema>;
+export type SavedSearch = typeof savedSearches.$inferSelect;
+export type FavoriteListing = typeof favoriteListings.$inferSelect;
 
 // Manual vehicle data for proration
 export interface ManualVehicleData {

@@ -674,6 +674,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to create listing" });
     }
   });
+
+  // Marketplace endpoint alias for frontend
+  app.post("/api/marketplace/listings", authenticateUser, async (req, res) => {
+    try {
+      const validation = carListingSchema.safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const listing = await storage.createListing({
+        ...validation.data,
+        sellerId: req.user.id
+      });
+
+      res.json(listing);
+    } catch (error) {
+      console.error("Failed to create listing:", error);
+      res.status(500).json({ error: "Failed to create listing" });
+    }
+  });
   // Calculate duty
   app.post("/api/calculate-duty", async (req, res) => {
     try {

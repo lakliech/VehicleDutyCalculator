@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { ModuleNavigation } from "@/components/module-navigation";
+import { useAuth } from "../hooks/useAuth";
 import type { VehicleReference } from "@shared/schema";
 
 // Car listing form schema
@@ -55,6 +56,7 @@ export default function SellMyCar() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Listing form
   const listingForm = useForm<ListingForm>({
@@ -187,6 +189,16 @@ export default function SellMyCar() {
   ];
 
   const onListingSubmit = (data: ListingForm) => {
+    // Check if user is authenticated
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in with Google to create a listing. Click Login in the top navigation.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     listingMutation.mutate({
       ...data,
       features: selectedFeatures,

@@ -18,7 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   Car, ImagePlus, MapPin, Phone, Mail, Star, 
   Clock, Camera, Users, MessageSquare, Shield, CheckCircle, 
-  Upload, Search, CarFront 
+  Upload, Search, CarFront, X 
 } from "lucide-react";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import type { VehicleReference } from "@shared/schema";

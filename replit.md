@@ -378,6 +378,12 @@ Changelog:
   - Updated form validation to redirect unauthenticated users directly to Google OAuth flow
   - Enhanced user experience with visual feedback showing authentication status and requirements
   - Moved photo upload to top of form for better workflow with main image selection functionality
+- January 10, 2025. Added interactive authentication with social login logos:
+  - Implemented authentication popup triggers on key form interactions (photo upload, title field focus, form submission)
+  - Added social login options with branded logos (Google, Facebook, Apple) in both registration and login dialogs
+  - Replaced text-based social login buttons with proper SVG logos using official brand colors
+  - Enhanced user experience with visual dividers ("or continue with") and grid layout for social options
+  - Removed form field disabling for better UX - authentication prompts appear on interaction instead
 
 ## User Preferences
 

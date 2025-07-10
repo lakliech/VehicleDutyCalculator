@@ -1,39 +1,72 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { apiRequest } from "@/lib/queryClient";
+import type { AppUser } from "@shared/schema";
 
 interface AuthContextType {
-  token: string | null;
+  // User authentication
+  user: AppUser | null;
   isAuthenticated: boolean;
-  login: (password: string) => Promise<boolean>;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  register: (userData: any) => Promise<boolean>;
+  
+  // Admin authentication (legacy)
+  adminToken: string | null;
+  isAdminAuthenticated: boolean;
+  adminLogin: (password: string) => Promise<boolean>;
+  adminLogout: () => void;
   getAuthHeaders: () => Record<string, string>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [adminToken, setAdminToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem("admin-token");
-    if (savedToken) {
-      setToken(savedToken);
-    }
+    const initializeAuth = async () => {
+      setIsLoading(true);
+      
+      // Check for admin token
+      const savedAdminToken = localStorage.getItem("admin-token");
+      if (savedAdminToken) {
+        setAdminToken(savedAdminToken);
+      }
+
+      // Check for user session
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) {
+        try {
+          const userData = JSON.parse(savedUser);
+          setUser(userData);
+        } catch (error) {
+          console.error("Failed to parse user data:", error);
+          localStorage.removeItem("user");
+        }
+      }
+
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
-  const login = async (password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch("/api/admin/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          setToken(data.token);
-          localStorage.setItem("admin-token", data.token);
+          setUser(data.user);
+          localStorage.setItem("user", JSON.stringify(data.user));
           return true;
         }
       }
@@ -44,21 +77,82 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const register = async (userData: any): Promise<boolean> => {
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setUser(data.user);
+          localStorage.setItem("user", JSON.stringify(data.user));
+          return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error("Registration error:", error);
+      return false;
+    }
+  };
+
   const logout = () => {
-    setToken(null);
+    setUser(null);
+    localStorage.removeItem("user");
+  };
+
+  const adminLogin = async (password: string): Promise<boolean> => {
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setAdminToken(data.token);
+          localStorage.setItem("admin-token", data.token);
+          return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error("Admin login error:", error);
+      return false;
+    }
+  };
+
+  const adminLogout = () => {
+    setAdminToken(null);
     localStorage.removeItem("admin-token");
   };
 
   const getAuthHeaders = () => {
-    return token ? { Authorization: `Bearer ${token}` } : {};
+    const headers: Record<string, string> = {};
+    if (adminToken) {
+      headers.Authorization = `Bearer ${adminToken}`;
+    }
+    return headers;
   };
 
   return (
     <AuthContext.Provider value={{
-      token,
-      isAuthenticated: !!token,
+      user,
+      isAuthenticated: !!user,
+      isLoading,
       login,
       logout,
+      register,
+      adminToken,
+      isAdminAuthenticated: !!adminToken,
+      adminLogin,
+      adminLogout,
       getAuthHeaders,
     }}>
       {children}

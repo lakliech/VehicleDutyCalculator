@@ -166,6 +166,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(req.user);
   });
 
+  // User authentication routes
+  app.post('/api/auth/register', async (req: Request, res: Response) => {
+    try {
+      const { email, firstName, lastName, phoneNumber, password } = req.body;
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ success: false, message: 'User already exists with this email' });
+      }
+      
+      // Create new user
+      const user = await storage.createUser({
+        email,
+        firstName,
+        lastName,
+        phoneNumber,
+        password,
+      });
+      
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = user;
+      
+      res.json({ success: true, user: userWithoutPassword });
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(500).json({ success: false, message: 'Registration failed' });
+    }
+  });
+
+  app.post('/api/auth/login', async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      
+      // Get user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      }
+      
+      // In a real application, you would hash and compare passwords
+      // For now, we'll do a simple comparison
+      if (user.password !== password) {
+        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      }
+      
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = user;
+      
+      // Update last login
+      await storage.updateUser(user.id, { lastLoginAt: new Date() });
+      
+      res.json({ success: true, user: userWithoutPassword });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ success: false, message: 'Login failed' });
+    }
+  });
+
+  // Social login routes (placeholder implementations)
+  app.get('/api/auth/google', (req: Request, res: Response) => {
+    // In a real application, this would redirect to Google OAuth
+    res.redirect('/?social=google&success=true');
+  });
+
+  app.get('/api/auth/apple', (req: Request, res: Response) => {
+    // In a real application, this would redirect to Apple OAuth
+    res.redirect('/?social=apple&success=true');
+  });
+
+  app.get('/api/auth/facebook', (req: Request, res: Response) => {
+    // In a real application, this would redirect to Facebook OAuth
+    res.redirect('/?social=facebook&success=true');
+  });
+
   // Admin login endpoint (legacy)
   app.post("/api/admin/login", async (req, res) => {
     const { password } = req.body;

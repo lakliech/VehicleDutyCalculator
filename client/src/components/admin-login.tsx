@@ -11,14 +11,14 @@ export function AdminLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { adminLogin } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    const success = await login(password);
+    const success = await adminLogin(password);
     if (!success) {
       setError("Invalid password. Please try again.");
     }

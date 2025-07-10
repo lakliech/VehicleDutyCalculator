@@ -76,7 +76,7 @@ export function ModuleNavigation() {
   return (
     <div className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center">
           {/* Module Links */}
           <div className="flex items-center space-x-1 overflow-x-auto">
             {moduleItems.map((item) => {
@@ -100,22 +100,7 @@ export function ModuleNavigation() {
             })}
           </div>
 
-          {/* Login/Register Section */}
-          <div className="flex items-center space-x-2 ml-4">
-            <Separator orientation="vertical" className="h-6" />
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="flex items-center gap-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Login</span>
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button variant="outline" size="sm" className="flex items-center gap-2 border-purple-300 text-purple-700 hover:bg-purple-50">
-                <UserPlus className="h-4 w-4" />
-                <span className="hidden sm:inline">Register</span>
-              </Button>
-            </Link>
-          </div>
+
         </div>
       </div>
     </div>

@@ -117,9 +117,9 @@ type CategoryRuleForm = z.infer<typeof categoryRuleSchema>;
 type DepreciationRateForm = z.infer<typeof depreciationRateSchema>;
 
 export default function AdminDashboard() {
-  const { isAuthenticated } = useAuth();
+  const { isAdminAuthenticated } = useAuth();
 
-  if (!isAuthenticated) {
+  if (!isAdminAuthenticated) {
     return <AdminLogin />;
   }
 

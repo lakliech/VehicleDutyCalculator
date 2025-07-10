@@ -25,6 +25,9 @@ import { db } from "./db";
 import { sql, eq } from "drizzle-orm";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
+import bcrypt from "bcrypt";
+import { ulid } from "ulid";
+import crypto from "crypto";
 
 // Simple authentication middleware
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
@@ -239,6 +242,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/auth/facebook', (req: Request, res: Response) => {
     // In a real application, this would redirect to Facebook OAuth
     res.redirect('/?social=facebook&success=true');
+  });
+
+  // Forgot password endpoints
+  app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ success: false, message: 'Email is required' });
+      }
+      
+      // Check if user exists
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // Don't reveal if user exists for security
+        return res.json({ success: true, message: 'If an account with this email exists, you will receive a password reset link' });
+      }
+      
+      // Create password reset token
+      const resetToken = await storage.createPasswordResetToken(email);
+      
+      // In a real application, you would send an email here
+      // For now, we'll just log the token and return success
+      console.log(`Password reset token for ${email}: ${resetToken.token}`);
+      console.log(`Reset link: ${req.protocol}://${req.get('host')}/reset-password?token=${resetToken.token}`);
+      
+      res.json({ success: true, message: 'Password reset instructions have been sent to your email' });
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      res.status(500).json({ success: false, message: 'Failed to process forgot password request' });
+    }
+  });
+
+  app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
+    try {
+      const { token, newPassword } = req.body;
+      
+      if (!token || !newPassword) {
+        return res.status(400).json({ success: false, message: 'Token and new password are required' });
+      }
+      
+      if (newPassword.length < 8) {
+        return res.status(400).json({ success: false, message: 'Password must be at least 8 characters long' });
+      }
+      
+      // Verify token is valid and not expired
+      const resetToken = await storage.getValidPasswordResetToken(token);
+      if (!resetToken) {
+        return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
+      }
+      
+      // Update user password
+      await storage.updateUserPassword(resetToken.email, newPassword);
+      
+      // Mark token as used
+      await storage.markPasswordResetTokenAsUsed(token);
+      
+      res.json({ success: true, message: 'Password has been reset successfully' });
+    } catch (error) {
+      console.error('Reset password error:', error);
+      res.status(500).json({ success: false, message: 'Failed to reset password' });
+    }
   });
 
   // Admin login endpoint (legacy)

@@ -11,9 +11,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/auth-provider";
 import { apiRequest } from "@/lib/queryClient";
 import { userRegistrationSchema, userLoginSchema, type UserRegistration, type UserLogin } from "@shared/schema";
-import { Eye, EyeOff, User, Mail, Phone, Lock, LogIn, UserPlus, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, User, Mail, Phone, Lock, LogIn, UserPlus, AlertCircle, KeyRound } from "lucide-react";
+import { z } from "zod";
 
 // Social login icons
 const GoogleIcon = () => (
@@ -47,7 +49,14 @@ export function AuthForms({ onAuthSuccess }: AuthFormsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const { toast } = useToast();
+  const { login, register } = useAuth();
+
+  const forgotPasswordForm = useForm<{ email: string }>({
+    resolver: zodResolver(z.object({ email: z.string().email() })),
+    defaultValues: { email: "" },
+  });
 
   const loginForm = useForm<UserLogin>({
     resolver: zodResolver(userLoginSchema),
@@ -74,19 +83,17 @@ export function AuthForms({ onAuthSuccess }: AuthFormsProps) {
     setError(null);
 
     try {
-      const response = await apiRequest('POST', '/api/auth/login', data);
-      const result = await response.json();
-
-      if (result.success) {
+      const success = await login(data.email, data.password);
+      
+      if (success) {
         toast({
           title: "Login Successful",
-          description: `Welcome back, ${result.user.firstName}!`,
+          description: `Welcome back!`,
         });
-        onAuthSuccess?.(result.user);
         setIsOpen(false);
         loginForm.reset();
       } else {
-        setError(result.message || "Login failed. Please try again.");
+        setError("Invalid email or password. Please try again.");
       }
     } catch (error: any) {
       setError(error.message || "An error occurred during login.");
@@ -100,22 +107,51 @@ export function AuthForms({ onAuthSuccess }: AuthFormsProps) {
     setError(null);
 
     try {
-      const response = await apiRequest('POST', '/api/auth/register', data);
+      const success = await register(data);
+      
+      if (success) {
+        toast({
+          title: "Registration Successful",
+          description: `Welcome to Gariyangu, ${data.firstName}!`,
+        });
+        setIsOpen(false);
+        registerForm.reset();
+      } else {
+        setError("Registration failed. Please try again.");
+      }
+    } catch (error: any) {
+      setError(error.message || "An error occurred during registration.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (data: { email: string }) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
       const result = await response.json();
 
       if (result.success) {
         toast({
-          title: "Registration Successful",
-          description: `Welcome to Gariyangu, ${result.user.firstName}!`,
+          title: "Password Reset Email Sent",
+          description: "Check your email for password reset instructions.",
         });
-        onAuthSuccess?.(result.user);
+        setIsForgotPassword(false);
         setIsOpen(false);
-        registerForm.reset();
+        forgotPasswordForm.reset();
       } else {
-        setError(result.message || "Registration failed. Please try again.");
+        setError(result.message || "Failed to send reset email.");
       }
     } catch (error: any) {
-      setError(error.message || "An error occurred during registration.");
+      setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -145,10 +181,66 @@ export function AuthForms({ onAuthSuccess }: AuthFormsProps) {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold text-purple-700">
-            Welcome to Gariyangu
+            {isForgotPassword ? "Reset Password" : "Welcome to Gariyangu"}
           </DialogTitle>
         </DialogHeader>
         
+        {isForgotPassword ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Forgot Password</CardTitle>
+              <CardDescription>
+                Enter your email to receive a password reset link
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Form {...forgotPasswordForm}>
+                <form onSubmit={forgotPasswordForm.handleSubmit(handleForgotPassword)} className="space-y-4">
+                  <FormField
+                    control={forgotPasswordForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email Address</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <Input
+                              {...field}
+                              type="email"
+                              placeholder="Enter your email"
+                              className="pl-10"
+                              disabled={isLoading}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex space-x-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => setIsForgotPassword(false)}
+                      disabled={isLoading}
+                    >
+                      Back to Login
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-purple-600 hover:bg-purple-700" 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Sending..." : "Send Reset Link"}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        ) : (
         <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login" className="flex items-center gap-2">
@@ -273,6 +365,16 @@ export function AuthForms({ onAuthSuccess }: AuthFormsProps) {
                         </FormItem>
                       )}
                     />
+                    <div className="flex items-center justify-between">
+                      <Button 
+                        type="button" 
+                        variant="link" 
+                        className="text-xs text-purple-600 hover:text-purple-700 p-0 h-auto"
+                        onClick={() => setIsForgotPassword(true)}
+                      >
+                        Forgot password?
+                      </Button>
+                    </div>
                     <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={isLoading}>
                       {isLoading ? "Signing in..." : "Sign In"}
                     </Button>
@@ -490,6 +592,7 @@ export function AuthForms({ onAuthSuccess }: AuthFormsProps) {
             </Card>
           </TabsContent>
         </Tabs>
+        )}
       </DialogContent>
     </Dialog>
   );

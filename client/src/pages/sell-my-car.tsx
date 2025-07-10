@@ -584,7 +584,7 @@ export default function SellMyCar() {
                     {/* Vehicle Details */}
                     <div>
                       <h3 className="text-lg font-semibold mb-4">Vehicle Details</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-4">
                         <FormField
                           control={listingForm.control}
                           name="year"
@@ -744,7 +744,7 @@ export default function SellMyCar() {
                     {/* Pricing */}
                     <div>
                       <h3 className="text-lg font-semibold mb-4">Pricing</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
                         <FormField
                           control={listingForm.control}
                           name="price"
@@ -791,7 +791,7 @@ export default function SellMyCar() {
                     {/* Vehicle Location */}
                     <div>
                       <h3 className="text-lg font-semibold mb-4">Vehicle Location</h3>
-                      <div className="grid grid-cols-1 gap-6">
+                      <div className="space-y-4">
                         <FormField
                           control={listingForm.control}
                           name="location"
@@ -820,7 +820,7 @@ export default function SellMyCar() {
                     {/* Features */}
                     <div>
                       <h3 className="text-lg font-semibold mb-4">Features & Accessories</h3>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="flex flex-wrap gap-3">
                         {featureOptions.map((feature) => (
                           <div key={feature} className="flex items-center space-x-2">
                             <Checkbox
@@ -861,7 +861,7 @@ export default function SellMyCar() {
                     {/* Contact Information */}
                     <div>
                       <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
                         <FormField
                           control={listingForm.control}
                           name="phoneNumber"

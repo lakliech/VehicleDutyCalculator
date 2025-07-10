@@ -573,167 +573,170 @@ export default function SellMyCar() {
                       )}
                     </div>
 
-                    {/* Vehicle Details - placed before vehicle selection */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                      <FormField
-                        control={listingForm.control}
-                        name="year"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Year *</FormLabel>
-                            <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select year" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {Array.from({ length: 2025 - 1975 + 1 }, (_, i) => 2025 - i).map((year) => (
-                                  <SelectItem key={year} value={year.toString()}>
-                                    {year}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={listingForm.control}
-                        name="mileage"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Mileage (km) *</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="number" 
-                                placeholder="50000" 
-                                value={field.value || ""}
-                                onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={listingForm.control}
-                        name="transmission"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Transmission *</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select transmission" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="manual">Manual</SelectItem>
-                                <SelectItem value="automatic">Automatic</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={listingForm.control}
-                        name="driveConfiguration"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Drive Configuration *</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select drive type" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="2wd">2WD (Two Wheel Drive)</SelectItem>
-                                <SelectItem value="4wd">4WD (Four Wheel Drive)</SelectItem>
-                                <SelectItem value="awd">AWD (All Wheel Drive)</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={listingForm.control}
-                        name="exteriorColor"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Exterior Color *</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select exterior color" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {exteriorColors.map((color) => (
-                                  <SelectItem key={color} value={color}>{color}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={listingForm.control}
-                        name="interiorColor"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Interior Color *</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select interior color" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {interiorColors.map((color) => (
-                                  <SelectItem key={color} value={color}>{color}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={listingForm.control}
-                        name="condition"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Condition *</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select condition" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="new">New</SelectItem>
-                                <SelectItem value="locally_used">Locally Used</SelectItem>
-                                <SelectItem value="foreign_used">Foreign Used</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
                     {/* Vehicle Selection */}
                     <div className="mb-6">
                       <VehicleSelector 
                         onVehicleSelect={handleVehicleSelect}
                         hideCrsp={true}
                       />
+                    </div>
+
+                    {/* Vehicle Details */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Vehicle Details</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <FormField
+                          control={listingForm.control}
+                          name="year"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Year *</FormLabel>
+                              <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select year" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {Array.from({ length: 2025 - 1975 + 1 }, (_, i) => 2025 - i).map((year) => (
+                                    <SelectItem key={year} value={year.toString()}>
+                                      {year}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="mileage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Mileage (km) *</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  placeholder="50000" 
+                                  value={field.value || ""}
+                                  onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="transmission"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Transmission *</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select transmission" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="manual">Manual</SelectItem>
+                                  <SelectItem value="automatic">Automatic</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="driveConfiguration"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Drive Configuration *</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select drive type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="2wd">2WD (Two Wheel Drive)</SelectItem>
+                                  <SelectItem value="4wd">4WD (Four Wheel Drive)</SelectItem>
+                                  <SelectItem value="awd">AWD (All Wheel Drive)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="exteriorColor"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Exterior Color *</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select exterior color" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {exteriorColors.map((color) => (
+                                    <SelectItem key={color} value={color}>{color}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="interiorColor"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Interior Color *</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select interior color" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {interiorColors.map((color) => (
+                                    <SelectItem key={color} value={color}>{color}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="condition"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Condition *</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select condition" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="new">New</SelectItem>
+                                  <SelectItem value="locally_used">Locally Used</SelectItem>
+                                  <SelectItem value="foreign_used">Foreign Used</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
 
                     {/* Pricing */}

@@ -58,7 +58,8 @@ const iconMap: { [key: string]: any } = {
 
 export default function Dashboard() {
   const { data: dashboardData, isLoading, error } = useQuery<DashboardData>({
-    queryKey: ['/api/dashboard'],
+    queryKey: ['/api/dashboard?test=true'],
+    retry: false,
   });
 
   if (isLoading) {

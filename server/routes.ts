@@ -80,7 +80,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Google OAuth Strategy
   passport.use(new GoogleStrategy({
     clientID: "955395502828-pj4cbgcrkkehsjcsigst2jcn60t9qttm.apps.googleusercontent.com",
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    clientSecret: "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",
     callbackURL: "/api/auth/google/callback"
   }, async (accessToken, refreshToken, profile, done) => {
     try {
@@ -154,79 +154,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // User Management API
-  // User registration
-  app.post("/api/auth/register", async (req, res) => {
-    try {
-      const validation = userRegistrationSchema.safeParse(req.body);
-      
-      if (!validation.success) {
-        return res.status(400).json({ 
-          error: "Invalid input data", 
-          details: validation.error.issues 
-        });
-      }
-
-      // Check if user exists
-      const existingUser = await storage.getUserByEmail(validation.data.email);
-      if (existingUser) {
-        return res.status(400).json({ error: "User already exists" });
-      }
-
-      const user = await storage.createUser({
-        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        email: validation.data.email,
-        firstName: validation.data.firstName,
-        lastName: validation.data.lastName,
-        phoneNumber: validation.data.phoneNumber,
-        password: validation.data.password // In production, hash this
-      });
-
-      // Return user without password
-      const { ...userWithoutPassword } = user;
-      res.json({ user: userWithoutPassword, token: user.id });
-    } catch (error) {
-      console.error("Registration error:", error);
-      res.status(500).json({ error: "Failed to register user" });
-    }
-  });
-
-  // User login
-  app.post("/api/auth/login", async (req, res) => {
-    try {
-      const validation = userLoginSchema.safeParse(req.body);
-      
-      if (!validation.success) {
-        return res.status(400).json({ 
-          error: "Invalid input data", 
-          details: validation.error.issues 
-        });
-      }
-
-      const user = await storage.getUserByEmail(validation.data.email);
-      if (!user) {
-        return res.status(401).json({ error: "Invalid credentials" });
-      }
-
-      // In production, verify hashed password
-      // For now, simple comparison
-      
-      // Log user activity
-      await storage.logUserActivity(user.id, 'login', undefined, undefined, 'User logged in');
-
-      const { ...userWithoutPassword } = user;
-      res.json({ user: userWithoutPassword, token: user.id });
-    } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({ error: "Failed to login" });
-    }
-  });
-
-  // Get current user
   app.get("/api/auth/user", authenticateUser, async (req, res) => {
     res.json(req.user);
   });
 
 
+
+  // User authentication routes
+  app.post('/api/auth/register', async (req: Request, res: Response) => {
+    try {
+      const { email, firstName, lastName, phoneNumber, password } = req.body;
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ success: false, message: 'User already exists with this email' });
+      }
+      
+      // Create new user
+      const user = await storage.createUser({
+        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        email,
+        firstName,
+        lastName,
+        phoneNumber,
+        password,
+      });
+      
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = user;
+      
+      res.json({ success: true, user: userWithoutPassword });
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(500).json({ success: false, message: 'Registration failed' });
+    }
+  });
+
+  app.post('/api/auth/login', async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      
+      // Get user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      }
+      
+      // In a real application, you would hash and compare passwords
+      // For now, we'll do a simple comparison
+      if (user.password !== password) {
+        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      }
+      
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = user;
+      
+      // Update last login
+      await storage.updateUser(user.id, { lastLoginAt: new Date() });
+      
+      res.json({ success: true, user: userWithoutPassword });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ success: false, message: 'Login failed' });
+    }
+  });
 
   // Google OAuth routes
   app.get('/api/auth/google', 

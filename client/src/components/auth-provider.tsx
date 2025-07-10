@@ -36,15 +36,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAdminToken(savedAdminToken);
       }
 
-      // Check for user session
-      const savedUser = localStorage.getItem("user");
-      if (savedUser) {
-        try {
-          const userData = JSON.parse(savedUser);
-          setUser(userData);
-        } catch (error) {
-          console.error("Failed to parse user data:", error);
-          localStorage.removeItem("user");
+      // Check for OAuth authentication status
+      try {
+        const response = await fetch("/api/auth/status");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.authenticated && data.user) {
+            setUser(data.user);
+            localStorage.setItem("user", JSON.stringify(data.user));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to check auth status:", error);
+        
+        // Fallback to localStorage
+        const savedUser = localStorage.getItem("user");
+        if (savedUser) {
+          try {
+            const userData = JSON.parse(savedUser);
+            setUser(userData);
+          } catch (error) {
+            console.error("Failed to parse user data:", error);
+            localStorage.removeItem("user");
+          }
         }
       }
 
@@ -100,7 +114,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Call logout endpoint to clear server session
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+    
     setUser(null);
     localStorage.removeItem("user");
   };

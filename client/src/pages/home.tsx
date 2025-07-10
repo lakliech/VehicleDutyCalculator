@@ -1,7 +1,10 @@
 import { Link } from "wouter";
+import { useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/auth-provider";
 import { 
   Calculator, 
   Car, 
@@ -18,6 +21,34 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Handle OAuth success/error messages
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const social = urlParams.get('social');
+    const success = urlParams.get('success');
+    const error = urlParams.get('error');
+
+    if (social === 'google' && success === 'true') {
+      toast({
+        title: "Login Successful",
+        description: "You have been logged in with Google successfully!",
+      });
+      // Clean up URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (error === 'auth_failed') {
+      toast({
+        title: "Authentication Failed",
+        description: "Google authentication failed. Please try again.",
+        variant: "destructive",
+      });
+      // Clean up URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [toast]);
+
   const allTools = [
     {
       href: "/duty-calculator",

@@ -64,6 +64,12 @@ export function Navigation() {
                           <p className="text-xs leading-none text-gray-500">{user?.email}</p>
                         </div>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/dashboard" className="w-full">
+                          <Database className="mr-2 h-4 w-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={handleLogout}>
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Log out</span>

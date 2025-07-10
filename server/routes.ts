@@ -80,7 +80,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Google OAuth Strategy
   passport.use(new GoogleStrategy({
     clientID: "955395502828-pj4cbgcrkkehsjcsigst2jcn60t9qttm.apps.googleusercontent.com",
-    clientSecret: "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",
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || "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",
     callbackURL: "/api/auth/google/callback"
   }, async (accessToken, refreshToken, profile, done) => {
     try {

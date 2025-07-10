@@ -70,13 +70,17 @@ export function Navigation() {
       <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center space-x-6">
-            <img 
-              src={gariyangu} 
-              alt="Gariyangu Logo" 
-              className="h-32 w-auto min-w-[250px] min-h-[150px] object-contain"
-            />
+            <Link href="/">
+              <img 
+                src={gariyangu} 
+                alt="Gariyangu Logo" 
+                className="h-32 w-auto min-w-[250px] min-h-[150px] object-contain cursor-pointer hover:opacity-90 transition-opacity"
+              />
+            </Link>
             <div className="text-center">
-              <h1 className="text-2xl lg:text-4xl font-bold text-gray-900">Kenya's Car Marketplace</h1>
+              <Link href="/">
+                <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 cursor-pointer hover:text-purple-600 transition-colors">Kenya's Car Marketplace</h1>
+              </Link>
               <p className="text-lg text-gray-600">we get super excited about cars</p>
             </div>
           </div>

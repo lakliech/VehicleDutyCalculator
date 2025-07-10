@@ -23,6 +23,7 @@ import { VehicleSelector } from "@/components/vehicle-selector";
 import { VehicleCategorySelector } from "@/components/vehicle-category-selector";
 import { TrailerSelector } from "@/components/trailer-selector";
 import { HeavyMachinerySelector } from "@/components/heavy-machinery-selector";
+import { ModuleNavigation } from "@/components/module-navigation";
 import gariyangu from "@assets/gylogo_1752064168868.png";
 import { 
   Calculator, 
@@ -604,6 +605,9 @@ export default function DutyCalculator() {
 
   return (
     <div className="bg-gradient-to-br from-purple-50 via-white to-cyan-50">
+      {/* Module Navigation */}
+      <ModuleNavigation />
+      
       {/* Page Header */}
       <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

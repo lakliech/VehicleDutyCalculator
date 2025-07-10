@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { TrailerSelector } from "@/components/trailer-selector";
 import { HeavyMachinerySelector } from "@/components/heavy-machinery-selector";
+import { ModuleNavigation } from "@/components/module-navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -134,7 +135,11 @@ export default function TransferCost() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800 pt-24 pb-12">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800">
+      {/* Module Navigation */}
+      <ModuleNavigation />
+      
+      <div className="pt-24 pb-12">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
@@ -329,9 +334,8 @@ export default function TransferCost() {
               </div>
             </CardContent>
           </Card>
-
-          
         </div>
+      </div>
       </div>
     </div>
   );

@@ -21,6 +21,7 @@ import {
   Upload, Search, CarFront, X 
 } from "lucide-react";
 import { VehicleSelector } from "@/components/vehicle-selector";
+import { ModuleNavigation } from "@/components/module-navigation";
 import type { VehicleReference } from "@shared/schema";
 
 // Car listing form schema
@@ -265,6 +266,7 @@ export default function SellMyCar() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
+      <ModuleNavigation />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">

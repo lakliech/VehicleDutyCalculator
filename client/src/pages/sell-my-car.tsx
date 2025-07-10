@@ -58,7 +58,6 @@ const listingSchema = z.object({
   transmission: z.enum(["manual", "automatic"]),
   color: z.string().min(1, "Color is required"),
   condition: z.enum(["new", "locally_used", "foreign_used"]),
-  driveConfiguration: z.enum(["2wd", "4wd", "awd"]),
   price: z.number().min(50000, "Price must be at least KES 50,000"),
   negotiable: z.boolean(),
   description: z.string().min(50, "Description must be at least 50 characters"),
@@ -300,6 +299,9 @@ export default function SellMyCar() {
   };
 
   const onListingSubmit = (data: ListingForm) => {
+    console.log("Form submission attempt:", data);
+    console.log("Form validation errors:", listingForm.formState.errors);
+    
     // Check authentication and show login popup if not authenticated
     if (!isAuthenticated || !user) {
       toast({
@@ -317,11 +319,15 @@ export default function SellMyCar() {
       ...uploadedImages.filter((_, index) => index !== mainImageIndex) // Rest of images
     ] : [];
 
-    listingMutation.mutate({
+    const submissionData = {
       ...data,
       features: selectedFeatures,
       images: reorderedImages,
-    });
+    };
+
+    console.log("Submitting listing data:", submissionData);
+    
+    listingMutation.mutate(submissionData);
   };
 
   const handleFeatureToggle = (feature: string) => {
@@ -677,28 +683,7 @@ export default function SellMyCar() {
                             </FormItem>
                           )}
                         />
-                        <FormField
-                          control={listingForm.control}
-                          name="driveConfiguration"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Drive Configuration *</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select drive type" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="2wd">2WD</SelectItem>
-                                  <SelectItem value="4wd">4WD</SelectItem>
-                                  <SelectItem value="awd">AWD</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+
 
                       </div>
                     </div>

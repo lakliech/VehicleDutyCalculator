@@ -28,6 +28,9 @@ import { parse } from "csv-parse/sync";
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 import crypto from "crypto";
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import session from "express-session";
 
 // Simple authentication middleware
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
@@ -62,6 +65,60 @@ function getEngineCapacityFilter(category: string) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Session middleware
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'fallback-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } // Set to true in production with HTTPS
+  }));
+
+  // Passport middleware
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  // Google OAuth Strategy
+  passport.use(new GoogleStrategy({
+    clientID: "955395502828-pj4cbgcrkkehsjcsigst2jcn60t9qttm.apps.googleusercontent.com",
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    callbackURL: "/api/auth/google/callback"
+  }, async (accessToken, refreshToken, profile, done) => {
+    try {
+      // Check if user exists
+      let user = await storage.getUserByEmail(profile.emails?.[0]?.value || '');
+      
+      if (!user) {
+        // Create new user
+        user = await storage.createUser({
+          id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          email: profile.emails?.[0]?.value || '',
+          firstName: profile.name?.givenName || '',
+          lastName: profile.name?.familyName || '',
+          profileImageUrl: profile.photos?.[0]?.value || null,
+          password: crypto.randomBytes(32).toString('hex'), // Random password for OAuth users
+        });
+      }
+      
+      return done(null, user);
+    } catch (error) {
+      return done(error, null);
+    }
+  }));
+
+  // Passport serialization
+  passport.serializeUser((user: any, done) => {
+    done(null, user.id);
+  });
+
+  passport.deserializeUser(async (id: string, done) => {
+    try {
+      const user = await storage.getUserById(id);
+      done(null, user);
+    } catch (error) {
+      done(error, null);
+    }
+  });
+
   // Auth middleware
   const authenticateUser = async (req: any, res: any, next: any) => {
     const auth = req.headers.authorization;
@@ -169,69 +226,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(req.user);
   });
 
-  // User authentication routes
-  app.post('/api/auth/register', async (req: Request, res: Response) => {
-    try {
-      const { email, firstName, lastName, phoneNumber, password } = req.body;
-      
-      // Check if user already exists
-      const existingUser = await storage.getUserByEmail(email);
-      if (existingUser) {
-        return res.status(400).json({ success: false, message: 'User already exists with this email' });
-      }
-      
-      // Create new user
-      const user = await storage.createUser({
-        email,
-        firstName,
-        lastName,
-        phoneNumber,
-        password,
-      });
-      
-      // Remove password from response
-      const { password: _, ...userWithoutPassword } = user;
-      
-      res.json({ success: true, user: userWithoutPassword });
-    } catch (error) {
-      console.error('Registration error:', error);
-      res.status(500).json({ success: false, message: 'Registration failed' });
+
+
+  // Google OAuth routes
+  app.get('/api/auth/google', 
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+  );
+
+  app.get('/api/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/?error=auth_failed' }),
+    (req: Request, res: Response) => {
+      // Successful authentication, redirect home
+      res.redirect('/?social=google&success=true');
+    }
+  );
+
+  // Check authentication status
+  app.get('/api/auth/status', (req: Request, res: Response) => {
+    if (req.isAuthenticated?.() && req.user) {
+      res.json({ authenticated: true, user: req.user });
+    } else {
+      res.json({ authenticated: false });
     }
   });
 
-  app.post('/api/auth/login', async (req: Request, res: Response) => {
-    try {
-      const { email, password } = req.body;
-      
-      // Get user by email
-      const user = await storage.getUserByEmail(email);
-      if (!user) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+  // Logout route
+  app.post('/api/auth/logout', (req: Request, res: Response) => {
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({ success: false, message: 'Logout failed' });
       }
-      
-      // In a real application, you would hash and compare passwords
-      // For now, we'll do a simple comparison
-      if (user.password !== password) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password' });
-      }
-      
-      // Remove password from response
-      const { password: _, ...userWithoutPassword } = user;
-      
-      // Update last login
-      await storage.updateUser(user.id, { lastLoginAt: new Date() });
-      
-      res.json({ success: true, user: userWithoutPassword });
-    } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ success: false, message: 'Login failed' });
-    }
-  });
-
-  // Social login routes (placeholder implementations)
-  app.get('/api/auth/google', (req: Request, res: Response) => {
-    // In a real application, this would redirect to Google OAuth
-    res.redirect('/?social=google&success=true');
+      res.json({ success: true, message: 'Logged out successfully' });
+    });
   });
 
   app.get('/api/auth/apple', (req: Request, res: Response) => {

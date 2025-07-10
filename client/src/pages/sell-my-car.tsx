@@ -54,6 +54,7 @@ type ListingForm = z.infer<typeof listingSchema>;
 export default function SellMyCar() {
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [mainImageIndex, setMainImageIndex] = useState<number>(0);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -199,10 +200,16 @@ export default function SellMyCar() {
       return;
     }
 
+    // Reorder images so main image is first
+    const reorderedImages = uploadedImages.length > 0 ? [
+      uploadedImages[mainImageIndex], // Main image first
+      ...uploadedImages.filter((_, index) => index !== mainImageIndex) // Rest of images
+    ] : [];
+
     listingMutation.mutate({
       ...data,
       features: selectedFeatures,
-      images: uploadedImages,
+      images: reorderedImages,
     });
   };
 
@@ -256,6 +263,10 @@ export default function SellMyCar() {
         setUploadedImages(prev => {
           const newImages = [...prev, result];
           listingForm.setValue("images", newImages);
+          // Set first uploaded image as main if no images exist
+          if (prev.length === 0) {
+            setMainImageIndex(0);
+          }
           return newImages;
         });
       };
@@ -274,6 +285,15 @@ export default function SellMyCar() {
     const newImages = uploadedImages.filter((_, i) => i !== index);
     setUploadedImages(newImages);
     listingForm.setValue("images", newImages);
+    
+    // Adjust main image index if necessary
+    if (index === mainImageIndex && newImages.length > 0) {
+      setMainImageIndex(0); // Set first image as main
+    } else if (index < mainImageIndex) {
+      setMainImageIndex(mainImageIndex - 1); // Shift index down
+    } else if (mainImageIndex >= newImages.length) {
+      setMainImageIndex(Math.max(0, newImages.length - 1)); // Set to last image
+    }
   };
 
   return (
@@ -320,6 +340,86 @@ export default function SellMyCar() {
                           </FormItem>
                         )}
                       />
+                    </div>
+
+                    {/* Photo Upload */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Photos</h3>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                        <div className="text-center">
+                          <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                          <div className="mt-4">
+                            <label htmlFor="photo-upload" className="cursor-pointer">
+                              <span className="mt-2 block text-sm font-medium text-gray-900">
+                                Upload car photos
+                              </span>
+                              <span className="block text-sm text-gray-500">
+                                PNG, JPG, WEBP up to 10MB each (Max 6 photos)
+                              </span>
+                            </label>
+                            <input
+                              id="photo-upload"
+                              name="photo-upload"
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              className="sr-only"
+                              onChange={handleImageUpload}
+                              disabled={uploadedImages.length >= 6}
+                            />
+                          </div>
+                          <div className="mt-4">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => document.getElementById('photo-upload')?.click()}
+                              disabled={uploadedImages.length >= 6}
+                            >
+                              <Camera className="h-4 w-4 mr-2" />
+                              Choose Photos
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {uploadedImages.length > 0 && (
+                        <div className="mt-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-md font-medium">Uploaded Photos ({uploadedImages.length}/6)</h4>
+                            <p className="text-sm text-gray-500">Click on any photo to make it your main image</p>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {uploadedImages.map((image, index) => (
+                              <div key={index} className="relative group cursor-pointer" onClick={() => setMainImageIndex(index)}>
+                                <img
+                                  src={image}
+                                  alt={`Car photo ${index + 1}`}
+                                  className={`w-full h-32 object-cover rounded-lg border-2 transition-all ${
+                                    index === mainImageIndex 
+                                      ? 'border-purple-500 ring-2 ring-purple-200' 
+                                      : 'border-gray-200 hover:border-purple-300'
+                                  }`}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeImage(index);
+                                  }}
+                                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                                {index === mainImageIndex && (
+                                  <div className="absolute bottom-2 left-2 bg-purple-600 text-white text-xs px-2 py-1 rounded">
+                                    Main Photo
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Vehicle Selection */}
@@ -560,58 +660,7 @@ export default function SellMyCar() {
                       </div>
                     </div>
 
-                    {/* Photo Upload */}
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4">Photos</h3>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors">
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                          id="photo-upload"
-                          disabled={uploadedImages.length >= 8}
-                        />
-                        <label htmlFor="photo-upload" className="cursor-pointer">
-                          <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                          <p className="text-gray-600 mb-2">Upload vehicle photos</p>
-                          <p className="text-sm text-gray-500">
-                            {uploadedImages.length >= 8 
-                              ? "Maximum 8 photos reached" 
-                              : `Add up to ${8 - uploadedImages.length} more photos (JPG, PNG)`
-                            }
-                          </p>
-                        </label>
-                      </div>
-                      
-                      {/* Image Preview Grid */}
-                      {uploadedImages.length > 0 && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                          {uploadedImages.map((image, index) => (
-                            <div key={index} className="relative group">
-                              <img 
-                                src={image} 
-                                alt={`Vehicle photo ${index + 1}`}
-                                className="w-full h-32 object-cover rounded-lg border"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => removeImage(index)}
-                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <X className="h-4 w-4" />
-                              </button>
-                              {index === 0 && (
-                                <div className="absolute bottom-2 left-2 bg-purple-600 text-white text-xs px-2 py-1 rounded">
-                                  Main Photo
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+
 
                     {/* Description */}
                     <div>

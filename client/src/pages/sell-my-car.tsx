@@ -573,17 +573,18 @@ export default function SellMyCar() {
                       )}
                     </div>
 
-                    {/* Vehicle Selection */}
-                    <div className="mb-6">
-                      <VehicleSelector 
-                        onVehicleSelect={handleVehicleSelect}
-                        hideCrsp={true}
-                      />
-                    </div>
-
                     {/* Vehicle Details */}
                     <div>
                       <h3 className="text-lg font-semibold mb-4">Vehicle Details</h3>
+                      
+                      {/* Vehicle Selection */}
+                      <div className="mb-6">
+                        <VehicleSelector 
+                          onVehicleSelect={handleVehicleSelect}
+                          hideCrsp={true}
+                        />
+                      </div>
+
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <FormField
                           control={listingForm.control}

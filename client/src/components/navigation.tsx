@@ -46,36 +46,42 @@ export function Navigation() {
               {isAuthenticated ? (
                 <>
                   {/* User Menu */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || ""} />
-                          <AvatarFallback className="bg-purple-600 text-white">
-                            {getUserInitials(user)}
-                          </AvatarFallback>
-                        </Avatar>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56" align="end" forceMount>
-                      <DropdownMenuItem disabled>
+                  <div className="relative group">
+                    <div className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || ""} />
+                        <AvatarFallback className="bg-purple-600 text-white">
+                          {getUserInitials(user)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm font-medium text-gray-900">
+                        {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email?.split('@')[0] || 'User'}
+                      </span>
+                    </div>
+                    
+                    {/* Dropdown Menu - appears on hover */}
+                    <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      <div className="p-3 border-b border-gray-100">
                         <div className="flex flex-col space-y-1">
                           <p className="text-sm font-medium leading-none">{user?.firstName} {user?.lastName}</p>
                           <p className="text-xs leading-none text-gray-500">{user?.email}</p>
                         </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/dashboard" className="w-full">
+                      </div>
+                      <div className="py-1">
+                        <Link href="/dashboard" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
                           <Database className="mr-2 h-4 w-4" />
                           <span>Dashboard</span>
                         </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleLogout}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Log out</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <button 
+                          onClick={handleLogout}
+                          className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-50 transition-colors text-left"
+                        >
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Log out</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                   
                   {/* Admin Link (only show if admin is authenticated) */}
                   {isAdminAuthenticated && (

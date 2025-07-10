@@ -4,41 +4,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Car, DollarSign, Settings, Fuel, AlertCircle } from "lucide-react";
+import { Car, Settings, Fuel, AlertCircle } from "lucide-react";
 import type { VehicleReference } from "@shared/schema";
 
 interface VehicleSelectorProps {
   onVehicleSelect: (vehicle: VehicleReference | null) => void;
-  onManualEngineSize?: (engineSize: number | null) => void;
-  onManualVehicleData?: (data: ManualVehicleData | null) => void;
   categoryFilter?: string; // Filter vehicles by category
   hideCrsp?: boolean; // Hide CRSP information (for transfer cost calculator)
 }
 
-interface ManualVehicleData {
-  make: string;
-  model: string;
-  engineCapacity: number;
-  referenceVehicle: VehicleReference;
-  proratedCrsp: number;
-}
-
-export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualVehicleData, categoryFilter, hideCrsp }: VehicleSelectorProps) {
+export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp }: VehicleSelectorProps) {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [selectedEngineSize, setSelectedEngineSize] = useState<string>("");
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
   const [manualEngineSize, setManualEngineSize] = useState<string>("");
   const [useManualEngine, setUseManualEngine] = useState<boolean>(false);
-  
-  // Manual entry mode states
-  const [isManualMode, setIsManualMode] = useState(false);
-  const [manualMake, setManualMake] = useState<string>("");
-  const [manualModel, setManualModel] = useState<string>("");
-  const [manualEngineCapacity, setManualEngineCapacity] = useState<number | null>(null);
-  const [selectedReferenceVehicle, setSelectedReferenceVehicle] = useState<VehicleReference | null>(null);
 
   // Fetch all makes (filtered by category if provided)
   const { data: makes = [], isLoading: makesLoading } = useQuery<string[]>({
@@ -101,21 +83,6 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
     enabled: !!selectedMake && !!selectedModel && (!!selectedEngineSize || (useManualEngine && !!manualEngineSize)),
   });
 
-  // Fetch potential reference vehicles for manual mode
-  const { data: referenceVehicles = [] } = useQuery<VehicleReference[]>({
-    queryKey: [`/api/vehicle-references/search`, manualMake, 'manual-mode', categoryFilter],
-    queryFn: async () => {
-      let url = `/api/vehicle-references/search?make=${manualMake}`;
-      if (categoryFilter) {
-        url += `&category=${categoryFilter}`;
-      }
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch reference vehicles');
-      return response.json();
-    },
-    enabled: isManualMode && !!manualMake,
-  });
-
   // Check if we need manual engine input when engine sizes load
   useEffect(() => {
     if (!engineSizesLoading && engineSizes.length === 0 && selectedModel) {
@@ -162,67 +129,6 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
     }
   }, [vehicleDetails, onVehicleSelect, useManualEngine, manualEngineSize, selectedMake, selectedModel]);
 
-  // Notify parent when manual engine size changes
-  useEffect(() => {
-    if (onManualEngineSize) {
-      onManualEngineSize(manualEngineSize ? parseInt(manualEngineSize) : null);
-    }
-  }, [manualEngineSize, onManualEngineSize]);
-
-  // Handle manual vehicle data with proration or simple manual entry
-  useEffect(() => {
-    if (isManualMode && manualMake && manualModel && manualEngineCapacity) {
-      if (hideCrsp) {
-        // For transfer cost calculator - create simple vehicle entry without CRSP
-        const simpleVehicle: VehicleReference = {
-          id: 0, // Temporary ID for manual entry
-          make: manualMake,
-          model: manualModel,
-          engineCapacity: manualEngineCapacity,
-          bodyType: null,
-          driveConfiguration: null,
-          seating: null,
-          fuelType: null,
-          gvw: null,
-          crspKes: null,
-          crsp2020: null,
-          discontinuationYear: null,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        };
-        onVehicleSelect(simpleVehicle);
-      } else if (selectedReferenceVehicle && onManualVehicleData) {
-        // For duty calculator - use CRSP proration
-        const referenceCrsp = selectedReferenceVehicle.crspKes || selectedReferenceVehicle.crsp2020;
-        if (referenceCrsp && selectedReferenceVehicle.engineCapacity) {
-          const proratedCrsp = (referenceCrsp * manualEngineCapacity) / selectedReferenceVehicle.engineCapacity;
-          const manualData: ManualVehicleData = {
-            make: manualMake,
-            model: manualModel,
-            engineCapacity: manualEngineCapacity,
-            referenceVehicle: selectedReferenceVehicle,
-            proratedCrsp: Math.round(proratedCrsp)
-          };
-          onManualVehicleData(manualData);
-        }
-      }
-    } else if (onManualVehicleData) {
-      onManualVehicleData(null);
-    }
-  }, [isManualMode, manualMake, manualModel, manualEngineCapacity, selectedReferenceVehicle, onManualVehicleData, hideCrsp, onVehicleSelect]);
-
-  // Clear vehicle selection when switching modes
-  useEffect(() => {
-    if (isManualMode) {
-      onVehicleSelect(null);
-      setSelectedVehicle(null);
-    } else {
-      if (onManualVehicleData) {
-        onManualVehicleData(null);
-      }
-    }
-  }, [isManualMode, onVehicleSelect, onManualVehicleData]);
-
   const handleMakeChange = (make: string) => {
     setSelectedMake(make);
     setSelectedModel("");
@@ -250,55 +156,23 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
 
   return (
     <div className="space-y-4">
-      {/* Mode Toggle */}
-      <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-        <div className="flex items-center space-x-2">
-          <input
-            type="radio"
-            id="database-mode"
-            name="entry-mode"
-            checked={!isManualMode}
-            onChange={() => setIsManualMode(false)}
-            className="h-4 w-4"
-          />
-          <Label htmlFor="database-mode" className="text-sm font-medium">
-            Select from Database
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="make" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+            <Car className="h-4 w-4 mr-2 text-green-600" />
+            Vehicle Make
           </Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <input
-            type="radio"
-            id="manual-mode"
-            name="entry-mode"
-            checked={isManualMode}
-            onChange={() => setIsManualMode(true)}
-            className="h-4 w-4"
-          />
-          <Label htmlFor="manual-mode" className="text-sm font-medium">
-            Enter Vehicle manually
-          </Label>
-        </div>
-      </div>
-
-      {!isManualMode ? (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="make" className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                <Car className="h-4 w-4 mr-2 text-green-600" />
-                Vehicle Make
-              </Label>
-              <Select value={selectedMake} onValueChange={handleMakeChange}>
-                <SelectTrigger id="make">
-                  <SelectValue placeholder={makesLoading ? "Loading..." : "Select a make"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {makes.map((make: string, index: number) => (
-                    <SelectItem key={`make-${index}-${make}`} value={make}>
-                      {make}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+          <Select value={selectedMake} onValueChange={handleMakeChange}>
+            <SelectTrigger id="make">
+              <SelectValue placeholder={makesLoading ? "Loading..." : "Select a make"} />
+            </SelectTrigger>
+            <SelectContent>
+              {makes.map((make: string, index: number) => (
+                <SelectItem key={`make-${index}-${make}`} value={make}>
+                  {make}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
         </div>
 
@@ -446,101 +320,6 @@ export function VehicleSelector({ onVehicleSelect, onManualEngineSize, onManualV
             </div>
           </CardContent>
         </Card>
-        )}
-        </>
-      ) : (
-        /* Manual Entry Mode */
-        <div className="space-y-4">
-          {!hideCrsp && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Vehicle not in database? Enter details manually and select a reference vehicle for CRSP proration.
-              </AlertDescription>
-            </Alert>
-          )}
-          {hideCrsp && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Vehicle not in database? Enter details manually to proceed with transfer cost calculation.
-              </AlertDescription>
-            </Alert>
-          )}
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="manual-make">Make *</Label>
-              <Input
-                id="manual-make"
-                value={manualMake}
-                onChange={(e) => setManualMake(e.target.value.toUpperCase())}
-                placeholder="e.g., PEUGEOT"
-                className="uppercase"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="manual-model">Model *</Label>
-              <Input
-                id="manual-model"
-                value={manualModel}
-                onChange={(e) => setManualModel(e.target.value.toUpperCase())}
-                placeholder="e.g., 2008"
-                className="uppercase"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="manual-engine">Engine Capacity (cc) *</Label>
-              <Input
-                id="manual-engine"
-                type="number"
-                value={manualEngineCapacity || ""}
-                onChange={(e) => setManualEngineCapacity(e.target.value ? parseInt(e.target.value) : null)}
-                placeholder="e.g., 1200"
-              />
-            </div>
-          </div>
-
-          {!hideCrsp && manualMake && referenceVehicles.length > 0 && (
-            <div className="space-y-2">
-              <Label>Select Reference Vehicle for Proration *</Label>
-              <Select onValueChange={(value) => {
-                const vehicle = referenceVehicles.find(v => v.id === parseInt(value));
-                setSelectedReferenceVehicle(vehicle || null);
-              }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a reference vehicle from the same make" />
-                </SelectTrigger>
-                <SelectContent>
-                  {referenceVehicles
-                    .filter(vehicle => (vehicle.crspKes || vehicle.crsp2020) && vehicle.engineCapacity)
-                    .map((vehicle) => (
-                      <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
-                        {vehicle.make} {vehicle.model} ({vehicle.engineCapacity}cc) - {formatCurrency(vehicle.crspKes || vehicle.crsp2020)}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {!hideCrsp && selectedReferenceVehicle && manualEngineCapacity && (
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="pt-4">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-blue-900">Proration Calculation</h4>
-                  <div className="text-sm text-blue-800">
-                    <p><strong>Reference Vehicle:</strong> {selectedReferenceVehicle.make} {selectedReferenceVehicle.model} ({selectedReferenceVehicle.engineCapacity}cc)</p>
-                    <p><strong>Reference CRSP:</strong> {formatCurrency(selectedReferenceVehicle.crspKes || selectedReferenceVehicle.crsp2020)}</p>
-                    <p><strong>Your Vehicle:</strong> {manualMake} {manualModel} ({manualEngineCapacity}cc)</p>
-                    <p><strong>Calculation:</strong> {formatCurrency(selectedReferenceVehicle.crspKes || selectedReferenceVehicle.crsp2020)} × {manualEngineCapacity} ÷ {selectedReferenceVehicle.engineCapacity}</p>
-                    <p className="font-semibold text-lg"><strong>Prorated CRSP:</strong> {formatCurrency(Math.round(((selectedReferenceVehicle.crspKes || selectedReferenceVehicle.crsp2020 || 0) * manualEngineCapacity) / (selectedReferenceVehicle.engineCapacity || 1)))}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
       )}
     </div>
   );

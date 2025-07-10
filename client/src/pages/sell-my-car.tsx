@@ -35,7 +35,8 @@ const listingSchema = z.object({
   bodyType: z.enum(["sedan", "hatchback", "suv", "estate", "coupe", "convertible", "pickup", "van"]),
   transmission: z.enum(["manual", "automatic"]),
   color: z.string().min(1, "Color is required"),
-  condition: z.enum(["excellent", "good", "fair", "poor"]),
+  condition: z.enum(["new", "locally_used", "foreign_used"]),
+  driveConfiguration: z.enum(["2wd", "4wd", "awd"]),
   price: z.number().min(50000, "Price must be at least KES 50,000"),
   negotiable: z.boolean(),
   description: z.string().min(50, "Description must be at least 50 characters"),
@@ -60,11 +61,22 @@ export default function SellMyCar() {
       fuelType: "petrol",
       bodyType: "sedan",
       transmission: "manual",
-      condition: "good",
+      condition: "locally_used",
+      driveConfiguration: "2wd",
       negotiable: true,
       features: [],
     },
   });
+
+  // Kenyan counties for location dropdown
+  const kenyanCounties = [
+    "Baringo", "Bomet", "Bungoma", "Busia", "Elgeyo-Marakwet", "Embu", "Garissa", "Homa Bay",
+    "Isiolo", "Kajiado", "Kakamega", "Kericho", "Kiambu", "Kilifi", "Kirinyaga", "Kisii",
+    "Kisumu", "Kitui", "Kwale", "Laikipia", "Lamu", "Machakos", "Makueni", "Mandera",
+    "Marsabit", "Meru", "Migori", "Mombasa", "Murang'a", "Nairobi", "Nakuru", "Nandi",
+    "Narok", "Nyamira", "Nyandarua", "Nyeri", "Samburu", "Siaya", "Taita-Taveta", "Tana River",
+    "Tharaka-Nithi", "Trans Nzoia", "Turkana", "Uasin Gishu", "Vihiga", "Wajir", "West Pokot"
+  ];
 
   // Handle vehicle selection from database
   const handleVehicleSelect = (vehicle: VehicleReference | null) => {
@@ -98,6 +110,26 @@ export default function SellMyCar() {
       listingForm.setValue("make", "");
       listingForm.setValue("model", "");
       listingForm.setValue("engineSize", 0);
+    }
+  };
+
+  // Price comparison logic
+  const watchedPrice = listingForm.watch("price");
+  const getPriceIndicator = (price: number) => {
+    if (!selectedVehicle || !price) return null;
+    
+    // Simple market price estimation based on CRSP
+    const baseMarketPrice = selectedVehicle.crspKes || selectedVehicle.crsp2020 || 0;
+    if (baseMarketPrice === 0) return null;
+    
+    const ratio = price / baseMarketPrice;
+    
+    if (ratio < 0.8) {
+      return { label: "Below Market Price", color: "text-green-600 bg-green-50 border-green-200" };
+    } else if (ratio > 1.2) {
+      return { label: "Above Market Price", color: "text-red-600 bg-red-50 border-red-200" };
+    } else {
+      return { label: "Fair Price", color: "text-blue-600 bg-blue-50 border-blue-200" };
     }
   };
 
@@ -185,22 +217,6 @@ export default function SellMyCar() {
                           hideCrsp={true}
                         />
                       </div>
-                      {selectedVehicle && (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                          <div className="flex items-start gap-3">
-                            <Car className="h-5 w-5 text-green-600 mt-1" />
-                            <div>
-                              <h4 className="font-semibold text-green-800">Vehicle Selected</h4>
-                              <p className="text-green-700">
-                                {selectedVehicle.make} {selectedVehicle.model} - {selectedVehicle.engineCapacity}cc
-                                {selectedVehicle.fuel && ` | ${selectedVehicle.fuel.charAt(0).toUpperCase() + selectedVehicle.fuel.slice(1)}`}
-                                {selectedVehicle.driveConfiguration && ` | ${selectedVehicle.driveConfiguration}`}
-                                {selectedVehicle.seating && ` | ${selectedVehicle.seating} seats`}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
                     </div>
 
                     {/* Basic Information */}
@@ -310,10 +326,31 @@ export default function SellMyCar() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="excellent">Excellent</SelectItem>
-                                  <SelectItem value="good">Good</SelectItem>
-                                  <SelectItem value="fair">Fair</SelectItem>
-                                  <SelectItem value="poor">Poor</SelectItem>
+                                  <SelectItem value="new">New</SelectItem>
+                                  <SelectItem value="locally_used">Locally Used</SelectItem>
+                                  <SelectItem value="foreign_used">Foreign Used</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="driveConfiguration"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Drive Configuration *</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select drive type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="2wd">2WD</SelectItem>
+                                  <SelectItem value="4wd">4WD</SelectItem>
+                                  <SelectItem value="awd">AWD</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -323,12 +360,6 @@ export default function SellMyCar() {
                         {/* Show additional vehicle info if available */}
                         {selectedVehicle && (
                           <>
-                            {selectedVehicle.driveConfiguration && (
-                              <div className="bg-gray-50 p-3 rounded-lg">
-                                <Label className="text-sm font-medium text-gray-700">Drive Configuration</Label>
-                                <p className="text-sm text-gray-900 mt-1">{selectedVehicle.driveConfiguration}</p>
-                              </div>
-                            )}
                             {selectedVehicle.seating && (
                               <div className="bg-gray-50 p-3 rounded-lg">
                                 <Label className="text-sm font-medium text-gray-700">Seating</Label>
@@ -364,6 +395,11 @@ export default function SellMyCar() {
                                   onChange={(e) => field.onChange(parseInt(e.target.value))}
                                 />
                               </FormControl>
+                              {watchedPrice && getPriceIndicator(watchedPrice) && (
+                                <div className={`mt-2 text-xs px-2 py-1 rounded border inline-block ${getPriceIndicator(watchedPrice)?.color}`}>
+                                  {getPriceIndicator(watchedPrice)?.label}
+                                </div>
+                              )}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -449,10 +485,19 @@ export default function SellMyCar() {
                           name="location"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Location *</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Nairobi" {...field} />
-                              </FormControl>
+                              <FormLabel>County *</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select county" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {kenyanCounties.map((county) => (
+                                    <SelectItem key={county} value={county}>{county}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}

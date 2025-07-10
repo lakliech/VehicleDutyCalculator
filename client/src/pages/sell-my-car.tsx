@@ -199,18 +199,20 @@ export default function SellMyCar() {
   const getPriceIndicator = (price: number) => {
     if (!selectedVehicle || !price) return null;
     
-    // Simple market price estimation based on CRSP
-    const baseMarketPrice = selectedVehicle.crspKes || selectedVehicle.crsp2020 || 0;
-    if (baseMarketPrice === 0) return null;
+    // Get CRSP value for comparison
+    const crspValue = selectedVehicle.crspKes || selectedVehicle.crsp2020 || 0;
+    if (crspValue === 0) return null;
     
-    const ratio = price / baseMarketPrice;
+    const percentage = (price / crspValue) * 100;
     
-    if (ratio < 0.8) {
-      return { label: "Below Market Price", color: "text-green-600 bg-green-50 border-green-200" };
-    } else if (ratio > 1.2) {
-      return { label: "Above Market Price", color: "text-red-600 bg-red-50 border-red-200" };
+    if (percentage > 70) {
+      return { label: "Price is High", color: "text-red-600 bg-red-50 border-red-200" };
+    } else if (percentage >= 50 && percentage <= 70) {
+      return { label: "Competitive Price", color: "text-blue-600 bg-blue-50 border-blue-200" };
+    } else if (percentage >= 40 && percentage < 50) {
+      return { label: "Good Deal", color: "text-green-600 bg-green-50 border-green-200" };
     } else {
-      return { label: "Fair Price", color: "text-blue-600 bg-blue-50 border-blue-200" };
+      return { label: "Be Careful", color: "text-orange-600 bg-orange-50 border-orange-200" };
     }
   };
 

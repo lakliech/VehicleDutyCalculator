@@ -11,7 +11,14 @@ import {
   trailers,
   heavyMachinery,
   insertVehicleReferenceSchema,
-  vehicleTransferRates
+  vehicleTransferRates,
+  userRegistrationSchema,
+  userLoginSchema,
+  carListingSchema,
+  listingApprovalSchema,
+  userRoleSchema,
+  appUsers,
+  userRoles
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -52,7 +59,114 @@ function getEngineCapacityFilter(category: string) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Admin login endpoint
+  // Auth middleware
+  const authenticateUser = async (req: any, res: any, next: any) => {
+    const auth = req.headers.authorization;
+    
+    if (!auth || !auth.startsWith('Bearer ')) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    const token = auth.substring(7);
+    
+    // For now, using simple token validation
+    // In production, implement proper JWT validation
+    try {
+      const user = await storage.getUserById(token);
+      if (!user) {
+        return res.status(401).json({ error: "Invalid token" });
+      }
+      req.user = user;
+      next();
+    } catch (error) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+  };
+
+  const requireRole = (roles: string[]) => {
+    return async (req: any, res: any, next: any) => {
+      const userRole = await storage.getUserRole(req.user.id);
+      if (!userRole || !roles.includes(userRole.name)) {
+        return res.status(403).json({ error: "Insufficient permissions" });
+      }
+      next();
+    };
+  };
+
+  // User Management API
+  // User registration
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const validation = userRegistrationSchema.safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      // Check if user exists
+      const existingUser = await storage.getUserByEmail(validation.data.email);
+      if (existingUser) {
+        return res.status(400).json({ error: "User already exists" });
+      }
+
+      const user = await storage.createUser({
+        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        email: validation.data.email,
+        firstName: validation.data.firstName,
+        lastName: validation.data.lastName,
+        phoneNumber: validation.data.phoneNumber,
+        password: validation.data.password // In production, hash this
+      });
+
+      // Return user without password
+      const { ...userWithoutPassword } = user;
+      res.json({ user: userWithoutPassword, token: user.id });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ error: "Failed to register user" });
+    }
+  });
+
+  // User login
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const validation = userLoginSchema.safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const user = await storage.getUserByEmail(validation.data.email);
+      if (!user) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      // In production, verify hashed password
+      // For now, simple comparison
+      
+      // Log user activity
+      await storage.logUserActivity(user.id, 'login', undefined, undefined, 'User logged in');
+
+      const { ...userWithoutPassword } = user;
+      res.json({ user: userWithoutPassword, token: user.id });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ error: "Failed to login" });
+    }
+  });
+
+  // Get current user
+  app.get("/api/auth/user", authenticateUser, async (req, res) => {
+    res.json(req.user);
+  });
+
+  // Admin login endpoint (legacy)
   app.post("/api/admin/login", async (req, res) => {
     const { password } = req.body;
     
@@ -60,6 +174,214 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ token: ADMIN_PASSWORD, success: true });
     } else {
       res.status(401).json({ error: "Invalid password" });
+    }
+  });
+
+  // User management endpoints
+  app.get("/api/admin/users", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+    try {
+      // Get all users with their roles
+      const users = await db.select({
+        user: appUsers,
+        role: userRoles
+      })
+      .from(appUsers)
+      .leftJoin(userRoles, eq(appUsers.roleId, userRoles.id));
+      
+      res.json(users);
+    } catch (error) {
+      console.error("Failed to get users:", error);
+      res.status(500).json({ error: "Failed to get users" });
+    }
+  });
+
+  app.put("/api/admin/users/:id/role", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+    try {
+      const { roleId } = req.body;
+      await storage.updateUserRole(req.params.id, roleId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to update user role:", error);
+      res.status(500).json({ error: "Failed to update user role" });
+    }
+  });
+
+  // Role management endpoints
+  app.get("/api/admin/roles", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+    try {
+      const roles = await storage.getAllRoles();
+      res.json(roles);
+    } catch (error) {
+      console.error("Failed to get roles:", error);
+      res.status(500).json({ error: "Failed to get roles" });
+    }
+  });
+
+  app.post("/api/admin/roles", authenticateUser, requireRole(['superadmin']), async (req, res) => {
+    try {
+      const validation = userRoleSchema.safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const role = await storage.createRole(validation.data);
+      res.json(role);
+    } catch (error) {
+      console.error("Failed to create role:", error);
+      res.status(500).json({ error: "Failed to create role" });
+    }
+  });
+
+  // Listing management endpoints
+  app.get("/api/admin/listings", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      const listings = await storage.getAllListingsForAdmin();
+      res.json(listings);
+    } catch (error) {
+      console.error("Failed to get listings:", error);
+      res.status(500).json({ error: "Failed to get listings" });
+    }
+  });
+
+  app.post("/api/admin/listings/:id/approve", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      const { notes } = req.body;
+      const approval = await storage.approveListing(parseInt(req.params.id), req.user.id, notes);
+      res.json(approval);
+    } catch (error) {
+      console.error("Failed to approve listing:", error);
+      res.status(500).json({ error: "Failed to approve listing" });
+    }
+  });
+
+  app.post("/api/admin/listings/:id/reject", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      const { reason } = req.body;
+      const approval = await storage.rejectListing(parseInt(req.params.id), req.user.id, reason);
+      res.json(approval);
+    } catch (error) {
+      console.error("Failed to reject listing:", error);
+      res.status(500).json({ error: "Failed to reject listing" });
+    }
+  });
+
+  app.post("/api/admin/listings/:id/request-changes", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      const { changes, notes } = req.body;
+      const approval = await storage.requestChanges(parseInt(req.params.id), req.user.id, changes, notes);
+      res.json(approval);
+    } catch (error) {
+      console.error("Failed to request changes:", error);
+      res.status(500).json({ error: "Failed to request changes" });
+    }
+  });
+
+  app.put("/api/admin/listings/:id", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      const validation = carListingSchema.partial().safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const listing = await storage.updateListing(parseInt(req.params.id), validation.data);
+      res.json(listing);
+    } catch (error) {
+      console.error("Failed to update listing:", error);
+      res.status(500).json({ error: "Failed to update listing" });
+    }
+  });
+
+  app.delete("/api/admin/listings/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+    try {
+      await storage.deleteListing(parseInt(req.params.id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete listing:", error);
+      res.status(500).json({ error: "Failed to delete listing" });
+    }
+  });
+
+  // User dashboard endpoints
+  app.get("/api/user/listings", authenticateUser, async (req, res) => {
+    try {
+      const listings = await storage.getListingsByUser(req.user.id);
+      res.json(listings);
+    } catch (error) {
+      console.error("Failed to get user listings:", error);
+      res.status(500).json({ error: "Failed to get user listings" });
+    }
+  });
+
+  app.get("/api/user/activities", authenticateUser, async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const activities = await storage.getUserActivities(req.user.id, limit);
+      res.json(activities);
+    } catch (error) {
+      console.error("Failed to get user activities:", error);
+      res.status(500).json({ error: "Failed to get user activities" });
+    }
+  });
+
+  app.get("/api/user/stats", authenticateUser, async (req, res) => {
+    try {
+      const stats = await storage.getUserStats(req.user.id);
+      res.json(stats);
+    } catch (error) {
+      console.error("Failed to get user stats:", error);
+      res.status(500).json({ error: "Failed to get user stats" });
+    }
+  });
+
+  app.get("/api/user/preferences", authenticateUser, async (req, res) => {
+    try {
+      const preferences = await storage.getUserPreferences(req.user.id);
+      res.json(preferences);
+    } catch (error) {
+      console.error("Failed to get user preferences:", error);
+      res.status(500).json({ error: "Failed to get user preferences" });
+    }
+  });
+
+  app.put("/api/user/preferences", authenticateUser, async (req, res) => {
+    try {
+      const preferences = await storage.updateUserPreferences(req.user.id, req.body);
+      res.json(preferences);
+    } catch (error) {
+      console.error("Failed to update user preferences:", error);
+      res.status(500).json({ error: "Failed to update user preferences" });
+    }
+  });
+
+  // Car listing endpoints (public and user)
+  app.post("/api/listings", authenticateUser, async (req, res) => {
+    try {
+      const validation = carListingSchema.safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const listing = await storage.createListing({
+        ...validation.data,
+        sellerId: req.user.id
+      });
+
+      res.json(listing);
+    } catch (error) {
+      console.error("Failed to create listing:", error);
+      res.status(500).json({ error: "Failed to create listing" });
     }
   });
   // Calculate duty
@@ -906,6 +1228,191 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: "Failed to process CSV file",
         details: error.message 
       });
+    }
+  });
+
+  // ===============================
+  // ADMIN STATS AND OVERVIEW
+  // ===============================
+
+  // Get dashboard stats
+  app.get("/api/admin/stats", authenticateAdmin, async (req, res) => {
+    try {
+      // Get total users
+      const totalUsersResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(appUsers);
+      const totalUsers = totalUsersResult[0]?.count || 0;
+
+      // Get users created this month
+      const currentMonth = new Date();
+      currentMonth.setDate(1);
+      currentMonth.setHours(0, 0, 0, 0);
+      
+      const newUsersThisMonthResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(appUsers)
+        .where(sql`${appUsers.createdAt} >= ${currentMonth.toISOString()}`);
+      const newUsersThisMonth = newUsersThisMonthResult[0]?.count || 0;
+
+      // Get total vehicle references
+      const totalVehicleReferencesResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(vehicleReferences);
+      const totalVehicleReferences = totalVehicleReferencesResult[0]?.count || 0;
+
+      const stats = {
+        totalUsers,
+        newUsersThisMonth,
+        totalListings: 0, // Will be updated when we add listings
+        newListingsThisMonth: 0,
+        pendingApprovals: 0,
+        totalVehicleReferences
+      };
+
+      res.json(stats);
+    } catch (error) {
+      console.error("Failed to fetch admin stats:", error);
+      res.status(500).json({ error: "Failed to fetch admin stats" });
+    }
+  });
+
+  // ===============================
+  // ADMIN USER MANAGEMENT
+  // ===============================
+
+  // Get all users with their roles
+  app.get("/api/admin/users", authenticateAdmin, async (req, res) => {
+    try {
+      // Get all users from the database with their roles
+      const users = await db
+        .select({
+          id: appUsers.id,
+          email: appUsers.email,
+          firstName: appUsers.firstName,
+          lastName: appUsers.lastName,
+          phoneNumber: appUsers.phoneNumber,
+          createdAt: appUsers.createdAt,
+          role: {
+            id: userRoles.id,
+            name: userRoles.name,
+            description: userRoles.description
+          }
+        })
+        .from(appUsers)
+        .leftJoin(userRoles, eq(appUsers.roleId, userRoles.id))
+        .orderBy(appUsers.createdAt);
+      
+      res.json(users);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
+  // Update user role
+  app.put("/api/admin/users/:userId/role", authenticateAdmin, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { roleId } = req.body;
+
+      if (!roleId) {
+        return res.status(400).json({ error: "Role ID is required" });
+      }
+
+      await storage.updateUserRole(userId, roleId);
+      res.json({ message: "User role updated successfully" });
+    } catch (error) {
+      console.error("Failed to update user role:", error);
+      res.status(500).json({ error: "Failed to update user role" });
+    }
+  });
+
+  // Get all roles
+  app.get("/api/admin/roles", authenticateAdmin, async (req, res) => {
+    try {
+      const roles = await storage.getAllRoles();
+      res.json(roles);
+    } catch (error) {
+      console.error("Failed to fetch roles:", error);
+      res.status(500).json({ error: "Failed to fetch roles" });
+    }
+  });
+
+  // ===============================
+  // ADMIN LISTING MANAGEMENT
+  // ===============================
+
+  // Get all listings for admin
+  app.get("/api/admin/listings", authenticateAdmin, async (req, res) => {
+    try {
+      const listings = await storage.getAllListingsForAdmin();
+      res.json(listings);
+    } catch (error) {
+      console.error("Failed to fetch listings:", error);
+      res.status(500).json({ error: "Failed to fetch listings" });
+    }
+  });
+
+  // Approve listing
+  app.post("/api/admin/listings/:listingId/approve", authenticateAdmin, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      const { notes } = req.body;
+
+      if (isNaN(listingId)) {
+        return res.status(400).json({ error: "Invalid listing ID" });
+      }
+
+      const approval = await storage.approveListing(listingId, 'admin', notes);
+      res.json(approval);
+    } catch (error) {
+      console.error("Failed to approve listing:", error);
+      res.status(500).json({ error: "Failed to approve listing" });
+    }
+  });
+
+  // Reject listing
+  app.post("/api/admin/listings/:listingId/reject", authenticateAdmin, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      const { reason } = req.body;
+
+      if (isNaN(listingId)) {
+        return res.status(400).json({ error: "Invalid listing ID" });
+      }
+
+      if (!reason) {
+        return res.status(400).json({ error: "Rejection reason is required" });
+      }
+
+      const approval = await storage.rejectListing(listingId, 'admin', reason);
+      res.json(approval);
+    } catch (error) {
+      console.error("Failed to reject listing:", error);
+      res.status(500).json({ error: "Failed to reject listing" });
+    }
+  });
+
+  // Request changes to listing
+  app.post("/api/admin/listings/:listingId/request-changes", authenticateAdmin, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      const { changes, notes } = req.body;
+
+      if (isNaN(listingId)) {
+        return res.status(400).json({ error: "Invalid listing ID" });
+      }
+
+      if (!changes || !Array.isArray(changes) || changes.length === 0) {
+        return res.status(400).json({ error: "Changes list is required" });
+      }
+
+      const approval = await storage.requestChanges(listingId, 'admin', changes, notes);
+      res.json(approval);
+    } catch (error) {
+      console.error("Failed to request changes:", error);
+      res.status(500).json({ error: "Failed to request changes" });
     }
   });
 

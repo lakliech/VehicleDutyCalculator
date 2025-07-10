@@ -1,11 +1,60 @@
-import { vehicles, calculations, depreciationRates, taxRates, processingFees, vehicleCategoryRules, registrationFees, trailers, heavyMachinery, type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, type DepreciationRate, type TaxRate, type ProcessingFee, type VehicleCategoryRule, type RegistrationFee, type Trailer, type HeavyMachinery } from "@shared/schema";
+import { 
+  vehicles, calculations, depreciationRates, taxRates, processingFees, vehicleCategoryRules, registrationFees, trailers, heavyMachinery,
+  userRoles, appUsers, userSessions, userActivities, listingApprovals, userPreferences, userStats, carListings,
+  type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, 
+  type DepreciationRate, type TaxRate, type ProcessingFee, type VehicleCategoryRule, type RegistrationFee, 
+  type Trailer, type HeavyMachinery, type UserRole, type AppUser, type InsertAppUser, type InsertUserRole,
+  type CarListing, type InsertCarListing, type ListingApproval, type InsertListingApproval,
+  type UserActivity, type UserStats, type UserPreferences
+} from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
+  // Existing duty calculation methods
   calculateDuty(calculation: DutyCalculation): Promise<DutyResult>;
   saveCalculation(vehicleData: InsertVehicle, calculationData: Omit<InsertCalculation, 'vehicleId'>): Promise<{ vehicle: Vehicle; calculation: Calculation }>;
   getCalculationHistory(limit?: number): Promise<Array<Vehicle & { calculation: Calculation }>>;
+  
+  // User management methods
+  createUser(userData: InsertAppUser & { password: string }): Promise<AppUser>;
+  getUserById(id: string): Promise<AppUser | undefined>;
+  getUserByEmail(email: string): Promise<AppUser | undefined>;
+  updateUser(id: string, userData: Partial<InsertAppUser>): Promise<AppUser>;
+  deleteUser(id: string): Promise<void>;
+  getUserRole(userId: string): Promise<UserRole | undefined>;
+  updateUserRole(userId: string, roleId: number): Promise<void>;
+  
+  // Role management methods
+  getAllRoles(): Promise<UserRole[]>;
+  createRole(roleData: InsertUserRole): Promise<UserRole>;
+  updateRole(id: number, roleData: Partial<InsertUserRole>): Promise<UserRole>;
+  deleteRole(id: number): Promise<void>;
+  
+  // Listing management methods
+  getAllListingsForAdmin(): Promise<Array<CarListing & { seller: AppUser; approval?: ListingApproval }>>;
+  getListingsByUser(userId: string): Promise<CarListing[]>;
+  createListing(listingData: InsertCarListing & { sellerId: string }): Promise<CarListing>;
+  updateListing(id: number, listingData: Partial<InsertCarListing>): Promise<CarListing>;
+  deleteListing(id: number): Promise<void>;
+  
+  // Approval workflow methods
+  approveListing(listingId: number, reviewerId: string, notes?: string): Promise<ListingApproval>;
+  rejectListing(listingId: number, reviewerId: string, reason: string): Promise<ListingApproval>;
+  requestChanges(listingId: number, reviewerId: string, changes: string[], notes?: string): Promise<ListingApproval>;
+  getListingApproval(listingId: number): Promise<ListingApproval | undefined>;
+  
+  // User activity tracking
+  logUserActivity(userId: string, activityType: string, entityType?: string, entityId?: string, description?: string, metadata?: any): Promise<void>;
+  getUserActivities(userId: string, limit?: number): Promise<UserActivity[]>;
+  
+  // User stats and metrics
+  getUserStats(userId: string): Promise<UserStats | undefined>;
+  updateUserStats(userId: string, updates: Partial<UserStats>): Promise<UserStats>;
+  
+  // User preferences
+  getUserPreferences(userId: string): Promise<UserPreferences | undefined>;
+  updateUserPreferences(userId: string, preferences: Partial<UserPreferences>): Promise<UserPreferences>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -298,6 +347,297 @@ export class DatabaseStorage implements IStorage {
       console.error("Failed to fetch calculation history:", error);
       throw new Error("Failed to fetch calculation history");
     }
+  }
+
+  // User management methods implementation
+  async createUser(userData: InsertAppUser & { password: string }): Promise<AppUser> {
+    const { password, ...userDataWithoutPassword } = userData;
+    // Note: In production, hash the password before storing
+    const [user] = await db
+      .insert(appUsers)
+      .values(userDataWithoutPassword)
+      .returning();
+    
+    // Create default user preferences
+    await db
+      .insert(userPreferences)
+      .values({ userId: user.id })
+      .execute();
+    
+    // Create default user stats
+    await db
+      .insert(userStats)
+      .values({ userId: user.id })
+      .execute();
+    
+    return user;
+  }
+
+  async getUserById(id: string): Promise<AppUser | undefined> {
+    const [user] = await db
+      .select()
+      .from(appUsers)
+      .where(eq(appUsers.id, id));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<AppUser | undefined> {
+    const [user] = await db
+      .select()
+      .from(appUsers)
+      .where(eq(appUsers.email, email));
+    return user;
+  }
+
+  async updateUser(id: string, userData: Partial<InsertAppUser>): Promise<AppUser> {
+    const [user] = await db
+      .update(appUsers)
+      .set({ ...userData, updatedAt: new Date() })
+      .where(eq(appUsers.id, id))
+      .returning();
+    return user;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await db.delete(appUsers).where(eq(appUsers.id, id));
+  }
+
+  async getUserRole(userId: string): Promise<UserRole | undefined> {
+    const result = await db
+      .select({ role: userRoles })
+      .from(appUsers)
+      .leftJoin(userRoles, eq(appUsers.roleId, userRoles.id))
+      .where(eq(appUsers.id, userId));
+    
+    return result[0]?.role;
+  }
+
+  async updateUserRole(userId: string, roleId: number): Promise<void> {
+    await db
+      .update(appUsers)
+      .set({ roleId, updatedAt: new Date() })
+      .where(eq(appUsers.id, userId));
+  }
+
+  // Role management methods
+  async getAllRoles(): Promise<UserRole[]> {
+    return await db.select().from(userRoles);
+  }
+
+  async createRole(roleData: InsertUserRole): Promise<UserRole> {
+    const [role] = await db
+      .insert(userRoles)
+      .values(roleData)
+      .returning();
+    return role;
+  }
+
+  async updateRole(id: number, roleData: Partial<InsertUserRole>): Promise<UserRole> {
+    const [role] = await db
+      .update(userRoles)
+      .set(roleData)
+      .where(eq(userRoles.id, id))
+      .returning();
+    return role;
+  }
+
+  async deleteRole(id: number): Promise<void> {
+    await db.delete(userRoles).where(eq(userRoles.id, id));
+  }
+
+  // Listing management methods
+  async getAllListingsForAdmin(): Promise<Array<CarListing & { seller: AppUser; approval?: ListingApproval }>> {
+    const results = await db
+      .select({
+        listing: carListings,
+        seller: appUsers,
+        approval: listingApprovals
+      })
+      .from(carListings)
+      .leftJoin(appUsers, eq(carListings.sellerId, appUsers.id))
+      .leftJoin(listingApprovals, eq(carListings.id, listingApprovals.listingId))
+      .orderBy(desc(carListings.createdAt));
+
+    return results.map(r => ({
+      ...r.listing,
+      seller: r.seller!,
+      approval: r.approval || undefined
+    }));
+  }
+
+  async getListingsByUser(userId: string): Promise<CarListing[]> {
+    return await db
+      .select()
+      .from(carListings)
+      .where(eq(carListings.sellerId, userId))
+      .orderBy(desc(carListings.createdAt));
+  }
+
+  async createListing(listingData: InsertCarListing & { sellerId: string }): Promise<CarListing> {
+    const [listing] = await db
+      .insert(carListings)
+      .values(listingData)
+      .returning();
+
+    // Create approval record
+    await db
+      .insert(listingApprovals)
+      .values({ listingId: listing.id })
+      .execute();
+
+    // Log activity
+    await this.logUserActivity(
+      listingData.sellerId,
+      'listing_created',
+      'listing',
+      listing.id.toString(),
+      `Created listing: ${listingData.title}`
+    );
+
+    return listing;
+  }
+
+  async updateListing(id: number, listingData: Partial<InsertCarListing>): Promise<CarListing> {
+    const [listing] = await db
+      .update(carListings)
+      .set({ ...listingData, updatedAt: new Date() })
+      .where(eq(carListings.id, id))
+      .returning();
+    return listing;
+  }
+
+  async deleteListing(id: number): Promise<void> {
+    await db.delete(carListings).where(eq(carListings.id, id));
+  }
+
+  // Approval workflow methods
+  async approveListing(listingId: number, reviewerId: string, notes?: string): Promise<ListingApproval> {
+    // Update listing status
+    await db
+      .update(carListings)
+      .set({ status: 'active', isVerified: true })
+      .where(eq(carListings.id, listingId));
+
+    // Update approval record
+    const [approval] = await db
+      .update(listingApprovals)
+      .set({
+        status: 'approved',
+        reviewerId,
+        reviewNotes: notes,
+        reviewedAt: new Date()
+      })
+      .where(eq(listingApprovals.listingId, listingId))
+      .returning();
+
+    return approval;
+  }
+
+  async rejectListing(listingId: number, reviewerId: string, reason: string): Promise<ListingApproval> {
+    // Update listing status
+    await db
+      .update(carListings)
+      .set({ status: 'suspended' })
+      .where(eq(carListings.id, listingId));
+
+    // Update approval record
+    const [approval] = await db
+      .update(listingApprovals)
+      .set({
+        status: 'rejected',
+        reviewerId,
+        rejectionReason: reason,
+        reviewedAt: new Date()
+      })
+      .where(eq(listingApprovals.listingId, listingId))
+      .returning();
+
+    return approval;
+  }
+
+  async requestChanges(listingId: number, reviewerId: string, changes: string[], notes?: string): Promise<ListingApproval> {
+    // Update approval record
+    const [approval] = await db
+      .update(listingApprovals)
+      .set({
+        status: 'changes_requested',
+        reviewerId,
+        requestedChanges: changes,
+        reviewNotes: notes,
+        reviewedAt: new Date()
+      })
+      .where(eq(listingApprovals.listingId, listingId))
+      .returning();
+
+    return approval;
+  }
+
+  async getListingApproval(listingId: number): Promise<ListingApproval | undefined> {
+    const [approval] = await db
+      .select()
+      .from(listingApprovals)
+      .where(eq(listingApprovals.listingId, listingId));
+    return approval;
+  }
+
+  // User activity tracking
+  async logUserActivity(userId: string, activityType: string, entityType?: string, entityId?: string, description?: string, metadata?: any): Promise<void> {
+    await db
+      .insert(userActivities)
+      .values({
+        userId,
+        activityType,
+        entityType,
+        entityId,
+        description,
+        metadata: metadata ? JSON.stringify(metadata) : undefined
+      })
+      .execute();
+  }
+
+  async getUserActivities(userId: string, limit: number = 50): Promise<UserActivity[]> {
+    return await db
+      .select()
+      .from(userActivities)
+      .where(eq(userActivities.userId, userId))
+      .orderBy(desc(userActivities.createdAt))
+      .limit(limit);
+  }
+
+  // User stats and metrics
+  async getUserStats(userId: string): Promise<UserStats | undefined> {
+    const [stats] = await db
+      .select()
+      .from(userStats)
+      .where(eq(userStats.userId, userId));
+    return stats;
+  }
+
+  async updateUserStats(userId: string, updates: Partial<UserStats>): Promise<UserStats> {
+    const [stats] = await db
+      .update(userStats)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(userStats.userId, userId))
+      .returning();
+    return stats;
+  }
+
+  // User preferences
+  async getUserPreferences(userId: string): Promise<UserPreferences | undefined> {
+    const [preferences] = await db
+      .select()
+      .from(userPreferences)
+      .where(eq(userPreferences.userId, userId));
+    return preferences;
+  }
+
+  async updateUserPreferences(userId: string, preferences: Partial<UserPreferences>): Promise<UserPreferences> {
+    const [updated] = await db
+      .update(userPreferences)
+      .set({ ...preferences, updatedAt: new Date() })
+      .where(eq(userPreferences.userId, userId))
+      .returning();
+    return updated;
   }
 }
 

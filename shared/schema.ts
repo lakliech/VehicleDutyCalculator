@@ -328,6 +328,146 @@ export type InsertCarValuation = z.infer<typeof carValuationSchema>;
 export type SavedSearch = typeof savedSearches.$inferSelect;
 export type FavoriteListing = typeof favoriteListings.$inferSelect;
 
+// User management and authentication tables
+export const userRoles = pgTable("user_roles", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(), // user, editor, admin, superadmin
+  description: text("description"),
+  permissions: text("permissions").array(), // Array of permission strings
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const appUsers = pgTable("app_users", {
+  id: varchar("id", { length: 255 }).primaryKey(), // User ID from auth system
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  firstName: varchar("first_name", { length: 100 }),
+  lastName: varchar("last_name", { length: 100 }),
+  phoneNumber: varchar("phone_number", { length: 20 }),
+  profileImageUrl: varchar("profile_image_url", { length: 500 }),
+  roleId: integer("role_id").references(() => userRoles.id).notNull().default(1), // Default to 'user' role
+  isActive: boolean("is_active").default(true),
+  isEmailVerified: boolean("is_email_verified").default(false),
+  lastLoginAt: timestamp("last_login_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const userSessions = pgTable("user_sessions", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  deviceInfo: text("device_info"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  isActive: boolean("is_active").default(true),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const userActivities = pgTable("user_activities", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  activityType: text("activity_type").notNull(), // login, logout, listing_created, listing_updated, etc.
+  entityType: text("entity_type"), // listing, calculation, inquiry, etc.
+  entityId: text("entity_id"), // ID of the entity being acted upon
+  description: text("description"),
+  metadata: text("metadata"), // JSON string for additional data
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Update car listings table to include approval workflow
+export const listingApprovals = pgTable("listing_approvals", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  reviewerId: varchar("reviewer_id", { length: 255 }).references(() => appUsers.id),
+  status: text("status").notNull().default("pending"), // pending, approved, rejected, changes_requested
+  reviewNotes: text("review_notes"),
+  rejectionReason: text("rejection_reason"),
+  requestedChanges: text("requested_changes").array(),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// User preferences and settings
+export const userPreferences = pgTable("user_preferences", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  receiveEmailNotifications: boolean("receive_email_notifications").default(true),
+  receiveSmsNotifications: boolean("receive_sms_notifications").default(true),
+  receiveWhatsappNotifications: boolean("receive_whatsapp_notifications").default(true),
+  preferredCurrency: text("preferred_currency").default("KES"),
+  preferredLanguage: text("preferred_language").default("en"),
+  autoRenewListings: boolean("auto_renew_listings").default(true),
+  publicProfile: boolean("public_profile").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// User dashboard metrics and stats
+export const userStats = pgTable("user_stats", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  totalListings: integer("total_listings").default(0),
+  activeListings: integer("active_listings").default(0),
+  soldListings: integer("sold_listings").default(0),
+  totalViews: integer("total_views").default(0),
+  totalInquiries: integer("total_inquiries").default(0),
+  totalDutyCalculations: integer("total_duty_calculations").default(0),
+  totalTransferCalculations: integer("total_transfer_calculations").default(0),
+  totalValuations: integer("total_valuations").default(0),
+  lastActivityAt: timestamp("last_activity_at"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Schemas for user management
+export const userRoleSchema = createInsertSchema(userRoles).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const appUserSchema = createInsertSchema(appUsers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const userRegistrationSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+export const userLoginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export const listingApprovalSchema = createInsertSchema(listingApprovals).omit({
+  id: true,
+  createdAt: true,
+  reviewedAt: true,
+});
+
+// Type exports for user management
+export type UserRole = typeof userRoles.$inferSelect;
+export type InsertUserRole = z.infer<typeof userRoleSchema>;
+export type AppUser = typeof appUsers.$inferSelect;
+export type InsertAppUser = z.infer<typeof appUserSchema>;
+export type UserRegistration = z.infer<typeof userRegistrationSchema>;
+export type UserLogin = z.infer<typeof userLoginSchema>;
+export type UserSession = typeof userSessions.$inferSelect;
+export type UserActivity = typeof userActivities.$inferSelect;
+export type ListingApproval = typeof listingApprovals.$inferSelect;
+export type InsertListingApproval = z.infer<typeof listingApprovalSchema>;
+export type UserPreferences = typeof userPreferences.$inferSelect;
+export type UserStats = typeof userStats.$inferSelect;
+
 // Manual vehicle data for proration
 export interface ManualVehicleData {
   make: string;

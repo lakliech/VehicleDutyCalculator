@@ -34,7 +34,11 @@ import {
   Upload,
   FileText,
   CheckCircle,
-  XCircle
+  XCircle,
+  Users,
+  Eye,
+  MessageSquare,
+  AlertTriangle
 } from "lucide-react";
 import { z } from "zod";
 import type { 
@@ -42,7 +46,11 @@ import type {
   TaxRate, 
   ProcessingFee,
   VehicleCategoryRule, 
-  DepreciationRate 
+  DepreciationRate,
+  CarListing,
+  AppUser,
+  ListingApproval,
+  UserRole
 } from "@shared/schema";
 import { useAuth } from "@/components/auth-provider";
 import { AdminLogin } from "@/components/admin-login";
@@ -95,9 +103,16 @@ const depreciationRateSchema = z.object({
   depreciationPercentage: z.number().min(0).max(100),
 });
 
+const listingApprovalSchema = z.object({
+  notes: z.string().optional(),
+  reason: z.string().optional(),
+  changes: z.array(z.string()).optional(),
+});
+
 type VehicleReferenceForm = z.infer<typeof vehicleReferenceSchema>;
 type TaxRateForm = z.infer<typeof taxRateSchema>;
 type ProcessingFeeForm = z.infer<typeof processingFeeSchema>;
+type ListingApprovalForm = z.infer<typeof listingApprovalSchema>;
 type CategoryRuleForm = z.infer<typeof categoryRuleSchema>;
 type DepreciationRateForm = z.infer<typeof depreciationRateSchema>;
 
@@ -115,7 +130,7 @@ function AuthenticatedAdminDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { logout, getAuthHeaders } = useAuth();
-  const [activeTab, setActiveTab] = useState("vehicles");
+  const [activeTab, setActiveTab] = useState("overview");
   const [uploadResults, setUploadResults] = useState<{
     total: number;
     added: number;
@@ -173,6 +188,40 @@ function AuthenticatedAdminDashboard() {
     queryKey: ["/api/admin/processing-fees"],
     queryFn: async () => {
       const response = await fetch("/api/admin/processing-fees", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  // New queries for listings and users
+  const { data: listings = [], isLoading: listingsLoading } = useQuery<(CarListing & { seller: AppUser; approval?: ListingApproval })[]>({
+    queryKey: ["/api/admin/listings"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/listings", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: users = [], isLoading: usersLoading } = useQuery<(AppUser & { role?: UserRole })[]>({
+    queryKey: ["/api/admin/users"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/users", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: roles = [] } = useQuery<UserRole[]>({
+    queryKey: ["/api/admin/roles"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/roles", {
         headers: getAuthHeaders(),
       });
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
@@ -321,6 +370,95 @@ function AuthenticatedAdminDashboard() {
     },
   });
 
+  // Listing management mutations
+  const approveListingMutation = useMutation({
+    mutationFn: async ({ listingId, notes }: { listingId: number; notes?: string }) => {
+      const response = await fetch(`/api/admin/listings/${listingId}/approve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ notes }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      toast({ title: "Success", description: "Listing approved successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const rejectListingMutation = useMutation({
+    mutationFn: async ({ listingId, reason }: { listingId: number; reason: string }) => {
+      const response = await fetch(`/api/admin/listings/${listingId}/reject`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ reason }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      toast({ title: "Success", description: "Listing rejected" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const requestChangesListingMutation = useMutation({
+    mutationFn: async ({ listingId, changes, notes }: { listingId: number; changes: string[]; notes?: string }) => {
+      const response = await fetch(`/api/admin/listings/${listingId}/request-changes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ changes, notes }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      toast({ title: "Success", description: "Changes requested" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const updateUserRoleMutation = useMutation({
+    mutationFn: async ({ userId, roleId }: { userId: string; roleId: number }) => {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ roleId }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "Success", description: "User role updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
   const formatCurrency = (amount: string | number) => {
     const num = typeof amount === 'string' ? parseFloat(amount) : amount;
     return `KES ${num.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -370,10 +508,22 @@ function AuthenticatedAdminDashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-8">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="listings" className="flex items-center gap-2">
+              <Car className="h-4 w-4" />
+              Listings
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Users
+            </TabsTrigger>
             <TabsTrigger value="vehicles" className="flex items-center gap-2">
               <Car className="h-4 w-4" />
-              Vehicle References
+              Vehicle Refs
             </TabsTrigger>
             <TabsTrigger value="csv-upload" className="flex items-center gap-2">
               <Upload className="h-4 w-4" />
@@ -391,11 +541,22 @@ function AuthenticatedAdminDashboard() {
               <Settings className="h-4 w-4" />
               Category Rules
             </TabsTrigger>
-            <TabsTrigger value="depreciation" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Depreciation Rates
-            </TabsTrigger>
           </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview">
+            <OverviewTab />
+          </TabsContent>
+
+          {/* Listings Management Tab */}
+          <TabsContent value="listings">
+            <ListingsManagementTab />
+          </TabsContent>
+
+          {/* Users Management Tab */}
+          <TabsContent value="users">
+            <UsersManagementTab />
+          </TabsContent>
 
           {/* Vehicle References Tab */}
           <TabsContent value="vehicles">
@@ -1979,6 +2140,344 @@ function CsvUploadTab({
                 </div>
               </div>
             )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// Overview Tab Component
+function OverviewTab() {
+  const { data: stats } = useQuery({
+    queryKey: ["/api/admin/stats"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/stats");
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-4 w-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalUsers || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              +{stats?.newUsersThisMonth || 0} this month
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Listings</CardTitle>
+            <Car className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalListings || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              +{stats?.newListingsThisMonth || 0} this month
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-orange-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.pendingApprovals || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              Awaiting review
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Vehicle References</CardTitle>
+            <Database className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalVehicleReferences || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              In database
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// Listings Management Tab Component
+function ListingsManagementTab() {
+  const { data: listings = [], isLoading } = useQuery<(CarListing & { seller: AppUser; approval?: ListingApproval })[]>({
+    queryKey: ["/api/admin/listings"],
+  });
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const approveListingMutation = useMutation({
+    mutationFn: async ({ listingId, notes }: { listingId: number; notes?: string }) => {
+      const response = await fetch(`/api/admin/listings/${listingId}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      toast({ title: "Success", description: "Listing approved successfully" });
+    },
+  });
+
+  const rejectListingMutation = useMutation({
+    mutationFn: async ({ listingId, reason }: { listingId: number; reason: string }) => {
+      const response = await fetch(`/api/admin/listings/${listingId}/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      toast({ title: "Success", description: "Listing rejected" });
+    },
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active": return "bg-green-500";
+      case "pending": return "bg-yellow-500";
+      case "suspended": return "bg-red-500";
+      case "draft": return "bg-gray-500";
+      default: return "bg-gray-500";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "active": return "Active";
+      case "pending": return "Pending Review";
+      case "suspended": return "Suspended";
+      case "draft": return "Draft";
+      default: return status;
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Car className="h-5 w-5" />
+          Car Listings Management ({listings.length})
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="text-center py-8">Loading listings...</div>
+        ) : listings.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">No listings found</div>
+        ) : (
+          <div className="space-y-4">
+            {listings.map((listing) => (
+              <div key={listing.id} className="border rounded-lg p-4 space-y-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-lg">{listing.title}</h3>
+                      <Badge className={`${getStatusColor(listing.status)} text-white`}>
+                        {getStatusText(listing.status)}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span className="font-medium">Price:</span> KES {listing.price.toLocaleString()}
+                      </div>
+                      <div>
+                        <span className="font-medium">Year:</span> {listing.year}
+                      </div>
+                      <div>
+                        <span className="font-medium">Mileage:</span> {listing.mileage} km
+                      </div>
+                      <div>
+                        <span className="font-medium">Location:</span> {listing.location}
+                      </div>
+                    </div>
+                    <div className="mt-2 text-sm text-gray-600">
+                      <span className="font-medium">Seller:</span> {listing.seller.firstName} {listing.seller.lastName} ({listing.seller.email})
+                    </div>
+                  </div>
+                </div>
+
+                {listing.status === "pending" && (
+                  <div className="flex gap-2 pt-2 border-t">
+                    <Button
+                      size="sm"
+                      onClick={() => approveListingMutation.mutate({ listingId: listing.id })}
+                      disabled={approveListingMutation.isPending}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                      Approve
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => rejectListingMutation.mutate({ 
+                        listingId: listing.id, 
+                        reason: "Does not meet quality standards" 
+                      })}
+                      disabled={rejectListingMutation.isPending}
+                    >
+                      <XCircle className="h-4 w-4 mr-1" />
+                      Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                    >
+                      <MessageSquare className="h-4 w-4 mr-1" />
+                      Request Changes
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      View Details
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// Users Management Tab Component
+function UsersManagementTab() {
+  const { data: users = [], isLoading } = useQuery<(AppUser & { role?: UserRole })[]>({
+    queryKey: ["/api/admin/users"],
+  });
+
+  const { data: roles = [] } = useQuery<UserRole[]>({
+    queryKey: ["/api/admin/roles"],
+  });
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const updateUserRoleMutation = useMutation({
+    mutationFn: async ({ userId, roleId }: { userId: string; roleId: number }) => {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roleId }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "Success", description: "User role updated successfully" });
+    },
+  });
+
+  const getRoleColor = (roleName: string) => {
+    switch (roleName?.toLowerCase()) {
+      case "superadmin": return "bg-red-500";
+      case "admin": return "bg-purple-500";
+      case "editor": return "bg-blue-500";
+      case "user": return "bg-green-500";
+      default: return "bg-gray-500";
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Users className="h-5 w-5" />
+          User Management ({users.length})
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="text-center py-8">Loading users...</div>
+        ) : users.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">No users found</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">
+                      {user.firstName} {user.lastName}
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.phoneNumber}</TableCell>
+                    <TableCell>
+                      <Badge className={`${getRoleColor(user.role?.name)} text-white`}>
+                        {user.role?.name || "No Role"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={user.role?.id?.toString() || ""}
+                        onValueChange={(value) => 
+                          updateUserRoleMutation.mutate({ 
+                            userId: user.id, 
+                            roleId: parseInt(value) 
+                          })
+                        }
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue placeholder="Change role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roles.map((role) => (
+                            <SelectItem key={role.id} value={role.id.toString()}>
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         )}
       </CardContent>

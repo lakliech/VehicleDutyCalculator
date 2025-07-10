@@ -349,6 +349,12 @@ Changelog:
   - Moved duty calculator from root (/) to inner page (/duty-calculator)
   - Expanded navigation to 7 tools: Duty Calculator, Import Calculator, Service Estimates, MyCar's Worth, Transfer Cost, Sell My Car, Vehicle Loan Products
   - Enhanced home page with marketplace positioning, WhatsApp contact integration, and professional landing experience
+- January 10, 2025. Frontend reorganization and admin link relocation:
+  - Simplified home page to display only basic information and clean menu tiles for all 8 automotive tools
+  - Moved admin link from duty calculator module to static header section for global access across all pages
+  - Reorganized home page layout with single grid of tool tiles instead of separate featured/all tools sections
+  - Enhanced navigation header with admin button positioned permanently in top-right corner
+  - Admin link now accessible on all module pages ensuring consistent administrative access throughout platform
 
 ## User Preferences
 

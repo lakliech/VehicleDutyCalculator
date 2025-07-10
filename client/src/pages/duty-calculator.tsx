@@ -612,18 +612,10 @@ export default function DutyCalculator() {
               <h1 className="text-2xl font-bold text-gray-900 mb-1">Duty Calculator</h1>
               <p className="text-gray-600">Calculate Kenya import duties and taxes accurately</p>
             </div>
-            <div className="flex items-center space-x-4">
-              <Badge variant="secondary" className="bg-cyan-100 text-purple-800">
-                <Shield className="h-3 w-3 mr-1" />
-                KRA Official Rates
-              </Badge>
-              <Link href="/admin">
-                <Button variant="outline" size="sm" className="flex items-center gap-2 border-purple-300 text-purple-700 hover:bg-purple-50">
-                  <Database className="h-4 w-4" />
-                  Admin
-                </Button>
-              </Link>
-            </div>
+            <Badge variant="secondary" className="bg-cyan-100 text-purple-800">
+              <Shield className="h-3 w-3 mr-1" />
+              KRA Official Rates
+            </Badge>
           </div>
         </div>
       </div>

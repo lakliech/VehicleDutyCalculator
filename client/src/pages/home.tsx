@@ -12,12 +12,13 @@ import {
   CreditCard,
   ArrowRight,
   Star,
-  Users,
-  Shield
+  Search,
+  Shield,
+  Users
 } from "lucide-react";
 
 export default function Home() {
-  const featuredTools = [
+  const allTools = [
     {
       href: "/duty-calculator",
       title: "Duty Calculator",
@@ -39,38 +40,46 @@ export default function Home() {
       description: "Get current market value of your vehicle",
       icon: <DollarSign className="h-12 w-12" />,
       color: "bg-green-500"
-    }
-  ];
-
-  const allTools = [
+    },
     {
       href: "/service-estimator",
       title: "Service Estimates", 
       description: "Estimate maintenance costs",
-      icon: <Wrench className="h-6 w-6" />
+      icon: <Wrench className="h-12 w-12" />,
+      color: "bg-orange-500"
     },
     {
       href: "/transfer-cost",
       title: "Transfer Cost",
       description: "Calculate ownership transfer fees", 
-      icon: <FileText className="h-6 w-6" />
+      icon: <FileText className="h-12 w-12" />,
+      color: "bg-cyan-500"
+    },
+    {
+      href: "/buy-a-car",
+      title: "Buy a Car",
+      description: "Browse and buy quality vehicles",
+      icon: <Search className="h-12 w-12" />,
+      color: "bg-indigo-500"
     },
     {
       href: "/sell-my-car",
       title: "Sell My Car",
       description: "List and sell your vehicle",
-      icon: <ShoppingCart className="h-6 w-6" />
+      icon: <ShoppingCart className="h-12 w-12" />,
+      color: "bg-pink-500"
     },
     {
       href: "/vehicle-loans",
       title: "Vehicle Loan Products",
       description: "Explore financing options",
-      icon: <CreditCard className="h-6 w-6" />
+      icon: <CreditCard className="h-12 w-12" />,
+      color: "bg-emerald-500"
     }
   ];
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 via-white to-cyan-50">
+    <div className="bg-gradient-to-br from-purple-50 via-white to-cyan-50 min-h-screen">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -100,28 +109,26 @@ export default function Home() {
         </div>
       </div>
 
-
-
-      {/* Featured Tools */}
+      {/* All Tools Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-4">Popular Tools</h2>
-          <p className="text-lg text-gray-600">Most used automotive calculators and tools</p>
+          <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-4">Automotive Tools & Services</h2>
+          <p className="text-lg text-gray-600">Comprehensive tools for all your vehicle needs</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {featuredTools.map((tool) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {allTools.map((tool) => (
             <Link key={tool.href} href={tool.href}>
               <Card className="h-full hover:shadow-xl transition-all duration-300 cursor-pointer group border-2 hover:border-purple-300">
                 <CardHeader className="text-center">
-                  <div className={`${tool.color} text-white rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
+                  <div className={`${tool.color} text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
                     {tool.icon}
                   </div>
-                  <CardTitle className="text-xl">{tool.title}</CardTitle>
+                  <CardTitle className="text-lg">{tool.title}</CardTitle>
                   {tool.featured && (
                     <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                       <Star className="h-3 w-3 mr-1" />
-                      Most Popular
+                      Popular
                     </Badge>
                   )}
                 </CardHeader>
@@ -137,60 +144,6 @@ export default function Home() {
               </Card>
             </Link>
           ))}
-        </div>
-
-        {/* All Tools Grid */}
-        <div className="mb-16">
-          <h3 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-6 text-center">All Tools & Services</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {allTools.map((tool) => (
-              <Link key={tool.href} href={tool.href}>
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-3">
-                      <div className="text-purple-600 group-hover:text-purple-700">
-                        {tool.icon}
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900 group-hover:text-purple-700">
-                          {tool.title}
-                        </h4>
-                        <p className="text-sm text-gray-600">{tool.description}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Features Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mb-16">
-          <h3 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-8 text-center">Why Choose Our Platform?</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-purple-600" />
-              </div>
-              <h4 className="font-semibold text-gray-900 mb-2">KRA Official Rates</h4>
-              <p className="text-gray-600">All calculations use current Kenya Revenue Authority official rates and formulas</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-purple-600" />
-              </div>
-              <h4 className="font-semibold text-gray-900 mb-2">Expert Support</h4>
-              <p className="text-gray-600">Professional car import and valuation services with personal assistance</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="h-8 w-8 text-purple-600" />
-              </div>
-              <h4 className="font-semibold text-gray-900 mb-2">Comprehensive Tools</h4>
-              <p className="text-gray-600">Complete suite of automotive tools for all your vehicle-related needs</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

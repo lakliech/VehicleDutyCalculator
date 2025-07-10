@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
-import { Calculator, Car, Wrench, DollarSign, CreditCard, FileText, ShoppingCart, Search } from "lucide-react";
+import { Calculator, Car, Wrench, DollarSign, CreditCard, FileText, ShoppingCart, Search, Database } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import gariyangu from "@assets/gylogo_1752064168868.png";
 
 interface NavigationItem {
@@ -69,19 +70,31 @@ export function Navigation() {
       {/* Header with Logo */}
       <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-center space-x-6">
-            <Link href="/">
-              <img 
-                src={gariyangu} 
-                alt="Gariyangu Logo" 
-                className="h-32 w-auto min-w-[250px] min-h-[150px] object-contain cursor-pointer hover:opacity-90 transition-opacity"
-              />
-            </Link>
-            <div className="text-center">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-6">
               <Link href="/">
-                <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 cursor-pointer hover:text-purple-600 transition-colors">Kenya's Car Marketplace</h1>
+                <img 
+                  src={gariyangu} 
+                  alt="Gariyangu Logo" 
+                  className="h-32 w-auto min-w-[250px] min-h-[150px] object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                />
               </Link>
-              <p className="text-lg text-gray-600">we get super excited about cars</p>
+              <div className="text-center">
+                <Link href="/">
+                  <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 cursor-pointer hover:text-purple-600 transition-colors">Kenya's Car Marketplace</h1>
+                </Link>
+                <p className="text-lg text-gray-600">we get super excited about cars</p>
+              </div>
+            </div>
+            
+            {/* Admin Link */}
+            <div className="flex items-center">
+              <Link href="/admin">
+                <Button variant="outline" size="sm" className="flex items-center gap-2 border-purple-300 text-purple-700 hover:bg-purple-50">
+                  <Database className="h-4 w-4" />
+                  Admin
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

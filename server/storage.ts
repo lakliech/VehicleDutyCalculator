@@ -710,6 +710,153 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(appUsers.email, email));
   }
+
+  async generateUserRecommendations(userId: string): Promise<Array<{
+    id: string;
+    type: 'tool' | 'action' | 'content';
+    title: string;
+    description: string;
+    href: string;
+    icon: string;
+    color: string;
+    priority: 'high' | 'medium' | 'low';
+    reason: string;
+  }>> {
+    try {
+      const recommendations = [];
+      
+      // Get user stats and recent activities
+      const [stats, activities] = await Promise.all([
+        this.getUserStats(userId),
+        this.getUserActivities(userId, 50)
+      ]);
+
+      // Track what tools user has used
+      const usedTools = new Set();
+      activities.forEach(activity => {
+        if (activity.activityType.includes('calculation')) usedTools.add('calculator');
+        if (activity.activityType.includes('valuation')) usedTools.add('valuation');
+        if (activity.activityType.includes('transfer')) usedTools.add('transfer');
+        if (activity.activityType.includes('listing')) usedTools.add('marketplace');
+      });
+
+      // Recommendation 1: First-time user guidance
+      if (activities.length === 0 || activities.length < 3) {
+        recommendations.push({
+          id: 'getting-started',
+          type: 'action' as const,
+          title: 'Start with Duty Calculator',
+          description: 'Calculate Kenya import duties and taxes with official KRA rates',
+          href: '/duty-calculator',
+          icon: 'Calculator',
+          color: 'bg-purple-500',
+          priority: 'high' as const,
+          reason: 'Perfect for first-time users to understand vehicle import costs'
+        });
+      }
+
+      // Recommendation 2: Transfer calculator for duty users
+      if ((stats?.totalDutyCalculations || 0) > 0 && (stats?.totalTransferCalculations || 0) === 0) {
+        recommendations.push({
+          id: 'transfer-next',
+          type: 'tool' as const,
+          title: 'Calculate Transfer Costs',
+          description: 'Get precise ownership transfer fees for your imported vehicle',
+          href: '/transfer-cost',
+          icon: 'FileText',
+          color: 'bg-cyan-500',
+          priority: 'high' as const,
+          reason: 'Complete your vehicle ownership process after import'
+        });
+      }
+
+      // Recommendation 3: Valuation for active users
+      if ((stats?.totalDutyCalculations || 0) > 2 && (stats?.totalValuations || 0) === 0) {
+        recommendations.push({
+          id: 'valuation-suggestion',
+          type: 'tool' as const,
+          title: 'Get Vehicle Valuation',
+          description: 'Check current market value of any vehicle in Kenya',
+          href: '/mycars-worth',
+          icon: 'DollarSign',
+          color: 'bg-green-500',
+          priority: 'medium' as const,
+          reason: 'Great for understanding vehicle depreciation and market trends'
+        });
+      }
+
+      // Recommendation 4: Marketplace for calculation users
+      if ((stats?.totalDutyCalculations || 0) > 1 && (stats?.totalListings || 0) === 0) {
+        recommendations.push({
+          id: 'marketplace-suggestion',
+          type: 'action' as const,
+          title: 'List Your Vehicle',
+          description: 'Sell your car on Kenya\'s trusted marketplace',
+          href: '/sell-my-car',
+          icon: 'ShoppingCart',
+          color: 'bg-pink-500',
+          priority: 'medium' as const,
+          reason: 'Turn your vehicle knowledge into profit'
+        });
+      }
+
+      // Recommendation 5: Import estimator for heavy users
+      if ((stats?.totalDutyCalculations || 0) > 5) {
+        recommendations.push({
+          id: 'import-estimator',
+          type: 'tool' as const,
+          title: 'Import Cost Estimator',
+          description: 'Estimate total vehicle importation costs including shipping',
+          href: '/importation-estimator',
+          icon: 'Car',
+          color: 'bg-blue-500',
+          priority: 'low' as const,
+          reason: 'Perfect for experienced importers planning multiple purchases'
+        });
+      }
+
+      // Recommendation 6: Service estimator for active marketplace users
+      if ((stats?.totalListings || 0) > 0 || (stats?.totalValuations || 0) > 2) {
+        recommendations.push({
+          id: 'service-estimator',
+          type: 'tool' as const,
+          title: 'Service Cost Estimates',
+          description: 'Plan maintenance costs for optimal vehicle condition',
+          href: '/service-estimator',
+          icon: 'Wrench',
+          color: 'bg-orange-500',
+          priority: 'low' as const,
+          reason: 'Maintain your vehicle\'s value with proper service planning'
+        });
+      }
+
+      // Recommendation 7: Vehicle loans for high-value calculations
+      const recentCalculations = activities.filter(a => a.activityType === 'duty_calculation').slice(0, 5);
+      if (recentCalculations.length > 0) {
+        recommendations.push({
+          id: 'vehicle-loans',
+          type: 'content' as const,
+          title: 'Explore Vehicle Financing',
+          description: 'Discover loan products for your next vehicle purchase',
+          href: '/vehicle-loans',
+          icon: 'CreditCard',
+          color: 'bg-emerald-500',
+          priority: 'low' as const,
+          reason: 'Finance your next vehicle purchase with competitive rates'
+        });
+      }
+
+      // Sort by priority and limit to top 4 recommendations
+      const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+      return recommendations
+        .sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority])
+        .slice(0, 4);
+
+    } catch (error) {
+      console.error('Error generating recommendations:', error);
+      return [];
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();

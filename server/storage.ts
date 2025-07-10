@@ -61,6 +61,19 @@ export interface IStorage {
   getValidPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
   markPasswordResetTokenAsUsed(token: string): Promise<void>;
   updateUserPassword(email: string, newPassword: string): Promise<void>;
+  
+  // Dashboard recommendations method
+  generateUserRecommendations(userId: string): Promise<Array<{
+    id: string;
+    type: 'tool' | 'action' | 'content';
+    title: string;
+    description: string;
+    href: string;
+    icon: string;
+    color: string;
+    priority: 'high' | 'medium' | 'low';
+    reason: string;
+  }>>;
 }
 
 export class DatabaseStorage implements IStorage {

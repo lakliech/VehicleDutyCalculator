@@ -324,6 +324,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Dashboard API endpoint
+  app.get('/api/dashboard', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const userId = req.user.id;
+      
+      // Get user stats
+      const stats = await storage.getUserStats(userId);
+      
+      // Get recent activities
+      const activities = await storage.getUserActivities(userId, 10);
+      
+      // Generate personalized recommendations
+      const recommendations = await storage.generateUserRecommendations(userId);
+      
+      // Quick actions based on user behavior
+      const quickActions = [
+        {
+          title: "Calculate Import Duty",
+          href: "/duty-calculator", 
+          icon: "Calculator",
+          color: "bg-purple-500"
+        },
+        {
+          title: "Check Car Value",
+          href: "/mycars-worth",
+          icon: "DollarSign", 
+          color: "bg-green-500"
+        },
+        {
+          title: "Calculate Transfer Cost",
+          href: "/transfer-cost",
+          icon: "FileText",
+          color: "bg-cyan-500"
+        },
+        {
+          title: "Sell My Car",
+          href: "/sell-my-car",
+          icon: "ShoppingCart",
+          color: "bg-pink-500"
+        }
+      ];
+
+      const dashboardData = {
+        stats: stats || {
+          totalDutyCalculations: 0,
+          totalTransferCalculations: 0,
+          totalValuations: 0,
+          totalListings: 0,
+          activeListings: 0,
+          totalViews: 0,
+          totalInquiries: 0,
+          lastActivityAt: null
+        },
+        recentActivities: activities,
+        recommendations,
+        quickActions
+      };
+
+      res.json(dashboardData);
+    } catch (error) {
+      console.error('Dashboard error:', error);
+      res.status(500).json({ message: 'Failed to load dashboard data' });
+    }
+  });
+
   // Admin login endpoint (legacy)
   app.post("/api/admin/login", async (req, res) => {
     const { password } = req.body;

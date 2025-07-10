@@ -92,6 +92,13 @@ export default function SellMyCar() {
     "Tharaka-Nithi", "Trans Nzoia", "Turkana", "Uasin Gishu", "Vihiga", "Wajir", "West Pokot"
   ];
 
+  // Common vehicle colors
+  const vehicleColors = [
+    "White", "Black", "Silver", "Gray", "Red", "Blue", "Green", "Brown", "Gold", "Beige",
+    "Yellow", "Orange", "Purple", "Maroon", "Navy Blue", "Dark Green", "Champagne", "Pearl White",
+    "Metallic Silver", "Metallic Blue", "Metallic Gray", "Metallic Red", "Matte Black", "Cream"
+  ];
+
   // Handle vehicle selection from database
   const handleVehicleSelect = (vehicle: VehicleReference | null) => {
     setSelectedVehicle(vehicle);
@@ -352,9 +359,18 @@ export default function SellMyCar() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Color *</FormLabel>
-                              <FormControl>
-                                <Input placeholder="White" value={field.value || ""} onChange={field.onChange} />
-                              </FormControl>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select color" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {vehicleColors.map((color) => (
+                                    <SelectItem key={color} value={color}>{color}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -448,6 +464,35 @@ export default function SellMyCar() {
                               <div className="space-y-1 leading-none">
                                 <FormLabel>Price is negotiable</FormLabel>
                               </div>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Vehicle Location */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Vehicle Location</h3>
+                      <div className="grid grid-cols-1 gap-6">
+                        <FormField
+                          control={listingForm.control}
+                          name="location"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>County *</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select county" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {kenyanCounties.map((county) => (
+                                    <SelectItem key={county} value={county}>{county}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
                             </FormItem>
                           )}
                         />
@@ -549,29 +594,7 @@ export default function SellMyCar() {
                     {/* Contact Information */}
                     <div>
                       <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <FormField
-                          control={listingForm.control}
-                          name="location"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>County *</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select county" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {kenyanCounties.map((county) => (
-                                    <SelectItem key={county} value={county}>{county}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
                           control={listingForm.control}
                           name="phoneNumber"

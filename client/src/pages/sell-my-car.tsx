@@ -446,7 +446,20 @@ export default function SellMyCar() {
                           <FormItem>
                             <FormLabel>Listing Title *</FormLabel>
                             <FormControl>
-                              <Input placeholder="2018 Toyota Corolla - Excellent Condition" {...field} />
+                              <Input 
+                                placeholder="2018 Toyota Corolla - Excellent Condition" 
+                                {...field}
+                                onFocus={() => {
+                                  if (!isAuthenticated) {
+                                    toast({
+                                      title: "Authentication Required",
+                                      description: "Please sign in to create a listing.",
+                                      variant: "destructive",
+                                    });
+                                    setShowLoginForm(true);
+                                  }
+                                }}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -484,7 +497,18 @@ export default function SellMyCar() {
                             <Button
                               type="button"
                               variant="outline"
-                              onClick={() => document.getElementById('photo-upload')?.click()}
+                              onClick={() => {
+                                if (!isAuthenticated) {
+                                  toast({
+                                    title: "Authentication Required",
+                                    description: "Please sign in to upload photos.",
+                                    variant: "destructive",
+                                  });
+                                  setShowLoginForm(true);
+                                  return;
+                                }
+                                document.getElementById('photo-upload')?.click();
+                              }}
                               disabled={uploadedImages.length >= 6}
                             >
                               <Camera className="h-4 w-4 mr-2" />

@@ -119,8 +119,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Auth middleware
+  // Auth middleware - supports both session and token authentication
   const authenticateUser = async (req: any, res: any, next: any) => {
+    // Check for session-based authentication first (Google OAuth)
+    if (req.isAuthenticated && req.isAuthenticated() && req.user) {
+      req.user = req.user; // User is already available from session
+      return next();
+    }
+    
+    // Fallback to token-based authentication
     const auth = req.headers.authorization;
     
     if (!auth || !auth.startsWith('Bearer ')) {

@@ -371,6 +371,13 @@ Changelog:
   - Integrated OAuth success/failure notifications with toast messages on home page
   - Enhanced logout functionality to clear both client and server sessions
   - Users can now register and login seamlessly using their Google accounts without separate registration flow
+- January 10, 2025. Enhanced vehicle listing form with authentication requirements:
+  - Implemented comprehensive authentication checks before allowing vehicle listing creation
+  - Added authentication required banner with clear Google sign-in call-to-action for unauthenticated users
+  - Disabled all form inputs and submission when user is not authenticated to prevent incomplete submissions
+  - Updated form validation to redirect unauthenticated users directly to Google OAuth flow
+  - Enhanced user experience with visual feedback showing authentication status and requirements
+  - Moved photo upload to top of form for better workflow with main image selection functionality
 
 ## User Preferences
 

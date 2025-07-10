@@ -24,6 +24,8 @@ import { VehicleSelector } from "@/components/vehicle-selector";
 import { ModuleNavigation } from "@/components/module-navigation";
 import { useAuth } from "../hooks/useAuth";
 import type { VehicleReference } from "@shared/schema";
+import { AlertCircle, LogIn, UserPlus } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Car listing form schema
 const listingSchema = z.object({
@@ -57,7 +59,7 @@ export default function SellMyCar() {
   const [mainImageIndex, setMainImageIndex] = useState<number>(0);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   // Listing form
   const listingForm = useForm<ListingForm>({
@@ -171,6 +173,7 @@ export default function SellMyCar() {
       listingForm.reset();
       setSelectedFeatures([]);
       setUploadedImages([]);
+      setMainImageIndex(0);
     },
     onError: (error) => {
       toast({
@@ -190,13 +193,14 @@ export default function SellMyCar() {
   ];
 
   const onListingSubmit = (data: ListingForm) => {
-    // Check if user is authenticated
-    if (!user) {
+    // Double-check authentication (form should be disabled if not authenticated)
+    if (!isAuthenticated || !user) {
       toast({
         title: "Authentication Required",
-        description: "Please log in with Google to create a listing. Click Login in the top navigation.",
+        description: "Please sign in with Google to create a listing.",
         variant: "destructive",
       });
+      window.location.href = '/api/auth/google';
       return;
     }
 
@@ -323,8 +327,29 @@ export default function SellMyCar() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {/* Authentication Required Banner */}
+                {!isLoading && !isAuthenticated && (
+                  <Alert className="mb-6 border-orange-200 bg-orange-50">
+                    <AlertCircle className="h-4 w-4 text-orange-600" />
+                    <AlertTitle className="text-orange-800">Authentication Required</AlertTitle>
+                    <AlertDescription className="text-orange-700">
+                      You need to be logged in to create a car listing. Please sign in with your Google account to continue.
+                      <div className="flex gap-3 mt-4">
+                        <Button 
+                          onClick={() => window.location.href = '/api/auth/google'}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                          size="sm"
+                        >
+                          <LogIn className="h-4 w-4 mr-2" />
+                          Sign In with Google
+                        </Button>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                )}
                 <Form {...listingForm}>
                   <form onSubmit={listingForm.handleSubmit(onListingSubmit)} className="space-y-8">
+                    <fieldset disabled={!isAuthenticated} className={!isAuthenticated ? "opacity-50 pointer-events-none" : ""}>
                     {/* Listing Title */}
                     <div className="grid grid-cols-1 gap-6">
                       <FormField
@@ -717,12 +742,19 @@ export default function SellMyCar() {
                       </div>
                     </div>
 
+                    </fieldset>
+                    
                     <Button 
                       type="submit" 
                       className="w-full bg-purple-600 hover:bg-purple-700 text-lg py-6"
-                      disabled={listingMutation.isPending}
+                      disabled={listingMutation.isPending || !isAuthenticated}
                     >
-                      {listingMutation.isPending ? "Creating Listing..." : "Create Listing"}
+                      {!isAuthenticated 
+                        ? "Sign In Required to Create Listing" 
+                        : listingMutation.isPending 
+                        ? "Creating Listing..." 
+                        : "Create Listing"
+                      }
                     </Button>
                   </form>
                 </Form>

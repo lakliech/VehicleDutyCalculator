@@ -217,11 +217,41 @@ export default function SellMyCar() {
         return;
       }
 
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: `${file.name} is too large. Maximum file size is 5MB.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File Type",
+          description: `${file.name} is not a valid image file.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (event) => {
         const result = event.target?.result as string;
-        setUploadedImages(prev => [...prev, result]);
-        listingForm.setValue("images", [...uploadedImages, result]);
+        setUploadedImages(prev => {
+          const newImages = [...prev, result];
+          listingForm.setValue("images", newImages);
+          return newImages;
+        });
+      };
+      reader.onerror = () => {
+        toast({
+          title: "Upload Error",
+          description: `Failed to upload ${file.name}. Please try again.`,
+          variant: "destructive",
+        });
       };
       reader.readAsDataURL(file);
     });

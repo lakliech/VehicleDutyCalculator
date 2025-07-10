@@ -208,35 +208,29 @@ export default function SellMyCar() {
               <CardContent>
                 <Form {...listingForm}>
                   <form onSubmit={listingForm.handleSubmit(onListingSubmit)} className="space-y-8">
-                    {/* Vehicle Selection */}
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4">Select Your Vehicle</h3>
-                      <div className="mb-6">
-                        <VehicleSelector 
-                          onVehicleSelect={handleVehicleSelect}
-                          hideCrsp={true}
-                        />
-                      </div>
+                    {/* Listing Title */}
+                    <div className="grid grid-cols-1 gap-6">
+                      <FormField
+                        control={listingForm.control}
+                        name="title"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Listing Title *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="2018 Toyota Corolla - Excellent Condition" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
 
-                    {/* Basic Information */}
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4">Listing Details</h3>
-                      <div className="grid grid-cols-1 gap-6">
-                        <FormField
-                          control={listingForm.control}
-                          name="title"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Listing Title *</FormLabel>
-                              <FormControl>
-                                <Input placeholder="2018 Toyota Corolla - Excellent Condition" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                    {/* Vehicle Selection */}
+                    <div className="mb-6">
+                      <VehicleSelector 
+                        onVehicleSelect={handleVehicleSelect}
+                        hideCrsp={true}
+                      />
                     </div>
 
                     {/* Vehicle Details */}
@@ -357,23 +351,7 @@ export default function SellMyCar() {
                             </FormItem>
                           )}
                         />
-                        {/* Show additional vehicle info if available */}
-                        {selectedVehicle && (
-                          <>
-                            {selectedVehicle.seating && (
-                              <div className="bg-gray-50 p-3 rounded-lg">
-                                <Label className="text-sm font-medium text-gray-700">Seating</Label>
-                                <p className="text-sm text-gray-900 mt-1">{selectedVehicle.seating} seats</p>
-                              </div>
-                            )}
-                            {selectedVehicle.gvw && (
-                              <div className="bg-gray-50 p-3 rounded-lg">
-                                <Label className="text-sm font-medium text-gray-700">GVW</Label>
-                                <p className="text-sm text-gray-900 mt-1">{selectedVehicle.gvw}</p>
-                              </div>
-                            )}
-                          </>
-                        )}
+
                       </div>
                     </div>
 

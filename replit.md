@@ -297,6 +297,13 @@ Changelog:
   - Removed fee tiles at bottom of transfer cost page for cleaner UI
   - Improved query structure in VehicleSelector with proper queryFn functions and category support
   - Enhanced cache management with more specific query keys to avoid conflicts
+- January 10, 2025. Streamlined VehicleSelector and Sell My Car page:
+  - Completely removed manual vehicle entry functionality from VehicleSelector component for simplified database-only selection
+  - Removed "Select Your Vehicle" title from Sell My Car page for cleaner UI
+  - Moved listing title field to top of form, now appears before vehicle selection
+  - Removed vehicle selection confirmation card and additional vehicle info display (seating, GVW)
+  - Simplified VehicleSelector interface to only support database vehicle selection with automatic engine size handling
+  - Enhanced form flow with listing title positioned prominently at the start
 - January 10, 2025. Fixed transfer cost calculator issues:
   - Resolved API call parameter order error in frontend (apiRequest expects method, url, data)
   - Populated empty vehicle database with 2,836 vehicle records from import scripts

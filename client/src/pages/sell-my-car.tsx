@@ -56,7 +56,9 @@ const listingSchema = z.object({
   fuelType: z.enum(["petrol", "diesel", "electric", "hybrid"]),
   bodyType: z.enum(["sedan", "hatchback", "suv", "estate", "coupe", "convertible", "pickup", "van"]),
   transmission: z.enum(["manual", "automatic"]),
-  color: z.string().min(1, "Color is required"),
+  driveConfiguration: z.enum(["2wd", "4wd", "awd"]),
+  exteriorColor: z.string().min(1, "Exterior color is required"),
+  interiorColor: z.string().min(1, "Interior color is required"),
   condition: z.enum(["new", "locally_used", "foreign_used"]),
   price: z.number().min(50000, "Price must be at least KES 50,000"),
   negotiable: z.boolean(),
@@ -119,9 +121,10 @@ export default function SellMyCar() {
       fuelType: "petrol",
       bodyType: "sedan",
       transmission: "manual",
-      color: "",
-      condition: "locally_used",
       driveConfiguration: "2wd",
+      exteriorColor: "",
+      interiorColor: "",
+      condition: "locally_used",
       price: 0,
       negotiable: true,
       description: "",
@@ -143,11 +146,17 @@ export default function SellMyCar() {
     "Tharaka-Nithi", "Trans Nzoia", "Turkana", "Uasin Gishu", "Vihiga", "Wajir", "West Pokot"
   ];
 
-  // Common vehicle colors
-  const vehicleColors = [
-    "White", "Black", "Silver", "Gray", "Red", "Blue", "Green", "Brown", "Gold", "Beige",
-    "Yellow", "Orange", "Purple", "Maroon", "Navy Blue", "Dark Green", "Champagne", "Pearl White",
-    "Metallic Silver", "Metallic Blue", "Metallic Gray", "Metallic Red", "Matte Black", "Cream"
+  // Vehicle colors separated by type
+  const exteriorColors = [
+    "White", "Black", "Silver", "Gray", "Red", "Blue", "Green", "Yellow", 
+    "Orange", "Brown", "Purple", "Pink", "Gold", "Beige", "Maroon", "Navy Blue",
+    "Pearl White", "Metallic Gray", "Dark Blue", "Burgundy", "Bronze", "Champagne",
+    "Metallic Silver", "Metallic Blue", "Metallic Red", "Matte Black", "Cream"
+  ];
+
+  const interiorColors = [
+    "Black", "Gray", "Beige", "Brown", "Tan", "Cream", "Charcoal", "Ivory", 
+    "Red", "Blue", "White", "Camel", "Dark Gray", "Light Gray", "Saddle Brown"
   ];
 
   // Handle vehicle selection from database
@@ -641,18 +650,62 @@ export default function SellMyCar() {
                         />
                         <FormField
                           control={listingForm.control}
-                          name="color"
+                          name="driveConfiguration"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Color *</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <FormLabel>Drive Configuration *</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Select color" />
+                                    <SelectValue placeholder="Select drive type" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {vehicleColors.map((color) => (
+                                  <SelectItem value="2wd">2WD (Two Wheel Drive)</SelectItem>
+                                  <SelectItem value="4wd">4WD (Four Wheel Drive)</SelectItem>
+                                  <SelectItem value="awd">AWD (All Wheel Drive)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="exteriorColor"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Exterior Color *</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select exterior color" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {exteriorColors.map((color) => (
+                                    <SelectItem key={color} value={color}>{color}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
+                          name="interiorColor"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Interior Color *</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select interior color" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {interiorColors.map((color) => (
                                     <SelectItem key={color} value={color}>{color}</SelectItem>
                                   ))}
                                 </SelectContent>

@@ -23,21 +23,21 @@ export function Navigation() {
     <div className="bg-white shadow-sm border-b border-gray-200">
       {/* Header with Logo */}
       <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+            <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
               <Link href="/">
                 <img 
                   src={gariyangu} 
                   alt="Gariyangu Logo" 
-                  className="h-32 w-auto min-w-[250px] min-h-[150px] object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                  className="h-20 lg:h-32 w-auto object-contain cursor-pointer hover:opacity-90 transition-opacity"
                 />
               </Link>
-              <div className="text-center">
+              <div className="text-center lg:text-left">
                 <Link href="/">
-                  <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 cursor-pointer hover:text-purple-600 transition-colors">Kenya's Car Marketplace</h1>
+                  <h1 className="text-xl lg:text-4xl font-bold text-gray-900 cursor-pointer hover:text-purple-600 transition-colors">Kenya's Car Marketplace</h1>
                 </Link>
-                <p className="text-lg text-gray-600">we get super excited about cars</p>
+                <p className="text-sm lg:text-lg text-gray-600">we get super excited about cars</p>
               </div>
             </div>
             

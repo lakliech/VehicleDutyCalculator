@@ -228,7 +228,9 @@ export const carListings = pgTable("car_listings", {
   fuelType: text("fuel_type"), // petrol, diesel, electric, hybrid
   bodyType: text("body_type"), // sedan, hatchback, suv, etc.
   transmission: text("transmission"), // manual, automatic
-  color: text("color"),
+  driveConfiguration: text("drive_configuration"), // 2wd, 4wd, awd
+  exteriorColor: text("exterior_color"),
+  interiorColor: text("interior_color"),
   condition: text("condition"), // excellent, good, fair, poor
   price: decimal("price", { precision: 12, scale: 2 }).notNull(),
   negotiable: boolean("negotiable").default(true),
@@ -294,6 +296,25 @@ export const favoriteListings = pgTable("favorite_listings", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Reference tables for vehicle options
+export const vehicleColors = pgTable("vehicle_colors", {
+  id: serial("id").primaryKey(),
+  colorName: text("color_name").notNull().unique(),
+  colorType: text("color_type").notNull(), // 'exterior' or 'interior'
+  hexCode: varchar("hex_code", { length: 7 }), // Optional hex color code
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const driveConfigurations = pgTable("drive_configurations", {
+  id: serial("id").primaryKey(),
+  configName: text("config_name").notNull().unique(),
+  displayName: text("display_name").notNull(),
+  description: text("description"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Schemas for marketplace functionality
 export const carListingSchema = createInsertSchema(carListings).omit({
   id: true,
@@ -327,6 +348,8 @@ export type CarValuation = typeof carValuations.$inferSelect;
 export type InsertCarValuation = z.infer<typeof carValuationSchema>;
 export type SavedSearch = typeof savedSearches.$inferSelect;
 export type FavoriteListing = typeof favoriteListings.$inferSelect;
+export type VehicleColor = typeof vehicleColors.$inferSelect;
+export type DriveConfiguration = typeof driveConfigurations.$inferSelect;
 
 // User management and authentication tables
 export const userRoles = pgTable("user_roles", {

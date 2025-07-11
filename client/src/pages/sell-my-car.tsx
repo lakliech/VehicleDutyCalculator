@@ -51,7 +51,7 @@ const listingSchema = z.object({
   make: z.string().min(1, "Make is required"),
   model: z.string().min(1, "Model is required"),
   year: z.number().min(1990).max(2025),
-  engineSize: z.number().min(500).max(10000),
+  engineSize: z.number().min(500, "Engine size must be at least 500cc").max(10000),
   mileage: z.coerce.number().min(0).max(999999),
   fuelType: z.enum(["petrol", "diesel", "electric", "hybrid"]),
   bodyType: z.enum(["sedan", "hatchback", "suv", "estate", "coupe", "convertible", "pickup", "van"]),
@@ -111,12 +111,13 @@ export default function SellMyCar() {
   // Listing form
   const listingForm = useForm<ListingForm>({
     resolver: zodResolver(listingSchema),
+    mode: "onChange",
     defaultValues: {
       title: "",
       make: "",
       model: "",
       year: 2020,
-      engineSize: 1500,
+      engineSize: 0,
       mileage: 0,
       fuelType: "petrol",
       bodyType: "sedan",
@@ -164,10 +165,16 @@ export default function SellMyCar() {
     setSelectedVehicle(vehicle);
     if (vehicle) {
       // Auto-populate form fields from selected vehicle
-      listingForm.setValue("make", vehicle.make);
-      listingForm.setValue("model", vehicle.model);
-      listingForm.setValue("engineSize", vehicle.engineCapacity);
-      listingForm.setValue("fuelType", vehicle.fuel as any);
+      listingForm.setValue("make", vehicle.make, { shouldValidate: true });
+      listingForm.setValue("model", vehicle.model, { shouldValidate: true });
+      listingForm.setValue("engineSize", vehicle.engineCapacity, { shouldValidate: true });
+      
+      // Map fuel type to lowercase
+      const fuelType = vehicle.fuelType?.toLowerCase() || "petrol";
+      const validFuelTypes = ["petrol", "diesel", "electric", "hybrid"];
+      if (validFuelTypes.includes(fuelType)) {
+        listingForm.setValue("fuelType", fuelType as any, { shouldValidate: true });
+      }
       
       // Map body type if available
       if (vehicle.bodyType) {
@@ -183,14 +190,17 @@ export default function SellMyCar() {
         // Only set if it's a valid option in our schema
         const validBodyTypes = ["sedan", "hatchback", "suv", "estate", "coupe", "convertible", "pickup", "van"];
         if (validBodyTypes.includes(mappedBodyType)) {
-          listingForm.setValue("bodyType", mappedBodyType as any);
+          listingForm.setValue("bodyType", mappedBodyType as any, { shouldValidate: true });
         }
       }
+      
+      // Trigger form validation
+      listingForm.trigger(["make", "model", "engineSize"]);
     } else {
       // Clear form fields when no vehicle selected
-      listingForm.setValue("make", "");
-      listingForm.setValue("model", "");
-      listingForm.setValue("engineSize", 0);
+      listingForm.setValue("make", "", { shouldValidate: true });
+      listingForm.setValue("model", "", { shouldValidate: true });
+      listingForm.setValue("engineSize", 0, { shouldValidate: true });
     }
   };
 

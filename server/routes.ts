@@ -2774,11 +2774,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Calculate import estimate
   app.post('/api/import-estimate', async (req: Request, res: Response) => {
     try {
+      console.log('Received request body:', req.body);
       const estimateData = importEstimateSchema.parse(req.body);
+      console.log('Parsed estimate data:', estimateData);
+      
+      // Determine vehicle category automatically if not provided
+      let vehicleCategory = estimateData.vehicleCategory;
+      if (!vehicleCategory && estimateData.engineCapacity) {
+        if (estimateData.engineCapacity <= 1500) {
+          vehicleCategory = 'under_1500cc';
+        } else if (estimateData.engineCapacity <= 3000) {
+          vehicleCategory = 'over_1500cc';
+        } else {
+          vehicleCategory = 'large_engine';
+        }
+      }
+      vehicleCategory = vehicleCategory || 'under_1500cc';
       
       // Get clearing charges based on vehicle category and engine capacity
       let clearingChargeAmount = 55000; // default
-      const vehicleCategory = estimateData.vehicleCategory || 'under_1500cc';
       const clearingChargeResults = await db
         .select()
         .from(clearingCharges)
@@ -2788,8 +2802,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         clearingChargeAmount = parseFloat(clearingChargeResults[0].baseFee);
       }
 
-      // Convert CIF to KES
-      const cifKes = estimateData.cifAmount * estimateData.exchangeRate;
+      // Convert CIF to KES - parse from string
+      const cifAmountNum = parseFloat(estimateData.cifAmount);
+      const exchangeRateNum = parseFloat(estimateData.exchangeRate);
+      const cifKes = cifAmountNum * exchangeRateNum;
 
       // Calculate duty using existing duty calculator
       const dutyCalculationData = {
@@ -2804,18 +2820,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const dutyResult = await storage.calculateDuty(dutyCalculationData);
 
       // Calculate service fee (percentage of total before service fee)
-      const baseTotal = cifKes + dutyResult.totalDutyAmount + clearingChargeAmount + (estimateData.transportCost || 0);
-      const serviceFeeAmount = baseTotal * (estimateData.serviceFeePercentage / 100);
+      const transportCostNum = parseFloat(estimateData.transportCost || "0");
+      const serviceFeePercentageNum = parseFloat(estimateData.serviceFeePercentage);
+      const baseTotal = cifKes + dutyResult.totalDutyAmount + clearingChargeAmount + transportCostNum;
+      const serviceFeeAmount = baseTotal * (serviceFeePercentageNum / 100);
       const totalPayable = baseTotal + serviceFeeAmount;
 
       // Save estimate to database
       const estimateRecord = {
-        ...estimateData,
-        cifKes,
-        dutyPayable: dutyResult.totalDutyAmount,
-        clearingCharges: clearingChargeAmount,
-        serviceFeeAmount,
-        totalPayable,
+        make: estimateData.make,
+        model: estimateData.model,
+        year: estimateData.year,
+        engineCapacity: estimateData.engineCapacity,
+        cifCurrency: estimateData.cifCurrency,
+        cifAmount: estimateData.cifAmount,
+        exchangeRate: estimateData.exchangeRate,
+        transportCost: estimateData.transportCost || "0",
+        serviceFeePercentage: estimateData.serviceFeePercentage,
+        customerName: estimateData.customerName,
+        customerEmail: estimateData.customerEmail,
+        customerPhone: estimateData.customerPhone,
+        cifKes: cifKes.toString(),
+        dutyPayable: dutyResult.totalDutyAmount.toString(),
+        clearingCharges: clearingChargeAmount.toString(),
+        serviceFeeAmount: serviceFeeAmount.toString(),
+        totalPayable: totalPayable.toString(),
       };
 
       const [savedEstimate] = await db.insert(importEstimates).values(estimateRecord).returning();
@@ -2823,14 +2852,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const response = {
         estimateId: savedEstimate.id,
         breakdown: {
-          exchangeRate: estimateData.exchangeRate,
-          cifAmount: estimateData.cifAmount,
+          exchangeRate: exchangeRateNum,
+          cifAmount: cifAmountNum,
           cifCurrency: estimateData.cifCurrency,
           cifKes,
           dutyPayable: dutyResult.totalDutyAmount,
           clearingCharges: clearingChargeAmount,
-          transportCost: estimateData.transportCost || 0,
-          serviceFeePercentage: estimateData.serviceFeePercentage,
+          transportCost: transportCostNum,
+          serviceFeePercentage: serviceFeePercentageNum,
           serviceFeeAmount,
           totalPayable
         },
@@ -2846,7 +2875,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(response);
     } catch (error) {
       console.error('Error calculating import estimate:', error);
-      res.status(400).json({ error: 'Failed to calculate import estimate' });
+      console.error('Validation errors:', error.issues || error.message);
+      res.status(400).json({ 
+        error: 'Failed to calculate import estimate',
+        details: error.issues || error.message 
+      });
     }
   });
 

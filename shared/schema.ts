@@ -825,8 +825,19 @@ export const exchangeRates = pgTable("exchange_rates", {
 export const importEstimateSchema = createInsertSchema(importEstimates).omit({
   id: true,
   createdAt: true,
+  vehicleId: true,
+  cifKes: true,
+  dutyPayable: true,
+  clearingCharges: true,
+  serviceFeeAmount: true,
+  totalPayable: true,
 }).extend({
   vehicleCategory: z.string().optional(),
+  // Transform numbers to strings for decimal fields
+  cifAmount: z.number().transform(val => val.toString()),
+  exchangeRate: z.number().transform(val => val.toString()),
+  transportCost: z.number().optional().transform(val => val?.toString() || "0"),
+  serviceFeePercentage: z.number().transform(val => val.toString()),
 });
 
 export const clearingChargeSchema = createInsertSchema(clearingCharges).omit({

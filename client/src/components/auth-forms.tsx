@@ -162,8 +162,9 @@ export function AuthForms({ onAuthSuccess }: AuthFormsProps) {
     setError(null);
 
     try {
-      // Redirect to social login endpoint
-      window.location.href = `/api/auth/${provider}`;
+      // Redirect to social login endpoint with current page as return URL
+      const returnTo = encodeURIComponent(window.location.pathname);
+      window.location.href = `/api/auth/${provider}?returnTo=${returnTo}`;
     } catch (error: any) {
       setError(`${provider} login failed. Please try again.`);
       setIsLoading(false);

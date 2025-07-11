@@ -228,15 +228,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Google OAuth routes
-  app.get('/api/auth/google', 
-    passport.authenticate('google', { scope: ['profile', 'email'] })
-  );
+  app.get('/api/auth/google', (req: Request, res: Response, next) => {
+    // Store the referrer URL for redirect after login
+    const returnTo = req.get('Referrer') || req.query.returnTo || '/';
+    (req.session as any).returnTo = returnTo;
+    
+    passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+  });
 
   app.get('/api/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/?error=auth_failed' }),
     (req: Request, res: Response) => {
-      // Successful authentication, redirect home
-      res.redirect('/?social=google&success=true');
+      // Get stored return URL or default to home
+      const returnTo = (req.session as any).returnTo || '/';
+      delete (req.session as any).returnTo; // Clean up session
+      
+      // Successful authentication, redirect to original page
+      res.redirect(`${returnTo}${returnTo.includes('?') ? '&' : '?'}social=google&success=true`);
     }
   );
 

@@ -536,26 +536,104 @@ function LocationConditionStep({ form, onNext, onPrev }: { form: any; onNext: (d
 
 // Step 3: Photos & Video
 function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, stepName: string) => void; onPrev: () => void }) {
-  const [uploadedImages, setUploadedImages] = useState<string[]>(form.getValues("images") || []);
+  const [uploadedImages, setUploadedImages] = useState<Array<{url: string, file: File}>>([]);
+  const [uploading, setUploading] = useState(false);
+  const { toast } = useToast();
 
   const onSubmit = (data: PhotosForm) => {
-    onNext({ ...data, images: uploadedImages }, "photos");
+    if (uploadedImages.length < 3) {
+      toast({
+        title: "Photos Required",
+        description: "Please upload at least 3 photos of your vehicle",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Convert to base64 for storage (in production, upload to cloud storage)
+    const imagePromises = uploadedImages.map(async (item) => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(item.file);
+      });
+    });
+
+    Promise.all(imagePromises).then(base64Images => {
+      onNext({ ...data, images: base64Images }, "photos");
+    });
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      // In a real app, you'd upload to a file service
-      // For now, we'll use placeholder URLs
-      const newImages = Array.from(files).map((file, index) => 
-        URL.createObjectURL(file)
-      );
-      setUploadedImages(prev => [...prev, ...newImages].slice(0, 10));
+      setUploading(true);
+      
+      const validFiles: File[] = [];
+      const invalidFiles: string[] = [];
+      
+      // Validate file types and sizes
+      Array.from(files).forEach(file => {
+        const isValidType = file.type.startsWith('image/');
+        const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
+        
+        if (!isValidType) {
+          invalidFiles.push(`${file.name} (not an image)`);
+        } else if (!isValidSize) {
+          invalidFiles.push(`${file.name} (too large - max 5MB)`);
+        } else {
+          validFiles.push(file);
+        }
+      });
+
+      // Show error toast for invalid files
+      if (invalidFiles.length > 0) {
+        toast({
+          title: "Some files were skipped",
+          description: `Invalid files: ${invalidFiles.join(", ")}`,
+          variant: "destructive",
+        });
+      }
+
+      // Create preview URLs and store files
+      const newImages = validFiles.map((file) => ({
+        url: URL.createObjectURL(file),
+        file: file
+      }));
+
+      const totalImages = uploadedImages.length + newImages.length;
+      if (totalImages > 10) {
+        toast({
+          title: "Too many photos",
+          description: "Maximum 10 photos allowed. Some photos were not added.",
+          variant: "destructive",
+        });
+        setUploadedImages(prev => [...prev, ...newImages].slice(0, 10));
+      } else {
+        setUploadedImages(prev => [...prev, ...newImages]);
+        if (newImages.length > 0) {
+          toast({
+            title: "Photos uploaded",
+            description: `${newImages.length} photo(s) added successfully`,
+          });
+        }
+      }
+      
+      setUploading(false);
     }
   };
 
   const removeImage = (index: number) => {
-    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+    setUploadedImages(prev => {
+      // Revoke URL to prevent memory leaks
+      URL.revokeObjectURL(prev[index].url);
+      return prev.filter((_, i) => i !== index);
+    });
+    
+    toast({
+      title: "Photo removed",
+      description: "Photo was removed from your listing",
+    });
   };
 
   return (
@@ -566,45 +644,94 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
           <p className="text-sm text-gray-600 mb-4">Upload 3-10 high-quality photos. Include front, side, and interior views.</p>
           
           {/* Upload Area */}
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-            <Camera className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <p className="text-gray-600 mb-4">Drag photos here or click to browse</p>
-            <Input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-              id="image-upload"
-            />
-            <Label htmlFor="image-upload">
-              <Button type="button" variant="outline" className="cursor-pointer">
-                <Upload className="mr-2 h-4 w-4" />
-                Choose Photos
-              </Button>
-            </Label>
+          <div 
+            className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors"
+            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-purple-400', 'bg-purple-50'); }}
+            onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-purple-400', 'bg-purple-50'); }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.currentTarget.classList.remove('border-purple-400', 'bg-purple-50');
+              const files = e.dataTransfer.files;
+              if (files) {
+                const event = { target: { files } } as React.ChangeEvent<HTMLInputElement>;
+                handleImageUpload(event);
+              }
+            }}
+          >
+            {uploading ? (
+              <div className="flex flex-col items-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
+                <p className="text-gray-600">Processing photos...</p>
+              </div>
+            ) : (
+              <>
+                <Camera className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <p className="text-gray-600 mb-4">Drag photos here or click to browse</p>
+                <p className="text-xs text-gray-500 mb-4">Supports JPG, PNG, WEBP (max 5MB per file)</p>
+                <Input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <Input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="camera-capture"
+                />
+                <div className="flex gap-2 flex-wrap justify-center">
+                  <Label htmlFor="image-upload">
+                    <Button type="button" variant="outline" className="cursor-pointer">
+                      <Upload className="mr-2 h-4 w-4" />
+                      Choose Photos
+                    </Button>
+                  </Label>
+                  <Label htmlFor="camera-capture">
+                    <Button type="button" variant="outline" className="cursor-pointer">
+                      <Camera className="mr-2 h-4 w-4" />
+                      Take Photo
+                    </Button>
+                  </Label>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Image Preview Grid */}
           {uploadedImages.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-              {uploadedImages.map((image, index) => (
+              {uploadedImages.map((imageData, index) => (
                 <div key={index} className="relative group">
                   <img
-                    src={image}
+                    src={imageData.url}
                     alt={`Vehicle photo ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-lg"
+                    className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 hover:border-purple-400 transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
                   >
                     <X className="h-4 w-4" />
                   </button>
                   {index === 0 && (
                     <Badge className="absolute bottom-2 left-2 bg-blue-500">Main Photo</Badge>
                   )}
+                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                    {Math.round(imageData.file.size / 1024)}KB
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => window.open(imageData.url, '_blank')}
+                    className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-opacity flex items-center justify-center"
+                  >
+                    <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
                 </div>
               ))}
             </div>

@@ -414,7 +414,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+          <div>
           <Label htmlFor="make" className="flex items-center text-sm font-medium text-gray-700 mb-2">
             <Car className="h-4 w-4 mr-2 text-green-600" />
             Vehicle Make
@@ -507,7 +507,8 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
             </Select>
           )}
         </div>
-      </div>
+        </div>
+      )}
 
       {selectedVehicle && (
         <Card className="bg-green-50 border-green-200">
@@ -576,7 +577,6 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
             </div>
           </CardContent>
         </Card>
-      )}
       )}
     </div>
   );

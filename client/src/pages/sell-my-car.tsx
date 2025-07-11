@@ -116,7 +116,7 @@ export default function SellMyCar() {
       title: "",
       make: "",
       model: "",
-      year: 2020,
+      year: new Date().getFullYear(),
       engineSize: 0,
       mileage: 0,
       fuelType: "petrol",
@@ -331,16 +331,25 @@ export default function SellMyCar() {
     });
   };
 
-  const onListingSubmit = (data: ListingForm) => {
+  const onListingSubmit = async (data: ListingForm) => {
     console.log("Form submission attempt:", data);
     console.log("Form validation errors:", listingForm.formState.errors);
     console.log("User authentication status:", { isAuthenticated, user });
+    
+    // First check if we're loading authentication status
+    if (isLoading) {
+      toast({
+        title: "Loading",
+        description: "Checking authentication status...",
+      });
+      return;
+    }
     
     // Check authentication and show login popup if not authenticated
     if (!isAuthenticated || !user) {
       toast({
         title: "Authentication Required",
-        description: "Please sign in with Google to create a listing.",
+        description: "Please sign in to create a listing.",
         variant: "destructive",
       });
       setShowLoginForm(true);
@@ -352,6 +361,18 @@ export default function SellMyCar() {
       toast({
         title: "Vehicle Required",
         description: "Please select a vehicle from the database.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate all required fields are filled
+    const isValid = await listingForm.trigger();
+    if (!isValid) {
+      console.log("Form validation failed:", listingForm.formState.errors);
+      toast({
+        title: "Form Incomplete",
+        description: "Please fill in all required fields.",
         variant: "destructive",
       });
       return;
@@ -931,13 +952,6 @@ export default function SellMyCar() {
                       type="submit" 
                       className="w-full bg-purple-600 hover:bg-purple-700 text-lg py-6"
                       disabled={listingMutation.isPending}
-                      onClick={() => {
-                        console.log("Submit button clicked");
-                        console.log("Form is valid:", listingForm.formState.isValid);
-                        console.log("Form errors:", listingForm.formState.errors);
-                        console.log("Selected vehicle:", selectedVehicle);
-                        console.log("All form values:", listingForm.getValues());
-                      }}
                     >
                       {listingMutation.isPending 
                         ? "Creating Listing..." 

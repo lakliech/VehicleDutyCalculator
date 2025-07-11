@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -138,6 +138,14 @@ export default function SellMyCar() {
     },
   });
 
+  // Initialize form with proper default values
+  useEffect(() => {
+    // Ensure critical fields have values
+    listingForm.setValue("fuelType", "petrol");
+    listingForm.setValue("driveConfiguration", "2wd");
+    listingForm.setValue("location", "Nairobi");
+  }, [listingForm]);
+
   // Kenyan counties for location dropdown
   const kenyanCounties = [
     "Baringo", "Bomet", "Bungoma", "Busia", "Elgeyo-Marakwet", "Embu", "Garissa", "Homa Bay",
@@ -189,10 +197,11 @@ export default function SellMyCar() {
         }
       }
     } else {
-      // Clear form fields when no vehicle selected
+      // Clear form fields when no vehicle selected but keep defaults
       listingForm.setValue("make", "");
       listingForm.setValue("model", "");
       listingForm.setValue("engineSize", 0);
+      listingForm.setValue("fuelType", "petrol"); // Ensure fuel type has default
     }
   };
 
@@ -678,7 +687,13 @@ export default function SellMyCar() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Fuel Type *</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value || "petrol"}>
+                              <Select 
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  listingForm.setValue("fuelType", value);
+                                }} 
+                                value={field.value}
+                              >
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select fuel type" />

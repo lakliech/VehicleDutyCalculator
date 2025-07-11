@@ -979,7 +979,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const vehicleData = {
           vehicleCategory: validation.data.vehicleCategory,
-          vehicleValue: validation.data.vehicleValue.toString(),
+          vehicleValue: validation.data.vehicleValue?.toString() || "0",
           engineSize: validation.data.engineSize || null,
           vehicleAge: validation.data.vehicleAge,
           isDirectImport: validation.data.isDirectImport,

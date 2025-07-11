@@ -452,6 +452,13 @@ Changelog:
   - **Graceful Degradation**: System now provides complete price analysis with market statistics and expert advice even during AI quota limitations
   - **Marketplace Functionality**: Full listing creation workflow restored with proper authentication and database integration
   - Both AI Price Trends tool and Create Listing functionality now work seamlessly with proper error handling and fallback systems
+- January 11, 2025. Removed manual vehicle value input field completely:
+  - **CRSP-Only Workflow**: Eliminated manual vehicle value entry field, now exclusively uses CRSP values from database
+  - **Schema Updates**: Made vehicleValue optional in validation schema since it's automatically calculated from selected equipment
+  - **Backend Fix**: Fixed server-side toString() error when vehicleValue is undefined, now properly handles optional values
+  - **Automatic Value Assignment**: Form submission automatically uses CRSP values from selected vehicle/trailer/machinery
+  - **Improved User Experience**: Users no longer need to input values manually, reducing errors and ensuring authentic pricing
+  - **Enhanced Validation**: Form validation checks for valid CRSP availability instead of manual value entry
 - January 11, 2025. Implemented comprehensive Price Trend Heatmap feature:
   - **Interactive Market Visualization**: Created complete price heatmap page with color-coded market insights and filtering capabilities
   - **Backend API Implementation**: Added `/api/marketplace/heatmap` and `/api/marketplace/insights` endpoints with comprehensive market data analysis

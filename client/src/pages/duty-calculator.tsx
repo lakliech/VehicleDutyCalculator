@@ -216,7 +216,7 @@ export default function DutyCalculator() {
 
   // Format currency
   const formatCurrency = (amount: number) => {
-    return `KES ${amount.toLocaleString()}`;
+    return `KES ${Math.round(amount).toLocaleString()}`;
   };
 
   return (
@@ -560,11 +560,11 @@ export default function DutyCalculator() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex justify-between">
-                    <span className="font-medium">Vehicle Value:</span>
+                    <span className="font-medium">Original Value:</span>
                     <span>{formatCurrency(calculationResult.currentRetailPrice)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Depreciated Value:</span>
+                    <span className="font-medium">After Depreciation:</span>
                     <span>{formatCurrency(calculationResult.depreciatedPrice)}</span>
                   </div>
                   <div className="flex justify-between">
@@ -572,66 +572,100 @@ export default function DutyCalculator() {
                     <span>{formatCurrency(calculationResult.customsValue)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Depreciation Rate:</span>
+                    <span className="font-medium">Depreciation:</span>
                     <span>{(calculationResult.depreciationRate * 100).toFixed(1)}%</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
+            {/* Summary Card */}
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-lg font-medium text-purple-800">Total Amount Payable</span>
+                <Receipt className="h-5 w-5 text-purple-600" />
+              </div>
+              <div className="text-3xl font-bold text-purple-900 mb-2">
+                {formatCurrency(calculationResult.totalPayable)}
+              </div>
+              <p className="text-sm text-purple-700">
+                Includes all applicable duties, taxes, and registration fees
+              </p>
+            </div>
+
             {/* Tax Breakdown */}
             <Card className="mb-6">
               <CardHeader>
-                <CardTitle>Tax Breakdown</CardTitle>
+                <CardTitle>Detailed Breakdown</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span>Customs Value (After {(calculationResult.depreciationRate * 100).toFixed(1)}% depreciation):</span>
+              <CardContent className="space-y-3">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Current Retail Price:</span>
+                    <span className="font-medium">{formatCurrency(calculationResult.currentRetailPrice)}</span>
+                  </div>
+                  
+                  {calculationResult.depreciationRate > 0 && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Depreciation ({(calculationResult.depreciationRate * 100).toFixed(0)}%):</span>
+                        <span className="font-medium text-red-600">
+                          -{formatCurrency(calculationResult.currentRetailPrice - calculationResult.depreciatedPrice)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Depreciated Price:</span>
+                        <span className="font-medium">{formatCurrency(calculationResult.depreciatedPrice)}</span>
+                      </div>
+                    </>
+                  )}
+                  
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Customs Value:</span>
                     <span className="font-medium">{formatCurrency(calculationResult.customsValue)}</span>
                   </div>
                   
-                  <Separator />
+                  <Separator className="my-2" />
                   
-                  <div className="flex justify-between items-center">
-                    <span>Import Duty:</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Import Duty:</span>
                     <span className="font-medium">{formatCurrency(calculationResult.importDuty)}</span>
                   </div>
                   
-                  <div className="flex justify-between items-center">
-                    <span>Excise Duty:</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Excise Duty:</span>
                     <span className="font-medium">{formatCurrency(calculationResult.exciseDuty)}</span>
                   </div>
                   
-                  <div className="flex justify-between items-center">
-                    <span>VAT (16%):</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">VAT (16%):</span>
                     <span className="font-medium">{formatCurrency(calculationResult.vat)}</span>
                   </div>
                   
                   {calculationResult.rdl > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span>Railway Development Levy (2%):</span>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Railway Development Levy (2%):</span>
                       <span className="font-medium">{formatCurrency(calculationResult.rdl)}</span>
                     </div>
                   )}
                   
                   {calculationResult.idfFees > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span>Import Declaration Fee (2.5%):</span>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Import Declaration Fee (2.5%):</span>
                       <span className="font-medium">{formatCurrency(calculationResult.idfFees)}</span>
                     </div>
                   )}
                   
-                  <div className="flex justify-between items-center">
-                    <span>Registration Fees:</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Registration Fees:</span>
                     <span className="font-medium">{formatCurrency(calculationResult.registrationFees)}</span>
                   </div>
                   
-                  <Separator />
+                  <Separator className="my-2" />
                   
-                  <div className="flex justify-between items-center text-lg font-bold bg-purple-50 p-4 rounded-lg">
-                    <span>Total Payable Amount:</span>
-                    <span className="text-purple-600">{formatCurrency(calculationResult.totalPayable)}</span>
+                  <div className="flex justify-between font-semibold">
+                    <span>Total Taxes:</span>
+                    <span>{formatCurrency(calculationResult.totalTaxes)}</span>
                   </div>
                 </div>
               </CardContent>
@@ -641,10 +675,17 @@ export default function DutyCalculator() {
             <div className="text-center">
               <Button 
                 onClick={() => {
-                  const equipment = selectedTrailer || selectedHeavyMachinery || selectedVehicle || manualVehicleData;
-                  if (equipment) {
-                    generateDutyCalculationPDF(calculationResult, equipment, yearOfManufacture);
-                  }
+                  generateDutyCalculationPDF(
+                    calculationResult,
+                    selectedVehicle,
+                    yearOfManufacture,
+                    form.getValues("engineSize"),
+                    form.getValues("isDirectImport")
+                  );
+                  toast({
+                    title: "PDF Downloaded",
+                    description: "Your duty calculation report has been downloaded.",
+                  });
                 }}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >

@@ -313,6 +313,19 @@ export default function SellMyCar() {
   const onListingSubmit = (data: ListingForm) => {
     console.log("Form submission attempt:", data);
     console.log("Form validation errors:", listingForm.formState.errors);
+    console.log("Form is valid:", listingForm.formState.isValid);
+    console.log("All form values:", listingForm.getValues());
+    
+    // Check if form has validation errors
+    if (!listingForm.formState.isValid) {
+      console.log("Form has validation errors, cannot submit");
+      toast({
+        title: "Form Validation Failed",
+        description: "Please fill in all required fields correctly before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // Check authentication and show login popup if not authenticated
     if (!isAuthenticated || !user) {

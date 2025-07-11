@@ -754,27 +754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create new car listing
-  app.post("/api/marketplace/listings", authenticateUser, async (req, res) => {
-    try {
-      const listingData = req.body;
-      console.log("Creating listing for user:", req.user.email, "with data:", Object.keys(listingData));
-      
-      // Add seller ID from authenticated user
-      const listingWithSeller = {
-        ...listingData,
-        sellerId: req.user.id
-      };
 
-      const listing = await storage.createListing(listingWithSeller);
-      console.log("Listing created successfully:", listing.id);
-      
-      res.status(201).json(listing);
-    } catch (error) {
-      console.error("Failed to create listing:", error);
-      res.status(500).json({ error: "Failed to create listing" });
-    }
-  });
 
   // Send inquiry about listing
   app.post("/api/marketplace/listings/:id/inquiries", async (req, res) => {
@@ -944,9 +924,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Marketplace endpoint alias for frontend
   app.post("/api/marketplace/listings", authenticateUser, async (req, res) => {
     try {
+      console.log("Received listing data:", JSON.stringify(req.body, null, 2));
+      console.log("Authenticated user:", req.user?.email, req.user?.id);
+      
       const validation = carListingSchema.safeParse(req.body);
       
       if (!validation.success) {
+        console.error("Validation failed:", JSON.stringify(validation.error.issues, null, 2));
         return res.status(400).json({ 
           error: "Invalid input data", 
           details: validation.error.issues 

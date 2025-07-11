@@ -280,11 +280,19 @@ export default function SellMyCar() {
       setUploadedImages([]);
       setMainImageIndex(0);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Listing creation error:", error);
+      console.error("Error details:", error.response?.data || error);
+      
+      const errorMessage = error.response?.data?.details ? 
+        error.response.data.details.map((issue: any) => 
+          `${issue.path.join('.')}: ${issue.message}`
+        ).join(', ') : 
+        error.message || "Failed to create listing. Please try again.";
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to create listing. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     },

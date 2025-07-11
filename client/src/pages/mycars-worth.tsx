@@ -321,28 +321,28 @@ export default function MyCarsWorth() {
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Age Depreciation</span>
                         <span className="font-semibold text-red-600">
-                          -{(valuationResult.valuationFactors.ageDepreciation * 100).toFixed(1)}%
+                          -{((valuationResult.valuationFactors?.ageDepreciation || 0) * 100).toFixed(1)}%
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Mileage Adjustment</span>
-                        <span className={`font-semibold ${valuationResult.valuationFactors.mileageAdjustment >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {valuationResult.valuationFactors.mileageAdjustment >= 0 ? '+' : ''}
-                          {(valuationResult.valuationFactors.mileageAdjustment * 100).toFixed(1)}%
+                        <span className={`font-semibold ${(valuationResult.valuationFactors?.mileageAdjustment || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {(valuationResult.valuationFactors?.mileageAdjustment || 0) >= 0 ? '+' : ''}
+                          {((valuationResult.valuationFactors?.mileageAdjustment || 0) * 100).toFixed(1)}%
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Condition Adjustment</span>
-                        <span className={`font-semibold ${valuationResult.valuationFactors.conditionAdjustment >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {valuationResult.valuationFactors.conditionAdjustment >= 0 ? '+' : ''}
-                          {(valuationResult.valuationFactors.conditionAdjustment * 100).toFixed(1)}%
+                        <span className={`font-semibold ${(valuationResult.valuationFactors?.conditionAdjustment || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {(valuationResult.valuationFactors?.conditionAdjustment || 0) >= 0 ? '+' : ''}
+                          {((valuationResult.valuationFactors?.conditionAdjustment || 0) * 100).toFixed(1)}%
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Location Factor</span>
-                        <span className={`font-semibold ${valuationResult.valuationFactors.locationFactor >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {valuationResult.valuationFactors.locationFactor >= 0 ? '+' : ''}
-                          {(valuationResult.valuationFactors.locationFactor * 100).toFixed(1)}%
+                        <span className={`font-semibold ${(valuationResult.valuationFactors?.locationFactor || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {(valuationResult.valuationFactors?.locationFactor || 0) >= 0 ? '+' : ''}
+                          {((valuationResult.valuationFactors?.locationFactor || 0) * 100).toFixed(1)}%
                         </span>
                       </div>
                     </div>

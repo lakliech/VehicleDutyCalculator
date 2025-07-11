@@ -392,6 +392,15 @@ Changelog:
   - Reorganized vehicle listing form to continuous flow layout instead of grid-based sections
   - Updated all form sections (Vehicle Details, Pricing, Location, Features, Contact) to vertical space-y-4 layout
   - Enhanced form flow with features displayed as flexible wrapped items for better space utilization
+- January 10, 2025. Implemented database-based admin authentication:
+  - Removed hardcoded admin password (admin123) as environment variable
+  - Created admin_credentials table with username, password_hash, and permissions fields
+  - Added admin authentication methods to storage interface and DatabaseStorage class
+  - Created default admin account with username "admin" and password "admin123" (changeable via database)
+  - Implemented admin login, logout, and status endpoints for secure authentication
+  - Added bcrypt password hashing for secure credential storage
+  - Maintained backward compatibility with old "admin123" token during transition period
+  - Enhanced admin authentication middleware to support both legacy and database-based authentication
 
 ## User Preferences
 

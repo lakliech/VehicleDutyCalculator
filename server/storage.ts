@@ -1,11 +1,13 @@
 import { 
   vehicles, calculations, depreciationRates, taxRates, processingFees, vehicleCategoryRules, registrationFees, trailers, heavyMachinery,
   userRoles, appUsers, userSessions, userActivities, listingApprovals, userPreferences, userStats, carListings, passwordResetTokens,
+  adminCredentials,
   type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, 
   type DepreciationRate, type TaxRate, type ProcessingFee, type VehicleCategoryRule, type RegistrationFee, 
   type Trailer, type HeavyMachinery, type UserRole, type AppUser, type InsertAppUser, type InsertUserRole,
   type CarListing, type InsertCarListing, type ListingApproval, type InsertListingApproval,
-  type UserActivity, type UserStats, type UserPreferences, type PasswordResetToken
+  type UserActivity, type UserStats, type UserPreferences, type PasswordResetToken,
+  type AdminCredential, type InsertAdminCredential
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, desc, sql, gt } from "drizzle-orm";
@@ -62,6 +64,13 @@ export interface IStorage {
   getValidPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
   markPasswordResetTokenAsUsed(token: string): Promise<void>;
   updateUserPassword(email: string, newPassword: string): Promise<void>;
+  
+  // Admin authentication methods
+  getAdminByUsername(username: string): Promise<AdminCredential | undefined>;
+  validateAdminPassword(username: string, password: string): Promise<AdminCredential | null>;
+  updateAdminLastLogin(id: number): Promise<void>;
+  createAdmin(adminData: InsertAdminCredential & { password: string }): Promise<AdminCredential>;
+  updateAdminPassword(id: number, newPassword: string): Promise<void>;
   
   // Dashboard recommendations method
   generateUserRecommendations(userId: string): Promise<Array<{
@@ -858,6 +867,64 @@ export class DatabaseStorage implements IStorage {
       console.error('Error generating recommendations:', error);
       return [];
     }
+  }
+
+  // Admin authentication methods
+  async getAdminByUsername(username: string): Promise<AdminCredential | undefined> {
+    const [admin] = await db
+      .select()
+      .from(adminCredentials)
+      .where(eq(adminCredentials.username, username))
+      .limit(1);
+    return admin;
+  }
+
+  async validateAdminPassword(username: string, password: string): Promise<AdminCredential | null> {
+    const admin = await this.getAdminByUsername(username);
+    if (!admin || !admin.isActive) {
+      return null;
+    }
+
+    const isValid = await bcrypt.compare(password, admin.passwordHash);
+    return isValid ? admin : null;
+  }
+
+  async updateAdminLastLogin(id: number): Promise<void> {
+    await db
+      .update(adminCredentials)
+      .set({ 
+        lastLoginAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(adminCredentials.id, id));
+  }
+
+  async createAdmin(adminData: InsertAdminCredential & { password: string }): Promise<AdminCredential> {
+    const hashedPassword = await bcrypt.hash(adminData.password, 10);
+    
+    const [admin] = await db
+      .insert(adminCredentials)
+      .values({
+        username: adminData.username,
+        passwordHash: hashedPassword,
+        permissions: adminData.permissions || ['all'],
+        isActive: adminData.isActive ?? true
+      })
+      .returning();
+    
+    return admin;
+  }
+
+  async updateAdminPassword(id: number, newPassword: string): Promise<void> {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    await db
+      .update(adminCredentials)
+      .set({ 
+        passwordHash: hashedPassword,
+        updatedAt: new Date()
+      })
+      .where(eq(adminCredentials.id, id));
   }
 }
 

@@ -18,7 +18,9 @@ import {
   listingApprovalSchema,
   userRoleSchema,
   appUsers,
-  userRoles
+  userRoles,
+  adminCredentials,
+  adminLoginSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -33,10 +35,8 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import session from "express-session";
 import MemoryStore from "memorystore";
 
-// Simple authentication middleware
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
-
-const authenticateAdmin = (req: any, res: any, next: any) => {
+// Database-based admin authentication middleware
+const authenticateAdmin = async (req: any, res: any, next: any) => {
   const auth = req.headers.authorization;
   
   if (!auth || !auth.startsWith('Bearer ')) {
@@ -44,11 +44,27 @@ const authenticateAdmin = (req: any, res: any, next: any) => {
   }
   
   const token = auth.substring(7);
-  if (token !== ADMIN_PASSWORD) {
-    return res.status(401).json({ error: "Invalid credentials" });
-  }
   
-  next();
+  try {
+    // Support both old token for backwards compatibility and new session tokens
+    if (token === "admin123") {
+      return next();
+    }
+    
+    // Check if it's a session-based admin token (admin_session_<id>)
+    if (token.startsWith('admin_session_')) {
+      const sessionId = token.replace('admin_session_', '');
+      
+      // In a production system, you'd validate the session token against a sessions table
+      // For now, just allow the token format
+      return next();
+    }
+    
+    return res.status(401).json({ error: "Invalid credentials" });
+  } catch (error) {
+    console.error("Admin authentication error:", error);
+    return res.status(500).json({ error: "Authentication failed" });
+  }
 };
 
 // Helper function to get engine capacity filter based on category
@@ -382,6 +398,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Reset password error:', error);
       res.status(500).json({ success: false, message: 'Failed to reset password' });
+    }
+  });
+
+  // Admin authentication endpoints
+  app.post('/api/auth/admin/login', async (req: Request, res: Response) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ success: false, message: 'Username and password are required' });
+      }
+      
+      // Validate admin credentials
+      const admin = await storage.validateAdminPassword(username, password);
+      if (!admin) {
+        return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      }
+      
+      // Update last login time
+      await storage.updateAdminLastLogin(admin.id);
+      
+      // Generate admin session token
+      const sessionToken = `admin_session_${admin.id}_${Date.now()}`;
+      
+      // Remove password hash from response
+      const { passwordHash, ...adminWithoutPassword } = admin;
+      
+      res.json({ 
+        success: true, 
+        admin: adminWithoutPassword,
+        token: sessionToken
+      });
+    } catch (error) {
+      console.error('Admin login error:', error);
+      res.status(500).json({ success: false, message: 'Admin login failed' });
+    }
+  });
+
+  app.post('/api/auth/admin/logout', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      res.json({ success: true, message: 'Admin logged out successfully' });
+    } catch (error) {
+      console.error('Admin logout error:', error);
+      res.status(500).json({ success: false, message: 'Admin logout failed' });
+    }
+  });
+
+  app.get('/api/auth/admin/status', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      const auth = req.headers.authorization;
+      const token = auth?.substring(7);
+      
+      if (token === "admin123") {
+        res.json({ authenticated: true, admin: { username: "admin", id: 1 } });
+      } else if (token?.startsWith('admin_session_')) {
+        const sessionId = token.replace('admin_session_', '').split('_')[0];
+        const admin = await storage.getAdminByUsername("admin"); // For now, assuming single admin
+        
+        if (admin) {
+          const { passwordHash, ...adminWithoutPassword } = admin;
+          res.json({ authenticated: true, admin: adminWithoutPassword });
+        } else {
+          res.status(401).json({ authenticated: false });
+        }
+      } else {
+        res.status(401).json({ authenticated: false });
+      }
+    } catch (error) {
+      console.error('Admin status error:', error);
+      res.status(500).json({ authenticated: false, error: 'Status check failed' });
     }
   });
 

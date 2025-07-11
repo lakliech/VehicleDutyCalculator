@@ -360,6 +360,17 @@ export const userRoles = pgTable("user_roles", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const adminCredentials = pgTable("admin_credentials", {
+  id: serial("id").primaryKey(),
+  username: varchar("username", { length: 100 }).notNull().unique(),
+  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  permissions: text("permissions").array(), // Array of permission strings
+  isActive: boolean("is_active").default(true),
+  lastLoginAt: timestamp("last_login_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const appUsers = pgTable("app_users", {
   id: varchar("id", { length: 255 }).primaryKey(), // User ID from auth system
   email: varchar("email", { length: 255 }).notNull().unique(),
@@ -504,6 +515,22 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
 });
 
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+
+// Admin credentials schemas
+export const adminCredentialSchema = createInsertSchema(adminCredentials).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const adminLoginSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export type AdminCredential = typeof adminCredentials.$inferSelect;
+export type InsertAdminCredential = z.infer<typeof adminCredentialSchema>;
+export type AdminLogin = z.infer<typeof adminLoginSchema>;
 
 // Manual vehicle data for proration
 export interface ManualVehicleData {

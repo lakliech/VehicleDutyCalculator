@@ -17,7 +17,8 @@ import {
   Star,
   Search,
   Shield,
-  Users
+  Users,
+  TrendingUp
 } from "lucide-react";
 
 export default function Home() {
@@ -105,6 +106,13 @@ export default function Home() {
       title: "Vehicle Loan Products",
       description: "Explore financing options",
       icon: <CreditCard className="h-12 w-12" />,
+      color: "bg-yellow-500"
+    },
+    {
+      href: "/price-trends",
+      title: "AI Price Trends",
+      description: "AI-powered vehicle price trend analysis",
+      icon: <TrendingUp className="h-12 w-12" />,
       color: "bg-emerald-500"
     }
   ];

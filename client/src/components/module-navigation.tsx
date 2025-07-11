@@ -13,7 +13,8 @@ import {
   Search,
   Home,
   User,
-  UserPlus
+  UserPlus,
+  TrendingUp
 } from "lucide-react";
 
 interface ModuleItem {
@@ -47,6 +48,11 @@ const moduleItems: ModuleItem[] = [
     href: "/service-estimator",
     label: "Service Estimates", 
     icon: <Wrench className="h-4 w-4" />
+  },
+  {
+    href: "/price-trends",
+    label: "AI Price Trends",
+    icon: <TrendingUp className="h-4 w-4" />
   },
   {
     href: "/transfer-cost",

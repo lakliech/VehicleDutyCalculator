@@ -1854,6 +1854,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Price Trend Analysis endpoint
+  app.post('/api/price-trends/analyze', async (req, res) => {
+    try {
+      const { make, model, engineSize } = req.body;
+      
+      if (!make || !model) {
+        return res.status(400).json({ message: "Make and model are required" });
+      }
+
+      const { priceAnalyzer } = await import('./ai-price-analyzer');
+      const analysis = await priceAnalyzer.analyzePriceTrends(make, model, engineSize);
+      
+      res.json(analysis);
+    } catch (error) {
+      console.error("Price trend analysis error:", error);
+      res.status(500).json({ 
+        message: "Failed to analyze price trends", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

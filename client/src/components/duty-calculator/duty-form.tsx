@@ -209,10 +209,13 @@ export function DutyForm({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <VehicleCategorySelector onCategorySelect={(category) => {
-            form.setValue("category", category);
-            setSelectedCategory(category);
-          }} />
+          <VehicleCategorySelector 
+            value={selectedCategory}
+            onValueChange={(category) => {
+              form.setValue("category", category);
+              setSelectedCategory(category);
+            }} 
+          />
         </CardContent>
       </Card>
 
@@ -225,8 +228,8 @@ export function DutyForm({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Manual Category Selection Toggle */}
-          {selectedCategory === "vehicles" && (
+          {/* Manual Category Selection Toggle - Only for vehicle categories */}
+          {selectedCategory && !["trailer", "heavyMachinery"].includes(selectedCategory) && (
             <div className="bg-gray-50 p-4 rounded-lg space-y-4">
               <div className="flex items-center space-x-2">
                 <Switch
@@ -240,15 +243,15 @@ export function DutyForm({
               
               {manualCategorySelection && (
                 <VehicleCategorySelector 
-                  showVehicleCategories={true}
-                  onCategorySelect={handleCategoryChange}
+                  value={selectedCategory}
+                  onValueChange={handleCategoryChange}
                 />
               )}
             </div>
           )}
 
           {/* Vehicle Selector */}
-          {selectedCategory === "vehicles" && (
+          {selectedCategory && !["trailer", "heavyMachinery"].includes(selectedCategory) && (
             <VehicleSelector 
               onVehicleSelect={handleVehicleSelect}
               showManualEntry={true}

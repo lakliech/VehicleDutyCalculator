@@ -70,6 +70,7 @@ export default function PriceTrends() {
       return response;
     },
     onSuccess: (data) => {
+      console.log("Analysis data received:", data);
       setAnalysis(data);
       toast({
         title: "Analysis Complete",
@@ -205,6 +206,12 @@ export default function PriceTrends() {
           {/* Analysis Results */}
           {analysis && analysis.vehicleInfo && (
             <div className="space-y-6">
+              {/* Debug Information */}
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md text-xs">
+                <p>Debug: Analysis data structure:</p>
+                <pre>{JSON.stringify(analysis, null, 2)}</pre>
+              </div>
+              
               {/* Market Overview */}
               <Card>
                 <CardHeader>
@@ -330,27 +337,41 @@ export default function PriceTrends() {
                     <CardTitle className="flex items-center gap-2">
                       <Brain className="w-5 h-5" />
                       AI Market Analysis
+                      {(analysis as any).quotaExceeded && (
+                        <Badge variant="outline" className="text-orange-600 border-orange-300">
+                          Limited Mode
+                        </Badge>
+                      )}
                     </CardTitle>
+                    {(analysis as any).warningMessage && (
+                      <div className="mt-2 p-3 bg-orange-50 border border-orange-200 rounded-md">
+                        <p className="text-sm text-orange-700">{(analysis as any).warningMessage}</p>
+                      </div>
+                    )}
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div>
-                      <h4 className="font-medium mb-2">Summary</h4>
-                      <p className="text-sm text-gray-600">{analysis.aiAnalysis.summary}</p>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div>
-                      <h4 className="font-medium mb-2">Market Position</h4>
-                      <p className="text-sm text-gray-600">{analysis.aiAnalysis.marketPosition}</p>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div>
-                      <h4 className="font-medium mb-2">Future Outlook</h4>
-                      <p className="text-sm text-gray-600">{analysis.aiAnalysis.futureOutlook}</p>
-                    </div>
+                    {analysis.aiAnalysis && (
+                      <>
+                        <div>
+                          <h4 className="font-medium mb-2">Summary</h4>
+                          <p className="text-sm text-gray-600">{analysis.aiAnalysis.summary}</p>
+                        </div>
+                        
+                        <Separator />
+                        
+                        <div>
+                          <h4 className="font-medium mb-2">Market Position</h4>
+                          <p className="text-sm text-gray-600">{analysis.aiAnalysis.marketPosition}</p>
+                        </div>
+                        
+                        <Separator />
+                        
+                        <div>
+                          <h4 className="font-medium mb-2">Future Outlook</h4>
+                          <p className="text-sm text-gray-600">{analysis.aiAnalysis.futureOutlook}</p>
+                        </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -362,23 +383,27 @@ export default function PriceTrends() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <ShoppingCart className="w-4 h-4" />
-                        For Buyers
-                      </h4>
-                      <p className="text-sm text-gray-600">{analysis.aiAnalysis.buyingAdvice}</p>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <DollarSign className="w-4 h-4" />
-                        For Sellers
-                      </h4>
-                      <p className="text-sm text-gray-600">{analysis.aiAnalysis.sellingAdvice}</p>
-                    </div>
+                    {analysis.aiAnalysis && (
+                      <>
+                        <div>
+                          <h4 className="font-medium mb-2 flex items-center gap-2">
+                            <ShoppingCart className="w-4 h-4" />
+                            For Buyers
+                          </h4>
+                          <p className="text-sm text-gray-600">{analysis.aiAnalysis.buyingAdvice}</p>
+                        </div>
+                        
+                        <Separator />
+                        
+                        <div>
+                          <h4 className="font-medium mb-2 flex items-center gap-2">
+                            <DollarSign className="w-4 h-4" />
+                            For Sellers
+                          </h4>
+                          <p className="text-sm text-gray-600">{analysis.aiAnalysis.sellingAdvice}</p>
+                        </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               </div>

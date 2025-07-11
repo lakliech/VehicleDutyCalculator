@@ -467,16 +467,6 @@ export default function SellMyCar() {
                               <Input 
                                 placeholder="2018 Toyota Corolla - Excellent Condition" 
                                 {...field}
-                                onFocus={() => {
-                                  if (!isAuthenticated) {
-                                    toast({
-                                      title: "Authentication Required",
-                                      description: "Please sign in to create a listing.",
-                                      variant: "destructive",
-                                    });
-                                    setShowLoginForm(true);
-                                  }
-                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -516,15 +506,6 @@ export default function SellMyCar() {
                               type="button"
                               variant="outline"
                               onClick={() => {
-                                if (!isAuthenticated) {
-                                  toast({
-                                    title: "Authentication Required",
-                                    description: "Please sign in to upload photos.",
-                                    variant: "destructive",
-                                  });
-                                  setShowLoginForm(true);
-                                  return;
-                                }
                                 document.getElementById('photo-upload')?.click();
                               }}
                               disabled={uploadedImages.length >= 6}

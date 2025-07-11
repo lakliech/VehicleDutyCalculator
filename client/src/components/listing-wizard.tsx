@@ -572,7 +572,10 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
   const { toast } = useToast();
 
   const onSubmit = async (data: PhotosForm) => {
+    console.log("PhotosStep onSubmit called", data, "uploadedImages count:", uploadedImages.length);
+    
     if (uploadedImages.length < 3) {
+      console.log("Not enough images uploaded");
       toast({
         title: "Photos Required",
         description: "Please upload at least 3 photos of your vehicle",
@@ -583,6 +586,7 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
 
     try {
       setUploading(true);
+      console.log("Starting base64 conversion for", uploadedImages.length, "images");
       
       // Convert to base64 for storage (in production, upload to cloud storage)
       const imagePromises = uploadedImages.map(async (item) => {
@@ -595,6 +599,8 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
       });
 
       const base64Images = await Promise.all(imagePromises);
+      console.log("Base64 conversion complete, calling onNext with", base64Images.length, "images");
+      
       onNext({ ...data, images: base64Images }, "photos");
       
       toast({
@@ -602,6 +608,7 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
         description: `${base64Images.length} photos ready for your listing`,
       });
     } catch (error) {
+      console.error("Error in photo processing:", error);
       toast({
         title: "Upload failed",
         description: "Failed to process photos. Please try again.",
@@ -873,10 +880,14 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
           <Button 
             type="submit" 
             className="bg-purple-600 hover:bg-purple-700"
-            disabled={uploadedImages.length < 3}
-            onClick={() => console.log("Next button clicked, uploaded images:", uploadedImages.length)}
+            disabled={uploadedImages.length < 3 || uploading}
+            onClick={(e) => {
+              console.log("Next button clicked, uploaded images:", uploadedImages.length);
+              console.log("Button disabled state:", uploadedImages.length < 3 || uploading);
+              console.log("Form errors:", form.formState.errors);
+            }}
           >
-            Next Step
+            {uploading ? "Processing..." : "Next Step"}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>

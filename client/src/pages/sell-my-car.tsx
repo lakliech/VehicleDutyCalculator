@@ -310,7 +310,7 @@ export default function SellMyCar() {
     });
   };
 
-  const onListingSubmit = (data: ListingForm) => {
+  const onListingSubmit = async (data: ListingForm) => {
     console.log("Form submission attempt:", data);
     console.log("Form validation errors:", listingForm.formState.errors);
     console.log("Form is valid:", listingForm.formState.isValid);
@@ -327,14 +327,39 @@ export default function SellMyCar() {
       return;
     }
     
-    // Check authentication and show login popup if not authenticated
-    if (!isAuthenticated || !user) {
+    // TEMPORARILY BYPASSED: Check authentication and show login popup if not authenticated
+    // if (!isAuthenticated || !user) {
+    //   toast({
+    //     title: "Authentication Required",
+    //     description: "Please sign in to create a listing.",
+    //     variant: "destructive",
+    //   });
+    //   setShowLoginForm(true);
+    //   return;
+    // }
+    
+    // Check authentication status via API call (more reliable than frontend state)
+    try {
+      const authResponse = await fetch('/api/auth/status', { credentials: 'include' });
+      const authData = await authResponse.json();
+      console.log("Direct auth check result:", authData);
+      
+      if (!authData.authenticated) {
+        toast({
+          title: "Authentication Required", 
+          description: "Please sign in to create a listing.",
+          variant: "destructive",
+        });
+        setShowLoginForm(true);
+        return;
+      }
+    } catch (error) {
+      console.error("Auth check failed:", error);
       toast({
-        title: "Authentication Required",
-        description: "Please sign in to create a listing.",
+        title: "Authentication Error",
+        description: "Unable to verify authentication. Please try again.",
         variant: "destructive",
       });
-      setShowLoginForm(true);
       return;
     }
 
@@ -891,6 +916,14 @@ export default function SellMyCar() {
                       type="submit" 
                       className="w-full bg-purple-600 hover:bg-purple-700 text-lg py-6"
                       disabled={listingMutation.isPending}
+                      onClick={(e) => {
+                        console.log("Submit button clicked");
+                        console.log("Form state:", {
+                          isValid: listingForm.formState.isValid,
+                          errors: listingForm.formState.errors,
+                          values: listingForm.getValues()
+                        });
+                      }}
                     >
                       {listingMutation.isPending 
                         ? "Creating Listing..." 

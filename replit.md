@@ -408,6 +408,12 @@ Changelog:
   - Enhanced with expert buying/selling advice and future market outlook predictions
   - Included comprehensive error handling and fallback responses for AI analysis
   - Added new tool to home page navigation and module navigation systems
+- January 11, 2025. Reorganized navigation menu to prevent overflow:
+  - Grouped 9 tools into logical categories to prevent menu overflow on smaller screens
+  - Primary navigation shows most important tools: Home, Duty Calculator, MyCar's Worth, AI Price Trends
+  - Secondary tools organized in dropdown menus: Calculators (Import Calculator, Service Estimates, Transfer Cost) and Marketplace (Buy a Car, Sell My Car, Vehicle Loans)
+  - Implemented clean dropdown navigation with proper active states and purple branding
+  - Enhanced responsive design with better space utilization and improved user experience
 
 ## User Preferences
 

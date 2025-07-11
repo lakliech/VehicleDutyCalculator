@@ -170,6 +170,15 @@ The system implements updated depreciation rates:
 - Reduced home page from 205 lines to ~90 lines
 - Improved component reusability and testability
 
+### Duty Calculator Module Refactoring
+- Broke down 1054-line component into focused components:
+  - `DutyForm`: Handles all form logic, validation, and equipment selection
+  - `CalculationResult`: Displays results, breakdowns, and PDF generation
+  - `vehicle-category-info`: Centralized category configuration
+- Organized components in `duty-calculator/` folder for better structure
+- Reduced main page from 1054 lines to ~150 lines
+- Improved separation of concerns and maintainability
+
 ## Changelog
 
 Changelog:

@@ -19,7 +19,8 @@ import {
   Phone,
   TrendingUp,
   Shield,
-  CheckCircle
+  CheckCircle,
+  MessageCircle
 } from "lucide-react";
 
 // Tool configuration - extracted for better maintainability
@@ -88,6 +89,15 @@ const AUTOMOTIVE_TOOLS = [
     icon: CreditCard,
     color: "from-emerald-500 to-emerald-600",
     category: "finance"
+  },
+  {
+    href: "/ai-advisor",
+    title: "AI Vehicle Advisor",
+    description: "Get personalized vehicle recommendations using AI",
+    icon: MessageCircle,
+    color: "from-purple-600 to-purple-700",
+    category: "ai",
+    featured: true
   }
 ];
 

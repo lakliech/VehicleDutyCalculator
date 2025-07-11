@@ -34,6 +34,12 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import session from "express-session";
 import MemoryStore from "memorystore";
+import OpenAI from "openai";
+
+// Initialize OpenAI
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY 
+});
 
 // Database-based admin authentication middleware
 const authenticateAdmin = async (req: any, res: any, next: any) => {
@@ -1966,6 +1972,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Transfer cost calculation error:", error);
       res.status(500).json({ error: "Failed to calculate transfer cost" });
+    }
+  });
+
+  // ===============================
+  // CHATBOT API ROUTES
+  // ===============================
+
+  // AI-powered vehicle recommendation chatbot
+  app.post('/api/chatbot/recommend', async (req, res) => {
+    try {
+      const { message, conversationHistory } = req.body;
+
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      // Get some vehicle data from database for context
+      const vehicleData = await db
+        .select({
+          make: vehicleReferences.make,
+          model: vehicleReferences.model,
+          engineCapacity: vehicleReferences.engineCapacity,
+          crspKes: vehicleReferences.crspKes,
+          crsp2020: vehicleReferences.crsp2020,
+          fuelType: vehicleReferences.fuelType,
+          bodyType: vehicleReferences.bodyType
+        })
+        .from(vehicleReferences)
+        .where(sql`${vehicleReferences.crspKes} IS NOT NULL OR ${vehicleReferences.crsp2020} IS NOT NULL`)
+        .limit(100);
+
+      // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: `You are an AI vehicle advisor for the Kenya Motor Vehicle marketplace. Help users find the perfect vehicle based on their budget, needs, and preferences.
+
+Context: You have access to a database of vehicles with their makes, models, engine capacities, and CRSP (Current Retail Selling Price) values in Kenyan Shillings. 
+
+Your role:
+1. Ask clarifying questions about their budget, family size, intended use, fuel preference, etc.
+2. Provide specific vehicle recommendations from the available data
+3. Explain why each recommendation fits their needs
+4. Consider Kenya-specific factors like fuel efficiency, maintenance costs, resale value
+5. Always format your response as JSON with this structure:
+{
+  "message": "Your conversational response",
+  "recommendations": [
+    {
+      "make": "TOYOTA",
+      "model": "COROLLA",
+      "engineCapacity": 1500,
+      "estimatedPrice": 2800000,
+      "reason": "Why this vehicle fits their needs",
+      "suitability": "Brief suitability assessment"
+    }
+  ]
+}
+
+Available vehicle data includes popular makes like Toyota, Nissan, Honda, Mazda, Subaru, Mercedes, BMW, Audi, etc.
+Budget ranges typically: Under 1M (budget cars), 1-3M (mid-range), 3-5M (premium), 5M+ (luxury)
+
+Always respond in JSON format. If no specific recommendations, set "recommendations" to an empty array.`
+          },
+          ...conversationHistory.slice(-5).map((msg: any) => ({
+            role: msg.role,
+            content: msg.content
+          })),
+          {
+            role: "user",
+            content: message
+          }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 1000
+      });
+
+      const response = JSON.parse(completion.choices[0].message.content || '{"message": "I apologize, but I encountered an error. Please try again.", "recommendations": []}');
+      
+      // Validate and enhance recommendations with actual database data
+      if (response.recommendations && Array.isArray(response.recommendations)) {
+        for (const rec of response.recommendations) {
+          // Try to find actual vehicle data that matches the recommendation
+          const actualVehicle = vehicleData.find(v => 
+            v.make?.toLowerCase() === rec.make?.toLowerCase() && 
+            v.model?.toLowerCase() === rec.model?.toLowerCase() &&
+            Math.abs((v.engineCapacity || 0) - (rec.engineCapacity || 0)) <= 200
+          );
+
+          if (actualVehicle) {
+            rec.estimatedPrice = actualVehicle.crspKes || actualVehicle.crsp2020 || rec.estimatedPrice;
+            rec.engineCapacity = actualVehicle.engineCapacity || rec.engineCapacity;
+          }
+        }
+      }
+
+      res.json(response);
+    } catch (error) {
+      console.error('Chatbot error:', error);
+      res.status(500).json({ 
+        message: "I'm sorry, I encountered an error while processing your request. Please try again.",
+        recommendations: []
+      });
     }
   });
 

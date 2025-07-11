@@ -112,6 +112,7 @@ export default function SellMyCar() {
   // Listing form
   const listingForm = useForm<ListingForm>({
     resolver: zodResolver(listingSchema),
+    mode: "onChange", // Enable real-time validation
     defaultValues: {
       title: "",
       make: "",
@@ -123,15 +124,15 @@ export default function SellMyCar() {
       bodyType: "sedan",
       transmission: "manual",
       driveConfiguration: "2wd",
-      exteriorColor: "",
-      interiorColor: "",
+      exteriorColor: "White", // Set default color
+      interiorColor: "Black", // Set default color
       condition: "locally_used",
-      price: 0,
+      price: 100000, // Set minimum valid price
       negotiable: true,
       description: "",
       features: [],
       images: [],
-      location: "",
+      location: "Nairobi", // Set default location
       phoneNumber: "",
       whatsappNumber: "",
     },
@@ -912,24 +913,55 @@ export default function SellMyCar() {
                       </div>
                     </div>
 
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-lg py-6"
-                      disabled={listingMutation.isPending}
-                      onClick={(e) => {
-                        console.log("Submit button clicked");
-                        console.log("Form state:", {
-                          isValid: listingForm.formState.isValid,
-                          errors: listingForm.formState.errors,
-                          values: listingForm.getValues()
-                        });
-                      }}
-                    >
-                      {listingMutation.isPending 
-                        ? "Creating Listing..." 
-                        : "Create Listing"
-                      }
-                    </Button>
+                    <div className="space-y-4">
+                      {/* Debug button to show form errors */}
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          console.log("=== FORM DEBUG INFO ===");
+                          console.log("Form state:", {
+                            isValid: listingForm.formState.isValid,
+                            errors: listingForm.formState.errors,
+                            values: listingForm.getValues()
+                          });
+                          
+                          // Show validation errors in alert
+                          const errors = listingForm.formState.errors;
+                          const errorMessages = Object.entries(errors).map(([field, error]) => 
+                            `${field}: ${error?.message || 'Invalid value'}`
+                          );
+                          
+                          if (errorMessages.length > 0) {
+                            alert(`Form validation errors:\n${errorMessages.join('\n')}`);
+                          } else {
+                            alert('Form is valid!');
+                          }
+                        }}
+                      >
+                        Debug Form Errors
+                      </Button>
+                      
+                      <Button 
+                        type="submit" 
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-lg py-6"
+                        disabled={listingMutation.isPending}
+                        onClick={(e) => {
+                          console.log("Submit button clicked");
+                          console.log("Form state:", {
+                            isValid: listingForm.formState.isValid,
+                            errors: listingForm.formState.errors,
+                            values: listingForm.getValues()
+                          });
+                        }}
+                      >
+                        {listingMutation.isPending 
+                          ? "Creating Listing..." 
+                          : "Create Listing"
+                        }
+                      </Button>
+                    </div>
                   </form>
                 </Form>
               </CardContent>

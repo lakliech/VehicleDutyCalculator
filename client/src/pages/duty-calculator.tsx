@@ -41,7 +41,6 @@ export default function DutyCalculator() {
   const [manualVehicleData, setManualVehicleData] = useState<ManualVehicleData | null>(null);
   const [selectedTrailer, setSelectedTrailer] = useState<Trailer | null>(null);
   const [selectedHeavyMachinery, setSelectedHeavyMachinery] = useState<HeavyMachinery | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>("under1500cc");
 
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
@@ -53,16 +52,6 @@ export default function DutyCalculator() {
       fuelType: "petrol",
     },
   });
-
-  // Watch for form changes and update local category state
-  const formCategory = form.watch("vehicleCategory");
-  
-  // Sync local state with form state
-  useEffect(() => {
-    if (formCategory && formCategory !== selectedCategory) {
-      setSelectedCategory(formCategory);
-    }
-  }, [formCategory, selectedCategory]);
 
   // Handle vehicle selection
   const handleVehicleSelect = (vehicle: VehicleReference | null, manual?: ManualVehicleData) => {
@@ -88,7 +77,6 @@ export default function DutyCalculator() {
       }
       
       form.setValue("vehicleCategory", autoCategory);
-      setSelectedCategory(autoCategory); // Update local state
       form.setValue("fuelType", fuel as any);
     } else if (manual) {
       // Handle manual vehicle data with proration
@@ -108,14 +96,12 @@ export default function DutyCalculator() {
       }
       
       form.setValue("vehicleCategory", autoCategory);
-      setSelectedCategory(autoCategory); // Update local state
       form.setValue("fuelType", fuel as any);
       form.setValue("vehicleValue", manual.proratedCrsp); // Set prorated CRSP value
     } else {
       // Clear form when no vehicle selected
       form.setValue("engineSize", 0);
       form.setValue("vehicleCategory", "");
-      setSelectedCategory(""); // Clear local state
       form.setValue("fuelType", "petrol");
       form.setValue("vehicleValue", undefined);
     }
@@ -151,7 +137,6 @@ export default function DutyCalculator() {
   const handleCategoryChange = (category: string) => {
     console.log("Category change handler called with:", category);
     form.setValue("vehicleCategory", category);
-    setSelectedCategory(category); // Update local state for visual feedback
     
     // Clear category conflict
     setCategoryConflict(null);
@@ -288,7 +273,7 @@ export default function DutyCalculator() {
                   </CardHeader>
                   <CardContent>
                     <VehicleCategorySelector 
-                      value={selectedCategory}
+                      value={form.watch("vehicleCategory")}
                       onValueChange={handleCategoryChange}
                     />
                   </CardContent>

@@ -281,9 +281,10 @@ export default function SellMyCar() {
       setMainImageIndex(0);
     },
     onError: (error) => {
+      console.error("Listing creation error:", error);
       toast({
         title: "Error",
-        description: "Failed to create listing. Please try again.",
+        description: error.message || "Failed to create listing. Please try again.",
         variant: "destructive",
       });
     },
@@ -315,12 +316,13 @@ export default function SellMyCar() {
   const onListingSubmit = (data: ListingForm) => {
     console.log("Form submission attempt:", data);
     console.log("Form validation errors:", listingForm.formState.errors);
+    console.log("User authentication status:", { isAuthenticated, user });
     
     // Check authentication and show login popup if not authenticated
     if (!isAuthenticated || !user) {
       toast({
         title: "Authentication Required",
-        description: "Please sign in to create a listing.",
+        description: "Please sign in with Google to create a listing.",
         variant: "destructive",
       });
       setShowLoginForm(true);
@@ -340,6 +342,7 @@ export default function SellMyCar() {
     };
 
     console.log("Submitting listing data:", submissionData);
+    console.log("Current user:", user);
     
     listingMutation.mutate(submissionData);
   };

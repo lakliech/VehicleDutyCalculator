@@ -34,6 +34,7 @@ import crypto from "crypto";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import session from "express-session";
+import path from "path";
 
 // Simple authentication middleware
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
@@ -75,6 +76,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     saveUninitialized: false,
     cookie: { secure: false } // Set to true in production with HTTPS
   }));
+
+  // Serve test file
+  app.get('/test-auth', (req, res) => {
+    res.sendFile(path.join(__dirname, '../test-auth.html'));
+  });
+
+  // Debug endpoint for session state
+  app.get('/api/debug/session', (req, res) => {
+    res.json({
+      sessionId: req.sessionID,
+      session: req.session,
+      isAuthenticated: req.isAuthenticated?.(),
+      user: req.user,
+      cookies: req.headers.cookie,
+    });
+  });
 
   // Passport middleware
   app.use(passport.initialize());
@@ -124,9 +141,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth middleware - supports both session and token authentication
   const authenticateUser = async (req: any, res: any, next: any) => {
+    console.log("Auth middleware called:", {
+      isAuthenticated: req.isAuthenticated?.(),
+      hasUser: !!req.user,
+      sessionId: req.sessionID,
+      cookies: req.headers.cookie,
+    });
+    
     // Check for session-based authentication first (Google OAuth)
     if (req.isAuthenticated && req.isAuthenticated() && req.user) {
-      req.user = req.user; // User is already available from session
+      console.log("User authenticated via session:", req.user.email);
       return next();
     }
     
@@ -134,6 +158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const auth = req.headers.authorization;
     
     if (!auth || !auth.startsWith('Bearer ')) {
+      console.log("No authentication token found, returning 401");
       return res.status(401).json({ error: "Authentication required" });
     }
     
@@ -253,6 +278,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Check authentication status
   app.get('/api/auth/status', (req: Request, res: Response) => {
+    console.log("Auth status check:", {
+      isAuthenticated: req.isAuthenticated?.(),
+      hasUser: !!req.user,
+      sessionId: req.sessionID,
+      user: req.user ? { id: req.user.id, email: req.user.email } : null
+    });
+    
     if (req.isAuthenticated?.() && req.user) {
       res.json({ authenticated: true, user: req.user });
     } else {
@@ -685,6 +717,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/marketplace/listings", authenticateUser, async (req, res) => {
     try {
       const listingData = req.body;
+      console.log("Creating listing for user:", req.user.email, "with data:", Object.keys(listingData));
       
       // Add seller ID from authenticated user
       const listingWithSeller = {
@@ -693,6 +726,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const listing = await storage.createListing(listingWithSeller);
+      console.log("Listing created successfully:", listing.id);
       
       res.status(201).json(listing);
     } catch (error) {

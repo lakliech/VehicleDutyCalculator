@@ -177,7 +177,28 @@ export default function SellMyCar() {
       listingForm.setValue("make", vehicle.make);
       listingForm.setValue("model", vehicle.model);
       listingForm.setValue("engineSize", vehicle.engineCapacity);
-      listingForm.setValue("fuelType", vehicle.fuel as any);
+      
+      // Normalize fuel type to match our schema (lowercase)
+      if (vehicle.fuelType) {
+        const fuelTypeMapping: Record<string, string> = {
+          "PETROL": "petrol",
+          "Petrol": "petrol",
+          "petrol": "petrol",
+          "DIESEL": "diesel", 
+          "Diesel": "diesel",
+          "diesel": "diesel",
+          "Electric": "electric",
+          "ELECTRIC": "electric",
+          "electric": "electric",
+          "Hybrid": "hybrid",
+          "HYBRID": "hybrid",
+          "hybrid": "hybrid"
+        };
+        const normalizedFuelType = fuelTypeMapping[vehicle.fuelType] || "petrol";
+        listingForm.setValue("fuelType", normalizedFuelType as any);
+      } else {
+        listingForm.setValue("fuelType", "petrol"); // Default fallback
+      }
       
       // Map body type if available
       if (vehicle.bodyType) {

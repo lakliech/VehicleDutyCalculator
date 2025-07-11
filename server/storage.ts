@@ -1,14 +1,15 @@
 import { 
   vehicles, calculations, depreciationRates, taxRates, processingFees, vehicleCategoryRules, registrationFees, trailers, heavyMachinery,
-  userRoles, appUsers, userSessions, userActivities, listingApprovals, userPreferences, userStats, carListings, passwordResetTokens, priceIndicators,
+  userRoles, appUsers, userSessions, userActivities, listingApprovals, userPreferences, userStats, carListings, carInquiries, favoriteListings, passwordResetTokens, priceIndicators,
   type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, 
   type DepreciationRate, type TaxRate, type ProcessingFee, type VehicleCategoryRule, type RegistrationFee, 
   type Trailer, type HeavyMachinery, type UserRole, type AppUser, type InsertAppUser, type InsertUserRole,
-  type CarListing, type InsertCarListing, type ListingApproval, type InsertListingApproval,
+  type CarListing, type InsertCarListing, type CarInquiry, type InsertCarInquiry, type FavoriteListing,
+  type ListingApproval, type InsertListingApproval,
   type UserActivity, type UserStats, type UserPreferences, type PasswordResetToken, type PriceIndicator
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, or, desc, sql, gt } from "drizzle-orm";
+import { eq, and, gte, lte, or, desc, asc, sql, gt, like, isNull } from "drizzle-orm";
 
 export interface IStorage {
   // Existing duty calculation methods
@@ -78,6 +79,19 @@ export interface IStorage {
   // Price indicators methods
   getPriceIndicators(): Promise<PriceIndicator[]>;
   getPriceIndicatorForPercentage(percentage: number): Promise<PriceIndicator | undefined>;
+  
+  // Marketplace search and filtering methods
+  searchListings(filters: any): Promise<CarListing[]>;
+  getAvailableMakes(): Promise<string[]>;
+  getAvailableModels(make: string): Promise<string[]>;
+  getListingWithSeller(id: number): Promise<any>;
+  incrementViewCount(id: number): Promise<void>;
+  
+  // Marketplace interaction methods
+  createInquiry(data: any): Promise<any>;
+  createOffer(data: any): Promise<any>;
+  addFavorite(userId: string, listingId: number): Promise<void>;
+  removeFavorite(userId: string, listingId: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -896,6 +910,218 @@ export class DatabaseStorage implements IStorage {
     }
     
     return undefined;
+  }
+
+  // ===============================
+  // MARKETPLACE METHODS
+  // ===============================
+
+  async searchListings(filters: any): Promise<CarListing[]> {
+    let query = db.select().from(carListings).where(eq(carListings.status, "active"));
+
+    // Apply filters
+    const conditions = [eq(carListings.status, "active")];
+
+    if (filters.make) {
+      conditions.push(eq(carListings.make, filters.make));
+    }
+    if (filters.model) {
+      conditions.push(eq(carListings.model, filters.model));
+    }
+    if (filters.minPrice) {
+      conditions.push(gte(carListings.price, filters.minPrice));
+    }
+    if (filters.maxPrice) {
+      conditions.push(lte(carListings.price, filters.maxPrice));
+    }
+    if (filters.minYear) {
+      conditions.push(gte(carListings.year, filters.minYear));
+    }
+    if (filters.maxYear) {
+      conditions.push(lte(carListings.year, filters.maxYear));
+    }
+    if (filters.fuelType) {
+      conditions.push(eq(carListings.fuelType, filters.fuelType));
+    }
+    if (filters.bodyType) {
+      conditions.push(eq(carListings.bodyType, filters.bodyType));
+    }
+    if (filters.transmission) {
+      conditions.push(eq(carListings.transmission, filters.transmission));
+    }
+    if (filters.location) {
+      conditions.push(eq(carListings.location, filters.location));
+    }
+    if (filters.condition) {
+      conditions.push(eq(carListings.condition, filters.condition));
+    }
+    if (filters.searchQuery) {
+      const searchTerm = `%${filters.searchQuery.toLowerCase()}%`;
+      conditions.push(
+        or(
+          like(sql`LOWER(${carListings.make})`, searchTerm),
+          like(sql`LOWER(${carListings.model})`, searchTerm),
+          like(sql`LOWER(${carListings.title})`, searchTerm)
+        )
+      );
+    }
+
+    const finalQuery = query.where(and(...conditions));
+
+    // Apply sorting
+    switch (filters.sortBy) {
+      case 'price_low':
+        finalQuery.orderBy(asc(carListings.price));
+        break;
+      case 'price_high':
+        finalQuery.orderBy(desc(carListings.price));
+        break;
+      case 'year_new':
+        finalQuery.orderBy(desc(carListings.year));
+        break;
+      case 'mileage_low':
+        finalQuery.orderBy(asc(carListings.mileage));
+        break;
+      case 'popular':
+        finalQuery.orderBy(desc(carListings.viewCount));
+        break;
+      case 'oldest':
+        finalQuery.orderBy(asc(carListings.createdAt));
+        break;
+      default: // newest
+        finalQuery.orderBy(desc(carListings.createdAt));
+    }
+
+    return await finalQuery;
+  }
+
+  async getAvailableMakes(): Promise<string[]> {
+    const results = await db
+      .selectDistinct({ make: carListings.make })
+      .from(carListings)
+      .where(eq(carListings.status, "active"))
+      .orderBy(asc(carListings.make));
+    
+    return results.map(r => r.make);
+  }
+
+  async getAvailableModels(make: string): Promise<string[]> {
+    const results = await db
+      .selectDistinct({ model: carListings.model })
+      .from(carListings)
+      .where(
+        and(
+          eq(carListings.status, "active"),
+          eq(carListings.make, make)
+        )
+      )
+      .orderBy(asc(carListings.model));
+    
+    return results.map(r => r.model);
+  }
+
+  async getListingWithSeller(id: number): Promise<any> {
+    const results = await db
+      .select({
+        listing: carListings,
+        seller: appUsers
+      })
+      .from(carListings)
+      .leftJoin(appUsers, eq(carListings.sellerId, appUsers.id))
+      .where(eq(carListings.id, id))
+      .limit(1);
+
+    if (results.length === 0) return null;
+
+    const result = results[0];
+    return {
+      ...result.listing,
+      seller: result.seller
+    };
+  }
+
+  async incrementViewCount(id: number): Promise<void> {
+    await db
+      .update(carListings)
+      .set({ 
+        viewCount: sql`${carListings.viewCount} + 1`,
+        updatedAt: new Date()
+      })
+      .where(eq(carListings.id, id));
+  }
+
+  async createInquiry(data: any): Promise<any> {
+    const [inquiry] = await db
+      .insert(carInquiries)
+      .values(data)
+      .returning();
+    
+    return inquiry;
+  }
+
+  async createOffer(data: any): Promise<any> {
+    // For now, store offers as inquiries with type "offer"
+    const offerInquiry = {
+      listingId: data.listingId,
+      buyerName: `Buyer ${data.buyerId}`,
+      buyerPhone: '',
+      buyerEmail: '',
+      message: `Offer: KES ${data.offerAmount}. ${data.message}`,
+      inquiryType: 'offer',
+      preferredContactMethod: 'email'
+    };
+
+    const [inquiry] = await db
+      .insert(carInquiries)
+      .values(offerInquiry)
+      .returning();
+    
+    return inquiry;
+  }
+
+  async addFavorite(userId: string, listingId: number): Promise<void> {
+    try {
+      await db
+        .insert(favoriteListings)
+        .values({ userId, listingId })
+        .onConflictDoNothing();
+      
+      // Update favorite count
+      await db
+        .update(carListings)
+        .set({ 
+          favoriteCount: sql`${carListings.favoriteCount} + 1`,
+          updatedAt: new Date()
+        })
+        .where(eq(carListings.id, listingId));
+    } catch (error) {
+      // Ignore duplicate errors
+      if (!error.message?.includes('duplicate key')) {
+        throw error;
+      }
+    }
+  }
+
+  async removeFavorite(userId: string, listingId: number): Promise<void> {
+    const result = await db
+      .delete(favoriteListings)
+      .where(
+        and(
+          eq(favoriteListings.userId, userId),
+          eq(favoriteListings.listingId, listingId)
+        )
+      );
+
+    // Update favorite count if a row was deleted
+    if (result.rowCount && result.rowCount > 0) {
+      await db
+        .update(carListings)
+        .set({ 
+          favoriteCount: sql`GREATEST(${carListings.favoriteCount} - 1, 0)`,
+          updatedAt: new Date()
+        })
+        .where(eq(carListings.id, listingId));
+    }
   }
 }
 

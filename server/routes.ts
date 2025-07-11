@@ -610,6 +610,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // MARKETPLACE ENDPOINTS
   // ===============================
 
+  // Search listings with filters
+  app.get("/api/marketplace/search", async (req, res) => {
+    try {
+      const filters = req.query;
+      const listings = await storage.searchListings(filters);
+      res.json(listings);
+    } catch (error) {
+      console.error("Failed to search listings:", error);
+      res.status(500).json({ error: "Failed to search listings" });
+    }
+  });
+
+  // Get available makes
+  app.get("/api/marketplace/makes", async (req, res) => {
+    try {
+      const makes = await storage.getAvailableMakes();
+      res.json(makes);
+    } catch (error) {
+      console.error("Failed to get makes:", error);
+      res.status(500).json({ error: "Failed to get makes" });
+    }
+  });
+
+  // Get available models for a make
+  app.get("/api/marketplace/models", async (req, res) => {
+    try {
+      const { make } = req.query;
+      const models = await storage.getAvailableModels(make as string);
+      res.json(models);
+    } catch (error) {
+      console.error("Failed to get models:", error);
+      res.status(500).json({ error: "Failed to get models" });
+    }
+  });
+
+  // Get single listing with seller details
+  app.get("/api/marketplace/listings/:id", async (req, res) => {
+    try {
+      const listing = await storage.getListingWithSeller(parseInt(req.params.id));
+      if (!listing) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      res.json(listing);
+    } catch (error) {
+      console.error("Failed to get listing:", error);
+      res.status(500).json({ error: "Failed to get listing" });
+    }
+  });
+
+  // Update view count
+  app.post("/api/marketplace/listings/:id/view", async (req, res) => {
+    try {
+      await storage.incrementViewCount(parseInt(req.params.id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to update view count:", error);
+      res.status(500).json({ error: "Failed to update view count" });
+    }
+  });
+
   // Create new car listing
   app.post("/api/marketplace/listings", authenticateUser, async (req, res) => {
     try {
@@ -627,6 +687,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to create listing:", error);
       res.status(500).json({ error: "Failed to create listing" });
+    }
+  });
+
+  // Send inquiry about listing
+  app.post("/api/marketplace/listings/:id/inquiries", async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      const inquiryData = {
+        ...req.body,
+        listingId
+      };
+      
+      const inquiry = await storage.createInquiry(inquiryData);
+      res.status(201).json(inquiry);
+    } catch (error) {
+      console.error("Failed to create inquiry:", error);
+      res.status(500).json({ error: "Failed to create inquiry" });
+    }
+  });
+
+  // Send offer for listing
+  app.post("/api/marketplace/listings/:id/offers", authenticateUser, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      const offerData = {
+        ...req.body,
+        listingId,
+        buyerId: req.user.id
+      };
+      
+      const offer = await storage.createOffer(offerData);
+      res.status(201).json(offer);
+    } catch (error) {
+      console.error("Failed to create offer:", error);
+      res.status(500).json({ error: "Failed to create offer" });
+    }
+  });
+
+  // Toggle favorite listing
+  app.post("/api/marketplace/favorites/:id", authenticateUser, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      await storage.addFavorite(req.user.id, listingId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to add favorite:", error);
+      res.status(500).json({ error: "Failed to add favorite" });
+    }
+  });
+
+  app.delete("/api/marketplace/favorites/:id", authenticateUser, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      await storage.removeFavorite(req.user.id, listingId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to remove favorite:", error);
+      res.status(500).json({ error: "Failed to remove favorite" });
     }
   });
 

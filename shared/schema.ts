@@ -229,6 +229,14 @@ export type PriceIndicator = typeof priceIndicators.$inferSelect;
 export type DutyCalculation = z.infer<typeof dutyCalculationSchema>;
 export type DutyResult = z.infer<typeof dutyResultSchema>;
 
+// Marketplace types
+export type CarListing = typeof carListings.$inferSelect;
+export type InsertCarListing = typeof carListings.$inferInsert;
+export type CarInquiry = typeof carInquiries.$inferSelect;
+export type InsertCarInquiry = typeof carInquiries.$inferInsert;
+export type FavoriteListing = typeof favoriteListings.$inferSelect;
+export type SavedSearch = typeof savedSearches.$inferSelect;
+
 // Car marketplace tables for selling and buying
 export const carListings = pgTable("car_listings", {
   id: serial("id").primaryKey(),

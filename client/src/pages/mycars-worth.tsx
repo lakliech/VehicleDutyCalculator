@@ -294,7 +294,7 @@ export default function MyCarsWorth() {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="text-center p-4 bg-gray-50 rounded-lg">
                           <div className="text-xl font-semibold text-gray-900">
-                            {formatCurrency(valuationResult.referenceVehicle.basePrice)}
+                            {formatCurrency(valuationResult.referenceVehicle?.basePrice || valuationResult.valuationFactors?.basePrice || 0)}
                           </div>
                           <div className="text-sm text-gray-600">Base Price</div>
                         </div>

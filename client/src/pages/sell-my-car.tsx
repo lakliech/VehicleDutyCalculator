@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { ModuleNavigation } from "@/components/module-navigation";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import type { VehicleReference } from "@shared/schema";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 

@@ -203,7 +203,7 @@ export default function PriceTrends() {
           </Card>
 
           {/* Analysis Results */}
-          {analysis && (
+          {analysis && analysis.vehicleInfo && (
             <div className="space-y-6">
               {/* Market Overview */}
               <Card>
@@ -217,19 +217,19 @@ export default function PriceTrends() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-purple-600">
-                        KES {analysis.vehicleInfo.averagePrice.toLocaleString()}
+                        KES {(analysis.vehicleInfo.averagePrice || 0).toLocaleString()}
                       </div>
                       <div className="text-sm text-gray-600">Average Market Price</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-cyan-600">
-                        {analysis.vehicleInfo.totalListings}
+                        {analysis.vehicleInfo.totalListings || 0}
                       </div>
                       <div className="text-sm text-gray-600">Active Listings</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-gray-700">
-                        KES {analysis.vehicleInfo.priceRange.min.toLocaleString()} - {analysis.vehicleInfo.priceRange.max.toLocaleString()}
+                        KES {(analysis.vehicleInfo.priceRange?.min || 0).toLocaleString()} - {(analysis.vehicleInfo.priceRange?.max || 0).toLocaleString()}
                       </div>
                       <div className="text-sm text-gray-600">Price Range</div>
                     </div>
@@ -247,41 +247,45 @@ export default function PriceTrends() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">Price Trend:</span>
-                      <Badge className={`${getTrendColor(analysis.marketInsights.trendDirection)}`}>
-                        {getTrendIcon(analysis.marketInsights.trendDirection)}
-                        <span className="ml-2 capitalize">{analysis.marketInsights.trendDirection}</span>
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">Confidence Level:</span>
-                      <div className="flex items-center gap-2">
-                        <Progress value={analysis.marketInsights.confidence} className="w-24" />
-                        <span className="text-sm font-medium">{analysis.marketInsights.confidence}%</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">AI Recommendation:</span>
-                      <Badge className={`${getRecommendationColor(analysis.marketInsights.recommendation)}`}>
-                        {analysis.marketInsights.recommendation.toUpperCase()}
-                      </Badge>
-                    </div>
-                    
-                    {analysis.marketInsights.keyFactors.length > 0 && (
-                      <div>
-                        <span className="font-medium">Key Factors:</span>
-                        <ul className="mt-2 space-y-1">
-                          {analysis.marketInsights.keyFactors.map((factor, index) => (
-                            <li key={index} className="text-sm text-gray-600 flex items-center gap-2">
-                              <AlertCircle className="w-4 h-4" />
-                              {factor}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                    {analysis.marketInsights && (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">Price Trend:</span>
+                          <Badge className={`${getTrendColor(analysis.marketInsights.trendDirection || 'stable')}`}>
+                            {getTrendIcon(analysis.marketInsights.trendDirection || 'stable')}
+                            <span className="ml-2 capitalize">{analysis.marketInsights.trendDirection || 'stable'}</span>
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">Confidence Level:</span>
+                          <div className="flex items-center gap-2">
+                            <Progress value={analysis.marketInsights.confidence || 0} className="w-24" />
+                            <span className="text-sm font-medium">{analysis.marketInsights.confidence || 0}%</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">AI Recommendation:</span>
+                          <Badge className={`${getRecommendationColor(analysis.marketInsights.recommendation || 'hold')}`}>
+                            {(analysis.marketInsights.recommendation || 'hold').toUpperCase()}
+                          </Badge>
+                        </div>
+                        
+                        {analysis.marketInsights.keyFactors && analysis.marketInsights.keyFactors.length > 0 && (
+                          <div>
+                            <span className="font-medium">Key Factors:</span>
+                            <ul className="mt-2 space-y-1">
+                              {analysis.marketInsights.keyFactors.map((factor, index) => (
+                                <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
+                                  <span className="text-purple-600">•</span>
+                                  {factor}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </CardContent>

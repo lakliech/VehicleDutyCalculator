@@ -1866,6 +1866,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { priceAnalyzer } = await import('./ai-price-analyzer');
       const analysis = await priceAnalyzer.analyzePriceTrends(make, model, engineSize);
       
+      // Check if AI analysis failed due to quota and add user-friendly messaging
+      if (analysis.aiAnalysis?.summary === "AI analysis temporarily unavailable") {
+        analysis.quotaExceeded = true;
+        analysis.warningMessage = "AI analysis is currently unavailable due to high demand. Basic market analysis is still provided.";
+      }
+      
       res.json(analysis);
     } catch (error) {
       console.error("Price trend analysis error:", error);

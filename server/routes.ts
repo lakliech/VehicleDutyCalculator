@@ -2235,6 +2235,212 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===============================
+  // VEHICLE VALUATION API ROUTES
+  // ===============================
+
+  // Calculate instant vehicle valuation
+  app.post('/api/vehicle-valuation', async (req, res) => {
+    try {
+      const { 
+        vehicleId, 
+        make, 
+        model, 
+        year, 
+        engineCapacity, 
+        fuelType, 
+        mileage = 0, 
+        condition = 'good', 
+        location = 'nairobi' 
+      } = req.body;
+
+      // Validate required fields
+      if (!make || !model || !year) {
+        return res.status(400).json({ 
+          error: "Make, model, and year are required for valuation" 
+        });
+      }
+
+      // Get base vehicle data from database
+      let baseVehicle = null;
+      if (vehicleId) {
+        const vehicleData = await db
+          .select()
+          .from(vehicleReferences)
+          .where(eq(vehicleReferences.id, vehicleId))
+          .limit(1);
+        
+        if (vehicleData.length > 0) {
+          baseVehicle = vehicleData[0];
+        }
+      }
+
+      // If no specific vehicle found, search for similar vehicles
+      if (!baseVehicle) {
+        const similarVehicles = await db
+          .select()
+          .from(vehicleReferences)
+          .where(sql`
+            LOWER(${vehicleReferences.make}) = LOWER(${make}) AND
+            LOWER(${vehicleReferences.model}) = LOWER(${model}) AND
+            (${vehicleReferences.crspKes} IS NOT NULL OR ${vehicleReferences.crsp2020} IS NOT NULL)
+          `)
+          .limit(5);
+
+        if (similarVehicles.length > 0) {
+          // Find the closest match by engine capacity
+          if (engineCapacity && engineCapacity > 0) {
+            baseVehicle = similarVehicles.reduce((closest, current) => {
+              const currentDiff = Math.abs((current.engineCapacity || 0) - engineCapacity);
+              const closestDiff = Math.abs((closest.engineCapacity || 0) - engineCapacity);
+              return currentDiff < closestDiff ? current : closest;
+            });
+          } else {
+            baseVehicle = similarVehicles[0];
+          }
+        }
+      }
+
+      if (!baseVehicle) {
+        return res.status(404).json({ 
+          error: "No reference vehicle found for valuation" 
+        });
+      }
+
+      // Calculate base market value
+      const basePrice = baseVehicle.crspKes || baseVehicle.crsp2020 || 0;
+      if (basePrice === 0) {
+        return res.status(400).json({ 
+          error: "No price data available for this vehicle" 
+        });
+      }
+
+      // Calculate age depreciation
+      const currentYear = new Date().getFullYear();
+      const vehicleAge = currentYear - year;
+      const maxAge = 20; // Max age for calculation
+      const ageDepreciation = Math.min(vehicleAge * 0.08, 0.8); // 8% per year, max 80%
+
+      // Calculate mileage adjustment
+      const avgMileagePerYear = 15000; // Average annual mileage in Kenya
+      const expectedMileage = vehicleAge * avgMileagePerYear;
+      const mileageDifference = mileage - expectedMileage;
+      const mileageAdjustment = Math.max(-0.3, Math.min(0.1, mileageDifference / 100000 * -0.1));
+
+      // Condition adjustments
+      const conditionAdjustments = {
+        'excellent': 0.15,
+        'good': 0,
+        'fair': -0.15,
+        'poor': -0.35
+      };
+      const conditionAdjustment = conditionAdjustments[condition as keyof typeof conditionAdjustments] || 0;
+
+      // Location factor (simplified)
+      const locationFactors = {
+        'nairobi': 0.05,
+        'mombasa': 0.02,
+        'kisumu': -0.02,
+        'nakuru': -0.01,
+        'eldoret': -0.03
+      };
+      const locationFactor = locationFactors[location.toLowerCase() as keyof typeof locationFactors] || 0;
+
+      // Calculate final values
+      const depreciatedValue = basePrice * (1 - ageDepreciation);
+      const adjustedValue = depreciatedValue * (1 + mileageAdjustment + conditionAdjustment + locationFactor);
+      const finalValue = Math.max(adjustedValue, basePrice * 0.1); // Minimum 10% of base price
+
+      // Calculate confidence score
+      const hasExactMatch = vehicleId && baseVehicle.id === vehicleId;
+      const hasEngineMatch = Math.abs((baseVehicle.engineCapacity || 0) - (engineCapacity || 0)) <= 200;
+      const dataQuality = baseVehicle.crspKes ? 1 : 0.8; // Higher confidence for current CRSP vs 2020
+      
+      let confidenceScore = 70; // Base confidence
+      if (hasExactMatch) confidenceScore += 20;
+      if (hasEngineMatch) confidenceScore += 10;
+      confidenceScore = Math.round(confidenceScore * dataQuality);
+
+      // Use OpenAI for market analysis
+      let aiAnalysis = "Market analysis unavailable";
+      try {
+        // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content: `You are a vehicle valuation expert for the Kenya market. Provide a brief market analysis for a vehicle valuation.`
+            },
+            {
+              role: "user",
+              content: `Analyze the market for a ${year} ${make} ${model} (${engineCapacity}cc) in ${condition} condition with ${mileage} km. Current valuation: KES ${Math.round(finalValue).toLocaleString()}. Provide insights on market demand, price trends, and recommendations in 2-3 sentences.`
+            }
+          ],
+          max_tokens: 150
+        });
+
+        aiAnalysis = completion.choices[0].message.content || aiAnalysis;
+      } catch (error) {
+        console.error('AI analysis error:', error);
+      }
+
+      // Prepare valuation result
+      const valuation = {
+        vehicleId: baseVehicle.id,
+        make: baseVehicle.make,
+        model: baseVehicle.model,
+        year,
+        engineCapacity: engineCapacity || baseVehicle.engineCapacity,
+        fuelType: fuelType || baseVehicle.fuelType,
+        mileage,
+        condition,
+        location,
+        marketValue: Math.round(finalValue),
+        depreciatedValue: Math.round(depreciatedValue),
+        adjustedValue: Math.round(adjustedValue),
+        confidenceScore,
+        valuationFactors: {
+          ageDepreciation,
+          mileageAdjustment,
+          conditionAdjustment,
+          locationFactor,
+          basePrice
+        },
+        aiAnalysis,
+        referenceVehicle: {
+          make: baseVehicle.make,
+          model: baseVehicle.model,
+          engineCapacity: baseVehicle.engineCapacity,
+          basePrice: basePrice
+        }
+      };
+
+      res.json(valuation);
+    } catch (error) {
+      console.error('Vehicle valuation error:', error);
+      res.status(500).json({ error: 'Failed to calculate vehicle valuation' });
+    }
+  });
+
+  // Get valuation history for a user
+  app.get('/api/vehicle-valuations/history', async (req, res) => {
+    try {
+      const { limit = 10 } = req.query;
+      
+      const valuations = await db
+        .select()
+        .from(vehicleReferences)
+        .limit(parseInt(limit as string))
+        .orderBy(sql`${vehicleReferences.createdAt} DESC`);
+
+      res.json(valuations);
+    } catch (error) {
+      console.error('Failed to fetch valuation history:', error);
+      res.status(500).json({ error: 'Failed to fetch valuation history' });
+    }
+  });
+
+  // ===============================
   // CHATBOT API ROUTES
   // ===============================
 

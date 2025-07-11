@@ -646,6 +646,38 @@ export type AdminCredential = typeof adminCredentials.$inferSelect;
 export type InsertAdminCredential = z.infer<typeof adminCredentialSchema>;
 export type AdminLogin = z.infer<typeof adminLoginSchema>;
 
+// Vehicle Valuation Schema
+export const vehicleValuations = pgTable("vehicle_valuations", {
+  id: serial("id").primaryKey(),
+  vehicleId: integer("vehicle_id").references(() => vehicleReferences.id),
+  make: text("make").notNull(),
+  model: text("model").notNull(),
+  year: integer("year").notNull(),
+  engineCapacity: integer("engine_capacity"),
+  fuelType: text("fuel_type"),
+  mileage: integer("mileage"),
+  condition: text("condition").notNull(), // excellent, good, fair, poor
+  location: text("location"),
+  marketValue: decimal("market_value", { precision: 12, scale: 2 }).notNull(),
+  depreciatedValue: decimal("depreciated_value", { precision: 12, scale: 2 }),
+  adjustedValue: decimal("adjusted_value", { precision: 12, scale: 2 }),
+  confidenceScore: integer("confidence_score").default(85), // 0-100
+  valuationFactors: text("valuation_factors"), // JSON string for factors
+  aiAnalysis: text("ai_analysis"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Valuation schemas
+export const vehicleValuationSchema = createInsertSchema(vehicleValuations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type VehicleValuation = typeof vehicleValuations.$inferSelect;
+export type InsertVehicleValuation = z.infer<typeof vehicleValuationSchema>;
+
 // Manual vehicle data for proration
 export interface ManualVehicleData {
   make: string;

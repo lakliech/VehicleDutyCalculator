@@ -46,7 +46,6 @@ export default function DutyCalculator() {
     resolver: zodResolver(dutyCalculationSchema),
     defaultValues: {
       vehicleCategory: "under1500cc",
-      vehicleValue: 0,
       engineSize: 1500,
       vehicleAge: 0,
       isDirectImport: true,
@@ -60,7 +59,6 @@ export default function DutyCalculator() {
     setManualVehicleData(manual || null);
     
     if (vehicle) {
-      form.setValue("vehicleValue", vehicle.crspKes || vehicle.crsp2020 || 0);
       form.setValue("engineSize", vehicle.engineCapacity || 1500);
       
       // Auto-detect category
@@ -82,7 +80,6 @@ export default function DutyCalculator() {
       form.setValue("fuelType", fuel as any);
     } else if (manual) {
       // Handle manual vehicle data with proration
-      form.setValue("vehicleValue", manual.proratedCrsp || 0);
       form.setValue("engineSize", manual.engineCapacity || 1500);
       
       // Auto-detect category for manual vehicle
@@ -107,7 +104,6 @@ export default function DutyCalculator() {
   const handleTrailerSelect = (trailer: Trailer | null) => {
     setSelectedTrailer(trailer);
     if (trailer) {
-      form.setValue("vehicleValue", trailer.crspKes);
       form.setValue("vehicleCategory", "trailer");
       form.setValue("engineSize", 0); // Trailers don't have engines
     }
@@ -117,7 +113,6 @@ export default function DutyCalculator() {
   const handleHeavyMachinerySelect = (machinery: HeavyMachinery | null) => {
     setSelectedHeavyMachinery(machinery);
     if (machinery) {
-      form.setValue("vehicleValue", machinery.crspKes);
       form.setValue("vehicleCategory", "heavyMachinery");
       form.setValue("engineSize", machinery.powerValue || 0);
     }
@@ -168,15 +163,20 @@ export default function DutyCalculator() {
   const canSubmit = () => {
     const values = form.getValues();
     const hasCategory = values.vehicleCategory && values.vehicleCategory !== "";
-    const hasValue = values.vehicleValue > 0;
     const hasEngineSize = values.engineSize >= 0; // 0 is valid for trailers
     const hasValidYear = yearOfManufacture > 0;
     const noConflicts = !categoryConflict;
     
+    // Check if CRSP value is available
+    const hasValidCrsp = selectedVehicle?.crspKes || selectedVehicle?.crsp2020 || 
+                        manualVehicleData?.proratedCrsp || 
+                        selectedTrailer?.crspKes || 
+                        selectedHeavyMachinery?.crspKes;
+    
     // For trailers and heavy machinery, year is not required
     const isYearRequired = !["trailer", "heavyMachinery"].includes(values.vehicleCategory);
     
-    return hasCategory && hasValue && hasEngineSize && (!isYearRequired || hasValidYear) && noConflicts;
+    return hasCategory && hasValidCrsp && hasEngineSize && (!isYearRequired || hasValidYear) && noConflicts;
   };
 
   // Calculate duty mutation
@@ -211,7 +211,18 @@ export default function DutyCalculator() {
   });
 
   const onSubmit = (data: DutyCalculation) => {
-    calculateDutyMutation.mutate(data);
+    // Set vehicle value from CRSP before submitting
+    const vehicleValue = selectedVehicle?.crspKes || selectedVehicle?.crsp2020 || 
+                        manualVehicleData?.proratedCrsp || 
+                        selectedTrailer?.crspKes || 
+                        selectedHeavyMachinery?.crspKes || 0;
+    
+    const submissionData = {
+      ...data,
+      vehicleValue: vehicleValue
+    };
+    
+    calculateDutyMutation.mutate(submissionData);
   };
 
   // Format currency
@@ -438,52 +449,9 @@ export default function DutyCalculator() {
                       )}
                     </div>
 
-                    {/* Vehicle Value */}
-                    <FormField
-                      control={form.control}
-                      name="vehicleValue"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Vehicle Value (KES) *</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="Enter vehicle value in KES"
-                              {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
 
-                    {/* Fuel Type */}
-                    <FormField
-                      control={form.control}
-                      name="fuelType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Fuel Type</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select fuel type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="petrol">Petrol</SelectItem>
-                              <SelectItem value="diesel">Diesel</SelectItem>
-                              <SelectItem value="electric">Electric</SelectItem>
-                              <SelectItem value="hybrid">Hybrid</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+
+
                   </CardContent>
                 </Card>
 
@@ -516,8 +484,9 @@ export default function DutyCalculator() {
                   <li>1. Select your equipment type</li>
                   <li>2. Choose your specific vehicle/equipment</li>
                   <li>3. Enter import details and year</li>
-                  <li>4. Get detailed tax breakdown</li>
-                  <li>5. Download PDF report</li>
+                  <li>4. CRSP value automatically loaded</li>
+                  <li>5. Get detailed tax breakdown</li>
+                  <li>6. Download PDF report</li>
                 </ol>
               </CardContent>
             </Card>
@@ -532,7 +501,8 @@ export default function DutyCalculator() {
               <CardContent>
                 <ul className="space-y-2 text-sm text-gray-600">
                   <li>• Rates are based on official KRA guidelines</li>
-                  <li>• CRSP values are regularly updated</li>
+                  <li>• CRSP values automatically loaded from database</li>
+                  <li>• No manual value entry required</li>
                   <li>• Different rates apply to different categories</li>
                   <li>• Depreciation varies by age and import type</li>
                   <li>• Electric vehicles have reduced rates</li>

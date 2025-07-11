@@ -146,7 +146,7 @@ export const dutyCalculationSchema = z.object({
     "specialPurpose",
     "heavyMachinery"
   ]),
-  vehicleValue: z.number().min(0),
+  vehicleValue: z.number().min(0).optional(), // Made optional since it's calculated from CRSP
   engineSize: z.number().min(1, "Engine size is required"),
   vehicleAge: z.number().min(0).max(50),
   isDirectImport: z.boolean(),

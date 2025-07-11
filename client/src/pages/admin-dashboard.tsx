@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +28,7 @@ import {
   TrendingUp,
   Shield,
   Calculator,
-  ArrowLeft,
+
   LogOut,
   Upload,
   FileText,
@@ -482,12 +481,6 @@ function AuthenticatedAdminDashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/">
-                <Button variant="outline" size="sm" className="flex items-center gap-2 border-purple-300 text-purple-700 hover:bg-purple-50">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Calculator
-                </Button>
-              </Link>
               <Button
                 variant="outline"
                 size="sm"

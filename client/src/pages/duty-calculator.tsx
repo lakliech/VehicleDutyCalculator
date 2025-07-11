@@ -84,7 +84,7 @@ export default function DutyCalculator() {
       
       // Auto-detect category for manual vehicle
       const engine = manual.engineCapacity || 1500;
-      const fuel = "petrol"; // Default for manual entry
+      const fuel = manual.referenceVehicle.fuelType?.toLowerCase() || "petrol"; // Use reference vehicle fuel type
       let autoCategory = "";
       
       if (engine < 1500) {
@@ -97,6 +97,13 @@ export default function DutyCalculator() {
       
       form.setValue("vehicleCategory", autoCategory);
       form.setValue("fuelType", fuel as any);
+      form.setValue("vehicleValue", manual.proratedCrsp); // Set prorated CRSP value
+    } else {
+      // Clear form when no vehicle selected
+      form.setValue("engineSize", 0);
+      form.setValue("vehicleCategory", "");
+      form.setValue("fuelType", "petrol");
+      form.setValue("vehicleValue", undefined);
     }
   };
 

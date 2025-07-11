@@ -459,6 +459,14 @@ Changelog:
   - **Automatic Value Assignment**: Form submission automatically uses CRSP values from selected vehicle/trailer/machinery
   - **Improved User Experience**: Users no longer need to input values manually, reducing errors and ensuring authentic pricing
   - **Enhanced Validation**: Form validation checks for valid CRSP availability instead of manual value entry
+- January 11, 2025. Restored comprehensive proration logic for vehicles not in database:
+  - **Manual Vehicle Entry**: Added complete manual vehicle entry interface with make, model, and engine capacity input
+  - **Intelligent Proration Algorithm**: Finds best reference vehicles from same make, prioritizing same model then closest engine size
+  - **CRSP Calculation**: Implements formula: reference_crsp × manual_engine_capacity ÷ reference_engine_capacity
+  - **Visual Feedback**: Displays prorated CRSP value with detailed calculation breakdown and reference vehicle information
+  - **Seamless Integration**: Manual vehicles flow seamlessly into duty calculation with auto-category detection
+  - **Enhanced UI**: Blue-themed cards for manual entries with "Prorated" badges and calculation transparency
+  - **Form Integration**: Duty calculator properly handles prorated values and sets all required form fields automatically
 - January 11, 2025. Implemented comprehensive Price Trend Heatmap feature:
   - **Interactive Market Visualization**: Created complete price heatmap page with color-coded market insights and filtering capabilities
   - **Backend API Implementation**: Added `/api/marketplace/heatmap` and `/api/marketplace/insights` endpoints with comprehensive market data analysis

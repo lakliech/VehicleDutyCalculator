@@ -826,35 +826,7 @@ export default function DutyCalculator() {
               </Card>
             )}
 
-            {/* Form Progress */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Receipt className="w-5 h-5 text-purple-600" />
-                  <span>Form Progress</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className={`flex items-center space-x-2 ${selectedCategory ? 'text-green-600' : 'text-gray-400'}`}>
-                    <div className={`w-2 h-2 rounded-full ${selectedCategory ? 'bg-green-600' : 'bg-gray-400'}`}></div>
-                    <span className="text-sm">Category Selected</span>
-                  </div>
-                  <div className={`flex items-center space-x-2 ${(selectedVehicle || manualVehicleData || selectedTrailer || selectedMachinery) ? 'text-green-600' : 'text-gray-400'}`}>
-                    <div className={`w-2 h-2 rounded-full ${(selectedVehicle || manualVehicleData || selectedTrailer || selectedMachinery) ? 'bg-green-600' : 'bg-gray-400'}`}></div>
-                    <span className="text-sm">Equipment Selected</span>
-                  </div>
-                  <div className={`flex items-center space-x-2 ${(yearOfManufacture > 0 || ['trailer', 'heavyMachinery'].includes(selectedCategory)) ? 'text-green-600' : 'text-gray-400'}`}>
-                    <div className={`w-2 h-2 rounded-full ${(yearOfManufacture > 0 || ['trailer', 'heavyMachinery'].includes(selectedCategory)) ? 'bg-green-600' : 'bg-gray-400'}`}></div>
-                    <span className="text-sm">Year Specified</span>
-                  </div>
-                  <div className={`flex items-center space-x-2 ${isFormValid() ? 'text-green-600' : 'text-gray-400'}`}>
-                    <div className={`w-2 h-2 rounded-full ${isFormValid() ? 'bg-green-600' : 'bg-gray-400'}`}></div>
-                    <span className="text-sm">Ready to Calculate</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
           </div>
         </div>
 
@@ -887,7 +859,7 @@ export default function DutyCalculator() {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span>Vehicle Value (CRSP):</span>
-                        <span className="font-medium">{formatCurrency(calculationResult.originalValue)}</span>
+                        <span className="font-medium">{formatCurrency(calculationResult.currentRetailPrice)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Depreciation:</span>
@@ -900,7 +872,7 @@ export default function DutyCalculator() {
                       <Separator />
                       <div className="flex justify-between text-lg font-bold">
                         <span>Total Amount Payable:</span>
-                        <span className="text-purple-600">{formatCurrency(calculationResult.totalAmountPayable)}</span>
+                        <span className="text-purple-600">{formatCurrency(calculationResult.totalPayable)}</span>
                       </div>
                     </div>
                   </div>
@@ -911,26 +883,26 @@ export default function DutyCalculator() {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span>Import Duty:</span>
-                        <span className="font-medium">{formatCurrency(calculationResult.breakdown.importDuty)}</span>
+                        <span className="font-medium">{formatCurrency(calculationResult.importDuty)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Excise Duty:</span>
-                        <span className="font-medium">{formatCurrency(calculationResult.breakdown.exciseDuty)}</span>
+                        <span className="font-medium">{formatCurrency(calculationResult.exciseDuty)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>VAT (16%):</span>
-                        <span className="font-medium">{formatCurrency(calculationResult.breakdown.vat)}</span>
+                        <span className="font-medium">{formatCurrency(calculationResult.vat)}</span>
                       </div>
-                      {calculationResult.breakdown.rdl > 0 && (
+                      {calculationResult.rdl > 0 && (
                         <div className="flex justify-between">
                           <span>RDL (2%):</span>
-                          <span className="font-medium">{formatCurrency(calculationResult.breakdown.rdl)}</span>
+                          <span className="font-medium">{formatCurrency(calculationResult.rdl)}</span>
                         </div>
                       )}
-                      {calculationResult.breakdown.idf > 0 && (
+                      {calculationResult.idfFees > 0 && (
                         <div className="flex justify-between">
                           <span>IDF (2.5%):</span>
-                          <span className="font-medium">{formatCurrency(calculationResult.breakdown.idf)}</span>
+                          <span className="font-medium">{formatCurrency(calculationResult.idfFees)}</span>
                         </div>
                       )}
                     </div>
@@ -941,10 +913,10 @@ export default function DutyCalculator() {
                 <div className="mt-8 pt-6 border-t">
                   <h3 className="text-lg font-semibold mb-4">Calculation Details</h3>
                   <div className="text-sm text-gray-600 space-y-2">
-                    <p><strong>Category:</strong> {vehicleCategoryInfo[calculationResult.vehicleCategory as keyof typeof vehicleCategoryInfo]?.label}</p>
-                    <p><strong>Engine Size:</strong> {calculationResult.engineSize}cc</p>
-                    <p><strong>Vehicle Age:</strong> {calculationResult.vehicleAge} years</p>
-                    <p><strong>Import Type:</strong> {calculationResult.isDirectImport ? 'Direct Import' : 'Previously Registered'}</p>
+                    <p><strong>Category:</strong> {vehicleCategoryInfo[form.getValues('vehicleCategory') as keyof typeof vehicleCategoryInfo]?.label}</p>
+                    <p><strong>Engine Size:</strong> {form.getValues('engineSize')}cc</p>
+                    <p><strong>Vehicle Age:</strong> {form.getValues('vehicleAge')} years</p>
+                    <p><strong>Import Type:</strong> {form.getValues('isDirectImport') ? 'Direct Import' : 'Previously Registered'}</p>
                     {calculationResult.usedCrsp2020 && (
                       <div className="flex items-center space-x-2 text-orange-600">
                         <Database className="w-4 h-4" />

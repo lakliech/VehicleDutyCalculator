@@ -741,45 +741,65 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
                 <Camera className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                 <p className="text-gray-600 mb-4">Drag photos here or click to browse</p>
                 <p className="text-xs text-gray-500 mb-4">Supports JPG, PNG, WEBP (max 5MB per file)</p>
-                <Input
+                <input
                   type="file"
                   multiple
                   accept="image/*"
                   onChange={handleImageUpload}
                   className="hidden"
                   id="image-upload"
+                  ref={(el) => {
+                    if (el) {
+                      (window as any).imageUploadRef = el;
+                    }
+                  }}
                 />
-                <Input
+                <input
                   type="file"
                   accept="image/*"
                   capture="environment"
                   onChange={handleImageUpload}
                   className="hidden"
                   id="camera-capture"
+                  ref={(el) => {
+                    if (el) {
+                      (window as any).cameraUploadRef = el;
+                    }
+                  }}
                 />
                 <div className="flex gap-2 flex-wrap justify-center">
-                  <Label htmlFor="image-upload">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="cursor-pointer"
-                      onClick={() => console.log("Choose Photos button clicked")}
-                    >
-                      <Upload className="mr-2 h-4 w-4" />
-                      Choose Photos
-                    </Button>
-                  </Label>
-                  <Label htmlFor="camera-capture">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="cursor-pointer"
-                      onClick={() => console.log("Take Photo button clicked")}
-                    >
-                      <Camera className="mr-2 h-4 w-4" />
-                      Take Photo
-                    </Button>
-                  </Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="cursor-pointer"
+                    onClick={() => {
+                      console.log("Choose Photos button clicked");
+                      const input = document.getElementById('image-upload') as HTMLInputElement;
+                      if (input) {
+                        input.click();
+                        console.log("File input clicked");
+                      }
+                    }}
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Choose Photos
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="cursor-pointer"
+                    onClick={() => {
+                      console.log("Take Photo button clicked");
+                      const input = document.getElementById('camera-capture') as HTMLInputElement;
+                      if (input) {
+                        input.click();
+                        console.log("Camera input clicked");
+                      }
+                    }}
+                  >
+                    <Camera className="mr-2 h-4 w-4" />
+                    Take Photo
+                  </Button>
                 </div>
               </>
             )}

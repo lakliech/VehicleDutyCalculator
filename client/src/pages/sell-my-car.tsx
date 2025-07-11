@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -86,6 +86,7 @@ export default function SellMyCar() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const queryClient = useQueryClient();
 
   // Registration form
   const registrationForm = useForm<RegistrationForm>({
@@ -250,8 +251,8 @@ export default function SellMyCar() {
       });
       setShowLoginForm(false);
       loginForm.reset();
-      // Refresh the page to update authentication state
-      window.location.reload();
+      // Invalidate and refetch auth status to update authentication state
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/status"] });
     },
     onError: (error: any) => {
       toast({

@@ -31,6 +31,7 @@ import crypto from "crypto";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import session from "express-session";
+import MemoryStore from "memorystore";
 
 // Simple authentication middleware
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
@@ -65,11 +66,15 @@ function getEngineCapacityFilter(category: string) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Session middleware
+  // Session middleware with MemoryStore
+  const MemoryStoreSession = MemoryStore(session);
   app.use(session({
     secret: process.env.SESSION_SECRET || 'fallback-secret-key',
     resave: false,
     saveUninitialized: false,
+    store: new MemoryStoreSession({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    }),
     cookie: { 
       secure: false, // Set to true in production with HTTPS
       httpOnly: true,
@@ -286,7 +291,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       isAuthenticated: req.isAuthenticated?.(),
       hasUser: !!req.user,
       sessionID: req.sessionID,
-      session: req.session ? Object.keys(req.session) : 'no session'
+      session: req.session ? Object.keys(req.session) : 'no session',
+      cookies: req.headers.cookie ? 'has cookies' : 'no cookies',
+      sessionCookie: req.headers.cookie?.includes('connect.sid') ? 'session cookie found' : 'no session cookie'
     });
     
     if (req.isAuthenticated?.() && req.user) {

@@ -109,11 +109,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Determine the correct callback URL based on environment
+  const getCallbackURL = () => {
+    // Check if we're in Replit environment
+    if (process.env.REPLIT_DOMAINS) {
+      // Use the first domain from REPLIT_DOMAINS
+      const domain = process.env.REPLIT_DOMAINS.split(',')[0];
+      const callbackUrl = `https://${domain}/api/auth/google/callback`;
+      console.log('Using Replit domain for Google OAuth callback:', callbackUrl);
+      return callbackUrl;
+    }
+    // Check if we have a custom Replit app domain
+    if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+      const callbackUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/auth/google/callback`;
+      console.log('Using custom Replit app domain for Google OAuth callback:', callbackUrl);
+      return callbackUrl;
+    }
+    // Default to localhost for local development
+    console.log('Using localhost for Google OAuth callback');
+    return "http://localhost:5000/api/auth/google/callback";
+  };
+
   // Google OAuth Strategy
   passport.use(new GoogleStrategy({
     clientID: "955395502828-pj4cbgcrkkehsjcsigst2jcn60t9qttm.apps.googleusercontent.com",
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || "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",
-    callbackURL: "/api/auth/google/callback"
+    callbackURL: getCallbackURL()
   }, async (accessToken, refreshToken, profile, done) => {
     try {
       // Check if user exists

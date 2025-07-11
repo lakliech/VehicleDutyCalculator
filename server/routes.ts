@@ -208,9 +208,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
       
-      // In a real application, you would hash and compare passwords
-      // For now, we'll do a simple comparison
-      if (user.password !== password) {
+      // Compare hashed password
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
       

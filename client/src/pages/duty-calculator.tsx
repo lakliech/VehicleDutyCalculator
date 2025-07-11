@@ -45,10 +45,12 @@ export default function DutyCalculator() {
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
     defaultValues: {
-      category: "",
-      value: 0,
-      age: 0,
-      importType: "direct",
+      vehicleCategory: "under1500cc",
+      vehicleValue: 0,
+      engineSize: 1500,
+      vehicleAge: 0,
+      isDirectImport: true,
+      fuelType: "petrol",
     },
   });
 
@@ -58,11 +60,12 @@ export default function DutyCalculator() {
     setManualVehicleData(manual || null);
     
     if (vehicle) {
-      form.setValue("value", vehicle.crspKes || vehicle.crsp2020 || 0);
+      form.setValue("vehicleValue", vehicle.crspKes || vehicle.crsp2020 || 0);
+      form.setValue("engineSize", vehicle.engineCapacity || 1500);
       
       // Auto-detect category
-      const engine = vehicle.engineCapacity;
-      const fuel = vehicle.fuelType?.toLowerCase();
+      const engine = vehicle.engineCapacity || 1500;
+      const fuel = vehicle.fuelType?.toLowerCase() || "petrol";
       let autoCategory = "";
       
       if (fuel === "electric") {
@@ -75,7 +78,28 @@ export default function DutyCalculator() {
         autoCategory = "over1500cc";
       }
       
-      form.setValue("category", autoCategory);
+      form.setValue("vehicleCategory", autoCategory);
+      form.setValue("fuelType", fuel as any);
+    } else if (manual) {
+      // Handle manual vehicle data with proration
+      form.setValue("vehicleValue", manual.proratedCrsp || 0);
+      form.setValue("engineSize", manual.engineCapacity || 1500);
+      
+      // Auto-detect category for manual vehicle
+      const engine = manual.engineCapacity || 1500;
+      const fuel = "petrol"; // Default for manual entry
+      let autoCategory = "";
+      
+      if (engine < 1500) {
+        autoCategory = "under1500cc";
+      } else if (engine > 3000) {
+        autoCategory = "largeEngine";
+      } else {
+        autoCategory = "over1500cc";
+      }
+      
+      form.setValue("vehicleCategory", autoCategory);
+      form.setValue("fuelType", fuel as any);
     }
   };
 
@@ -83,8 +107,9 @@ export default function DutyCalculator() {
   const handleTrailerSelect = (trailer: Trailer | null) => {
     setSelectedTrailer(trailer);
     if (trailer) {
-      form.setValue("value", trailer.crspKes);
-      form.setValue("category", "trailer");
+      form.setValue("vehicleValue", trailer.crspKes);
+      form.setValue("vehicleCategory", "trailer");
+      form.setValue("engineSize", 0); // Trailers don't have engines
     }
   };
 
@@ -92,8 +117,9 @@ export default function DutyCalculator() {
   const handleHeavyMachinerySelect = (machinery: HeavyMachinery | null) => {
     setSelectedHeavyMachinery(machinery);
     if (machinery) {
-      form.setValue("value", machinery.crspKes);
-      form.setValue("category", "heavyMachinery");
+      form.setValue("vehicleValue", machinery.crspKes);
+      form.setValue("vehicleCategory", "heavyMachinery");
+      form.setValue("engineSize", machinery.powerValue || 0);
     }
   };
 
@@ -102,33 +128,38 @@ export default function DutyCalculator() {
     setYearOfManufacture(year);
     const currentYear = new Date().getFullYear();
     const age = currentYear - year + 1;
-    form.setValue("age", age);
+    form.setValue("vehicleAge", age);
   };
 
   // Handle category change
   const handleCategoryChange = (category: string) => {
-    form.setValue("category", category);
+    form.setValue("vehicleCategory", category);
     
     // Clear selections when changing category
     if (category === "trailer") {
       setSelectedVehicle(null);
       setManualVehicleData(null);
       setSelectedHeavyMachinery(null);
+      form.setValue("engineSize", 0);
     } else if (category === "heavyMachinery") {
       setSelectedVehicle(null);
       setManualVehicleData(null);
       setSelectedTrailer(null);
+      form.setValue("engineSize", 0);
     } else {
       setSelectedTrailer(null);
       setSelectedHeavyMachinery(null);
+      if (form.getValues("engineSize") === 0) {
+        form.setValue("engineSize", 1500);
+      }
     }
   };
 
   // Generate year options
   const generateYearOptions = () => {
     const currentYear = new Date().getFullYear();
-    const importType = form.watch("importType");
-    const maxAge = importType === "direct" ? 8 : 20;
+    const isDirectImport = form.watch("isDirectImport");
+    const maxAge = isDirectImport ? 8 : 20;
     
     return Array.from({ length: maxAge + 1 }, (_, i) => currentYear - i);
   };
@@ -136,16 +167,16 @@ export default function DutyCalculator() {
   // Check if form can be submitted
   const canSubmit = () => {
     const values = form.getValues();
-    const hasCategory = values.category && values.category !== "";
-    const hasValue = values.value > 0;
-    const hasImportType = values.importType && values.importType !== "";
+    const hasCategory = values.vehicleCategory && values.vehicleCategory !== "";
+    const hasValue = values.vehicleValue > 0;
+    const hasEngineSize = values.engineSize >= 0; // 0 is valid for trailers
     const hasValidYear = yearOfManufacture > 0;
     const noConflicts = !categoryConflict;
     
     // For trailers and heavy machinery, year is not required
-    const isYearRequired = !["trailer", "heavyMachinery"].includes(values.category);
+    const isYearRequired = !["trailer", "heavyMachinery"].includes(values.vehicleCategory);
     
-    return hasCategory && hasValue && hasImportType && (!isYearRequired || hasValidYear) && noConflicts;
+    return hasCategory && hasValue && hasEngineSize && (!isYearRequired || hasValidYear) && noConflicts;
   };
 
   // Calculate duty mutation
@@ -218,7 +249,7 @@ export default function DutyCalculator() {
                   </CardHeader>
                   <CardContent>
                     <VehicleCategorySelector 
-                      value={form.watch("category")}
+                      value={form.watch("vehicleCategory")}
                       onValueChange={handleCategoryChange}
                     />
                   </CardContent>
@@ -234,7 +265,7 @@ export default function DutyCalculator() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     {/* Vehicle Selector */}
-                    {form.watch("category") && !["trailer", "heavyMachinery"].includes(form.watch("category")) && (
+                    {form.watch("vehicleCategory") && !["trailer", "heavyMachinery"].includes(form.watch("vehicleCategory")) && (
                       <VehicleSelector 
                         onVehicleSelect={handleVehicleSelect}
                         showManualEntry={true}
@@ -242,13 +273,36 @@ export default function DutyCalculator() {
                     )}
 
                     {/* Trailer Selector */}
-                    {form.watch("category") === "trailer" && (
+                    {form.watch("vehicleCategory") === "trailer" && (
                       <TrailerSelector onTrailerSelect={handleTrailerSelect} />
                     )}
 
                     {/* Heavy Machinery Selector */}
-                    {form.watch("category") === "heavyMachinery" && (
+                    {form.watch("vehicleCategory") === "heavyMachinery" && (
                       <HeavyMachinerySelector onHeavyMachinerySelect={handleHeavyMachinerySelect} />
+                    )}
+
+                    {/* Manual Engine Size Input - for vehicles not in database */}
+                    {form.watch("vehicleCategory") && !["trailer", "heavyMachinery"].includes(form.watch("vehicleCategory")) && !selectedVehicle && (
+                      <FormField
+                        control={form.control}
+                        name="engineSize"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Engine Size (cc) *</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="Enter engine size in cc"
+                                {...field}
+                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                value={field.value || ""}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     )}
 
                     {/* Selected Equipment Display */}
@@ -267,11 +321,16 @@ export default function DutyCalculator() {
                           </div>
                           <div className="flex items-center space-x-2">
                             <span className="font-medium">CRSP:</span>
-                            <span>KES {((selectedVehicle?.crspKes || selectedVehicle?.crsp2020 || manualVehicleData?.crspValue || 0)).toLocaleString()}</span>
+                            <span>KES {((selectedVehicle?.crspKes || selectedVehicle?.crsp2020 || manualVehicleData?.proratedCrsp || 0)).toLocaleString()}</span>
                             {selectedVehicle?.crsp2020 && !selectedVehicle?.crspKes && (
                               <Badge variant="outline" className="text-orange-600 border-orange-600">
                                 <Database className="w-3 h-3 mr-1" />
                                 2020
+                              </Badge>
+                            )}
+                            {manualVehicleData && (
+                              <Badge variant="outline" className="text-blue-600 border-blue-600">
+                                Prorated
                               </Badge>
                             )}
                           </div>
@@ -333,22 +392,22 @@ export default function DutyCalculator() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField
                         control={form.control}
-                        name="importType"
+                        name="isDirectImport"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Import Type *</FormLabel>
                             <FormControl>
                               <RadioGroup
-                                onValueChange={field.onChange}
-                                value={field.value}
+                                onValueChange={(value) => field.onChange(value === "true")}
+                                value={field.value ? "true" : "false"}
                                 className="flex space-x-6"
                               >
                                 <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="direct" id="direct" />
+                                  <RadioGroupItem value="true" id="direct" />
                                   <label htmlFor="direct">Direct Import</label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="previously_registered" id="previously_registered" />
+                                  <RadioGroupItem value="false" id="previously_registered" />
                                   <label htmlFor="previously_registered">Previously Registered</label>
                                 </div>
                               </RadioGroup>
@@ -359,7 +418,7 @@ export default function DutyCalculator() {
                       />
 
                       {/* Year of Manufacture */}
-                      {!["trailer", "heavyMachinery"].includes(form.watch("category")) && (
+                      {!["trailer", "heavyMachinery"].includes(form.watch("vehicleCategory")) && (
                         <div>
                           <label className="text-sm font-medium">Year of Manufacture *</label>
                           <Select 
@@ -379,13 +438,13 @@ export default function DutyCalculator() {
                       )}
                     </div>
 
-                    {/* Custom Value Override */}
+                    {/* Vehicle Value */}
                     <FormField
                       control={form.control}
-                      name="value"
+                      name="vehicleValue"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Vehicle Value (KES)</FormLabel>
+                          <FormLabel>Vehicle Value (KES) *</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -395,6 +454,32 @@ export default function DutyCalculator() {
                               value={field.value || ""}
                             />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Fuel Type */}
+                    <FormField
+                      control={form.control}
+                      name="fuelType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Fuel Type</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select fuel type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="petrol">Petrol</SelectItem>
+                              <SelectItem value="diesel">Diesel</SelectItem>
+                              <SelectItem value="electric">Electric</SelectItem>
+                              <SelectItem value="hybrid">Hybrid</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -468,29 +553,27 @@ export default function DutyCalculator() {
             <Card className="mb-6">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <span className="text-2xl">
-                    {vehicleCategoryInfo[calculationResult.category as keyof typeof vehicleCategoryInfo]?.emoji || "🚗"}
-                  </span>
+                  <span className="text-2xl">🚗</span>
                   <span>Equipment Details</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex justify-between">
-                    <span className="font-medium">Category:</span>
-                    <span>{vehicleCategoryInfo[calculationResult.category as keyof typeof vehicleCategoryInfo]?.label || calculationResult.category}</span>
-                  </div>
-                  <div className="flex justify-between">
                     <span className="font-medium">Vehicle Value:</span>
-                    <span>{formatCurrency(calculationResult.vehicleValue)}</span>
+                    <span>{formatCurrency(calculationResult.currentRetailPrice)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Vehicle Age:</span>
-                    <span>{calculationResult.vehicleAge} years</span>
+                    <span className="font-medium">Depreciated Value:</span>
+                    <span>{formatCurrency(calculationResult.depreciatedPrice)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Import Type:</span>
-                    <span>{calculationResult.importType === "direct" ? "Direct Import" : "Previously Registered"}</span>
+                    <span className="font-medium">Customs Value:</span>
+                    <span>{formatCurrency(calculationResult.customsValue)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Depreciation Rate:</span>
+                    <span>{(calculationResult.depreciationRate * 100).toFixed(1)}%</span>
                   </div>
                 </div>
               </CardContent>
@@ -504,40 +587,45 @@ export default function DutyCalculator() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span>Customs Value (After {calculationResult.depreciationRate}% depreciation):</span>
+                    <span>Customs Value (After {(calculationResult.depreciationRate * 100).toFixed(1)}% depreciation):</span>
                     <span className="font-medium">{formatCurrency(calculationResult.customsValue)}</span>
                   </div>
                   
                   <Separator />
                   
                   <div className="flex justify-between items-center">
-                    <span>Import Duty ({calculationResult.importDutyRate}%):</span>
+                    <span>Import Duty:</span>
                     <span className="font-medium">{formatCurrency(calculationResult.importDuty)}</span>
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span>Excise Duty ({calculationResult.exciseDutyRate}%):</span>
+                    <span>Excise Duty:</span>
                     <span className="font-medium">{formatCurrency(calculationResult.exciseDuty)}</span>
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span>VAT ({calculationResult.vatRate}%):</span>
+                    <span>VAT (16%):</span>
                     <span className="font-medium">{formatCurrency(calculationResult.vat)}</span>
                   </div>
                   
-                  {calculationResult.railwayDevelopmentLevy > 0 && (
+                  {calculationResult.rdl > 0 && (
                     <div className="flex justify-between items-center">
-                      <span>Railway Development Levy ({calculationResult.railwayDevelopmentLevyRate}%):</span>
-                      <span className="font-medium">{formatCurrency(calculationResult.railwayDevelopmentLevy)}</span>
+                      <span>Railway Development Levy (2%):</span>
+                      <span className="font-medium">{formatCurrency(calculationResult.rdl)}</span>
                     </div>
                   )}
                   
-                  {calculationResult.importDeclarationFee > 0 && (
+                  {calculationResult.idfFees > 0 && (
                     <div className="flex justify-between items-center">
-                      <span>Import Declaration Fee ({calculationResult.importDeclarationFeeRate}%):</span>
-                      <span className="font-medium">{formatCurrency(calculationResult.importDeclarationFee)}</span>
+                      <span>Import Declaration Fee (2.5%):</span>
+                      <span className="font-medium">{formatCurrency(calculationResult.idfFees)}</span>
                     </div>
                   )}
+                  
+                  <div className="flex justify-between items-center">
+                    <span>Registration Fees:</span>
+                    <span className="font-medium">{formatCurrency(calculationResult.registrationFees)}</span>
+                  </div>
                   
                   <Separator />
                   

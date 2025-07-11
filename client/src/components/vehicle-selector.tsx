@@ -6,16 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Car, Settings, Fuel, AlertCircle } from "lucide-react";
-import type { VehicleReference } from "@shared/schema";
+import type { VehicleReference, ManualVehicleData } from "@shared/schema";
 
 interface VehicleSelectorProps {
-  onVehicleSelect: (vehicle: VehicleReference | null) => void;
+  onVehicleSelect: (vehicle: VehicleReference | null, manual?: ManualVehicleData) => void;
   categoryFilter?: string; // Filter vehicles by category
   hideCrsp?: boolean; // Hide CRSP information (for transfer cost calculator)
   hideResults?: boolean; // Hide selected vehicle results card (for sell my car page)
+  showManualEntry?: boolean; // Show manual entry option with proration
 }
 
-export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp, hideResults }: VehicleSelectorProps) {
+export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp, hideResults, showManualEntry }: VehicleSelectorProps) {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [selectedEngineSize, setSelectedEngineSize] = useState<string>("");

@@ -45,7 +45,7 @@ export default function DutyCalculator() {
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
     defaultValues: {
-      vehicleCategory: "under1500cc",
+      vehicleCategory: "under1500cc" as any, // Set valid default but allow user to change
       engineSize: 1500,
       vehicleAge: 0,
       isDirectImport: true,
@@ -135,7 +135,11 @@ export default function DutyCalculator() {
 
   // Handle category change
   const handleCategoryChange = (category: string) => {
+    console.log("Category change handler called with:", category);
     form.setValue("vehicleCategory", category);
+    
+    // Clear category conflict
+    setCategoryConflict(null);
     
     // Clear selections when changing category
     if (category === "trailer") {
@@ -155,6 +159,8 @@ export default function DutyCalculator() {
         form.setValue("engineSize", 1500);
       }
     }
+    
+    console.log("Form category value after change:", form.getValues("vehicleCategory"));
   };
 
   // Generate year options

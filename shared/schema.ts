@@ -145,7 +145,7 @@ export const dutyCalculationSchema = z.object({
     "motorcycle",
     "specialPurpose",
     "heavyMachinery"
-  ]),
+  ]).refine((val) => val !== "", { message: "Please select a vehicle category" }),
   vehicleValue: z.number().min(0).optional(), // Made optional since it's calculated from CRSP
   engineSize: z.number().min(1, "Engine size is required"),
   vehicleAge: z.number().min(0).max(50),

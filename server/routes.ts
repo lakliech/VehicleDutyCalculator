@@ -18,7 +18,10 @@ import {
   listingApprovalSchema,
   userRoleSchema,
   appUsers,
-  userRoles
+  userRoles,
+  userBrowsingHistory,
+  userVehiclePreferences,
+  userVehicleRecommendations
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -2060,6 +2063,158 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Failed to analyze price trends", 
         error: error instanceof Error ? error.message : "Unknown error" 
       });
+    }
+  });
+
+  // ===============================
+  // RECOMMENDATION ENGINE API ROUTES
+  // ===============================
+
+  // Track user browsing behavior
+  app.post('/api/recommendations/track-behavior', authenticateUser, async (req, res) => {
+    try {
+      const { userId } = req;
+      const behaviorData = req.body;
+
+      // Validate required fields
+      if (!behaviorData.actionType || !behaviorData.entityType) {
+        return res.status(400).json({ message: "Action type and entity type are required" });
+      }
+
+      await storage.trackUserBrowsingBehavior(userId, behaviorData);
+      res.json({ message: "Behavior tracked successfully" });
+    } catch (error) {
+      console.error("Error tracking behavior:", error);
+      res.status(500).json({ message: "Failed to track behavior" });
+    }
+  });
+
+  // Get user's browsing history
+  app.get('/api/recommendations/browsing-history', authenticateUser, async (req, res) => {
+    try {
+      const { userId } = req;
+      const limit = parseInt(req.query.limit as string) || 100;
+
+      const history = await storage.getUserBrowsingHistory(userId, limit);
+      res.json(history);
+    } catch (error) {
+      console.error("Error fetching browsing history:", error);
+      res.status(500).json({ message: "Failed to fetch browsing history" });
+    }
+  });
+
+  // Get user's vehicle preferences
+  app.get('/api/recommendations/preferences', authenticateUser, async (req, res) => {
+    try {
+      const { userId } = req;
+      const preferences = await storage.getUserVehiclePreferences(userId);
+      res.json(preferences);
+    } catch (error) {
+      console.error("Error fetching preferences:", error);
+      res.status(500).json({ message: "Failed to fetch preferences" });
+    }
+  });
+
+  // Analyze user preferences based on browsing history
+  app.post('/api/recommendations/analyze-preferences', authenticateUser, async (req, res) => {
+    try {
+      const { userId } = req;
+      const preferences = await storage.analyzeUserPreferences(userId);
+      res.json(preferences);
+    } catch (error) {
+      console.error("Error analyzing preferences:", error);
+      res.status(500).json({ message: "Failed to analyze preferences" });
+    }
+  });
+
+  // Generate vehicle recommendations for user
+  app.post('/api/recommendations/generate', authenticateUser, async (req, res) => {
+    try {
+      const { userId } = req;
+      const recommendations = await storage.generateVehicleRecommendations(userId);
+      res.json(recommendations);
+    } catch (error) {
+      console.error("Error generating recommendations:", error);
+      res.status(500).json({ message: "Failed to generate recommendations" });
+    }
+  });
+
+  // Get user's personalized recommendations
+  app.get('/api/recommendations/user-recommendations', authenticateUser, async (req, res) => {
+    try {
+      const { userId } = req;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const recommendations = await storage.getUserRecommendations(userId, limit);
+      res.json(recommendations);
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+      res.status(500).json({ message: "Failed to fetch recommendations" });
+    }
+  });
+
+  // Update recommendation engagement (viewed, clicked, favorited, etc.)
+  app.post('/api/recommendations/:recommendationId/engagement', authenticateUser, async (req, res) => {
+    try {
+      const recommendationId = parseInt(req.params.recommendationId);
+      const engagement = req.body;
+
+      if (isNaN(recommendationId)) {
+        return res.status(400).json({ message: "Invalid recommendation ID" });
+      }
+
+      await storage.updateRecommendationEngagement(recommendationId, engagement);
+      res.json({ message: "Engagement updated successfully" });
+    } catch (error) {
+      console.error("Error updating engagement:", error);
+      res.status(500).json({ message: "Failed to update engagement" });
+    }
+  });
+
+  // Get recommendation analytics (for admin use)
+  app.get('/api/recommendations/analytics', authenticateAdmin, async (req, res) => {
+    try {
+      const { userBrowsingHistorySchema } = await import("@shared/schema");
+      
+      // Get basic analytics
+      const totalBehaviors = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(userBrowsingHistory);
+      
+      const totalPreferences = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(userVehiclePreferences);
+      
+      const totalRecommendations = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(userVehicleRecommendations);
+
+      // Get engagement metrics
+      const engagementStats = await db
+        .select({
+          totalViewed: sql<number>`sum(case when ${userVehicleRecommendations.isViewed} then 1 else 0 end)`,
+          totalClicked: sql<number>`sum(case when ${userVehicleRecommendations.isClicked} then 1 else 0 end)`,
+          totalFavorited: sql<number>`sum(case when ${userVehicleRecommendations.isFavorited} then 1 else 0 end)`,
+          totalContactedSeller: sql<number>`sum(case when ${userVehicleRecommendations.isContactedSeller} then 1 else 0 end)`,
+        })
+        .from(userVehicleRecommendations);
+
+      const stats = {
+        totalBehaviors: totalBehaviors[0]?.count || 0,
+        totalPreferences: totalPreferences[0]?.count || 0,
+        totalRecommendations: totalRecommendations[0]?.count || 0,
+        engagement: engagementStats[0] || {
+          totalViewed: 0,
+          totalClicked: 0,
+          totalFavorited: 0,
+          totalContactedSeller: 0,
+        }
+      };
+
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      res.status(500).json({ message: "Failed to fetch analytics" });
     }
   });
 

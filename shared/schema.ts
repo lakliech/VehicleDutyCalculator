@@ -525,6 +525,160 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
 
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
 
+// ===============================
+// RECOMMENDATION ENGINE TABLES
+// ===============================
+
+// User browsing behavior tracking
+export const userBrowsingHistory = pgTable("user_browsing_history", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  sessionId: varchar("session_id", { length: 255 }),
+  actionType: text("action_type").notNull(), // "view_listing", "search", "filter", "favorite", "unfavorite", "contact_seller", "make_offer"
+  entityType: text("entity_type").notNull(), // "listing", "search_results", "filter_results"
+  entityId: text("entity_id"), // listing ID, search query hash, etc.
+  
+  // Vehicle-specific data
+  vehicleMake: text("vehicle_make"),
+  vehicleModel: text("vehicle_model"),
+  vehicleYear: integer("vehicle_year"),
+  vehicleEngineSize: integer("vehicle_engine_size"),
+  vehiclePrice: decimal("vehicle_price", { precision: 12, scale: 2 }),
+  vehicleLocation: text("vehicle_location"),
+  vehicleFuelType: text("vehicle_fuel_type"),
+  vehicleBodyType: text("vehicle_body_type"),
+  vehicleTransmission: text("vehicle_transmission"),
+  
+  // Search/filter context
+  searchQuery: text("search_query"),
+  appliedFilters: text("applied_filters"), // JSON string
+  resultPosition: integer("result_position"), // Position in search results when clicked
+  timeSpent: integer("time_spent_seconds"), // Time spent viewing/interacting
+  
+  // Metadata
+  deviceType: text("device_type"), // "mobile", "tablet", "desktop"
+  referrer: text("referrer"),
+  userAgent: text("user_agent"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// User vehicle preferences extracted from behavior
+export const userVehiclePreferences = pgTable("user_vehicle_preferences", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  
+  // Preference scores (0-100) based on browsing behavior
+  makePreferences: text("make_preferences"), // JSON: {"Toyota": 85, "Nissan": 70, ...}
+  priceRangeMin: decimal("price_range_min", { precision: 12, scale: 2 }),
+  priceRangeMax: decimal("price_range_max", { precision: 12, scale: 2 }),
+  preferredYearMin: integer("preferred_year_min"),
+  preferredYearMax: integer("preferred_year_max"),
+  engineSizePreferences: text("engine_size_preferences"), // JSON: {"1000-1500": 80, "1500-2000": 90, ...}
+  fuelTypePreferences: text("fuel_type_preferences"), // JSON: {"petrol": 75, "diesel": 60, ...}
+  bodyTypePreferences: text("body_type_preferences"), // JSON: {"sedan": 80, "suv": 70, ...}
+  transmissionPreferences: text("transmission_preferences"), // JSON: {"automatic": 85, "manual": 30, ...}
+  locationPreferences: text("location_preferences"), // JSON: {"Nairobi": 90, "Mombasa": 60, ...}
+  
+  // Behavioral patterns
+  avgViewTime: integer("avg_view_time_seconds"),
+  preferredBrowsingTime: text("preferred_browsing_time"), // JSON: hours of day when most active
+  searchFrequency: integer("search_frequency"), // Searches per week
+  priceFlexibility: decimal("price_flexibility", { precision: 5, scale: 2 }), // How much above/below target they browse
+  
+  // Metadata
+  lastAnalyzedAt: timestamp("last_analyzed_at"),
+  confidenceScore: decimal("confidence_score", { precision: 5, scale: 2 }), // 0-100, how reliable these preferences are
+  sampleSize: integer("sample_size"), // Number of actions used to calculate preferences
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Generated vehicle recommendations for users
+export const userVehicleRecommendations = pgTable("user_vehicle_recommendations", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  
+  // Recommendation metadata
+  recommendationType: text("recommendation_type").notNull(), // "similar_to_viewed", "price_match", "make_preference", "trending", "new_listing", "price_drop"
+  confidenceScore: decimal("confidence_score", { precision: 5, scale: 2 }).notNull(), // 0-100
+  relevanceScore: decimal("relevance_score", { precision: 5, scale: 2 }).notNull(), // 0-100
+  
+  // Why this was recommended
+  reasonCode: text("reason_code").notNull(), // "viewed_similar", "price_range_match", "make_interest", etc.
+  reasonDescription: text("reason_description"), // Human-readable explanation
+  
+  // Source data that triggered this recommendation
+  sourceBehavior: text("source_behavior"), // JSON: references to specific browsing actions
+  basedOnListings: text("based_on_listings").array(), // IDs of listings this recommendation is based on
+  
+  // Engagement tracking
+  isViewed: boolean("is_viewed").default(false),
+  viewedAt: timestamp("viewed_at"),
+  isClicked: boolean("is_clicked").default(false),
+  clickedAt: timestamp("clicked_at"),
+  isFavorited: boolean("is_favorited").default(false),
+  isContactedSeller: boolean("is_contacted_seller").default(false),
+  
+  // Recommendation lifecycle
+  isActive: boolean("is_active").default(true),
+  expiresAt: timestamp("expires_at"), // When this recommendation should be refreshed
+  generatedAt: timestamp("generated_at").defaultNow().notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Recommendation performance analytics
+export const recommendationAnalytics = pgTable("recommendation_analytics", {
+  id: serial("id").primaryKey(),
+  date: text("date").notNull(), // YYYY-MM-DD format
+  recommendationType: text("recommendation_type").notNull(),
+  
+  // Metrics
+  totalGenerated: integer("total_generated").default(0),
+  totalViewed: integer("total_viewed").default(0),
+  totalClicked: integer("total_clicked").default(0),
+  totalFavorited: integer("total_favorited").default(0),
+  totalContactedSeller: integer("total_contacted_seller").default(0),
+  
+  // Calculated rates
+  viewRate: decimal("view_rate", { precision: 5, scale: 2 }), // viewed/generated
+  clickThroughRate: decimal("click_through_rate", { precision: 5, scale: 2 }), // clicked/viewed
+  engagementRate: decimal("engagement_rate", { precision: 5, scale: 2 }), // (favorited+contacted)/clicked
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Schemas for recommendation system
+export const userBrowsingHistorySchema = createInsertSchema(userBrowsingHistory).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const userVehiclePreferencesSchema = createInsertSchema(userVehiclePreferences).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const userVehicleRecommendationsSchema = createInsertSchema(userVehicleRecommendations).omit({
+  id: true,
+  createdAt: true,
+  generatedAt: true,
+});
+
+// Type exports for recommendation system
+export type UserBrowsingHistory = typeof userBrowsingHistory.$inferSelect;
+export type InsertUserBrowsingHistory = z.infer<typeof userBrowsingHistorySchema>;
+export type UserVehiclePreferences = typeof userVehiclePreferences.$inferSelect;
+export type InsertUserVehiclePreferences = z.infer<typeof userVehiclePreferencesSchema>;
+export type UserVehicleRecommendations = typeof userVehicleRecommendations.$inferSelect;
+export type InsertUserVehicleRecommendations = z.infer<typeof userVehicleRecommendationsSchema>;
+export type RecommendationAnalytics = typeof recommendationAnalytics.$inferSelect;
+
 // Manual vehicle data for proration
 export interface ManualVehicleData {
   make: string;

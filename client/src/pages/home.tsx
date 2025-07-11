@@ -19,7 +19,8 @@ import {
   Shield,
   Users,
   TrendingUp,
-  BarChart3
+  BarChart3,
+  Target
 } from "lucide-react";
 
 export default function Home() {
@@ -69,10 +70,17 @@ export default function Home() {
     },
     {
       href: "/mycars-worth",
-      title: "MyCar's Worth",
+      title: "MyCar's Worth", 
       description: "Get current market value of your vehicle",
       icon: <DollarSign className="h-12 w-12" />,
       color: "bg-green-500"
+    },
+    {
+      href: "/vehicle-recommendations",
+      title: "Vehicle Recommendations",
+      description: "Get personalized vehicle recommendations based on your preferences",
+      icon: <Target className="h-12 w-12" />,
+      color: "bg-purple-600"
     },
     {
       href: "/service-estimator",

@@ -1,12 +1,15 @@
 import { 
   vehicles, calculations, depreciationRates, taxRates, processingFees, vehicleCategoryRules, registrationFees, trailers, heavyMachinery,
   userRoles, appUsers, userSessions, userActivities, listingApprovals, userPreferences, userStats, carListings, carInquiries, favoriteListings, passwordResetTokens, priceIndicators,
+  userBrowsingHistory, userVehiclePreferences, userVehicleRecommendations, recommendationAnalytics,
   type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, 
   type DepreciationRate, type TaxRate, type ProcessingFee, type VehicleCategoryRule, type RegistrationFee, 
   type Trailer, type HeavyMachinery, type UserRole, type AppUser, type InsertAppUser, type InsertUserRole,
   type CarListing, type InsertCarListing, type CarInquiry, type InsertCarInquiry, type FavoriteListing,
   type ListingApproval, type InsertListingApproval,
-  type UserActivity, type UserStats, type UserPreferences, type PasswordResetToken, type PriceIndicator
+  type UserActivity, type UserStats, type UserPreferences, type PasswordResetToken, type PriceIndicator,
+  type UserBrowsingHistory, type InsertUserBrowsingHistory, type UserVehiclePreferences, type InsertUserVehiclePreferences,
+  type UserVehicleRecommendations, type InsertUserVehicleRecommendations, type RecommendationAnalytics
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, desc, asc, sql, gt, like, isNull } from "drizzle-orm";
@@ -96,6 +99,16 @@ export interface IStorage {
   // Heatmap and insights methods
   getMarketHeatmapData(filters: { make?: string; location?: string; priceRange?: string }): Promise<any[]>;
   getMarketInsights(filters: { make?: string; location?: string }): Promise<any[]>;
+  
+  // Vehicle recommendation engine methods
+  trackUserBrowsingBehavior(userId: string, behaviorData: InsertUserBrowsingHistory): Promise<void>;
+  getUserBrowsingHistory(userId: string, limit?: number): Promise<UserBrowsingHistory[]>;
+  getUserVehiclePreferences(userId: string): Promise<UserVehiclePreferences | undefined>;
+  updateUserVehiclePreferences(userId: string, preferences: InsertUserVehiclePreferences): Promise<UserVehiclePreferences>;
+  generateVehicleRecommendations(userId: string): Promise<UserVehicleRecommendations[]>;
+  getUserRecommendations(userId: string, limit?: number): Promise<Array<UserVehicleRecommendations & { listing: CarListing }>>;
+  updateRecommendationEngagement(recommendationId: number, engagement: { isViewed?: boolean; isClicked?: boolean; isFavorited?: boolean; isContactedSeller?: boolean }): Promise<void>;
+  analyzeUserPreferences(userId: string): Promise<UserVehiclePreferences>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1359,6 +1372,477 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error generating market insights:", error);
       return [];
+    }
+  }
+
+  // ===============================
+  // VEHICLE RECOMMENDATION ENGINE
+  // ===============================
+
+  async trackUserBrowsingBehavior(userId: string, behaviorData: InsertUserBrowsingHistory): Promise<void> {
+    try {
+      await db.insert(userBrowsingHistory).values({
+        ...behaviorData,
+        userId,
+        createdAt: new Date(),
+      });
+    } catch (error) {
+      console.error("Error tracking user browsing behavior:", error);
+    }
+  }
+
+  async getUserBrowsingHistory(userId: string, limit: number = 100): Promise<UserBrowsingHistory[]> {
+    try {
+      return await db
+        .select()
+        .from(userBrowsingHistory)
+        .where(eq(userBrowsingHistory.userId, userId))
+        .orderBy(desc(userBrowsingHistory.createdAt))
+        .limit(limit);
+    } catch (error) {
+      console.error("Error getting user browsing history:", error);
+      return [];
+    }
+  }
+
+  async getUserVehiclePreferences(userId: string): Promise<UserVehiclePreferences | undefined> {
+    try {
+      const [preferences] = await db
+        .select()
+        .from(userVehiclePreferences)
+        .where(eq(userVehiclePreferences.userId, userId));
+      return preferences;
+    } catch (error) {
+      console.error("Error getting user vehicle preferences:", error);
+      return undefined;
+    }
+  }
+
+  async updateUserVehiclePreferences(userId: string, preferences: InsertUserVehiclePreferences): Promise<UserVehiclePreferences> {
+    try {
+      const [updated] = await db
+        .insert(userVehiclePreferences)
+        .values({
+          ...preferences,
+          userId,
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: userVehiclePreferences.userId,
+          set: {
+            ...preferences,
+            updatedAt: new Date(),
+          },
+        })
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error("Error updating user vehicle preferences:", error);
+      throw error;
+    }
+  }
+
+  async analyzeUserPreferences(userId: string): Promise<UserVehiclePreferences> {
+    try {
+      // Get recent browsing history
+      const history = await this.getUserBrowsingHistory(userId, 500);
+      
+      if (history.length === 0) {
+        // Return default preferences for new users
+        return await this.updateUserVehiclePreferences(userId, {
+          makePreferences: JSON.stringify({ "Toyota": 50, "Nissan": 50, "Honda": 50 }),
+          priceRangeMin: 500000,
+          priceRangeMax: 2000000,
+          preferredYearMin: 2010,
+          preferredYearMax: 2025,
+          engineSizePreferences: JSON.stringify({ "1000-1500": 50, "1500-2000": 50 }),
+          fuelTypePreferences: JSON.stringify({ "petrol": 50, "diesel": 50 }),
+          bodyTypePreferences: JSON.stringify({ "sedan": 50, "suv": 50 }),
+          transmissionPreferences: JSON.stringify({ "automatic": 50, "manual": 50 }),
+          locationPreferences: JSON.stringify({ "Nairobi": 50, "Mombasa": 50 }),
+          avgViewTime: 30,
+          searchFrequency: 5,
+          priceFlexibility: 20,
+          confidenceScore: 25,
+          sampleSize: 0,
+          lastAnalyzedAt: new Date(),
+        });
+      }
+
+      // Analyze browsing patterns
+      const makeFrequency: { [key: string]: number } = {};
+      const priceRanges: number[] = [];
+      const years: number[] = [];
+      const engineSizes: number[] = [];
+      const fuelTypes: { [key: string]: number } = {};
+      const bodyTypes: { [key: string]: number } = {};
+      const transmissions: { [key: string]: number } = {};
+      const locations: { [key: string]: number } = {};
+      const viewTimes: number[] = [];
+
+      // Process browsing history
+      history.forEach(item => {
+        if (item.vehicleMake) {
+          makeFrequency[item.vehicleMake] = (makeFrequency[item.vehicleMake] || 0) + 1;
+        }
+        if (item.vehiclePrice) {
+          priceRanges.push(Number(item.vehiclePrice));
+        }
+        if (item.vehicleYear) {
+          years.push(item.vehicleYear);
+        }
+        if (item.vehicleEngineSize) {
+          engineSizes.push(item.vehicleEngineSize);
+        }
+        if (item.vehicleFuelType) {
+          fuelTypes[item.vehicleFuelType] = (fuelTypes[item.vehicleFuelType] || 0) + 1;
+        }
+        if (item.vehicleBodyType) {
+          bodyTypes[item.vehicleBodyType] = (bodyTypes[item.vehicleBodyType] || 0) + 1;
+        }
+        if (item.vehicleTransmission) {
+          transmissions[item.vehicleTransmission] = (transmissions[item.vehicleTransmission] || 0) + 1;
+        }
+        if (item.vehicleLocation) {
+          locations[item.vehicleLocation] = (locations[item.vehicleLocation] || 0) + 1;
+        }
+        if (item.timeSpent) {
+          viewTimes.push(item.timeSpent);
+        }
+      });
+
+      // Calculate preference scores (normalized to 0-100)
+      const totalViews = history.length;
+      const normalizedMakePreferences: { [key: string]: number } = {};
+      Object.keys(makeFrequency).forEach(make => {
+        normalizedMakePreferences[make] = Math.round((makeFrequency[make] / totalViews) * 100);
+      });
+
+      // Calculate engine size preferences
+      const engineSizeRanges: { [key: string]: number } = {};
+      engineSizes.forEach(size => {
+        if (size < 1000) engineSizeRanges["Under 1000"] = (engineSizeRanges["Under 1000"] || 0) + 1;
+        else if (size <= 1500) engineSizeRanges["1000-1500"] = (engineSizeRanges["1000-1500"] || 0) + 1;
+        else if (size <= 2000) engineSizeRanges["1500-2000"] = (engineSizeRanges["1500-2000"] || 0) + 1;
+        else if (size <= 2500) engineSizeRanges["2000-2500"] = (engineSizeRanges["2000-2500"] || 0) + 1;
+        else if (size <= 3000) engineSizeRanges["2500-3000"] = (engineSizeRanges["2500-3000"] || 0) + 1;
+        else engineSizeRanges["Over 3000"] = (engineSizeRanges["Over 3000"] || 0) + 1;
+      });
+
+      // Normalize engine size preferences
+      const normalizedEngineSizePreferences: { [key: string]: number } = {};
+      Object.keys(engineSizeRanges).forEach(range => {
+        normalizedEngineSizePreferences[range] = Math.round((engineSizeRanges[range] / engineSizes.length) * 100);
+      });
+
+      // Normalize other preferences
+      const normalizedFuelTypes: { [key: string]: number } = {};
+      Object.keys(fuelTypes).forEach(fuel => {
+        normalizedFuelTypes[fuel] = Math.round((fuelTypes[fuel] / totalViews) * 100);
+      });
+
+      const normalizedBodyTypes: { [key: string]: number } = {};
+      Object.keys(bodyTypes).forEach(body => {
+        normalizedBodyTypes[body] = Math.round((bodyTypes[body] / totalViews) * 100);
+      });
+
+      const normalizedTransmissions: { [key: string]: number } = {};
+      Object.keys(transmissions).forEach(transmission => {
+        normalizedTransmissions[transmission] = Math.round((transmissions[transmission] / totalViews) * 100);
+      });
+
+      const normalizedLocations: { [key: string]: number } = {};
+      Object.keys(locations).forEach(location => {
+        normalizedLocations[location] = Math.round((locations[location] / totalViews) * 100);
+      });
+
+      // Calculate statistical values
+      const avgViewTime = viewTimes.length > 0 ? Math.round(viewTimes.reduce((sum, time) => sum + time, 0) / viewTimes.length) : 30;
+      const minPrice = priceRanges.length > 0 ? Math.min(...priceRanges) : 500000;
+      const maxPrice = priceRanges.length > 0 ? Math.max(...priceRanges) : 2000000;
+      const minYear = years.length > 0 ? Math.min(...years) : 2010;
+      const maxYear = years.length > 0 ? Math.max(...years) : 2025;
+      
+      // Calculate confidence based on sample size
+      const confidenceScore = Math.min(100, Math.round((totalViews / 50) * 100));
+      
+      // Calculate search frequency (searches per week)
+      const searchActions = history.filter(item => item.actionType === 'search').length;
+      const daysSpan = history.length > 0 ? Math.max(1, Math.round((Date.now() - new Date(history[history.length - 1].createdAt).getTime()) / (1000 * 60 * 60 * 24))) : 7;
+      const searchFrequency = Math.round((searchActions / daysSpan) * 7);
+
+      // Calculate price flexibility (standard deviation of prices viewed)
+      const avgPrice = priceRanges.length > 0 ? priceRanges.reduce((sum, price) => sum + price, 0) / priceRanges.length : 1000000;
+      const priceVariance = priceRanges.length > 0 ? 
+        priceRanges.reduce((sum, price) => sum + Math.pow(price - avgPrice, 2), 0) / priceRanges.length : 0;
+      const priceFlexibility = Math.round((Math.sqrt(priceVariance) / avgPrice) * 100);
+
+      return await this.updateUserVehiclePreferences(userId, {
+        makePreferences: JSON.stringify(normalizedMakePreferences),
+        priceRangeMin: minPrice,
+        priceRangeMax: maxPrice,
+        preferredYearMin: minYear,
+        preferredYearMax: maxYear,
+        engineSizePreferences: JSON.stringify(normalizedEngineSizePreferences),
+        fuelTypePreferences: JSON.stringify(normalizedFuelTypes),
+        bodyTypePreferences: JSON.stringify(normalizedBodyTypes),
+        transmissionPreferences: JSON.stringify(normalizedTransmissions),
+        locationPreferences: JSON.stringify(normalizedLocations),
+        avgViewTime,
+        searchFrequency,
+        priceFlexibility,
+        confidenceScore,
+        sampleSize: totalViews,
+        lastAnalyzedAt: new Date(),
+      });
+    } catch (error) {
+      console.error("Error analyzing user preferences:", error);
+      throw error;
+    }
+  }
+
+  async generateVehicleRecommendations(userId: string): Promise<UserVehicleRecommendations[]> {
+    try {
+      // First, analyze user preferences
+      const preferences = await this.analyzeUserPreferences(userId);
+      
+      // Get recent browsing history
+      const history = await this.getUserBrowsingHistory(userId, 100);
+      
+      // Parse preferences
+      const makePreferences = JSON.parse(preferences.makePreferences || "{}");
+      const engineSizePreferences = JSON.parse(preferences.engineSizePreferences || "{}");
+      const fuelTypePreferences = JSON.parse(preferences.fuelTypePreferences || "{}");
+      const bodyTypePreferences = JSON.parse(preferences.bodyTypePreferences || "{}");
+      const transmissionPreferences = JSON.parse(preferences.transmissionPreferences || "{}");
+      const locationPreferences = JSON.parse(preferences.locationPreferences || "{}");
+
+      // Clear existing recommendations
+      await db.delete(userVehicleRecommendations).where(
+        and(
+          eq(userVehicleRecommendations.userId, userId),
+          eq(userVehicleRecommendations.isActive, true)
+        )
+      );
+
+      const recommendations: InsertUserVehicleRecommendations[] = [];
+
+      // Get available listings
+      const listings = await db
+        .select()
+        .from(carListings)
+        .where(eq(carListings.status, 'active'))
+        .limit(200);
+
+      // Recently viewed vehicles - get similar vehicles
+      const viewedVehicles = history.filter(item => item.actionType === 'view_listing');
+      const viewedMakes = [...new Set(viewedVehicles.map(item => item.vehicleMake).filter(Boolean))];
+      const viewedModels = [...new Set(viewedVehicles.map(item => item.vehicleModel).filter(Boolean))];
+
+      // Recommendation Type 1: Similar to recently viewed
+      if (viewedMakes.length > 0) {
+        const similarListings = listings.filter(listing => 
+          viewedMakes.includes(listing.make) && 
+          listing.price >= (preferences.priceRangeMin || 0) && 
+          listing.price <= (preferences.priceRangeMax || 10000000)
+        ).slice(0, 5);
+
+        similarListings.forEach(listing => {
+          const confidence = Math.min(95, 60 + (makePreferences[listing.make] || 0) * 0.3);
+          recommendations.push({
+            userId,
+            listingId: listing.id,
+            recommendationType: 'similar_to_viewed',
+            confidenceScore: confidence,
+            relevanceScore: confidence,
+            reasonCode: 'viewed_similar_make',
+            reasonDescription: `You recently viewed ${listing.make} vehicles`,
+            sourceBehavior: JSON.stringify({ viewed_makes: viewedMakes }),
+            basedOnListings: viewedVehicles.map(item => item.entityId).filter(Boolean),
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+          });
+        });
+      }
+
+      // Recommendation Type 2: Price range matches
+      const priceMatchListings = listings.filter(listing =>
+        listing.price >= (preferences.priceRangeMin || 0) &&
+        listing.price <= (preferences.priceRangeMax || 10000000) &&
+        !recommendations.some(r => r.listingId === listing.id)
+      ).slice(0, 5);
+
+      priceMatchListings.forEach(listing => {
+        const confidence = Math.min(85, 50 + (preferences.confidenceScore || 0) * 0.4);
+        recommendations.push({
+          userId,
+          listingId: listing.id,
+          recommendationType: 'price_match',
+          confidenceScore: confidence,
+          relevanceScore: confidence,
+          reasonCode: 'price_range_match',
+          reasonDescription: `Matches your price range of ${preferences.priceRangeMin?.toLocaleString()} - ${preferences.priceRangeMax?.toLocaleString()} KES`,
+          sourceBehavior: JSON.stringify({ price_range: [preferences.priceRangeMin, preferences.priceRangeMax] }),
+          basedOnListings: [],
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        });
+      });
+
+      // Recommendation Type 3: Make preference matches
+      const preferredMakes = Object.keys(makePreferences).filter(make => makePreferences[make] > 60);
+      if (preferredMakes.length > 0) {
+        const makeMatchListings = listings.filter(listing =>
+          preferredMakes.includes(listing.make) &&
+          !recommendations.some(r => r.listingId === listing.id)
+        ).slice(0, 5);
+
+        makeMatchListings.forEach(listing => {
+          const makeScore = makePreferences[listing.make] || 0;
+          const confidence = Math.min(90, 40 + makeScore * 0.5);
+          recommendations.push({
+            userId,
+            listingId: listing.id,
+            recommendationType: 'make_preference',
+            confidenceScore: confidence,
+            relevanceScore: confidence,
+            reasonCode: 'preferred_make',
+            reasonDescription: `Based on your interest in ${listing.make} vehicles`,
+            sourceBehavior: JSON.stringify({ preferred_makes: preferredMakes }),
+            basedOnListings: [],
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          });
+        });
+      }
+
+      // Recommendation Type 4: New listings (last 7 days)
+      const newListings = listings.filter(listing => {
+        const listingDate = new Date(listing.createdAt);
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        return listingDate >= sevenDaysAgo &&
+               !recommendations.some(r => r.listingId === listing.id);
+      }).slice(0, 3);
+
+      newListings.forEach(listing => {
+        recommendations.push({
+          userId,
+          listingId: listing.id,
+          recommendationType: 'new_listing',
+          confidenceScore: 70,
+          relevanceScore: 75,
+          reasonCode: 'recently_listed',
+          reasonDescription: `New listing - just added to the marketplace`,
+          sourceBehavior: JSON.stringify({ new_listing: true }),
+          basedOnListings: [],
+          expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days
+        });
+      });
+
+      // Insert recommendations
+      if (recommendations.length > 0) {
+        await db.insert(userVehicleRecommendations).values(recommendations);
+      }
+
+      // Return the newly created recommendations
+      return await db
+        .select()
+        .from(userVehicleRecommendations)
+        .where(
+          and(
+            eq(userVehicleRecommendations.userId, userId),
+            eq(userVehicleRecommendations.isActive, true)
+          )
+        )
+        .orderBy(desc(userVehicleRecommendations.relevanceScore));
+    } catch (error) {
+      console.error("Error generating vehicle recommendations:", error);
+      return [];
+    }
+  }
+
+  async getUserRecommendations(userId: string, limit: number = 10): Promise<Array<UserVehicleRecommendations & { listing: CarListing }>> {
+    try {
+      const recommendations = await db
+        .select({
+          id: userVehicleRecommendations.id,
+          userId: userVehicleRecommendations.userId,
+          listingId: userVehicleRecommendations.listingId,
+          recommendationType: userVehicleRecommendations.recommendationType,
+          confidenceScore: userVehicleRecommendations.confidenceScore,
+          relevanceScore: userVehicleRecommendations.relevanceScore,
+          reasonCode: userVehicleRecommendations.reasonCode,
+          reasonDescription: userVehicleRecommendations.reasonDescription,
+          sourceBehavior: userVehicleRecommendations.sourceBehavior,
+          basedOnListings: userVehicleRecommendations.basedOnListings,
+          isViewed: userVehicleRecommendations.isViewed,
+          viewedAt: userVehicleRecommendations.viewedAt,
+          isClicked: userVehicleRecommendations.isClicked,
+          clickedAt: userVehicleRecommendations.clickedAt,
+          isFavorited: userVehicleRecommendations.isFavorited,
+          isContactedSeller: userVehicleRecommendations.isContactedSeller,
+          isActive: userVehicleRecommendations.isActive,
+          expiresAt: userVehicleRecommendations.expiresAt,
+          generatedAt: userVehicleRecommendations.generatedAt,
+          createdAt: userVehicleRecommendations.createdAt,
+          listing: carListings,
+        })
+        .from(userVehicleRecommendations)
+        .innerJoin(carListings, eq(userVehicleRecommendations.listingId, carListings.id))
+        .where(
+          and(
+            eq(userVehicleRecommendations.userId, userId),
+            eq(userVehicleRecommendations.isActive, true),
+            eq(carListings.status, 'active'),
+            or(
+              isNull(userVehicleRecommendations.expiresAt),
+              gte(userVehicleRecommendations.expiresAt, new Date())
+            )
+          )
+        )
+        .orderBy(desc(userVehicleRecommendations.relevanceScore))
+        .limit(limit);
+
+      return recommendations;
+    } catch (error) {
+      console.error("Error getting user recommendations:", error);
+      return [];
+    }
+  }
+
+  async updateRecommendationEngagement(
+    recommendationId: number, 
+    engagement: { 
+      isViewed?: boolean; 
+      isClicked?: boolean; 
+      isFavorited?: boolean; 
+      isContactedSeller?: boolean; 
+    }
+  ): Promise<void> {
+    try {
+      const updateData: any = {};
+      
+      if (engagement.isViewed !== undefined) {
+        updateData.isViewed = engagement.isViewed;
+        if (engagement.isViewed) updateData.viewedAt = new Date();
+      }
+      
+      if (engagement.isClicked !== undefined) {
+        updateData.isClicked = engagement.isClicked;
+        if (engagement.isClicked) updateData.clickedAt = new Date();
+      }
+      
+      if (engagement.isFavorited !== undefined) {
+        updateData.isFavorited = engagement.isFavorited;
+      }
+      
+      if (engagement.isContactedSeller !== undefined) {
+        updateData.isContactedSeller = engagement.isContactedSeller;
+      }
+
+      await db
+        .update(userVehicleRecommendations)
+        .set(updateData)
+        .where(eq(userVehicleRecommendations.id, recommendationId));
+    } catch (error) {
+      console.error("Error updating recommendation engagement:", error);
     }
   }
 }

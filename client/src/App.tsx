@@ -21,6 +21,7 @@ import VehicleLoans from "@/pages/vehicle-loans";
 import AdminDashboard from "@/pages/admin-dashboard";
 import Dashboard from "@/pages/dashboard";
 import { ResetPassword } from "@/pages/reset-password";
+import VehicleRecommendations from "@/pages/vehicle-recommendations";
 import { AuthProvider } from "@/components/auth-provider";
 
 function Router() {
@@ -41,6 +42,7 @@ function Router() {
           <Route path="/vehicle-loans" component={VehicleLoans} />
           <Route path="/price-trends" component={PriceTrends} />
           <Route path="/price-heatmap" component={PriceHeatmap} />
+          <Route path="/vehicle-recommendations" component={VehicleRecommendations} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/reset-password" component={ResetPassword} />

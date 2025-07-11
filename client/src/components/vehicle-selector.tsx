@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Car, Settings, Fuel, AlertCircle, Calculator } from "lucide-react";
@@ -131,9 +131,6 @@ export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp, hid
             onVehicleSelect(vehicleWithEngine);
           }
         });
-    } else if (vehicleDetails.length === 0 && (showManualEntryState || (selectedMake && selectedModel && useManualEngine && manualEngineSize))) {
-      // Try proration for vehicles not in database
-      tryProration();
     } else {
       setSelectedVehicle(null);
       onVehicleSelect(null);
@@ -165,19 +162,14 @@ export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp, hid
     return `KES ${num.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  // Proration logic for vehicles not in database
-  const tryProration = async () => {
-    const make = showManualEntryState ? manualMake : selectedMake;
-    const model = showManualEntryState ? manualModel : selectedModel;
-    const engineCapacity = showManualEntryState ? parseInt(manualEngine) : parseInt(manualEngineSize);
+  // State for manual proration workflow
+  const [showProrationOptions, setShowProrationOptions] = useState<boolean>(false);
+  const [selectedBaseVehicle, setSelectedBaseVehicle] = useState<VehicleReference | null>(null);
+  const [availableReferences, setAvailableReferences] = useState<VehicleReference[]>([]);
 
-    if (!make || !model || !engineCapacity) {
-      setManualVehicleData(null);
-      return;
-    }
-
+  // Search for reference vehicles for proration
+  const searchReferenceVehicles = async (make: string) => {
     try {
-      // Search for reference vehicles from the same make with CRSP values
       const response = await fetch(`/api/vehicle-references/search?make=${make}&limit=50`);
       const referenceVehicles: VehicleReference[] = await response.json();
       
@@ -186,56 +178,37 @@ export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp, hid
         (v.crspKes || v.crsp2020) && v.engineCapacity && v.engineCapacity > 0
       );
 
-      if (validReferences.length === 0) {
-        setManualVehicleData(null);
-        return;
-      }
-
-      // Find the best reference vehicle (prefer same model, then closest engine size)
-      let bestReference = validReferences[0];
-      
-      // First try to find same model
-      const sameModel = validReferences.find(v => 
-        v.model.toLowerCase() === model.toLowerCase()
-      );
-      
-      if (sameModel) {
-        bestReference = sameModel;
-      } else {
-        // Find closest engine size
-        bestReference = validReferences.reduce((closest, current) => {
-          const closestDiff = Math.abs((closest.engineCapacity || 0) - engineCapacity);
-          const currentDiff = Math.abs((current.engineCapacity || 0) - engineCapacity);
-          return currentDiff < closestDiff ? current : closest;
-        });
-      }
-
-      // Calculate prorated CRSP
-      const referenceCrsp = bestReference.crspKes || bestReference.crsp2020 || 0;
-      const referenceEngine = bestReference.engineCapacity || 1;
-      const proratedCrsp = Math.round((referenceCrsp * engineCapacity) / referenceEngine);
-
-      const manualData: ManualVehicleData = {
-        make,
-        model,
-        engineCapacity,
-        referenceVehicle: bestReference,
-        proratedCrsp
-      };
-
-      setManualVehicleData(manualData);
-      setSelectedVehicle(null);
-      onVehicleSelect(null, manualData);
-
+      setAvailableReferences(validReferences);
+      setShowProrationOptions(true);
     } catch (error) {
-      console.error("Proration calculation failed:", error);
-      setManualVehicleData(null);
+      console.error("Failed to search reference vehicles:", error);
+      setAvailableReferences([]);
     }
+  };
+
+  // Manual proration with user-selected base vehicle
+  const calculateProration = (baseVehicle: VehicleReference, newEngineCapacity: number) => {
+    const referenceCrsp = baseVehicle.crspKes || baseVehicle.crsp2020 || 0;
+    const referenceEngine = baseVehicle.engineCapacity || 1;
+    const proratedCrsp = Math.round((referenceCrsp * newEngineCapacity) / referenceEngine);
+
+    const manualData: ManualVehicleData = {
+      make: showManualEntryState ? manualMake : selectedMake,
+      model: showManualEntryState ? manualModel : selectedModel,
+      engineCapacity: newEngineCapacity,
+      referenceVehicle: baseVehicle,
+      proratedCrsp
+    };
+
+    setManualVehicleData(manualData);
+    setSelectedVehicle(null);
+    onVehicleSelect(null, manualData);
+    setShowProrationOptions(false);
   };
 
   const handleManualSubmit = () => {
     if (manualMake && manualModel && manualEngine) {
-      tryProration();
+      searchReferenceVehicles(manualMake);
     }
   };
 
@@ -246,6 +219,9 @@ export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp, hid
     setManualEngine("");
     setManualVehicleData(null);
     setSelectedVehicle(null);
+    setShowProrationOptions(false);
+    setSelectedBaseVehicle(null);
+    setAvailableReferences([]);
     onVehicleSelect(null);
   };
 
@@ -327,7 +303,7 @@ export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp, hid
             disabled={!manualMake || !manualModel || !manualEngine}
             className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Calculate Prorated CRSP
+            Find Reference Vehicles
           </button>
         </div>
       ) : (
@@ -426,6 +402,87 @@ export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp, hid
           )}
         </div>
       </div>
+      )}
+
+      {/* Reference Vehicle Selection for Proration */}
+      {showProrationOptions && availableReferences.length > 0 && (
+        <Card className="bg-amber-50 border-amber-200">
+          <CardHeader>
+            <h3 className="text-lg font-semibold text-amber-900">Select Base Vehicle for Proration</h3>
+            <p className="text-sm text-amber-700">
+              Choose a reference vehicle from {manualMake} to calculate prorated CRSP value for your {manualEngine}cc {manualModel}
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 max-h-60 overflow-y-auto">
+              {availableReferences.map((vehicle) => (
+                <div
+                  key={vehicle.id}
+                  onClick={() => {
+                    setSelectedBaseVehicle(vehicle);
+                    calculateProration(vehicle, parseInt(manualEngine));
+                  }}
+                  className="p-3 border border-amber-300 rounded-lg cursor-pointer hover:bg-amber-100 transition-colors"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-medium text-amber-900">
+                        {vehicle.make} {vehicle.model}
+                      </h4>
+                      <p className="text-sm text-amber-700">
+                        {vehicle.engineCapacity}cc • {vehicle.fuelType} • {vehicle.bodyType}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-amber-600">CRSP Value</p>
+                      <p className="font-bold text-amber-900">
+                        {formatCurrency(vehicle.crspKes || vehicle.crsp2020)}
+                      </p>
+                      {vehicle.crsp2020 && !vehicle.crspKes && (
+                        <Badge variant="outline" className="text-orange-600 border-orange-600 text-xs">
+                          2020
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-amber-200">
+                    <p className="text-xs text-amber-600">
+                      Calculated CRSP: {formatCurrency(Math.round(((vehicle.crspKes || vehicle.crsp2020 || 0) * parseInt(manualEngine)) / (vehicle.engineCapacity || 1)))}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-4 border-t border-amber-200">
+              <button
+                onClick={() => setShowProrationOptions(false)}
+                className="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+              >
+                Cancel Proration
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {showProrationOptions && availableReferences.length === 0 && (
+        <Card className="bg-red-50 border-red-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-2 text-red-700">
+              <AlertCircle className="h-5 w-5" />
+              <div>
+                <h4 className="font-medium">No Reference Vehicles Found</h4>
+                <p className="text-sm">No vehicles from {manualMake} with CRSP values found in our database for proration.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowProrationOptions(false)}
+              className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Try Different Vehicle
+            </button>
+          </CardContent>
+        </Card>
       )}
 
       {/* Manual Vehicle Data Results */}

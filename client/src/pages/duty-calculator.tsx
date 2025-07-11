@@ -2,15 +2,19 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { generateDutyCalculationPDF } from "@/lib/pdf-generator";
@@ -20,176 +24,432 @@ import { VehicleCategorySelector } from "@/components/vehicle-category-selector"
 import { TrailerSelector } from "@/components/trailer-selector";
 import { HeavyMachinerySelector } from "@/components/heavy-machinery-selector";
 import { ModuleNavigation } from "@/components/module-navigation";
-import { vehicleCategoryInfo } from "@/components/duty-calculator/vehicle-category-info";
+import gariyangu from "@assets/gylogo_1752064168868.png";
 import { 
   Calculator, 
+  Car, 
+  Truck, 
+  Bike, 
+  Shield, 
   DollarSign, 
   Calendar, 
   Receipt,
   Info,
   Download,
   AlertCircle,
+  Zap,
+  Bus,
+  Building,
+  Heart,
+  Wrench,
+  Package,
+  Settings,
   Database
 } from "lucide-react";
+
+const vehicleCategoryInfo = {
+  under1500cc: { 
+    emoji: "🚗",
+    label: "Under 1500cc",
+    description: "Vehicles with engine capacity below 1500cc",
+    icon: Car
+  },
+  over1500cc: { 
+    emoji: "🚙", 
+    label: "Over 1500cc", 
+    description: "Vehicles with engine capacity 1500cc and above",
+    icon: Car
+  },
+  largeEngine: { 
+    emoji: "🚛",
+    label: "Large Engine", 
+    description: "Petrol >3000cc or Diesel >2500cc",
+    icon: Truck
+  },
+  electric: { 
+    emoji: "⚡",
+    label: "Electric", 
+    description: "Fully electric vehicles (tax incentives apply)",
+    icon: Zap
+  },
+  schoolBus: { 
+    emoji: "🚌",
+    label: "School Bus", 
+    description: "Vehicles designated for student transport",
+    icon: Bus
+  },
+  primeMover: { 
+    emoji: "🚚",
+    label: "Prime Mover", 
+    description: "Heavy duty truck heads",
+    icon: Building
+  },
+  trailer: { 
+    emoji: "🚛",
+    label: "Trailer", 
+    description: "Transport trailers",
+    icon: Package
+  },
+  ambulance: { 
+    emoji: "🚑",
+    label: "Ambulance", 
+    description: "Emergency medical vehicles",
+    icon: Heart
+  },
+  motorcycle: { 
+    emoji: "🏍️",
+    label: "Motorcycle", 
+    description: "Two-wheeled vehicles",
+    icon: Bike
+  },
+  specialPurpose: { 
+    emoji: "🚜",
+    label: "Special Purpose", 
+    description: "Specialized vehicles",
+    icon: Wrench
+  },
+  heavyMachinery: { 
+    emoji: "🏗️",
+    label: "Heavy Machinery", 
+    description: "Construction and industrial equipment",
+    icon: Building
+  }
+};
 
 export default function DutyCalculator() {
   const { toast } = useToast();
   const [calculationResult, setCalculationResult] = useState<DutyResult | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
-  const [categoryConflict, setCategoryConflict] = useState<string | null>(null);
-  const [yearOfManufacture, setYearOfManufacture] = useState<number>(0);
-  const [manualVehicleData, setManualVehicleData] = useState<ManualVehicleData | null>(null);
-  const [selectedTrailer, setSelectedTrailer] = useState<Trailer | null>(null);
-  const [selectedHeavyMachinery, setSelectedHeavyMachinery] = useState<HeavyMachinery | null>(null);
 
+  const [categoryConflict, setCategoryConflict] = useState<string | null>(null);
+  const [yearOfManufacture, setYearOfManufacture] = useState<number>(0); // 0 means not selected
+  const [manualEngineSize, setManualEngineSize] = useState<number | null>(null);
+  const [manualVehicleData, setManualVehicleData] = useState<ManualVehicleData | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedTrailer, setSelectedTrailer] = useState<Trailer | null>(null);
+  const [selectedMachinery, setSelectedMachinery] = useState<HeavyMachinery | null>(null);
+  
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
     defaultValues: {
-      vehicleCategory: "under1500cc" as any, // Set valid default but allow user to change
+      vehicleCategory: "under1500cc", 
+      vehicleValue: 1000000,
       engineSize: 1500,
       vehicleAge: 0,
       isDirectImport: true,
-      fuelType: "petrol",
     },
   });
 
-  // Handle vehicle selection
-  const handleVehicleSelect = (vehicle: VehicleReference | null, manual?: ManualVehicleData) => {
+  // Handle vehicle selection from database
+  const handleVehicleSelect = (vehicle: VehicleReference | null) => {
     setSelectedVehicle(vehicle);
-    setManualVehicleData(manual || null);
-    
     if (vehicle) {
-      form.setValue("engineSize", vehicle.engineCapacity || 1500);
+      // Determine which CRSP value to use (current CRSP_KES has priority over CRSP2020)
+      let crspValue = 0;
+      let usedCrsp2020 = false;
       
-      // Auto-detect category
-      const engine = vehicle.engineCapacity || 1500;
-      const fuel = vehicle.fuelType?.toLowerCase() || "petrol";
-      let autoCategory = "";
-      
-      if (fuel === "electric") {
-        autoCategory = "electric";
-      } else if (engine < 1500) {
-        autoCategory = "under1500cc";
-      } else if ((fuel === "petrol" && engine > 3000) || (fuel === "diesel" && engine > 2500)) {
-        autoCategory = "largeEngine";
-      } else {
-        autoCategory = "over1500cc";
+      if (vehicle.crspKes) {
+        crspValue = typeof vehicle.crspKes === 'string' ? parseFloat(vehicle.crspKes) : vehicle.crspKes;
+        usedCrsp2020 = false;
+      } else if (vehicle.crsp2020) {
+        crspValue = typeof vehicle.crsp2020 === 'string' ? parseFloat(vehicle.crsp2020) : vehicle.crsp2020;
+        usedCrsp2020 = true;
       }
       
-      form.setValue("vehicleCategory", autoCategory);
-      form.setValue("fuelType", fuel as any);
-    } else if (manual) {
-      // Handle manual vehicle data with proration
-      form.setValue("engineSize", manual.engineCapacity || 1500);
-      
-      // Auto-detect category for manual vehicle
-      const engine = manual.engineCapacity || 1500;
-      const fuel = manual.referenceVehicle.fuelType?.toLowerCase() || "petrol"; // Use reference vehicle fuel type
-      let autoCategory = "";
-      
-      if (engine < 1500) {
-        autoCategory = "under1500cc";
-      } else if (engine > 3000) {
-        autoCategory = "largeEngine";
-      } else {
-        autoCategory = "over1500cc";
+      if (crspValue > 0) {
+        form.setValue('vehicleValue', crspValue);
+        
+        // Store information about CRSP source for display
+        (vehicle as any).usedCrsp2020 = usedCrsp2020;
       }
       
-      form.setValue("vehicleCategory", autoCategory);
-      form.setValue("fuelType", fuel as any);
-      form.setValue("vehicleValue", manual.proratedCrsp); // Set prorated CRSP value
-    } else {
-      // Clear form when no vehicle selected
-      form.setValue("engineSize", 0);
-      form.setValue("vehicleCategory", "");
-      form.setValue("fuelType", "petrol");
-      form.setValue("vehicleValue", undefined);
+      // Set engine size from selected vehicle
+      if (vehicle.engineCapacity) {
+        form.setValue('engineSize', vehicle.engineCapacity);
+        setManualEngineSize(null); // Clear manual engine size when vehicle has capacity
+      } else {
+        // If vehicle doesn't have engine capacity, keep the current form value or default
+        // Don't override with null/undefined to avoid validation errors
+        const currentEngineSize = form.getValues('engineSize');
+        if (!currentEngineSize || currentEngineSize === 0) {
+          form.setValue('engineSize', 1500); // Set reasonable default
+        }
+      }
+      
+      // Auto-fill fuel type if available
+      if (vehicle.fuelType) {
+        const fuelMap: Record<string, string> = {
+          'petrol': 'petrol',
+          'diesel': 'diesel',
+          'electric': 'electric',
+          'hybrid': 'hybrid'
+        };
+        const mappedFuel = fuelMap[vehicle.fuelType.toLowerCase()] || 'other';
+        form.setValue('fuelType', mappedFuel as any);
+      }
     }
   };
 
-  // Handle trailer selection
+  // Handle manual engine size input
+  const handleManualEngineSize = (engineSize: number | null) => {
+    setManualEngineSize(engineSize);
+    if (engineSize && engineSize > 0) {
+      form.setValue('engineSize', engineSize);
+    }
+  };
+
+  // Handle manual vehicle data with proration
+  const handleManualVehicleData = (data: ManualVehicleData | null) => {
+    setManualVehicleData(data);
+    if (data) {
+      // Use prorated CRSP value
+      form.setValue("vehicleValue", data.proratedCrsp);
+      form.setValue("engineSize", data.engineCapacity);
+      
+      // Note: Category should already be selected in Step 1
+
+      // Show notification about proration
+      toast({
+        title: "Using Prorated CRSP Value",
+        description: `CRSP value calculated based on ${data.referenceVehicle.make} ${data.referenceVehicle.model} reference vehicle.`,
+        variant: "default",
+      });
+    }
+    
+    setCategoryConflict(null);
+  };
+
+  // Function to detect vehicle category based on engine size and fuel type (for validation only)
+  const detectVehicleCategory = (engineCapacity: number, fuelType: string = 'petrol') => {
+    if (engineCapacity < 1500) {
+      return 'under1500cc';
+    } else if (engineCapacity >= 3000 && fuelType.toLowerCase() === 'petrol') {
+      return 'largeEngine';
+    } else if (engineCapacity >= 2500 && fuelType.toLowerCase() === 'diesel') {
+      return 'largeEngine';
+    } else {
+      return 'over1500cc';
+    }
+  };
+
+  // Get engine size from form for validation
+  const engineSize = form.watch('engineSize');
+  const fuelType = form.watch('fuelType');
+
+  // Update vehicle age when year of manufacture changes
+  useEffect(() => {
+    if (yearOfManufacture && yearOfManufacture > 0) {
+      const currentYear = new Date().getFullYear();
+      const age = currentYear - yearOfManufacture + 1; // Always add 1 year to age calculation
+      form.setValue('vehicleAge', Math.max(0, age));
+    } else {
+      form.setValue('vehicleAge', 0);
+    }
+  }, [yearOfManufacture, form]);
+
+  // Clear selections when category changes to ensure proper filtering
+  useEffect(() => {
+    if (selectedCategory) {
+      // Clear vehicle selections when category changes to trigger re-filtering
+      setSelectedVehicle(null);
+      setManualEngineSize(null);
+      setManualVehicleData(null);
+      setCategoryConflict(null);
+      
+      // Update form category
+      form.setValue('vehicleCategory', selectedCategory);
+      
+      // Show notification about category filter
+      const categoryNames: Record<string, string> = {
+        'under1500cc': 'Under 1500cc',
+        'over1500cc': 'Over 1500cc',
+        'largeEngine': 'Large Engine',
+        'electric': 'Electric',
+        'schoolBus': 'School Bus',
+        'primeMover': 'Prime Mover',
+        'trailer': 'Trailer',
+        'ambulance': 'Ambulance',
+        'motorcycle': 'Motorcycle',
+        'specialPurpose': 'Special Purpose',
+        'heavyMachinery': 'Heavy Machinery'
+      };
+      
+      if (selectedCategory !== 'trailer' && selectedCategory !== 'heavyMachinery') {
+        toast({
+          title: "Vehicle Filter Applied",
+          description: `Vehicle database filtered for: ${categoryNames[selectedCategory]}`,
+          variant: "default",
+        });
+      }
+    }
+  }, [selectedCategory, form, toast]);
+
+  // Validate manual category selection against vehicle specs
+  const validateCategorySelection = (category: string) => {
+    if (!category) {
+      setCategoryConflict(null);
+      return true;
+    }
+
+    // Get vehicle data from either selected vehicle or manual entry
+    const vehicleData = selectedVehicle || manualVehicleData?.referenceVehicle;
+    if (!vehicleData) {
+      setCategoryConflict(null);
+      return true;
+    }
+
+    // CRITICAL FIX: For manual vehicle data, use the manual engine capacity, not the reference vehicle's capacity
+    const engineCapacity = manualVehicleData ? manualVehicleData.engineCapacity : (vehicleData.engineCapacity || form.getValues('engineSize'));
+    const fuelType = vehicleData.fuelType?.toLowerCase();
+    const bodyType = vehicleData.bodyType?.toLowerCase();
+
+    console.log('Validating category:', category, 'for vehicle:', { engineCapacity, fuelType, bodyType });
+
+    // Enhanced conflict detection
+    if (category === 'under1500cc' && engineCapacity && engineCapacity >= 1500) {
+      const conflictMsg = `Vehicle has ${engineCapacity}cc engine, which is not under 1500cc`;
+      setCategoryConflict(conflictMsg);
+      console.log('Conflict detected:', conflictMsg);
+      return false;
+    }
+    
+    if (category === 'over1500cc' && engineCapacity) {
+      if (engineCapacity < 1500) {
+        const conflictMsg = `Vehicle has ${engineCapacity}cc engine, which is under 1500cc`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
+        return false;
+      }
+      if ((fuelType === 'petrol' && engineCapacity >= 3000) || (fuelType === 'diesel' && engineCapacity >= 2500)) {
+        const conflictMsg = `This ${engineCapacity}cc ${fuelType} vehicle should be categorized as "Large Engine"`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
+        return false;
+      }
+    }
+    
+    if (category === 'largeEngine' && engineCapacity && fuelType) {
+      if (fuelType === 'petrol' && engineCapacity < 3000) {
+        const conflictMsg = `Petrol vehicles need >3000cc for Large Engine category (current: ${engineCapacity}cc)`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
+        return false;
+      }
+      if (fuelType === 'diesel' && engineCapacity < 2500) {
+        const conflictMsg = `Diesel vehicles need >2500cc for Large Engine category (current: ${engineCapacity}cc)`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
+        return false;
+      }
+    }
+    
+    // CRITICAL: Electric category validation
+    if (category === 'electric' && fuelType && fuelType !== 'electric') {
+      const conflictMsg = `Vehicle fuel type is "${fuelType}", not electric. Cannot select Electric category for non-electric vehicles.`;
+      setCategoryConflict(conflictMsg);
+      console.log('ELECTRIC CONFLICT:', conflictMsg);
+      return false;
+    }
+
+    // Non-electric categories with electric fuel type
+    if (fuelType === 'electric' && !['electric'].includes(category)) {
+      const conflictMsg = `Electric vehicle cannot be categorized as "${category}". Please select Electric category.`;
+      setCategoryConflict(conflictMsg);
+      console.log('ELECTRIC VEHICLE CONFLICT:', conflictMsg);
+      return false;
+    }
+    
+    // Specialized vehicle category validation
+    if (category === 'motorcycle' && bodyType && !bodyType.includes('motorcycle') && !bodyType.includes('bike')) {
+      const conflictMsg = `Vehicle appears to be a ${bodyType}, not a motorcycle`;
+      setCategoryConflict(conflictMsg);
+      console.log('Conflict detected:', conflictMsg);
+      return false;
+    }
+
+    if (category === 'primeMover' && bodyType && !bodyType.toLowerCase().includes('truck') && !bodyType.toLowerCase().includes('tractor')) {
+      const conflictMsg = `Prime Mover category is for heavy duty truck heads, not ${bodyType}`;
+      setCategoryConflict(conflictMsg);
+      console.log('Conflict detected:', conflictMsg);
+      return false;
+    }
+
+    if (category === 'trailer' && bodyType && !bodyType.toLowerCase().includes('trailer')) {
+      const conflictMsg = `Trailer category is for transport trailers, not ${bodyType}`;
+      setCategoryConflict(conflictMsg);
+      console.log('Conflict detected:', conflictMsg);
+      return false;
+    }
+
+    if (category === 'heavyMachinery' && bodyType) {
+      const machineryTypes = ['excavator', 'bulldozer', 'crane', 'loader', 'grader'];
+      const isHeavyMachinery = machineryTypes.some(type => bodyType.toLowerCase().includes(type));
+      if (!isHeavyMachinery) {
+        const conflictMsg = `Heavy Machinery category is for construction equipment, not ${bodyType}`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
+        return false;
+      }
+    }
+    
+    if ((category === 'schoolBus' || category === 'ambulance') && vehicleData.model) {
+      const modelLower = vehicleData.model.toLowerCase();
+      const bodyLower = bodyType || '';
+      
+      if (category === 'schoolBus' && !modelLower.includes('bus') && !bodyLower.includes('bus')) {
+        const conflictMsg = `School Bus category requires a bus vehicle, not "${vehicleData.model}"`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
+        return false;
+      }
+      if (category === 'ambulance' && !modelLower.includes('ambulance') && !bodyLower.includes('ambulance')) {
+        const conflictMsg = `Ambulance category requires an ambulance vehicle, not "${vehicleData.model}"`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
+        return false;
+      }
+    }
+
+    // Generic vehicle validation for specialized categories
+    if (['primeMover', 'trailer', 'schoolBus', 'ambulance', 'heavyMachinery'].includes(category)) {
+      const normalVehicleTypes = ['hatchback', 'sedan', 'suv', 'wagon', 'coupe', 'convertible'];
+      if (bodyType && normalVehicleTypes.some(type => bodyType.toLowerCase().includes(type))) {
+        const conflictMsg = `"${category}" category cannot be used for regular ${bodyType} vehicles`;
+        setCategoryConflict(conflictMsg);
+        console.log('Conflict detected:', conflictMsg);
+        return false;
+      }
+    }
+    
+    console.log('No conflicts detected for category:', category);
+    setCategoryConflict(null);
+    return true;
+  };
+
+  // Function to handle trailer selection
   const handleTrailerSelect = (trailer: Trailer | null) => {
     setSelectedTrailer(trailer);
     if (trailer) {
-      form.setValue("vehicleCategory", "trailer");
-      form.setValue("engineSize", 0); // Trailers don't have engines
+      form.setValue('vehicleValue', trailer.crspKes || 0);
+      form.setValue('vehicleCategory', 'trailer');
+      form.setValue('engineSize', 0); // Trailers don't have engines
     }
-  };
-
-  // Handle heavy machinery selection
-  const handleHeavyMachinerySelect = (machinery: HeavyMachinery | null) => {
-    setSelectedHeavyMachinery(machinery);
-    if (machinery) {
-      form.setValue("vehicleCategory", "heavyMachinery");
-      form.setValue("engineSize", machinery.powerValue || 0);
-    }
-  };
-
-  // Handle year change
-  const handleYearChange = (year: number) => {
-    setYearOfManufacture(year);
-    const currentYear = new Date().getFullYear();
-    const age = currentYear - year + 1;
-    form.setValue("vehicleAge", age);
-  };
-
-  // Handle category change
-  const handleCategoryChange = (category: string) => {
-    console.log("Category change handler called with:", category);
-    form.setValue("vehicleCategory", category);
     
-    // Clear category conflict
+    // Clear conflicts when trailer is selected
     setCategoryConflict(null);
-    
-    // Clear selections when changing category
-    if (category === "trailer") {
-      setSelectedVehicle(null);
-      setManualVehicleData(null);
-      setSelectedHeavyMachinery(null);
-      form.setValue("engineSize", 0);
-    } else if (category === "heavyMachinery") {
-      setSelectedVehicle(null);
-      setManualVehicleData(null);
-      setSelectedTrailer(null);
-      form.setValue("engineSize", 0);
-    } else {
-      setSelectedTrailer(null);
-      setSelectedHeavyMachinery(null);
-      if (form.getValues("engineSize") === 0) {
-        form.setValue("engineSize", 1500);
-      }
+  };
+
+  // Function to handle heavy machinery selection
+  const handleMachinerySelect = (machinery: HeavyMachinery | null) => {
+    setSelectedMachinery(machinery);
+    if (machinery) {
+      form.setValue('vehicleValue', machinery.crspKes || 0);
+      form.setValue('vehicleCategory', 'heavyMachinery');
+      form.setValue('engineSize', machinery.powerValue || 0);
     }
     
-    console.log("Form category value after change:", form.getValues("vehicleCategory"));
-  };
-
-  // Generate year options
-  const generateYearOptions = () => {
-    const currentYear = new Date().getFullYear();
-    const isDirectImport = form.watch("isDirectImport");
-    const maxAge = isDirectImport ? 8 : 20;
-    
-    return Array.from({ length: maxAge + 1 }, (_, i) => currentYear - i);
-  };
-
-  // Check if form can be submitted
-  const canSubmit = () => {
-    const values = form.getValues();
-    const hasCategory = values.vehicleCategory && values.vehicleCategory !== "";
-    const hasEngineSize = values.engineSize >= 0; // 0 is valid for trailers
-    const hasValidYear = yearOfManufacture > 0;
-    const noConflicts = !categoryConflict;
-    
-    // Check if CRSP value is available
-    const hasValidCrsp = selectedVehicle?.crspKes || selectedVehicle?.crsp2020 || 
-                        manualVehicleData?.proratedCrsp || 
-                        selectedTrailer?.crspKes || 
-                        selectedHeavyMachinery?.crspKes;
-    
-    // For trailers and heavy machinery, year is not required
-    const isYearRequired = !["trailer", "heavyMachinery"].includes(values.vehicleCategory);
-    
-    return hasCategory && hasValidCrsp && hasEngineSize && (!isYearRequired || hasValidYear) && noConflicts;
+    // Clear conflicts when machinery is selected
+    setCategoryConflict(null);
   };
 
   // Calculate duty mutation
@@ -224,18 +484,31 @@ export default function DutyCalculator() {
   });
 
   const onSubmit = (data: DutyCalculation) => {
-    // Set vehicle value from CRSP before submitting
-    const vehicleValue = selectedVehicle?.crspKes || selectedVehicle?.crsp2020 || 
-                        manualVehicleData?.proratedCrsp || 
-                        selectedTrailer?.crspKes || 
-                        selectedHeavyMachinery?.crspKes || 0;
+    calculateDutyMutation.mutate(data);
+  };
+
+  // Generate year options based on import type
+  const generateYearOptions = () => {
+    const currentYear = new Date().getFullYear();
+    const isDirectImport = form.watch('isDirectImport');
+    const maxAge = isDirectImport ? 8 : 20;
     
-    const submissionData = {
-      ...data,
-      vehicleValue: vehicleValue
-    };
+    return Array.from({ length: maxAge + 1 }, (_, i) => currentYear - i);
+  };
+
+  // Check if all required fields are filled
+  const isFormValid = () => {
+    const values = form.getValues();
+    const hasCategory = values.vehicleCategory && values.vehicleCategory !== "";
+    const hasValue = values.vehicleValue && values.vehicleValue > 0;
+    const hasEngineSize = values.engineSize !== undefined && values.engineSize >= 0; // 0 is valid for trailers
+    const hasYear = yearOfManufacture > 0;
+    const noConflicts = !categoryConflict;
     
-    calculateDutyMutation.mutate(submissionData);
+    // Special handling for trailers and heavy machinery (year not required)
+    const requiresYear = !['trailer', 'heavyMachinery'].includes(values.vehicleCategory);
+    
+    return hasCategory && hasValue && hasEngineSize && (!requiresYear || hasYear) && noConflicts;
   };
 
   // Format currency
@@ -273,8 +546,24 @@ export default function DutyCalculator() {
                   </CardHeader>
                   <CardContent>
                     <VehicleCategorySelector 
-                      value={form.watch("vehicleCategory")}
-                      onValueChange={handleCategoryChange}
+                      value={selectedCategory}
+                      onValueChange={(category) => {
+                        console.log("Category selected:", category, "Current value:", selectedCategory);
+                        setSelectedCategory(category);
+                        validateCategorySelection(category);
+                        
+                        // Clear selections when switching categories
+                        if (category !== 'trailer') {
+                          setSelectedTrailer(null);
+                        }
+                        if (category !== 'heavyMachinery') {
+                          setSelectedMachinery(null);
+                        }
+                        if (!['trailer', 'heavyMachinery'].includes(category)) {
+                          setSelectedTrailer(null);
+                          setSelectedMachinery(null);
+                        }
+                      }}
                     />
                   </CardContent>
                 </Card>
@@ -288,51 +577,35 @@ export default function DutyCalculator() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Vehicle Selector */}
-                    {form.watch("vehicleCategory") && !["trailer", "heavyMachinery"].includes(form.watch("vehicleCategory")) && (
+                    {/* Show appropriate selector based on category */}
+                    {selectedCategory && !['trailer', 'heavyMachinery'].includes(selectedCategory) && (
                       <VehicleSelector 
-                        onVehicleSelect={handleVehicleSelect}
+                        onVehicleSelect={(vehicle, manual) => {
+                          if (manual) {
+                            handleManualVehicleData(manual);
+                          } else {
+                            handleVehicleSelect(vehicle);
+                            setManualVehicleData(null);
+                          }
+                          validateCategorySelection(selectedCategory);
+                        }}
+                        categoryFilter={selectedCategory}
                         showManualEntry={true}
                       />
                     )}
 
-                    {/* Trailer Selector */}
-                    {form.watch("vehicleCategory") === "trailer" && (
+                    {selectedCategory === 'trailer' && (
                       <TrailerSelector onTrailerSelect={handleTrailerSelect} />
                     )}
 
-                    {/* Heavy Machinery Selector */}
-                    {form.watch("vehicleCategory") === "heavyMachinery" && (
-                      <HeavyMachinerySelector onMachinerySelect={handleHeavyMachinerySelect} />
+                    {selectedCategory === 'heavyMachinery' && (
+                      <HeavyMachinerySelector onMachinerySelect={handleMachinerySelect} />
                     )}
 
-                    {/* Manual Engine Size Input - for vehicles not in database */}
-                    {form.watch("vehicleCategory") && !["trailer", "heavyMachinery"].includes(form.watch("vehicleCategory")) && !selectedVehicle && (
-                      <FormField
-                        control={form.control}
-                        name="engineSize"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Engine Size (cc) *</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter engine size in cc"
-                                {...field}
-                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
-
-                    {/* Selected Equipment Display */}
+                    {/* Display selected equipment details */}
                     {(selectedVehicle || manualVehicleData) && (
-                      <div className="bg-purple-50 p-4 rounded-lg">
-                        <h4 className="font-semibold mb-2">Selected Vehicle:</h4>
+                      <div className="bg-gray-50 p-4 rounded-lg border">
+                        <h4 className="font-semibold mb-2">Selected Vehicle Details</h4>
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
                             <span className="font-medium">Make:</span> {(selectedVehicle || manualVehicleData)?.make}
@@ -341,10 +614,10 @@ export default function DutyCalculator() {
                             <span className="font-medium">Model:</span> {(selectedVehicle || manualVehicleData)?.model}
                           </div>
                           <div>
-                            <span className="font-medium">Engine:</span> {(selectedVehicle || manualVehicleData)?.engineCapacity}cc
+                            <span className="font-medium">Engine Size:</span> {(selectedVehicle?.engineCapacity || manualVehicleData?.engineCapacity)}cc
                           </div>
                           <div className="flex items-center space-x-2">
-                            <span className="font-medium">CRSP:</span>
+                            <span className="font-medium">CRSP Value:</span>
                             <span>KES {((selectedVehicle?.crspKes || selectedVehicle?.crsp2020 || manualVehicleData?.proratedCrsp || 0)).toLocaleString()}</span>
                             {selectedVehicle?.crsp2020 && !selectedVehicle?.crspKes && (
                               <Badge variant="outline" className="text-orange-600 border-orange-600">
@@ -363,8 +636,8 @@ export default function DutyCalculator() {
                     )}
 
                     {selectedTrailer && (
-                      <div className="bg-purple-50 p-4 rounded-lg">
-                        <h4 className="font-semibold mb-2">Selected Trailer:</h4>
+                      <div className="bg-gray-50 p-4 rounded-lg border">
+                        <h4 className="font-semibold mb-2">Selected Trailer Details</h4>
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
                             <span className="font-medium">Type:</span> {selectedTrailer.type}
@@ -376,306 +649,312 @@ export default function DutyCalculator() {
                             <span className="font-medium">Specifications:</span> {selectedTrailer.specifications}
                           </div>
                           <div>
-                            <span className="font-medium">CRSP:</span> KES {selectedTrailer.crspKes.toLocaleString()}
+                            <span className="font-medium">CRSP Value:</span> KES {selectedTrailer.crspKes?.toLocaleString()}
                           </div>
                         </div>
                       </div>
                     )}
 
-                    {selectedHeavyMachinery && (
-                      <div className="bg-purple-50 p-4 rounded-lg">
-                        <h4 className="font-semibold mb-2">Selected Heavy Machinery:</h4>
+                    {selectedMachinery && (
+                      <div className="bg-gray-50 p-4 rounded-lg border">
+                        <h4 className="font-semibold mb-2">Selected Heavy Machinery Details</h4>
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
-                            <span className="font-medium">Make:</span> {selectedHeavyMachinery.make}
+                            <span className="font-medium">Make:</span> {selectedMachinery.make}
                           </div>
                           <div>
-                            <span className="font-medium">Model:</span> {selectedHeavyMachinery.model}
+                            <span className="font-medium">Model:</span> {selectedMachinery.model}
                           </div>
                           <div>
-                            <span className="font-medium">Category:</span> {selectedHeavyMachinery.category}
+                            <span className="font-medium">Category:</span> {selectedMachinery.category}
                           </div>
                           <div>
-                            <span className="font-medium">CRSP:</span> KES {selectedHeavyMachinery.crspKes.toLocaleString()}
+                            <span className="font-medium">Power:</span> {selectedMachinery.powerSpec}
+                          </div>
+                          <div>
+                            <span className="font-medium">CRSP Value:</span> KES {selectedMachinery.crspKes?.toLocaleString()}
                           </div>
                         </div>
                       </div>
+                    )}
+
+                    {/* Category conflict warning */}
+                    {categoryConflict && (
+                      <Alert className="border-red-200 bg-red-50">
+                        <AlertCircle className="h-4 w-4 text-red-600" />
+                        <AlertDescription className="text-red-800">
+                          <strong>Category Conflict:</strong> {categoryConflict}
+                        </AlertDescription>
+                      </Alert>
                     )}
                   </CardContent>
                 </Card>
 
-                {/* Step 3: Import Details */}
+                {/* Step 3: Additional Information */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
                       <span className="bg-purple-600 text-white px-2 py-1 rounded-full text-sm">3</span>
-                      <span>Import Details</span>
+                      <span>Additional Information</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="isDirectImport"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Import Type *</FormLabel>
-                            <FormControl>
-                              <RadioGroup
-                                onValueChange={(value) => field.onChange(value === "true")}
-                                value={field.value ? "true" : "false"}
-                                className="flex space-x-6"
-                              >
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="true" id="direct" />
-                                  <label htmlFor="direct">Direct Import</label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="false" id="previously_registered" />
-                                  <label htmlFor="previously_registered">Previously Registered</label>
-                                </div>
-                              </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    {/* Year of Manufacture - Not required for trailers and heavy machinery */}
+                    {!['trailer', 'heavyMachinery'].includes(selectedCategory) && (
+                      <div>
+                        <Label htmlFor="year" className="text-base font-semibold text-gray-900">
+                          Year of Manufacture *
+                        </Label>
+                        <Select 
+                          value={yearOfManufacture > 0 ? yearOfManufacture.toString() : ""} 
+                          onValueChange={(value) => setYearOfManufacture(parseInt(value))}
+                        >
+                          <SelectTrigger className="w-full mt-2">
+                            <SelectValue placeholder="Select year of manufacture" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {generateYearOptions().map((year) => (
+                              <SelectItem key={year} value={year.toString()}>
+                                {year}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
 
-                      {/* Year of Manufacture */}
-                      {!["trailer", "heavyMachinery"].includes(form.watch("vehicleCategory")) && (
-                        <div>
-                          <label className="text-sm font-medium">Year of Manufacture *</label>
-                          <Select 
-                            value={yearOfManufacture ? yearOfManufacture.toString() : ""} 
-                            onValueChange={(value) => handleYearChange(parseInt(value))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select year" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {generateYearOptions().map(year => (
-                                <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                    {/* Import Type */}
+                    <FormField
+                      control={form.control}
+                      name="isDirectImport"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold text-gray-900">
+                            Import Type *
+                          </FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={(value) => field.onChange(value === "direct")}
+                              value={field.value ? "direct" : "previously_registered"}
+                              className="flex flex-col space-y-2"
+                            >
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="direct" id="direct" />
+                                <Label htmlFor="direct" className="text-sm cursor-pointer">
+                                  Direct Import (vehicle imported directly from abroad)
+                                </Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="previously_registered" id="previously_registered" />
+                                <Label htmlFor="previously_registered" className="text-sm cursor-pointer">
+                                  Previously Registered (vehicle already registered in Kenya)
+                                </Label>
+                              </div>
+                            </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    </div>
-
-
-
-
+                    />
                   </CardContent>
                 </Card>
 
                 {/* Submit Button */}
-                <div className="text-center">
+                <div className="flex justify-center">
                   <Button 
                     type="submit" 
                     size="lg" 
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 text-lg"
-                    disabled={!canSubmit() || calculateDutyMutation.isPending}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3"
+                    disabled={!isFormValid() || calculateDutyMutation.isPending}
                   >
-                    {calculateDutyMutation.isPending ? "Calculating..." : "Calculate Duty"}
+                    {calculateDutyMutation.isPending ? (
+                      <>
+                        <span className="animate-spin mr-2">⏳</span>
+                        Calculating...
+                      </>
+                    ) : (
+                      <>
+                        <Calculator className="w-5 h-5 mr-2" />
+                        Calculate Duty
+                      </>
+                    )}
                   </Button>
                 </div>
               </form>
             </Form>
           </div>
 
-          {/* Information Sidebar */}
+          {/* Sidebar */}
           <div className="space-y-6">
-            <Card className="hover:shadow-lg transition-shadow">
+            {/* Quick Info */}
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Calculator className="h-5 w-5 text-purple-600" />
-                  <span>How It Works</span>
+                  <Info className="w-5 h-5 text-purple-600" />
+                  <span>Quick Information</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ol className="space-y-2 text-sm text-gray-600">
-                  <li>1. Select your equipment type</li>
-                  <li>2. Choose your specific vehicle/equipment</li>
-                  <li>3. Enter import details and year</li>
-                  <li>4. CRSP value automatically loaded</li>
-                  <li>5. Get detailed tax breakdown</li>
-                  <li>6. Download PDF report</li>
-                </ol>
+              <CardContent className="space-y-4">
+                <div className="text-sm text-gray-600">
+                  <p className="mb-2">
+                    <strong>Direct Import:</strong> Vehicle imported directly from abroad
+                  </p>
+                  <p className="mb-2">
+                    <strong>Previously Registered:</strong> Vehicle already registered in Kenya
+                  </p>
+                  <p>
+                    Age limits: Direct Import (8 years), Previously Registered (20 years)
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
+            {/* Category Information */}
+            {selectedCategory && vehicleCategoryInfo[selectedCategory as keyof typeof vehicleCategoryInfo] && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <span>{vehicleCategoryInfo[selectedCategory as keyof typeof vehicleCategoryInfo].emoji}</span>
+                    <span>{vehicleCategoryInfo[selectedCategory as keyof typeof vehicleCategoryInfo].label}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">
+                    {vehicleCategoryInfo[selectedCategory as keyof typeof vehicleCategoryInfo].description}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Form Progress */}
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Info className="h-5 w-5 text-purple-600" />
-                  <span>Important Notes</span>
+                  <Receipt className="w-5 h-5 text-purple-600" />
+                  <span>Form Progress</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• Rates are based on official KRA guidelines</li>
-                  <li>• CRSP values automatically loaded from database</li>
-                  <li>• No manual value entry required</li>
-                  <li>• Different rates apply to different categories</li>
-                  <li>• Depreciation varies by age and import type</li>
-                  <li>• Electric vehicles have reduced rates</li>
-                </ul>
+                <div className="space-y-2">
+                  <div className={`flex items-center space-x-2 ${selectedCategory ? 'text-green-600' : 'text-gray-400'}`}>
+                    <div className={`w-2 h-2 rounded-full ${selectedCategory ? 'bg-green-600' : 'bg-gray-400'}`}></div>
+                    <span className="text-sm">Category Selected</span>
+                  </div>
+                  <div className={`flex items-center space-x-2 ${(selectedVehicle || manualVehicleData || selectedTrailer || selectedMachinery) ? 'text-green-600' : 'text-gray-400'}`}>
+                    <div className={`w-2 h-2 rounded-full ${(selectedVehicle || manualVehicleData || selectedTrailer || selectedMachinery) ? 'bg-green-600' : 'bg-gray-400'}`}></div>
+                    <span className="text-sm">Equipment Selected</span>
+                  </div>
+                  <div className={`flex items-center space-x-2 ${(yearOfManufacture > 0 || ['trailer', 'heavyMachinery'].includes(selectedCategory)) ? 'text-green-600' : 'text-gray-400'}`}>
+                    <div className={`w-2 h-2 rounded-full ${(yearOfManufacture > 0 || ['trailer', 'heavyMachinery'].includes(selectedCategory)) ? 'bg-green-600' : 'bg-gray-400'}`}></div>
+                    <span className="text-sm">Year Specified</span>
+                  </div>
+                  <div className={`flex items-center space-x-2 ${isFormValid() ? 'text-green-600' : 'text-gray-400'}`}>
+                    <div className={`w-2 h-2 rounded-full ${isFormValid() ? 'bg-green-600' : 'bg-gray-400'}`}></div>
+                    <span className="text-sm">Ready to Calculate</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Results Section */}
+        {/* Calculation Results */}
         {calculationResult && (
           <div id="calculation-results" className="mt-12">
-            <h2 className="text-3xl font-bold text-purple-900 mb-8 text-center">
-              Calculation Results
-            </h2>
-            
-            {/* Equipment Details */}
-            <Card className="mb-6">
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <span className="text-2xl">🚗</span>
-                  <span>Equipment Details</span>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Receipt className="w-5 h-5 text-purple-600" />
+                    <span>Duty Calculation Results</span>
+                  </div>
+                  <Button
+                    onClick={() => generateDutyCalculationPDF(calculationResult, selectedVehicle || manualVehicleData || selectedTrailer || selectedMachinery as any)}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center space-x-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download PDF</span>
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Original Value:</span>
-                    <span>{formatCurrency(calculationResult.currentRetailPrice)}</span>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Summary */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Summary</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Vehicle Value (CRSP):</span>
+                        <span className="font-medium">{formatCurrency(calculationResult.originalValue)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Depreciation:</span>
+                        <span className="font-medium">{calculationResult.depreciationRate}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Customs Value:</span>
+                        <span className="font-medium">{formatCurrency(calculationResult.customsValue)}</span>
+                      </div>
+                      <Separator />
+                      <div className="flex justify-between text-lg font-bold">
+                        <span>Total Amount Payable:</span>
+                        <span className="text-purple-600">{formatCurrency(calculationResult.totalAmountPayable)}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">After Depreciation:</span>
-                    <span>{formatCurrency(calculationResult.depreciatedPrice)}</span>
+
+                  {/* Tax Breakdown */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Tax Breakdown</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Import Duty:</span>
+                        <span className="font-medium">{formatCurrency(calculationResult.breakdown.importDuty)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Excise Duty:</span>
+                        <span className="font-medium">{formatCurrency(calculationResult.breakdown.exciseDuty)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>VAT (16%):</span>
+                        <span className="font-medium">{formatCurrency(calculationResult.breakdown.vat)}</span>
+                      </div>
+                      {calculationResult.breakdown.rdl > 0 && (
+                        <div className="flex justify-between">
+                          <span>RDL (2%):</span>
+                          <span className="font-medium">{formatCurrency(calculationResult.breakdown.rdl)}</span>
+                        </div>
+                      )}
+                      {calculationResult.breakdown.idf > 0 && (
+                        <div className="flex justify-between">
+                          <span>IDF (2.5%):</span>
+                          <span className="font-medium">{formatCurrency(calculationResult.breakdown.idf)}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Customs Value:</span>
-                    <span>{formatCurrency(calculationResult.customsValue)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Depreciation:</span>
-                    <span>{(calculationResult.depreciationRate * 100).toFixed(1)}%</span>
+                </div>
+
+                {/* Additional Details */}
+                <div className="mt-8 pt-6 border-t">
+                  <h3 className="text-lg font-semibold mb-4">Calculation Details</h3>
+                  <div className="text-sm text-gray-600 space-y-2">
+                    <p><strong>Category:</strong> {vehicleCategoryInfo[calculationResult.vehicleCategory as keyof typeof vehicleCategoryInfo]?.label}</p>
+                    <p><strong>Engine Size:</strong> {calculationResult.engineSize}cc</p>
+                    <p><strong>Vehicle Age:</strong> {calculationResult.vehicleAge} years</p>
+                    <p><strong>Import Type:</strong> {calculationResult.isDirectImport ? 'Direct Import' : 'Previously Registered'}</p>
+                    {calculationResult.usedCrsp2020 && (
+                      <div className="flex items-center space-x-2 text-orange-600">
+                        <Database className="w-4 h-4" />
+                        <span>Using CRSP 2020 values - current market prices may differ</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
             </Card>
-
-            {/* Summary Card */}
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-lg font-medium text-purple-800">Total Amount Payable</span>
-                <Receipt className="h-5 w-5 text-purple-600" />
-              </div>
-              <div className="text-3xl font-bold text-purple-900 mb-2">
-                {formatCurrency(calculationResult.totalPayable)}
-              </div>
-              <p className="text-sm text-purple-700">
-                Includes all applicable duties, taxes, and registration fees
-              </p>
-            </div>
-
-            {/* Tax Breakdown */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle>Detailed Breakdown</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Current Retail Price:</span>
-                    <span className="font-medium">{formatCurrency(calculationResult.currentRetailPrice)}</span>
-                  </div>
-                  
-                  {calculationResult.depreciationRate > 0 && (
-                    <>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Depreciation ({(calculationResult.depreciationRate * 100).toFixed(0)}%):</span>
-                        <span className="font-medium text-red-600">
-                          -{formatCurrency(calculationResult.currentRetailPrice - calculationResult.depreciatedPrice)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Depreciated Price:</span>
-                        <span className="font-medium">{formatCurrency(calculationResult.depreciatedPrice)}</span>
-                      </div>
-                    </>
-                  )}
-                  
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Customs Value:</span>
-                    <span className="font-medium">{formatCurrency(calculationResult.customsValue)}</span>
-                  </div>
-                  
-                  <Separator className="my-2" />
-                  
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Import Duty:</span>
-                    <span className="font-medium">{formatCurrency(calculationResult.importDuty)}</span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Excise Duty:</span>
-                    <span className="font-medium">{formatCurrency(calculationResult.exciseDuty)}</span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">VAT (16%):</span>
-                    <span className="font-medium">{formatCurrency(calculationResult.vat)}</span>
-                  </div>
-                  
-                  {calculationResult.rdl > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Railway Development Levy (2%):</span>
-                      <span className="font-medium">{formatCurrency(calculationResult.rdl)}</span>
-                    </div>
-                  )}
-                  
-                  {calculationResult.idfFees > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Import Declaration Fee (2.5%):</span>
-                      <span className="font-medium">{formatCurrency(calculationResult.idfFees)}</span>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Registration Fees:</span>
-                    <span className="font-medium">{formatCurrency(calculationResult.registrationFees)}</span>
-                  </div>
-                  
-                  <Separator className="my-2" />
-                  
-                  <div className="flex justify-between font-semibold">
-                    <span>Total Taxes:</span>
-                    <span>{formatCurrency(calculationResult.totalTaxes)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Download PDF Button */}
-            <div className="text-center">
-              <Button 
-                onClick={() => {
-                  generateDutyCalculationPDF(
-                    calculationResult,
-                    selectedVehicle,
-                    yearOfManufacture,
-                    form.getValues("engineSize"),
-                    form.getValues("isDirectImport")
-                  );
-                  toast({
-                    title: "PDF Downloaded",
-                    description: "Your duty calculation report has been downloaded.",
-                  });
-                }}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Download PDF Report
-              </Button>
-            </div>
           </div>
         )}
       </div>

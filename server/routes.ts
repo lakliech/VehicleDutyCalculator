@@ -227,12 +227,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Remove password from response
-      const { password: _, ...userWithoutPassword } = user;
+      const { passwordHash, ...userWithoutPassword } = user;
       
-      // Update last login
-      await storage.updateUser(user.id, { lastLoginAt: new Date() });
-      
-      res.json({ success: true, user: userWithoutPassword });
+      // Create session using Passport
+      req.login(userWithoutPassword, (err) => {
+        if (err) {
+          console.error('Session creation error:', err);
+          return res.status(500).json({ success: false, message: 'Session creation failed' });
+        }
+        
+        // Update last login
+        storage.updateUser(user.id, { lastLoginAt: new Date() });
+        
+        console.log('Login successful, session created for:', email);
+        res.json({ success: true, user: userWithoutPassword });
+      });
     } catch (error) {
       console.error('Login error:', error);
       res.status(500).json({ success: false, message: 'Login failed' });
@@ -254,6 +263,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Check authentication status
   app.get('/api/auth/status', (req: Request, res: Response) => {
+    console.log('Auth status check:', {
+      isAuthenticated: req.isAuthenticated?.(),
+      hasUser: !!req.user,
+      sessionID: req.sessionID,
+      session: req.session ? Object.keys(req.session) : 'no session'
+    });
+    
     if (req.isAuthenticated?.() && req.user) {
       res.json({ authenticated: true, user: req.user });
     } else {

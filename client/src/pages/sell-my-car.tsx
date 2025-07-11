@@ -143,7 +143,6 @@ export default function SellMyCar() {
     // Ensure critical fields have values
     listingForm.setValue("fuelType", "petrol");
     listingForm.setValue("driveConfiguration", "2wd");
-    listingForm.setValue("location", "Nairobi");
   }, [listingForm]);
 
   // Kenyan counties for location dropdown
@@ -943,30 +942,6 @@ export default function SellMyCar() {
                     <div>
                       <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
                       <div className="space-y-4">
-                        <FormField
-                          control={listingForm.control}
-                          name="location"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Location *</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value || "Nairobi"}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select your location" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {kenyanCounties.map((county) => (
-                                    <SelectItem key={county} value={county}>
-                                      {county}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
                         <FormField
                           control={listingForm.control}
                           name="phoneNumber"

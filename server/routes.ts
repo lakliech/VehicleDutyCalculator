@@ -825,7 +825,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Marketplace endpoint alias for frontend
   app.post("/api/marketplace/listings", authenticateUser, async (req, res) => {
     try {
-      const validation = carListingSchema.safeParse(req.body);
+      // Add default location if not provided
+      const listingDataWithDefaults = {
+        ...req.body,
+        location: req.body.location || "Nairobi" // Default location
+      };
+      
+      const validation = carListingSchema.safeParse(listingDataWithDefaults);
       
       if (!validation.success) {
         return res.status(400).json({ 

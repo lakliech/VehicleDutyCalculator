@@ -202,15 +202,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password } = req.body;
       
+      console.log('Login attempt for email:', email);
+      
       // Get user by email
       const user = await storage.getUserByEmail(email);
       if (!user) {
+        console.log('User not found for email:', email);
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
       
+      console.log('User found:', { id: user.id, email: user.email, hasPassword: !!user.passwordHash });
+      
+      // Check if user has a password (might be OAuth user)
+      if (!user.passwordHash) {
+        console.log('User has no password - likely OAuth user');
+        return res.status(401).json({ success: false, message: 'Please sign in with Google' });
+      }
+      
       // Compare hashed password
-      const passwordMatch = await bcrypt.compare(password, user.password);
+      const passwordMatch = await bcrypt.compare(password, user.passwordHash);
       if (!passwordMatch) {
+        console.log('Password mismatch for user:', email);
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
       

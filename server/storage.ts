@@ -376,7 +376,7 @@ export class DatabaseStorage implements IStorage {
     const hashedPassword = await bcrypt.hash(password, 10);
     const [user] = await db
       .insert(appUsers)
-      .values({ ...userDataWithoutPassword, password: hashedPassword })
+      .values({ ...userDataWithoutPassword, passwordHash: hashedPassword })
       .returning();
     
     // Create default user preferences

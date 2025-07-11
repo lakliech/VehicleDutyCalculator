@@ -367,6 +367,8 @@ export const appUsers = pgTable("app_users", {
   lastName: varchar("last_name", { length: 100 }),
   phoneNumber: varchar("phone_number", { length: 20 }),
   profileImageUrl: varchar("profile_image_url", { length: 500 }),
+  passwordHash: varchar("password_hash", { length: 255 }), // For email/password authentication
+  oauthProvider: varchar("oauth_provider", { length: 50 }), // 'google', 'facebook', 'apple', etc.
   roleId: integer("role_id").references(() => userRoles.id).notNull().default(1), // Default to 'user' role
   isActive: boolean("is_active").default(true),
   isEmailVerified: boolean("is_email_verified").default(false),

@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,15 +16,164 @@ import {
   ArrowRight,
   Star,
   Search,
+  Phone,
+  TrendingUp,
   Shield,
-  Users
+  CheckCircle
 } from "lucide-react";
+
+// Tool configuration - extracted for better maintainability
+const AUTOMOTIVE_TOOLS = [
+  {
+    href: "/duty-calculator",
+    title: "Duty Calculator",
+    description: "Calculate Kenya import duties and taxes with KRA official rates",
+    icon: Calculator,
+    color: "from-purple-500 to-purple-600",
+    category: "calculation",
+    featured: true
+  },
+  {
+    href: "/importation-estimator", 
+    title: "Import Calculator",
+    description: "Estimate total vehicle importation costs",
+    icon: Car,
+    color: "from-blue-500 to-blue-600",
+    category: "calculation"
+  },
+  {
+    href: "/mycars-worth",
+    title: "MyCar's Worth",
+    description: "Get current market value of your vehicle",
+    icon: DollarSign,
+    color: "from-green-500 to-green-600",
+    category: "valuation"
+  },
+  {
+    href: "/service-estimator",
+    title: "Service Estimates", 
+    description: "Estimate maintenance costs",
+    icon: Wrench,
+    color: "from-orange-500 to-orange-600",
+    category: "maintenance"
+  },
+  {
+    href: "/transfer-cost",
+    title: "Transfer Cost",
+    description: "Calculate ownership transfer fees", 
+    icon: FileText,
+    color: "from-cyan-500 to-cyan-600",
+    category: "legal"
+  },
+  {
+    href: "/buy-a-car",
+    title: "Buy a Car",
+    description: "Browse and buy quality vehicles",
+    icon: Search,
+    color: "from-indigo-500 to-indigo-600",
+    category: "marketplace"
+  },
+  {
+    href: "/sell-my-car",
+    title: "Sell My Car",
+    description: "List and sell your vehicle",
+    icon: ShoppingCart,
+    color: "from-pink-500 to-pink-600",
+    category: "marketplace"
+  },
+  {
+    href: "/vehicle-loans",
+    title: "Vehicle Loan Products",
+    description: "Explore financing options",
+    icon: CreditCard,
+    color: "from-emerald-500 to-emerald-600",
+    category: "finance"
+  }
+];
+
+// Quick stats/features data
+const PLATFORM_FEATURES = [
+  {
+    icon: Calculator,
+    title: "Official KRA Rates",
+    description: "Up-to-date government rates and calculations"
+  },
+  {
+    icon: Shield,
+    title: "Trusted Platform",
+    description: "Secure transactions and verified listings"
+  },
+  {
+    icon: TrendingUp,
+    title: "Market Intelligence",
+    description: "Real-time pricing and market trends"
+  },
+  {
+    icon: Phone,
+    title: "Expert Support",
+    description: "Professional assistance when you need it"
+  }
+];
+
+// Tool card component for better reusability
+const ToolCard = ({ tool }: { tool: typeof AUTOMOTIVE_TOOLS[0] }) => {
+  const IconComponent = tool.icon;
+  
+  return (
+    <Link href={tool.href}>
+      <Card className="group h-full bg-white/80 backdrop-blur-sm hover:bg-white hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-purple-300 hover:-translate-y-1">
+        <CardHeader className="text-center pb-4">
+          <div className={`bg-gradient-to-br ${tool.color} text-white rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
+            <IconComponent className="h-8 w-8" />
+          </div>
+          <div className="space-y-2">
+            <CardTitle className="text-xl font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+              {tool.title}
+            </CardTitle>
+            {tool.featured && (
+              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-sm">
+                <Star className="h-3 w-3 mr-1" />
+                Most Popular
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <CardDescription className="text-center text-gray-600 mb-6 leading-relaxed">
+            {tool.description}
+          </CardDescription>
+          <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md group-hover:shadow-lg transition-all">
+            Get Started
+            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Button>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+};
+
+// Feature highlight component
+const FeatureHighlight = ({ feature }: { feature: typeof PLATFORM_FEATURES[0] }) => {
+  const IconComponent = feature.icon;
+  
+  return (
+    <div className="flex items-start space-x-4 p-4 rounded-xl bg-white/30 backdrop-blur-sm">
+      <div className="bg-white/20 rounded-lg p-2">
+        <IconComponent className="h-6 w-6 text-white" />
+      </div>
+      <div>
+        <h3 className="font-semibold text-white mb-1">{feature.title}</h3>
+        <p className="text-purple-100 text-sm">{feature.description}</p>
+      </div>
+    </div>
+  );
+};
 
 export default function Home() {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Handle OAuth success/error messages
+  // Handle OAuth success/error messages - preserved existing logic
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const social = urlParams.get('social');
@@ -36,7 +185,6 @@ export default function Home() {
         title: "Login Successful",
         description: "You have been logged in with Google successfully!",
       });
-      // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
     } else if (error === 'auth_failed') {
       toast({
@@ -44,139 +192,113 @@ export default function Home() {
         description: "Google authentication failed. Please try again.",
         variant: "destructive",
       });
-      // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [toast]);
 
-  const allTools = [
-    {
-      href: "/duty-calculator",
-      title: "Duty Calculator",
-      description: "Calculate Kenya import duties and taxes with KRA official rates",
-      icon: <Calculator className="h-12 w-12" />,
-      color: "bg-purple-500",
-      featured: true
-    },
-    {
-      href: "/importation-estimator", 
-      title: "Import Calculator",
-      description: "Estimate total vehicle importation costs",
-      icon: <Car className="h-12 w-12" />,
-      color: "bg-blue-500"
-    },
-    {
-      href: "/mycars-worth",
-      title: "MyCar's Worth",
-      description: "Get current market value of your vehicle",
-      icon: <DollarSign className="h-12 w-12" />,
-      color: "bg-green-500"
-    },
-    {
-      href: "/service-estimator",
-      title: "Service Estimates", 
-      description: "Estimate maintenance costs",
-      icon: <Wrench className="h-12 w-12" />,
-      color: "bg-orange-500"
-    },
-    {
-      href: "/transfer-cost",
-      title: "Transfer Cost",
-      description: "Calculate ownership transfer fees", 
-      icon: <FileText className="h-12 w-12" />,
-      color: "bg-cyan-500"
-    },
-    {
-      href: "/buy-a-car",
-      title: "Buy a Car",
-      description: "Browse and buy quality vehicles",
-      icon: <Search className="h-12 w-12" />,
-      color: "bg-indigo-500"
-    },
-    {
-      href: "/sell-my-car",
-      title: "Sell My Car",
-      description: "List and sell your vehicle",
-      icon: <ShoppingCart className="h-12 w-12" />,
-      color: "bg-pink-500"
-    },
-    {
-      href: "/vehicle-loans",
-      title: "Vehicle Loan Products",
-      description: "Explore financing options",
-      icon: <CreditCard className="h-12 w-12" />,
-      color: "bg-emerald-500"
-    }
-  ];
+  // Memoize tools for performance
+  const toolsByCategory = useMemo(() => {
+    return AUTOMOTIVE_TOOLS.reduce((acc, tool) => {
+      if (!acc[tool.category]) acc[tool.category] = [];
+      acc[tool.category].push(tool);
+      return acc;
+    }, {} as Record<string, typeof AUTOMOTIVE_TOOLS>);
+  }, []);
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 via-white to-cyan-50 min-h-screen">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center">
-            <h1 className="text-3xl lg:text-4xl font-bold mb-6">
-              Kenya's Complete
-              <span className="block text-cyan-200">Car Marketplace</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-purple-100 mb-8 max-w-3xl mx-auto">
-              Everything you need for buying, selling, importing, and maintaining vehicles in Kenya. 
-              From duty calculations to market valuations.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/duty-calculator">
-                <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 text-lg px-8 py-3">
-                  Calculate Import Duties
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link href="/mycars-worth">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600 text-lg px-8 py-3">
-                  Check Car Value
-                </Button>
-              </Link>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
+      {/* Enhanced Hero Section */}
+      <section className="relative bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 text-white overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="3"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] animate-pulse"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Hero Content */}
+            <div className="text-center lg:text-left">
+              <h1 className="text-4xl lg:text-6xl font-bold mb-6 leading-tight">
+                Kenya's Complete
+                <span className="block bg-gradient-to-r from-cyan-200 to-cyan-400 bg-clip-text text-transparent">
+                  Car Marketplace
+                </span>
+              </h1>
+              <p className="text-xl lg:text-2xl text-purple-100 mb-8 leading-relaxed">
+                Everything you need for buying, selling, importing, and maintaining vehicles in Kenya. 
+                Professional tools with official government rates.
+              </p>
+              
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <Link href="/duty-calculator">
+                  <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 text-lg px-8 py-4 shadow-xl">
+                    Calculate Import Duties
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link href="/mycars-worth">
+                  <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-purple-600 text-lg px-8 py-4">
+                    Check Car Value
+                  </Button>
+                </Link>
+              </div>
+
+              {/* User Welcome */}
+              {user && (
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 inline-flex items-center">
+                  <CheckCircle className="h-5 w-5 text-cyan-200 mr-2" />
+                  <span className="text-purple-100">Welcome back, {user.firstName || 'User'}!</span>
+                </div>
+              )}
+            </div>
+
+            {/* Platform Features */}
+            <div className="space-y-4">
+              <h2 className="text-2xl font-semibold text-center lg:text-left mb-6">Why Choose Gariyangu?</h2>
+              <div className="grid gap-4">
+                {PLATFORM_FEATURES.map((feature, index) => (
+                  <FeatureHighlight key={index} feature={feature} />
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* All Tools Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-4">Automotive Tools & Services</h2>
-          <p className="text-lg text-gray-600">Comprehensive tools for all your vehicle needs</p>
+      {/* Enhanced Tools Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6">
+            Automotive Tools & Services
+          </h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Comprehensive digital tools designed for the Kenyan automotive market. 
+            From imports to sales, we've got you covered.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {allTools.map((tool) => (
-            <Link key={tool.href} href={tool.href}>
-              <Card className="h-full hover:shadow-xl transition-all duration-300 cursor-pointer group border-2 hover:border-purple-300">
-                <CardHeader className="text-center">
-                  <div className={`${tool.color} text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
-                    {tool.icon}
-                  </div>
-                  <CardTitle className="text-lg">{tool.title}</CardTitle>
-                  {tool.featured && (
-                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                      <Star className="h-3 w-3 mr-1" />
-                      Popular
-                    </Badge>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-center text-gray-600 mb-4">
-                    {tool.description}
-                  </CardDescription>
-                  <Button className="w-full group-hover:bg-purple-600 transition-colors">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
+        {/* Tools Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {AUTOMOTIVE_TOOLS.map((tool) => (
+            <ToolCard key={tool.href} tool={tool} />
           ))}
         </div>
-      </div>
+
+        {/* Contact Section */}
+        <div className="mt-20 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-3xl p-8 lg:p-12 text-white text-center shadow-2xl">
+          <h3 className="text-2xl lg:text-3xl font-bold mb-4">Need Professional Help?</h3>
+          <p className="text-lg text-purple-100 mb-6 max-w-2xl mx-auto">
+            Our team specializes in vehicle imports from Japan, UK, South Africa, Dubai, Australia, Singapore, and Thailand.
+          </p>
+          <Button 
+            size="lg" 
+            className="bg-white text-purple-600 hover:bg-gray-100 text-lg px-8 py-4 shadow-xl"
+            onClick={() => window.open('https://wa.me/254736272719?text=Hi, I need help with car import services', '_blank')}
+          >
+            <Phone className="mr-2 h-5 w-5" />
+            Contact Us on WhatsApp
+          </Button>
+        </div>
+      </section>
     </div>
   );
 }

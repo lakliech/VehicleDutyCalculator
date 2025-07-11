@@ -20,7 +20,8 @@ import {
   appUsers,
   userRoles,
   adminCredentials,
-  adminLoginSchema
+  adminLoginSchema,
+  insuranceQuotes
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -2437,6 +2438,306 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Failed to fetch valuation history:', error);
       res.status(500).json({ error: 'Failed to fetch valuation history' });
+    }
+  });
+
+  // ===============================
+  // INSURANCE QUOTE API ROUTES
+  // ===============================
+
+  // Calculate insurance quote
+  app.post('/api/insurance-quote', async (req: Request, res: Response) => {
+    try {
+      const {
+        make,
+        model,
+        year,
+        engineCapacity,
+        vehicleValue,
+        vehicleCategory,
+        driverAge,
+        drivingExperience,
+        previousClaims,
+        hasAccidentHistory,
+        coverageType,
+        excess,
+        location,
+        customerName,
+        customerEmail,
+        customerPhone
+      } = req.body;
+
+      // Base rates for different coverage types (percentage of vehicle value)
+      const coverageRates = {
+        comprehensive: { rate: 0.05, minPremium: 25000, features: ['Collision', 'Theft', 'Fire', 'Third Party', 'Personal Accident', 'Medical Expenses'] },
+        third_party: { rate: 0.015, minPremium: 8000, features: ['Third Party Liability', 'Personal Accident'] },
+        fire_theft: { rate: 0.025, minPremium: 15000, features: ['Fire Damage', 'Theft', 'Third Party Liability'] }
+      };
+
+      // Risk multipliers
+      const riskFactors = [];
+      let riskMultiplier = 1.0;
+
+      // Age factor
+      if (driverAge < 25) {
+        const ageMultiplier = 1.5;
+        riskMultiplier *= ageMultiplier;
+        riskFactors.push({
+          factor: 'Young Driver (Under 25)',
+          impact: 'High',
+          multiplier: ageMultiplier - 1
+        });
+      } else if (driverAge > 65) {
+        const ageMultiplier = 1.2;
+        riskMultiplier *= ageMultiplier;
+        riskFactors.push({
+          factor: 'Senior Driver (Over 65)',
+          impact: 'Medium',
+          multiplier: ageMultiplier - 1
+        });
+      } else if (driverAge >= 30 && driverAge <= 50) {
+        const ageMultiplier = 0.9;
+        riskMultiplier *= ageMultiplier;
+        riskFactors.push({
+          factor: 'Prime Age Driver (30-50)',
+          impact: 'Low',
+          multiplier: ageMultiplier - 1
+        });
+      }
+
+      // Experience factor
+      if (drivingExperience < 2) {
+        const expMultiplier = 1.3;
+        riskMultiplier *= expMultiplier;
+        riskFactors.push({
+          factor: 'Limited Driving Experience',
+          impact: 'High',
+          multiplier: expMultiplier - 1
+        });
+      } else if (drivingExperience > 10) {
+        const expMultiplier = 0.85;
+        riskMultiplier *= expMultiplier;
+        riskFactors.push({
+          factor: 'Experienced Driver (10+ years)',
+          impact: 'Low',
+          multiplier: expMultiplier - 1
+        });
+      }
+
+      // Claims history
+      if (previousClaims > 0) {
+        const claimsMultiplier = 1 + (previousClaims * 0.15);
+        riskMultiplier *= claimsMultiplier;
+        riskFactors.push({
+          factor: `Previous Claims (${previousClaims})`,
+          impact: previousClaims > 2 ? 'High' : 'Medium',
+          multiplier: claimsMultiplier - 1
+        });
+      } else {
+        const noclaimsMultiplier = 0.9;
+        riskMultiplier *= noclaimsMultiplier;
+        riskFactors.push({
+          factor: 'No Claims Bonus',
+          impact: 'Low',
+          multiplier: noclaimsMultiplier - 1
+        });
+      }
+
+      // Accident history
+      if (hasAccidentHistory) {
+        const accidentMultiplier = 1.25;
+        riskMultiplier *= accidentMultiplier;
+        riskFactors.push({
+          factor: 'Recent Accident History',
+          impact: 'High',
+          multiplier: accidentMultiplier - 1
+        });
+      }
+
+      // Vehicle category factors
+      const categoryMultipliers = {
+        private: 1.0,
+        commercial: 1.4,
+        motorcycle: 1.6,
+        matatu: 2.0,
+        truck: 1.8
+      };
+      
+      const categoryMultiplier = categoryMultipliers[vehicleCategory as keyof typeof categoryMultipliers] || 1.0;
+      riskMultiplier *= categoryMultiplier;
+      
+      if (categoryMultiplier > 1.0) {
+        riskFactors.push({
+          factor: `Commercial Vehicle (${vehicleCategory})`,
+          impact: categoryMultiplier > 1.5 ? 'High' : 'Medium',
+          multiplier: categoryMultiplier - 1
+        });
+      }
+
+      // Vehicle age factor
+      const currentYear = new Date().getFullYear();
+      const vehicleAge = currentYear - year;
+      
+      if (vehicleAge > 15) {
+        const ageMultiplier = 1.3;
+        riskMultiplier *= ageMultiplier;
+        riskFactors.push({
+          factor: 'Old Vehicle (15+ years)',
+          impact: 'High',
+          multiplier: ageMultiplier - 1
+        });
+      } else if (vehicleAge < 3) {
+        const ageMultiplier = 1.1;
+        riskMultiplier *= ageMultiplier;
+        riskFactors.push({
+          factor: 'New Vehicle (Higher Value)',
+          impact: 'Medium',
+          multiplier: ageMultiplier - 1
+        });
+      }
+
+      // Location factors
+      const locationMultipliers = {
+        nairobi: 1.3,
+        mombasa: 1.2,
+        kisumu: 1.1,
+        nakuru: 1.0,
+        eldoret: 0.95,
+        thika: 1.05,
+        other_urban: 1.0,
+        rural: 0.85
+      };
+
+      const locationMultiplier = locationMultipliers[location as keyof typeof locationMultipliers] || 1.0;
+      const locationAdjustment = (locationMultiplier - 1.0) * vehicleValue * coverageRates[coverageType as keyof typeof coverageRates].rate;
+
+      if (locationMultiplier !== 1.0) {
+        riskFactors.push({
+          factor: `Location Risk (${location})`,
+          impact: locationMultiplier > 1.1 ? 'Medium' : 'Low',
+          multiplier: locationMultiplier - 1
+        });
+      }
+
+      // Calculate base premium
+      const coverage = coverageRates[coverageType as keyof typeof coverageRates];
+      const basePremium = Math.max(vehicleValue * coverage.rate, coverage.minPremium);
+      
+      // Apply risk multiplier
+      const riskAdjustedPremium = basePremium * riskMultiplier;
+      
+      // Apply location adjustment
+      const finalPremium = riskAdjustedPremium + locationAdjustment;
+
+      // Excess adjustment (higher excess = lower premium)
+      const excessFactor = excess >= 100000 ? 0.9 : excess >= 75000 ? 0.95 : 1.0;
+      const adjustedPremium = finalPremium * excessFactor;
+
+      const annualPremium = Math.round(adjustedPremium);
+      const monthlyPremium = Math.round(annualPremium / 12);
+
+      // Generate recommendations
+      const recommendations = [];
+      
+      if (driverAge < 25) {
+        recommendations.push("Consider defensive driving courses to reduce premiums in the future");
+      }
+      
+      if (previousClaims > 1) {
+        recommendations.push("Focus on safe driving to build a no-claims bonus");
+      }
+      
+      if (excess < 75000) {
+        recommendations.push("Consider increasing your excess to reduce premium costs");
+      }
+      
+      if (vehicleAge > 10 && coverageType === 'comprehensive') {
+        recommendations.push("Evaluate if comprehensive coverage is cost-effective for older vehicles");
+      }
+      
+      if (location === 'nairobi' || location === 'mombasa') {
+        recommendations.push("Consider additional security features to reduce theft risk");
+      }
+
+      recommendations.push("Shop around with multiple insurers for the best rates");
+      recommendations.push("Bundle with other insurance products for potential discounts");
+
+      // Save quote to database
+      const quoteData = {
+        vehicleId: null,
+        make,
+        model,
+        year,
+        engineCapacity,
+        vehicleValue: vehicleValue.toString(),
+        vehicleCategory,
+        driverAge,
+        drivingExperience,
+        previousClaims,
+        hasAccidentHistory,
+        coverageType,
+        excess: excess.toString(),
+        location,
+        annualPremium: annualPremium.toString(),
+        monthlyPremium: monthlyPremium.toString(),
+        coverageDetails: JSON.stringify({
+          type: coverage.features[0] === 'Collision' ? 'Comprehensive Insurance' : 
+                coverage.features[0] === 'Fire Damage' ? 'Fire & Theft Insurance' : 'Third Party Insurance',
+          features: coverage.features,
+          excess: excess
+        }),
+        riskFactors: JSON.stringify(riskFactors),
+        recommendations: JSON.stringify(recommendations),
+        customerName: customerName || null,
+        customerEmail: customerEmail || null,
+        customerPhone: customerPhone || null
+      };
+
+      const [savedQuote] = await db.insert(insuranceQuotes).values(quoteData).returning();
+
+      // Prepare response
+      const response = {
+        annualPremium,
+        monthlyPremium,
+        coverageDetails: {
+          type: coverage.features[0] === 'Collision' ? 'Comprehensive Insurance' : 
+                coverage.features[0] === 'Fire Damage' ? 'Fire & Theft Insurance' : 'Third Party Insurance',
+          features: coverage.features,
+          excess: excess
+        },
+        riskFactors,
+        recommendations,
+        breakdown: {
+          basePremium: Math.round(basePremium),
+          riskAdjustments: Math.round(riskAdjustedPremium - basePremium),
+          locationAdjustment: Math.round(locationAdjustment),
+          finalPremium: annualPremium
+        }
+      };
+
+      res.json(response);
+
+    } catch (error) {
+      console.error('Insurance quote calculation error:', error);
+      res.status(500).json({ error: 'Failed to calculate insurance quote' });
+    }
+  });
+
+  // Get insurance quote history
+  app.get('/api/insurance-quotes/history', async (req: Request, res: Response) => {
+    try {
+      const { limit = 10 } = req.query;
+      
+      const quotes = await db
+        .select()
+        .from(insuranceQuotes)
+        .limit(parseInt(limit as string))
+        .orderBy(sql`${insuranceQuotes.createdAt} DESC`);
+
+      res.json(quotes);
+    } catch (error) {
+      console.error('Failed to fetch insurance quotes:', error);
+      res.status(500).json({ error: 'Failed to fetch insurance quotes' });
     }
   });
 

@@ -51,6 +51,14 @@ const AUTOMOTIVE_TOOLS = [
     category: "valuation"
   },
   {
+    href: "/insurance-estimator",
+    title: "Insurance Estimator",
+    description: "Get personalized vehicle insurance quotes",
+    icon: Shield,
+    color: "from-red-500 to-red-600",
+    category: "insurance"
+  },
+  {
     href: "/service-estimator",
     title: "Service Estimates", 
     description: "Estimate maintenance costs",

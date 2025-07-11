@@ -686,3 +686,84 @@ export interface ManualVehicleData {
   referenceVehicle: VehicleReference;
   proratedCrsp: number;
 }
+
+// ==============================
+// INSURANCE QUOTES SCHEMA
+// ==============================
+
+export const insuranceQuotes = pgTable("insurance_quotes", {
+  id: serial("id").primaryKey(),
+  vehicleId: integer("vehicle_id"), // Optional - can be from database or manual entry
+  make: text("make").notNull(),
+  model: text("model").notNull(),
+  year: integer("year").notNull(),
+  engineCapacity: integer("engine_capacity"),
+  vehicleValue: decimal("vehicle_value", { precision: 12, scale: 2 }).notNull(),
+  vehicleCategory: text("vehicle_category").notNull(), // private, commercial, motorcycle, etc.
+  
+  // Driver information
+  driverAge: integer("driver_age").notNull(),
+  drivingExperience: integer("driving_experience").notNull(), // years
+  previousClaims: integer("previous_claims").default(0),
+  hasAccidentHistory: boolean("has_accident_history").default(false),
+  
+  // Coverage information
+  coverageType: text("coverage_type").notNull(), // comprehensive, third_party, fire_theft
+  excess: decimal("excess", { precision: 10, scale: 2 }).default("50000"), // deductible amount
+  location: text("location").notNull(), // affects premium rates
+  
+  // Quote results
+  annualPremium: decimal("annual_premium", { precision: 10, scale: 2 }).notNull(),
+  monthlyPremium: decimal("monthly_premium", { precision: 10, scale: 2 }),
+  coverageDetails: text("coverage_details"), // JSON string
+  riskFactors: text("risk_factors"), // JSON string
+  recommendations: text("recommendations"),
+  
+  // Contact information
+  customerName: text("customer_name"),
+  customerEmail: text("customer_email"),
+  customerPhone: text("customer_phone"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Insurance coverage types reference table
+export const insuranceCoverageTypes = pgTable("insurance_coverage_types", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(), // comprehensive, third_party, fire_theft
+  description: text("description").notNull(),
+  baseRate: decimal("base_rate", { precision: 5, scale: 4 }).notNull(), // percentage of vehicle value
+  minPremium: decimal("min_premium", { precision: 10, scale: 2 }).notNull(),
+  maxPremium: decimal("max_premium", { precision: 10, scale: 2 }),
+  features: text("features").notNull(), // JSON array of covered items
+});
+
+// Insurance risk factors table
+export const insuranceRiskFactors = pgTable("insurance_risk_factors", {
+  id: serial("id").primaryKey(),
+  factor: text("factor").notNull(), // age, experience, location, vehicle_type, etc.
+  category: text("category").notNull(),
+  multiplier: decimal("multiplier", { precision: 5, scale: 4 }).notNull(),
+  description: text("description"),
+});
+
+// Insurance schemas
+export const insuranceQuoteSchema = createInsertSchema(insuranceQuotes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insuranceCoverageTypeSchema = createInsertSchema(insuranceCoverageTypes).omit({
+  id: true,
+});
+
+export const insuranceRiskFactorSchema = createInsertSchema(insuranceRiskFactors).omit({
+  id: true,
+});
+
+export type InsuranceQuote = typeof insuranceQuotes.$inferSelect;
+export type InsertInsuranceQuote = z.infer<typeof insuranceQuoteSchema>;
+export type InsuranceCoverageType = typeof insuranceCoverageTypes.$inferSelect;
+export type InsertInsuranceCoverageType = z.infer<typeof insuranceCoverageTypeSchema>;
+export type InsuranceRiskFactor = typeof insuranceRiskFactors.$inferSelect;
+export type InsertInsuranceRiskFactor = z.infer<typeof insuranceRiskFactorSchema>;

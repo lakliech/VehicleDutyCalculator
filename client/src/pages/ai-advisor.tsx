@@ -16,6 +16,7 @@ export default function AIAdvisor() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
+      <ModuleNavigation />
       {/* Header Section */}
       <div className="bg-gradient-to-r from-purple-700 to-purple-800 text-white py-8">
         <div className="container mx-auto px-4">

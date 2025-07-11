@@ -134,36 +134,45 @@ const PLATFORM_FEATURES = [
   }
 ];
 
-// Tool card component for better reusability
+// Modern tool card component with enhanced styling
 const ToolCard = ({ tool }: { tool: typeof AUTOMOTIVE_TOOLS[0] }) => {
   const IconComponent = tool.icon;
   
   return (
     <Link href={tool.href}>
-      <Card className="group h-full bg-white hover:bg-purple-50/30 transition-all duration-300 cursor-pointer border border-gray-100 hover:border-purple-200 hover:shadow-md">
-        <CardHeader className="text-center pb-4">
-          <div className="bg-gradient-to-br from-purple-100 to-cyan-100 rounded-xl w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform">
-            <IconComponent className="h-7 w-7 text-purple-600" />
-          </div>
-          <div className="space-y-2">
-            <CardTitle className="text-lg font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">
-              {tool.title}
-            </CardTitle>
-            {tool.featured && (
-              <Badge variant="secondary" className="bg-purple-100 text-purple-800 border-purple-200">
-                <Star className="h-3 w-3 mr-1" />
-                Popular
-              </Badge>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <CardDescription className="text-center text-gray-600 mb-4 text-sm leading-relaxed">
+      <Card className="group h-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-500 cursor-pointer border-0 shadow-lg hover:shadow-2xl hover:-translate-y-2 rounded-2xl overflow-hidden">
+        <div className="relative">
+          {/* Gradient background with animated shine effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          
+          <CardHeader className="text-center pb-6 pt-8 relative">
+            <div className="bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg">
+              <IconComponent className="h-8 w-8 text-white" />
+            </div>
+            <div className="space-y-3">
+              <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-purple-700 transition-colors duration-300">
+                {tool.title}
+              </CardTitle>
+              {tool.featured && (
+                <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-cyan-100 text-purple-800 border-0 shadow-sm">
+                  <Star className="h-3 w-3 mr-1 fill-current" />
+                  Popular
+                </Badge>
+              )}
+            </div>
+          </CardHeader>
+        </div>
+        
+        <CardContent className="pt-0 pb-8 px-6">
+          <CardDescription className="text-center text-gray-600 mb-6 text-sm leading-relaxed font-medium">
             {tool.description}
           </CardDescription>
-          <Button variant="outline" className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300 transition-all">
+          <Button 
+            variant="outline" 
+            className="w-full border-2 border-purple-200 text-purple-600 hover:bg-gradient-to-r hover:from-purple-500 hover:to-cyan-500 hover:text-white hover:border-transparent transition-all duration-300 rounded-xl py-6 font-semibold shadow-sm hover:shadow-md"
+          >
             Get Started
-            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
           </Button>
         </CardContent>
       </Card>

@@ -718,7 +718,14 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form 
+        onSubmit={(e) => {
+          console.log("PhotosStep form submit event triggered");
+          e.preventDefault();
+          form.handleSubmit(onSubmit)(e);
+        }} 
+        className="space-y-6"
+      >
         <div>
           <Label className="text-base font-medium">Vehicle Photos *</Label>
           <p className="text-sm text-gray-600 mb-4">Upload 3-10 high-quality photos. Include front, side, and interior views.</p>

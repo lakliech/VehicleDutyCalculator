@@ -206,12 +206,6 @@ export default function PriceTrends() {
           {/* Analysis Results */}
           {analysis && analysis.vehicleInfo && (
             <div className="space-y-6">
-              {/* Debug Information */}
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md text-xs">
-                <p>Debug: Analysis data structure:</p>
-                <pre>{JSON.stringify(analysis, null, 2)}</pre>
-              </div>
-              
               {/* Market Overview */}
               <Card>
                 <CardHeader>

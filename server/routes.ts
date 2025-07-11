@@ -606,6 +606,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===============================
+  // MARKETPLACE ENDPOINTS
+  // ===============================
+
+  // Create new car listing
+  app.post("/api/marketplace/listings", authenticateUser, async (req, res) => {
+    try {
+      const listingData = req.body;
+      
+      // Add seller ID from authenticated user
+      const listingWithSeller = {
+        ...listingData,
+        sellerId: req.user.id
+      };
+
+      const listing = await storage.createListing(listingWithSeller);
+      
+      res.status(201).json(listing);
+    } catch (error) {
+      console.error("Failed to create listing:", error);
+      res.status(500).json({ error: "Failed to create listing" });
+    }
+  });
+
   // User dashboard endpoints
   app.get("/api/user/listings", authenticateUser, async (req, res) => {
     try {

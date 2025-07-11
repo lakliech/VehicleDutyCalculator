@@ -15,7 +15,6 @@ import MyCarsWorth from "@/pages/mycars-worth";
 import BuyACar from "@/pages/buy-a-car";
 import SellMyCar from "@/pages/sell-my-car";
 import VehicleLoans from "@/pages/vehicle-loans";
-import InsuranceEstimator from "@/pages/insurance-estimator";
 import AIAdvisor from "@/pages/ai-advisor";
 import PriceTrends from "@/pages/price-trends";
 import AdminDashboard from "@/pages/admin-dashboard";
@@ -40,7 +39,6 @@ function Router() {
           <Route path="/buy-a-car" component={BuyACar} />
           <Route path="/sell-my-car" component={SellMyCar} />
           <Route path="/vehicle-loans" component={VehicleLoans} />
-          <Route path="/insurance-estimator" component={InsuranceEstimator} />
           <Route path="/ai-advisor" component={AIAdvisor} />
           <Route path="/price-trends" component={PriceTrends} />
           <Route path="/price-heatmap" component={PriceTrends} />

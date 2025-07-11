@@ -114,30 +114,61 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
   // Form instances for each step
   const vehicleForm = useForm<VehicleDetailsForm>({
     resolver: zodResolver(vehicleDetailsSchema),
-    defaultValues: savedData.vehicleDetails || {
+    defaultValues: {
+      make: "",
+      model: "",
       year: new Date().getFullYear(),
+      fuelType: "petrol",
+      transmission: "manual",
       mileage: 0,
+      ...savedData.vehicleDetails
     },
+    mode: "onChange"
   });
 
   const locationForm = useForm<LocationConditionForm>({
     resolver: zodResolver(locationConditionSchema),
-    defaultValues: savedData.locationCondition || {},
+    defaultValues: {
+      location: "",
+      condition: "used",
+      ownershipStatus: "private",
+      ...savedData.locationCondition
+    },
+    mode: "onChange"
   });
 
   const photosForm = useForm<PhotosForm>({
     resolver: zodResolver(photosSchema),
-    defaultValues: savedData.photos || { images: [] },
+    defaultValues: {
+      images: [],
+      videoUrl: "",
+      ...savedData.photos
+    },
+    mode: "onChange"
   });
 
   const pricingForm = useForm<PricingForm>({
     resolver: zodResolver(pricingSchema),
-    defaultValues: savedData.pricing || { negotiable: true },
+    defaultValues: {
+      askingPrice: 0,
+      negotiable: true,
+      acceptsInstallments: false,
+      ...savedData.pricing
+    },
+    mode: "onChange"
   });
 
   const contactForm = useForm<ContactForm>({
     resolver: zodResolver(contactSchema),
-    defaultValues: savedData.contact || { hideContact: false },
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+      preferredContactMethod: "phone",
+      availableForCalls: true,
+      ...savedData.contact
+    },
+    mode: "onChange"
   });
 
   // Save form data to localStorage
@@ -300,7 +331,7 @@ function VehicleDetailsStep({ form, onNext }: { form: any; onNext: (data: any, s
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Make *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select make" />
@@ -326,7 +357,7 @@ function VehicleDetailsStep({ form, onNext }: { form: any; onNext: (data: any, s
               <FormItem>
                 <FormLabel>Model *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter model" {...field} />
+                  <Input placeholder="Enter model" {...field} value={field.value || ""} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -377,7 +408,7 @@ function VehicleDetailsStep({ form, onNext }: { form: any; onNext: (data: any, s
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Fuel Type *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select fuel type" />
@@ -401,7 +432,7 @@ function VehicleDetailsStep({ form, onNext }: { form: any; onNext: (data: any, s
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Transmission *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select transmission" />
@@ -445,7 +476,7 @@ function LocationConditionStep({ form, onNext, onPrev }: { form: any; onNext: (d
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Location *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select county/city" />
@@ -473,7 +504,7 @@ function LocationConditionStep({ form, onNext, onPrev }: { form: any; onNext: (d
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value || ""}
                     className="flex flex-col space-y-2"
                   >
                     <div className="flex items-center space-x-2">
@@ -501,7 +532,7 @@ function LocationConditionStep({ form, onNext, onPrev }: { form: any; onNext: (d
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Ownership Status *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select ownership" />

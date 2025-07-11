@@ -438,6 +438,11 @@ Changelog:
   - Fixed Link import error that occurred during cleanup
   - Maintained proper admin authentication, logout functionality, and navigation tabs
   - Admin dashboard now focuses purely on backend administration without frontend marketplace elements
+- January 11, 2025. Removed promotional elements from admin pages:
+  - Added conditional logic to Navigation component to detect admin pages
+  - Hidden car import promotional text ("Do you wish to import a car...") on admin pages
+  - Hidden Login/Register (AuthForms) component on admin pages for cleaner backend-focused interface
+  - Admin pages now display only essential navigation without frontend marketplace elements
 
 ## User Preferences
 

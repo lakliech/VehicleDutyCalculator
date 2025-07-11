@@ -33,6 +33,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   const [manualEngine, setManualEngine] = useState<string>("");
   const [manualVehicleData, setManualVehicleData] = useState<ManualVehicleData | null>(null);
   const [isCalculatingProration, setIsCalculatingProration] = useState<boolean>(false);
+  const [selectedReferenceVehicle, setSelectedReferenceVehicle] = useState<VehicleReference | null>(null);
 
   // Fetch all makes (filtered by category if provided)
   const { data: makes = [], isLoading: makesLoading } = useQuery<string[]>({
@@ -108,27 +109,20 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
 
   // Calculate proration when manual entry is complete
   const calculateProration = async () => {
-    if (!manualMake || !manualModel || !manualEngine || !referenceVehicles.length) {
+    if (!manualMake || !manualModel || !manualEngine || !selectedReferenceVehicle) {
       return;
     }
 
     setIsCalculatingProration(true);
     
     try {
-      // Find the best reference vehicle (same make, has CRSP value and engine capacity)
-      const validReferenceVehicles = referenceVehicles.filter(v => 
-        v.engineCapacity && v.engineCapacity > 0 && (v.crspKes || v.crsp2020)
-      );
-
-      if (validReferenceVehicles.length === 0) {
-        throw new Error(`No reference vehicles found for ${manualMake} with CRSP values`);
-      }
-
-      // Use the first valid reference vehicle
-      const referenceVehicle = validReferenceVehicles[0];
-      const referenceCrsp = referenceVehicle.crspKes || referenceVehicle.crsp2020 || 0;
-      const referenceEngineCapacity = referenceVehicle.engineCapacity || 0;
+      const referenceCrsp = selectedReferenceVehicle.crspKes || selectedReferenceVehicle.crsp2020 || 0;
+      const referenceEngineCapacity = selectedReferenceVehicle.engineCapacity || 0;
       const manualEngineCapacity = parseInt(manualEngine);
+
+      if (referenceEngineCapacity === 0) {
+        throw new Error('Reference vehicle must have engine capacity for proration calculation');
+      }
 
       // Calculate prorated CRSP: reference_crsp × manual_engine_capacity ÷ reference_engine_capacity
       const proratedCrsp = Math.round((referenceCrsp * manualEngineCapacity) / referenceEngineCapacity);
@@ -137,7 +131,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
         make: manualMake,
         model: manualModel,
         engineCapacity: manualEngineCapacity,
-        referenceVehicle: referenceVehicle,
+        referenceVehicle: selectedReferenceVehicle,
         proratedCrsp: proratedCrsp
       };
 
@@ -166,12 +160,12 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     }
   }, [engineSizes, engineSizesLoading, selectedModel, isManualEntry]);
 
-  // Auto-calculate proration when manual entry is complete
+  // Auto-calculate proration when reference vehicle is selected
   useEffect(() => {
-    if (isManualEntry && manualMake && manualModel && manualEngine && referenceVehicles.length > 0) {
+    if (isManualEntry && manualMake && manualModel && manualEngine && selectedReferenceVehicle) {
       calculateProration();
     }
-  }, [isManualEntry, manualMake, manualModel, manualEngine, referenceVehicles]);
+  }, [isManualEntry, manualMake, manualModel, manualEngine, selectedReferenceVehicle]);
 
   // Clear data when switching between modes
   useEffect(() => {
@@ -190,6 +184,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
       setManualModel("");
       setManualEngine("");
       setManualVehicleData(null);
+      setSelectedReferenceVehicle(null);
       if (onManualVehicleData) {
         onManualVehicleData(null);
       }
@@ -325,12 +320,54 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
             </div>
           </div>
 
-          {/* Reference vehicles found */}
+          {/* Reference Vehicle Selector */}
           {referenceVehicles.length > 0 && (
-            <Alert className="p-3 bg-blue-50 border-blue-200">
-              <AlertCircle className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-sm text-blue-800 ml-2">
-                Found {referenceVehicles.length} reference vehicle(s) for {manualMake} in database
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-2">
+                Select Reference Vehicle for Proration <span className="text-red-500">*</span>
+              </Label>
+              <p className="text-xs text-gray-600 mb-2">
+                Choose a vehicle from the database to calculate prorated CRSP value
+              </p>
+              <Select
+                value={selectedReferenceVehicle?.id?.toString() || ""}
+                onValueChange={(value) => {
+                  const vehicle = referenceVehicles.find(v => v.id.toString() === value);
+                  setSelectedReferenceVehicle(vehicle || null);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a reference vehicle..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {referenceVehicles
+                    .filter(v => v.engineCapacity && v.engineCapacity > 0 && (v.crspKes || v.crsp2020))
+                    .map((vehicle) => (
+                      <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
+                        <div className="flex justify-between items-center w-full">
+                          <span>{vehicle.make} {vehicle.model} ({vehicle.engineCapacity}cc)</span>
+                          <span className="text-xs text-gray-500 ml-2">
+                            {formatCurrency(vehicle.crspKes || vehicle.crsp2020 || 0)}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              {referenceVehicles.length > 0 && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Found {referenceVehicles.filter(v => v.engineCapacity && v.engineCapacity > 0 && (v.crspKes || v.crsp2020)).length} valid reference vehicles for proration
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* No reference vehicles found */}
+          {manualMake && referenceVehicles.length === 0 && (
+            <Alert className="p-3 bg-red-50 border-red-200">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-sm text-red-800 ml-2">
+                No reference vehicles found for {manualMake}. Cannot calculate prorated CRSP value.
               </AlertDescription>
             </Alert>
           )}
@@ -402,15 +439,6 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
             </Card>
           )}
 
-          {/* No reference vehicles found */}
-          {manualMake && referenceVehicles.length === 0 && (
-            <Alert className="p-3 bg-red-50 border-red-200">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-sm text-red-800 ml-2">
-                No reference vehicles found for {manualMake}. Cannot calculate prorated CRSP value.
-              </AlertDescription>
-            </Alert>
-          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -99,13 +99,17 @@ export default function MyCarsWorth() {
     valuationMutation.mutate(valuationData);
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | string) => {
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (isNaN(numAmount) || numAmount === null || numAmount === undefined) {
+      return 'KES 0';
+    }
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency: 'KES',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount);
+    }).format(numAmount);
   };
 
   const getConditionColor = (condition: string) => {
@@ -281,12 +285,12 @@ export default function MyCarsWorth() {
                     <div className="space-y-4">
                       <div className="text-center p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
                         <div className="text-3xl font-bold text-purple-900 mb-2">
-                          {formatCurrency(valuationResult.marketValue)}
+                          {formatCurrency(valuationResult.marketValue || 0)}
                         </div>
                         <div className="text-lg text-gray-600">Current Market Value</div>
                         <div className="flex items-center justify-center mt-2">
-                          <Badge className={`${getConfidenceColor(valuationResult.confidenceScore)}`}>
-                            {valuationResult.confidenceScore}% Confidence
+                          <Badge className={`${getConfidenceColor(valuationResult.confidenceScore || 0)}`}>
+                            {valuationResult.confidenceScore || 0}% Confidence
                           </Badge>
                         </div>
                       </div>
@@ -295,14 +299,16 @@ export default function MyCarsWorth() {
                         <div className="text-center p-4 bg-gray-50 rounded-lg">
                           <div className="text-xl font-semibold text-gray-900">
                             {formatCurrency(
-                              parseFloat(valuationResult.referenceVehicle?.basePrice || valuationResult.valuationFactors?.basePrice || "0")
+                              valuationResult.referenceVehicle?.basePrice || 
+                              valuationResult.valuationFactors?.basePrice || 
+                              0
                             )}
                           </div>
                           <div className="text-sm text-gray-600">Base Price</div>
                         </div>
                         <div className="text-center p-4 bg-gray-50 rounded-lg">
                           <div className="text-xl font-semibold text-gray-900">
-                            {formatCurrency(valuationResult.depreciatedValue)}
+                            {formatCurrency(valuationResult.depreciatedValue || 0)}
                           </div>
                           <div className="text-sm text-gray-600">After Depreciation</div>
                         </div>

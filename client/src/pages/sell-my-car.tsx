@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Car, ImagePlus, MapPin, Phone, Mail, Star, 
@@ -205,7 +205,7 @@ export default function SellMyCar() {
   };
 
   // Price comparison logic with database-stored indicators
-  const watchedPrice = listingForm.watch("price");
+  const [watchedPrice] = listingForm.watch(["price"]);
   
   // Query to get price indicator for current percentage
   const { data: priceIndicator, isLoading: indicatorLoading } = useQuery({
@@ -260,8 +260,9 @@ export default function SellMyCar() {
       });
       setShowLoginForm(false);
       loginForm.reset();
-      // Stay on current page after login
-      window.location.reload();
+      // Refetch auth status instead of reloading
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/status'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
     },
     onError: (error: any) => {
       toast({

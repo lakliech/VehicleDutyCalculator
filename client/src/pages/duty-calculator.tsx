@@ -729,6 +729,7 @@ export default function DutyCalculator() {
                                 
                                 <VehicleSelector 
                                   onVehicleSelect={handleVehicleSelect} 
+                                  onManualVehicleData={handleManualVehicleData}
                                   categoryFilter={selectedCategory}
                                 />
                               </>

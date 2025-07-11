@@ -401,6 +401,15 @@ Changelog:
   - Added bcrypt password hashing for secure credential storage
   - Maintained backward compatibility with old "admin123" token during transition period
   - Enhanced admin authentication middleware to support both legacy and database-based authentication
+- January 11, 2025. Restored CRSP proration functionality:
+  - Fully restored manual vehicle entry with proration calculations in VehicleSelector component
+  - Added toggle switch between database selection and manual entry modes
+  - Implemented comprehensive proration calculation using formula: reference_crsp × manual_engine_capacity ÷ reference_engine_capacity
+  - Added reference vehicle search functionality for same make with valid CRSP values
+  - Enhanced UI with detailed proration calculation breakdown and reference vehicle information
+  - Integrated manual vehicle data properly with duty calculator for seamless processing
+  - Added visual feedback with calculation formula display and data source indicators
+  - Restored all original proration features including error handling and validation
 
 ## User Preferences
 

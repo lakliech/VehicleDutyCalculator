@@ -21,11 +21,15 @@ import {
   userRoles,
   adminCredentials,
   adminLoginSchema,
-  insuranceQuotes
+  insuranceQuotes,
+  importEstimates,
+  clearingCharges,
+  exchangeRates,
+  importEstimateSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
-import { sql, eq } from "drizzle-orm";
+import { sql, eq, desc } from "drizzle-orm";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 import bcrypt from "bcrypt";
@@ -2738,6 +2742,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Failed to fetch insurance quotes:', error);
       res.status(500).json({ error: 'Failed to fetch insurance quotes' });
+    }
+  });
+
+  // ===============================
+  // IMPORT ESTIMATOR API ROUTES
+  // ===============================
+
+  // Get exchange rates
+  app.get('/api/exchange-rates', async (req: Request, res: Response) => {
+    try {
+      const rates = await db.select().from(exchangeRates);
+      res.json(rates);
+    } catch (error) {
+      console.error('Error fetching exchange rates:', error);
+      res.status(500).json({ error: 'Failed to fetch exchange rates' });
+    }
+  });
+
+  // Get clearing charges
+  app.get('/api/clearing-charges', async (req: Request, res: Response) => {
+    try {
+      const charges = await db.select().from(clearingCharges).orderBy(clearingCharges.minEngineCapacity);
+      res.json(charges);
+    } catch (error) {
+      console.error('Error fetching clearing charges:', error);
+      res.status(500).json({ error: 'Failed to fetch clearing charges' });
+    }
+  });
+
+  // Calculate import estimate
+  app.post('/api/import-estimate', async (req: Request, res: Response) => {
+    try {
+      const estimateData = importEstimateSchema.parse(req.body);
+      
+      // Get clearing charges based on vehicle category and engine capacity
+      let clearingChargeAmount = 55000; // default
+      const vehicleCategory = estimateData.vehicleCategory || 'under_1500cc';
+      const clearingChargeResults = await db
+        .select()
+        .from(clearingCharges)
+        .where(eq(clearingCharges.vehicleCategory, vehicleCategory));
+      
+      if (clearingChargeResults.length > 0) {
+        clearingChargeAmount = parseFloat(clearingChargeResults[0].baseFee);
+      }
+
+      // Convert CIF to KES
+      const cifKes = estimateData.cifAmount * estimateData.exchangeRate;
+
+      // Calculate duty using existing duty calculator
+      const dutyCalculationData = {
+        vehicleCategory: vehicleCategory,
+        vehicleValue: cifKes,
+        vehicleAge: new Date().getFullYear() - estimateData.year + 1,
+        importType: 'direct' as const,
+        engineCapacity: estimateData.engineCapacity || 1500,
+        fuelType: 'petrol' as const
+      };
+
+      const dutyResult = await storage.calculateDuty(dutyCalculationData);
+
+      // Calculate service fee (percentage of total before service fee)
+      const baseTotal = cifKes + dutyResult.totalDutyAmount + clearingChargeAmount + (estimateData.transportCost || 0);
+      const serviceFeeAmount = baseTotal * (estimateData.serviceFeePercentage / 100);
+      const totalPayable = baseTotal + serviceFeeAmount;
+
+      // Save estimate to database
+      const estimateRecord = {
+        ...estimateData,
+        cifKes,
+        dutyPayable: dutyResult.totalDutyAmount,
+        clearingCharges: clearingChargeAmount,
+        serviceFeeAmount,
+        totalPayable,
+      };
+
+      const [savedEstimate] = await db.insert(importEstimates).values(estimateRecord).returning();
+
+      const response = {
+        estimateId: savedEstimate.id,
+        breakdown: {
+          exchangeRate: estimateData.exchangeRate,
+          cifAmount: estimateData.cifAmount,
+          cifCurrency: estimateData.cifCurrency,
+          cifKes,
+          dutyPayable: dutyResult.totalDutyAmount,
+          clearingCharges: clearingChargeAmount,
+          transportCost: estimateData.transportCost || 0,
+          serviceFeePercentage: estimateData.serviceFeePercentage,
+          serviceFeeAmount,
+          totalPayable
+        },
+        dutyBreakdown: dutyResult.breakdown,
+        vehicleInfo: {
+          make: estimateData.make,
+          model: estimateData.model,
+          year: estimateData.year,
+          engineCapacity: estimateData.engineCapacity
+        }
+      };
+
+      res.json(response);
+    } catch (error) {
+      console.error('Error calculating import estimate:', error);
+      res.status(400).json({ error: 'Failed to calculate import estimate' });
+    }
+  });
+
+  // Get import estimate history
+  app.get('/api/import-estimates/history', async (req: Request, res: Response) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const estimates = await db
+        .select()
+        .from(importEstimates)
+        .orderBy(desc(importEstimates.createdAt))
+        .limit(limit);
+      
+      res.json(estimates);
+    } catch (error) {
+      console.error('Error fetching import estimates history:', error);
+      res.status(500).json({ error: 'Failed to fetch import estimates history' });
     }
   });
 

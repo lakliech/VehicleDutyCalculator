@@ -767,3 +767,81 @@ export type InsuranceCoverageType = typeof insuranceCoverageTypes.$inferSelect;
 export type InsertInsuranceCoverageType = z.infer<typeof insuranceCoverageTypeSchema>;
 export type InsuranceRiskFactor = typeof insuranceRiskFactors.$inferSelect;
 export type InsertInsuranceRiskFactor = z.infer<typeof insuranceRiskFactorSchema>;
+
+// ==============================
+// IMPORT ESTIMATOR SCHEMA
+// ==============================
+
+export const importEstimates = pgTable("import_estimates", {
+  id: serial("id").primaryKey(),
+  vehicleId: integer("vehicle_id"), // Optional - can be from database or manual entry
+  make: text("make").notNull(),
+  model: text("model").notNull(),
+  year: integer("year").notNull(),
+  engineCapacity: integer("engine_capacity"),
+  
+  // CIF information
+  cifCurrency: text("cif_currency").notNull(), // USD, JPY, GBP
+  cifAmount: decimal("cif_amount", { precision: 12, scale: 2 }).notNull(),
+  exchangeRate: decimal("exchange_rate", { precision: 10, scale: 4 }).notNull(),
+  cifKes: decimal("cif_kes", { precision: 12, scale: 2 }).notNull(),
+  
+  // Cost breakdown
+  dutyPayable: decimal("duty_payable", { precision: 12, scale: 2 }).notNull(),
+  clearingCharges: decimal("clearing_charges", { precision: 10, scale: 2 }).notNull(),
+  transportCost: decimal("transport_cost", { precision: 10, scale: 2 }).default("0"),
+  serviceFeePercentage: decimal("service_fee_percentage", { precision: 5, scale: 2 }).notNull(),
+  serviceFeeAmount: decimal("service_fee_amount", { precision: 10, scale: 2 }).notNull(),
+  totalPayable: decimal("total_payable", { precision: 12, scale: 2 }).notNull(),
+  
+  // Contact information
+  customerName: text("customer_name"),
+  customerEmail: text("customer_email"),
+  customerPhone: text("customer_phone"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Clearing charges table
+export const clearingCharges = pgTable("clearing_charges", {
+  id: serial("id").primaryKey(),
+  vehicleCategory: text("vehicle_category").notNull(),
+  minEngineCapacity: integer("min_engine_capacity"),
+  maxEngineCapacity: integer("max_engine_capacity"),
+  baseFee: decimal("base_fee", { precision: 10, scale: 2 }).notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Currency exchange rates table
+export const exchangeRates = pgTable("exchange_rates", {
+  id: serial("id").primaryKey(),
+  currency: text("currency").notNull(), // USD, JPY, GBP
+  rate: decimal("rate", { precision: 10, scale: 4 }).notNull(),
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+});
+
+// Import estimator schemas
+export const importEstimateSchema = createInsertSchema(importEstimates).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  vehicleCategory: z.string().optional(),
+});
+
+export const clearingChargeSchema = createInsertSchema(clearingCharges).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const exchangeRateSchema = createInsertSchema(exchangeRates).omit({
+  id: true,
+  lastUpdated: true,
+});
+
+export type ImportEstimate = typeof importEstimates.$inferSelect;
+export type InsertImportEstimate = z.infer<typeof importEstimateSchema>;
+export type ClearingCharge = typeof clearingCharges.$inferSelect;
+export type InsertClearingCharge = z.infer<typeof clearingChargeSchema>;
+export type ExchangeRate = typeof exchangeRates.$inferSelect;
+export type InsertExchangeRate = z.infer<typeof exchangeRateSchema>;

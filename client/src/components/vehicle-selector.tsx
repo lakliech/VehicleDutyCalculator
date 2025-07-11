@@ -109,7 +109,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
 
   // Calculate proration when manual entry is complete
   const calculateProration = async () => {
-    if (!manualMake || !manualModel || !selectedReferenceVehicle) {
+    if (!manualMake || !manualModel || !manualEngine || !selectedReferenceVehicle) {
       return;
     }
 
@@ -118,25 +118,20 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     try {
       const referenceCrsp = selectedReferenceVehicle.crspKes || selectedReferenceVehicle.crsp2020 || 0;
       const referenceEngineCapacity = selectedReferenceVehicle.engineCapacity || 0;
-      
+      const manualEngineCapacity = parseInt(manualEngine);
+
       let proratedCrsp = referenceCrsp;
-      let finalEngineCapacity = referenceEngineCapacity;
 
-      // If manual engine capacity is provided, calculate proration
-      if (manualEngine && parseInt(manualEngine) > 0) {
-        const manualEngineCapacity = parseInt(manualEngine);
-        finalEngineCapacity = manualEngineCapacity;
-
-        if (referenceEngineCapacity > 0) {
-          // Calculate prorated CRSP: reference_crsp × manual_engine_capacity ÷ reference_engine_capacity
-          proratedCrsp = Math.round((referenceCrsp * manualEngineCapacity) / referenceEngineCapacity);
-        }
+      // Calculate proration if reference vehicle has engine capacity
+      if (referenceEngineCapacity > 0 && manualEngineCapacity > 0) {
+        // Calculate prorated CRSP: reference_crsp × manual_engine_capacity ÷ reference_engine_capacity
+        proratedCrsp = Math.round((referenceCrsp * manualEngineCapacity) / referenceEngineCapacity);
       }
 
       const manualData: ManualVehicleData = {
         make: manualMake,
         model: manualModel,
-        engineCapacity: finalEngineCapacity,
+        engineCapacity: manualEngineCapacity,
         referenceVehicle: selectedReferenceVehicle,
         proratedCrsp: proratedCrsp
       };
@@ -166,9 +161,9 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     }
   }, [engineSizes, engineSizesLoading, selectedModel, isManualEntry]);
 
-  // Auto-calculate proration when reference vehicle is selected
+  // Auto-calculate proration when all required fields are provided
   useEffect(() => {
-    if (isManualEntry && manualMake && manualModel && selectedReferenceVehicle) {
+    if (isManualEntry && manualMake && manualModel && manualEngine && selectedReferenceVehicle) {
       calculateProration();
     }
   }, [isManualEntry, manualMake, manualModel, manualEngine, selectedReferenceVehicle]);
@@ -311,7 +306,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
             </div>
             <div>
               <Label htmlFor="manual-engine" className="text-sm font-medium text-gray-700 mb-2">
-                Engine Capacity (cc)
+                Engine Capacity (cc) <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="manual-engine"
@@ -320,8 +315,6 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
                 onChange={(e) => setManualEngine(e.target.value)}
                 placeholder="e.g., 2000"
                 className="w-full"
-                min="0"
-                step="100"
               />
             </div>
           </div>

@@ -30,7 +30,7 @@ const AUTOMOTIVE_TOOLS = [
     title: "Duty Calculator",
     description: "Calculate Kenya import duties and taxes with KRA official rates",
     icon: Calculator,
-    color: "from-purple-500 to-purple-600",
+    color: "from-gray-600 to-gray-700",
     category: "calculation",
     featured: true
   },
@@ -39,7 +39,7 @@ const AUTOMOTIVE_TOOLS = [
     title: "Import Calculator",
     description: "Estimate total vehicle importation costs",
     icon: Car,
-    color: "from-blue-500 to-blue-600",
+    color: "from-gray-500 to-gray-600",
     category: "calculation"
   },
   {
@@ -47,7 +47,7 @@ const AUTOMOTIVE_TOOLS = [
     title: "MyCar's Worth",
     description: "Get current market value of your vehicle",
     icon: DollarSign,
-    color: "from-green-500 to-green-600",
+    color: "from-gray-600 to-gray-700",
     category: "valuation"
   },
   {
@@ -55,7 +55,7 @@ const AUTOMOTIVE_TOOLS = [
     title: "Service Estimates", 
     description: "Estimate maintenance costs",
     icon: Wrench,
-    color: "from-orange-500 to-orange-600",
+    color: "from-gray-500 to-gray-600",
     category: "maintenance"
   },
   {
@@ -63,7 +63,7 @@ const AUTOMOTIVE_TOOLS = [
     title: "Transfer Cost",
     description: "Calculate ownership transfer fees", 
     icon: FileText,
-    color: "from-cyan-500 to-cyan-600",
+    color: "from-gray-600 to-gray-700",
     category: "legal"
   },
   {
@@ -71,7 +71,7 @@ const AUTOMOTIVE_TOOLS = [
     title: "Buy a Car",
     description: "Browse and buy quality vehicles",
     icon: Search,
-    color: "from-indigo-500 to-indigo-600",
+    color: "from-gray-500 to-gray-600",
     category: "marketplace"
   },
   {
@@ -79,7 +79,7 @@ const AUTOMOTIVE_TOOLS = [
     title: "Sell My Car",
     description: "List and sell your vehicle",
     icon: ShoppingCart,
-    color: "from-pink-500 to-pink-600",
+    color: "from-gray-600 to-gray-700",
     category: "marketplace"
   },
   {
@@ -87,7 +87,7 @@ const AUTOMOTIVE_TOOLS = [
     title: "Vehicle Loan Products",
     description: "Explore financing options",
     icon: CreditCard,
-    color: "from-emerald-500 to-emerald-600",
+    color: "from-gray-500 to-gray-600",
     category: "finance"
   },
   {
@@ -104,7 +104,7 @@ const AUTOMOTIVE_TOOLS = [
     title: "Price Trend Heatmap",
     description: "Interactive visualization of vehicle pricing trends with color-coded market insights",
     icon: TrendingUp,
-    color: "from-green-600 to-green-700",
+    color: "from-purple-600 to-purple-700",
     category: "analytics",
     featured: true
   }
@@ -140,28 +140,28 @@ const ToolCard = ({ tool }: { tool: typeof AUTOMOTIVE_TOOLS[0] }) => {
   
   return (
     <Link href={tool.href}>
-      <Card className="group h-full bg-white/80 backdrop-blur-sm hover:bg-white hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-purple-300 hover:-translate-y-1">
+      <Card className="group h-full bg-white hover:bg-gray-50 transition-all duration-300 cursor-pointer border border-gray-200 hover:border-gray-300 hover:shadow-lg">
         <CardHeader className="text-center pb-4">
-          <div className={`bg-gradient-to-br ${tool.color} text-white rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
-            <IconComponent className="h-8 w-8" />
+          <div className={`bg-gradient-to-br ${tool.color} text-white rounded-xl w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform`}>
+            <IconComponent className="h-7 w-7" />
           </div>
           <div className="space-y-2">
-            <CardTitle className="text-xl font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+            <CardTitle className="text-lg font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">
               {tool.title}
             </CardTitle>
             {tool.featured && (
-              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-sm">
+              <Badge variant="secondary" className="bg-purple-100 text-purple-800 border-purple-200">
                 <Star className="h-3 w-3 mr-1" />
-                Most Popular
+                Popular
               </Badge>
             )}
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <CardDescription className="text-center text-gray-600 mb-6 leading-relaxed">
+          <CardDescription className="text-center text-gray-600 mb-4 text-sm leading-relaxed">
             {tool.description}
           </CardDescription>
-          <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md group-hover:shadow-lg transition-all">
+          <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-400 transition-all">
             Get Started
             <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Button>
@@ -176,13 +176,13 @@ const FeatureHighlight = ({ feature }: { feature: typeof PLATFORM_FEATURES[0] })
   const IconComponent = feature.icon;
   
   return (
-    <div className="flex items-start space-x-4 p-4 rounded-xl bg-white/30 backdrop-blur-sm">
-      <div className="bg-white/20 rounded-lg p-2">
-        <IconComponent className="h-6 w-6 text-white" />
+    <div className="flex items-start space-x-4 p-4 rounded-xl bg-gray-700/50 backdrop-blur-sm">
+      <div className="bg-gray-600/50 rounded-lg p-2">
+        <IconComponent className="h-6 w-6 text-gray-300" />
       </div>
       <div>
         <h3 className="font-semibold text-white mb-1">{feature.title}</h3>
-        <p className="text-purple-100 text-sm">{feature.description}</p>
+        <p className="text-gray-400 text-sm">{feature.description}</p>
       </div>
     </div>
   );
@@ -225,11 +225,11 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Enhanced Hero Section */}
-      <section className="relative bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 text-white overflow-hidden">
+      <section className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 text-white overflow-hidden">
         {/* Background Pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-purple-800/20 animate-pulse"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-800/20 to-gray-900/20"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -237,11 +237,11 @@ export default function Home() {
             <div className="text-center lg:text-left">
               <h1 className="text-4xl lg:text-6xl font-bold mb-6 leading-tight">
                 Kenya's Complete
-                <span className="block bg-gradient-to-r from-cyan-200 to-cyan-400 bg-clip-text text-transparent">
+                <span className="block text-gray-300">
                   Car Marketplace
                 </span>
               </h1>
-              <p className="text-xl lg:text-2xl text-purple-100 mb-8 leading-relaxed">
+              <p className="text-xl lg:text-2xl text-gray-300 mb-8 leading-relaxed">
                 Everything you need for buying, selling, importing, and maintaining vehicles in Kenya. 
                 Professional tools with official government rates.
               </p>
@@ -249,13 +249,13 @@ export default function Home() {
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Link href="/duty-calculator">
-                  <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 text-lg px-8 py-4 shadow-xl">
+                  <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 text-lg px-8 py-4">
                     Calculate Import Duties
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
                 <Link href="/mycars-worth">
-                  <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-purple-600 text-lg px-8 py-4">
+                  <Button size="lg" variant="outline" className="border-2 border-gray-400 text-gray-300 hover:bg-gray-700 hover:text-white hover:border-gray-700 text-lg px-8 py-4">
                     Check Car Value
                   </Button>
                 </Link>
@@ -263,9 +263,9 @@ export default function Home() {
 
               {/* User Welcome */}
               {user && (
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 inline-flex items-center">
-                  <CheckCircle className="h-5 w-5 text-cyan-200 mr-2" />
-                  <span className="text-purple-100">Welcome back, {user.firstName || 'User'}!</span>
+                <div className="bg-gray-700/50 backdrop-blur-sm rounded-lg p-4 inline-flex items-center">
+                  <CheckCircle className="h-5 w-5 text-gray-400 mr-2" />
+                  <span className="text-gray-300">Welcome back, {user.firstName || 'User'}!</span>
                 </div>
               )}
             </div>
@@ -303,14 +303,14 @@ export default function Home() {
         </div>
 
         {/* Contact Section */}
-        <div className="mt-20 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-3xl p-8 lg:p-12 text-white text-center shadow-2xl">
-          <h3 className="text-2xl lg:text-3xl font-bold mb-4">Need Professional Help?</h3>
-          <p className="text-lg text-purple-100 mb-6 max-w-2xl mx-auto">
+        <div className="mt-20 bg-gray-100 border border-gray-200 rounded-3xl p-8 lg:p-12 text-center">
+          <h3 className="text-2xl lg:text-3xl font-bold mb-4 text-gray-900">Need Professional Help?</h3>
+          <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
             Our team specializes in vehicle imports from Japan, UK, South Africa, Dubai, Australia, Singapore, and Thailand.
           </p>
           <Button 
             size="lg" 
-            className="bg-white text-purple-600 hover:bg-gray-100 text-lg px-8 py-4 shadow-xl"
+            className="bg-gray-800 text-white hover:bg-gray-900 text-lg px-8 py-4"
             onClick={() => window.open('https://wa.me/254736272719?text=Hi, I need help with car import services', '_blank')}
           >
             <Phone className="mr-2 h-5 w-5" />

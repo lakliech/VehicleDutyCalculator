@@ -325,6 +325,11 @@ export const carListingSchema = createInsertSchema(carListings).omit({
   favoriteCount: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  title: z.string().min(10, "Title must be at least 10 characters"),
+  description: z.string().min(50, "Description must be at least 50 characters"),
+  phoneNumber: z.string().min(10, "Phone number must be at least 10 characters"),
+  price: z.number().min(50000, "Price must be at least 50,000 KES"),
 });
 
 export const carInquirySchema = createInsertSchema(carInquiries).omit({

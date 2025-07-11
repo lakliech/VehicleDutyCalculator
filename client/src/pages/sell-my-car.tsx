@@ -945,6 +945,30 @@ export default function SellMyCar() {
                       <div className="space-y-4">
                         <FormField
                           control={listingForm.control}
+                          name="location"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Location *</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value || "Nairobi"}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select your location" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {kenyanCounties.map((county) => (
+                                    <SelectItem key={county} value={county}>
+                                      {county}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={listingForm.control}
                           name="phoneNumber"
                           render={({ field }) => (
                             <FormItem>

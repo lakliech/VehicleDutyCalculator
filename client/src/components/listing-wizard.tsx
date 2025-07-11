@@ -540,7 +540,15 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
-  const onSubmit = (data: PhotosForm) => {
+  const photosForm = useForm<PhotosForm>({
+    resolver: zodResolver(photosSchema),
+    defaultValues: {
+      images: [],
+      videoUrl: ""
+    }
+  });
+
+  const onSubmit = async (data: PhotosForm) => {
     if (uploadedImages.length < 3) {
       toast({
         title: "Photos Required",
@@ -550,77 +558,117 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
       return;
     }
 
-    // Convert to base64 for storage (in production, upload to cloud storage)
-    const imagePromises = uploadedImages.map(async (item) => {
-      return new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(item.file);
+    try {
+      setUploading(true);
+      
+      // Convert to base64 for storage (in production, upload to cloud storage)
+      const imagePromises = uploadedImages.map(async (item) => {
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = () => reject(new Error('Failed to read file'));
+          reader.readAsDataURL(item.file);
+        });
       });
-    });
 
-    Promise.all(imagePromises).then(base64Images => {
+      const base64Images = await Promise.all(imagePromises);
       onNext({ ...data, images: base64Images }, "photos");
-    });
+      
+      toast({
+        title: "Photos processed",
+        description: `${base64Images.length} photos ready for your listing`,
+      });
+    } catch (error) {
+      toast({
+        title: "Upload failed",
+        description: "Failed to process photos. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("handleImageUpload called", event.target.files);
     const files = event.target.files;
-    if (files) {
-      setUploading(true);
-      
-      const validFiles: File[] = [];
-      const invalidFiles: string[] = [];
-      
-      // Validate file types and sizes
-      Array.from(files).forEach(file => {
-        const isValidType = file.type.startsWith('image/');
-        const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
-        
-        if (!isValidType) {
-          invalidFiles.push(`${file.name} (not an image)`);
-        } else if (!isValidSize) {
-          invalidFiles.push(`${file.name} (too large - max 5MB)`);
-        } else {
-          validFiles.push(file);
-        }
-      });
-
-      // Show error toast for invalid files
-      if (invalidFiles.length > 0) {
-        toast({
-          title: "Some files were skipped",
-          description: `Invalid files: ${invalidFiles.join(", ")}`,
-          variant: "destructive",
-        });
-      }
-
-      // Create preview URLs and store files
-      const newImages = validFiles.map((file) => ({
-        url: URL.createObjectURL(file),
-        file: file
-      }));
-
-      const totalImages = uploadedImages.length + newImages.length;
-      if (totalImages > 10) {
-        toast({
-          title: "Too many photos",
-          description: "Maximum 10 photos allowed. Some photos were not added.",
-          variant: "destructive",
-        });
-        setUploadedImages(prev => [...prev, ...newImages].slice(0, 10));
-      } else {
-        setUploadedImages(prev => [...prev, ...newImages]);
-        if (newImages.length > 0) {
-          toast({
-            title: "Photos uploaded",
-            description: `${newImages.length} photo(s) added successfully`,
-          });
-        }
-      }
-      
-      setUploading(false);
+    
+    if (!files || files.length === 0) {
+      console.log("No files selected");
+      return;
     }
+
+    console.log(`Processing ${files.length} files`);
+    setUploading(true);
+    
+    const validFiles: File[] = [];
+    const invalidFiles: string[] = [];
+    
+    // Validate file types and sizes
+    Array.from(files).forEach(file => {
+      console.log(`Validating file: ${file.name}, type: ${file.type}, size: ${file.size}`);
+      const isValidType = file.type.startsWith('image/');
+      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
+      
+      if (!isValidType) {
+        invalidFiles.push(`${file.name} (not an image)`);
+      } else if (!isValidSize) {
+        invalidFiles.push(`${file.name} (too large - max 5MB)`);
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    console.log(`Valid files: ${validFiles.length}, Invalid files: ${invalidFiles.length}`);
+
+    // Show error toast for invalid files
+    if (invalidFiles.length > 0) {
+      toast({
+        title: "Some files were skipped",
+        description: `Invalid files: ${invalidFiles.join(", ")}`,
+        variant: "destructive",
+      });
+    }
+
+    // Create preview URLs and store files
+    const newImages = validFiles.map((file) => {
+      const url = URL.createObjectURL(file);
+      console.log(`Created object URL for ${file.name}: ${url}`);
+      return {
+        url,
+        file: file
+      };
+    });
+
+    const totalImages = uploadedImages.length + newImages.length;
+    console.log(`Total images will be: ${totalImages}`);
+    
+    if (totalImages > 10) {
+      toast({
+        title: "Too many photos",
+        description: "Maximum 10 photos allowed. Some photos were not added.",
+        variant: "destructive",
+      });
+      setUploadedImages(prev => [...prev, ...newImages].slice(0, 10));
+    } else {
+      setUploadedImages(prev => {
+        const updated = [...prev, ...newImages];
+        console.log(`Updated images state with ${updated.length} total images`);
+        return updated;
+      });
+      
+      if (newImages.length > 0) {
+        toast({
+          title: "Photos uploaded",
+          description: `${newImages.length} photo(s) added successfully`,
+        });
+      }
+    }
+    
+    setUploading(false);
+    
+    // Clear the input value to allow re-selecting the same files
+    event.target.value = '';
   };
 
   const removeImage = (index: number) => {
@@ -637,8 +685,8 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <Form {...photosForm}>
+      <form onSubmit={photosForm.handleSubmit(onSubmit)} className="space-y-6">
         <div>
           <Label className="text-base font-medium">Vehicle Photos *</Label>
           <p className="text-sm text-gray-600 mb-4">Upload 3-10 high-quality photos. Include front, side, and interior views.</p>
@@ -743,13 +791,17 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
         </div>
 
         <FormField
-          control={form.control}
+          control={photosForm.control}
           name="videoUrl"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Video URL (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder="https://youtube.com/watch?v=..." {...field} />
+                <Input 
+                  placeholder="https://youtube.com/watch?v=..." 
+                  {...field} 
+                  value={field.value || ""}
+                />
               </FormControl>
               <p className="text-sm text-gray-600">Add a YouTube or video link to showcase your vehicle</p>
               <FormMessage />

@@ -199,6 +199,19 @@ export const vehicleTransferRates = pgTable("vehicle_transfer_rates", {
   updatedAt: text("updated_at").default("now()").notNull(),
 });
 
+// Price indicators table for listing price comparisons with CRSP
+export const priceIndicators = pgTable("price_indicators", {
+  id: serial("id").primaryKey(),
+  minPercentage: decimal("min_percentage", { precision: 5, scale: 2 }).notNull(), // Minimum percentage of CRSP
+  maxPercentage: decimal("max_percentage", { precision: 5, scale: 2 }), // Maximum percentage of CRSP (null for open ranges)
+  label: text("label").notNull(), // "Price is High", "Competitive Price", etc.
+  colorClass: text("color_class").notNull(), // CSS classes for styling
+  description: text("description"),
+  isActive: boolean("is_active").default(true),
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
 export type InsertVehicle = z.infer<typeof insertVehicleSchema>;
 export type Vehicle = typeof vehicles.$inferSelect;
 export type InsertCalculation = z.infer<typeof insertCalculationSchema>;
@@ -212,6 +225,7 @@ export type Trailer = typeof trailers.$inferSelect;
 export type HeavyMachinery = typeof heavyMachinery.$inferSelect;
 export type RegistrationFee = typeof registrationFees.$inferSelect;
 export type VehicleTransferRate = typeof vehicleTransferRates.$inferSelect;
+export type PriceIndicator = typeof priceIndicators.$inferSelect;
 export type DutyCalculation = z.infer<typeof dutyCalculationSchema>;
 export type DutyResult = z.infer<typeof dutyResultSchema>;
 

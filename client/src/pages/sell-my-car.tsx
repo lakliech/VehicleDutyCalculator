@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -194,27 +194,27 @@ export default function SellMyCar() {
     }
   };
 
-  // Price comparison logic
+  // Price comparison logic with database-stored indicators
   const watchedPrice = listingForm.watch("price");
-  const getPriceIndicator = (price: number) => {
-    if (!selectedVehicle || !price) return null;
-    
-    // Get CRSP value for comparison
-    const crspValue = selectedVehicle.crspKes || selectedVehicle.crsp2020 || 0;
-    if (crspValue === 0) return null;
-    
-    const percentage = (price / crspValue) * 100;
-    
-    if (percentage > 70) {
-      return { label: "Price is High", color: "text-red-600 bg-red-50 border-red-200" };
-    } else if (percentage >= 50 && percentage <= 70) {
-      return { label: "Competitive Price", color: "text-blue-600 bg-blue-50 border-blue-200" };
-    } else if (percentage >= 40 && percentage < 50) {
-      return { label: "Good Deal", color: "text-green-600 bg-green-50 border-green-200" };
-    } else {
-      return { label: "Be Careful", color: "text-orange-600 bg-orange-50 border-orange-200" };
-    }
-  };
+  
+  // Query to get price indicator for current percentage
+  const { data: priceIndicator, isLoading: indicatorLoading } = useQuery({
+    queryKey: ['/api/price-indicators', watchedPrice, selectedVehicle?.id],
+    queryFn: async () => {
+      if (!selectedVehicle || !watchedPrice) return null;
+      
+      const crspValue = selectedVehicle.crspKes || selectedVehicle.crsp2020 || 0;
+      if (crspValue === 0) return null;
+      
+      const percentage = (watchedPrice / crspValue) * 100;
+      
+      const response = await fetch(`/api/price-indicators/${percentage}`);
+      if (!response.ok) return null;
+      
+      return response.json();
+    },
+    enabled: !!(selectedVehicle && watchedPrice && watchedPrice > 0),
+  });
 
   // Authentication mutations
   const registrationMutation = useMutation({
@@ -760,9 +760,9 @@ export default function SellMyCar() {
                                   onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
                                 />
                               </FormControl>
-                              {watchedPrice && getPriceIndicator(watchedPrice) && (
-                                <div className={`mt-2 text-xs px-2 py-1 rounded border inline-block ${getPriceIndicator(watchedPrice)?.color}`}>
-                                  {getPriceIndicator(watchedPrice)?.label}
+                              {watchedPrice && priceIndicator && !indicatorLoading && (
+                                <div className={`mt-2 text-xs px-2 py-1 rounded border inline-block ${priceIndicator.colorClass}`}>
+                                  {priceIndicator.label}
                                 </div>
                               )}
                               <FormMessage />

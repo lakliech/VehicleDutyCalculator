@@ -1,11 +1,11 @@
 import { 
   vehicles, calculations, depreciationRates, taxRates, processingFees, vehicleCategoryRules, registrationFees, trailers, heavyMachinery,
-  userRoles, appUsers, userSessions, userActivities, listingApprovals, userPreferences, userStats, carListings, passwordResetTokens,
+  userRoles, appUsers, userSessions, userActivities, listingApprovals, userPreferences, userStats, carListings, passwordResetTokens, priceIndicators,
   type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, 
   type DepreciationRate, type TaxRate, type ProcessingFee, type VehicleCategoryRule, type RegistrationFee, 
   type Trailer, type HeavyMachinery, type UserRole, type AppUser, type InsertAppUser, type InsertUserRole,
   type CarListing, type InsertCarListing, type ListingApproval, type InsertListingApproval,
-  type UserActivity, type UserStats, type UserPreferences, type PasswordResetToken
+  type UserActivity, type UserStats, type UserPreferences, type PasswordResetToken, type PriceIndicator
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, desc, sql, gt } from "drizzle-orm";
@@ -74,6 +74,10 @@ export interface IStorage {
     priority: 'high' | 'medium' | 'low';
     reason: string;
   }>>;
+  
+  // Price indicators methods
+  getPriceIndicators(): Promise<PriceIndicator[]>;
+  getPriceIndicatorForPercentage(percentage: number): Promise<PriceIndicator | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -856,6 +860,42 @@ export class DatabaseStorage implements IStorage {
       console.error('Error generating recommendations:', error);
       return [];
     }
+  }
+
+  // Price indicators methods
+  async getPriceIndicators(): Promise<PriceIndicator[]> {
+    return await db
+      .select()
+      .from(priceIndicators)
+      .where(eq(priceIndicators.isActive, true))
+      .orderBy(priceIndicators.minPercentage);
+  }
+
+  async getPriceIndicatorForPercentage(percentage: number): Promise<PriceIndicator | undefined> {
+    const indicators = await db
+      .select()
+      .from(priceIndicators)
+      .where(eq(priceIndicators.isActive, true))
+      .orderBy(priceIndicators.minPercentage);
+
+    for (const indicator of indicators) {
+      const minPercentage = parseFloat(indicator.minPercentage);
+      const maxPercentage = indicator.maxPercentage ? parseFloat(indicator.maxPercentage) : null;
+      
+      if (maxPercentage === null) {
+        // Open-ended range (e.g., 70%+)
+        if (percentage >= minPercentage) {
+          return indicator;
+        }
+      } else {
+        // Closed range (e.g., 50-70%)
+        if (percentage >= minPercentage && percentage <= maxPercentage) {
+          return indicator;
+        }
+      }
+    }
+    
+    return undefined;
   }
 }
 

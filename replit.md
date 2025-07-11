@@ -392,6 +392,13 @@ Changelog:
   - Reorganized vehicle listing form to continuous flow layout instead of grid-based sections
   - Updated all form sections (Vehicle Details, Pricing, Location, Features, Contact) to vertical space-y-4 layout
   - Enhanced form flow with features displayed as flexible wrapped items for better space utilization
+- January 10, 2025. Implemented database-driven price indicator system:
+  - Created price_indicators table with configurable percentage ranges, labels, and styling classes
+  - Moved price indicator logic from hardcoded frontend to database-driven backend API
+  - Added 4 configurable price categories: "Price is High" (>70%), "Competitive Price" (50-70%), "Good Deal" (40-50%), "Be Careful" (<40%)
+  - Implemented API endpoints for fetching price indicators and percentage-based lookups
+  - Updated frontend to use React Query for real-time price indicator fetching based on listing price vs CRSP value
+  - Enhanced admin capability to modify price thresholds and labels through database updates
 
 ## User Preferences
 

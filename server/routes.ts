@@ -1823,6 +1823,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Price indicators API endpoints
+  app.get('/api/price-indicators', async (req, res) => {
+    try {
+      const indicators = await storage.getPriceIndicators();
+      res.json(indicators);
+    } catch (error) {
+      console.error("Error fetching price indicators:", error);
+      res.status(500).json({ message: "Failed to fetch price indicators" });
+    }
+  });
+
+  // Get price indicator for specific percentage
+  app.get('/api/price-indicators/:percentage', async (req, res) => {
+    try {
+      const percentage = parseFloat(req.params.percentage);
+      if (isNaN(percentage)) {
+        return res.status(400).json({ message: "Invalid percentage value" });
+      }
+      
+      const indicator = await storage.getPriceIndicatorForPercentage(percentage);
+      if (!indicator) {
+        return res.status(404).json({ message: "No indicator found for this percentage" });
+      }
+      
+      res.json(indicator);
+    } catch (error) {
+      console.error("Error fetching price indicator:", error);
+      res.status(500).json({ message: "Failed to fetch price indicator" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

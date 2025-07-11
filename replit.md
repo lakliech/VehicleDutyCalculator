@@ -433,6 +433,11 @@ Changelog:
   - Added ModuleNavigation component to AI Advisor page to ensure consistent navigation across all module pages
   - Verified all 8 module pages now have comprehensive cross-module navigation functionality
   - Enhanced visual hierarchy with modern rounded corners, backdrop blur effects, and gradient buttons
+- January 11, 2025. Cleaned admin dashboard from frontend marketplace elements:
+  - Removed "Back to Calculator" button from admin dashboard header for backend-focused design
+  - Fixed Link import error that occurred during cleanup
+  - Maintained proper admin authentication, logout functionality, and navigation tabs
+  - Admin dashboard now focuses purely on backend administration without frontend marketplace elements
 
 ## User Preferences
 

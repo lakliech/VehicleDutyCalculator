@@ -590,6 +590,7 @@ export default function SellMyCar() {
                         <VehicleSelector 
                           onVehicleSelect={handleVehicleSelect}
                           hideCrsp={true}
+                          hideResults={true}
                         />
                       </div>
 

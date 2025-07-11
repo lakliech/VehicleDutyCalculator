@@ -12,9 +12,10 @@ interface VehicleSelectorProps {
   onVehicleSelect: (vehicle: VehicleReference | null) => void;
   categoryFilter?: string; // Filter vehicles by category
   hideCrsp?: boolean; // Hide CRSP information (for transfer cost calculator)
+  hideResults?: boolean; // Hide selected vehicle results card (for sell my car page)
 }
 
-export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp }: VehicleSelectorProps) {
+export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp, hideResults }: VehicleSelectorProps) {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [selectedEngineSize, setSelectedEngineSize] = useState<string>("");
@@ -253,7 +254,7 @@ export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp }: V
       </div>
 
       {/* Selected Vehicle Details */}
-      {selectedVehicle && (
+      {selectedVehicle && !hideResults && (
         <Card className="bg-green-50 border-green-200">
           <CardContent className="pt-6">
             <div className="space-y-3">

@@ -23,8 +23,17 @@ import Dashboard from "@/pages/dashboard";
 import { ResetPassword } from "@/pages/reset-password";
 import VehicleRecommendations from "@/pages/vehicle-recommendations";
 import { AuthProvider } from "@/components/auth-provider";
+import { useSessionExpiry } from "@/hooks/use-session-expiry";
 
 function Router() {
+  // Initialize session expiry monitoring
+  useSessionExpiry({
+    idleTimeLimit: 30 * 60 * 1000, // 30 minutes
+    warningTimeBeforeExpiry: 5 * 60 * 1000, // 5 minutes warning
+    checkInterval: 60 * 1000, // check every minute
+    redirectToHome: true
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />

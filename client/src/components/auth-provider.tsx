@@ -38,9 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Check for OAuth authentication status
       try {
-        const response = await fetch("/api/auth/status", {
-          credentials: "include" // Important for session cookies
-        });
+        const response = await fetch("/api/auth/status");
         if (response.ok) {
           const data = await response.json();
           if (data.authenticated && data.user) {
@@ -75,7 +73,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // Important for session cookies
         body: JSON.stringify({ email, password }),
       });
 
@@ -84,16 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data.success) {
           setUser(data.user);
           localStorage.setItem("user", JSON.stringify(data.user));
-          
-          // Re-check auth status to ensure session is established
-          const statusResponse = await fetch("/api/auth/status", {
-            credentials: "include"
-          });
-          if (statusResponse.ok) {
-            const statusData = await statusResponse.json();
-            console.log("Auth status after login:", statusData);
-          }
-          
           return true;
         }
       }
@@ -130,10 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       // Call logout endpoint to clear server session
-      await fetch("/api/auth/logout", { 
-        method: "POST",
-        credentials: "include" // Important for session cookies
-      });
+      await fetch("/api/auth/logout", { method: "POST" });
     } catch (error) {
       console.error("Logout error:", error);
     }

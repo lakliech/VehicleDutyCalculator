@@ -3,32 +3,24 @@ import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Car, Settings, Fuel, AlertCircle, Calculator } from "lucide-react";
-import type { VehicleReference, ManualVehicleData } from "@shared/schema";
+import { Car, Settings, Fuel, AlertCircle } from "lucide-react";
+import type { VehicleReference } from "@shared/schema";
 
 interface VehicleSelectorProps {
-  onVehicleSelect: (vehicle: VehicleReference | null, manual?: ManualVehicleData) => void;
+  onVehicleSelect: (vehicle: VehicleReference | null) => void;
   categoryFilter?: string; // Filter vehicles by category
   hideCrsp?: boolean; // Hide CRSP information (for transfer cost calculator)
-  hideResults?: boolean; // Hide selected vehicle results card (for sell my car page)
-  showManualEntry?: boolean; // Show manual entry option with proration
 }
 
-export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp, hideResults, showManualEntry }: VehicleSelectorProps) {
+export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp }: VehicleSelectorProps) {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [selectedEngineSize, setSelectedEngineSize] = useState<string>("");
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
   const [manualEngineSize, setManualEngineSize] = useState<string>("");
   const [useManualEngine, setUseManualEngine] = useState<boolean>(false);
-  const [manualVehicleData, setManualVehicleData] = useState<ManualVehicleData | null>(null);
-  const [showManualEntryState, setShowManualEntryState] = useState<boolean>(false);
-  const [manualMake, setManualMake] = useState<string>("");
-  const [manualModel, setManualModel] = useState<string>("");
-  const [manualEngine, setManualEngine] = useState<string>("");
 
   // Fetch all makes (filtered by category if provided)
   const { data: makes = [], isLoading: makesLoading } = useQuery<string[]>({
@@ -162,152 +154,9 @@ export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp, hid
     return `KES ${num.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  // State for manual proration workflow
-  const [showProrationOptions, setShowProrationOptions] = useState<boolean>(false);
-  const [selectedBaseVehicle, setSelectedBaseVehicle] = useState<VehicleReference | null>(null);
-  const [availableReferences, setAvailableReferences] = useState<VehicleReference[]>([]);
-
-  // Search for reference vehicles for proration
-  const searchReferenceVehicles = async (make: string) => {
-    try {
-      const response = await fetch(`/api/vehicle-references/search?make=${make}&limit=50`);
-      const referenceVehicles: VehicleReference[] = await response.json();
-      
-      // Filter vehicles with valid CRSP and engine data
-      const validReferences = referenceVehicles.filter(v => 
-        (v.crspKes || v.crsp2020) && v.engineCapacity && v.engineCapacity > 0
-      );
-
-      setAvailableReferences(validReferences);
-      setShowProrationOptions(true);
-    } catch (error) {
-      console.error("Failed to search reference vehicles:", error);
-      setAvailableReferences([]);
-    }
-  };
-
-  // Manual proration with user-selected base vehicle
-  const calculateProration = (baseVehicle: VehicleReference, newEngineCapacity: number) => {
-    const referenceCrsp = baseVehicle.crspKes || baseVehicle.crsp2020 || 0;
-    const referenceEngine = baseVehicle.engineCapacity || 1;
-    const proratedCrsp = Math.round((referenceCrsp * newEngineCapacity) / referenceEngine);
-
-    const manualData: ManualVehicleData = {
-      make: showManualEntryState ? manualMake : selectedMake,
-      model: showManualEntryState ? manualModel : selectedModel,
-      engineCapacity: newEngineCapacity,
-      referenceVehicle: baseVehicle,
-      proratedCrsp
-    };
-
-    setManualVehicleData(manualData);
-    setSelectedVehicle(null);
-    onVehicleSelect(null, manualData);
-    setShowProrationOptions(false);
-  };
-
-  const handleManualSubmit = () => {
-    if (manualMake && manualModel && manualEngine) {
-      searchReferenceVehicles(manualMake);
-    }
-  };
-
-  const resetToDatabase = () => {
-    setShowManualEntryState(false);
-    setManualMake("");
-    setManualModel("");
-    setManualEngine("");
-    setManualVehicleData(null);
-    setSelectedVehicle(null);
-    setShowProrationOptions(false);
-    setSelectedBaseVehicle(null);
-    setAvailableReferences([]);
-    onVehicleSelect(null);
-  };
-
   return (
     <div className="space-y-4">
-      {/* Manual Entry Toggle */}
-      {showManualEntryState && (
-        <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <Calculator className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-900">Manual Vehicle Entry with Proration</span>
-          </div>
-          <button
-            onClick={resetToDatabase}
-            className="text-sm text-blue-600 hover:text-blue-800 underline"
-          >
-            Back to Database
-          </button>
-        </div>
-      )}
-
-      {!showManualEntryState && (
-        <div className="flex justify-end">
-          <button
-            onClick={() => setShowManualEntryState(true)}
-            className="text-sm text-purple-600 hover:text-purple-800 underline flex items-center space-x-1"
-          >
-            <Calculator className="h-3 w-3" />
-            <span>Enter Vehicle Manually</span>
-          </button>
-        </div>
-      )}
-
-      {showManualEntryState ? (
-        <div className="space-y-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="manualMake" className="text-sm font-medium text-gray-700 mb-2">
-                Vehicle Make
-              </Label>
-              <Input
-                id="manualMake"
-                value={manualMake}
-                onChange={(e) => setManualMake(e.target.value)}
-                placeholder="e.g., Toyota"
-                className="w-full"
-              />
-            </div>
-            <div>
-              <Label htmlFor="manualModel" className="text-sm font-medium text-gray-700 mb-2">
-                Vehicle Model
-              </Label>
-              <Input
-                id="manualModel"
-                value={manualModel}
-                onChange={(e) => setManualModel(e.target.value)}
-                placeholder="e.g., Camry"
-                className="w-full"
-              />
-            </div>
-            <div>
-              <Label htmlFor="manualEngineCapacity" className="text-sm font-medium text-gray-700 mb-2">
-                Engine Capacity (cc)
-              </Label>
-              <Input
-                id="manualEngineCapacity"
-                type="number"
-                value={manualEngine}
-                onChange={(e) => setManualEngine(e.target.value)}
-                placeholder="e.g., 2000"
-                className="w-full"
-                min="0"
-                step="100"
-              />
-            </div>
-          </div>
-          <button
-            onClick={handleManualSubmit}
-            disabled={!manualMake || !manualModel || !manualEngine}
-            className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            Find Reference Vehicles
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="make" className="flex items-center text-sm font-medium text-gray-700 mb-2">
             <Car className="h-4 w-4 mr-2 text-green-600" />
@@ -402,155 +251,9 @@ export function VehicleSelector({ onVehicleSelect, categoryFilter, hideCrsp, hid
           )}
         </div>
       </div>
-      )}
-
-      {/* Reference Vehicle Selection for Proration */}
-      {showProrationOptions && availableReferences.length > 0 && (
-        <Card className="bg-amber-50 border-amber-200">
-          <CardHeader>
-            <h3 className="text-lg font-semibold text-amber-900">Select Base Vehicle for Proration</h3>
-            <p className="text-sm text-amber-700">
-              Choose a reference vehicle from {manualMake} to calculate prorated CRSP value for your {manualEngine}cc {manualModel}
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 max-h-60 overflow-y-auto">
-              {availableReferences.map((vehicle) => (
-                <div
-                  key={vehicle.id}
-                  onClick={() => {
-                    setSelectedBaseVehicle(vehicle);
-                    calculateProration(vehicle, parseInt(manualEngine));
-                  }}
-                  className="p-3 border border-amber-300 rounded-lg cursor-pointer hover:bg-amber-100 transition-colors"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-medium text-amber-900">
-                        {vehicle.make} {vehicle.model}
-                      </h4>
-                      <p className="text-sm text-amber-700">
-                        {vehicle.engineCapacity}cc • {vehicle.fuelType} • {vehicle.bodyType}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-amber-600">CRSP Value</p>
-                      <p className="font-bold text-amber-900">
-                        {formatCurrency(vehicle.crspKes || vehicle.crsp2020)}
-                      </p>
-                      {vehicle.crsp2020 && !vehicle.crspKes && (
-                        <Badge variant="outline" className="text-orange-600 border-orange-600 text-xs">
-                          2020
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-2 pt-2 border-t border-amber-200">
-                    <p className="text-xs text-amber-600">
-                      Calculated CRSP: {formatCurrency(Math.round(((vehicle.crspKes || vehicle.crsp2020 || 0) * parseInt(manualEngine)) / (vehicle.engineCapacity || 1)))}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 pt-4 border-t border-amber-200">
-              <button
-                onClick={() => setShowProrationOptions(false)}
-                className="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
-              >
-                Cancel Proration
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {showProrationOptions && availableReferences.length === 0 && (
-        <Card className="bg-red-50 border-red-200">
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2 text-red-700">
-              <AlertCircle className="h-5 w-5" />
-              <div>
-                <h4 className="font-medium">No Reference Vehicles Found</h4>
-                <p className="text-sm">No vehicles from {manualMake} with CRSP values found in our database for proration.</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setShowProrationOptions(false)}
-              className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-            >
-              Try Different Vehicle
-            </button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Manual Vehicle Data Results */}
-      {manualVehicleData && !hideResults && (
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="pt-6">
-            <div className="space-y-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-semibold text-lg text-blue-900">
-                    {manualVehicleData.make} {manualVehicleData.model}
-                  </h3>
-                  <p className="text-sm text-blue-700 mt-1">
-                    Prorated from {manualVehicleData.referenceVehicle.make} {manualVehicleData.referenceVehicle.model}
-                  </p>
-                </div>
-                {!hideCrsp && (
-                  <div className="text-right">
-                    <p className="text-sm text-gray-600">Prorated CRSP Value</p>
-                    <p className="text-xl font-bold text-blue-900">
-                      {formatCurrency(manualVehicleData.proratedCrsp)}
-                    </p>
-                    <Badge variant="outline" className="text-blue-600 border-blue-600 mt-1">
-                      Prorated
-                    </Badge>
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-3 border-t border-blue-200">
-                <div className="flex items-center space-x-2">
-                  <Settings className="h-4 w-4 text-blue-600" />
-                  <div>
-                    <p className="text-xs text-gray-600">Engine</p>
-                    <p className="text-sm font-medium">{manualVehicleData.engineCapacity}cc</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Calculator className="h-4 w-4 text-blue-600" />
-                  <div>
-                    <p className="text-xs text-gray-600">Reference Engine</p>
-                    <p className="text-sm font-medium">{manualVehicleData.referenceVehicle.engineCapacity}cc</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Car className="h-4 w-4 text-blue-600" />
-                  <div>
-                    <p className="text-xs text-gray-600">Reference CRSP</p>
-                    <p className="text-sm font-medium">{formatCurrency(manualVehicleData.referenceVehicle.crspKes || manualVehicleData.referenceVehicle.crsp2020)}</p>
-                  </div>
-                </div>
-              </div>
-
-              <Alert className="bg-blue-100 border-blue-300">
-                <AlertCircle className="h-4 w-4 text-blue-600" />
-                <AlertDescription className="text-sm text-blue-800 ml-2">
-                  CRSP calculated using proration formula: {formatCurrency(manualVehicleData.referenceVehicle.crspKes || manualVehicleData.referenceVehicle.crsp2020)} × {manualVehicleData.engineCapacity}cc ÷ {manualVehicleData.referenceVehicle.engineCapacity}cc = {formatCurrency(manualVehicleData.proratedCrsp)}
-                </AlertDescription>
-              </Alert>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Selected Vehicle Details */}
-      {selectedVehicle && !hideResults && (
+      {selectedVehicle && (
         <Card className="bg-green-50 border-green-200">
           <CardContent className="pt-6">
             <div className="space-y-3">

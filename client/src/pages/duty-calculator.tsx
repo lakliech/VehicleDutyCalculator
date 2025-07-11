@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -426,481 +426,630 @@ export default function DutyCalculator() {
     return true;
   };
 
-  // Function to handle trailer selection
-  const handleTrailerSelect = (trailer: Trailer | null) => {
-    setSelectedTrailer(trailer);
-    if (trailer) {
-      form.setValue('vehicleValue', trailer.crspKes || 0);
-      form.setValue('vehicleCategory', 'trailer');
-      form.setValue('engineSize', 0); // Trailers don't have engines
-    }
-    
-    // Clear conflicts when trailer is selected
-    setCategoryConflict(null);
-  };
+  // Watch for category changes and validate
+  const currentCategory = form.watch('vehicleCategory');
+  
+  useEffect(() => {
+    console.log('Category changed:', currentCategory, 'validating...');
+    validateCategorySelection(currentCategory);
+  }, [currentCategory, selectedVehicle, selectedTrailer, selectedMachinery, manualVehicleData]);
 
-  // Function to handle heavy machinery selection
-  const handleMachinerySelect = (machinery: HeavyMachinery | null) => {
-    setSelectedMachinery(machinery);
-    if (machinery) {
-      form.setValue('vehicleValue', machinery.crspKes || 0);
-      form.setValue('vehicleCategory', 'heavyMachinery');
-      form.setValue('engineSize', machinery.powerValue || 0);
+  // Additional effect to validate when vehicle is selected
+  useEffect(() => {
+    if (selectedVehicle || selectedTrailer || selectedMachinery) {
+      console.log('Vehicle/equipment selected, re-validating category...');
+      validateCategorySelection(currentCategory);
     }
-    
-    // Clear conflicts when machinery is selected
-    setCategoryConflict(null);
-  };
+  }, [selectedVehicle, selectedTrailer, selectedMachinery, currentCategory]);
 
-  // Calculate duty mutation
+  // Watch import type changes
+  const isDirectImport = form.watch('isDirectImport');
+
+  // Reset year when switching import type if year is out of range
+  useEffect(() => {
+    if (yearOfManufacture > 0) {
+      const currentYear = new Date().getFullYear();
+      const minAllowedYear = currentYear - (isDirectImport ? 8 : 20);
+      
+      if (yearOfManufacture < minAllowedYear) {
+        setYearOfManufacture(0); // Reset to unselected state
+      }
+    }
+  }, [isDirectImport, yearOfManufacture]);
+
   const calculateDutyMutation = useMutation({
     mutationFn: async (data: DutyCalculation) => {
       const response = await apiRequest("POST", "/api/calculate-duty", data);
-      return response;
+      return response.json();
     },
-    onSuccess: (result) => {
+    onSuccess: (result: DutyResult) => {
+      // Check if we used 2020 CRSP and update the result
+      if (selectedVehicle && (selectedVehicle as any).usedCrsp2020) {
+        result.usedCrsp2020 = true;
+      }
+      
       setCalculationResult(result);
+      
+      // Show appropriate toast based on CRSP source
+      const baseMessage = `Total payable: KES ${result.totalPayable.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (includes estimated registration fees)`;
+      const crspMessage = result.usedCrsp2020 ? " - Based on 2020 CRSP values" : "";
+      
       toast({
         title: "Calculation Complete",
-        description: "Duty calculation has been completed successfully.",
+        description: baseMessage + crspMessage,
       });
-      
-      // Scroll to results
-      setTimeout(() => {
-        const resultsElement = document.getElementById('calculation-results');
-        if (resultsElement) {
-          resultsElement.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
     },
-    onError: (error: any) => {
-      console.error("Calculation error:", error);
+    onError: (error) => {
       toast({
         title: "Calculation Failed",
-        description: error.message || "Failed to calculate duties. Please try again.",
+        description: error.message,
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: DutyCalculation) => {
-    calculateDutyMutation.mutate(data);
+    // Validate all required fields are selected based on category
+    const currentCategory = form.getValues('vehicleCategory');
+    
+    if (currentCategory === 'trailer') {
+      if (!selectedTrailer) {
+        toast({
+          title: "Trailer Required",
+          description: "Please select a trailer from the database",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else if (currentCategory === 'heavyMachinery') {
+      if (!selectedMachinery) {
+        toast({
+          title: "Heavy Machinery Required",
+          description: "Please select heavy machinery from the database",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      // Regular vehicle categories
+      if (!selectedVehicle && !manualVehicleData) {
+        toast({
+          title: "Vehicle Required",
+          description: "Please select a vehicle from the database or use manual entry",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    // Year validation (only for regular vehicles, not for trailers/machinery that may not need it)
+    if (currentCategory !== 'trailer' && currentCategory !== 'heavyMachinery') {
+      if (!yearOfManufacture || yearOfManufacture === 0) {
+        toast({
+          title: "Year Required", 
+          description: "Please select the year of manufacture",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    // Category validation is now handled in the main validation above
+
+    // Check for category conflicts before submitting
+    // CRITICAL: Enhanced category conflict validation - prevent submission with conflicts
+    console.log('Checking for conflicts before submission:', { categoryConflict, currentCategory: form.getValues('vehicleCategory') });
+    
+    // Re-validate the current selection to catch any missed conflicts
+    const isValid = validateCategorySelection(form.getValues('vehicleCategory'));
+    
+    if (categoryConflict || !isValid) {
+      console.log('BLOCKING SUBMISSION due to category conflict:', categoryConflict);
+      toast({
+        title: "Category Conflict Detected",
+        description: categoryConflict || "Selected category conflicts with vehicle specifications. Please choose the correct category.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Additional validation: ensure category is selected
+    if (!currentCategory) {
+      toast({
+        title: "Category Required",
+        description: "Please select a vehicle category.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Add fuel type from selected vehicle
+    const fuelType = selectedVehicle?.fuelType?.toLowerCase();
+    const validFuelTypes = ["petrol", "diesel", "electric", "hybrid", "other"];
+    
+    const submissionData = {
+      ...data,
+      fuelType: fuelType && validFuelTypes.includes(fuelType) ? fuelType as "petrol" | "diesel" | "electric" | "hybrid" | "other" : undefined,
+      vehicleReference: selectedVehicle ? {
+        make: selectedVehicle.make,
+        model: selectedVehicle.model,
+        engineCapacity: selectedVehicle.engineCapacity,
+        bodyType: selectedVehicle.bodyType,
+        fuelType: selectedVehicle.fuelType
+      } : manualVehicleData ? {
+        make: manualVehicleData.make,
+        model: manualVehicleData.model,
+        engineCapacity: manualVehicleData.engineCapacity,
+        bodyType: manualVehicleData.referenceVehicle.bodyType || "",
+        fuelType: manualVehicleData.referenceVehicle.fuelType || "",
+      } : selectedTrailer ? {
+        make: selectedTrailer.make,
+        model: selectedTrailer.description || selectedTrailer.type,
+        engineCapacity: 0, // Trailers don't have engines
+        bodyType: selectedTrailer.type,
+        fuelType: "other",
+      } : selectedMachinery ? {
+        make: selectedMachinery.make,
+        model: selectedMachinery.model,
+        engineCapacity: selectedMachinery.powerValue || 0, // Use power value as "engine capacity"
+        bodyType: selectedMachinery.category,
+        fuelType: "diesel", // Most heavy machinery is diesel
+      } : undefined
+    };
+    calculateDutyMutation.mutate(submissionData);
   };
 
-  // Generate year options based on import type
-  const generateYearOptions = () => {
-    const currentYear = new Date().getFullYear();
-    const isDirectImport = form.watch('isDirectImport');
-    const maxAge = isDirectImport ? 8 : 20;
-    
-    return Array.from({ length: maxAge + 1 }, (_, i) => currentYear - i);
-  };
-
-  // Check if all required fields are filled
-  const isFormValid = () => {
-    const values = form.getValues();
-    const hasCategory = values.vehicleCategory && values.vehicleCategory !== "";
-    const hasValue = values.vehicleValue && values.vehicleValue > 0;
-    const hasEngineSize = values.engineSize !== undefined && values.engineSize >= 0; // 0 is valid for trailers
-    const hasYear = yearOfManufacture > 0;
-    const noConflicts = !categoryConflict;
-    
-    // Special handling for trailers and heavy machinery (year not required)
-    const requiresYear = !['trailer', 'heavyMachinery'].includes(values.vehicleCategory);
-    
-    return hasCategory && hasValue && hasEngineSize && (!requiresYear || hasYear) && noConflicts;
-  };
-
-  // Format currency
   const formatCurrency = (amount: number) => {
-    return `KES ${Math.round(amount).toLocaleString()}`;
+    return `KES ${amount.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-cyan-50">
+    <div className="bg-gradient-to-br from-purple-50 via-white to-cyan-50">
+      {/* Module Navigation */}
       <ModuleNavigation />
       
-      <div className="container mx-auto p-4 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-purple-900 mb-4">
-            Kenya Motor Vehicle Duty Calculator
-          </h1>
-          <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-            Calculate import duties and taxes for vehicles, trailers, and heavy machinery using official KRA rates and CRSP values
-          </p>
+      {/* Page Header */}
+      <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">Duty Calculator</h1>
+              <p className="text-gray-600">Calculate Kenya import duties and taxes accurately</p>
+            </div>
+            <Badge variant="secondary" className="bg-cyan-100 text-purple-800">
+              <Shield className="h-3 w-3 mr-1" />
+              KRA Official Rates
+            </Badge>
+          </div>
         </div>
+      </div>
 
+
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Form */}
+          {/* Calculator Form */}
           <div className="lg:col-span-2">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                {/* Step 1: Category Selection */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <span className="bg-purple-600 text-white px-2 py-1 rounded-full text-sm">1</span>
-                      <span>Select Equipment Type</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <VehicleCategorySelector 
-                      value={selectedCategory}
-                      onValueChange={(category) => {
-                        console.log("Category selected:", category, "Current value:", selectedCategory);
-                        setSelectedCategory(category);
-                        validateCategorySelection(category);
-                        
-                        // Clear selections when switching categories
-                        if (category !== 'trailer') {
-                          setSelectedTrailer(null);
-                        }
-                        if (category !== 'heavyMachinery') {
-                          setSelectedMachinery(null);
-                        }
-                        if (!['trailer', 'heavyMachinery'].includes(category)) {
-                          setSelectedTrailer(null);
-                          setSelectedMachinery(null);
-                        }
-                      }}
-                    />
-                  </CardContent>
-                </Card>
-
-                {/* Step 2: Select/Enter Vehicle Details */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <span className="bg-purple-600 text-white px-2 py-1 rounded-full text-sm">2</span>
-                      <span>Select/Enter Vehicle Details</span>
-                    </CardTitle>
-                    <CardDescription>
-                      Choose from our database or enter vehicle details manually for proration
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Manual Entry Prompt - Prominent */}
-                    {selectedCategory && !['trailer', 'heavyMachinery'].includes(selectedCategory) && (
-                      <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-200">
-                        <div className="flex items-center space-x-3 mb-3">
-                          <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
-                            <span className="text-white font-bold text-sm">✓</span>
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-purple-900 text-lg">ENTER Vehicle Manually</h4>
-                            <p className="text-purple-700 text-sm">Vehicle not in database? Enter details for automatic CRSP proration</p>
-                          </div>
+            <Card className="shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-2xl">Vehicle Information</CardTitle>
+                <p className="text-gray-600">Select your vehicle details to calculate applicable duties and taxes</p>
+              </CardHeader>
+              <CardContent>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    {/* All Selection Fields Grouped Together */}
+                    <div className="space-y-6 p-6 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center">
+                          <Settings className="h-5 w-5 mr-2 text-purple-600" />
+                          <h3 className="text-lg font-semibold text-purple-900">Vehicle Selection</h3>
                         </div>
+                        <p className="text-sm text-purple-700">All fields required <span className="text-red-500">*</span></p>
                       </div>
-                    )}
-
-                    {/* Show appropriate selector based on category */}
-                    {selectedCategory && !['trailer', 'heavyMachinery'].includes(selectedCategory) && (
-                      <VehicleSelector 
-                        onVehicleSelect={(vehicle, manual) => {
-                          if (manual) {
-                            handleManualVehicleData(manual);
-                          } else {
-                            handleVehicleSelect(vehicle);
-                            setManualVehicleData(null);
-                          }
-                          validateCategorySelection(selectedCategory);
-                        }}
-                        categoryFilter={selectedCategory}
-                        showManualEntry={true}
-                      />
-                    )}
-
-                    {selectedCategory === 'trailer' && (
-                      <TrailerSelector onTrailerSelect={handleTrailerSelect} />
-                    )}
-
-                    {selectedCategory === 'heavyMachinery' && (
-                      <HeavyMachinerySelector onMachinerySelect={handleMachinerySelect} />
-                    )}
-
-                    {/* Display selected equipment details */}
-                    {(selectedVehicle || manualVehicleData) && (
-                      <div className="bg-gray-50 p-4 rounded-lg border">
-                        <h4 className="font-semibold mb-2">Selected Vehicle Details</h4>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="font-medium">Make:</span> {(selectedVehicle || manualVehicleData)?.make}
-                          </div>
-                          <div>
-                            <span className="font-medium">Model:</span> {(selectedVehicle || manualVehicleData)?.model}
-                          </div>
-                          <div>
-                            <span className="font-medium">Engine Size:</span> {(selectedVehicle?.engineCapacity || manualVehicleData?.engineCapacity)}cc
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium">CRSP Value:</span>
-                            <span>KES {((selectedVehicle?.crspKes || selectedVehicle?.crsp2020 || manualVehicleData?.proratedCrsp || 0)).toLocaleString()}</span>
-                            {selectedVehicle?.crsp2020 && !selectedVehicle?.crspKes && (
-                              <Badge variant="outline" className="text-orange-600 border-orange-600">
-                                <Database className="w-3 h-3 mr-1" />
-                                2020
-                              </Badge>
-                            )}
-                            {manualVehicleData && (
-                              <Badge variant="outline" className="text-blue-600 border-blue-600">
-                                Prorated
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedTrailer && (
-                      <div className="bg-gray-50 p-4 rounded-lg border">
-                        <h4 className="font-semibold mb-2">Selected Trailer Details</h4>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="font-medium">Type:</span> {selectedTrailer.type}
-                          </div>
-                          <div>
-                            <span className="font-medium">Make:</span> {selectedTrailer.make}
-                          </div>
-                          <div>
-                            <span className="font-medium">Specifications:</span> {selectedTrailer.specifications}
-                          </div>
-                          <div>
-                            <span className="font-medium">CRSP Value:</span> KES {selectedTrailer.crspKes?.toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedMachinery && (
-                      <div className="bg-gray-50 p-4 rounded-lg border">
-                        <h4 className="font-semibold mb-2">Selected Heavy Machinery Details</h4>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="font-medium">Make:</span> {selectedMachinery.make}
-                          </div>
-                          <div>
-                            <span className="font-medium">Model:</span> {selectedMachinery.model}
-                          </div>
-                          <div>
-                            <span className="font-medium">Category:</span> {selectedMachinery.category}
-                          </div>
-                          <div>
-                            <span className="font-medium">Power:</span> {selectedMachinery.powerSpec}
-                          </div>
-                          <div>
-                            <span className="font-medium">CRSP Value:</span> KES {selectedMachinery.crspKes?.toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Additional Information - Year and Import Type */}
-                    <div className="space-y-6 pt-6 border-t">
-                      <h4 className="text-lg font-semibold text-gray-900">Additional Details</h4>
                       
-                      {/* Year of Manufacture - Not required for trailers and heavy machinery */}
-                      {!['trailer', 'heavyMachinery'].includes(selectedCategory) && (
-                        <div>
-                          <Label htmlFor="year" className="text-base font-semibold text-gray-900">
-                            Year of Manufacture *
-                          </Label>
-                          <Select 
-                            value={yearOfManufacture > 0 ? yearOfManufacture.toString() : ""} 
-                            onValueChange={(value) => setYearOfManufacture(parseInt(value))}
-                          >
-                            <SelectTrigger className="w-full mt-2">
-                              <SelectValue placeholder="Select year of manufacture" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {generateYearOptions().map((year) => (
-                                <SelectItem key={year} value={year.toString()}>
-                                  {year}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                      {/* Step 1: Category Selection */}
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700 mb-2">Step 1: Vehicle Category <span className="text-red-500">*</span></Label>
+                        <VehicleCategorySelector 
+                          value={selectedCategory}
+                          onValueChange={(category) => {
+                            setSelectedCategory(category);
+                            form.setValue('vehicleCategory', category);
+                            // Reset other selections when category changes
+                            setSelectedVehicle(null);
+                            setSelectedTrailer(null);
+                            setSelectedMachinery(null);
+                            setManualVehicleData(null);
+                            setYearOfManufacture(0);
+                          }}
+                          disabled={false}
+                        />
+                      </div>
+
+                      {selectedCategory && (
+                        <>
+                          {/* Import Type - Second Step */}
+                          <FormField
+                            control={form.control}
+                            name="isDirectImport"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium text-gray-700 mb-2">Step 2: Import Type</FormLabel>
+                                <FormControl>
+                                  <RadioGroup
+                                    value={field.value ? "direct" : "registered"}
+                                    onValueChange={(value) => field.onChange(value === "direct")}
+                                    className="flex space-x-4"
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem value="direct" id="direct" />
+                                      <Label htmlFor="direct">Direct Import</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem value="registered" id="registered" />
+                                      <Label htmlFor="registered">Previously Registered</Label>
+                                    </div>
+                                  </RadioGroup>
+                                </FormControl>
+                                <FormDescription>
+                                  Direct imports include RDL and IDF fees • Year range: {new Date().getFullYear() - 8} - {new Date().getFullYear()}
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Vehicle Selection - Third Step */}
+                          <div>
+                            <Label className="text-sm font-medium text-gray-700 mb-2">
+                              Step 3: Select {selectedCategory === "trailer" ? "Trailer" : selectedCategory === "heavyMachinery" ? "Equipment" : "Vehicle"} <span className="text-red-500">*</span>
+                            </Label>
+                            
+                            {selectedCategory === "trailer" ? (
+                              <TrailerSelector
+                                onTrailerSelect={(trailer) => {
+                                  setSelectedTrailer(trailer);
+                                  if (trailer) {
+                                    form.setValue('vehicleValue', Number(trailer.crspKes));
+                                  }
+                                }}
+                              />
+                            ) : selectedCategory === "heavyMachinery" ? (
+                              <HeavyMachinerySelector
+                                onMachinerySelect={(machinery) => {
+                                  setSelectedMachinery(machinery);
+                                  if (machinery) {
+                                    form.setValue('vehicleValue', Number(machinery.crspKes));
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <>
+                                
+                                <VehicleSelector 
+                                  onVehicleSelect={handleVehicleSelect} 
+                                  onManualEngineSize={handleManualEngineSize}
+                                  onManualVehicleData={handleManualVehicleData}
+                                  categoryFilter={selectedCategory}
+                                />
+                              </>
+                            )}
+                          </div>
+
+                          {/* Year of Manufacture - Step 4 */}
+                          {(selectedVehicle || manualVehicleData || selectedTrailer || selectedMachinery) && (
+                            <div>
+                              <Label htmlFor="yearOfManufacture" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <Calendar className="h-4 w-4 mr-2 text-purple-600" />
+                                Step 4: Year of Manufacture <span className="text-red-500">*</span>
+                              </Label>
+                              <Select
+                                value={yearOfManufacture === 0 ? "" : yearOfManufacture.toString()}
+                                onValueChange={(value) => setYearOfManufacture(Number(value))}
+                              >
+                                <SelectTrigger id="yearOfManufacture">
+                                  <SelectValue placeholder="Select year" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {(() => {
+                                    const currentYear = new Date().getFullYear();
+                                    const isDirectImport = form.watch('isDirectImport');
+                                    const yearRange = isDirectImport ? 8 : 20;
+                                    
+                                    return Array.from({ length: yearRange }, (_, i) => currentYear - yearRange + 1 + i).map((year) => (
+                                      <SelectItem key={year} value={year.toString()}>
+                                        {year}
+                                      </SelectItem>
+                                    ));
+                                  })()}
+                                </SelectContent>
+                              </Select>
+                              {yearOfManufacture > 0 && (
+                                <p className="text-sm text-gray-500 mt-1">
+                                  Vehicle age: {form.watch('vehicleAge')} year{form.watch('vehicleAge') !== 1 ? 's' : ''} (for duty calculation)
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      {/* Selected Vehicle CRSP Display */}
+                      {selectedVehicle && (selectedVehicle.crspKes || selectedVehicle.crsp2020) && (
+                        <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                          <div className="flex items-start space-x-2">
+                            <DollarSign className="h-5 w-5 text-purple-600 mt-0.5" />
+                            <div className="w-full">
+                              <p className="text-sm font-medium text-purple-900">
+                                Current Retail Selling Price (CRSP)
+                                {(selectedVehicle as any).usedCrsp2020 && (
+                                  <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
+                                    2020 CRSP
+                                  </span>
+                                )}
+                              </p>
+                              <p className="text-xl font-bold text-purple-800 mt-1">
+                                KES {form.watch('vehicleValue')?.toLocaleString('en-KE') || '0'}
+                              </p>
+                              <p className="text-xs text-purple-700 mt-1">
+                                {selectedVehicle.make} {selectedVehicle.model}
+                                {(selectedVehicle as any).usedCrsp2020 && (
+                                  <span className="block text-orange-700 font-medium mt-1">
+                                    ⚠️ Using 2020 CRSP value - current pricing may differ
+                                  </span>
+                                )}
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       )}
 
-                      {/* Import Type */}
-                      <FormField
-                        control={form.control}
-                        name="isDirectImport"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-base font-semibold text-gray-900">
-                              Import Type *
-                            </FormLabel>
-                            <FormControl>
-                              <RadioGroup
-                                onValueChange={(value) => field.onChange(value === "direct")}
-                                value={field.value ? "direct" : "previously_registered"}
-                                className="flex flex-col space-y-2"
-                              >
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="direct" id="direct" />
-                                  <Label htmlFor="direct" className="text-sm cursor-pointer">
-                                    Direct Import (vehicle imported directly from abroad)
-                                  </Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="previously_registered" id="previously_registered" />
-                                  <Label htmlFor="previously_registered" className="text-sm cursor-pointer">
-                                    Previously Registered (vehicle already registered in Kenya)
-                                  </Label>
-                                </div>
-                              </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      {/* Discontinuation Warning - Only for Direct Import */}
+                      {selectedVehicle && selectedVehicle.discontinuationYear && form.watch('importType') === 'direct' && (
+                        (() => {
+                          const currentYear = new Date().getFullYear();
+                          const yearsSinceDiscontinuation = currentYear - selectedVehicle.discontinuationYear;
+                          const isImportRestricted = yearsSinceDiscontinuation > 8;
+                          
+                          return (
+                            <Alert variant={isImportRestricted ? "destructive" : "default"} className={isImportRestricted ? "border-red-200 bg-red-50" : "border-orange-200 bg-orange-50"}>
+                              <AlertCircle className={`h-4 w-4 ${isImportRestricted ? "text-red-600" : "text-orange-600"}`} />
+                              <AlertDescription className={isImportRestricted ? "text-red-800" : "text-orange-800"}>
+                                {isImportRestricted ? (
+                                  <div>
+                                    <strong className="font-semibold">THIS MODEL WAS DISCONTINUED IN {selectedVehicle.discontinuationYear} AND CANNOT BE IMPORTED INTO KENYA</strong>
+                                    <p className="mt-1 text-sm">This vehicle was discontinued {yearsSinceDiscontinuation} years ago, exceeding the 8-year import limit for direct imports.</p>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <strong className="font-semibold">Vehicle Discontinued Notice</strong>
+                                    <p className="mt-1 text-sm">This model was discontinued in {selectedVehicle.discontinuationYear} ({yearsSinceDiscontinuation} years ago). It can still be imported but may have limited parts availability.</p>
+                                  </div>
+                                )}
+                              </AlertDescription>
+                            </Alert>
+                          );
+                        })()
+                      )}
                     </div>
 
-                    {/* Category conflict warning */}
-                    {categoryConflict && (
-                      <Alert className="border-red-200 bg-red-50">
-                        <AlertCircle className="h-4 w-4 text-red-600" />
-                        <AlertDescription className="text-red-800">
-                          <strong>Category Conflict:</strong> {categoryConflict}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </CardContent>
-                </Card>
 
-                {/* Submit Button */}
-                <div className="flex justify-center">
-                  <Button 
-                    type="submit" 
-                    size="lg" 
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3"
-                    disabled={!isFormValid() || calculateDutyMutation.isPending}
-                  >
-                    {calculateDutyMutation.isPending ? (
-                      <>
-                        <span className="animate-spin mr-2">⏳</span>
-                        Calculating...
-                      </>
-                    ) : (
-                      <>
-                        <Calculator className="w-5 h-5 mr-2" />
-                        Calculate Duty
-                      </>
+
+                    {/* Display Vehicle Info from Database */}
+                    {selectedVehicle && (selectedVehicle.fuelType || selectedVehicle.bodyType) && (
+                      <div className="p-4 bg-cyan-50 border border-cyan-200 rounded-lg">
+                        <div className="flex items-start space-x-2">
+                          <Info className="h-5 w-5 text-cyan-600 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-cyan-900">Vehicle Details from Database</p>
+                            {selectedVehicle.fuelType && (
+                              <p className="text-sm text-cyan-700 mt-1">
+                                Fuel Type: <span className="font-semibold capitalize">{selectedVehicle.fuelType}</span>
+                              </p>
+                            )}
+                            {selectedVehicle.bodyType && (
+                              <p className="text-sm text-cyan-700">
+                                Body Type: <span className="font-semibold">{selectedVehicle.bodyType}</span>
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
+
+                    {/* Submit Button */}
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-purple-600 hover:bg-purple-700"
+                      disabled={
+                        calculateDutyMutation.isPending || 
+                        (selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
+                        categoryConflict
+                      }
+                    >
+                      {calculateDutyMutation.isPending ? (
+                        <>Calculating...</>
+                      ) : selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8 ? (
+                        <>
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          Cannot Import (Discontinued)
+                        </>
+                      ) : (
+                        <>
+                          <Calculator className="h-4 w-4 mr-2" />
+                          Calculate Duties & Taxes
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Sidebar - Calculation Results */}
-          <div className="space-y-6">
-            {calculationResult && (
-              <Card>
+          {/* Results Section */}
+          <div className="lg:col-span-1">
+            {calculationResult ? (
+              <Card className="shadow-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span>Results</span>
-                    <Button
-                      onClick={() => generateDutyCalculationPDF(calculationResult, selectedVehicle || manualVehicleData || selectedTrailer || selectedMachinery as any)}
-                      variant="outline"
+                    <span>Calculation Results</span>
+                    <Button 
+                      variant="outline" 
                       size="sm"
-                      className="text-purple-600 border-purple-600 hover:bg-purple-50"
+                      title="Download PDF Report"
+                      onClick={() => {
+                        generateDutyCalculationPDF(
+                          calculationResult,
+                          selectedVehicle,
+                          yearOfManufacture,
+                          form.getValues("engineSize"),
+                          form.getValues("isDirectImport")
+                        );
+                        toast({
+                          title: "PDF Downloaded",
+                          description: "Your duty calculation report has been downloaded.",
+                        });
+                      }}
                     >
-                      <Download className="w-4 h-4 mr-2" />
-                      PDF
+                      <Download className="h-4 w-4 mr-2" />
+                      Download PDF
                     </Button>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {/* Vehicle Value and Depreciation */}
-                    <div>
-                      <h3 className="text-sm font-semibold mb-3 text-gray-700">Vehicle Information</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span>CRSP Value:</span>
-                          <span className="font-medium">{formatCurrency(calculationResult.currentRetailPrice)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Depreciation:</span>
-                          <span className="font-medium">{calculationResult.depreciationRate}%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Customs Value:</span>
-                          <span className="font-medium">{formatCurrency(calculationResult.customsValue)}</span>
-                        </div>
-                      </div>
+                <CardContent className="space-y-4">
+                  {/* Summary Card */}
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-purple-800">Total Amount Payable</span>
+                      <Receipt className="h-4 w-4 text-purple-600" />
                     </div>
-
-                    <Separator />
-
-                    {/* Tax Breakdown */}
-                    <div>
-                      <h3 className="text-sm font-semibold mb-3 text-gray-700">Tax Breakdown</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span>Import Duty:</span>
-                          <span className="font-medium">{formatCurrency(calculationResult.importDuty)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Excise Duty:</span>
-                          <span className="font-medium">{formatCurrency(calculationResult.exciseDuty)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>VAT (16%):</span>
-                          <span className="font-medium">{formatCurrency(calculationResult.vat)}</span>
-                        </div>
-                        {calculationResult.rdl > 0 && (
-                          <div className="flex justify-between">
-                            <span>RDL (2%):</span>
-                            <span className="font-medium">{formatCurrency(calculationResult.rdl)}</span>
-                          </div>
-                        )}
-                        {calculationResult.idfFees > 0 && (
-                          <div className="flex justify-between">
-                            <span>IDF (2.5%):</span>
-                            <span className="font-medium">{formatCurrency(calculationResult.idfFees)}</span>
-                          </div>
-                        )}
-                      </div>
+                    <div className="text-2xl font-bold text-purple-900">
+                      {formatCurrency(calculationResult.totalPayable)}
                     </div>
-
-                    <Separator />
-
-                    {/* Total Duty Payable */}
-                    <div className="bg-purple-50 p-3 rounded-lg">
-                      <div className="flex justify-between items-center text-lg font-bold">
-                        <span>Total Payable:</span>
-                        <span className="text-purple-600">{formatCurrency(calculationResult.totalPayable)}</span>
+                    <p className="text-xs text-purple-700 mt-1">
+                      Includes estimated registration fees
+                    </p>
+                    {selectedVehicle && (
+                      <div className="mt-3 pt-3 border-t border-purple-200">
+                        <p className="text-xs text-purple-700">
+                          Calculated for: <span className="font-medium">{selectedVehicle.make} {selectedVehicle.model}</span>
+                        </p>
                       </div>
-                    </div>
+                    )}
+                  </div>
 
-                    {/* Additional Details */}
-                    <div className="pt-4 border-t">
-                      <h3 className="text-sm font-semibold mb-3 text-gray-700">Details</h3>
-                      <div className="text-xs text-gray-600 space-y-1">
-                        <p><strong>Category:</strong> {vehicleCategoryInfo[form.getValues('vehicleCategory') as keyof typeof vehicleCategoryInfo]?.label}</p>
-                        <p><strong>Engine:</strong> {form.getValues('engineSize')}cc</p>
-                        <p><strong>Age:</strong> {form.getValues('vehicleAge')} years</p>
-                        <p><strong>Type:</strong> {form.getValues('isDirectImport') ? 'Direct Import' : 'Previously Registered'}</p>
+                  {/* Value Summary */}
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Current Retail Price:</span>
+                      <span className="font-medium">
+                        {formatCurrency(calculationResult.currentRetailPrice)}
                         {calculationResult.usedCrsp2020 && (
-                          <div className="flex items-center space-x-2 text-orange-600 mt-2">
-                            <Database className="w-3 h-3" />
-                            <span className="text-xs">Using CRSP 2020 values</span>
-                          </div>
+                          <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
+                            2020 CRSP
+                          </span>
                         )}
-                      </div>
+                      </span>
                     </div>
+                    {calculationResult.usedCrsp2020 && (
+                      <div className="text-xs text-orange-700 mt-2 p-2 bg-orange-50 rounded border-l-4 border-orange-300">
+                        ⚠️ Calculation based on 2020 CRSP values - current market prices may differ significantly
+                      </div>
+                    )}
+                    {calculationResult.depreciationRate > 0 && (
+                      <>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Depreciation ({(calculationResult.depreciationRate * 100).toFixed(0)}%):</span>
+                          <span className="font-medium text-red-600">
+                            -{formatCurrency(calculationResult.currentRetailPrice - calculationResult.depreciatedPrice)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Depreciated Price:</span>
+                          <span className="font-medium">{formatCurrency(calculationResult.depreciatedPrice)}</span>
+                        </div>
+                      </>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Customs Value:</span>
+                      <span className="font-medium">{formatCurrency(calculationResult.customsValue)}</span>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Breakdown */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-gray-900">Tax Breakdown</h4>
+                    {calculationResult.breakdown.map((item, index) => (
+                      <div key={index} className="space-y-1">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                            {item.description && (
+                              <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
+                            )}
+                          </div>
+                          <span className={`text-sm font-medium ${item.amount < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                            {item.amount < 0 ? '-' : ''}{formatCurrency(Math.abs(item.amount))}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Info Alert */}
+                  <Alert className="border-blue-200 bg-blue-50">
+                    <Info className="h-4 w-4 text-blue-600" />
+                    <AlertDescription className="text-xs text-blue-800">
+                      Calculations are based on current Kenya Revenue Authority rates. 
+                      Additional fees may apply during registration.
+                    </AlertDescription>
+                  </Alert>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="shadow-sm">
+                <CardHeader>
+                  <CardTitle>Calculation Results</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8 text-gray-500">
+                    <Calculator className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                    <p className="text-sm">Enter vehicle details and click calculate to see results</p>
                   </div>
                 </CardContent>
               </Card>
             )}
+
+            {/* Information Card */}
+            <Card className="shadow-sm mt-4">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <AlertCircle className="h-5 w-5 mr-2 text-blue-600" />
+                  Important Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-gray-600">
+                <div>
+                  <strong className="text-gray-700">Direct Imports:</strong>
+                  <p className="mt-1">Include Import Duty, Excise Duty, VAT, Railway Development Levy (RDL), and Import Declaration Fee (IDF).</p>
+                </div>
+                <div>
+                  <strong className="text-gray-700">Previously Registered:</strong>
+                  <p className="mt-1">Include Import Duty, Excise Duty, and VAT only.</p>
+                </div>
+                <div>
+                  <strong className="text-gray-700">Depreciation:</strong>
+                  <p className="mt-1">Applied based on vehicle age using official KRA rates.</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

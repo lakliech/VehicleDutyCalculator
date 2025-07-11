@@ -18,10 +18,7 @@ import {
   listingApprovalSchema,
   userRoleSchema,
   appUsers,
-  userRoles,
-  userBrowsingHistory,
-  userVehiclePreferences,
-  userVehicleRecommendations
+  userRoles
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -34,7 +31,6 @@ import crypto from "crypto";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import session from "express-session";
-import path from "path";
 
 // Simple authentication middleware
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
@@ -74,29 +70,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     secret: process.env.SESSION_SECRET || 'fallback-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { 
-      secure: false, // Set to true in production with HTTPS
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax'
-    }
+    cookie: { secure: false } // Set to true in production with HTTPS
   }));
-
-  // Serve test file
-  app.get('/test-auth', (req, res) => {
-    res.sendFile(path.join(__dirname, '../test-auth.html'));
-  });
-
-  // Debug endpoint for session state
-  app.get('/api/debug/session', (req, res) => {
-    res.json({
-      sessionId: req.sessionID,
-      session: req.session,
-      isAuthenticated: req.isAuthenticated?.(),
-      user: req.user,
-      cookies: req.headers.cookie,
-    });
-  });
 
   // Passport middleware
   app.use(passport.initialize());
@@ -120,7 +95,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           firstName: profile.name?.givenName || '',
           lastName: profile.name?.familyName || '',
           profileImageUrl: profile.photos?.[0]?.value || null,
-          oauthProvider: 'google',
+          password: crypto.randomBytes(32).toString('hex'), // Random password for OAuth users
         });
       }
       
@@ -146,16 +121,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth middleware - supports both session and token authentication
   const authenticateUser = async (req: any, res: any, next: any) => {
-    console.log("Auth middleware called:", {
-      isAuthenticated: req.isAuthenticated?.(),
-      hasUser: !!req.user,
-      sessionId: req.sessionID,
-      cookies: req.headers.cookie,
-    });
-    
     // Check for session-based authentication first (Google OAuth)
     if (req.isAuthenticated && req.isAuthenticated() && req.user) {
-      console.log("User authenticated via session:", req.user.email);
+      req.user = req.user; // User is already available from session
       return next();
     }
     
@@ -163,7 +131,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const auth = req.headers.authorization;
     
     if (!auth || !auth.startsWith('Bearer ')) {
-      console.log("No authentication token found, returning 401");
       return res.status(401).json({ error: "Authentication required" });
     }
     
@@ -221,18 +188,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         password,
       });
       
-      // Establish Passport session for registered user
-      req.login(user, (err) => {
-        if (err) {
-          console.error('Session login error after registration:', err);
-          // Still send success since registration succeeded
-        }
-        
-        // Remove sensitive data from response
-        const { passwordHash: _, ...userWithoutPassword } = user;
-        
-        res.json({ success: true, user: userWithoutPassword });
-      });
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = user;
+      
+      res.json({ success: true, user: userWithoutPassword });
     } catch (error) {
       console.error('Registration error:', error);
       res.status(500).json({ success: false, message: 'Registration failed' });
@@ -243,46 +202,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password } = req.body;
       
-      console.log('Login attempt for:', email);
-      
       // Get user by email
       const user = await storage.getUserByEmail(email);
       if (!user) {
-        console.log('User not found:', email);
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
       
-      console.log('User found:', { id: user.id, email: user.email, hasPasswordHash: !!user.passwordHash });
-      
-      // Check if user has a password (form-based registration)
-      if (!user.passwordHash) {
-        console.log('User has no password hash - OAuth only account');
-        return res.status(401).json({ success: false, message: 'This account uses social login. Please sign in with Google.' });
-      }
-      
-      // Compare password with hash
-      const validPassword = await bcrypt.compare(password, user.passwordHash);
-      console.log('Password comparison result:', validPassword);
-      
-      if (!validPassword) {
+      // In a real application, you would hash and compare passwords
+      // For now, we'll do a simple comparison
+      if (user.password !== password) {
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
+      
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = user;
       
       // Update last login
       await storage.updateUser(user.id, { lastLoginAt: new Date() });
       
-      // Establish Passport session
-      req.login(user, (err) => {
-        if (err) {
-          console.error('Session login error:', err);
-          return res.status(500).json({ success: false, message: 'Login failed' });
-        }
-        
-        // Remove sensitive data from response
-        const { passwordHash: _, ...userWithoutPassword } = user;
-        
-        res.json({ success: true, user: userWithoutPassword });
-      });
+      res.json({ success: true, user: userWithoutPassword });
     } catch (error) {
       console.error('Login error:', error);
       res.status(500).json({ success: false, message: 'Login failed' });
@@ -290,35 +228,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Google OAuth routes
-  app.get('/api/auth/google', (req: Request, res: Response, next) => {
-    // Store the referrer URL for redirect after login
-    const returnTo = req.get('Referrer') || req.query.returnTo || '/';
-    (req.session as any).returnTo = returnTo;
-    
-    passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
-  });
+  app.get('/api/auth/google', 
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+  );
 
   app.get('/api/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/?error=auth_failed' }),
     (req: Request, res: Response) => {
-      // Get stored return URL or default to home
-      const returnTo = (req.session as any).returnTo || '/';
-      delete (req.session as any).returnTo; // Clean up session
-      
-      // Successful authentication, redirect to original page
-      res.redirect(`${returnTo}${returnTo.includes('?') ? '&' : '?'}social=google&success=true`);
+      // Successful authentication, redirect home
+      res.redirect('/?social=google&success=true');
     }
   );
 
   // Check authentication status
   app.get('/api/auth/status', (req: Request, res: Response) => {
-    console.log("Auth status check:", {
-      isAuthenticated: req.isAuthenticated?.(),
-      hasUser: !!req.user,
-      sessionId: req.sessionID,
-      user: req.user ? { id: req.user.id, email: req.user.email } : null
-    });
-    
     if (req.isAuthenticated?.() && req.user) {
       res.json({ authenticated: true, user: req.user });
     } else {
@@ -374,26 +297,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Forgot password error:', error);
       res.status(500).json({ success: false, message: 'Failed to process forgot password request' });
-    }
-  });
-
-  // Set password for OAuth users
-  app.post('/api/auth/set-password', authenticateUser, async (req: Request, res: Response) => {
-    try {
-      const { password } = req.body;
-      const user = req.user as any;
-      
-      if (!password || password.length < 8) {
-        return res.status(400).json({ success: false, message: 'Password must be at least 8 characters long' });
-      }
-      
-      // Update user password
-      await storage.updateUserPassword(user.email, password);
-      
-      res.json({ success: true, message: 'Password set successfully' });
-    } catch (error) {
-      console.error('Set password error:', error);
-      res.status(500).json({ success: false, message: 'Failed to set password' });
     }
   });
 
@@ -703,161 +606,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ===============================
-  // MARKETPLACE ENDPOINTS
-  // ===============================
-
-  // Search listings with filters
-  app.get("/api/marketplace/search", async (req, res) => {
-    try {
-      const filters = req.query;
-      const listings = await storage.searchListings(filters);
-      res.json(listings);
-    } catch (error) {
-      console.error("Failed to search listings:", error);
-      res.status(500).json({ error: "Failed to search listings" });
-    }
-  });
-
-  // Get available makes
-  app.get("/api/marketplace/makes", async (req, res) => {
-    try {
-      const makes = await storage.getAvailableMakes();
-      res.json(makes);
-    } catch (error) {
-      console.error("Failed to get makes:", error);
-      res.status(500).json({ error: "Failed to get makes" });
-    }
-  });
-
-  // Get available models for a make
-  app.get("/api/marketplace/models", async (req, res) => {
-    try {
-      const { make } = req.query;
-      const models = await storage.getAvailableModels(make as string);
-      res.json(models);
-    } catch (error) {
-      console.error("Failed to get models:", error);
-      res.status(500).json({ error: "Failed to get models" });
-    }
-  });
-
-  // Get single listing with seller details
-  app.get("/api/marketplace/listings/:id", async (req, res) => {
-    try {
-      const listing = await storage.getListingWithSeller(parseInt(req.params.id));
-      if (!listing) {
-        return res.status(404).json({ error: "Listing not found" });
-      }
-      res.json(listing);
-    } catch (error) {
-      console.error("Failed to get listing:", error);
-      res.status(500).json({ error: "Failed to get listing" });
-    }
-  });
-
-  // Update view count
-  app.post("/api/marketplace/listings/:id/view", async (req, res) => {
-    try {
-      await storage.incrementViewCount(parseInt(req.params.id));
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Failed to update view count:", error);
-      res.status(500).json({ error: "Failed to update view count" });
-    }
-  });
-
-
-
-  // Send inquiry about listing
-  app.post("/api/marketplace/listings/:id/inquiries", async (req, res) => {
-    try {
-      const listingId = parseInt(req.params.id);
-      const inquiryData = {
-        ...req.body,
-        listingId
-      };
-      
-      const inquiry = await storage.createInquiry(inquiryData);
-      res.status(201).json(inquiry);
-    } catch (error) {
-      console.error("Failed to create inquiry:", error);
-      res.status(500).json({ error: "Failed to create inquiry" });
-    }
-  });
-
-  // Send offer for listing
-  app.post("/api/marketplace/listings/:id/offers", authenticateUser, async (req, res) => {
-    try {
-      const listingId = parseInt(req.params.id);
-      const offerData = {
-        ...req.body,
-        listingId,
-        buyerId: req.user.id
-      };
-      
-      const offer = await storage.createOffer(offerData);
-      res.status(201).json(offer);
-    } catch (error) {
-      console.error("Failed to create offer:", error);
-      res.status(500).json({ error: "Failed to create offer" });
-    }
-  });
-
-  // Toggle favorite listing
-  app.post("/api/marketplace/favorites/:id", authenticateUser, async (req, res) => {
-    try {
-      const listingId = parseInt(req.params.id);
-      await storage.addFavorite(req.user.id, listingId);
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Failed to add favorite:", error);
-      res.status(500).json({ error: "Failed to add favorite" });
-    }
-  });
-
-  app.delete("/api/marketplace/favorites/:id", authenticateUser, async (req, res) => {
-    try {
-      const listingId = parseInt(req.params.id);
-      await storage.removeFavorite(req.user.id, listingId);
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Failed to remove favorite:", error);
-      res.status(500).json({ error: "Failed to remove favorite" });
-    }
-  });
-
-  // Get heatmap data
-  app.get("/api/marketplace/heatmap", async (req, res) => {
-    try {
-      const { make, location, priceRange } = req.query;
-      const heatmapData = await storage.getMarketHeatmapData({
-        make: make as string,
-        location: location as string,
-        priceRange: priceRange as string
-      });
-      res.json(heatmapData);
-    } catch (error) {
-      console.error("Failed to get heatmap data:", error);
-      res.status(500).json({ error: "Failed to get heatmap data" });
-    }
-  });
-
-  // Get market insights
-  app.get("/api/marketplace/insights", async (req, res) => {
-    try {
-      const { make, location } = req.query;
-      const insights = await storage.getMarketInsights({
-        make: make as string,
-        location: location as string
-      });
-      res.json(insights);
-    } catch (error) {
-      console.error("Failed to get market insights:", error);
-      res.status(500).json({ error: "Failed to get market insights" });
-    }
-  });
-
   // User dashboard endpoints
   app.get("/api/user/listings", authenticateUser, async (req, res) => {
     try {
@@ -937,13 +685,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Marketplace endpoint alias for frontend
   app.post("/api/marketplace/listings", authenticateUser, async (req, res) => {
     try {
-      console.log("Received listing data:", JSON.stringify(req.body, null, 2));
-      console.log("Authenticated user:", req.user?.email, req.user?.id);
-      
       const validation = carListingSchema.safeParse(req.body);
       
       if (!validation.success) {
-        console.error("Validation failed:", JSON.stringify(validation.error.issues, null, 2));
         return res.status(400).json({ 
           error: "Invalid input data", 
           details: validation.error.issues 
@@ -979,7 +723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const vehicleData = {
           vehicleCategory: validation.data.vehicleCategory,
-          vehicleValue: validation.data.vehicleValue?.toString() || "0",
+          vehicleValue: validation.data.vehicleValue.toString(),
           engineSize: validation.data.engineSize || null,
           vehicleAge: validation.data.vehicleAge,
           isDirectImport: validation.data.isDirectImport,
@@ -2076,217 +1820,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Transfer cost calculation error:", error);
       res.status(500).json({ error: "Failed to calculate transfer cost" });
-    }
-  });
-
-  // Price indicators API endpoints
-  app.get('/api/price-indicators', async (req, res) => {
-    try {
-      const indicators = await storage.getPriceIndicators();
-      res.json(indicators);
-    } catch (error) {
-      console.error("Error fetching price indicators:", error);
-      res.status(500).json({ message: "Failed to fetch price indicators" });
-    }
-  });
-
-  // Get price indicator for specific percentage
-  app.get('/api/price-indicators/:percentage', async (req, res) => {
-    try {
-      const percentage = parseFloat(req.params.percentage);
-      if (isNaN(percentage)) {
-        return res.status(400).json({ message: "Invalid percentage value" });
-      }
-      
-      const indicator = await storage.getPriceIndicatorForPercentage(percentage);
-      if (!indicator) {
-        return res.status(404).json({ message: "No indicator found for this percentage" });
-      }
-      
-      res.json(indicator);
-    } catch (error) {
-      console.error("Error fetching price indicator:", error);
-      res.status(500).json({ message: "Failed to fetch price indicator" });
-    }
-  });
-
-  // AI Price Trend Analysis endpoint
-  app.post('/api/price-trends/analyze', async (req, res) => {
-    try {
-      const { make, model, engineSize } = req.body;
-      
-      if (!make || !model) {
-        return res.status(400).json({ message: "Make and model are required" });
-      }
-
-      const { priceAnalyzer } = await import('./ai-price-analyzer');
-      const analysis = await priceAnalyzer.analyzePriceTrends(make, model, engineSize);
-      
-      // Check if AI analysis failed due to quota and add user-friendly messaging
-      if (analysis.aiAnalysis?.summary === "AI analysis temporarily unavailable") {
-        analysis.quotaExceeded = true;
-        analysis.warningMessage = "AI analysis is currently unavailable due to high demand. Basic market analysis is still provided.";
-      }
-      
-      res.json(analysis);
-    } catch (error) {
-      console.error("Price trend analysis error:", error);
-      res.status(500).json({ 
-        message: "Failed to analyze price trends", 
-        error: error instanceof Error ? error.message : "Unknown error" 
-      });
-    }
-  });
-
-  // ===============================
-  // RECOMMENDATION ENGINE API ROUTES
-  // ===============================
-
-  // Track user browsing behavior
-  app.post('/api/recommendations/track-behavior', authenticateUser, async (req, res) => {
-    try {
-      const { userId } = req;
-      const behaviorData = req.body;
-
-      // Validate required fields
-      if (!behaviorData.actionType || !behaviorData.entityType) {
-        return res.status(400).json({ message: "Action type and entity type are required" });
-      }
-
-      await storage.trackUserBrowsingBehavior(userId, behaviorData);
-      res.json({ message: "Behavior tracked successfully" });
-    } catch (error) {
-      console.error("Error tracking behavior:", error);
-      res.status(500).json({ message: "Failed to track behavior" });
-    }
-  });
-
-  // Get user's browsing history
-  app.get('/api/recommendations/browsing-history', authenticateUser, async (req, res) => {
-    try {
-      const { userId } = req;
-      const limit = parseInt(req.query.limit as string) || 100;
-
-      const history = await storage.getUserBrowsingHistory(userId, limit);
-      res.json(history);
-    } catch (error) {
-      console.error("Error fetching browsing history:", error);
-      res.status(500).json({ message: "Failed to fetch browsing history" });
-    }
-  });
-
-  // Get user's vehicle preferences
-  app.get('/api/recommendations/preferences', authenticateUser, async (req, res) => {
-    try {
-      const { userId } = req;
-      const preferences = await storage.getUserVehiclePreferences(userId);
-      res.json(preferences);
-    } catch (error) {
-      console.error("Error fetching preferences:", error);
-      res.status(500).json({ message: "Failed to fetch preferences" });
-    }
-  });
-
-  // Analyze user preferences based on browsing history
-  app.post('/api/recommendations/analyze-preferences', authenticateUser, async (req, res) => {
-    try {
-      const { userId } = req;
-      const preferences = await storage.analyzeUserPreferences(userId);
-      res.json(preferences);
-    } catch (error) {
-      console.error("Error analyzing preferences:", error);
-      res.status(500).json({ message: "Failed to analyze preferences" });
-    }
-  });
-
-  // Generate vehicle recommendations for user
-  app.post('/api/recommendations/generate', authenticateUser, async (req, res) => {
-    try {
-      const { userId } = req;
-      const recommendations = await storage.generateVehicleRecommendations(userId);
-      res.json(recommendations);
-    } catch (error) {
-      console.error("Error generating recommendations:", error);
-      res.status(500).json({ message: "Failed to generate recommendations" });
-    }
-  });
-
-  // Get user's personalized recommendations
-  app.get('/api/recommendations/user-recommendations', authenticateUser, async (req, res) => {
-    try {
-      const { userId } = req;
-      const limit = parseInt(req.query.limit as string) || 10;
-
-      const recommendations = await storage.getUserRecommendations(userId, limit);
-      res.json(recommendations);
-    } catch (error) {
-      console.error("Error fetching recommendations:", error);
-      res.status(500).json({ message: "Failed to fetch recommendations" });
-    }
-  });
-
-  // Update recommendation engagement (viewed, clicked, favorited, etc.)
-  app.post('/api/recommendations/:recommendationId/engagement', authenticateUser, async (req, res) => {
-    try {
-      const recommendationId = parseInt(req.params.recommendationId);
-      const engagement = req.body;
-
-      if (isNaN(recommendationId)) {
-        return res.status(400).json({ message: "Invalid recommendation ID" });
-      }
-
-      await storage.updateRecommendationEngagement(recommendationId, engagement);
-      res.json({ message: "Engagement updated successfully" });
-    } catch (error) {
-      console.error("Error updating engagement:", error);
-      res.status(500).json({ message: "Failed to update engagement" });
-    }
-  });
-
-  // Get recommendation analytics (for admin use)
-  app.get('/api/recommendations/analytics', authenticateAdmin, async (req, res) => {
-    try {
-      const { userBrowsingHistorySchema } = await import("@shared/schema");
-      
-      // Get basic analytics
-      const totalBehaviors = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(userBrowsingHistory);
-      
-      const totalPreferences = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(userVehiclePreferences);
-      
-      const totalRecommendations = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(userVehicleRecommendations);
-
-      // Get engagement metrics
-      const engagementStats = await db
-        .select({
-          totalViewed: sql<number>`sum(case when ${userVehicleRecommendations.isViewed} then 1 else 0 end)`,
-          totalClicked: sql<number>`sum(case when ${userVehicleRecommendations.isClicked} then 1 else 0 end)`,
-          totalFavorited: sql<number>`sum(case when ${userVehicleRecommendations.isFavorited} then 1 else 0 end)`,
-          totalContactedSeller: sql<number>`sum(case when ${userVehicleRecommendations.isContactedSeller} then 1 else 0 end)`,
-        })
-        .from(userVehicleRecommendations);
-
-      const stats = {
-        totalBehaviors: totalBehaviors[0]?.count || 0,
-        totalPreferences: totalPreferences[0]?.count || 0,
-        totalRecommendations: totalRecommendations[0]?.count || 0,
-        engagement: engagementStats[0] || {
-          totalViewed: 0,
-          totalClicked: 0,
-          totalFavorited: 0,
-          totalContactedSeller: 0,
-        }
-      };
-
-      res.json(stats);
-    } catch (error) {
-      console.error("Error fetching analytics:", error);
-      res.status(500).json({ message: "Failed to fetch analytics" });
     }
   });
 

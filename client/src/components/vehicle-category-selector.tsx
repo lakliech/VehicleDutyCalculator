@@ -116,9 +116,13 @@ export function VehicleCategorySelector({ value, onValueChange, disabled }: Vehi
   const handleCategorySelect = (categoryValue: string) => {
     if (disabled) return;
     
-    console.log("Category selected:", categoryValue, "Current value:", value);
+    // Ensure only one category can be selected at a time
+    if (value === categoryValue) {
+      // If clicking the same category, keep it selected (don't deselect)
+      return;
+    }
     
-    // Always allow selection/reselection
+    // Set the new category
     onValueChange(categoryValue);
   };
 
@@ -126,7 +130,6 @@ export function VehicleCategorySelector({ value, onValueChange, disabled }: Vehi
     <div className="space-y-4">
       <Label className="text-base font-semibold">
         Vehicle Category <span className="text-red-500">*</span>
-        {value && <span className="ml-2 text-sm text-gray-600">Selected: {categoryOptions.find(cat => cat.value === value)?.label}</span>}
       </Label>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {categoryOptions.map((category) => (

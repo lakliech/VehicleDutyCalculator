@@ -678,7 +678,7 @@ export default function SellMyCar() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Fuel Type *</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || "petrol"}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select fuel type" />
@@ -701,7 +701,7 @@ export default function SellMyCar() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Drive Configuration *</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || "2wd"}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select drive type" />

@@ -571,15 +571,6 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
-  const photosForm = useForm<PhotosForm>({
-    resolver: zodResolver(photosSchema),
-    defaultValues: {
-      images: [],
-      videoUrl: ""
-    },
-    mode: "onChange"
-  });
-
   const onSubmit = async (data: PhotosForm) => {
     if (uploadedImages.length < 3) {
       toast({
@@ -719,8 +710,8 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
   };
 
   return (
-    <Form {...photosForm}>
-      <form onSubmit={photosForm.handleSubmit(onSubmit)} className="space-y-6">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div>
           <Label className="text-base font-medium">Vehicle Photos *</Label>
           <p className="text-sm text-gray-600 mb-4">Upload 3-10 high-quality photos. Include front, side, and interior views.</p>
@@ -768,13 +759,23 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
                 />
                 <div className="flex gap-2 flex-wrap justify-center">
                   <Label htmlFor="image-upload">
-                    <Button type="button" variant="outline" className="cursor-pointer">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="cursor-pointer"
+                      onClick={() => console.log("Choose Photos button clicked")}
+                    >
                       <Upload className="mr-2 h-4 w-4" />
                       Choose Photos
                     </Button>
                   </Label>
                   <Label htmlFor="camera-capture">
-                    <Button type="button" variant="outline" className="cursor-pointer">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="cursor-pointer"
+                      onClick={() => console.log("Take Photo button clicked")}
+                    >
                       <Camera className="mr-2 h-4 w-4" />
                       Take Photo
                     </Button>
@@ -825,7 +826,7 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
         </div>
 
         <FormField
-          control={photosForm.control}
+          control={form.control}
           name="videoUrl"
           render={({ field }) => (
             <FormItem>

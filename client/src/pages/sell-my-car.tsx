@@ -170,7 +170,7 @@ export default function SellMyCar() {
       listingForm.setValue("engineSize", vehicle.engineCapacity, { shouldValidate: true });
       
       // Map fuel type to lowercase
-      const fuelType = vehicle.fuelType?.toLowerCase() || "petrol";
+      const fuelType = vehicle.fuel?.toLowerCase() || "petrol";
       const validFuelTypes = ["petrol", "diesel", "electric", "hybrid"];
       if (validFuelTypes.includes(fuelType)) {
         listingForm.setValue("fuelType", fuelType as any, { shouldValidate: true });

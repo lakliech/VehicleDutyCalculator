@@ -545,7 +545,8 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
     defaultValues: {
       images: [],
       videoUrl: ""
-    }
+    },
+    mode: "onChange"
   });
 
   const onSubmit = async (data: PhotosForm) => {
@@ -669,6 +670,8 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
     
     // Clear the input value to allow re-selecting the same files
     event.target.value = '';
+    
+    console.log(`Upload complete. Total images now: ${uploadedImages.length + validFiles.length}`);
   };
 
   const removeImage = (index: number) => {
@@ -800,7 +803,8 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
                 <Input 
                   placeholder="https://youtube.com/watch?v=..." 
                   {...field} 
-                  value={field.value || ""}
+                  value={field.value ?? ""}
+                  onChange={(e) => field.onChange(e.target.value || "")}
                 />
               </FormControl>
               <p className="text-sm text-gray-600">Add a YouTube or video link to showcase your vehicle</p>

@@ -13,6 +13,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, desc, asc, sql, gt, like, isNull } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 export interface IStorage {
   // Existing duty calculation methods
@@ -404,12 +405,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   // User management methods implementation
-  async createUser(userData: InsertAppUser & { password: string }): Promise<AppUser> {
-    const { password, ...userDataWithoutPassword } = userData;
-    // Note: In production, hash the password before storing
+  async createUser(userData: InsertAppUser & { password?: string; oauthProvider?: string }): Promise<AppUser> {
+    const { password, oauthProvider, ...userDataWithoutPassword } = userData;
+    
+    // Hash password if provided (for form-based registration)
+    let passwordHash = null;
+    if (password) {
+      passwordHash = await bcrypt.hash(password, 10);
+    }
+    
     const [user] = await db
       .insert(appUsers)
-      .values(userDataWithoutPassword)
+      .values({
+        ...userDataWithoutPassword,
+        passwordHash,
+        oauthProvider: oauthProvider || null,
+      })
       .returning();
     
     // Create default user preferences
@@ -736,7 +747,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserPassword(email: string, newPassword: string): Promise<void> {
-    const bcrypt = require('bcrypt');
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     
     await db

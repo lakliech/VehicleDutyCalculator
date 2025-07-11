@@ -120,7 +120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           firstName: profile.name?.givenName || '',
           lastName: profile.name?.familyName || '',
           profileImageUrl: profile.photos?.[0]?.value || null,
-          password: crypto.randomBytes(32).toString('hex'), // Random password for OAuth users
+          oauthProvider: 'google',
         });
       }
       
@@ -228,8 +228,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Still send success since registration succeeded
         }
         
-        // Remove password from response
-        const { password: _, ...userWithoutPassword } = user;
+        // Remove sensitive data from response
+        const { passwordHash: _, ...userWithoutPassword } = user;
         
         res.json({ success: true, user: userWithoutPassword });
       });
@@ -249,9 +249,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
       
-      // In a real application, you would hash and compare passwords
-      // For now, we'll do a simple comparison
-      if (user.password !== password) {
+      // Check if user has a password (form-based registration)
+      if (!user.passwordHash) {
+        return res.status(401).json({ success: false, message: 'This account uses social login. Please sign in with Google.' });
+      }
+      
+      // Compare password with hash
+      const validPassword = await bcrypt.compare(password, user.passwordHash);
+      if (!validPassword) {
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
       
@@ -265,8 +270,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(500).json({ success: false, message: 'Login failed' });
         }
         
-        // Remove password from response
-        const { password: _, ...userWithoutPassword } = user;
+        // Remove sensitive data from response
+        const { passwordHash: _, ...userWithoutPassword } = user;
         
         res.json({ success: true, user: userWithoutPassword });
       });

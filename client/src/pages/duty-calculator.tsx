@@ -303,7 +303,7 @@ export default function DutyCalculator() {
 
                     {/* Heavy Machinery Selector */}
                     {form.watch("vehicleCategory") === "heavyMachinery" && (
-                      <HeavyMachinerySelector onHeavyMachinerySelect={handleHeavyMachinerySelect} />
+                      <HeavyMachinerySelector onMachinerySelect={handleHeavyMachinerySelect} />
                     )}
 
                     {/* Manual Engine Size Input - for vehicles not in database */}

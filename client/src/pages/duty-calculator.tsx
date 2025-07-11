@@ -531,9 +531,9 @@ export default function DutyCalculator() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="max-w-4xl mx-auto">
           {/* Main Form */}
-          <div className="lg:col-span-2">
+          <div>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 {/* Step 1: Category Selection */}
@@ -783,51 +783,6 @@ export default function DutyCalculator() {
               </form>
             </Form>
           </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Quick Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Info className="w-5 h-5 text-purple-600" />
-                  <span>Quick Information</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-sm text-gray-600">
-                  <p className="mb-2">
-                    <strong>Direct Import:</strong> Vehicle imported directly from abroad
-                  </p>
-                  <p className="mb-2">
-                    <strong>Previously Registered:</strong> Vehicle already registered in Kenya
-                  </p>
-                  <p>
-                    Age limits: Direct Import (8 years), Previously Registered (20 years)
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Category Information */}
-            {selectedCategory && vehicleCategoryInfo[selectedCategory as keyof typeof vehicleCategoryInfo] && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <span>{vehicleCategoryInfo[selectedCategory as keyof typeof vehicleCategoryInfo].emoji}</span>
-                    <span>{vehicleCategoryInfo[selectedCategory as keyof typeof vehicleCategoryInfo].label}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">
-                    {vehicleCategoryInfo[selectedCategory as keyof typeof vehicleCategoryInfo].description}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-
-          </div>
         </div>
 
         {/* Calculation Results */}
@@ -852,10 +807,10 @@ export default function DutyCalculator() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Summary */}
+                <div className="space-y-6">
+                  {/* Vehicle Value and Depreciation */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-4">Summary</h3>
+                    <h3 className="text-lg font-semibold mb-4">Vehicle Information</h3>
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span>Vehicle Value (CRSP):</span>
@@ -869,13 +824,10 @@ export default function DutyCalculator() {
                         <span>Customs Value:</span>
                         <span className="font-medium">{formatCurrency(calculationResult.customsValue)}</span>
                       </div>
-                      <Separator />
-                      <div className="flex justify-between text-lg font-bold">
-                        <span>Total Amount Payable:</span>
-                        <span className="text-purple-600">{formatCurrency(calculationResult.totalPayable)}</span>
-                      </div>
                     </div>
                   </div>
+
+                  <Separator />
 
                   {/* Tax Breakdown */}
                   <div>
@@ -905,6 +857,16 @@ export default function DutyCalculator() {
                           <span className="font-medium">{formatCurrency(calculationResult.idfFees)}</span>
                         </div>
                       )}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Total Duty Payable */}
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <div className="flex justify-between items-center text-xl font-bold">
+                      <span>Total Duty Payable:</span>
+                      <span className="text-purple-600">{formatCurrency(calculationResult.totalPayable)}</span>
                     </div>
                   </div>
                 </div>

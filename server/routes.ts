@@ -74,7 +74,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     secret: process.env.SESSION_SECRET || 'fallback-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Set to true in production with HTTPS
+    cookie: { 
+      secure: false, // Set to true in production with HTTPS
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'lax'
+    }
   }));
 
   // Serve test file
@@ -216,10 +221,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         password,
       });
       
-      // Remove password from response
-      const { password: _, ...userWithoutPassword } = user;
-      
-      res.json({ success: true, user: userWithoutPassword });
+      // Establish Passport session for registered user
+      req.login(user, (err) => {
+        if (err) {
+          console.error('Session login error after registration:', err);
+          // Still send success since registration succeeded
+        }
+        
+        // Remove password from response
+        const { password: _, ...userWithoutPassword } = user;
+        
+        res.json({ success: true, user: userWithoutPassword });
+      });
     } catch (error) {
       console.error('Registration error:', error);
       res.status(500).json({ success: false, message: 'Registration failed' });
@@ -242,13 +255,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
       
-      // Remove password from response
-      const { password: _, ...userWithoutPassword } = user;
-      
       // Update last login
       await storage.updateUser(user.id, { lastLoginAt: new Date() });
       
-      res.json({ success: true, user: userWithoutPassword });
+      // Establish Passport session
+      req.login(user, (err) => {
+        if (err) {
+          console.error('Session login error:', err);
+          return res.status(500).json({ success: false, message: 'Login failed' });
+        }
+        
+        // Remove password from response
+        const { password: _, ...userWithoutPassword } = user;
+        
+        res.json({ success: true, user: userWithoutPassword });
+      });
     } catch (error) {
       console.error('Login error:', error);
       res.status(500).json({ success: false, message: 'Login failed' });
@@ -340,6 +361,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Forgot password error:', error);
       res.status(500).json({ success: false, message: 'Failed to process forgot password request' });
+    }
+  });
+
+  // Set password for OAuth users
+  app.post('/api/auth/set-password', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const { password } = req.body;
+      const user = req.user as any;
+      
+      if (!password || password.length < 8) {
+        return res.status(400).json({ success: false, message: 'Password must be at least 8 characters long' });
+      }
+      
+      // Update user password
+      await storage.updateUserPassword(user.email, password);
+      
+      res.json({ success: true, message: 'Password set successfully' });
+    } catch (error) {
+      console.error('Set password error:', error);
+      res.status(500).json({ success: false, message: 'Failed to set password' });
     }
   });
 

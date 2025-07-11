@@ -21,6 +21,7 @@ import VehicleLoans from "@/pages/vehicle-loans";
 import AdminDashboard from "@/pages/admin-dashboard";
 import Dashboard from "@/pages/dashboard";
 import { ResetPassword } from "@/pages/reset-password";
+import SetPassword from "@/pages/set-password";
 import VehicleRecommendations from "@/pages/vehicle-recommendations";
 import { AuthProvider } from "@/components/auth-provider";
 import { useSessionExpiry } from "@/hooks/use-session-expiry";
@@ -55,6 +56,7 @@ function Router() {
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/reset-password" component={ResetPassword} />
+          <Route path="/set-password" component={SetPassword} />
           <Route component={NotFound} />
         </Switch>
       </main>

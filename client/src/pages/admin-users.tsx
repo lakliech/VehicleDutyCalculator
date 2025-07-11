@@ -57,7 +57,7 @@ interface AppUser {
 export default function AdminUsers() {
   const [filters, setFilters] = useState({
     search: '',
-    role: '',
+    role: 'all',
     page: 1,
     limit: 20
   });
@@ -77,7 +77,7 @@ export default function AdminUsers() {
     queryFn: () => {
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
-        if (value !== '') {
+        if (value !== '' && value !== 'all') {
           params.append(key, value.toString());
         }
       });
@@ -251,7 +251,7 @@ export default function AdminUsers() {
                 <SelectValue placeholder="Filter by role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Roles</SelectItem>
+                <SelectItem value="all">All Roles</SelectItem>
                 <SelectItem value="user">User</SelectItem>
                 <SelectItem value="editor">Editor</SelectItem>
                 <SelectItem value="moderator">Moderator</SelectItem>

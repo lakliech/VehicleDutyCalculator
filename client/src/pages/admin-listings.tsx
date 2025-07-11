@@ -66,8 +66,8 @@ interface DashboardStats {
 
 export default function AdminListings() {
   const [filters, setFilters] = useState({
-    status: '',
-    make: '',
+    status: 'all',
+    make: 'all',
     seller: '',
     flagged: false,
     sortBy: 'date',
@@ -97,7 +97,7 @@ export default function AdminListings() {
     queryFn: () => {
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
-        if (value !== '' && value !== false) {
+        if (value !== '' && value !== false && value !== 'all') {
           params.append(key, value.toString());
         }
       });
@@ -319,7 +319,7 @@ export default function AdminListings() {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="approved">Approved</SelectItem>
                 <SelectItem value="rejected">Rejected</SelectItem>
@@ -332,7 +332,7 @@ export default function AdminListings() {
                 <SelectValue placeholder="Make" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Makes</SelectItem>
+                <SelectItem value="all">All Makes</SelectItem>
                 <SelectItem value="Toyota">Toyota</SelectItem>
                 <SelectItem value="Nissan">Nissan</SelectItem>
                 <SelectItem value="Honda">Honda</SelectItem>

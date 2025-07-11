@@ -528,6 +528,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createListing(listingData: InsertCarListing & { sellerId: string }): Promise<CarListing> {
+    console.log("Creating listing with data:", listingData);
+    
     const [listing] = await db
       .insert(carListings)
       .values(listingData)

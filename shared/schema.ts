@@ -253,7 +253,7 @@ export const carListings = pgTable("car_listings", {
   driveConfiguration: text("drive_configuration"), // 2wd, 4wd, awd
   exteriorColor: text("exterior_color"),
   interiorColor: text("interior_color"),
-  condition: text("condition"), // excellent, good, fair, poor
+  condition: text("condition"), // new, locally_used, foreign_used
   price: decimal("price", { precision: 12, scale: 2 }).notNull(),
   negotiable: boolean("negotiable").default(true),
   description: text("description"),
@@ -292,7 +292,7 @@ export const carValuations = pgTable("car_valuations", {
   year: integer("year").notNull(),
   engineSize: integer("engine_size"), // in cc
   mileage: integer("mileage"), // in km
-  condition: text("condition").notNull(), // excellent, good, fair, poor
+  condition: text("condition").notNull(), // new, locally_used, foreign_used
   estimatedValue: decimal("estimated_value", { precision: 12, scale: 2 }),
   sellerName: text("seller_name").notNull(),
   sellerPhone: varchar("seller_phone", { length: 20 }).notNull(),

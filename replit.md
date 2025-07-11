@@ -147,6 +147,29 @@ The system implements updated depreciation rates:
 - Development: `npm run dev` - starts server with hot reload
 - Production: `npm run build && npm start` - builds and starts production server
 
+## Recent Refactoring (January 11, 2025)
+
+### Sell My Car Module Refactoring
+- Broke down 1400+ line component into smaller, reusable components:
+  - `ListingForm`: Handles all form fields and validation logic
+  - `ImageUpload`: Manages photo uploads with drag-and-drop functionality
+  - `AuthDialog`: Reusable authentication dialogs for login/registration
+- Fixed critical bugs:
+  - Removed infinite reload loops caused by `window.location.reload()`
+  - Fixed property access issues with VehicleReference (uses `fuelType` not `fuel`)
+  - Corrected form watch syntax that was causing crashes
+- Improved code organization and maintainability
+
+### Home Page Refactoring
+- Separated home page into modular components:
+  - `ToolCard`: Reusable card component for tool display
+  - `ContactSection`: WhatsApp contact integration component
+  - `StatsSection`: Platform statistics display
+  - `tools-data`: Centralized tools configuration
+  - `oauth-handler`: Extracted OAuth handling logic
+- Reduced home page from 205 lines to ~90 lines
+- Improved component reusability and testability
+
 ## Changelog
 
 Changelog:

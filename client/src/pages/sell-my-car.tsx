@@ -337,6 +337,16 @@ export default function SellMyCar() {
       return;
     }
 
+    // Ensure required vehicle fields are set
+    if (!selectedVehicle) {
+      toast({
+        title: "Vehicle Required",
+        description: "Please select a vehicle from the database.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Reorder images so main image is first
     const reorderedImages = uploadedImages.length > 0 ? [
       uploadedImages[mainImageIndex], // Main image first
@@ -911,6 +921,13 @@ export default function SellMyCar() {
                       type="submit" 
                       className="w-full bg-purple-600 hover:bg-purple-700 text-lg py-6"
                       disabled={listingMutation.isPending}
+                      onClick={() => {
+                        console.log("Submit button clicked");
+                        console.log("Form is valid:", listingForm.formState.isValid);
+                        console.log("Form errors:", listingForm.formState.errors);
+                        console.log("Selected vehicle:", selectedVehicle);
+                        console.log("All form values:", listingForm.getValues());
+                      }}
                     >
                       {listingMutation.isPending 
                         ? "Creating Listing..." 

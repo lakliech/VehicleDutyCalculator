@@ -684,6 +684,12 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
       setUploadedImages(prev => {
         const updated = [...prev, ...newImages];
         console.log(`Updated images state with ${updated.length} total images`);
+        
+        // Update form field with array of image URLs for validation
+        const imageUrls = updated.map(img => img.url);
+        form.setValue('images', imageUrls);
+        console.log("Updated form images field with", imageUrls.length, "URLs");
+        
         return updated;
       });
       
@@ -707,7 +713,14 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
     setUploadedImages(prev => {
       // Revoke URL to prevent memory leaks
       URL.revokeObjectURL(prev[index].url);
-      return prev.filter((_, i) => i !== index);
+      const updated = prev.filter((_, i) => i !== index);
+      
+      // Update form field with remaining image URLs
+      const imageUrls = updated.map(img => img.url);
+      form.setValue('images', imageUrls);
+      console.log("Updated form images field after removal, now has", imageUrls.length, "URLs");
+      
+      return updated;
     });
     
     toast({

@@ -1,0 +1,224 @@
+Here is a comprehensive requirements specification for the Admin-side Listing Management module of a "Sell My Car" classified platform. This system should empower administrators to review, moderate, edit, approve, analyze, and manage listings and users effectively while maintaining a high standard of platform quality and integrity.
+
+✅ Functional Requirements
+1. Admin Dashboard Overview
+Listings Summary Widgets:
+
+Total Listings
+
+Pending Approval
+
+Approved Listings
+
+Rejected Listings
+
+Flagged Listings
+
+Quick Filters:
+
+New this week
+
+Awaiting review
+
+Flagged by users
+
+Reported for fraud
+
+Activity Feed:
+
+Recent listings
+
+Edits made
+
+User interactions
+
+System Notifications:
+
+Alerts for flagged content, bulk uploads, abuse reports
+
+2. Listing Management Panel
+a. View Listings
+Search by:
+
+Make/Model
+
+Seller Name / Phone / Email
+
+Listing ID
+
+Status (Pending, Approved, Rejected, Sold, Flagged)
+
+County/City
+
+Sort by:
+
+Date Created / Price / Views / Number of reports
+
+Display key listing info:
+
+Thumbnail image
+
+Title, Price, Status
+
+Seller details
+
+Date listed
+
+b. Approve / Reject Listings
+Bulk or individual approval
+
+Rejection with reason (template or custom)
+
+Send email/SMS notification to user
+
+c. Edit Listings (Inline or Full)
+Modify:
+
+Title, description
+
+Price, condition
+
+Media (delete/replace images)
+
+Track who made the edit (admin logs)
+
+d. Flag/Unflag Listings
+Manual flag by admin
+
+View flag reason & reporter details
+
+Take action: warn seller, disable listing, ban user
+
+e. Mark as Sold or Inactive
+Manually update listing status
+
+Auto-deactivate expired listings (based on listing duration)
+
+3. Listing Analytics
+View metrics per listing:
+
+Total views
+
+Number of inquiries
+
+Time on site
+
+Engagement source (Organic, Paid, Referral)
+
+Export listing data to CSV/Excel
+
+4. Moderation Tools
+AI or keyword-based content filtering
+
+Auto-reject listings with:
+
+Offensive language
+
+Repetitive spam
+
+Unclear images
+
+Approve with caution flag (requires follow-up)
+
+Integration with fraud-check APIs (optional)
+
+5. User & Dealer Controls
+View seller history:
+
+Number of listings
+
+Listings flagged
+
+Verified identity status
+
+Suspend or ban seller (temporary or permanent)
+
+Assign warning scores per offense
+
+Manage dealership listings separately (optional tier)
+
+6. Reporting & Audit Trail
+Audit log of all admin actions:
+
+Who did what, when, and from where (IP/logins)
+
+Listing lifecycle log:
+
+Created > Edited > Approved > Flagged > Resolved
+
+Downloadable monthly report:
+
+Number of listings approved, rejected
+
+Top flagged cars/models/locations
+
+7. Support & Communication
+Internal Notes Section per listing
+
+For admin communication
+
+Template Response Generator
+
+Approve/Reject/Warning messages with auto-fill
+
+Escalation Workflow
+
+Assign listing to senior moderator
+
+Mark case as under investigation
+
+8. Bulk Operations
+Bulk edit status (approve, reject, archive)
+
+Bulk export listings
+
+Bulk delete spam/inactive listings
+
+🧠 Non-Functional Requirements
+1. Usability
+Clean, minimal UI with table/grid view
+
+Responsive interface (mobile/tablet accessible)
+
+Keyboard shortcuts for power users
+
+2. Performance
+Admin pages must load within 2 seconds
+
+Paginated listing view with lazy loading
+
+Background batch processing for bulk actions
+
+3. Security
+Role-based access control:
+
+Super Admin, Moderator, Analyst, Support
+
+Secure login with MFA
+
+Logging & alerts for suspicious admin actions
+
+4. Scalability
+Should support managing 100k+ listings efficiently
+
+Asynchronous moderation queue (optional)
+
+🚀 Optional Features
+Automated Moderation Queue (AI + scoring system)
+
+Image Recognition Integration:
+
+Detect logos, plates, poor-quality photos
+
+Auto Insights:
+
+Cars that are over/underpriced vs market average
+
+Heatmap Visualization:
+
+Listings per region/city
+
+Admin Notifications:
+
+Slack/Email alerts for flagged items or fraud spikes
+

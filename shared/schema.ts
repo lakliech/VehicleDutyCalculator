@@ -533,6 +533,115 @@ export const adminLoginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+// Admin audit log table for tracking all admin actions
+export const adminAuditLog = pgTable("admin_audit_log", {
+  id: serial("id").primaryKey(),
+  adminId: varchar("admin_id", { length: 255 }).notNull(),
+  adminUsername: varchar("admin_username", { length: 100 }).notNull(),
+  action: varchar("action", { length: 100 }).notNull(), // 'approve_listing', 'reject_listing', 'edit_listing', 'ban_user', etc.
+  entityType: varchar("entity_type", { length: 50 }).notNull(), // 'listing', 'user', 'admin', etc.
+  entityId: varchar("entity_id", { length: 255 }).notNull(),
+  details: text("details"), // JSON string with action details
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
+// Listing flags table for user reports and admin flags
+export const listingFlags = pgTable("listing_flags", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  reporterId: varchar("reporter_id", { length: 255 }), // null if admin flag
+  reporterEmail: varchar("reporter_email", { length: 255 }),
+  flagType: varchar("flag_type", { length: 50 }).notNull(), // 'spam', 'fraud', 'inappropriate', 'duplicate', etc.
+  reason: text("reason").notNull(),
+  status: varchar("status", { length: 20 }).default("pending").notNull(), // 'pending', 'resolved', 'dismissed'
+  reviewedBy: varchar("reviewed_by", { length: 255 }),
+  reviewedAt: text("reviewed_at"),
+  resolution: text("resolution"),
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
+// Listing analytics table for tracking views and interactions
+export const listingAnalytics = pgTable("listing_analytics", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  viewCount: integer("view_count").default(0).notNull(),
+  inquiryCount: integer("inquiry_count").default(0).notNull(),
+  favoriteCount: integer("favorite_count").default(0).notNull(),
+  shareCount: integer("share_count").default(0).notNull(),
+  lastViewedAt: text("last_viewed_at"),
+  avgTimeOnListing: integer("avg_time_on_listing"), // in seconds
+  trafficSource: varchar("traffic_source", { length: 50 }), // 'organic', 'paid', 'referral', 'direct'
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
+// Admin notes table for internal communication about listings
+export const adminNotes = pgTable("admin_notes", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  adminId: varchar("admin_id", { length: 255 }).notNull(),
+  adminUsername: varchar("admin_username", { length: 100 }).notNull(),
+  note: text("note").notNull(),
+  isInternal: boolean("is_internal").default(true).notNull(), // true for admin-only, false for visible to seller
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
+// User warnings table for tracking seller behavior
+export const userWarnings = pgTable("user_warnings", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  adminId: varchar("admin_id", { length: 255 }).notNull(),
+  warningType: varchar("warning_type", { length: 50 }).notNull(), // 'spam', 'fraud', 'policy_violation', etc.
+  severity: varchar("severity", { length: 20 }).notNull(), // 'low', 'medium', 'high', 'critical'
+  description: text("description").notNull(),
+  relatedListingId: integer("related_listing_id").references(() => carListings.id),
+  acknowledged: boolean("acknowledged").default(false).notNull(),
+  acknowledgedAt: text("acknowledged_at"),
+  expiresAt: text("expires_at"), // null for permanent warnings
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
+// Admin templates table for standard responses
+export const adminTemplates = pgTable("admin_templates", {
+  id: serial("id").primaryKey(),
+  templateType: varchar("template_type", { length: 50 }).notNull(), // 'approval', 'rejection', 'warning', etc.
+  title: varchar("title", { length: 200 }).notNull(),
+  subject: varchar("subject", { length: 200 }).notNull(),
+  content: text("content").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  usageCount: integer("usage_count").default(0).notNull(),
+  createdBy: varchar("created_by", { length: 255 }).notNull(),
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
+// Insert and select types for new admin management tables
+export const insertAdminAuditLogSchema = createInsertSchema(adminAuditLog);
+export type InsertAdminAuditLog = typeof adminAuditLog.$inferInsert;
+export type AdminAuditLog = typeof adminAuditLog.$inferSelect;
+
+export const insertListingFlagSchema = createInsertSchema(listingFlags);
+export type InsertListingFlag = typeof listingFlags.$inferInsert;
+export type ListingFlag = typeof listingFlags.$inferSelect;
+
+export const insertListingAnalyticsSchema = createInsertSchema(listingAnalytics);
+export type InsertListingAnalytics = typeof listingAnalytics.$inferInsert;
+export type ListingAnalytics = typeof listingAnalytics.$inferSelect;
+
+export const insertAdminNoteSchema = createInsertSchema(adminNotes);
+export type InsertAdminNote = typeof adminNotes.$inferInsert;
+export type AdminNote = typeof adminNotes.$inferSelect;
+
+export const insertUserWarningSchema = createInsertSchema(userWarnings);
+export type InsertUserWarning = typeof userWarnings.$inferInsert;
+export type UserWarning = typeof userWarnings.$inferSelect;
+
+export const insertAdminTemplateSchema = createInsertSchema(adminTemplates);
+export type InsertAdminTemplate = typeof adminTemplates.$inferInsert;
+export type AdminTemplate = typeof adminTemplates.$inferSelect;
+
 export type AdminCredential = typeof adminCredentials.$inferSelect;
 export type InsertAdminCredential = z.infer<typeof adminCredentialSchema>;
 export type AdminLogin = z.infer<typeof adminLoginSchema>;

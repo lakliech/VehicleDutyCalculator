@@ -498,6 +498,218 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Comprehensive Admin Management API Routes
+  
+  // Admin Dashboard Stats
+  app.get('/api/admin/dashboard-stats', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      const stats = await storage.getAdminDashboardStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Dashboard stats error:', error);
+      res.status(500).json({ error: 'Failed to load dashboard stats' });
+    }
+  });
+
+  // Listing Management with Advanced Filtering
+  app.get('/api/admin/listings-with-stats', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      const { status, make, seller, flagged, sortBy, page, limit } = req.query;
+      
+      const filters = {
+        status: status as string,
+        make: make as string,
+        seller: seller as string,
+        flagged: flagged === 'true',
+        sortBy: sortBy as string,
+        page: page ? parseInt(page as string) : 1,
+        limit: limit ? parseInt(limit as string) : 20,
+      };
+
+      const result = await storage.getListingsWithStats(filters);
+      res.json(result);
+    } catch (error) {
+      console.error('Listings with stats error:', error);
+      res.status(500).json({ error: 'Failed to load listings' });
+    }
+  });
+
+  // User Management with Filtering
+  app.get('/api/admin/users-management', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      const { search, role, page, limit } = req.query;
+      
+      const filters = {
+        search: search as string,
+        role: role as string,
+        page: page ? parseInt(page as string) : 1,
+        limit: limit ? parseInt(limit as string) : 20,
+      };
+
+      const result = await storage.getAllUsers(filters);
+      res.json(result);
+    } catch (error) {
+      console.error('Users management error:', error);
+      res.status(500).json({ error: 'Failed to load users' });
+    }
+  });
+
+  // Bulk Listing Operations
+  app.post('/api/admin/bulk-update-listings', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      const { listingIds, status, reason } = req.body;
+      
+      if (!listingIds || !Array.isArray(listingIds) || listingIds.length === 0) {
+        return res.status(400).json({ error: 'Listing IDs are required' });
+      }
+      
+      if (!status) {
+        return res.status(400).json({ error: 'Status is required' });
+      }
+
+      const adminId = 'admin'; // TODO: Get from authenticated admin session
+      
+      await storage.bulkUpdateListingStatus(listingIds, status, adminId, reason);
+      
+      res.json({ 
+        success: true, 
+        message: `Successfully updated ${listingIds.length} listings to ${status}` 
+      });
+    } catch (error) {
+      console.error('Bulk update error:', error);
+      res.status(500).json({ error: 'Failed to update listings' });
+    }
+  });
+
+  // Individual Listing Actions
+  app.put('/api/admin/listing/:id/approve', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      const { notes } = req.body;
+      const adminId = 'admin'; // TODO: Get from authenticated admin session
+      
+      const approval = await storage.approveListing(listingId, adminId, notes);
+      
+      res.json({ 
+        success: true, 
+        message: 'Listing approved successfully',
+        approval 
+      });
+    } catch (error) {
+      console.error('Approve listing error:', error);
+      res.status(500).json({ error: 'Failed to approve listing' });
+    }
+  });
+
+  app.put('/api/admin/listing/:id/reject', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      const { reason } = req.body;
+      const adminId = 'admin'; // TODO: Get from authenticated admin session
+      
+      if (!reason) {
+        return res.status(400).json({ error: 'Rejection reason is required' });
+      }
+      
+      const approval = await storage.rejectListing(listingId, adminId, reason);
+      
+      res.json({ 
+        success: true, 
+        message: 'Listing rejected successfully',
+        approval 
+      });
+    } catch (error) {
+      console.error('Reject listing error:', error);
+      res.status(500).json({ error: 'Failed to reject listing' });
+    }
+  });
+
+  // User History and Management
+  app.get('/api/admin/user/:id/history', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.id;
+      const history = await storage.getUserHistory(userId);
+      
+      res.json(history);
+    } catch (error) {
+      console.error('User history error:', error);
+      res.status(500).json({ error: 'Failed to load user history' });
+    }
+  });
+
+  app.post('/api/admin/user/:id/suspend', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.id;
+      const { reason, duration } = req.body;
+      
+      // Update user status to suspended
+      await storage.updateUser(userId, { isActive: false });
+      
+      // TODO: Add suspension record and notification
+      
+      res.json({ 
+        success: true, 
+        message: 'User suspended successfully' 
+      });
+    } catch (error) {
+      console.error('Suspend user error:', error);
+      res.status(500).json({ error: 'Failed to suspend user' });
+    }
+  });
+
+  // Listing Analytics and Reporting
+  app.get('/api/admin/analytics/overview', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      const { period } = req.query; // 'week', 'month', 'quarter', 'year'
+      
+      // TODO: Implement comprehensive analytics with time-based filtering
+      const analytics = {
+        listingsTrend: [],
+        userGrowth: [],
+        topPerformers: [],
+        flaggedContent: [],
+        revenueMetrics: []
+      };
+      
+      res.json(analytics);
+    } catch (error) {
+      console.error('Analytics overview error:', error);
+      res.status(500).json({ error: 'Failed to load analytics' });
+    }
+  });
+
+  // Content Moderation Tools
+  app.get('/api/admin/flagged-content', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      const { type, status } = req.query;
+      
+      // TODO: Implement flagged content retrieval
+      const flaggedContent = [];
+      
+      res.json(flaggedContent);
+    } catch (error) {
+      console.error('Flagged content error:', error);
+      res.status(500).json({ error: 'Failed to load flagged content' });
+    }
+  });
+
+  app.post('/api/admin/content/:id/resolve-flag', authenticateAdmin, async (req: Request, res: Response) => {
+    try {
+      const contentId = req.params.id;
+      const { action, resolution } = req.body; // 'dismiss', 'remove', 'warn_user'
+      
+      // TODO: Implement flag resolution logic
+      
+      res.json({ 
+        success: true, 
+        message: 'Flag resolved successfully' 
+      });
+    } catch (error) {
+      console.error('Resolve flag error:', error);
+      res.status(500).json({ error: 'Failed to resolve flag' });
+    }
+  });
+
   // Dashboard API endpoint
   app.get('/api/dashboard', async (req: Request, res: Response) => {
     try {

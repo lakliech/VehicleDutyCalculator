@@ -18,6 +18,8 @@ import VehicleLoans from "@/pages/vehicle-loans";
 import AIAdvisor from "@/pages/ai-advisor";
 import PriceTrends from "@/pages/price-trends";
 import AdminDashboard from "@/pages/admin-dashboard";
+import AdminListings from "@/pages/admin-listings";
+import AdminUsers from "@/pages/admin-users";
 import Dashboard from "@/pages/dashboard";
 import { ResetPassword } from "@/pages/reset-password";
 import { AuthProvider } from "@/components/auth-provider";
@@ -42,6 +44,8 @@ function Router() {
           <Route path="/price-heatmap" component={PriceTrends} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/admin" component={AdminDashboard} />
+          <Route path="/admin/listings" component={AdminListings} />
+          <Route path="/admin/users" component={AdminUsers} />
           <Route path="/reset-password" component={ResetPassword} />
           <Route component={NotFound} />
         </Switch>

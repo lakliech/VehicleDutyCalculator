@@ -1,16 +1,19 @@
 import { 
   vehicles, calculations, depreciationRates, taxRates, processingFees, vehicleCategoryRules, registrationFees, trailers, heavyMachinery,
   userRoles, appUsers, userSessions, userActivities, listingApprovals, userPreferences, userStats, carListings, passwordResetTokens,
-  adminCredentials,
+  adminCredentials, adminAuditLog, listingFlags, listingAnalytics, adminNotes, userWarnings, adminTemplates,
   type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, 
   type DepreciationRate, type TaxRate, type ProcessingFee, type VehicleCategoryRule, type RegistrationFee, 
   type Trailer, type HeavyMachinery, type UserRole, type AppUser, type InsertAppUser, type InsertUserRole,
   type CarListing, type InsertCarListing, type ListingApproval, type InsertListingApproval,
   type UserActivity, type UserStats, type UserPreferences, type PasswordResetToken,
-  type AdminCredential, type InsertAdminCredential
+  type AdminCredential, type InsertAdminCredential, type AdminAuditLog, type InsertAdminAuditLog,
+  type ListingFlag, type InsertListingFlag, type ListingAnalytics, type InsertListingAnalytics,
+  type AdminNote, type InsertAdminNote, type UserWarning, type InsertUserWarning,
+  type AdminTemplate, type InsertAdminTemplate
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, or, desc, sql, gt } from "drizzle-orm";
+import { eq, and, gte, lte, or, desc, sql, gt, inArray } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 export interface IStorage {
@@ -71,6 +74,13 @@ export interface IStorage {
   updateAdminLastLogin(id: number): Promise<void>;
   createAdmin(adminData: InsertAdminCredential & { password: string }): Promise<AdminCredential>;
   updateAdminPassword(id: number, newPassword: string): Promise<void>;
+  
+  // Admin management methods for listing moderation
+  getListingsWithStats(filters?: { status?: string; make?: string; seller?: string; flagged?: boolean; sortBy?: string; page?: number; limit?: number }): Promise<{ listings: any[]; total: number; }>;
+  getAllUsers(filters?: { search?: string; role?: string; page?: number; limit?: number }): Promise<{ users: any[]; total: number; }>;
+  getAdminDashboardStats(): Promise<{ totalListings: number; pendingApproval: number; approvedListings: number; rejectedListings: number; flaggedListings: number; }>;
+  bulkUpdateListingStatus(listingIds: number[], status: string, adminId: string, reason?: string): Promise<void>;
+  getUserHistory(userId: string): Promise<{ listings: CarListing[]; warnings: any[]; activities: UserActivity[]; }>;
   
   // Dashboard recommendations method
   generateUserRecommendations(userId: string): Promise<Array<{
@@ -925,6 +935,246 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date()
       })
       .where(eq(adminCredentials.id, id));
+  }
+
+  // Admin management methods implementation
+  async getListingsWithStats(filters?: { 
+    status?: string; 
+    make?: string; 
+    seller?: string; 
+    flagged?: boolean; 
+    sortBy?: string; 
+    page?: number; 
+    limit?: number; 
+  }): Promise<{ listings: any[]; total: number; }> {
+    const page = filters?.page || 1;
+    const limit = filters?.limit || 20;
+    const offset = (page - 1) * limit;
+
+    let whereConditions = [];
+    
+    if (filters?.status) {
+      whereConditions.push(eq(carListings.status, filters.status));
+    }
+    
+    if (filters?.make) {
+      whereConditions.push(eq(carListings.make, filters.make));
+    }
+    
+    if (filters?.seller) {
+      whereConditions.push(
+        or(
+          sql`${appUsers.firstName} ILIKE ${`%${filters.seller}%`}`,
+          sql`${appUsers.lastName} ILIKE ${`%${filters.seller}%`}`,
+          sql`${appUsers.email} ILIKE ${`%${filters.seller}%`}`,
+          sql`${carListings.phoneNumber} ILIKE ${`%${filters.seller}%`}`
+        )
+      );
+    }
+
+    // Get listings with seller info and approval status
+    const listingsQuery = db
+      .select({
+        listing: carListings,
+        seller: {
+          id: appUsers.id,
+          firstName: appUsers.firstName,
+          lastName: appUsers.lastName,
+          email: appUsers.email,
+        },
+        approval: listingApprovals,
+        flagCount: sql<number>`(SELECT COUNT(*) FROM ${listingFlags} WHERE ${listingFlags.listingId} = ${carListings.id} AND ${listingFlags.status} = 'pending')`,
+        viewCount: sql<number>`COALESCE((SELECT ${listingAnalytics.viewCount} FROM ${listingAnalytics} WHERE ${listingAnalytics.listingId} = ${carListings.id}), 0)`,
+        inquiryCount: sql<number>`COALESCE((SELECT ${listingAnalytics.inquiryCount} FROM ${listingAnalytics} WHERE ${listingAnalytics.listingId} = ${carListings.id}), 0)`,
+      })
+      .from(carListings)
+      .leftJoin(appUsers, eq(carListings.sellerId, appUsers.id))
+      .leftJoin(listingApprovals, eq(listingApprovals.listingId, carListings.id))
+      .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
+      .limit(limit)
+      .offset(offset);
+
+    // Add sorting
+    if (filters?.sortBy) {
+      switch (filters.sortBy) {
+        case 'price':
+          listingsQuery.orderBy(desc(carListings.price));
+          break;
+        case 'views':
+          listingsQuery.orderBy(desc(sql`COALESCE((SELECT ${listingAnalytics.viewCount} FROM ${listingAnalytics} WHERE ${listingAnalytics.listingId} = ${carListings.id}), 0)`));
+          break;
+        case 'date':
+          listingsQuery.orderBy(desc(carListings.createdAt));
+          break;
+        default:
+          listingsQuery.orderBy(desc(carListings.createdAt));
+      }
+    } else {
+      listingsQuery.orderBy(desc(carListings.createdAt));
+    }
+
+    const listings = await listingsQuery;
+
+    // Get total count
+    const totalQuery = db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(carListings)
+      .leftJoin(appUsers, eq(carListings.sellerId, appUsers.id))
+      .where(whereConditions.length > 0 ? and(...whereConditions) : undefined);
+
+    const [{ count: total }] = await totalQuery;
+
+    return { listings, total };
+  }
+
+  async getAllUsers(filters?: { 
+    search?: string; 
+    role?: string; 
+    page?: number; 
+    limit?: number; 
+  }): Promise<{ users: any[]; total: number; }> {
+    const page = filters?.page || 1;
+    const limit = filters?.limit || 20;
+    const offset = (page - 1) * limit;
+
+    let whereConditions = [];
+    
+    if (filters?.search) {
+      whereConditions.push(
+        or(
+          sql`${appUsers.firstName} ILIKE ${`%${filters.search}%`}`,
+          sql`${appUsers.lastName} ILIKE ${`%${filters.search}%`}`,
+          sql`${appUsers.email} ILIKE ${`%${filters.search}%`}`
+        )
+      );
+    }
+    
+    if (filters?.role) {
+      whereConditions.push(eq(userRoles.name, filters.role));
+    }
+
+    const usersQuery = db
+      .select({
+        user: appUsers,
+        role: userRoles,
+        stats: userStats,
+        warningCount: sql<number>`(SELECT COUNT(*) FROM ${userWarnings} WHERE ${userWarnings.userId} = ${appUsers.id} AND ${userWarnings.acknowledged} = false)`,
+        listingCount: sql<number>`(SELECT COUNT(*) FROM ${carListings} WHERE ${carListings.sellerId} = ${appUsers.id})`,
+      })
+      .from(appUsers)
+      .leftJoin(userRoles, eq(appUsers.roleId, userRoles.id))
+      .leftJoin(userStats, eq(userStats.userId, appUsers.id))
+      .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
+      .orderBy(desc(appUsers.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const users = await usersQuery;
+
+    // Get total count
+    const totalQuery = db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(appUsers)
+      .leftJoin(userRoles, eq(appUsers.roleId, userRoles.id))
+      .where(whereConditions.length > 0 ? and(...whereConditions) : undefined);
+
+    const [{ count: total }] = await totalQuery;
+
+    return { users, total };
+  }
+
+  async getAdminDashboardStats(): Promise<{ 
+    totalListings: number; 
+    pendingApproval: number; 
+    approvedListings: number; 
+    rejectedListings: number; 
+    flaggedListings: number; 
+  }> {
+    const [
+      totalListings,
+      pendingApproval,
+      approvedListings,
+      rejectedListings,
+      flaggedListings
+    ] = await Promise.all([
+      db.select({ count: sql<number>`COUNT(*)` }).from(carListings),
+      db.select({ count: sql<number>`COUNT(*)` }).from(carListings).where(eq(carListings.status, 'pending')),
+      db.select({ count: sql<number>`COUNT(*)` }).from(carListings).where(eq(carListings.status, 'approved')),
+      db.select({ count: sql<number>`COUNT(*)` }).from(carListings).where(eq(carListings.status, 'rejected')),
+      db.select({ count: sql<number>`COUNT(DISTINCT ${listingFlags.listingId})` }).from(listingFlags).where(eq(listingFlags.status, 'pending'))
+    ]);
+
+    return {
+      totalListings: totalListings[0].count,
+      pendingApproval: pendingApproval[0].count,
+      approvedListings: approvedListings[0].count,
+      rejectedListings: rejectedListings[0].count,
+      flaggedListings: flaggedListings[0].count,
+    };
+  }
+
+  async bulkUpdateListingStatus(
+    listingIds: number[], 
+    status: string, 
+    adminId: string, 
+    reason?: string
+  ): Promise<void> {
+    await db.transaction(async (tx) => {
+      // Update listings
+      await tx
+        .update(carListings)
+        .set({ status })
+        .where(inArray(carListings.id, listingIds));
+
+      // Log admin actions
+      for (const listingId of listingIds) {
+        await tx.insert(adminAuditLog).values({
+          adminId,
+          adminUsername: 'admin', // TODO: Get actual admin username
+          action: `bulk_${status}_listing`,
+          entityType: 'listing',
+          entityId: listingId.toString(),
+          details: JSON.stringify({ reason, bulkOperation: true }),
+        });
+      }
+
+      // Update approvals if needed
+      if (status === 'approved' || status === 'rejected') {
+        for (const listingId of listingIds) {
+          await tx
+            .insert(listingApprovals)
+            .values({
+              listingId,
+              reviewerId: adminId,
+              status,
+              reviewNotes: reason,
+              reviewedAt: new Date().toISOString(),
+            })
+            .onConflictDoUpdate({
+              target: [listingApprovals.listingId],
+              set: {
+                status,
+                reviewNotes: reason,
+                reviewedAt: new Date().toISOString(),
+              }
+            });
+        }
+      }
+    });
+  }
+
+  async getUserHistory(userId: string): Promise<{ 
+    listings: CarListing[]; 
+    warnings: any[]; 
+    activities: UserActivity[]; 
+  }> {
+    const [listings, warnings, activities] = await Promise.all([
+      db.select().from(carListings).where(eq(carListings.sellerId, userId)).orderBy(desc(carListings.createdAt)),
+      db.select().from(userWarnings).where(eq(userWarnings.userId, userId)).orderBy(desc(userWarnings.createdAt)),
+      db.select().from(userActivities).where(eq(userActivities.userId, userId)).orderBy(desc(userActivities.createdAt)).limit(50)
+    ]);
+
+    return { listings, warnings, activities };
   }
 }
 

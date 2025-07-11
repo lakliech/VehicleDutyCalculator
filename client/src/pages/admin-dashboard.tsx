@@ -550,12 +550,96 @@ function AuthenticatedAdminDashboard() {
 
           {/* Listings Management Tab */}
           <TabsContent value="listings">
-            <ListingsManagementTab />
+            <Card>
+              <CardHeader>
+                <CardTitle>Comprehensive Listing Management</CardTitle>
+                <CardDescription>
+                  Access the full listing management system with advanced filtering, bulk operations, and detailed analytics.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-gray-600">
+                    The comprehensive listing management system provides advanced features for moderating and managing vehicle listings with detailed analytics and bulk operations.
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    <Link href="/admin/listings">
+                      <Button className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700">
+                        <Car className="w-4 h-4 mr-2" />
+                        Open Listing Management
+                      </Button>
+                    </Link>
+                    <Link href="/admin/users">
+                      <Button variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">
+                        <Users className="w-4 h-4 mr-2" />
+                        User Management
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div className="p-4 bg-purple-50 rounded-lg">
+                      <h4 className="font-semibold text-purple-900">Advanced Filtering</h4>
+                      <p className="text-sm text-purple-700">Filter by status, make, seller, flagged content, and more</p>
+                    </div>
+                    <div className="p-4 bg-cyan-50 rounded-lg">
+                      <h4 className="font-semibold text-cyan-900">Bulk Operations</h4>
+                      <p className="text-sm text-cyan-700">Approve, reject, or modify multiple listings at once</p>
+                    </div>
+                    <div className="p-4 bg-pink-50 rounded-lg">
+                      <h4 className="font-semibold text-pink-900">Analytics Dashboard</h4>
+                      <p className="text-sm text-pink-700">View performance metrics and user activity insights</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Users Management Tab */}
           <TabsContent value="users">
-            <UsersManagementTab />
+            <Card>
+              <CardHeader>
+                <CardTitle>Comprehensive User Management</CardTitle>
+                <CardDescription>
+                  Manage users, roles, permissions, and monitor user activity with advanced moderation tools.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-gray-600">
+                    The comprehensive user management system provides detailed user oversight, role management, and activity monitoring with suspension and warning capabilities.
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    <Link href="/admin/users">
+                      <Button className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700">
+                        <Users className="w-4 h-4 mr-2" />
+                        Open User Management
+                      </Button>
+                    </Link>
+                    <Link href="/admin/listings">
+                      <Button variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">
+                        <Car className="w-4 h-4 mr-2" />
+                        Listing Management
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div className="p-4 bg-purple-50 rounded-lg">
+                      <h4 className="font-semibold text-purple-900">User Oversight</h4>
+                      <p className="text-sm text-purple-700">Monitor user activity, listings, and engagement metrics</p>
+                    </div>
+                    <div className="p-4 bg-cyan-50 rounded-lg">
+                      <h4 className="font-semibold text-cyan-900">Role Management</h4>
+                      <p className="text-sm text-cyan-700">Assign roles, permissions, and manage user access levels</p>
+                    </div>
+                    <div className="p-4 bg-pink-50 rounded-lg">
+                      <h4 className="font-semibold text-pink-900">Moderation Tools</h4>
+                      <p className="text-sm text-pink-700">Suspend users, issue warnings, and review user history</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Vehicle References Tab */}

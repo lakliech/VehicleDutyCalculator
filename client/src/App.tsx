@@ -39,6 +39,7 @@ function Router() {
           <Route path="/vehicle-loans" component={VehicleLoans} />
           <Route path="/ai-advisor" component={AIAdvisor} />
           <Route path="/price-trends" component={PriceTrends} />
+          <Route path="/price-heatmap" component={PriceTrends} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/reset-password" component={ResetPassword} />

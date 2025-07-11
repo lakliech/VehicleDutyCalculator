@@ -2064,9 +2064,9 @@ Budget ranges typically: Under 1M (budget cars), 1-3M (mid-range), 3-5M (premium
 
 Always respond in JSON format. If no specific recommendations, set "recommendations" to an empty array.`
           },
-          ...conversationHistory.slice(-5).map((msg: any) => ({
+          ...conversationHistory.slice(-5).filter((msg: any) => msg.content).map((msg: any) => ({
             role: msg.role,
-            content: msg.content
+            content: msg.content || ''
           })),
           {
             role: "user",

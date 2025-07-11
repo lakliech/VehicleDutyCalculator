@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TrendingUp, TrendingDown, BarChart3, Filter, Eye, DollarSign } from "lucide-react";
-import { ResponsiveContainer, Cell, Tooltip, XAxis, YAxis, CartesianGrid, ScatterChart, Scatter } from "recharts";
+import { TrendingUp, TrendingDown, BarChart3, Filter, Eye, DollarSign, Info } from "lucide-react";
+import { ResponsiveContainer, Cell, Tooltip, XAxis, YAxis, CartesianGrid, ScatterChart, Scatter, Legend } from "recharts";
 
 interface VehicleData {
   id: number;
@@ -100,13 +100,15 @@ export default function PriceTrends() {
           priceCategory,
           demandLevel,
           trend,
-          x: vehicle.engineCapacity || 1000 + index * 10,
+          x: vehicle.engineCapacity || 1000,
           y: currentPrice,
-          color: getColor()
+          color: getColor(),
+          size: demandLevel === 'high' ? 120 : demandLevel === 'medium' ? 80 : 50
         };
       })
       .filter(v => selectedCategory === "all" || v.priceCategory === selectedCategory)
-      .slice(0, 100); // Limit for performance
+      .sort((a, b) => a.demandLevel === 'low' ? -1 : b.demandLevel === 'low' ? 1 : 0) // Low demand first
+      .slice(0, 200); // Increase limit for better visualization
 
     return filteredVehicles;
   }, [vehicles, selectedMake, selectedCategory]);
@@ -128,15 +130,20 @@ export default function PriceTrends() {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-3 border rounded-lg shadow-lg">
+        <div className="bg-white dark:bg-gray-800 p-3 border rounded-lg shadow-lg">
           <p className="font-semibold">{data.make} {data.model}</p>
-          <p className="text-sm text-gray-600">{data.engineCapacity}cc</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{data.engineCapacity}cc</p>
           <p className="text-sm">Price: KES {data.currentPrice.toLocaleString()}</p>
           <div className="flex items-center gap-2 mt-1">
-            <Badge variant={data.demandLevel === 'high' ? 'default' : 'secondary'} className="text-xs">
+            <Badge variant={data.demandLevel === 'high' ? 'default' : data.demandLevel === 'medium' ? 'secondary' : 'outline'} className="text-xs">
               {data.demandLevel} demand
             </Badge>
-            <Badge variant={data.trend === 'rising' ? 'default' : 'secondary'} className="text-xs">
+            <Badge 
+              variant={data.trend === 'rising' ? 'default' : data.trend === 'stable' ? 'secondary' : 'destructive'} 
+              className="text-xs flex items-center gap-1"
+            >
+              {data.trend === 'rising' && <TrendingUp className="w-3 h-3" />}
+              {data.trend === 'declining' && <TrendingDown className="w-3 h-3" />}
               {data.trend}
             </Badge>
           </div>
@@ -166,6 +173,67 @@ export default function PriceTrends() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Market Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Total Vehicles</p>
+                  <p className="text-2xl font-bold">{vehicles?.length || 0}</p>
+                </div>
+                <BarChart3 className="h-8 w-8 text-purple-600" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Average Price</p>
+                  <p className="text-2xl font-bold">
+                    {vehicles && vehicles.length > 0
+                      ? formatPrice(
+                          vehicles
+                            .filter(v => v.crspKes || v.crsp2020)
+                            .reduce((sum, v) => sum + (v.crspKes || v.crsp2020 || 0), 0) /
+                          vehicles.filter(v => v.crspKes || v.crsp2020).length
+                        )
+                      : '0'}
+                  </p>
+                </div>
+                <DollarSign className="h-8 w-8 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">High Demand</p>
+                  <p className="text-2xl font-bold">
+                    {heatmapData.filter(d => d.demandLevel === 'high').length}
+                  </p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Rising Trends</p>
+                  <p className="text-2xl font-bold">
+                    {heatmapData.filter(d => d.trend === 'rising').length}
+                  </p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-amber-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="grid lg:grid-cols-4 gap-6">
           {/* Main Chart Area */}
           <div className="lg:col-span-3">
@@ -206,24 +274,33 @@ export default function PriceTrends() {
                 ) : (
                   <div className="h-96">
                     <ResponsiveContainer width="100%" height="100%">
-                      <ScatterChart data={heatmapData}>
-                        <CartesianGrid strokeDasharray="3 3" />
+                      <ScatterChart 
+                        data={heatmapData}
+                        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                         <XAxis 
                           dataKey="x" 
                           type="number"
-                          domain={['dataMin', 'dataMax']}
+                          domain={[0, 'dataMax + 500']}
                           name="Engine Capacity (cc)"
                           tickFormatter={(value) => `${value}cc`}
+                          label={{ value: 'Engine Capacity (cc)', position: 'insideBottom', offset: -10 }}
                         />
                         <YAxis 
                           dataKey="y"
                           type="number"
-                          domain={['dataMin', 'dataMax']}
+                          domain={[0, 'dataMax + 500000']}
                           name="Price (KES)"
                           tickFormatter={formatPrice}
+                          label={{ value: 'Price (KES)', angle: -90, position: 'insideLeft' }}
                         />
                         <Tooltip content={<CustomTooltip />} />
-                        <Scatter dataKey="y" fill="#8884d8">
+                        <Scatter 
+                          name="Vehicles" 
+                          data={heatmapData}
+                          fill="#8884d8"
+                        >
                           {heatmapData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
@@ -338,6 +415,25 @@ export default function PriceTrends() {
                 <div className="text-sm">
                   <p className="font-medium text-gray-900 mb-1">Price Correlation:</p>
                   <p className="text-gray-600">Engine capacity strongly correlates with pricing</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* How to Read */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Info className="h-5 w-5" />
+                  How to Read the Heatmap
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-gray-600">
+                <p><strong>X-Axis:</strong> Engine capacity in CC</p>
+                <p><strong>Y-Axis:</strong> Vehicle price in KES</p>
+                <p><strong>Colors:</strong> Indicate demand level and price trends</p>
+                <p><strong>Hover:</strong> Over points to see detailed vehicle information</p>
+                <div className="pt-2 border-t">
+                  <p className="text-xs">Data source: Vehicle CRSP values from official database</p>
                 </div>
               </CardContent>
             </Card>

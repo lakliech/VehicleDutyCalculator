@@ -680,22 +680,22 @@ export default function VehicleDetail() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-3 mb-4">
-                  {vehicle.seller.profileImageUrl ? (
+                  {vehicle.seller?.profileImageUrl ? (
                     <img
                       src={vehicle.seller.profileImageUrl}
-                      alt={`${vehicle.seller.firstName} ${vehicle.seller.lastName}`}
+                      alt={`${vehicle.seller.firstName || ''} ${vehicle.seller.lastName || ''}`}
                       className="w-12 h-12 rounded-full object-cover"
                     />
                   ) : (
                     <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
                       <span className="text-purple-600 font-semibold">
-                        {vehicle.seller.firstName[0]}{vehicle.seller.lastName[0]}
+                        {vehicle.seller?.firstName?.[0] || 'U'}{vehicle.seller?.lastName?.[0] || 'S'}
                       </span>
                     </div>
                   )}
                   <div>
                     <div className="font-semibold">
-                      {vehicle.seller.firstName} {vehicle.seller.lastName}
+                      {vehicle.seller?.firstName || 'Unknown'} {vehicle.seller?.lastName || 'Seller'}
                     </div>
                     <div className="text-sm text-gray-600">Private Seller</div>
                   </div>

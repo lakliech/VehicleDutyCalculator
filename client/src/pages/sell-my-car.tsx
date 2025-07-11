@@ -265,6 +265,9 @@ export default function SellMyCar() {
   // Mutations
   const listingMutation = useMutation({
     mutationFn: async (data: ListingForm & { images: string[] }) => {
+      if (!isAuthenticated) {
+        throw new Error("Please sign in to create a listing");
+      }
       return apiRequest("POST", "/api/marketplace/listings", data);
     },
     onSuccess: () => {

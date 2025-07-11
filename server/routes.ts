@@ -1021,6 +1021,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all vehicle references for public use (for price trends heatmap)
+  app.get('/api/vehicle-references', async (req, res) => {
+    try {
+      const results = await db
+        .select({
+          id: vehicleReferences.id,
+          make: vehicleReferences.make,
+          model: vehicleReferences.model,
+          engineCapacity: vehicleReferences.engineCapacity,
+          crspKes: vehicleReferences.crspKes,
+          crsp2020: vehicleReferences.crsp2020,
+          fuelType: vehicleReferences.fuelType,
+          bodyType: vehicleReferences.bodyType
+        })
+        .from(vehicleReferences)
+        .where(sql`${vehicleReferences.crspKes} IS NOT NULL OR ${vehicleReferences.crsp2020} IS NOT NULL`)
+        .orderBy(vehicleReferences.make, vehicleReferences.model)
+        .limit(500); // Limit for performance
+      
+      res.json(results);
+    } catch (error) {
+      console.error("Failed to fetch vehicle references:", error);
+      res.status(500).json({ error: "Failed to fetch vehicle references" });
+    }
+  });
+
   // Get all distinct makes (with optional category filtering)
   app.get("/api/vehicle-references/makes", async (req, res) => {
     try {

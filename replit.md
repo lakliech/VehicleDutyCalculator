@@ -410,6 +410,23 @@ Changelog:
   - Integrated manual vehicle data properly with duty calculator for seamless processing
   - Added visual feedback with calculation formula display and data source indicators
   - Restored all original proration features including error handling and validation
+- January 11, 2025. Implemented AI-powered Vehicle Recommendation Chatbot:
+  - Created comprehensive chatbot using OpenAI GPT-4o for personalized vehicle recommendations
+  - Built VehicleChatbot component with conversation history and real-time messaging
+  - Integrated vehicle database for accurate pricing and recommendation validation
+  - Added dedicated AI Advisor page with features sidebar and tips section
+  - Implemented backend API endpoint with context-aware AI responses and JSON formatting
+  - Enhanced chatbot with vehicle selection capability for seamless integration with other tools
+  - Added visual recommendations cards with pricing, suitability, and selection functionality
+- January 11, 2025. Created Price Trend Heatmap Analytics Module:
+  - Implemented interactive visualization using Recharts for vehicle pricing trends
+  - Built comprehensive scatter plot heatmap with color-coded market insights and demand analysis
+  - Added filtering capabilities by vehicle make and price category (budget/mid-range/premium/luxury)
+  - Created market intelligence features including demand level analysis and trend indicators
+  - Integrated real vehicle database with CRSP pricing for authentic market data visualization
+  - Added responsive design with sidebar containing filters, color legend, and market insights
+  - Enhanced analytics with tooltips showing detailed vehicle information and trend indicators
+  - Created public API endpoint for vehicle references to support analytics without admin authentication
 
 ## User Preferences
 

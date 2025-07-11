@@ -98,6 +98,15 @@ const AUTOMOTIVE_TOOLS = [
     color: "from-purple-600 to-purple-700",
     category: "ai",
     featured: true
+  },
+  {
+    href: "/price-trends",
+    title: "Price Trend Heatmap",
+    description: "Interactive visualization of vehicle pricing trends with color-coded market insights",
+    icon: TrendingUp,
+    color: "from-green-600 to-green-700",
+    category: "analytics",
+    featured: true
   }
 ];
 

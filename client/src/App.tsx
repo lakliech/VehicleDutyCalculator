@@ -16,6 +16,7 @@ import BuyACar from "@/pages/buy-a-car";
 import SellMyCar from "@/pages/sell-my-car";
 import VehicleLoans from "@/pages/vehicle-loans";
 import AIAdvisor from "@/pages/ai-advisor";
+import PriceTrends from "@/pages/price-trends";
 import AdminDashboard from "@/pages/admin-dashboard";
 import Dashboard from "@/pages/dashboard";
 import { ResetPassword } from "@/pages/reset-password";
@@ -37,6 +38,7 @@ function Router() {
           <Route path="/sell-my-car" component={SellMyCar} />
           <Route path="/vehicle-loans" component={VehicleLoans} />
           <Route path="/ai-advisor" component={AIAdvisor} />
+          <Route path="/price-trends" component={PriceTrends} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/reset-password" component={ResetPassword} />

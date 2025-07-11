@@ -874,6 +874,7 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
             type="submit" 
             className="bg-purple-600 hover:bg-purple-700"
             disabled={uploadedImages.length < 3}
+            onClick={() => console.log("Next button clicked, uploaded images:", uploadedImages.length)}
           >
             Next Step
             <ArrowRight className="ml-2 h-4 w-4" />

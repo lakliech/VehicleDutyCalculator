@@ -243,19 +243,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password } = req.body;
       
+      console.log('Login attempt for:', email);
+      
       // Get user by email
       const user = await storage.getUserByEmail(email);
       if (!user) {
+        console.log('User not found:', email);
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
       
+      console.log('User found:', { id: user.id, email: user.email, hasPasswordHash: !!user.passwordHash });
+      
       // Check if user has a password (form-based registration)
       if (!user.passwordHash) {
+        console.log('User has no password hash - OAuth only account');
         return res.status(401).json({ success: false, message: 'This account uses social login. Please sign in with Google.' });
       }
       
       // Compare password with hash
       const validPassword = await bcrypt.compare(password, user.passwordHash);
+      console.log('Password comparison result:', validPassword);
+      
       if (!validPassword) {
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }

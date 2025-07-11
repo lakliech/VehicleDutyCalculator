@@ -756,6 +756,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get heatmap data
+  app.get("/api/marketplace/heatmap", async (req, res) => {
+    try {
+      const { make, location, priceRange } = req.query;
+      const heatmapData = await storage.getMarketHeatmapData({
+        make: make as string,
+        location: location as string,
+        priceRange: priceRange as string
+      });
+      res.json(heatmapData);
+    } catch (error) {
+      console.error("Failed to get heatmap data:", error);
+      res.status(500).json({ error: "Failed to get heatmap data" });
+    }
+  });
+
+  // Get market insights
+  app.get("/api/marketplace/insights", async (req, res) => {
+    try {
+      const { make, location } = req.query;
+      const insights = await storage.getMarketInsights({
+        make: make as string,
+        location: location as string
+      });
+      res.json(insights);
+    } catch (error) {
+      console.error("Failed to get market insights:", error);
+      res.status(500).json({ error: "Failed to get market insights" });
+    }
+  });
+
   // User dashboard endpoints
   app.get("/api/user/listings", authenticateUser, async (req, res) => {
     try {

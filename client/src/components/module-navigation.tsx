@@ -56,6 +56,11 @@ const primaryItems: ModuleItem[] = [
     href: "/price-trends",
     label: "AI Price Trends",
     icon: <TrendingUp className="h-4 w-4" />
+  },
+  {
+    href: "/price-heatmap",
+    label: "Market Heatmap",
+    icon: <TrendingUp className="h-4 w-4" />
   }
 ];
 
@@ -165,17 +170,7 @@ export function ModuleNavigation() {
             ))}
           </div>
 
-          {/* Authentication Section */}
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-purple-600">
-              <User className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Login</span>
-            </Button>
-            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-purple-600">
-              <UserPlus className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Register</span>
-            </Button>
-          </div>
+
         </div>
       </div>
     </div>

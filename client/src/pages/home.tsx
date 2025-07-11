@@ -18,7 +18,8 @@ import {
   Search,
   Shield,
   Users,
-  TrendingUp
+  TrendingUp,
+  BarChart3
 } from "lucide-react";
 
 export default function Home() {
@@ -114,6 +115,13 @@ export default function Home() {
       description: "AI-powered vehicle price trend analysis",
       icon: <TrendingUp className="h-12 w-12" />,
       color: "bg-emerald-500"
+    },
+    {
+      href: "/price-heatmap",
+      title: "Market Heatmap",
+      description: "Visual price trend analysis with color-coded insights",
+      icon: <BarChart3 className="h-12 w-12" />,
+      color: "bg-purple-600"
     }
   ];
 

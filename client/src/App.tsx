@@ -15,6 +15,7 @@ import MyCarsWorth from "@/pages/mycars-worth";
 import BuyACar from "@/pages/buy-a-car";
 import VehicleDetail from "@/pages/vehicle-detail";
 import PriceTrends from "@/pages/price-trends";
+import PriceHeatmap from "@/pages/price-heatmap";
 import SellMyCar from "@/pages/sell-my-car";
 import VehicleLoans from "@/pages/vehicle-loans";
 import AdminDashboard from "@/pages/admin-dashboard";
@@ -39,6 +40,7 @@ function Router() {
           <Route path="/sell-my-car" component={SellMyCar} />
           <Route path="/vehicle-loans" component={VehicleLoans} />
           <Route path="/price-trends" component={PriceTrends} />
+          <Route path="/price-heatmap" component={PriceHeatmap} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/reset-password" component={ResetPassword} />

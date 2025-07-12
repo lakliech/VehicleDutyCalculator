@@ -195,20 +195,22 @@ export default function AdminListings() {
   // Individual listing actions
   const approveMutation = useMutation({
     mutationFn: (data: { listingId: number; notes?: string }) =>
-      apiRequest('POST', `/api/admin/listings/${data.listingId}/approve`, { notes: data.notes }),
+      apiRequest('PUT', `/api/admin/listing/${data.listingId}/approve`, { notes: data.notes }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listings-with-stats'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', listingId] });
       toast({ title: "Success", description: "Listing approved successfully" });
     },
   });
 
   const rejectMutation = useMutation({
     mutationFn: (data: { listingId: number; reason: string }) =>
-      apiRequest('POST', `/api/admin/listings/${data.listingId}/reject`, { reason: data.reason }),
+      apiRequest('PUT', `/api/admin/listing/${data.listingId}/reject`, { reason: data.reason }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listings-with-stats'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', listingId] });
       setShowRejectDialog(false);
       setRejectReason('');
       setSelectedListing(null);
@@ -218,9 +220,10 @@ export default function AdminListings() {
 
   const flagMutation = useMutation({
     mutationFn: (data: { listingId: number; reason: string }) =>
-      apiRequest('POST', `/api/admin/listings/${data.listingId}/flag`, { reason: data.reason }),
+      apiRequest('PUT', `/api/admin/listing/${data.listingId}/flag`, { reason: data.reason }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listings-with-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', listingId] });
       setShowFlagDialog(false);
       setFlagReason('');
       setSelectedListing(null);
@@ -266,15 +269,12 @@ export default function AdminListings() {
 
   const addNoteMutation = useMutation({
     mutationFn: (data: { listingId: number; note: string }) =>
-      apiRequest('POST', `/api/admin/listings/${data.listingId}/note`, { note: data.note }),
+      apiRequest('POST', `/api/admin/listing/${data.listingId}/note`, { note: data.note }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', listingId] });
       setShowNoteDialog(false);
       setNoteText('');
       toast({ title: "Success", description: "Note added successfully" });
-      if (listingDetails) {
-        // Refresh listing details
-        fetchListingDetails(listingDetails.listing.id);
-      }
     },
   });
 

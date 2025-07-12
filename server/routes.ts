@@ -593,6 +593,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/admin/listing/:id/flag', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      const { reason } = req.body;
+      const adminId = req.user.id;
+      
+      if (!reason) {
+        return res.status(400).json({ error: 'Flag reason is required' });
+      }
+      
+      await storage.flagListing(listingId, adminId, reason);
+      
+      res.json({ 
+        success: true, 
+        message: 'Listing flagged successfully'
+      });
+    } catch (error) {
+      console.error('Flag listing error:', error);
+      res.status(500).json({ error: 'Failed to flag listing' });
+    }
+  });
+
+  app.post('/api/admin/listing/:id/note', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      const { note } = req.body;
+      const adminId = req.user.id;
+      
+      if (!note) {
+        return res.status(400).json({ error: 'Note content is required' });
+      }
+      
+      await storage.addAdminNote(listingId, adminId, note);
+      
+      res.json({ 
+        success: true, 
+        message: 'Note added successfully'
+      });
+    } catch (error) {
+      console.error('Add note error:', error);
+      res.status(500).json({ error: 'Failed to add note' });
+    }
+  });
+
   // User History and Management
   app.get('/api/admin/user/:id/history', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {

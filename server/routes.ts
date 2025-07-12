@@ -34,7 +34,8 @@ import {
   messageSchema,
   conversationSchema,
   dailyListingAnalyticsSchema,
-  carListings
+  carListings,
+  adminUpdateListingSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -997,9 +998,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/listings/:id", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
     try {
-      const validation = carListingSchema.partial().safeParse(req.body);
+      const validation = adminUpdateListingSchema.safeParse(req.body);
       
       if (!validation.success) {
+        console.error("Validation error:", validation.error.issues);
         return res.status(400).json({ 
           error: "Invalid input data", 
           details: validation.error.issues 

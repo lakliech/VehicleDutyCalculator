@@ -349,6 +349,15 @@ export const carListingSchema = createInsertSchema(carListings).omit({
   price: z.number().min(50000, "Price must be at least 50,000 KES"),
 });
 
+// Schema for admin updates with more flexible validation
+export const adminUpdateListingSchema = z.object({
+  title: z.string().min(1, "Title is required").optional(),
+  description: z.string().min(1, "Description is required").optional(),
+  price: z.number().min(1, "Price must be greater than 0").optional(),
+  negotiable: z.boolean().optional(),
+  location: z.string().min(1, "Location is required").optional(),
+});
+
 export const carInquirySchema = createInsertSchema(carInquiries).omit({
   id: true,
   status: true,

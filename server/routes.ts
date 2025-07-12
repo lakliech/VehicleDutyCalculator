@@ -3833,6 +3833,178 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
+  // ===============================
+  // USER ENGAGEMENT API ROUTES
+  // ===============================
+
+  // Car favorites functionality
+  app.post('/api/car-listings/:id/favorite', async (req, res) => {
+    try {
+      const carId = parseInt(req.params.id);
+      
+      // Check if user is authenticated via session (OAuth)
+      if (!req.isAuthenticated?.() || !req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const userId = req.user.id;
+      
+      // Check if already favorited
+      const existing = await storage.getUserFavorite(userId, carId);
+      
+      if (existing) {
+        // Remove from favorites
+        await storage.removeFromFavorites(userId, carId);
+        res.json({ 
+          success: true, 
+          message: 'Car removed from favorites',
+          favorited: false
+        });
+      } else {
+        // Add to favorites
+        await storage.addToFavorites(userId, carId);
+        res.json({ 
+          success: true, 
+          message: 'Car added to favorites',
+          favorited: true
+        });
+      }
+    } catch (error) {
+      console.error('Favorite car error:', error);
+      res.status(500).json({ error: 'Failed to favorite car' });
+    }
+  });
+
+  // Get user's favorites
+  app.get('/api/user/favorites', async (req, res) => {
+    try {
+      // Check if user is authenticated via session (OAuth)
+      if (!req.isAuthenticated?.() || !req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const userId = req.user.id;
+      const favorites = await storage.getUserFavorites(userId);
+      
+      res.json({ favorites });
+    } catch (error) {
+      console.error('Get favorites error:', error);
+      res.status(500).json({ error: 'Failed to get favorites' });
+    }
+  });
+
+  // Save search functionality
+  app.post('/api/user/save-search', async (req, res) => {
+    try {
+      // Check if user is authenticated via session (OAuth)
+      if (!req.isAuthenticated?.() || !req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const userId = req.user.id;
+      const { searchName, filters } = req.body;
+      
+      if (!searchName || !filters) {
+        return res.status(400).json({ error: 'Search name and filters are required' });
+      }
+      
+      await storage.saveSearch(userId, searchName, filters);
+      
+      res.json({ 
+        success: true, 
+        message: 'Search saved successfully' 
+      });
+    } catch (error) {
+      console.error('Save search error:', error);
+      res.status(500).json({ error: 'Failed to save search' });
+    }
+  });
+
+  // Get user's saved searches
+  app.get('/api/user/saved-searches', async (req, res) => {
+    try {
+      // Check if user is authenticated via session (OAuth)
+      if (!req.isAuthenticated?.() || !req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const userId = req.user.id;
+      const savedSearches = await storage.getUserSavedSearches(userId);
+      
+      res.json({ savedSearches });
+    } catch (error) {
+      console.error('Get saved searches error:', error);
+      res.status(500).json({ error: 'Failed to get saved searches' });
+    }
+  });
+
+  // Car comparison functionality
+  app.post('/api/car-listings/:id/compare', async (req, res) => {
+    try {
+      const carId = parseInt(req.params.id);
+      
+      // Check if user is authenticated via session (OAuth)
+      if (!req.isAuthenticated?.() || !req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const userId = req.user.id;
+      
+      // Add to comparison list
+      await storage.addToComparison(userId, carId);
+      
+      res.json({ 
+        success: true, 
+        message: 'Car added to comparison',
+        inComparison: true
+      });
+    } catch (error) {
+      console.error('Compare car error:', error);
+      res.status(500).json({ error: 'Failed to add car to comparison' });
+    }
+  });
+
+  // Get user's comparison list
+  app.get('/api/user/comparison', async (req, res) => {
+    try {
+      // Check if user is authenticated via session (OAuth)
+      if (!req.isAuthenticated?.() || !req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const userId = req.user.id;
+      const comparison = await storage.getUserComparison(userId);
+      
+      res.json({ comparison });
+    } catch (error) {
+      console.error('Get comparison error:', error);
+      res.status(500).json({ error: 'Failed to get comparison' });
+    }
+  });
+
+  // Remove from comparison
+  app.delete('/api/user/comparison/:id', async (req, res) => {
+    try {
+      const carId = parseInt(req.params.id);
+      
+      // Check if user is authenticated via session (OAuth)
+      if (!req.isAuthenticated?.() || !req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const userId = req.user.id;
+      await storage.removeFromComparison(userId, carId);
+      
+      res.json({ 
+        success: true, 
+        message: 'Car removed from comparison' 
+      });
+    } catch (error) {
+      console.error('Remove from comparison error:', error);
+      res.status(500).json({ error: 'Failed to remove from comparison' });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

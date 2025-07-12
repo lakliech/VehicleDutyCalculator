@@ -296,6 +296,14 @@ export const favoriteListings = pgTable("favorite_listings", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const carComparisons = pgTable("car_comparisons", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  listingIds: text("listing_ids").array().notNull(), // Array of listing IDs
+  comparisonName: text("comparison_name").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Reference tables for vehicle options
 export const vehicleColors = pgTable("vehicle_colors", {
   id: serial("id").primaryKey(),
@@ -353,6 +361,7 @@ export type CarValuation = typeof carValuations.$inferSelect;
 export type InsertCarValuation = z.infer<typeof carValuationSchema>;
 export type SavedSearch = typeof savedSearches.$inferSelect;
 export type FavoriteListing = typeof favoriteListings.$inferSelect;
+export type CarComparison = typeof carComparisons.$inferSelect;
 export type VehicleColor = typeof vehicleColors.$inferSelect;
 export type DriveConfiguration = typeof driveConfigurations.$inferSelect;
 

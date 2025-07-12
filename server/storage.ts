@@ -2,6 +2,7 @@ import {
   vehicles, calculations, depreciationRates, taxRates, processingFees, vehicleCategoryRules, registrationFees, trailers, heavyMachinery,
   userRoles, appUsers, userSessions, userActivities, listingApprovals, userPreferences, userStats, carListings, passwordResetTokens,
   adminCredentials, adminAuditLog, listingFlags, listingAnalytics, adminNotes, userWarnings, adminTemplates,
+  favoriteListings, savedSearches, carComparisons,
   type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, 
   type DepreciationRate, type TaxRate, type ProcessingFee, type VehicleCategoryRule, type RegistrationFee, 
   type Trailer, type HeavyMachinery, type UserRole, type AppUser, type InsertAppUser, type InsertUserRole,
@@ -10,7 +11,8 @@ import {
   type AdminCredential, type InsertAdminCredential, type AdminAuditLog, type InsertAdminAuditLog,
   type ListingFlag, type InsertListingFlag, type ListingAnalytics, type InsertListingAnalytics,
   type AdminNote, type InsertAdminNote, type UserWarning, type InsertUserWarning,
-  type AdminTemplate, type InsertAdminTemplate
+  type AdminTemplate, type InsertAdminTemplate,
+  type FavoriteListing, type SavedSearch, type CarComparison
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, desc, sql, gt, inArray } from "drizzle-orm";
@@ -73,6 +75,17 @@ export interface IStorage {
   validateAdminPassword(username: string, password: string): Promise<AdminCredential | null>;
   updateAdminLastLogin(id: number): Promise<void>;
   createAdmin(adminData: InsertAdminCredential & { password: string }): Promise<AdminCredential>;
+  
+  // User engagement methods
+  addToFavorites(userId: string, listingId: number): Promise<void>;
+  removeFromFavorites(userId: string, listingId: number): Promise<void>;
+  getUserFavorites(userId: string): Promise<any[]>;
+  getUserFavorite(userId: string, listingId: number): Promise<any | undefined>;
+  saveSearch(userId: string, searchName: string, filters: any): Promise<void>;
+  getUserSavedSearches(userId: string): Promise<any[]>;
+  addToComparison(userId: string, listingId: number): Promise<void>;
+  removeFromComparison(userId: string, listingId: number): Promise<void>;
+  getUserComparison(userId: string): Promise<any[]>;
   updateAdminPassword(id: number, newPassword: string): Promise<void>;
   
   // Admin management methods for listing moderation
@@ -1175,6 +1188,142 @@ export class DatabaseStorage implements IStorage {
     ]);
 
     return { listings, warnings, activities };
+  }
+
+  // User engagement methods implementation
+  async addToFavorites(userId: string, listingId: number): Promise<void> {
+    await db.insert(favoriteListings).values({
+      userId,
+      listingId,
+      createdAt: new Date()
+    });
+  }
+
+  async removeFromFavorites(userId: string, listingId: number): Promise<void> {
+    await db.delete(favoriteListings).where(
+      and(
+        eq(favoriteListings.userId, userId),
+        eq(favoriteListings.listingId, listingId)
+      )
+    );
+  }
+
+  async getUserFavorites(userId: string): Promise<any[]> {
+    return await db
+      .select()
+      .from(favoriteListings)
+      .innerJoin(carListings, eq(favoriteListings.listingId, carListings.id))
+      .where(eq(favoriteListings.userId, userId))
+      .orderBy(desc(favoriteListings.createdAt));
+  }
+
+  async getUserFavorite(userId: string, listingId: number): Promise<any | undefined> {
+    const [result] = await db
+      .select()
+      .from(favoriteListings)
+      .where(
+        and(
+          eq(favoriteListings.userId, userId),
+          eq(favoriteListings.listingId, listingId)
+        )
+      )
+      .limit(1);
+    return result;
+  }
+
+  async saveSearch(userId: string, searchName: string, filters: any): Promise<void> {
+    await db.insert(savedSearches).values({
+      userId,
+      searchName,
+      filters,
+      createdAt: new Date()
+    });
+  }
+
+  async getUserSavedSearches(userId: string): Promise<any[]> {
+    return await db
+      .select()
+      .from(savedSearches)
+      .where(eq(savedSearches.userId, userId))
+      .orderBy(desc(savedSearches.createdAt));
+  }
+
+  async addToComparison(userId: string, listingId: number): Promise<void> {
+    // Check if user already has a comparison
+    const [existingComparison] = await db
+      .select()
+      .from(carComparisons)
+      .where(eq(carComparisons.userId, userId))
+      .limit(1);
+
+    if (existingComparison) {
+      // Update existing comparison to include the new listing
+      const currentListings = existingComparison.listingIds || [];
+      const listingIdStr = listingId.toString();
+      
+      if (!currentListings.includes(listingIdStr)) {
+        const updatedListings = [...currentListings, listingIdStr];
+        await db
+          .update(carComparisons)
+          .set({ listingIds: updatedListings })
+          .where(eq(carComparisons.id, existingComparison.id));
+      }
+    } else {
+      // Create new comparison
+      await db.insert(carComparisons).values({
+        userId,
+        listingIds: [listingId.toString()],
+        comparisonName: `My Comparison`,
+        createdAt: new Date()
+      });
+    }
+  }
+
+  async removeFromComparison(userId: string, listingId: number): Promise<void> {
+    const [existingComparison] = await db
+      .select()
+      .from(carComparisons)
+      .where(eq(carComparisons.userId, userId))
+      .limit(1);
+
+    if (existingComparison) {
+      const currentListings = existingComparison.listingIds || [];
+      const listingIdStr = listingId.toString();
+      const updatedListings = currentListings.filter(id => id !== listingIdStr);
+      
+      if (updatedListings.length > 0) {
+        await db
+          .update(carComparisons)
+          .set({ listingIds: updatedListings })
+          .where(eq(carComparisons.id, existingComparison.id));
+      } else {
+        // Remove comparison if no listings left
+        await db
+          .delete(carComparisons)
+          .where(eq(carComparisons.id, existingComparison.id));
+      }
+    }
+  }
+
+  async getUserComparison(userId: string): Promise<any[]> {
+    const [comparison] = await db
+      .select()
+      .from(carComparisons)
+      .where(eq(carComparisons.userId, userId))
+      .limit(1);
+
+    if (!comparison || !comparison.listingIds || comparison.listingIds.length === 0) {
+      return [];
+    }
+
+    // Convert string IDs to numbers for query
+    const listingIds = comparison.listingIds.map(id => parseInt(id));
+    
+    return await db
+      .select()
+      .from(carListings)
+      .where(sql`${carListings.id} IN (${sql.join(listingIds.map(id => sql`${id}`), sql`, `)})`)
+      .orderBy(desc(carListings.createdAt));
   }
 }
 

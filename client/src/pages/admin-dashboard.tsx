@@ -2585,7 +2585,7 @@ function EnhancedListingsManagementTab() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => window.open(`/admin/listings/${listing.id}`, '_blank')}
+                        onClick={() => window.location.href = `/admin/listings/${listing.id}`}
                       >
                         <Eye className="h-4 w-4 mr-1" />
                         View

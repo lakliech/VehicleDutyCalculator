@@ -109,7 +109,7 @@ export default function BuyACar() {
     queryFn: async () => {
       const params = new URLSearchParams();
       params.append('page', currentPage.toString());
-      params.append('limit', '20');
+      params.append('limit', '8');
       
       if (filters.search) params.append('search', filters.search);
       if (filters.make.length > 0) params.append('make', filters.make.join(','));
@@ -277,13 +277,30 @@ export default function BuyACar() {
         {/* Make */}
         <div>
           <label className="text-sm font-medium mb-3 block">Make</label>
-          <Select value={filters.make.join(',')} onValueChange={(value) => handleFilterChange('make', value ? value.split(',') : [])}>
+          <Select value={filters.make[0] || "all"} onValueChange={(value) => handleFilterChange('make', value === "all" ? [] : [value])}>
             <SelectTrigger>
-              <SelectValue placeholder="Select makes" />
+              <SelectValue placeholder="Any make" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all">Any make</SelectItem>
               {filterOptions?.makes?.map((make: string) => (
                 <SelectItem key={make} value={make}>{make}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Model */}
+        <div>
+          <label className="text-sm font-medium mb-3 block">Model</label>
+          <Select value={filters.model[0] || "all"} onValueChange={(value) => handleFilterChange('model', value === "all" ? [] : [value])}>
+            <SelectTrigger>
+              <SelectValue placeholder="Any model" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Any model</SelectItem>
+              {filterOptions?.models?.map((model: string) => (
+                <SelectItem key={model} value={model}>{model}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -292,70 +309,49 @@ export default function BuyACar() {
         {/* Fuel Type */}
         <div>
           <label className="text-sm font-medium mb-3 block">Fuel Type</label>
-          <div className="space-y-2">
-            {['Petrol', 'Diesel', 'Hybrid', 'Electric'].map((type) => (
-              <div key={type} className="flex items-center space-x-2">
-                <Checkbox
-                  id={type}
-                  checked={filters.fuelType.includes(type)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      handleFilterChange('fuelType', [...filters.fuelType, type]);
-                    } else {
-                      handleFilterChange('fuelType', filters.fuelType.filter(t => t !== type));
-                    }
-                  }}
-                />
-                <label htmlFor={type} className="text-sm">{type}</label>
-              </div>
-            ))}
-          </div>
+          <Select value={filters.fuelType[0] || "all"} onValueChange={(value) => handleFilterChange('fuelType', value === "all" ? [] : [value])}>
+            <SelectTrigger>
+              <SelectValue placeholder="Any fuel type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Any fuel type</SelectItem>
+              {['Petrol', 'Diesel', 'Hybrid', 'Electric'].map((type) => (
+                <SelectItem key={type} value={type}>{type}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Transmission */}
         <div>
           <label className="text-sm font-medium mb-3 block">Transmission</label>
-          <div className="space-y-2">
-            {['Manual', 'Automatic', 'CVT'].map((type) => (
-              <div key={type} className="flex items-center space-x-2">
-                <Checkbox
-                  id={type}
-                  checked={filters.transmission.includes(type)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      handleFilterChange('transmission', [...filters.transmission, type]);
-                    } else {
-                      handleFilterChange('transmission', filters.transmission.filter(t => t !== type));
-                    }
-                  }}
-                />
-                <label htmlFor={type} className="text-sm">{type}</label>
-              </div>
-            ))}
-          </div>
+          <Select value={filters.transmission[0] || "all"} onValueChange={(value) => handleFilterChange('transmission', value === "all" ? [] : [value])}>
+            <SelectTrigger>
+              <SelectValue placeholder="Any transmission" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Any transmission</SelectItem>
+              {['Manual', 'Automatic', 'CVT'].map((type) => (
+                <SelectItem key={type} value={type}>{type}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Body Type */}
         <div>
           <label className="text-sm font-medium mb-3 block">Body Type</label>
-          <div className="space-y-2">
-            {['SUV', 'Hatchback', 'Saloon', 'Coupe', 'Wagon', 'Van', 'Pickup'].map((type) => (
-              <div key={type} className="flex items-center space-x-2">
-                <Checkbox
-                  id={type}
-                  checked={filters.bodyType.includes(type)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      handleFilterChange('bodyType', [...filters.bodyType, type]);
-                    } else {
-                      handleFilterChange('bodyType', filters.bodyType.filter(t => t !== type));
-                    }
-                  }}
-                />
-                <label htmlFor={type} className="text-sm">{type}</label>
-              </div>
-            ))}
-          </div>
+          <Select value={filters.bodyType[0] || "all"} onValueChange={(value) => handleFilterChange('bodyType', value === "all" ? [] : [value])}>
+            <SelectTrigger>
+              <SelectValue placeholder="Any body type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Any body type</SelectItem>
+              {['SUV', 'Hatchback', 'Saloon', 'Coupe', 'Wagon', 'Van', 'Pickup'].map((type) => (
+                <SelectItem key={type} value={type}>{type}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Mileage */}
@@ -430,47 +426,33 @@ export default function BuyACar() {
         {/* Color */}
         <div>
           <label className="text-sm font-medium mb-3 block">Color</label>
-          <div className="space-y-2">
-            {['Black', 'White', 'Grey', 'Silver', 'Red', 'Blue', 'Green', 'Yellow', 'Brown', 'Other'].map((color) => (
-              <div key={color} className="flex items-center space-x-2">
-                <Checkbox
-                  id={color}
-                  checked={filters.color.includes(color)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      handleFilterChange('color', [...filters.color, color]);
-                    } else {
-                      handleFilterChange('color', filters.color.filter(c => c !== color));
-                    }
-                  }}
-                />
-                <label htmlFor={color} className="text-sm">{color}</label>
-              </div>
-            ))}
-          </div>
+          <Select value={filters.color[0] || "all"} onValueChange={(value) => handleFilterChange('color', value === "all" ? [] : [value])}>
+            <SelectTrigger>
+              <SelectValue placeholder="Any color" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Any color</SelectItem>
+              {['Black', 'White', 'Grey', 'Silver', 'Red', 'Blue', 'Green', 'Yellow', 'Brown', 'Other'].map((color) => (
+                <SelectItem key={color} value={color}>{color}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Features */}
         <div>
-          <label className="text-sm font-medium mb-3 block">Features</label>
-          <div className="space-y-2">
-            {['Navigation', 'Bluetooth', 'Cruise Control', 'Parking Sensors', 'Sunroof', 'Leather Seats', 'Alloy Wheels', 'Reverse Camera'].map((feature) => (
-              <div key={feature} className="flex items-center space-x-2">
-                <Checkbox
-                  id={feature}
-                  checked={filters.features.includes(feature)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      handleFilterChange('features', [...filters.features, feature]);
-                    } else {
-                      handleFilterChange('features', filters.features.filter(f => f !== feature));
-                    }
-                  }}
-                />
-                <label htmlFor={feature} className="text-sm">{feature}</label>
-              </div>
-            ))}
-          </div>
+          <label className="text-sm font-medium mb-3 block">Key Features</label>
+          <Select value={filters.features[0] || "all"} onValueChange={(value) => handleFilterChange('features', value === "all" ? [] : [value])}>
+            <SelectTrigger>
+              <SelectValue placeholder="Any features" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Any features</SelectItem>
+              {['Navigation', 'Bluetooth', 'Cruise Control', 'Parking Sensors', 'Sunroof', 'Leather Seats', 'Alloy Wheels', 'Reverse Camera'].map((feature) => (
+                <SelectItem key={feature} value={feature}>{feature}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

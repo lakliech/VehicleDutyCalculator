@@ -2818,6 +2818,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       // Make internal API call to calculate duty endpoint
+      console.log('Duty calculation input:', dutyCalculationData);
       const dutyResponse = await fetch(`http://localhost:5000/api/calculate-duty`, {
         method: 'POST',
         headers: {
@@ -2831,6 +2832,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const dutyResult = await dutyResponse.json();
+      console.log('Duty calculation result:', dutyResult);
+      
+      // Break down the calculation for debugging
+      console.log('=== DUTY CALCULATION BREAKDOWN ===');
+      console.log('1. CIF Value (KES):', cifKes);
+      console.log('2. Vehicle Age:', dutyCalculationData.vehicleAge, 'years');
+      console.log('3. Depreciation Rate:', dutyResult.depreciationRate * 100 + '%');
+      console.log('4. Depreciated Price:', dutyResult.depreciatedPrice);
+      console.log('5. Customs Value Rate: 0.45977 (for under1500cc)');
+      console.log('6. Customs Value:', dutyResult.customsValue);
+      console.log('7. Import Duty (35%):', dutyResult.importDuty);
+      console.log('8. Excise Value:', dutyResult.exciseValue);
+      console.log('9. Excise Duty (20%):', dutyResult.exciseDuty);
+      console.log('10. VAT Value:', dutyResult.vatValue);
+      console.log('11. VAT (16%):', dutyResult.vat);
+      console.log('12. RDL (2%):', dutyResult.rdl);
+      console.log('13. IDF (2.5%):', dutyResult.idfFees);
+      console.log('14. Total Taxes:', dutyResult.totalTaxes);
+      console.log('=================================');
 
       // Calculate total cost with service fee
       // Formula: CIF Price + Duty + Clearing Fees + Transport + 5% of total cost

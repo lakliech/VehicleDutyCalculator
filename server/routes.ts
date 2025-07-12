@@ -313,7 +313,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   );
 
   // Check authentication status
-  app.get('/api/auth/status', (req: Request, res: Response) => {
+  app.get('/api/auth/status', async (req: Request, res: Response) => {
     console.log('Auth status check:', {
       isAuthenticated: req.isAuthenticated?.(),
       hasUser: !!req.user,
@@ -324,7 +324,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
     
     if (req.isAuthenticated?.() && req.user) {
-      res.json({ authenticated: true, user: req.user });
+      // Include user role information
+      try {
+        const userWithRole = await storage.getUserWithRole(req.user.id);
+        res.json({ authenticated: true, user: userWithRole || req.user });
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+        res.json({ authenticated: true, user: req.user });
+      }
     } else {
       res.json({ authenticated: false });
     }

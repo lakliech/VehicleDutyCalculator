@@ -88,6 +88,13 @@ export function Navigation() {
                           <MessageCircle className="mr-2 h-4 w-4" />
                           <span>My Messages</span>
                         </Link>
+                        {/* Admin Dashboard for users with admin role */}
+                        {user?.roleId && user.roleId >= 3 && (
+                          <Link href="/admin" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                            <Database className="mr-2 h-4 w-4" />
+                            <span>Admin Dashboard</span>
+                          </Link>
+                        )}
                         <button 
                           onClick={handleLogout}
                           className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-50 transition-colors text-left"
@@ -99,15 +106,7 @@ export function Navigation() {
                     </div>
                   </div>
                   
-                  {/* Admin Link (only show if admin is authenticated) */}
-                  {isAdminAuthenticated && (
-                    <Link href="/admin">
-                      <Button variant="outline" size="sm" className="flex items-center gap-2 border-purple-300 text-purple-700 hover:bg-purple-50">
-                        <Database className="h-4 w-4" />
-                        Admin
-                      </Button>
-                    </Link>
-                  )}
+{/* Admin button removed - Admin Dashboard is now available in user dropdown menu for admin users */}
                 </>
               ) : (
                 !isAdminPage && <AuthForms />

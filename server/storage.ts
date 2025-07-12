@@ -32,6 +32,7 @@ export interface IStorage {
   deleteUser(id: string): Promise<void>;
   getUserRole(userId: string): Promise<UserRole | undefined>;
   updateUserRole(userId: string, roleId: number): Promise<void>;
+  getUserWithRole(userId: string): Promise<AppUser & { role?: UserRole } | null>;
   
   // Role management methods
   getAllRoles(): Promise<UserRole[]>;
@@ -479,6 +480,22 @@ export class DatabaseStorage implements IStorage {
       .where(eq(appUsers.id, userId));
     
     return result[0]?.role || undefined;
+  }
+
+  async getUserWithRole(userId: string): Promise<AppUser & { role?: UserRole } | null> {
+    const result = await db
+      .select({ 
+        user: appUsers,
+        role: userRoles 
+      })
+      .from(appUsers)
+      .leftJoin(userRoles, eq(appUsers.roleId, userRoles.id))
+      .where(eq(appUsers.id, userId));
+    
+    if (result.length === 0) return null;
+    
+    const { user, role } = result[0];
+    return { ...user, role: role || undefined };
   }
 
   async updateUserRole(userId: string, roleId: number): Promise<void> {

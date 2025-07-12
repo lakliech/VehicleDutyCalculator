@@ -34,13 +34,15 @@ export default function AdminListingDetails() {
   console.log('Admin Listing Details - Listing ID:', listingId);
 
   // Individual listing details query
-  const { data: listingData, isLoading } = useQuery({
+  const { data: listingData, isLoading, error } = useQuery({
     queryKey: ['/api/admin/listing-details', listingId],
     queryFn: () => apiRequest('GET', `/api/admin/listing-details/${listingId}`),
     enabled: !!listingId,
   });
 
   console.log('Listing data:', listingData);
+  console.log('Query error:', error);
+  console.log('Is loading:', isLoading);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-KE', {

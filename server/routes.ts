@@ -560,7 +560,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/listing-details/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const listingId = parseInt(req.params.id);
+      console.log('Fetching listing details for ID:', listingId);
+      
       const listing = await storage.getListingById(listingId);
+      console.log('Retrieved listing:', listing);
       
       if (!listing) {
         return res.status(404).json({ error: 'Listing not found' });

@@ -97,8 +97,8 @@ export default function AdminListingDetails() {
             <Car className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Listing Not Found</h2>
             <p className="text-gray-600 mb-4">The requested listing could not be found.</p>
-            <Button onClick={() => navigate('/admin/listings')}>
-              Back to Listings
+            <Button onClick={() => navigate('/admin')}>
+              Back to Dashboard
             </Button>
           </div>
         </div>
@@ -114,12 +114,12 @@ export default function AdminListingDetails() {
           <div className="flex items-center justify-between">
             <div>
               <Button 
-                onClick={() => navigate('/admin/listings')}
+                onClick={() => navigate('/admin')}
                 variant="outline"
                 className="mb-4"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Listings
+                Back to Dashboard
               </Button>
               <h1 className="text-3xl font-bold text-gray-900">Listing Details</h1>
               <p className="text-gray-600">Complete information about this listing</p>

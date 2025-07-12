@@ -240,11 +240,20 @@ export const carListings = pgTable("car_listings", {
   location: text("location").notNull(),
   phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
   whatsappNumber: varchar("whatsapp_number", { length: 20 }),
-  status: text("status").notNull().default("active"), // active, sold, suspended
+  status: text("status").notNull().default("active"), // active, sold, suspended, archived
   isVerified: boolean("is_verified").default(false),
   viewCount: integer("view_count").default(0),
   favoriteCount: integer("favorite_count").default(0),
   featured: boolean("featured").default(false),
+  // Enhanced listing management fields
+  isFlagged: boolean("is_flagged").default(false),
+  flagReason: text("flag_reason"),
+  flaggedAt: timestamp("flagged_at"),
+  flaggedBy: varchar("flagged_by", { length: 255 }),
+  soldAt: timestamp("sold_at"),
+  soldBy: varchar("sold_by", { length: 255 }),
+  archivedAt: timestamp("archived_at"),
+  archivedBy: varchar("archived_by", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

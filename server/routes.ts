@@ -930,6 +930,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Enhanced listing management endpoints
+  app.post("/api/admin/listings/:id/flag", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      const { reason } = req.body;
+      await storage.flagListing(parseInt(req.params.id), req.user.id, reason);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to flag listing:", error);
+      res.status(500).json({ error: "Failed to flag listing" });
+    }
+  });
+
+  app.post("/api/admin/listings/:id/unflag", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      await storage.unflagListing(parseInt(req.params.id), req.user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to unflag listing:", error);
+      res.status(500).json({ error: "Failed to unflag listing" });
+    }
+  });
+
+  app.get("/api/admin/listings/:id/details", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      const details = await storage.getListingDetails(parseInt(req.params.id));
+      res.json(details);
+    } catch (error) {
+      console.error("Failed to get listing details:", error);
+      res.status(500).json({ error: "Failed to get listing details" });
+    }
+  });
+
+  app.post("/api/admin/listings/:id/note", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      const { note } = req.body;
+      await storage.addAdminNote(parseInt(req.params.id), req.user.id, note);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to add admin note:", error);
+      res.status(500).json({ error: "Failed to add admin note" });
+    }
+  });
+
+  app.get("/api/admin/listings/:id/notes", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      const notes = await storage.getListingNotes(parseInt(req.params.id));
+      res.json(notes);
+    } catch (error) {
+      console.error("Failed to get listing notes:", error);
+      res.status(500).json({ error: "Failed to get listing notes" });
+    }
+  });
+
+  app.post("/api/admin/listings/:id/mark-sold", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      await storage.markListingAsSold(parseInt(req.params.id), req.user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to mark listing as sold:", error);
+      res.status(500).json({ error: "Failed to mark listing as sold" });
+    }
+  });
+
+  app.post("/api/admin/listings/:id/archive", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      await storage.archiveListing(parseInt(req.params.id), req.user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to archive listing:", error);
+      res.status(500).json({ error: "Failed to archive listing" });
+    }
+  });
+
+  app.post("/api/admin/listings/:id/restore", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      await storage.restoreListing(parseInt(req.params.id), req.user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to restore listing:", error);
+      res.status(500).json({ error: "Failed to restore listing" });
+    }
+  });
+
+  app.get("/api/admin/listings/:id/duplicate-check", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      const duplicates = await storage.duplicateCheck(parseInt(req.params.id));
+      res.json(duplicates);
+    } catch (error) {
+      console.error("Failed to check duplicates:", error);
+      res.status(500).json({ error: "Failed to check duplicates" });
+    }
+  });
+
+  app.get("/api/admin/listings/export", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      const listings = await storage.exportListings(req.query);
+      res.json(listings);
+    } catch (error) {
+      console.error("Failed to export listings:", error);
+      res.status(500).json({ error: "Failed to export listings" });
+    }
+  });
+
   // User dashboard endpoints
   app.get("/api/user/listings", authenticateUser, async (req, res) => {
     try {

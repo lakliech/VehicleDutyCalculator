@@ -95,6 +95,18 @@ export interface IStorage {
   bulkUpdateListingStatus(listingIds: number[], status: string, adminId: string, reason?: string): Promise<void>;
   getUserHistory(userId: string): Promise<{ listings: CarListing[]; warnings: any[]; activities: UserActivity[]; }>;
   
+  // Enhanced listing management methods
+  flagListing(listingId: number, adminId: string, reason: string): Promise<void>;
+  unflagListing(listingId: number, adminId: string): Promise<void>;
+  getListingDetails(listingId: number): Promise<any>;
+  addAdminNote(listingId: number, adminId: string, note: string): Promise<void>;
+  getListingNotes(listingId: number): Promise<any[]>;
+  markListingAsSold(listingId: number, adminId: string): Promise<void>;
+  archiveListing(listingId: number, adminId: string): Promise<void>;
+  restoreListing(listingId: number, adminId: string): Promise<void>;
+  duplicateCheck(listingId: number): Promise<any[]>;
+  exportListings(filters?: any): Promise<any[]>;
+  
   // Dashboard recommendations method
   generateUserRecommendations(userId: string): Promise<Array<{
     id: string;
@@ -1357,6 +1369,184 @@ export class DatabaseStorage implements IStorage {
       .from(carListings)
       .where(sql`${carListings.id} IN (${sql.join(listingIds.map(id => sql`${id}`), sql`, `)})`)
       .orderBy(desc(carListings.createdAt));
+  }
+
+  // Enhanced listing management methods implementation
+  async flagListing(listingId: number, adminId: string, reason: string): Promise<void> {
+    await db.update(carListings)
+      .set({ 
+        isFlagged: true, 
+        flagReason: reason, 
+        flaggedAt: new Date(),
+        flaggedBy: adminId 
+      })
+      .where(eq(carListings.id, listingId));
+    
+    await this.logUserActivity(adminId, 'flag_listing', 'listing', listingId.toString(), `Flagged listing: ${reason}`);
+  }
+
+  async unflagListing(listingId: number, adminId: string): Promise<void> {
+    await db.update(carListings)
+      .set({ 
+        isFlagged: false, 
+        flagReason: null, 
+        flaggedAt: null,
+        flaggedBy: null 
+      })
+      .where(eq(carListings.id, listingId));
+    
+    await this.logUserActivity(adminId, 'unflag_listing', 'listing', listingId.toString(), 'Removed flag from listing');
+  }
+
+  async getListingDetails(listingId: number): Promise<any> {
+    const [listing] = await db
+      .select({
+        listing: carListings,
+        seller: {
+          id: appUsers.id,
+          firstName: appUsers.firstName,
+          lastName: appUsers.lastName,
+          email: appUsers.email,
+          phoneNumber: appUsers.phoneNumber,
+          createdAt: appUsers.createdAt
+        }
+      })
+      .from(carListings)
+      .leftJoin(appUsers, eq(carListings.sellerId, appUsers.id))
+      .where(eq(carListings.id, listingId));
+    
+    return listing;
+  }
+
+  async addAdminNote(listingId: number, adminId: string, note: string): Promise<void> {
+    // For now, store in user activity - can be extended to dedicated table
+    await this.logUserActivity(adminId, 'admin_note', 'listing', listingId.toString(), note);
+  }
+
+  async getListingNotes(listingId: number): Promise<any[]> {
+    const notes = await db
+      .select({
+        id: userActivities.id,
+        note: userActivities.description,
+        adminId: userActivities.userId,
+        createdAt: userActivities.createdAt,
+        admin: {
+          firstName: appUsers.firstName,
+          lastName: appUsers.lastName
+        }
+      })
+      .from(userActivities)
+      .leftJoin(appUsers, eq(userActivities.userId, appUsers.id))
+      .where(and(
+        eq(userActivities.entityType, 'listing'),
+        eq(userActivities.entityId, listingId.toString()),
+        eq(userActivities.activityType, 'admin_note')
+      ))
+      .orderBy(desc(userActivities.createdAt));
+    
+    return notes;
+  }
+
+  async markListingAsSold(listingId: number, adminId: string): Promise<void> {
+    await db.update(carListings)
+      .set({ 
+        status: 'sold',
+        soldAt: new Date(),
+        soldBy: adminId
+      })
+      .where(eq(carListings.id, listingId));
+    
+    await this.logUserActivity(adminId, 'mark_sold', 'listing', listingId.toString(), 'Marked listing as sold');
+  }
+
+  async archiveListing(listingId: number, adminId: string): Promise<void> {
+    await db.update(carListings)
+      .set({ 
+        status: 'archived',
+        archivedAt: new Date(),
+        archivedBy: adminId
+      })
+      .where(eq(carListings.id, listingId));
+    
+    await this.logUserActivity(adminId, 'archive_listing', 'listing', listingId.toString(), 'Archived listing');
+  }
+
+  async restoreListing(listingId: number, adminId: string): Promise<void> {
+    await db.update(carListings)
+      .set({ 
+        status: 'active',
+        archivedAt: null,
+        archivedBy: null
+      })
+      .where(eq(carListings.id, listingId));
+    
+    await this.logUserActivity(adminId, 'restore_listing', 'listing', listingId.toString(), 'Restored listing from archive');
+  }
+
+  async duplicateCheck(listingId: number): Promise<any[]> {
+    const [listing] = await db
+      .select()
+      .from(carListings)
+      .where(eq(carListings.id, listingId));
+    
+    if (!listing) return [];
+    
+    // Check for potential duplicates based on make, model, year, and similar price
+    const duplicates = await db
+      .select()
+      .from(carListings)
+      .where(and(
+        eq(carListings.make, listing.make),
+        eq(carListings.model, listing.model),
+        eq(carListings.year, listing.year),
+        sql`ABS(CAST(${carListings.price} AS DECIMAL) - CAST(${listing.price} AS DECIMAL)) < CAST(${listing.price} AS DECIMAL) * 0.1`, // Within 10% price range
+        sql`${carListings.id} != ${listingId}` // Exclude the listing being checked
+      ));
+    
+    return duplicates;
+  }
+
+  async exportListings(filters?: any): Promise<any[]> {
+    let whereConditions = [];
+    
+    // Apply filters if provided
+    if (filters?.status && filters.status !== 'all') {
+      whereConditions.push(eq(carListings.status, filters.status));
+    }
+    
+    if (filters?.make && filters.make !== 'all') {
+      whereConditions.push(eq(carListings.make, filters.make));
+    }
+    
+    if (filters?.flagged) {
+      whereConditions.push(eq(carListings.isFlagged, true));
+    }
+    
+    let query = db
+      .select({
+        id: carListings.id,
+        title: carListings.title,
+        make: carListings.make,
+        model: carListings.model,
+        year: carListings.year,
+        price: carListings.price,
+        mileage: carListings.mileage,
+        status: carListings.status,
+        createdAt: carListings.createdAt,
+        sellerEmail: appUsers.email,
+        sellerName: sql`${appUsers.firstName} || ' ' || ${appUsers.lastName}`,
+        location: carListings.location,
+        isFlagged: carListings.isFlagged,
+        flagReason: carListings.flagReason
+      })
+      .from(carListings)
+      .leftJoin(appUsers, eq(carListings.sellerId, appUsers.id));
+    
+    if (whereConditions.length > 0) {
+      query = query.where(and(...whereConditions));
+    }
+    
+    return await query.orderBy(desc(carListings.createdAt));
   }
 }
 

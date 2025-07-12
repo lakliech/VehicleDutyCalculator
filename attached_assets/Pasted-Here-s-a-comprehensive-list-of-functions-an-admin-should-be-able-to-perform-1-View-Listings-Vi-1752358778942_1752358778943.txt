@@ -1,0 +1,101 @@
+Here's a comprehensive list of functions an admin should be able to perform:
+
+🚗 1. View Listings
+View all active, pending, rejected, expired, and archived listings.
+
+View listing details (vehicle specs, seller info, media, price, etc.)
+
+Filter and sort listings (by status, seller type, make/model, price, location, date created, etc.)
+
+✍️ 2. Moderate Listings
+Approve or Reject listings submitted by users/dealers.
+
+Edit listings content (e.g., title, description, photos, specs).
+
+Add admin notes or internal comments to listings.
+
+Flag/Unflag listings for further review or policy violations.
+
+Verify Listings (e.g., badge trusted sellers or inspected cars).
+
+🚫 3. Manage Listing Status
+Change status: Pending → Active / Rejected / Suspended / Archived / Sold.
+
+Mark as sold, reserved, or unavailable.
+
+Set listings to expire after a certain period.
+
+Auto-archive or delete expired or inactive listings.
+
+📤 4. Add/Edit Listings on Behalf of Users
+Create listings manually for walk-in clients or partners.
+
+Edit user-submitted listings when needed (e.g., typos, incorrect info).
+
+Upload images or documents on behalf of the seller.
+
+🔍 5. Search & Filter Tools
+Search listings by:
+
+Listing ID
+
+Vehicle registration or chassis number
+
+Seller name/ID/email
+
+Keywords (make/model/type)
+
+Apply advanced filters (e.g., verified, reported, high mileage, recent uploads).
+
+📸 6. Manage Media
+View all uploaded photos or videos per listing.
+
+Delete or replace inappropriate or broken media.
+
+Set the cover image or reorder images.
+
+📝 7. Track Listing Performance (Optional but Useful)
+View metrics: views, saves, messages, and interest.
+
+Export performance data for reports.
+
+🚩 8. Handle Reported Listings
+View user reports/complaints against listings.
+
+Take actions: warn seller, unlist, or delete listing.
+
+Maintain a report history log.
+
+⚙️ 9. Bulk Actions
+Bulk approve, reject, delete, or archive listings.
+
+Export listings in bulk to CSV/Excel.
+
+Assign bulk listings to specific sales agents or branches.
+
+📑 10. Manage Listing Templates & Categories
+Manage vehicle categories (Sedan, SUV, Truck, etc.).
+
+Manage listing tags (Certified, New Arrival, Clean Import).
+
+Set required fields and validation rules for listings.
+
+💬 11. Communicate with Seller
+Send messages or emails to the listing owner.
+
+Notify seller of approval, rejection, or needed changes.
+
+🔐 12. Access Control & Logs
+View logs of changes to listings (who edited what and when).
+
+Role-based permissions for junior moderators.
+
+📂 13. Archive or Restore Listings
+Archive listings instead of hard deleting (for record-keeping).
+
+Restore archived listings when needed.
+
+🛡️ 14. Fraud & Compliance Checks
+Cross-check listings with KRA/NTSA API (if integrated).
+
+View duplicate listings or VIN mismatches.

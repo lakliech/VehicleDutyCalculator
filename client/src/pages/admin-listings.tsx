@@ -175,6 +175,11 @@ export default function AdminListings() {
     enabled: !!listingId,
   });
 
+  // Debug: Log the data structure
+  console.log('Listing ID:', listingId);
+  console.log('Single listing data:', singleListingData);
+  console.log('Is loading:', isLoadingSingleListing);
+
   // Bulk update mutation
   const bulkUpdateMutation = useMutation({
     mutationFn: (data: { listingIds: number[]; status: string; reason?: string }) =>

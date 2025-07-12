@@ -56,7 +56,7 @@ export default function MyCarsWorth() {
   const valuationMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await apiRequest("POST", "/api/vehicle-valuation", data);
-      return response;
+      return response.json();
     },
     onSuccess: (data) => {
       console.log("=== FRONTEND VALUATION DEBUG ===");

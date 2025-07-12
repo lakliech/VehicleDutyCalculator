@@ -53,7 +53,6 @@ import type {
   UserRole
 } from "@shared/schema";
 import { useAuth } from "@/components/auth-provider";
-import { AdminLogin } from "@/components/admin-login";
 import gariyangu from "@assets/gylogo_1752064168868.png";
 
 // Form schemas for validation
@@ -117,12 +116,7 @@ type CategoryRuleForm = z.infer<typeof categoryRuleSchema>;
 type DepreciationRateForm = z.infer<typeof depreciationRateSchema>;
 
 export default function AdminDashboard() {
-  const { isAdminAuthenticated } = useAuth();
-
-  if (!isAdminAuthenticated) {
-    return <AdminLogin />;
-  }
-
+  // No need for auth check here since the route is protected by ProtectedRoute
   return <AuthenticatedAdminDashboard />;
 }
 

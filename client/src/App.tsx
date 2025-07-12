@@ -21,6 +21,7 @@ import AIAdvisor from "@/pages/ai-advisor";
 import PriceTrends from "@/pages/price-trends";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminListings from "@/pages/admin-listings";
+import AdminListingDetails from "@/pages/admin-listing-details";
 import AdminUsers from "@/pages/admin-users";
 import Dashboard from "@/pages/dashboard";
 import MyListings from "@/pages/my-listings";
@@ -78,14 +79,9 @@ function Router() {
               <AdminListings />
             </ProtectedRoute>
           </Route>
-          <Route path="/admin/listings/:id">
-            <ProtectedRoute requireAdmin={true}>
-              <AdminListings />
-            </ProtectedRoute>
-          </Route>
           <Route path="/admin/listing-details/:id">
             <ProtectedRoute requireAdmin={true}>
-              <AdminListings />
+              <AdminListingDetails />
             </ProtectedRoute>
           </Route>
           <Route path="/admin/users">

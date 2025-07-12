@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Navigation } from '@/components/navigation';
-import { ModuleNavigation } from '@/components/module-navigation';
 import { useAuth } from '@/components/auth-provider';
 import { Link } from 'wouter';
 import { 
@@ -153,7 +152,6 @@ export default function MyWishlists() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-cyan-50">
       <Navigation />
-      <ModuleNavigation />
       
       <div className="container mx-auto px-4 py-8">
 

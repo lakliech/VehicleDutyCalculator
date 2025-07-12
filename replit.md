@@ -465,6 +465,7 @@ Changelog:
   - Implemented proper JSON parsing for saved search filters with error handling
   - Added React Query integration with correct API response structure handling
   - Removed duplicate header sections from both pages to prevent duplication with main Navigation component
+  - Removed ModuleNavigation component from both pages to fix logo duplication, keeping only main Navigation with logo
 
 ## User Preferences
 

@@ -2782,14 +2782,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let vehicleCategory = estimateData.vehicleCategory;
       if (!vehicleCategory && estimateData.engineCapacity) {
         if (estimateData.engineCapacity <= 1500) {
-          vehicleCategory = 'under_1500cc';
+          vehicleCategory = 'under1500cc';  // Match database naming
         } else if (estimateData.engineCapacity <= 3000) {
-          vehicleCategory = 'over_1500cc';
+          vehicleCategory = 'over1500cc';   // Match database naming
         } else {
-          vehicleCategory = 'large_engine';
+          vehicleCategory = 'largeEngine';  // Match database naming
         }
       }
-      vehicleCategory = vehicleCategory || 'under_1500cc';
+      vehicleCategory = vehicleCategory || 'under1500cc';
       
       // Get clearing charges based on vehicle category and engine capacity
       let clearingChargeAmount = 55000; // default

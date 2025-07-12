@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ModuleNavigation } from "@/components/module-navigation";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/components/auth-provider";
 import { CalendarDays, Calculator, FileText, DollarSign, Car, ShoppingCart, TrendingUp, Activity } from "lucide-react";
 
 interface DashboardData {
@@ -57,15 +57,59 @@ const iconMap: { [key: string]: any } = {
 };
 
 export default function Dashboard() {
+  const { user, isAuthenticated } = useAuth();
+  
   const { data: dashboardData, isLoading, error } = useQuery<DashboardData>({
-    queryKey: ['/api/dashboard?test=true'],
+    queryKey: ['/api/dashboard'],
+    enabled: isAuthenticated,
     retry: false,
   });
+
+  // Show login prompt if user is not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
+        <div className="container mx-auto px-4 py-8">
+          <Card className="mx-auto max-w-md">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl text-purple-600">Welcome to Your Dashboard</CardTitle>
+              <CardDescription>
+                Please sign in to view your personalized automotive tools and activity
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <div className="space-y-4">
+                <div className="flex items-center justify-center space-x-2 text-gray-600">
+                  <Calculator className="h-5 w-5" />
+                  <span>Track duty calculations</span>
+                </div>
+                <div className="flex items-center justify-center space-x-2 text-gray-600">
+                  <Car className="h-5 w-5" />
+                  <span>Monitor vehicle listings</span>
+                </div>
+                <div className="flex items-center justify-center space-x-2 text-gray-600">
+                  <TrendingUp className="h-5 w-5" />
+                  <span>View personalized recommendations</span>
+                </div>
+                <div className="pt-4">
+                  <a
+                    href="/api/auth/google"
+                    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 transition-colors"
+                  >
+                    Sign in with Google
+                  </a>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
-        <ModuleNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -78,7 +122,6 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
-        <ModuleNavigation />
         <div className="container mx-auto px-4 py-8">
           <Card className="mx-auto max-w-md">
             <CardHeader>
@@ -99,8 +142,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
-      <ModuleNavigation />
-      
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">

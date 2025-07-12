@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -360,10 +360,11 @@ export default function AdminListings() {
     });
   };
 
-  const handleViewDetails = async (listing: Listing) => {
-    setSelectedListing(listing);
-    await fetchListingDetails(listing.listing.id);
-    setShowDetailsDialog(true);
+  const [location, navigate] = useLocation();
+  
+  const handleViewDetails = (listing: Listing) => {
+    // Navigate to the listing details page instead of opening a dialog
+    navigate(`/admin/listing-details/${listing.listing.id}`);
   };
 
   const handleEditListing = (listing: Listing) => {

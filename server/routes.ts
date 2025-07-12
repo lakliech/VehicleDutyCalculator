@@ -303,8 +303,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/auth/google', (req: Request, res: Response, next: NextFunction) => {
     // Store the original URL in the session for redirect after authentication
     const returnUrl = req.query.returnUrl as string;
+    console.log('Google OAuth initiated, returnUrl:', returnUrl);
     if (returnUrl) {
       req.session.returnUrl = returnUrl;
+      console.log('Stored returnUrl in session:', req.session.returnUrl);
     }
     passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
   });
@@ -314,9 +316,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     (req: Request, res: Response) => {
       // Get the stored return URL or default to home
       const returnUrl = req.session.returnUrl || '/';
+      console.log('Google OAuth callback, returnUrl from session:', returnUrl);
       delete req.session.returnUrl; // Clean up the session
       
       // Successful authentication, redirect to original page
+      console.log('Redirecting to:', `${returnUrl}?social=google&success=true`);
       res.redirect(`${returnUrl}?social=google&success=true`);
     }
   );

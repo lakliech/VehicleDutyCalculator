@@ -364,6 +364,7 @@ export default function AdminListings() {
   
   const handleViewDetails = (listing: Listing) => {
     // Navigate to the listing details page instead of opening a dialog
+    console.log('Navigating to listing details:', listing.listing.id);
     navigate(`/admin/listing-details/${listing.listing.id}`);
   };
 

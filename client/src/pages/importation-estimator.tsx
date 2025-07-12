@@ -202,14 +202,27 @@ export default function ImportationEstimator() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Year of Manufacture *</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="e.g., 2020"
-                                  {...field}
-                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
-                                />
-                              </FormControl>
+                              <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select year" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {(() => {
+                                    const currentYear = new Date().getFullYear();
+                                    const years = [];
+                                    for (let i = currentYear - 7; i <= currentYear; i++) {
+                                      years.push(i);
+                                    }
+                                    return years.map((year) => (
+                                      <SelectItem key={year} value={year.toString()}>
+                                        {year}
+                                      </SelectItem>
+                                    ));
+                                  })()}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}

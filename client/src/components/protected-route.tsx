@@ -40,7 +40,15 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
 
   // If admin access required, check user role
   if (requireAdmin) {
-    const isAdmin = user.roleId === 3 || user.roleId === 4; // admin or superadmin
+    // Handle both roleId directly on user and role object structure
+    const userRole = (user as any).role;
+    const roleId = (user as any).roleId || userRole?.id;
+    const roleName = userRole?.name?.toLowerCase();
+    
+    const isAdmin = roleId === 3 || roleId === 4 || 
+                   roleName === 'admin' || roleName === 'superadmin';
+    
+    console.log('Admin check:', { roleId, roleName, userRole, isAdmin });
     
     if (!isAdmin) {
       return (
@@ -63,6 +71,10 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
                 <AlertDescription>
                   You are logged in as {user.email}, but you don't have admin privileges. 
                   Please contact a superadmin to get admin access.
+                  <br />
+                  <small className="text-xs mt-2 block">
+                    Current role: {roleName || 'No role'} (ID: {roleId || 'None'})
+                  </small>
                 </AlertDescription>
               </Alert>
             </CardContent>

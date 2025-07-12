@@ -89,12 +89,20 @@ export function Navigation() {
                           <span>My Messages</span>
                         </Link>
                         {/* Admin Dashboard for users with admin role */}
-                        {user?.roleId && user.roleId >= 3 && (
-                          <Link href="/admin" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                            <Database className="mr-2 h-4 w-4" />
-                            <span>Admin Dashboard</span>
-                          </Link>
-                        )}
+                        {(() => {
+                          const userRole = (user as any)?.role;
+                          const roleId = (user as any)?.roleId || userRole?.id;
+                          const roleName = userRole?.name?.toLowerCase();
+                          const isAdmin = roleId === 3 || roleId === 4 || 
+                                         roleName === 'admin' || roleName === 'superadmin';
+                          
+                          return isAdmin ? (
+                            <Link href="/admin" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                              <Database className="mr-2 h-4 w-4" />
+                              <span>Admin Dashboard</span>
+                            </Link>
+                          ) : null;
+                        })()}
                         <button 
                           onClick={handleLogout}
                           className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-50 transition-colors text-left"

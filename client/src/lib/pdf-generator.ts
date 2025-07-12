@@ -286,3 +286,238 @@ export function generateDutyCalculationPDF(
   // Save the PDF
   doc.save(filename);
 }
+
+export interface ImportEstimateResult {
+  vehicleInfo: {
+    make: string;
+    model: string;
+    year: number;
+    engineCapacity: number;
+  };
+  breakdown: {
+    exchangeRate: number;
+    cifAmount: number;
+    cifCurrency: string;
+    cifKes: number;
+    dutyPayable: number;
+    clearingCharges: number;
+    transportCost: number;
+    serviceFeePercentage: number;
+    serviceFeeAmount: number;
+    totalPayable: number;
+  };
+}
+
+export function generateImportEstimatePDF(result: ImportEstimateResult) {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.width;
+  const marginLeft = 20;
+  const marginRight = 20;
+  const contentWidth = pageWidth - marginLeft - marginRight;
+  
+  // Modern color scheme (New Gariyangu brand colors)
+  const primaryColor = [116, 10, 114]; // #740a72 - medium purple
+  const secondaryColor = [177, 5, 115]; // #b10573 - purple-pink
+  const accentColor = [238, 0, 116]; // #ee0074 - bright pink
+  const darkColor = [56, 16, 114]; // #381072 - dark purple
+  const lightGray = [156, 163, 175];
+  
+  // Helper function to format currency
+  const formatCurrency = (amount: number) => {
+    return `KES ${amount.toLocaleString('en-KE', { 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
+    })}`;
+  };
+
+  // Helper function to add centered text
+  const addCenteredText = (text: string, y: number, fontSize: number = 12, fontStyle: string = "normal") => {
+    doc.setFont("helvetica", fontStyle);
+    doc.setFontSize(fontSize);
+    const textWidth = doc.getStringUnitWidth(text) * fontSize / doc.internal.scaleFactor;
+    const x = (pageWidth - textWidth) / 2;
+    doc.text(text, x, y);
+  };
+
+  // Add compact header background with gradient effect
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(0, 0, pageWidth, 28, 'F');
+
+  // Add Gariyangu Logo (smaller)
+  const logoWidth = 35;
+  const logoHeight = 14;
+  const logoX = marginLeft;
+  doc.addImage(gariyanGuLogo, 'PNG', logoX, 7, logoWidth, logoHeight);
+  
+  // Add call-to-action text in header (compact)
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text("Do you wish to import a car? Contact: 0736 272719", logoX + logoWidth + 8, 12);
+  doc.setFontSize(7);
+  doc.text("Japan • UK • South Africa • Dubai • Australia • Singapore • Thailand", logoX + logoWidth + 8, 18);
+  
+  // Reset text color
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  
+  // Title with modern styling (compact)
+  doc.setFont("helvetica", "bold");
+  addCenteredText("VEHICLE IMPORT COST ESTIMATE", 38, 15, "bold");
+  
+  // Subtitle
+  doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+  addCenteredText("Comprehensive Import Cost Analysis for Kenya", 46, 9);
+  
+  // Date with modern styling (compact)
+  const currentDate = new Date().toLocaleDateString('en-KE', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+  addCenteredText(`Generated on ${currentDate}`, 54, 8);
+  
+  let yPosition = 70;
+  
+  // Vehicle Information Section
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text("VEHICLE INFORMATION", marginLeft, yPosition);
+  
+  // Add decorative line under section title
+  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setLineWidth(1);
+  doc.line(marginLeft, yPosition + 2, marginLeft + 60, yPosition + 2);
+  
+  yPosition += 12;
+  
+  // Vehicle details with modern layout
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  
+  const vehicleDetails = [
+    { label: "Make:", value: result.vehicleInfo.make },
+    { label: "Model:", value: result.vehicleInfo.model },
+    { label: "Year:", value: result.vehicleInfo.year.toString() },
+    { label: "Engine Capacity:", value: `${result.vehicleInfo.engineCapacity}cc` }
+  ];
+  
+  vehicleDetails.forEach((detail, index) => {
+    const x = marginLeft + (index % 2) * (contentWidth / 2);
+    const y = yPosition + Math.floor(index / 2) * 10;
+    
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text(detail.label, x, y);
+    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+    doc.text(detail.value, x + 35, y);
+  });
+  
+  yPosition += 35;
+  
+  // Cost Breakdown Section
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text("COST BREAKDOWN", marginLeft, yPosition);
+  
+  // Add decorative line under section title
+  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setLineWidth(1);
+  doc.line(marginLeft, yPosition + 2, marginLeft + 60, yPosition + 2);
+  
+  yPosition += 15;
+  
+  // Cost breakdown items (simplified, no tax details)
+  const costItems = [
+    { 
+      label: "CIF Value", 
+      value: formatCurrency(result.breakdown.cifKes),
+      description: `${result.breakdown.cifCurrency} ${result.breakdown.cifAmount.toLocaleString()} @ ${result.breakdown.exchangeRate}`
+    },
+    { 
+      label: "Import Duty & Taxes", 
+      value: formatCurrency(result.breakdown.dutyPayable),
+      description: "Kenya Revenue Authority charges"
+    },
+    { 
+      label: "Clearing Charges", 
+      value: formatCurrency(result.breakdown.clearingCharges),
+      description: "Freight forwarding and documentation"
+    },
+    { 
+      label: "Transport Cost", 
+      value: formatCurrency(result.breakdown.transportCost),
+      description: "Local delivery and handling"
+    },
+    { 
+      label: "Service Fee", 
+      value: formatCurrency(result.breakdown.serviceFeeAmount),
+      description: `${result.breakdown.serviceFeePercentage}% of total cost`
+    }
+  ];
+  
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  
+  costItems.forEach((item, index) => {
+    const itemY = yPosition + (index * 15);
+    
+    // Item label
+    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+    doc.setFont("helvetica", "bold");
+    doc.text(item.label, marginLeft, itemY);
+    
+    // Item value (right-aligned)
+    doc.setFont("helvetica", "bold");
+    const valueWidth = doc.getStringUnitWidth(item.value) * 10 / doc.internal.scaleFactor;
+    doc.text(item.value, pageWidth - marginRight - valueWidth, itemY);
+    
+    // Item description
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.text(item.description, marginLeft, itemY + 6);
+    doc.setFontSize(10);
+  });
+  
+  yPosition += costItems.length * 15 + 10;
+  
+  // Total section with background
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(marginLeft - 5, yPosition - 5, contentWidth + 10, 20, 'F');
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text("TOTAL PAYABLE", marginLeft, yPosition + 8);
+  
+  const totalValue = formatCurrency(result.breakdown.totalPayable);
+  const totalWidth = doc.getStringUnitWidth(totalValue) * 14 / doc.internal.scaleFactor;
+  doc.text(totalValue, pageWidth - marginRight - totalWidth, yPosition + 8);
+  
+  yPosition += 35;
+  
+  // Footer with disclaimer
+  doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  
+  const disclaimerText = [
+    "DISCLAIMER: This estimate is for planning purposes only. Actual costs may vary based on:",
+    "• Current exchange rates and market conditions",
+    "• Additional inspection fees or documentation requirements", 
+    "• Changes in government tax rates or import regulations",
+    "• Vehicle-specific factors discovered during clearance process",
+    "",
+    "Contact us for the most current rates and professional import assistance.",
+    "Email: info@gariyangu.co.ke | Phone: 0736 272719"
+  ];
+  
+  disclaimerText.forEach((line, index) => {
+    doc.text(line, marginLeft, yPosition + (index * 6));
+  });
+  
+  // Save the PDF
+  doc.save(`gariyangu-import-estimate-${result.vehicleInfo.make}-${result.vehicleInfo.model}-${new Date().getFullYear()}.pdf`);
+}

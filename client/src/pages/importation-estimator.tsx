@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ModuleNavigation } from "@/components/module-navigation";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { queryClient } from "@/lib/queryClient";
+import { generateImportEstimatePDF, type ImportEstimateResult } from "@/lib/pdf-generator";
 import React from "react";
 
 // Form schema for import estimation
@@ -49,6 +50,23 @@ export default function ImportationEstimator() {
   const [showResults, setShowResults] = useState(false);
   const [estimateResult, setEstimateResult] = useState<any>(null);
   const { toast } = useToast();
+
+  // Function to handle PDF download
+  const handleDownloadPDF = () => {
+    if (!estimateResult) return;
+    
+    const pdfData: ImportEstimateResult = {
+      vehicleInfo: estimateResult.vehicleInfo,
+      breakdown: estimateResult.breakdown
+    };
+    
+    generateImportEstimatePDF(pdfData);
+    
+    toast({
+      title: "PDF Downloaded",
+      description: "Your import estimate report has been downloaded successfully.",
+    });
+  };
 
   const form = useForm<ImportEstimateForm>({
     resolver: zodResolver(importEstimateFormSchema),
@@ -426,6 +444,17 @@ export default function ImportationEstimator() {
                         </div>
                       </div>
                     )}
+
+                    {/* PDF Download Button */}
+                    <div className="flex gap-3">
+                      <Button 
+                        onClick={() => handleDownloadPDF()}
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Download PDF Report
+                      </Button>
+                    </div>
 
                     <Alert>
                       <AlertCircle className="h-4 w-4" />

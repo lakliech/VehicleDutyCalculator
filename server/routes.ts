@@ -2319,24 +2319,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Calculate age depreciation
+      console.log(`=== VALUATION DEBUG ===`);
+      console.log(`Base Price: ${basePrice}`);
+      console.log(`Vehicle: ${year} ${make} ${model}`);
+      console.log(`Mileage: ${mileage}, Condition: ${condition}, Location: ${location}`);
+
+      // Calculate age depreciation - more conservative for Kenya market
       const currentYear = new Date().getFullYear();
       const vehicleAge = currentYear - year;
       const maxAge = 20; // Max age for calculation
-      const ageDepreciation = Math.min(vehicleAge * 0.08, 0.8); // 8% per year, max 80%
+      // Reduced depreciation rate from 8% to 6% per year, max 70%
+      const ageDepreciation = Math.min(vehicleAge * 0.06, 0.7); 
 
-      // Calculate mileage adjustment
+      // Calculate mileage adjustment - more forgiving
       const avgMileagePerYear = 15000; // Average annual mileage in Kenya
       const expectedMileage = vehicleAge * avgMileagePerYear;
       const mileageDifference = mileage - expectedMileage;
-      const mileageAdjustment = Math.max(-0.3, Math.min(0.1, mileageDifference / 100000 * -0.1));
+      // Reduced mileage penalty
+      const mileageAdjustment = Math.max(-0.2, Math.min(0.1, mileageDifference / 150000 * -0.1));
 
-      // Condition adjustments
+      // Condition adjustments - more conservative
       const conditionAdjustments = {
-        'excellent': 0.15,
+        'excellent': 0.10,
         'good': 0,
-        'fair': -0.15,
-        'poor': -0.35
+        'fair': -0.10,
+        'poor': -0.25
       };
       const conditionAdjustment = conditionAdjustments[condition as keyof typeof conditionAdjustments] || 0;
 
@@ -2352,8 +2359,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Calculate final values
       const depreciatedValue = basePrice * (1 - ageDepreciation);
-      const adjustedValue = depreciatedValue * (1 + mileageAdjustment + conditionAdjustment + locationFactor);
-      const finalValue = Math.max(adjustedValue, basePrice * 0.1); // Minimum 10% of base price
+      const totalAdjustment = mileageAdjustment + conditionAdjustment + locationFactor;
+      const adjustedValue = depreciatedValue * (1 + totalAdjustment);
+      const finalValue = Math.max(adjustedValue, basePrice * 0.15); // Minimum 15% of base price
+
+      console.log(`Age: ${vehicleAge} years, Depreciation: ${ageDepreciation * 100}%`);
+      console.log(`Depreciated Value: ${depreciatedValue}`);
+      console.log(`Total Adjustment: ${totalAdjustment * 100}%`);
+      console.log(`Adjusted Value: ${adjustedValue}`);
+      console.log(`Final Value: ${finalValue}`);
+      console.log(`========================`)
 
       // Calculate confidence score
       const hasExactMatch = vehicleId && baseVehicle.id === vehicleId;

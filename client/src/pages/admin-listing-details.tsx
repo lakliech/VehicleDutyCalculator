@@ -1,9 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 import { 
   ArrowLeft, 
   Car, 
@@ -23,13 +29,29 @@ import {
   Gauge,
   Palette,
   Wrench,
-  Hash
+  Hash,
+  X
 } from "lucide-react";
 
 export default function AdminListingDetails() {
   const params = useParams();
   const listingId = params.id;
   const [, navigate] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Dialog states
+  const [isApproveOpen, setIsApproveOpen] = useState(false);
+  const [isRejectOpen, setIsRejectOpen] = useState(false);
+  const [isFlagOpen, setIsFlagOpen] = useState(false);
+  const [isNoteOpen, setIsNoteOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  // Form states
+  const [approvalNotes, setApprovalNotes] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [flagReason, setFlagReason] = useState("");
+  const [adminNote, setAdminNote] = useState("");
 
   console.log('Admin Listing Details - Listing ID:', listingId);
 
@@ -42,6 +64,95 @@ export default function AdminListingDetails() {
   console.log('Listing data:', listingData);
   console.log('Query error:', error);
   console.log('Is loading:', isLoading);
+
+  // Mutation functions
+  const approveMutation = useMutation({
+    mutationFn: async ({ notes }: { notes?: string }) => {
+      const response = await fetch(`/api/admin/listing/${listingId}/approve`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes }),
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to approve listing');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
+      toast({ title: "Success", description: "Listing approved successfully" });
+      setIsApproveOpen(false);
+      setApprovalNotes("");
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to approve listing", variant: "destructive" });
+    },
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: async ({ reason }: { reason: string }) => {
+      const response = await fetch(`/api/admin/listing/${listingId}/reject`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to reject listing');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
+      toast({ title: "Success", description: "Listing rejected successfully" });
+      setIsRejectOpen(false);
+      setRejectionReason("");
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to reject listing", variant: "destructive" });
+    },
+  });
+
+  const flagMutation = useMutation({
+    mutationFn: async ({ reason }: { reason: string }) => {
+      const response = await fetch(`/api/admin/listing/${listingId}/flag`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to flag listing');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
+      toast({ title: "Success", description: "Listing flagged successfully" });
+      setIsFlagOpen(false);
+      setFlagReason("");
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to flag listing", variant: "destructive" });
+    },
+  });
+
+  const addNoteMutation = useMutation({
+    mutationFn: async ({ note }: { note: string }) => {
+      const response = await fetch(`/api/admin/listing/${listingId}/note`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note }),
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to add note');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
+      toast({ title: "Success", description: "Note added successfully" });
+      setIsNoteOpen(false);
+      setAdminNote("");
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to add note", variant: "destructive" });
+    },
+  });
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-KE', {
@@ -263,15 +374,15 @@ export default function AdminListingDetails() {
               <CardContent className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">Name</label>
-                  <p className="text-sm">{listingData.sellerName}</p>
+                  <p className="text-sm">{listingData.seller?.firstName} {listingData.seller?.lastName}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">Email</label>
-                  <p className="text-sm">{listingData.sellerEmail}</p>
+                  <p className="text-sm">{listingData.seller?.email}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">Phone</label>
-                  <p className="text-sm">{listingData.phoneNumber}</p>
+                  <p className="text-sm">{listingData.seller?.phoneNumber}</p>
                 </div>
                 {listingData.whatsappNumber && (
                   <div>
@@ -283,6 +394,44 @@ export default function AdminListingDetails() {
                   <label className="text-sm font-medium text-gray-600">Created At</label>
                   <p className="text-sm">{formatDate(listingData.createdAt)}</p>
                 </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">User Status</label>
+                  <p className="text-sm">{listingData.seller?.isActive ? 'Active' : 'Inactive'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Email Verified</label>
+                  <p className="text-sm">{listingData.seller?.isEmailVerified ? 'Yes' : 'No'}</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Approval Status */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  Approval Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Status</label>
+                  <Badge variant={listingData.approval?.status === 'approved' ? 'default' : listingData.approval?.status === 'rejected' ? 'destructive' : 'secondary'}>
+                    {listingData.approval?.status || 'pending'}
+                  </Badge>
+                </div>
+                {listingData.approval?.reviewedAt && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Reviewed At</label>
+                    <p className="text-sm">{formatDate(listingData.approval.reviewedAt)}</p>
+                  </div>
+                )}
+                {listingData.approval?.reviewNotes && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Review Notes</label>
+                    <p className="text-sm">{listingData.approval.reviewNotes}</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -324,30 +473,156 @@ export default function AdminListingDetails() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" className="flex items-center gap-2">
+                <Button variant="outline" className="flex items-center gap-2" onClick={() => setIsEditOpen(true)}>
                   <Edit className="w-4 h-4" />
                   Edit Listing
                 </Button>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <StickyNote className="w-4 h-4" />
-                  Add Note
-                </Button>
+                
+                <Dialog open={isNoteOpen} onOpenChange={setIsNoteOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <StickyNote className="w-4 h-4" />
+                      Add Note
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add Admin Note</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="note">Admin Note</Label>
+                        <Textarea
+                          id="note"
+                          placeholder="Enter admin note..."
+                          value={adminNote}
+                          onChange={(e) => setAdminNote(e.target.value)}
+                          rows={4}
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setIsNoteOpen(false)}>Cancel</Button>
+                        <Button 
+                          onClick={() => addNoteMutation.mutate({ note: adminNote })}
+                          disabled={!adminNote.trim() || addNoteMutation.isPending}
+                        >
+                          {addNoteMutation.isPending ? "Adding..." : "Add Note"}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
                 {listingData.status === 'pending' && (
                   <>
-                    <Button variant="default" className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" />
-                      Approve
-                    </Button>
-                    <Button variant="destructive" className="flex items-center gap-2">
-                      <Flag className="w-4 h-4" />
-                      Reject
-                    </Button>
+                    <Dialog open={isApproveOpen} onOpenChange={setIsApproveOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="default" className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4" />
+                          Approve
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Approve Listing</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="approvalNotes">Approval Notes (Optional)</Label>
+                            <Textarea
+                              id="approvalNotes"
+                              placeholder="Enter approval notes..."
+                              value={approvalNotes}
+                              onChange={(e) => setApprovalNotes(e.target.value)}
+                              rows={3}
+                            />
+                          </div>
+                          <div className="flex justify-end gap-2">
+                            <Button variant="outline" onClick={() => setIsApproveOpen(false)}>Cancel</Button>
+                            <Button 
+                              onClick={() => approveMutation.mutate({ notes: approvalNotes })}
+                              disabled={approveMutation.isPending}
+                            >
+                              {approveMutation.isPending ? "Approving..." : "Approve"}
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
+                    <Dialog open={isRejectOpen} onOpenChange={setIsRejectOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="destructive" className="flex items-center gap-2">
+                          <X className="w-4 h-4" />
+                          Reject
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Reject Listing</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="rejectionReason">Rejection Reason *</Label>
+                            <Textarea
+                              id="rejectionReason"
+                              placeholder="Enter rejection reason..."
+                              value={rejectionReason}
+                              onChange={(e) => setRejectionReason(e.target.value)}
+                              rows={3}
+                            />
+                          </div>
+                          <div className="flex justify-end gap-2">
+                            <Button variant="outline" onClick={() => setIsRejectOpen(false)}>Cancel</Button>
+                            <Button 
+                              onClick={() => rejectMutation.mutate({ reason: rejectionReason })}
+                              disabled={!rejectionReason.trim() || rejectMutation.isPending}
+                              variant="destructive"
+                            >
+                              {rejectMutation.isPending ? "Rejecting..." : "Reject"}
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </>
                 )}
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Flag className="w-4 h-4" />
-                  Flag
-                </Button>
+
+                <Dialog open={isFlagOpen} onOpenChange={setIsFlagOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <Flag className="w-4 h-4" />
+                      Flag
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Flag Listing</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="flagReason">Flag Reason *</Label>
+                        <Textarea
+                          id="flagReason"
+                          placeholder="Enter reason for flagging..."
+                          value={flagReason}
+                          onChange={(e) => setFlagReason(e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setIsFlagOpen(false)}>Cancel</Button>
+                        <Button 
+                          onClick={() => flagMutation.mutate({ reason: flagReason })}
+                          disabled={!flagReason.trim() || flagMutation.isPending}
+                          variant="destructive"
+                        >
+                          {flagMutation.isPending ? "Flagging..." : "Flag"}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </CardContent>
           </Card>

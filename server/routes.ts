@@ -2819,12 +2819,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const dutyResult = await storage.calculateDuty(dutyCalculationData);
 
-      // Calculate service fee (percentage of total before service fee)
+      // Calculate total cost with service fee
+      // Formula: CIF Price + Duty + Clearing Fees + Transport + 5% of total cost
       const transportCostNum = parseFloat(estimateData.transportCost || "0");
       const serviceFeePercentageNum = parseFloat(estimateData.serviceFeePercentage);
-      const baseTotal = cifKes + dutyResult.totalDutyAmount + clearingChargeAmount + transportCostNum;
-      const serviceFeeAmount = baseTotal * (serviceFeePercentageNum / 100);
-      const totalPayable = baseTotal + serviceFeeAmount;
+      
+      // Base cost without service fee
+      const baseCost = cifKes + dutyResult.totalDutyAmount + clearingChargeAmount + transportCostNum;
+      
+      // Calculate total including service fee: Total = Base / (1 - service_fee_percentage/100)
+      // This ensures the service fee is 5% of the final total, not just 5% added to base
+      const totalPayable = baseCost / (1 - serviceFeePercentageNum / 100);
+      const serviceFeeAmount = totalPayable - baseCost;
 
       // Save estimate to database
       const estimateRecord = {

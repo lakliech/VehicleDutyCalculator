@@ -449,6 +449,14 @@ Changelog:
   - Integrated with existing vehicle database for seamless quote generation
   - Added detailed premium breakdown and personalized recommendations based on Kenya insurance market factors
   - Hidden from frontend navigation per user request for future implementation
+- January 11, 2025. Completed comprehensive Vehicle Import Estimator:
+  - Implemented full-stack import cost calculator with CIF conversion (USD/JPY/GBP to KES)
+  - Created database schema for import estimates, exchange rates, and clearing charges
+  - Built backend API endpoints for exchange rates, clearing charges, and import calculations
+  - Developed comprehensive frontend interface with vehicle selection and detailed cost breakdown
+  - Fixed calculation formula: CIF Price + Duty + Clearing Fees + Transport + 5% of total cost (service fee calculated as percentage of final total)
+  - Integrated with existing duty calculator for accurate tax computation
+  - Added automatic vehicle category detection based on engine capacity
 
 ## User Preferences
 

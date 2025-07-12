@@ -29,7 +29,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
-import { sql, eq, desc } from "drizzle-orm";
+import { sql, eq, desc, and } from "drizzle-orm";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 import bcrypt from "bcrypt";
@@ -2878,11 +2878,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Calculate total cost with service fee
       // Formula: CIF Price + Duty + Clearing Fees + Transport + 5% of total cost
+      console.log('=== TOTAL COST CALCULATION ===');
+      console.log('CIF Value (KES):', cifKes, '← Used for base import cost');
+      console.log('Duty (from CRSP):', dutyResult.totalTaxes, '← Calculated using CRSP value');
+      console.log('Clearing Charges:', clearingChargeAmount, '← Fixed based on vehicle category');
+      
       const transportCostNum = parseFloat(estimateData.transportCost || "0");
       const serviceFeePercentageNum = parseFloat(estimateData.serviceFeePercentage);
+      console.log('Transport Cost:', transportCostNum, '← User input');
       
       // Base cost without service fee
       const baseCost = cifKes + dutyResult.totalTaxes + clearingChargeAmount + transportCostNum;
+      console.log('Base Cost Total:', baseCost, '= CIF + Duty + Clearing + Transport');
       
       // Calculate total including service fee: Total = Base / (1 - service_fee_percentage/100)
       // This ensures the service fee is 5% of the final total, not just 5% added to base

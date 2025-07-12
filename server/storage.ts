@@ -1567,7 +1567,7 @@ export class DatabaseStorage implements IStorage {
       whereConditions.push(eq(carListings.isFlagged, true));
     }
     
-    let query = db
+    const baseQuery = db
       .select({
         id: carListings.id,
         title: carListings.title,
@@ -1587,9 +1587,9 @@ export class DatabaseStorage implements IStorage {
       .from(carListings)
       .leftJoin(appUsers, eq(carListings.sellerId, appUsers.id));
     
-    if (whereConditions.length > 0) {
-      query = query.where(and(...whereConditions));
-    }
+    const query = whereConditions.length > 0 
+      ? baseQuery.where(and(...whereConditions))
+      : baseQuery;
     
     return await query.orderBy(desc(carListings.createdAt));
   }

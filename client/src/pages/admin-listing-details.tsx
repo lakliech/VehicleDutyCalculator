@@ -173,14 +173,7 @@ export default function AdminListingDetails() {
 
   const editMutation = useMutation({
     mutationFn: async (editData: { title: string; description: string; price: string; negotiable: boolean; location: string }) => {
-      const response = await fetch(`/api/admin/listings/${listingId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editData),
-        credentials: 'include',
-      });
-      if (!response.ok) throw new Error('Failed to edit listing');
-      return response.json();
+      return apiRequest('PUT', `/api/admin/listings/${listingId}`, editData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });

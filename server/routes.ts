@@ -3855,6 +3855,16 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       if (existing) {
         // Remove from favorites
         await storage.removeFromFavorites(userId, carId);
+        
+        // Log activity
+        await storage.logUserActivity(
+          userId,
+          'car_unfavorited',
+          'car_listing',
+          carId.toString(),
+          `Removed car listing ID ${carId} from favorites`
+        );
+        
         res.json({ 
           success: true, 
           message: 'Car removed from favorites',
@@ -3863,6 +3873,16 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       } else {
         // Add to favorites
         await storage.addToFavorites(userId, carId);
+        
+        // Log activity
+        await storage.logUserActivity(
+          userId,
+          'car_favorited',
+          'car_listing',
+          carId.toString(),
+          `Added car listing ID ${carId} to favorites`
+        );
+        
         res.json({ 
           success: true, 
           message: 'Car added to favorites',
@@ -3910,6 +3930,15 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       
       await storage.saveSearch(userId, searchName, filters);
       
+      // Log activity
+      await storage.logUserActivity(
+        userId,
+        'search_saved',
+        'search_filter',
+        searchName,
+        `Saved search: ${searchName}`
+      );
+      
       res.json({ 
         success: true, 
         message: 'Search saved successfully' 
@@ -3953,6 +3982,15 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       // Add to comparison list
       await storage.addToComparison(userId, carId);
       
+      // Log activity
+      await storage.logUserActivity(
+        userId,
+        'car_compared',
+        'car_listing',
+        carId.toString(),
+        `Added car listing ID ${carId} to comparison`
+      );
+      
       res.json({ 
         success: true, 
         message: 'Car added to comparison',
@@ -3994,6 +4032,15 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       
       const userId = req.user.id;
       await storage.removeFromComparison(userId, carId);
+      
+      // Log activity
+      await storage.logUserActivity(
+        userId,
+        'car_removed_from_comparison',
+        'car_listing',
+        carId.toString(),
+        `Removed car listing ID ${carId} from comparison`
+      );
       
       res.json({ 
         success: true, 

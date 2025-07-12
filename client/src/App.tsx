@@ -78,6 +78,11 @@ function Router() {
               <AdminListings />
             </ProtectedRoute>
           </Route>
+          <Route path="/admin/listings/:id">
+            <ProtectedRoute requireAdmin={true}>
+              <AdminListings />
+            </ProtectedRoute>
+          </Route>
           <Route path="/admin/users">
             <ProtectedRoute requireAdmin={true}>
               <AdminUsers />

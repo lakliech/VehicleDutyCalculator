@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -114,6 +115,9 @@ interface ListingDetails {
 }
 
 export default function AdminListings() {
+  const params = useParams();
+  const listingId = params.id;
+  
   const [filters, setFilters] = useState({
     status: 'all',
     make: 'all',
@@ -161,7 +165,14 @@ export default function AdminListings() {
       });
       return apiRequest('GET', `/api/admin/listings-with-stats?${params.toString()}`);
     },
-    enabled: true,
+    enabled: !listingId,
+  });
+
+  // Individual listing details query
+  const { data: singleListingData, isLoading: isLoadingSingleListing } = useQuery({
+    queryKey: ['/api/admin/listing-details', listingId],
+    queryFn: () => apiRequest('GET', `/api/admin/listing-details/${listingId}`),
+    enabled: !!listingId,
   });
 
   // Bulk update mutation
@@ -421,6 +432,211 @@ export default function AdminListings() {
       day: 'numeric',
     });
   };
+
+  // If we have a listing ID, show the detailed view
+  if (listingId) {
+    if (isLoadingSingleListing) {
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <div className="container mx-auto p-6">
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading listing details...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (!singleListingData) {
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <div className="container mx-auto p-6">
+            <div className="text-center py-12">
+              <Car className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Listing Not Found</h2>
+              <p className="text-gray-600 mb-4">The requested listing could not be found.</p>
+              <Button onClick={() => window.location.href = '/admin/listings'}>
+                Back to Listings
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Show detailed listing view
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto p-6">
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <Button 
+                  onClick={() => window.location.href = '/admin/listings'}
+                  variant="outline"
+                  className="mb-4"
+                >
+                  ← Back to Listings
+                </Button>
+                <h1 className="text-3xl font-bold text-gray-900">Listing Details</h1>
+                <p className="text-gray-600">Complete information about this listing</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {getStatusBadge(singleListingData.status)}
+                <Button 
+                  onClick={() => window.location.reload()}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Refresh
+                </Button>
+              </div>
+            </div>
+
+            {/* Detailed Listing Information */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Basic Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Car className="w-5 h-5" />
+                    Vehicle Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Title</label>
+                    <p className="text-lg font-semibold">{singleListingData.title}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Make</label>
+                      <p className="text-sm">{singleListingData.make}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Model</label>
+                      <p className="text-sm">{singleListingData.model}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Year</label>
+                      <p className="text-sm">{singleListingData.year}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Price</label>
+                      <p className="text-lg font-bold text-purple-600">{formatPrice(singleListingData.price)}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Location</label>
+                    <p className="text-sm">{singleListingData.location}</p>
+                  </div>
+                  {singleListingData.description && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Description</label>
+                      <p className="text-sm bg-gray-50 p-3 rounded-lg">{singleListingData.description}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Seller Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="w-5 h-5" />
+                    Seller Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Name</label>
+                      <p className="text-sm">{singleListingData.seller?.firstName} {singleListingData.seller?.lastName}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Email</label>
+                      <p className="text-sm">{singleListingData.seller?.email}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Phone</label>
+                      <p className="text-sm">{singleListingData.phoneNumber || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">WhatsApp</label>
+                      <p className="text-sm">{singleListingData.whatsappNumber || 'Not provided'}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Created</label>
+                    <p className="text-sm">{formatDate(singleListingData.createdAt)}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4">
+                  {singleListingData.status === 'pending' && (
+                    <>
+                      <Button 
+                        onClick={() => approveMutation.mutate({ listingId: singleListingData.id })}
+                        disabled={approveMutation.isPending}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Approve
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          setSelectedListing({ listing: singleListingData, seller: singleListingData.seller });
+                          setShowRejectDialog(true);
+                        }}
+                        disabled={rejectMutation.isPending}
+                        variant="destructive"
+                      >
+                        <XCircle className="w-4 h-4 mr-2" />
+                        Reject
+                      </Button>
+                    </>
+                  )}
+                  <Button 
+                    onClick={() => {
+                      setSelectedListing({ listing: singleListingData, seller: singleListingData.seller });
+                      setShowFlagDialog(true);
+                    }}
+                    variant="outline"
+                  >
+                    <Flag className="w-4 h-4 mr-2" />
+                    Flag Listing
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      setSelectedListing({ listing: singleListingData, seller: singleListingData.seller });
+                      setShowNoteDialog(true);
+                    }}
+                    variant="outline"
+                  >
+                    <StickyNote className="w-4 h-4 mr-2" />
+                    Add Note
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

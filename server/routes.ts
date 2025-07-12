@@ -533,6 +533,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Individual Listing Details
+  app.get('/api/admin/listing-details/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      const listing = await storage.getListingById(listingId);
+      
+      if (!listing) {
+        return res.status(404).json({ error: 'Listing not found' });
+      }
+      
+      res.json(listing);
+    } catch (error) {
+      console.error('Get listing details error:', error);
+      res.status(500).json({ error: 'Failed to load listing details' });
+    }
+  });
+
   // Individual Listing Actions
   app.put('/api/admin/listing/:id/approve', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {

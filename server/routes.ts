@@ -2255,7 +2255,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fuelType, 
         mileage = 0, 
         condition = 'good', 
-        location = 'nairobi' 
+        location = 'nairobi',
+        // Image analysis fields
+        useImageAnalysis,
+        frontImage,
+        reverseImage,
+        leftSideImage,
+        rightSideImage
       } = req.body;
 
       // Validate required fields
@@ -2382,6 +2388,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Use OpenAI for market analysis
       let aiAnalysis = `Based on current Kenya market conditions, the ${year} ${make} ${model} with ${engineCapacity}cc engine shows good market demand. With ${mileage.toLocaleString()} km and ${condition} condition, the vehicle retains solid value. This category is popular among Kenyan buyers for its reliability and fuel efficiency.`;
+      
+      // Image analysis results
+      let imageAnalysis = null;
+      let damageDiscount = 0;
+      let finalMarketValue = finalValue;
+      
+      if (useImageAnalysis && frontImage && reverseImage && leftSideImage && rightSideImage) {
+        console.log("Processing image analysis...");
+        
+        try {
+          // Analyze each image using OpenAI Vision
+          const analyzeImage = async (base64Image: string, viewName: string) => {
+            const response = await openai.chat.completions.create({
+              model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+              messages: [
+                {
+                  role: "system",
+                  content: "You are a professional vehicle damage assessor. Analyze the image and provide a damage assessment score from 0-100 (0 = no damage, 100 = severely damaged). Look for dents, scratches, rust, paint damage, broken parts, or any repairs. Provide a brief description of visible damage."
+                },
+                {
+                  role: "user",
+                  content: [
+                    {
+                      type: "text",
+                      text: `Analyze the ${viewName} of this ${year} ${make} ${model} vehicle. Provide a damage score (0-100) and describe any visible damage, repairs, or blemishes that would affect the vehicle's value.`
+                    },
+                    {
+                      type: "image_url",
+                      image_url: {
+                        url: base64Image
+                      }
+                    }
+                  ]
+                }
+              ],
+              max_tokens: 200
+            });
+            
+            const analysis = response.choices[0].message.content || "";
+            const scoreMatch = analysis.match(/(\d+)/);
+            const damageScore = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+            
+            return {
+              analysis,
+              damageScore: Math.min(100, Math.max(0, damageScore))
+            };
+          };
+          
+          // Analyze all images
+          const [frontAnalysis, reverseAnalysis, leftAnalysis, rightAnalysis] = await Promise.all([
+            analyzeImage(frontImage, "front view"),
+            analyzeImage(reverseImage, "rear view"),
+            analyzeImage(leftSideImage, "left side view"),
+            analyzeImage(rightSideImage, "right side view")
+          ]);
+          
+          // Calculate overall damage score (average of all views)
+          const overallDamageScore = Math.round((
+            frontAnalysis.damageScore + 
+            reverseAnalysis.damageScore + 
+            leftAnalysis.damageScore + 
+            rightAnalysis.damageScore
+          ) / 4);
+          
+          // Calculate damage discount based on overall score
+          if (overallDamageScore > 0) {
+            // Damage discount: 0-20% based on damage severity
+            damageDiscount = Math.min(0.20, overallDamageScore / 100 * 0.25);
+            finalMarketValue = finalValue * (1 - damageDiscount);
+          }
+          
+          imageAnalysis = {
+            frontAnalysis: frontAnalysis.analysis,
+            reverseAnalysis: reverseAnalysis.analysis,
+            leftSideAnalysis: leftAnalysis.analysis,
+            rightSideAnalysis: rightAnalysis.analysis,
+            frontDamageScore: frontAnalysis.damageScore,
+            reverseDamageScore: reverseAnalysis.damageScore,
+            leftSideDamageScore: leftAnalysis.damageScore,
+            rightSideDamageScore: rightAnalysis.damageScore,
+            overallDamageScore,
+            damageDiscount,
+            hasImageAnalysis: true
+          };
+          
+          console.log("Image analysis completed:", {
+            overallDamageScore,
+            damageDiscount: (damageDiscount * 100).toFixed(1) + "%",
+            finalValue: finalMarketValue
+          });
+          
+        } catch (error) {
+          console.error('Image analysis error:', error);
+          imageAnalysis = {
+            hasImageAnalysis: false,
+            error: "Failed to analyze images"
+          };
+        }
+      }
 
       // Prepare valuation result
       const valuation = {
@@ -2394,7 +2499,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         mileage,
         condition,
         location,
-        marketValue: Math.round(finalValue),
+        marketValue: Math.round(imageAnalysis && imageAnalysis.hasImageAnalysis ? finalMarketValue : finalValue),
         depreciatedValue: Math.round(depreciatedValue),
         adjustedValue: Math.round(adjustedValue),
         confidenceScore,
@@ -2411,7 +2516,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           model: baseVehicle.model,
           engineCapacity: baseVehicle.engineCapacity,
           basePrice: basePrice
-        }
+        },
+        ...(imageAnalysis && { imageAnalysis })
       };
 
       console.log("=== BACKEND RESPONSE DEBUG ===");

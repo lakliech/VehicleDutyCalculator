@@ -646,37 +646,7 @@ export type AdminCredential = typeof adminCredentials.$inferSelect;
 export type InsertAdminCredential = z.infer<typeof adminCredentialSchema>;
 export type AdminLogin = z.infer<typeof adminLoginSchema>;
 
-// Vehicle Valuation Schema
-export const vehicleValuations = pgTable("vehicle_valuations", {
-  id: serial("id").primaryKey(),
-  vehicleId: integer("vehicle_id").references(() => vehicleReferences.id),
-  make: text("make").notNull(),
-  model: text("model").notNull(),
-  year: integer("year").notNull(),
-  engineCapacity: integer("engine_capacity"),
-  fuelType: text("fuel_type"),
-  mileage: integer("mileage"),
-  condition: text("condition").notNull(), // excellent, good, fair, poor
-  location: text("location"),
-  marketValue: decimal("market_value", { precision: 12, scale: 2 }).notNull(),
-  depreciatedValue: decimal("depreciated_value", { precision: 12, scale: 2 }),
-  adjustedValue: decimal("adjusted_value", { precision: 12, scale: 2 }),
-  confidenceScore: integer("confidence_score").default(85), // 0-100
-  valuationFactors: text("valuation_factors"), // JSON string for factors
-  aiAnalysis: text("ai_analysis"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-// Valuation schemas
-export const vehicleValuationSchema = createInsertSchema(vehicleValuations).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type VehicleValuation = typeof vehicleValuations.$inferSelect;
-export type InsertVehicleValuation = z.infer<typeof vehicleValuationSchema>;
+// Vehicle Valuation Schema (old version - to be replaced)
 
 // Manual vehicle data for proration
 export interface ManualVehicleData {
@@ -856,3 +826,88 @@ export type ClearingCharge = typeof clearingCharges.$inferSelect;
 export type InsertClearingCharge = z.infer<typeof clearingChargeSchema>;
 export type ExchangeRate = typeof exchangeRates.$inferSelect;
 export type InsertExchangeRate = z.infer<typeof exchangeRateSchema>;
+
+// Updated Vehicle Valuation Schema with Image Analysis
+export const vehicleValuationsWithImages = pgTable("vehicle_valuations_with_images", {
+  id: serial("id").primaryKey(),
+  vehicleId: integer("vehicle_id"), // Reference to vehicle_references
+  make: text("make").notNull(),
+  model: text("model").notNull(),
+  year: integer("year").notNull(),
+  engineCapacity: integer("engine_capacity"),
+  fuelType: text("fuel_type"),
+  mileage: integer("mileage").notNull(),
+  condition: text("condition").notNull(), // excellent, good, fair, poor
+  location: text("location").notNull(),
+  
+  // Image analysis results
+  frontImageUrl: text("front_image_url"),
+  reverseImageUrl: text("reverse_image_url"),
+  leftSideImageUrl: text("left_side_image_url"),
+  rightSideImageUrl: text("right_side_image_url"),
+  
+  // AI analysis results
+  frontImageAnalysis: text("front_image_analysis"),
+  reverseImageAnalysis: text("reverse_image_analysis"),
+  leftSideImageAnalysis: text("left_side_image_analysis"),
+  rightSideImageAnalysis: text("right_side_image_analysis"),
+  
+  // Damage assessment
+  frontDamageScore: integer("front_damage_score").default(0), // 0-100 (0 = no damage, 100 = severely damaged)
+  reverseDamageScore: integer("reverse_damage_score").default(0),
+  leftSideDamageScore: integer("left_side_damage_score").default(0),
+  rightSideDamageScore: integer("right_side_damage_score").default(0),
+  overallDamageScore: integer("overall_damage_score").default(0),
+  
+  // Valuation results
+  basePrice: decimal("base_price", { precision: 12, scale: 2 }).notNull(),
+  depreciatedValue: decimal("depreciated_value", { precision: 12, scale: 2 }).notNull(),
+  adjustedValue: decimal("adjusted_value", { precision: 12, scale: 2 }).notNull(),
+  damageDiscount: decimal("damage_discount", { precision: 5, scale: 4 }).default("0"), // as decimal (0.10 = 10% discount)
+  finalMarketValue: decimal("final_market_value", { precision: 12, scale: 2 }).notNull(),
+  confidenceScore: integer("confidence_score").default(70),
+  
+  // Customer information
+  customerName: text("customer_name"),
+  customerEmail: text("customer_email"),
+  customerPhone: text("customer_phone"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const vehicleValuationWithImagesSchema = createInsertSchema(vehicleValuationsWithImages).omit({
+  id: true,
+  createdAt: true,
+  vehicleId: true,
+  frontImageUrl: true,
+  reverseImageUrl: true,
+  leftSideImageUrl: true,
+  rightSideImageUrl: true,
+  frontImageAnalysis: true,
+  reverseImageAnalysis: true,
+  leftSideImageAnalysis: true,
+  rightSideImageAnalysis: true,
+  frontDamageScore: true,
+  reverseDamageScore: true,
+  leftSideDamageScore: true,
+  rightSideDamageScore: true,
+  overallDamageScore: true,
+  basePrice: true,
+  depreciatedValue: true,
+  adjustedValue: true,
+  damageDiscount: true,
+  finalMarketValue: true,
+  confidenceScore: true,
+}).extend({
+  mileage: z.number(),
+  year: z.number(),
+  engineCapacity: z.number().optional(),
+  // Image files as base64 strings
+  frontImage: z.string().optional(),
+  reverseImage: z.string().optional(),
+  leftSideImage: z.string().optional(),
+  rightSideImage: z.string().optional(),
+});
+
+export type VehicleValuationWithImages = typeof vehicleValuationsWithImages.$inferSelect;
+export type InsertVehicleValuationWithImages = z.infer<typeof vehicleValuationWithImagesSchema>;

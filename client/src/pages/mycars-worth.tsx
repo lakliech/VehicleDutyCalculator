@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { DollarSign, Clock, TrendingUp, BarChart3, Calculator, Car, MapPin, Gauge, Calendar, Zap } from "lucide-react";
+import { DollarSign, Clock, TrendingUp, BarChart3, Calculator, Car, MapPin, Gauge, Calendar, Zap, Camera, AlertTriangle } from "lucide-react";
 import { ModuleNavigation } from "@/components/module-navigation";
 import { VehicleSelector } from "@/components/vehicle-selector";
+import { ImageUpload } from "@/components/image-upload";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -42,6 +43,16 @@ interface ValuationResult {
     engineCapacity: number;
     basePrice: number;
   };
+  // Image analysis results
+  imageAnalysis?: {
+    frontAnalysis?: string;
+    reverseAnalysis?: string;
+    leftSideAnalysis?: string;
+    rightSideAnalysis?: string;
+    overallDamageScore?: number;
+    damageDiscount?: number;
+    hasImageAnalysis?: boolean;
+  };
 }
 
 export default function MyCarsWorth() {
@@ -51,6 +62,14 @@ export default function MyCarsWorth() {
   const [condition, setCondition] = useState<string>("good");
   const [location, setLocation] = useState<string>("nairobi");
   const [valuationResult, setValuationResult] = useState<ValuationResult | null>(null);
+  
+  // Image upload states
+  const [frontImage, setFrontImage] = useState<string | undefined>(undefined);
+  const [reverseImage, setReverseImage] = useState<string | undefined>(undefined);
+  const [leftSideImage, setLeftSideImage] = useState<string | undefined>(undefined);
+  const [rightSideImage, setRightSideImage] = useState<string | undefined>(undefined);
+  const [useImageAnalysis, setUseImageAnalysis] = useState<boolean>(false);
+  
   const { toast } = useToast();
 
   const valuationMutation = useMutation({
@@ -67,7 +86,9 @@ export default function MyCarsWorth() {
       setValuationResult(data);
       toast({
         title: "Valuation Complete",
-        description: "Your vehicle valuation has been calculated successfully!",
+        description: useImageAnalysis && data.imageAnalysis?.hasImageAnalysis 
+          ? "Your vehicle valuation with image analysis has been calculated successfully!"
+          : "Your vehicle valuation has been calculated successfully!",
       });
     },
     onError: (error: any) => {
@@ -89,6 +110,24 @@ export default function MyCarsWorth() {
       return;
     }
 
+    // Check if image analysis is enabled but images are missing
+    if (useImageAnalysis) {
+      const missingImages = [];
+      if (!frontImage) missingImages.push("Front view");
+      if (!reverseImage) missingImages.push("Reverse view");
+      if (!leftSideImage) missingImages.push("Left side");
+      if (!rightSideImage) missingImages.push("Right side");
+      
+      if (missingImages.length > 0) {
+        toast({
+          title: "Images Required",
+          description: `Please upload all vehicle images: ${missingImages.join(", ")}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     const valuationData = {
       vehicleId: selectedVehicle.id,
       make: selectedVehicle.make,
@@ -99,6 +138,14 @@ export default function MyCarsWorth() {
       mileage,
       condition,
       location,
+      // Include image data if image analysis is enabled
+      ...(useImageAnalysis && {
+        frontImage,
+        reverseImage,
+        leftSideImage,
+        rightSideImage,
+        useImageAnalysis: true,
+      }),
     };
 
     valuationMutation.mutate(valuationData);
@@ -251,6 +298,74 @@ export default function MyCarsWorth() {
                   </div>
                 </div>
 
+                {/* Image Analysis Section */}
+                <div className="space-y-4">
+                  <Separator />
+                  <div className="flex items-center space-x-2">
+                    <Camera className="h-5 w-5 text-purple-600" />
+                    <Label className="text-base font-semibold">Enhanced Image Analysis</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="useImageAnalysis"
+                      checked={useImageAnalysis}
+                      onChange={(e) => setUseImageAnalysis(e.target.checked)}
+                      className="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                    />
+                    <Label htmlFor="useImageAnalysis" className="text-sm">
+                      Enable AI image analysis for damage assessment and price adjustments
+                    </Label>
+                  </div>
+                  
+                  {useImageAnalysis && (
+                    <div className="space-y-4 p-4 bg-blue-50 rounded-lg border">
+                      <div className="flex items-start space-x-2">
+                        <AlertTriangle className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-blue-900">
+                            AI Damage Assessment
+                          </p>
+                          <p className="text-xs text-blue-700">
+                            Upload clear photos of your vehicle from all angles. Our AI will analyze for damage, repairs, and blemishes to provide accurate pricing adjustments.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <ImageUpload
+                          label="Front View"
+                          description="Clear front view of the vehicle"
+                          value={frontImage}
+                          onChange={setFrontImage}
+                          required={useImageAnalysis}
+                        />
+                        <ImageUpload
+                          label="Reverse View"
+                          description="Clear rear view of the vehicle"
+                          value={reverseImage}
+                          onChange={setReverseImage}
+                          required={useImageAnalysis}
+                        />
+                        <ImageUpload
+                          label="Left Side"
+                          description="Clear left side view"
+                          value={leftSideImage}
+                          onChange={setLeftSideImage}
+                          required={useImageAnalysis}
+                        />
+                        <ImageUpload
+                          label="Right Side"
+                          description="Clear right side view"
+                          value={rightSideImage}
+                          onChange={setRightSideImage}
+                          required={useImageAnalysis}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <Button 
                   onClick={handleValuation} 
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
@@ -358,6 +473,14 @@ export default function MyCarsWorth() {
                           {((valuationResult.valuationFactors?.locationFactor || 0) * 100).toFixed(1)}%
                         </span>
                       </div>
+                      {valuationResult.imageAnalysis?.hasImageAnalysis && (
+                        <div className="flex justify-between items-center pt-2 border-t">
+                          <span className="text-sm text-gray-600">AI Damage Assessment</span>
+                          <span className="font-semibold text-red-600">
+                            -{(valuationResult.imageAnalysis.damageDiscount * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -375,6 +498,118 @@ export default function MyCarsWorth() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Image Analysis Results */}
+                {valuationResult.imageAnalysis?.hasImageAnalysis && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <Camera className="h-5 w-5 text-blue-600" />
+                        <span>AI Image Analysis Results</span>
+                      </CardTitle>
+                      <CardDescription>
+                        Professional damage assessment with pricing adjustments
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {/* Overall Damage Score */}
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-medium text-gray-700">Overall Condition Score</span>
+                            <Badge 
+                              variant={valuationResult.imageAnalysis.overallDamageScore <= 10 ? "success" : 
+                                     valuationResult.imageAnalysis.overallDamageScore <= 30 ? "warning" : "destructive"}
+                              className="text-xs"
+                            >
+                              {100 - (valuationResult.imageAnalysis.overallDamageScore || 0)}/100
+                            </Badge>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                valuationResult.imageAnalysis.overallDamageScore <= 10 ? 'bg-green-500' : 
+                                valuationResult.imageAnalysis.overallDamageScore <= 30 ? 'bg-yellow-500' : 'bg-red-500'
+                              }`}
+                              style={{ width: `${100 - (valuationResult.imageAnalysis.overallDamageScore || 0)}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {valuationResult.imageAnalysis.overallDamageScore <= 10 ? 'Excellent condition' : 
+                             valuationResult.imageAnalysis.overallDamageScore <= 30 ? 'Good condition with minor issues' : 
+                             'Visible damage requiring attention'}
+                          </p>
+                        </div>
+
+                        {/* Damage Analysis by View */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium text-gray-700">Front View</span>
+                              <Badge variant="outline" className="text-xs">
+                                {valuationResult.imageAnalysis.frontDamageScore || 0}/100
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-gray-600">
+                              {valuationResult.imageAnalysis.frontAnalysis || 'No analysis available'}
+                            </p>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium text-gray-700">Rear View</span>
+                              <Badge variant="outline" className="text-xs">
+                                {valuationResult.imageAnalysis.reverseDamageScore || 0}/100
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-gray-600">
+                              {valuationResult.imageAnalysis.reverseAnalysis || 'No analysis available'}
+                            </p>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium text-gray-700">Left Side</span>
+                              <Badge variant="outline" className="text-xs">
+                                {valuationResult.imageAnalysis.leftSideDamageScore || 0}/100
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-gray-600">
+                              {valuationResult.imageAnalysis.leftSideAnalysis || 'No analysis available'}
+                            </p>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium text-gray-700">Right Side</span>
+                              <Badge variant="outline" className="text-xs">
+                                {valuationResult.imageAnalysis.rightSideDamageScore || 0}/100
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-gray-600">
+                              {valuationResult.imageAnalysis.rightSideAnalysis || 'No analysis available'}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Price Impact */}
+                        {valuationResult.imageAnalysis.damageDiscount > 0 && (
+                          <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <AlertTriangle className="h-4 w-4 text-red-600" />
+                              <span className="text-sm font-medium text-red-800">Price Impact</span>
+                            </div>
+                            <p className="text-sm text-red-700">
+                              Based on the damage assessment, the vehicle value has been reduced by{' '}
+                              <strong>{(valuationResult.imageAnalysis.damageDiscount * 100).toFixed(1)}%</strong>{' '}
+                              ({formatCurrency((valuationResult.valuationFactors?.basePrice || 0) * valuationResult.imageAnalysis.damageDiscount)}).
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </>
             ) : (
               <Card>

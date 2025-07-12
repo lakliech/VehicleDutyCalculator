@@ -442,17 +442,24 @@ export default function BuyACar() {
         {/* Features */}
         <div>
           <label className="text-sm font-medium mb-3 block">Key Features</label>
-          <Select value={filters.features[0] || "all"} onValueChange={(value) => handleFilterChange('features', value === "all" ? [] : [value])}>
-            <SelectTrigger>
-              <SelectValue placeholder="Any features" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Any features</SelectItem>
-              {['Navigation', 'Bluetooth', 'Cruise Control', 'Parking Sensors', 'Sunroof', 'Leather Seats', 'Alloy Wheels', 'Reverse Camera'].map((feature) => (
-                <SelectItem key={feature} value={feature}>{feature}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {['Navigation', 'Bluetooth', 'Cruise Control', 'Parking Sensors', 'Sunroof', 'Leather Seats', 'Alloy Wheels', 'Reverse Camera'].map((feature) => (
+              <div key={feature} className="flex items-center space-x-2">
+                <Checkbox
+                  id={feature}
+                  checked={filters.features.includes(feature)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      handleFilterChange('features', [...filters.features, feature]);
+                    } else {
+                      handleFilterChange('features', filters.features.filter(f => f !== feature));
+                    }
+                  }}
+                />
+                <label htmlFor={feature} className="text-sm cursor-pointer">{feature}</label>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

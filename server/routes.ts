@@ -2807,13 +2807,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const exchangeRateNum = parseFloat(estimateData.exchangeRate);
       const cifKes = cifAmountNum * exchangeRateNum;
 
-      // Calculate duty using existing duty calculator
+      // Calculate duty using existing duty calculator - match the exact interface
       const dutyCalculationData = {
         vehicleCategory: vehicleCategory,
         vehicleValue: cifKes,
         vehicleAge: new Date().getFullYear() - estimateData.year + 1,
-        importType: 'direct' as const,
-        engineCapacity: estimateData.engineCapacity || 1500,
+        isDirectImport: true,  // Import estimator is always for direct imports
+        engineSize: estimateData.engineCapacity || 1500,
         fuelType: 'petrol' as const
       };
 
@@ -2825,7 +2825,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const serviceFeePercentageNum = parseFloat(estimateData.serviceFeePercentage);
       
       // Base cost without service fee
-      const baseCost = cifKes + dutyResult.totalDutyAmount + clearingChargeAmount + transportCostNum;
+      const baseCost = cifKes + dutyResult.totalTaxes + clearingChargeAmount + transportCostNum;
       
       // Calculate total including service fee: Total = Base / (1 - service_fee_percentage/100)
       // This ensures the service fee is 5% of the final total, not just 5% added to base
@@ -2847,7 +2847,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         customerEmail: estimateData.customerEmail,
         customerPhone: estimateData.customerPhone,
         cifKes: cifKes.toString(),
-        dutyPayable: dutyResult.totalDutyAmount.toString(),
+        dutyPayable: dutyResult.totalTaxes.toString(),
         clearingCharges: clearingChargeAmount.toString(),
         serviceFeeAmount: serviceFeeAmount.toString(),
         totalPayable: totalPayable.toString(),
@@ -2862,7 +2862,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           cifAmount: cifAmountNum,
           cifCurrency: estimateData.cifCurrency,
           cifKes,
-          dutyPayable: dutyResult.totalDutyAmount,
+          dutyPayable: dutyResult.totalTaxes,
           clearingCharges: clearingChargeAmount,
           transportCost: transportCostNum,
           serviceFeePercentage: serviceFeePercentageNum,

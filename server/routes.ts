@@ -2885,16 +2885,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Formula: CIF Price + Duty + Clearing Fees + Transport + 5% of total cost
       console.log('=== TOTAL COST CALCULATION ===');
       console.log('CIF Value (KES):', cifKes, '← Used for base import cost');
-      console.log('Duty (from CRSP):', dutyResult.totalTaxes, '← Calculated using CRSP value');
+      console.log('Duty (from CRSP):', dutyResult.totalPayable, '← Calculated using CRSP value (includes registration fees)');
       console.log('Clearing Charges:', clearingChargeAmount, '← Fixed based on vehicle category');
       
       const transportCostNum = parseFloat(estimateData.transportCost || "0");
       const serviceFeePercentageNum = parseFloat(estimateData.serviceFeePercentage);
       console.log('Transport Cost:', transportCostNum, '← User input');
       
-      // Base cost without service fee
-      const baseCost = cifKes + dutyResult.totalTaxes + clearingChargeAmount + transportCostNum;
-      console.log('Base Cost Total:', baseCost, '= CIF + Duty + Clearing + Transport');
+      // Base cost without service fee - use totalPayable to match duty calculator exactly
+      const baseCost = cifKes + dutyResult.totalPayable + clearingChargeAmount + transportCostNum;
+      console.log('Base Cost Total:', baseCost, '= CIF + Duty(with registration) + Clearing + Transport');
       
       // Calculate total including service fee: Total = Base / (1 - service_fee_percentage/100)
       // This ensures the service fee is 5% of the final total, not just 5% added to base
@@ -2916,7 +2916,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         customerEmail: estimateData.customerEmail,
         customerPhone: estimateData.customerPhone,
         cifKes: cifKes.toString(),
-        dutyPayable: dutyResult.totalTaxes.toString(),
+        dutyPayable: dutyResult.totalPayable.toString(),
         clearingCharges: clearingChargeAmount.toString(),
         serviceFeeAmount: serviceFeeAmount.toString(),
         totalPayable: totalPayable.toString(),
@@ -2931,7 +2931,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           cifAmount: cifAmountNum,
           cifCurrency: estimateData.cifCurrency,
           cifKes,
-          dutyPayable: dutyResult.totalTaxes,
+          dutyPayable: dutyResult.totalPayable,
           clearingCharges: clearingChargeAmount,
           transportCost: transportCostNum,
           serviceFeePercentage: serviceFeePercentageNum,

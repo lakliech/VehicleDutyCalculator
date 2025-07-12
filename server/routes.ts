@@ -2792,7 +2792,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       vehicleCategory = vehicleCategory || 'under1500cc';
       
       // Get clearing charges based on vehicle category and engine capacity
-      let clearingChargeAmount = 55000; // default
+      // Clearing charges are FIXED fees based on vehicle category, NOT based on CIF value
+      // These are standard charges from clearing agents/freight forwarders
+      let clearingChargeAmount = 55000; // default for unknown categories
       const clearingChargeResults = await db
         .select()
         .from(clearingCharges)
@@ -2800,6 +2802,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (clearingChargeResults.length > 0) {
         clearingChargeAmount = parseFloat(clearingChargeResults[0].baseFee);
+        console.log('Clearing charges for', vehicleCategory + ':', clearingChargeAmount, 'KES (fixed fee)');
+      } else {
+        console.log('Using default clearing charges:', clearingChargeAmount, 'KES');
       }
 
       // Convert CIF to KES - parse from string  
@@ -2833,7 +2838,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Calculate duty using CRSP value from vehicle reference table
       const dutyCalculationData = {
         vehicleCategory: vehicleCategory,
-        vehicleValue: crspValue,  // Use CRSP value, not CIF
+        vehicleValue: Number(crspValue),  // Convert CRSP to number for duty calculation
         vehicleAge: new Date().getFullYear() - estimateData.year + 1,
         isDirectImport: true,  // Import estimator is always for direct imports
         engineSize: estimateData.engineCapacity || 1500,

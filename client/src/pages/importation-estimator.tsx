@@ -426,24 +426,7 @@ export default function ImportationEstimator() {
                       </div>
                     </div>
 
-                    {/* Duty Breakdown */}
-                    {estimateResult.dutyBreakdown && (
-                      <div className="space-y-4">
-                        <h4 className="font-semibold flex items-center gap-2">
-                          <Calculator className="h-4 w-4" />
-                          Duty & Tax Details
-                        </h4>
-                        
-                        <div className="text-xs space-y-2 bg-gray-50 p-3 rounded-lg">
-                          {Object.entries(estimateResult.dutyBreakdown).map(([key, value]) => (
-                            <div key={key} className="flex justify-between">
-                              <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                              <span>{formatCurrency(Number(value))}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+
 
                     {/* PDF Download Button */}
                     <div className="flex gap-3">

@@ -2807,7 +2807,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const exchangeRateNum = parseFloat(estimateData.exchangeRate);
       const cifKes = cifAmountNum * exchangeRateNum;
 
-      // Calculate duty using existing duty calculator - match the exact interface
+      // Calculate duty using the calculate duty API endpoint
       const dutyCalculationData = {
         vehicleCategory: vehicleCategory,
         vehicleValue: cifKes,
@@ -2817,7 +2817,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fuelType: 'petrol' as const
       };
 
-      const dutyResult = await storage.calculateDuty(dutyCalculationData);
+      // Make internal API call to calculate duty endpoint
+      const dutyResponse = await fetch(`http://localhost:5000/api/calculate-duty`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dutyCalculationData)
+      });
+
+      if (!dutyResponse.ok) {
+        throw new Error('Failed to calculate duty');
+      }
+
+      const dutyResult = await dutyResponse.json();
 
       // Calculate total cost with service fee
       // Formula: CIF Price + Duty + Clearing Fees + Transport + 5% of total cost

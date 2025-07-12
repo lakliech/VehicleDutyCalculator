@@ -59,32 +59,42 @@ const openai = new OpenAI({
 const authenticateAdmin = async (req: any, res: any, next: any) => {
   const auth = req.headers.authorization;
   
-  if (!auth || !auth.startsWith('Bearer ')) {
-    return res.status(401).json({ error: "Authentication required" });
-  }
-  
-  const token = auth.substring(7);
-  
-  try {
-    // Support both old token for backwards compatibility and new session tokens
-    if (token === "admin123") {
+  // Check if user is authenticated via session (Google OAuth)
+  if (req.isAuthenticated && req.isAuthenticated() && req.user) {
+    const user = req.user;
+    // Check if user has admin role (role_id 3 or 4)
+    if (user.roleId === 3 || user.roleId === 4) {
       return next();
     }
+  }
+  
+  // Check Bearer token authentication
+  if (auth && auth.startsWith('Bearer ')) {
+    const token = auth.substring(7);
     
-    // Check if it's a session-based admin token (admin_session_<id>)
-    if (token.startsWith('admin_session_')) {
-      const sessionId = token.replace('admin_session_', '');
+    try {
+      // Support both old token for backwards compatibility and new session tokens
+      if (token === "admin123") {
+        return next();
+      }
       
-      // In a production system, you'd validate the session token against a sessions table
-      // For now, just allow the token format
-      return next();
+      // Check if it's a session-based admin token (admin_session_<id>)
+      if (token.startsWith('admin_session_')) {
+        const sessionId = token.replace('admin_session_', '');
+        
+        // In a production system, you'd validate the session token against a sessions table
+        // For now, just allow the token format
+        return next();
+      }
+      
+      return res.status(401).json({ error: "Invalid credentials" });
+    } catch (error) {
+      console.error("Admin authentication error:", error);
+      return res.status(500).json({ error: "Authentication failed" });
     }
-    
-    return res.status(401).json({ error: "Invalid credentials" });
-  } catch (error) {
-    console.error("Admin authentication error:", error);
-    return res.status(500).json({ error: "Authentication failed" });
   }
+  
+  return res.status(401).json({ error: "Authentication required" });
 };
 
 // Helper function to get engine capacity filter based on category

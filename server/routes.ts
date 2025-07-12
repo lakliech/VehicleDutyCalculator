@@ -2077,6 +2077,333 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===============================
+  // CAR MARKETPLACE ENDPOINTS
+  // ===============================
+
+  // Get car listings with filters
+  app.get('/api/car-listings', async (req: Request, res: Response) => {
+    try {
+      const {
+        page = '1',
+        limit = '20',
+        search,
+        make,
+        model,
+        minPrice,
+        maxPrice,
+        fuelType,
+        transmission,
+        bodyType,
+        minMileage,
+        maxMileage,
+        minYear,
+        maxYear,
+        doors,
+        color,
+        features,
+        sortBy = 'recommended'
+      } = req.query;
+
+      const pageNum = parseInt(page as string);
+      const limitNum = parseInt(limit as string);
+      const offset = (pageNum - 1) * limitNum;
+
+      // Mock data for demonstration
+      const mockListings = [
+        {
+          id: 1,
+          make: "Toyota",
+          model: "Harrier",
+          year: 2018,
+          price: 3200000,
+          mileage: 45000,
+          fuelType: "Petrol",
+          transmission: "Automatic",
+          bodyType: "SUV",
+          location: "Nairobi",
+          condition: "Good",
+          exteriorColor: "Black",
+          doors: 5,
+          images: [],
+          features: ["Sunroof", "Leather Seats", "Navigation"],
+          isVerified: true,
+          hasWarranty: true,
+          hasFreeDelivery: false,
+          viewCount: 245,
+          favoriteCount: 12,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          make: "Nissan",
+          model: "X-Trail",
+          year: 2019,
+          price: 2800000,
+          mileage: 38000,
+          fuelType: "Petrol",
+          transmission: "Automatic",
+          bodyType: "SUV",
+          location: "Mombasa",
+          condition: "Excellent",
+          exteriorColor: "White",
+          doors: 5,
+          images: [],
+          features: ["4WD", "Reverse Camera", "Alloy Wheels"],
+          isVerified: true,
+          hasWarranty: false,
+          hasFreeDelivery: true,
+          viewCount: 189,
+          favoriteCount: 8,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 3,
+          make: "Subaru",
+          model: "Forester",
+          year: 2017,
+          price: 2500000,
+          mileage: 52000,
+          fuelType: "Petrol",
+          transmission: "Automatic",
+          bodyType: "SUV",
+          location: "Kisumu",
+          condition: "Good",
+          exteriorColor: "Silver",
+          doors: 5,
+          images: [],
+          features: ["AWD", "Bluetooth", "Cruise Control"],
+          isVerified: false,
+          hasWarranty: true,
+          hasFreeDelivery: false,
+          viewCount: 156,
+          favoriteCount: 5,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 4,
+          make: "Honda",
+          model: "CR-V",
+          year: 2020,
+          price: 3800000,
+          mileage: 25000,
+          fuelType: "Petrol",
+          transmission: "Automatic",
+          bodyType: "SUV",
+          location: "Nakuru",
+          condition: "Excellent",
+          exteriorColor: "Blue",
+          doors: 5,
+          images: [],
+          features: ["Sunroof", "Navigation", "Parking Sensors"],
+          isVerified: true,
+          hasWarranty: true,
+          hasFreeDelivery: true,
+          viewCount: 312,
+          favoriteCount: 18,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 5,
+          make: "Mazda",
+          model: "CX-5",
+          year: 2019,
+          price: 3100000,
+          mileage: 42000,
+          fuelType: "Petrol",
+          transmission: "Automatic",
+          bodyType: "SUV",
+          location: "Eldoret",
+          condition: "Good",
+          exteriorColor: "Red",
+          doors: 5,
+          images: [],
+          features: ["Bluetooth", "Alloy Wheels", "Reverse Camera"],
+          isVerified: true,
+          hasWarranty: false,
+          hasFreeDelivery: false,
+          viewCount: 198,
+          favoriteCount: 9,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 6,
+          make: "Mitsubishi",
+          model: "Outlander",
+          year: 2018,
+          price: 2900000,
+          mileage: 48000,
+          fuelType: "Petrol",
+          transmission: "Automatic",
+          bodyType: "SUV",
+          location: "Thika",
+          condition: "Good",
+          exteriorColor: "Grey",
+          doors: 5,
+          images: [],
+          features: ["4WD", "Sunroof", "Leather Seats"],
+          isVerified: false,
+          hasWarranty: true,
+          hasFreeDelivery: false,
+          viewCount: 167,
+          favoriteCount: 7,
+          createdAt: new Date().toISOString()
+        }
+      ];
+
+      // Apply filters
+      let filteredListings = mockListings;
+
+      if (search) {
+        const searchTerm = (search as string).toLowerCase();
+        filteredListings = filteredListings.filter(car => 
+          car.make.toLowerCase().includes(searchTerm) ||
+          car.model.toLowerCase().includes(searchTerm) ||
+          car.features.some(feature => feature.toLowerCase().includes(searchTerm))
+        );
+      }
+
+      if (make) {
+        const makes = (make as string).split(',');
+        filteredListings = filteredListings.filter(car => makes.includes(car.make));
+      }
+
+      if (minPrice) {
+        filteredListings = filteredListings.filter(car => car.price >= parseInt(minPrice as string));
+      }
+
+      if (maxPrice) {
+        filteredListings = filteredListings.filter(car => car.price <= parseInt(maxPrice as string));
+      }
+
+      if (fuelType) {
+        const fuelTypes = (fuelType as string).split(',');
+        filteredListings = filteredListings.filter(car => fuelTypes.includes(car.fuelType));
+      }
+
+      if (transmission) {
+        const transmissions = (transmission as string).split(',');
+        filteredListings = filteredListings.filter(car => transmissions.includes(car.transmission));
+      }
+
+      if (bodyType) {
+        const bodyTypes = (bodyType as string).split(',');
+        filteredListings = filteredListings.filter(car => bodyTypes.includes(car.bodyType));
+      }
+
+      if (minMileage) {
+        filteredListings = filteredListings.filter(car => car.mileage >= parseInt(minMileage as string));
+      }
+
+      if (maxMileage) {
+        filteredListings = filteredListings.filter(car => car.mileage <= parseInt(maxMileage as string));
+      }
+
+      if (minYear) {
+        filteredListings = filteredListings.filter(car => car.year >= parseInt(minYear as string));
+      }
+
+      if (maxYear) {
+        filteredListings = filteredListings.filter(car => car.year <= parseInt(maxYear as string));
+      }
+
+      if (color) {
+        const colors = (color as string).split(',');
+        filteredListings = filteredListings.filter(car => colors.includes(car.exteriorColor));
+      }
+
+      // Apply sorting
+      switch (sortBy) {
+        case 'price_low':
+          filteredListings.sort((a, b) => a.price - b.price);
+          break;
+        case 'price_high':
+          filteredListings.sort((a, b) => b.price - a.price);
+          break;
+        case 'newest':
+          filteredListings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          break;
+        case 'mileage_low':
+          filteredListings.sort((a, b) => a.mileage - b.mileage);
+          break;
+        case 'year_new':
+          filteredListings.sort((a, b) => b.year - a.year);
+          break;
+        case 'recommended':
+        default:
+          filteredListings.sort((a, b) => (b.viewCount + b.favoriteCount) - (a.viewCount + a.favoriteCount));
+          break;
+      }
+
+      // Paginate
+      const paginatedListings = filteredListings.slice(offset, offset + limitNum);
+      const totalPages = Math.ceil(filteredListings.length / limitNum);
+
+      res.json({
+        cars: paginatedListings,
+        total: filteredListings.length,
+        totalPages,
+        currentPage: pageNum,
+        hasMore: pageNum < totalPages
+      });
+    } catch (error) {
+      console.error('Failed to fetch car listings:', error);
+      res.status(500).json({ error: 'Failed to fetch car listings' });
+    }
+  });
+
+  // Get filter options for car listings
+  app.get('/api/car-listing-filters', async (req: Request, res: Response) => {
+    try {
+      const filterOptions = {
+        makes: ['Toyota', 'Nissan', 'Subaru', 'Honda', 'Mazda', 'Mitsubishi', 'Hyundai', 'Kia', 'BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen'],
+        models: ['Harrier', 'X-Trail', 'Forester', 'CR-V', 'CX-5', 'Outlander', 'Tucson', 'Sportage', 'X3', 'GLC', 'Q5', 'Tiguan'],
+        fuelTypes: ['Petrol', 'Diesel', 'Hybrid', 'Electric'],
+        transmissions: ['Manual', 'Automatic', 'CVT'],
+        bodyTypes: ['SUV', 'Hatchback', 'Saloon', 'Coupe', 'Wagon', 'Van', 'Pickup'],
+        colors: ['Black', 'White', 'Grey', 'Silver', 'Red', 'Blue', 'Green', 'Yellow', 'Brown', 'Other'],
+        features: ['Navigation', 'Bluetooth', 'Cruise Control', 'Parking Sensors', 'Sunroof', 'Leather Seats', 'Alloy Wheels', 'Reverse Camera', '4WD', 'AWD']
+      };
+
+      res.json(filterOptions);
+    } catch (error) {
+      console.error('Failed to fetch filter options:', error);
+      res.status(500).json({ error: 'Failed to fetch filter options' });
+    }
+  });
+
+  // Add car to favorites
+  app.post('/api/car-listings/:id/favorite', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      res.json({ message: 'Car added to favorites' });
+    } catch (error) {
+      console.error('Failed to add car to favorites:', error);
+      res.status(500).json({ error: 'Failed to add car to favorites' });
+    }
+  });
+
+  // Add car to comparison
+  app.post('/api/car-listings/:id/compare', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      res.json({ message: 'Car added to comparison' });
+    } catch (error) {
+      console.error('Failed to add car to comparison:', error);
+      res.status(500).json({ error: 'Failed to add car to comparison' });
+    }
+  });
+
+  // ===============================
   // ADMIN LISTING MANAGEMENT
   // ===============================
 

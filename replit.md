@@ -443,6 +443,14 @@ Changelog:
   - Hidden car import promotional text ("Do you wish to import a car...") on admin pages
   - Hidden Login/Register (AuthForms) component on admin pages for cleaner backend-focused interface
   - Admin pages now display only essential navigation without frontend marketplace elements
+- January 12, 2025. Implemented role-based authentication system:
+  - Disabled legacy admin authentication (admin123 tokens and separate admin credentials)
+  - Created comprehensive role-based access control with 4 roles: user, editor, admin, superadmin
+  - Updated all admin endpoints to use authenticateUser and requireRole middleware
+  - Created initialization script to set up default roles and admin user
+  - Admin credentials for testing: admin@gariyangu.com / admin123 (admin role)
+  - All admin access now requires Google OAuth authentication with appropriate role assignment
+  - Removed separate admin login system in favor of unified user authentication with role permissions
 - January 11, 2025. Implemented personalized vehicle insurance quote estimator:
   - Created comprehensive database schema for insurance quotes with risk factors and coverage details
   - Built sophisticated risk calculation algorithm considering driver age, experience, claims history, vehicle category, and location

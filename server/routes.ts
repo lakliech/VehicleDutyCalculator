@@ -55,46 +55,18 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY 
 });
 
-// Database-based admin authentication middleware
+// Role-based authentication middleware
 const authenticateAdmin = async (req: any, res: any, next: any) => {
-  const auth = req.headers.authorization;
-  
   // Check if user is authenticated via session (Google OAuth)
   if (req.isAuthenticated && req.isAuthenticated() && req.user) {
     const user = req.user;
-    // Check if user has admin role (role_id 3 or 4)
+    // Check if user has admin role (role_id 3 = admin, role_id 4 = superadmin)
     if (user.roleId === 3 || user.roleId === 4) {
       return next();
     }
   }
   
-  // Check Bearer token authentication
-  if (auth && auth.startsWith('Bearer ')) {
-    const token = auth.substring(7);
-    
-    try {
-      // Support both old token for backwards compatibility and new session tokens
-      if (token === "admin123") {
-        return next();
-      }
-      
-      // Check if it's a session-based admin token (admin_session_<id>)
-      if (token.startsWith('admin_session_')) {
-        const sessionId = token.replace('admin_session_', '');
-        
-        // In a production system, you'd validate the session token against a sessions table
-        // For now, just allow the token format
-        return next();
-      }
-      
-      return res.status(401).json({ error: "Invalid credentials" });
-    } catch (error) {
-      console.error("Admin authentication error:", error);
-      return res.status(500).json({ error: "Authentication failed" });
-    }
-  }
-  
-  return res.status(401).json({ error: "Authentication required" });
+  return res.status(401).json({ error: "Admin access required. Please login with an admin account." });
 };
 
 // Helper function to get engine capacity filter based on category
@@ -452,80 +424,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin authentication endpoints
-  app.post('/api/auth/admin/login', async (req: Request, res: Response) => {
+  // Admin role assignment endpoint (for superadmins to assign admin roles)
+  app.post('/api/admin/assign-role', authenticateUser, requireRole(['superadmin']), async (req: Request, res: Response) => {
     try {
-      const { username, password } = req.body;
+      const { userId, roleId } = req.body;
       
-      if (!username || !password) {
-        return res.status(400).json({ success: false, message: 'Username and password are required' });
+      if (!userId || !roleId) {
+        return res.status(400).json({ success: false, message: 'User ID and role ID are required' });
       }
       
-      // Validate admin credentials
-      const admin = await storage.validateAdminPassword(username, password);
-      if (!admin) {
-        return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      // Check if the target role exists and is valid
+      const roles = await storage.getAllRoles();
+      const targetRole = roles.find(r => r.id === roleId);
+      
+      if (!targetRole) {
+        return res.status(400).json({ success: false, message: 'Invalid role ID' });
       }
       
-      // Update last login time
-      await storage.updateAdminLastLogin(admin.id);
-      
-      // Generate admin session token
-      const sessionToken = `admin_session_${admin.id}_${Date.now()}`;
-      
-      // Remove password hash from response
-      const { passwordHash, ...adminWithoutPassword } = admin;
+      // Update user role
+      await storage.updateUserRole(userId, roleId);
       
       res.json({ 
         success: true, 
-        admin: adminWithoutPassword,
-        token: sessionToken
+        message: `User role updated to ${targetRole.name}`,
+        role: targetRole
       });
     } catch (error) {
-      console.error('Admin login error:', error);
-      res.status(500).json({ success: false, message: 'Admin login failed' });
-    }
-  });
-
-  app.post('/api/auth/admin/logout', authenticateAdmin, async (req: Request, res: Response) => {
-    try {
-      res.json({ success: true, message: 'Admin logged out successfully' });
-    } catch (error) {
-      console.error('Admin logout error:', error);
-      res.status(500).json({ success: false, message: 'Admin logout failed' });
-    }
-  });
-
-  app.get('/api/auth/admin/status', authenticateAdmin, async (req: Request, res: Response) => {
-    try {
-      const auth = req.headers.authorization;
-      const token = auth?.substring(7);
-      
-      if (token === "admin123") {
-        res.json({ authenticated: true, admin: { username: "admin", id: 1 } });
-      } else if (token?.startsWith('admin_session_')) {
-        const sessionId = token.replace('admin_session_', '').split('_')[0];
-        const admin = await storage.getAdminByUsername("admin"); // For now, assuming single admin
-        
-        if (admin) {
-          const { passwordHash, ...adminWithoutPassword } = admin;
-          res.json({ authenticated: true, admin: adminWithoutPassword });
-        } else {
-          res.status(401).json({ authenticated: false });
-        }
-      } else {
-        res.status(401).json({ authenticated: false });
-      }
-    } catch (error) {
-      console.error('Admin status error:', error);
-      res.status(500).json({ authenticated: false, error: 'Status check failed' });
+      console.error('Role assignment error:', error);
+      res.status(500).json({ success: false, message: 'Failed to assign role' });
     }
   });
 
   // Comprehensive Admin Management API Routes
   
   // Admin Dashboard Stats
-  app.get('/api/admin/dashboard-stats', authenticateAdmin, async (req: Request, res: Response) => {
+  app.get('/api/admin/dashboard-stats', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const stats = await storage.getAdminDashboardStats();
       res.json(stats);
@@ -536,7 +469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Listing Management with Advanced Filtering
-  app.get('/api/admin/listings-with-stats', authenticateAdmin, async (req: Request, res: Response) => {
+  app.get('/api/admin/listings-with-stats', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const { status, make, seller, flagged, sortBy, page, limit } = req.query;
       
@@ -559,7 +492,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Management with Filtering
-  app.get('/api/admin/users-management', authenticateAdmin, async (req: Request, res: Response) => {
+  app.get('/api/admin/users-management', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const { search, role, page, limit } = req.query;
       
@@ -579,7 +512,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bulk Listing Operations
-  app.post('/api/admin/bulk-update-listings', authenticateAdmin, async (req: Request, res: Response) => {
+  app.post('/api/admin/bulk-update-listings', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const { listingIds, status, reason } = req.body;
       
@@ -591,7 +524,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Status is required' });
       }
 
-      const adminId = 'admin'; // TODO: Get from authenticated admin session
+      const adminId = req.user.id; // Get from authenticated user session
       
       await storage.bulkUpdateListingStatus(listingIds, status, adminId, reason);
       
@@ -606,11 +539,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Individual Listing Actions
-  app.put('/api/admin/listing/:id/approve', authenticateAdmin, async (req: Request, res: Response) => {
+  app.put('/api/admin/listing/:id/approve', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const listingId = parseInt(req.params.id);
       const { notes } = req.body;
-      const adminId = 'admin'; // TODO: Get from authenticated admin session
+      const adminId = req.user.id; // Get from authenticated user session
       
       const approval = await storage.approveListing(listingId, adminId, notes);
       
@@ -625,11 +558,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/listing/:id/reject', authenticateAdmin, async (req: Request, res: Response) => {
+  app.put('/api/admin/listing/:id/reject', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const listingId = parseInt(req.params.id);
       const { reason } = req.body;
-      const adminId = 'admin'; // TODO: Get from authenticated admin session
+      const adminId = req.user.id; // Get from authenticated user session
       
       if (!reason) {
         return res.status(400).json({ error: 'Rejection reason is required' });
@@ -649,7 +582,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User History and Management
-  app.get('/api/admin/user/:id/history', authenticateAdmin, async (req: Request, res: Response) => {
+  app.get('/api/admin/user/:id/history', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const userId = req.params.id;
       const history = await storage.getUserHistory(userId);
@@ -661,7 +594,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/user/:id/suspend', authenticateAdmin, async (req: Request, res: Response) => {
+  app.post('/api/admin/user/:id/suspend', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const userId = req.params.id;
       const { reason, duration } = req.body;
@@ -682,7 +615,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Listing Analytics and Reporting
-  app.get('/api/admin/analytics/overview', authenticateAdmin, async (req: Request, res: Response) => {
+  app.get('/api/admin/analytics/overview', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const { period } = req.query; // 'week', 'month', 'quarter', 'year'
       
@@ -703,7 +636,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Content Moderation Tools
-  app.get('/api/admin/flagged-content', authenticateAdmin, async (req: Request, res: Response) => {
+  app.get('/api/admin/flagged-content', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const { type, status } = req.query;
       
@@ -717,7 +650,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/content/:id/resolve-flag', authenticateAdmin, async (req: Request, res: Response) => {
+  app.post('/api/admin/content/:id/resolve-flag', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const contentId = req.params.id;
       const { action, resolution } = req.body; // 'dismiss', 'remove', 'warn_user'

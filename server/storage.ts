@@ -558,10 +558,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateListing(id: number, listingData: Partial<InsertCarListing>): Promise<CarListing> {
-    const updateData = { ...listingData, updatedAt: new Date() };
+    const updateData: any = { ...listingData, updatedAt: new Date() };
     // Convert price to string if it exists
     if (updateData.price !== undefined) {
-      (updateData as any).price = updateData.price.toString();
+      updateData.price = updateData.price.toString();
     }
     const [listing] = await db
       .update(carListings)

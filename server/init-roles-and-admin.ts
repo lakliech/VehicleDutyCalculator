@@ -50,50 +50,13 @@ async function initializeRolesAndAdmin() {
       console.log("User roles already exist, skipping creation.");
     }
 
-    // Check if admin user already exists
-    const existingAdmin = await db
-      .select()
-      .from(appUsers)
-      .where(eq(appUsers.email, "admin@gariyangu.com"));
-
-    if (existingAdmin.length === 0) {
-      console.log("Creating admin user...");
-      
-      // Get admin role ID
-      const adminRole = await db
-        .select()
-        .from(userRoles)
-        .where(eq(userRoles.name, "admin"));
-
-      if (adminRole.length === 0) {
-        throw new Error("Admin role not found");
-      }
-
-      // Create admin user
-      const hashedPassword = await bcrypt.hash("admin123", 10);
-      
-      await db.insert(appUsers).values({
-        id: crypto.randomUUID(),
-        email: "admin@gariyangu.com",
-        firstName: "Admin",
-        lastName: "User",
-        phoneNumber: "0700000000",
-        passwordHash: hashedPassword,
-        roleId: adminRole[0].id,
-        isActive: true,
-        isEmailVerified: true,
-        oauthProvider: null,
-        profileImageUrl: null,
-        lastLoginAt: null
-      });
-
-      console.log("Admin user created successfully!");
-      console.log("Admin credentials:");
-      console.log("Email: admin@gariyangu.com");
-      console.log("Password: admin123");
-    } else {
-      console.log("Admin user already exists, skipping creation.");
-    }
+    // Note: Admin users are now created through Google OAuth
+    // The admin role is assigned manually to existing users
+    console.log("Admin users are now managed through Google OAuth authentication.");
+    console.log("To create an admin user:");
+    console.log("1. User must sign in with Google OAuth");
+    console.log("2. Admin role must be assigned manually via database or admin panel");
+    console.log("Current admin: jaredkoyier@gmail.com");
 
     console.log("Role and admin initialization completed!");
     

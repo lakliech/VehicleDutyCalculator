@@ -451,6 +451,8 @@ Changelog:
   - Admin credentials for testing: admin@gariyangu.com / admin123 (admin role)
   - All admin access now requires Google OAuth authentication with appropriate role assignment
   - Removed separate admin login system in favor of unified user authentication with role permissions
+  - Updated admin user management: jaredkoyier@gmail.com now has admin role, removed admin@gariyangu.com test user
+  - Admin users are now created through Google OAuth with manual role assignment
 - January 11, 2025. Implemented personalized vehicle insurance quote estimator:
   - Created comprehensive database schema for insurance quotes with risk factors and coverage details
   - Built sophisticated risk calculation algorithm considering driver age, experience, claims history, vehicle category, and location

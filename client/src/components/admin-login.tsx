@@ -63,11 +63,10 @@ export function AdminLogin() {
           )}
           
           <div className="pt-4 border-t">
-            <h3 className="font-semibold text-sm text-gray-700 mb-2">Admin Credentials for Testing:</h3>
+            <h3 className="font-semibold text-sm text-gray-700 mb-2">Admin Access:</h3>
             <div className="text-xs text-gray-600 space-y-1">
-              <p>Email: admin@gariyangu.com</p>
-              <p>Password: admin123</p>
-              <p className="text-yellow-600">Note: These are test credentials for development</p>
+              <p>Contact the system administrator to get admin role assigned to your Google account</p>
+              <p className="text-blue-600">Current admin: jaredkoyier@gmail.com</p>
             </div>
           </div>
         </CardContent>

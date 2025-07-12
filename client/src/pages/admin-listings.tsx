@@ -174,10 +174,10 @@ export default function AdminListings() {
   };
 
   const handleSelectAll = () => {
-    if (selectedListings.length === listingsData?.listings.length) {
+    if (selectedListings.length === (listingsData?.listings?.length || 0)) {
       setSelectedListings([]);
     } else {
-      setSelectedListings(listingsData?.listings.map((l: Listing) => l.listing.id) || []);
+      setSelectedListings(listingsData?.listings?.map((l: Listing) => l.listing.id) || []);
     }
   };
 
@@ -410,7 +410,7 @@ export default function AdminListings() {
             <CardTitle>Listings ({listingsData?.total || 0})</CardTitle>
             <div className="flex items-center gap-2">
               <Checkbox
-                checked={selectedListings.length === listingsData?.listings.length}
+                checked={selectedListings.length === (listingsData?.listings?.length || 0)}
                 onCheckedChange={handleSelectAll}
               />
               <span className="text-sm text-gray-600">Select All</span>
@@ -424,7 +424,7 @@ export default function AdminListings() {
             </div>
           ) : (
             <div className="space-y-4">
-              {listingsData?.listings.map((item: Listing) => (
+              {listingsData?.listings?.map((item: Listing) => (
                 <div key={item.listing.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                   <div className="flex items-start gap-4">
                     <Checkbox

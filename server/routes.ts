@@ -2403,6 +2403,328 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get individual car details
+  app.get('/api/car-listings/:id/details', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      // Mock detailed car data - in real implementation, fetch from database
+      const mockCarDetails = {
+        1: {
+          id: 1,
+          make: "Toyota",
+          model: "Harrier",
+          year: 2018,
+          price: 3200000,
+          mileage: 45000,
+          fuelType: "Petrol",
+          transmission: "Automatic",
+          bodyType: "SUV",
+          engineSize: "2.0L",
+          doors: 5,
+          seats: 5,
+          exteriorColor: "Black",
+          interiorColor: "Black",
+          condition: "Good",
+          location: "Nairobi",
+          images: [],
+          features: ["Sunroof", "Leather Seats", "Navigation", "Bluetooth", "Reverse Camera", "Alloy Wheels"],
+          isVerified: true,
+          hasWarranty: true,
+          hasFreeDelivery: false,
+          warrantyDetails: "12 months comprehensive warranty",
+          deliveryInfo: "Free delivery within 30km",
+          viewCount: 245,
+          favoriteCount: 12,
+          createdAt: new Date().toISOString(),
+          description: "This well-maintained 2018 Toyota Harrier offers excellent value with its reliable performance and comprehensive feature set. Perfect for daily commuting and family use. The vehicle has been regularly serviced and is in excellent condition.",
+          sellerInfo: {
+            name: "Premium Auto Dealers",
+            type: "dealer" as const,
+            rating: 4.8,
+            reviewCount: 156,
+            location: "Nairobi",
+            phone: "+254712345678"
+          },
+          vehicleHistory: {
+            previousOwners: 2,
+            serviceHistory: "Full service history available",
+            accidentHistory: "No reported accidents",
+            motStatus: "Valid until 2025",
+            lastService: "3 months ago"
+          },
+          financingOptions: {
+            monthlyPayment: 45000,
+            depositAmount: 640000,
+            loanTerm: 60,
+            interestRate: 12.5
+          }
+        },
+        2: {
+          id: 2,
+          make: "Nissan",
+          model: "X-Trail",
+          year: 2019,
+          price: 2800000,
+          mileage: 38000,
+          fuelType: "Petrol",
+          transmission: "Automatic",
+          bodyType: "SUV",
+          engineSize: "2.5L",
+          doors: 5,
+          seats: 7,
+          exteriorColor: "White",
+          interiorColor: "Grey",
+          condition: "Excellent",
+          location: "Mombasa",
+          images: [],
+          features: ["4WD", "Reverse Camera", "Alloy Wheels", "Bluetooth", "Cruise Control", "Parking Sensors"],
+          isVerified: true,
+          hasWarranty: false,
+          hasFreeDelivery: true,
+          warrantyDetails: null,
+          deliveryInfo: "Free delivery anywhere in Kenya",
+          viewCount: 189,
+          favoriteCount: 8,
+          createdAt: new Date().toISOString(),
+          description: "Excellent condition 2019 Nissan X-Trail with 4WD capability. Perfect for both city driving and off-road adventures. Recently serviced with all maintenance records available.",
+          sellerInfo: {
+            name: "Coast Auto Sales",
+            type: "dealer" as const,
+            rating: 4.6,
+            reviewCount: 89,
+            location: "Mombasa",
+            phone: "+254722345678"
+          },
+          vehicleHistory: {
+            previousOwners: 1,
+            serviceHistory: "Full service history available",
+            accidentHistory: "No reported accidents",
+            motStatus: "Valid until 2025",
+            lastService: "2 months ago"
+          },
+          financingOptions: {
+            monthlyPayment: 39000,
+            depositAmount: 560000,
+            loanTerm: 60,
+            interestRate: 12.5
+          }
+        },
+        3: {
+          id: 3,
+          make: "Subaru",
+          model: "Forester",
+          year: 2017,
+          price: 2500000,
+          mileage: 52000,
+          fuelType: "Petrol",
+          transmission: "Automatic",
+          bodyType: "SUV",
+          engineSize: "2.0L",
+          doors: 5,
+          seats: 5,
+          exteriorColor: "Silver",
+          interiorColor: "Black",
+          condition: "Good",
+          location: "Kisumu",
+          images: [],
+          features: ["AWD", "Bluetooth", "Cruise Control", "Heated Seats", "Roof Rails"],
+          isVerified: false,
+          hasWarranty: true,
+          hasFreeDelivery: false,
+          warrantyDetails: "6 months mechanical warranty",
+          deliveryInfo: "Delivery available at cost",
+          viewCount: 156,
+          favoriteCount: 5,
+          createdAt: new Date().toISOString(),
+          description: "Reliable 2017 Subaru Forester with AWD. Great for all weather conditions and long drives. Well maintained with regular service intervals.",
+          sellerInfo: {
+            name: "Lakeside Motors",
+            type: "dealer" as const,
+            rating: 4.3,
+            reviewCount: 67,
+            location: "Kisumu",
+            phone: "+254733345678"
+          },
+          vehicleHistory: {
+            previousOwners: 2,
+            serviceHistory: "Regular service history",
+            accidentHistory: "Minor fender bender - fully repaired",
+            motStatus: "Valid until 2024",
+            lastService: "4 months ago"
+          },
+          financingOptions: {
+            monthlyPayment: 35000,
+            depositAmount: 500000,
+            loanTerm: 60,
+            interestRate: 13.0
+          }
+        },
+        4: {
+          id: 4,
+          make: "Honda",
+          model: "CR-V",
+          year: 2020,
+          price: 3800000,
+          mileage: 25000,
+          fuelType: "Petrol",
+          transmission: "Automatic",
+          bodyType: "SUV",
+          engineSize: "1.5L Turbo",
+          doors: 5,
+          seats: 5,
+          exteriorColor: "Blue",
+          interiorColor: "Black",
+          condition: "Excellent",
+          location: "Nakuru",
+          images: [],
+          features: ["Sunroof", "Navigation", "Parking Sensors", "Heated Seats", "Lane Assist", "Adaptive Cruise Control"],
+          isVerified: true,
+          hasWarranty: true,
+          hasFreeDelivery: true,
+          warrantyDetails: "24 months comprehensive warranty",
+          deliveryInfo: "Free delivery within 100km",
+          viewCount: 312,
+          favoriteCount: 18,
+          createdAt: new Date().toISOString(),
+          description: "Nearly new 2020 Honda CR-V with advanced safety features and excellent fuel efficiency. This premium SUV offers comfort, reliability, and modern technology.",
+          sellerInfo: {
+            name: "Rift Valley Auto",
+            type: "dealer" as const,
+            rating: 4.9,
+            reviewCount: 203,
+            location: "Nakuru",
+            phone: "+254744345678"
+          },
+          vehicleHistory: {
+            previousOwners: 1,
+            serviceHistory: "Full Honda service history",
+            accidentHistory: "No accidents",
+            motStatus: "Valid until 2026",
+            lastService: "1 month ago"
+          },
+          financingOptions: {
+            monthlyPayment: 53000,
+            depositAmount: 760000,
+            loanTerm: 60,
+            interestRate: 11.5
+          }
+        },
+        5: {
+          id: 5,
+          make: "Mazda",
+          model: "CX-5",
+          year: 2019,
+          price: 3100000,
+          mileage: 42000,
+          fuelType: "Petrol",
+          transmission: "Automatic",
+          bodyType: "SUV",
+          engineSize: "2.0L",
+          doors: 5,
+          seats: 5,
+          exteriorColor: "Red",
+          interiorColor: "Black",
+          condition: "Good",
+          location: "Eldoret",
+          images: [],
+          features: ["Bluetooth", "Alloy Wheels", "Reverse Camera", "Cruise Control", "Keyless Entry"],
+          isVerified: true,
+          hasWarranty: false,
+          hasFreeDelivery: false,
+          warrantyDetails: null,
+          deliveryInfo: "Delivery available at cost",
+          viewCount: 198,
+          favoriteCount: 9,
+          createdAt: new Date().toISOString(),
+          description: "Stylish 2019 Mazda CX-5 with sporty design and excellent handling. Perfect balance of performance and comfort for the modern driver.",
+          sellerInfo: {
+            name: "North Rift Motors",
+            type: "dealer" as const,
+            rating: 4.4,
+            reviewCount: 78,
+            location: "Eldoret",
+            phone: "+254755345678"
+          },
+          vehicleHistory: {
+            previousOwners: 2,
+            serviceHistory: "Regular maintenance",
+            accidentHistory: "No reported accidents",
+            motStatus: "Valid until 2025",
+            lastService: "5 months ago"
+          },
+          financingOptions: {
+            monthlyPayment: 43000,
+            depositAmount: 620000,
+            loanTerm: 60,
+            interestRate: 12.8
+          }
+        },
+        6: {
+          id: 6,
+          make: "Mitsubishi",
+          model: "Outlander",
+          year: 2018,
+          price: 2900000,
+          mileage: 48000,
+          fuelType: "Petrol",
+          transmission: "Automatic",
+          bodyType: "SUV",
+          engineSize: "2.4L",
+          doors: 5,
+          seats: 7,
+          exteriorColor: "Grey",
+          interiorColor: "Black",
+          condition: "Good",
+          location: "Thika",
+          images: [],
+          features: ["4WD", "Sunroof", "Leather Seats", "Navigation", "Reverse Camera", "Third Row Seating"],
+          isVerified: false,
+          hasWarranty: true,
+          hasFreeDelivery: false,
+          warrantyDetails: "9 months warranty",
+          deliveryInfo: "Local delivery available",
+          viewCount: 167,
+          favoriteCount: 7,
+          createdAt: new Date().toISOString(),
+          description: "Spacious 2018 Mitsubishi Outlander with 7-seat configuration. Ideal for large families with 4WD capability for various terrains.",
+          sellerInfo: {
+            name: "Central Kenya Auto",
+            type: "dealer" as const,
+            rating: 4.2,
+            reviewCount: 45,
+            location: "Thika",
+            phone: "+254766345678"
+          },
+          vehicleHistory: {
+            previousOwners: 2,
+            serviceHistory: "Regular service maintenance",
+            accidentHistory: "No major accidents",
+            motStatus: "Valid until 2024",
+            lastService: "6 months ago"
+          },
+          financingOptions: {
+            monthlyPayment: 40000,
+            depositAmount: 580000,
+            loanTerm: 60,
+            interestRate: 13.2
+          }
+        }
+      };
+
+      const carDetails = mockCarDetails[id as keyof typeof mockCarDetails];
+      
+      if (!carDetails) {
+        return res.status(404).json({ error: 'Car not found' });
+      }
+
+      res.json(carDetails);
+    } catch (error) {
+      console.error('Failed to fetch car details:', error);
+      res.status(500).json({ error: 'Failed to fetch car details' });
+    }
+  });
+
   // ===============================
   // ADMIN LISTING MANAGEMENT
   // ===============================

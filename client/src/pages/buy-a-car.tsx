@@ -188,15 +188,7 @@ export default function BuyACar() {
   };
 
   const handleViewDetails = (listingId: number) => {
-    // For now, show a detailed modal or navigate to detail page
-    toast({
-      title: "View Details",
-      description: `Opening details for car ID: ${listingId}`,
-    });
-    
-    // In a real implementation, you would navigate to a detail page:
-    // window.location.href = `/car-details/${listingId}`;
-    // or use your router to navigate
+    window.location.href = `/car-details/${listingId}`;
   };
 
   const handleCallSeller = (listingId: number) => {

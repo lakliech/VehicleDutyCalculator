@@ -2449,12 +2449,7 @@ function EnhancedListingsManagementTab() {
                 className="w-64"
               />
             </div>
-            <Link href="/admin/listings">
-              <Button className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700">
-                <Settings className="w-4 h-4 mr-2" />
-                Advanced Management
-              </Button>
-            </Link>
+
           </div>
         </CardContent>
       </Card>

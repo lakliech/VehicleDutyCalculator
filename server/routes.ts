@@ -33,7 +33,8 @@ import {
   phoneClickTrackingSchema,
   messageSchema,
   conversationSchema,
-  dailyListingAnalyticsSchema
+  dailyListingAnalyticsSchema,
+  carListings
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -2116,239 +2117,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limitNum = parseInt(limit as string);
       const offset = (pageNum - 1) * limitNum;
 
-      // Mock data for demonstration
-      const mockListings = [
-        {
-          id: 1,
-          make: "Toyota",
-          model: "Harrier",
-          year: 2018,
-          price: 3200000,
-          mileage: 45000,
-          fuelType: "Petrol",
-          transmission: "Automatic",
-          bodyType: "SUV",
-          location: "Nairobi",
-          condition: "Good",
-          exteriorColor: "Black",
-          doors: 5,
-          images: [],
-          features: ["Sunroof", "Leather Seats", "Navigation"],
-          isVerified: true,
-          hasWarranty: true,
-          hasFreeDelivery: false,
-          viewCount: 245,
-          favoriteCount: 12,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 2,
-          make: "Nissan",
-          model: "X-Trail",
-          year: 2019,
-          price: 2800000,
-          mileage: 38000,
-          fuelType: "Petrol",
-          transmission: "Automatic",
-          bodyType: "SUV",
-          location: "Mombasa",
-          condition: "Excellent",
-          exteriorColor: "White",
-          doors: 5,
-          images: [],
-          features: ["4WD", "Reverse Camera", "Alloy Wheels"],
-          isVerified: true,
-          hasWarranty: false,
-          hasFreeDelivery: true,
-          viewCount: 189,
-          favoriteCount: 8,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 3,
-          make: "Subaru",
-          model: "Forester",
-          year: 2017,
-          price: 2500000,
-          mileage: 52000,
-          fuelType: "Petrol",
-          transmission: "Automatic",
-          bodyType: "SUV",
-          location: "Kisumu",
-          condition: "Good",
-          exteriorColor: "Silver",
-          doors: 5,
-          images: [],
-          features: ["AWD", "Bluetooth", "Cruise Control"],
-          isVerified: false,
-          hasWarranty: true,
-          hasFreeDelivery: false,
-          viewCount: 156,
-          favoriteCount: 5,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 4,
-          make: "Honda",
-          model: "CR-V",
-          year: 2020,
-          price: 3800000,
-          mileage: 25000,
-          fuelType: "Petrol",
-          transmission: "Automatic",
-          bodyType: "SUV",
-          location: "Nakuru",
-          condition: "Excellent",
-          exteriorColor: "Blue",
-          doors: 5,
-          images: [],
-          features: ["Sunroof", "Navigation", "Parking Sensors"],
-          isVerified: true,
-          hasWarranty: true,
-          hasFreeDelivery: true,
-          viewCount: 312,
-          favoriteCount: 18,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 5,
-          make: "Mazda",
-          model: "CX-5",
-          year: 2019,
-          price: 3100000,
-          mileage: 42000,
-          fuelType: "Petrol",
-          transmission: "Automatic",
-          bodyType: "SUV",
-          location: "Eldoret",
-          condition: "Good",
-          exteriorColor: "Red",
-          doors: 5,
-          images: [],
-          features: ["Bluetooth", "Alloy Wheels", "Reverse Camera"],
-          isVerified: true,
-          hasWarranty: false,
-          hasFreeDelivery: false,
-          viewCount: 198,
-          favoriteCount: 9,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 6,
-          make: "Mitsubishi",
-          model: "Outlander",
-          year: 2018,
-          price: 2900000,
-          mileage: 48000,
-          fuelType: "Petrol",
-          transmission: "Automatic",
-          bodyType: "SUV",
-          location: "Thika",
-          condition: "Good",
-          exteriorColor: "Grey",
-          doors: 5,
-          images: [],
-          features: ["4WD", "Sunroof", "Leather Seats"],
-          isVerified: false,
-          hasWarranty: true,
-          hasFreeDelivery: false,
-          viewCount: 167,
-          favoriteCount: 7,
-          createdAt: new Date().toISOString()
-        }
-      ];
-
-      // Apply filters
-      let filteredListings = mockListings;
-
+      // Build query conditions for filtering
+      let whereConditions = [];
+      
+      // Only show approved/active listings
+      whereConditions.push(eq(carListings.status, 'active'));
+      
       if (search) {
-        const searchTerm = (search as string).toLowerCase();
-        filteredListings = filteredListings.filter(car => 
-          car.make.toLowerCase().includes(searchTerm) ||
-          car.model.toLowerCase().includes(searchTerm) ||
-          car.features.some(feature => feature.toLowerCase().includes(searchTerm))
+        const searchTerm = `%${search}%`;
+        whereConditions.push(
+          or(
+            sql`${carListings.make} ILIKE ${searchTerm}`,
+            sql`${carListings.model} ILIKE ${searchTerm}`,
+            sql`${carListings.title} ILIKE ${searchTerm}`
+          )
         );
       }
-
+      
       if (make) {
         const makes = (make as string).split(',');
-        filteredListings = filteredListings.filter(car => makes.includes(car.make));
+        whereConditions.push(sql`${carListings.make} = ANY(${makes})`);
       }
-
+      
+      if (model) {
+        const models = (model as string).split(',');
+        whereConditions.push(sql`${carListings.model} = ANY(${models})`);
+      }
+      
       if (minPrice) {
-        filteredListings = filteredListings.filter(car => car.price >= parseInt(minPrice as string));
+        whereConditions.push(sql`${carListings.price}::integer >= ${parseInt(minPrice as string)}`);
       }
-
+      
       if (maxPrice) {
-        filteredListings = filteredListings.filter(car => car.price <= parseInt(maxPrice as string));
+        whereConditions.push(sql`${carListings.price}::integer <= ${parseInt(maxPrice as string)}`);
       }
-
+      
       if (fuelType) {
         const fuelTypes = (fuelType as string).split(',');
-        filteredListings = filteredListings.filter(car => fuelTypes.includes(car.fuelType));
+        whereConditions.push(sql`${carListings.fuelType} = ANY(${fuelTypes})`);
       }
-
+      
       if (transmission) {
         const transmissions = (transmission as string).split(',');
-        filteredListings = filteredListings.filter(car => transmissions.includes(car.transmission));
+        whereConditions.push(sql`${carListings.transmission} = ANY(${transmissions})`);
       }
-
+      
       if (bodyType) {
         const bodyTypes = (bodyType as string).split(',');
-        filteredListings = filteredListings.filter(car => bodyTypes.includes(car.bodyType));
+        whereConditions.push(sql`${carListings.bodyType} = ANY(${bodyTypes})`);
       }
-
+      
       if (minMileage) {
-        filteredListings = filteredListings.filter(car => car.mileage >= parseInt(minMileage as string));
+        whereConditions.push(sql`${carListings.mileage}::integer >= ${parseInt(minMileage as string)}`);
       }
-
+      
       if (maxMileage) {
-        filteredListings = filteredListings.filter(car => car.mileage <= parseInt(maxMileage as string));
+        whereConditions.push(sql`${carListings.mileage}::integer <= ${parseInt(maxMileage as string)}`);
       }
-
+      
       if (minYear) {
-        filteredListings = filteredListings.filter(car => car.year >= parseInt(minYear as string));
+        whereConditions.push(sql`${carListings.year} >= ${parseInt(minYear as string)}`);
       }
-
+      
       if (maxYear) {
-        filteredListings = filteredListings.filter(car => car.year <= parseInt(maxYear as string));
+        whereConditions.push(sql`${carListings.year} <= ${parseInt(maxYear as string)}`);
       }
-
+      
       if (color) {
         const colors = (color as string).split(',');
-        filteredListings = filteredListings.filter(car => colors.includes(car.exteriorColor));
+        whereConditions.push(sql`${carListings.exteriorColor} = ANY(${colors})`);
       }
 
-      // Apply sorting
+      // Get total count for pagination
+      const [totalCount] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(carListings)
+        .where(and(...whereConditions));
+
+      // Build ordering
+      let orderBy;
       switch (sortBy) {
         case 'price_low':
-          filteredListings.sort((a, b) => a.price - b.price);
+          orderBy = sql`${carListings.price}::integer ASC`;
           break;
         case 'price_high':
-          filteredListings.sort((a, b) => b.price - a.price);
+          orderBy = sql`${carListings.price}::integer DESC`;
           break;
         case 'newest':
-          filteredListings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          orderBy = desc(carListings.createdAt);
           break;
         case 'mileage_low':
-          filteredListings.sort((a, b) => a.mileage - b.mileage);
+          orderBy = sql`${carListings.mileage}::integer ASC`;
           break;
         case 'year_new':
-          filteredListings.sort((a, b) => b.year - a.year);
+          orderBy = desc(carListings.year);
           break;
         case 'recommended':
         default:
-          filteredListings.sort((a, b) => (b.viewCount + b.favoriteCount) - (a.viewCount + a.favoriteCount));
+          orderBy = desc(carListings.createdAt);
           break;
       }
 
-      // Paginate
-      const paginatedListings = filteredListings.slice(offset, offset + limitNum);
-      const totalPages = Math.ceil(filteredListings.length / limitNum);
+      // Query listings with filters
+      const dbListings = await db
+        .select()
+        .from(carListings)
+        .where(and(...whereConditions))
+        .orderBy(orderBy)
+        .limit(limitNum)
+        .offset(offset);
+
+      // Transform database results to match expected format
+      const transformedListings = dbListings.map(listing => ({
+        id: listing.id,
+        make: listing.make,
+        model: listing.model,
+        year: listing.year,
+        price: parseInt(listing.price),
+        mileage: parseInt(listing.mileage || '0'),
+        fuelType: listing.fuelType,
+        transmission: listing.transmission,
+        bodyType: listing.bodyType,
+        location: listing.location,
+        condition: listing.condition,
+        exteriorColor: listing.exteriorColor,
+        doors: listing.doors,
+        images: listing.images || [],
+        features: listing.features || [],
+        isVerified: listing.isVerified || false,
+        hasWarranty: listing.hasWarranty || false,
+        hasFreeDelivery: listing.freeDelivery || false,
+        viewCount: 0, // TODO: Add analytics
+        favoriteCount: 0, // TODO: Add analytics
+        createdAt: listing.createdAt.toISOString(),
+        sellerId: listing.sellerId,
+        title: listing.title,
+        description: listing.description
+      }));
+
+      const totalPages = Math.ceil(totalCount.count / limitNum);
 
       res.json({
-        cars: paginatedListings,
-        total: filteredListings.length,
+        cars: transformedListings,
+        total: totalCount.count,
         totalPages,
         currentPage: pageNum,
         hasMore: pageNum < totalPages

@@ -301,31 +301,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Google OAuth routes
   app.get('/api/auth/google', (req: Request, res: Response, next: NextFunction) => {
-    // Store the original URL in the session for redirect after authentication
+    // Use state parameter to pass returnUrl instead of session
     const returnUrl = req.query.returnUrl as string;
     console.log('Google OAuth initiated, returnUrl:', returnUrl);
-    if (returnUrl) {
-      req.session.returnUrl = returnUrl;
-      console.log('Stored returnUrl in session:', req.session.returnUrl);
-      // Save the session before redirecting to ensure it persists
-      req.session.save((err) => {
-        if (err) {
-          console.error('Session save error:', err);
-        }
-        passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
-      });
-    } else {
-      passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
-    }
+    
+    const state = returnUrl ? Buffer.from(returnUrl).toString('base64') : '';
+    
+    passport.authenticate('google', { 
+      scope: ['profile', 'email'],
+      state: state
+    })(req, res, next);
   });
 
   app.get('/api/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/?error=auth_failed' }),
     (req: Request, res: Response) => {
-      // Get the stored return URL or default to home
-      const returnUrl = req.session.returnUrl || '/';
-      console.log('Google OAuth callback, returnUrl from session:', returnUrl);
-      delete req.session.returnUrl; // Clean up the session
+      // Get returnUrl from state parameter
+      const state = req.query.state as string;
+      let returnUrl = '/';
+      
+      if (state) {
+        try {
+          returnUrl = Buffer.from(state, 'base64').toString('utf-8');
+          console.log('Google OAuth callback, returnUrl from state:', returnUrl);
+        } catch (error) {
+          console.error('Error decoding state parameter:', error);
+        }
+      }
       
       // Successful authentication, redirect to original page
       console.log('Redirecting to:', `${returnUrl}?social=google&success=true`);

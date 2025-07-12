@@ -35,8 +35,7 @@ export default function AdminListingDetails() {
 
   // Individual listing details query
   const { data: listingData, isLoading, error } = useQuery({
-    queryKey: ['/api/admin/listing-details', listingId],
-    queryFn: () => apiRequest('GET', `/api/admin/listing-details/${listingId}`),
+    queryKey: [`/api/admin/listing-details/${listingId}`],
     enabled: !!listingId,
   });
 

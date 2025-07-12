@@ -457,6 +457,14 @@ Changelog:
   - Fixed calculation formula: CIF Price + Duty + Clearing Fees + Transport + 5% of total cost (service fee calculated as percentage of final total)
   - Integrated with existing duty calculator for accurate tax computation
   - Added automatic vehicle category detection based on engine capacity
+- January 11, 2025. Implemented comprehensive My Listings and My Wishlists pages:
+  - Created fully functional My Listings page with stats overview, performance metrics, and listing management
+  - Implemented My Wishlists page with dual tabs for Favorite Cars and Saved Searches
+  - Added user navigation menu items for easy access to personal pages
+  - Fixed wishlist data structure errors by resolving backend-frontend mapping issues
+  - Implemented proper JSON parsing for saved search filters with error handling
+  - Added React Query integration with correct API response structure handling
+  - Removed duplicate header sections from both pages to prevent duplication with main Navigation component
 
 ## User Preferences
 

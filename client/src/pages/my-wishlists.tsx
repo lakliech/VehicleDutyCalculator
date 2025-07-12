@@ -156,39 +156,7 @@ export default function MyWishlists() {
       <ModuleNavigation />
       
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">
-              My Wishlists
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Manage your favorite cars and saved searches
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button 
-              onClick={() => {
-                if (activeTab === 'favorites') {
-                  refetchFavorites();
-                } else {
-                  refetchSearches();
-                }
-              }} 
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Refresh
-            </Button>
-            <Link href="/buy-a-car">
-              <Button className="bg-purple-600 hover:bg-purple-700 flex items-center gap-2">
-                <Search className="h-4 w-4" />
-                Browse Cars
-              </Button>
-            </Link>
-          </div>
-        </div>
+
 
         {/* Tabs */}
         <div className="flex mb-8 border-b border-gray-200">

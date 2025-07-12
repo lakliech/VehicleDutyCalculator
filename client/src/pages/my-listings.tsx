@@ -116,33 +116,7 @@ export default function MyListings() {
       <ModuleNavigation />
       
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">
-              My Listings
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Manage your vehicle listings and track their performance
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button 
-              onClick={() => refetch()} 
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Refresh
-            </Button>
-            <Link href="/sell-my-car">
-              <Button className="bg-purple-600 hover:bg-purple-700 flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Create Listing
-              </Button>
-            </Link>
-          </div>
-        </div>
+
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">

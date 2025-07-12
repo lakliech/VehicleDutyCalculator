@@ -920,3 +920,91 @@ export const vehicleValuationWithImagesSchema = createInsertSchema(vehicleValuat
 
 export type VehicleValuationWithImages = typeof vehicleValuationsWithImages.$inferSelect;
 export type InsertVehicleValuationWithImages = z.infer<typeof vehicleValuationWithImagesSchema>;
+
+// ==============================
+// MESSAGING AND ANALYTICS SCHEMA
+// ==============================
+
+// Phone click tracking table
+export const phoneClickTracking = pgTable("phone_click_tracking", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  sellerId: text("seller_id").notNull(),
+  clickerUserId: text("clicker_user_id"), // null if anonymous
+  clickerIp: text("clicker_ip"),
+  clickTimestamp: timestamp("click_timestamp").defaultNow().notNull(),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Messages table for tracking conversations
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  sellerId: text("seller_id").notNull(),
+  buyerId: text("buyer_id").notNull(),
+  message: text("message").notNull(),
+  messageType: text("message_type").notNull().default("text"), // text, image, etc.
+  isRead: boolean("is_read").default(false).notNull(),
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Conversations table for organizing messages
+export const conversations = pgTable("conversations", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  sellerId: text("seller_id").notNull(),
+  buyerId: text("buyer_id").notNull(),
+  lastMessageId: integer("last_message_id").references(() => messages.id),
+  lastMessageAt: timestamp("last_message_at").defaultNow().notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Daily listing performance analytics
+export const dailyListingAnalytics = pgTable("daily_listing_analytics", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  date: text("date").notNull(), // YYYY-MM-DD format
+  views: integer("views").default(0).notNull(),
+  phoneClicks: integer("phone_clicks").default(0).notNull(),
+  messagesSent: integer("messages_sent").default(0).notNull(),
+  favorites: integer("favorites").default(0).notNull(),
+  shares: integer("shares").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Messaging and analytics schemas
+export const phoneClickTrackingSchema = createInsertSchema(phoneClickTracking).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const messageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const conversationSchema = createInsertSchema(conversations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const dailyListingAnalyticsSchema = createInsertSchema(dailyListingAnalytics).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type PhoneClickTracking = typeof phoneClickTracking.$inferSelect;
+export type InsertPhoneClickTracking = z.infer<typeof phoneClickTrackingSchema>;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = z.infer<typeof messageSchema>;
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = z.infer<typeof conversationSchema>;
+export type DailyListingAnalytics = typeof dailyListingAnalytics.$inferSelect;
+export type InsertDailyListingAnalytics = z.infer<typeof dailyListingAnalyticsSchema>;

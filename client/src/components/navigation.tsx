@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Database, LogOut, List, Heart } from "lucide-react";
+import { Database, LogOut, List, Heart, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -83,6 +83,10 @@ export function Navigation() {
                         <Link href="/my-wishlists" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
                           <Heart className="mr-2 h-4 w-4" />
                           <span>My Wishlists</span>
+                        </Link>
+                        <Link href="/my-messages" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                          <MessageCircle className="mr-2 h-4 w-4" />
+                          <span>My Messages</span>
                         </Link>
                         <button 
                           onClick={handleLogout}

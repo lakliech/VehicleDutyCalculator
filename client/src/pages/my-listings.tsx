@@ -220,102 +220,89 @@ export default function MyListings() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-4">
             {listings.map((listing) => (
-              <Card key={listing.id} className="group hover:shadow-lg transition-shadow duration-200">
-                <div className="aspect-video bg-gray-200 rounded-t-lg overflow-hidden">
-                  {listing.images && listing.images.length > 0 ? (
-                    <img 
-                      src={listing.images[0]} 
-                      alt={listing.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                      <Car className="h-12 w-12 text-gray-400" />
+              <Card key={listing.id} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-6">
+                    {/* Vehicle Image */}
+                    <div className="w-32 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                      {listing.images && listing.images.length > 0 ? (
+                        <img 
+                          src={listing.images[0]} 
+                          alt={listing.title}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      ) : (
+                        <Car className="h-8 w-8 text-gray-400" />
+                      )}
                     </div>
-                  )}
-                </div>
-                
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <Badge className={getStatusColor(listing.status)}>
-                      {getStatusText(listing.status)}
-                    </Badge>
-                    <span className="text-xs text-gray-500">
-                      {formatDate(listing.createdAt)}
-                    </span>
-                  </div>
-                  
-                  <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-                    {listing.title}
-                  </h3>
-                  
-                  <div className="text-2xl font-bold text-purple-600 mb-3">
-                    {formatCurrency(listing.price)}
-                  </div>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Car className="h-4 w-4" />
-                      <span>{listing.make} {listing.model} ({listing.year})</span>
+                    
+                    {/* Vehicle Info */}
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h3 className="font-semibold text-lg">{listing.title}</h3>
+                          <p className="text-gray-600">
+                            {listing.make} {listing.model} ({listing.year})
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge className={getStatusColor(listing.status)}>
+                            {getStatusText(listing.status)}
+                          </Badge>
+                          <Button size="sm" variant="outline">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Price</p>
+                          <p className="font-semibold text-purple-600">{formatCurrency(listing.price)}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Location</p>
+                          <p className="font-medium">{listing.location}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Fuel Type</p>
+                          <p className="font-medium">{listing.fuelType}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Listed</p>
+                          <p className="font-medium">{formatDate(listing.createdAt)}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Eye className="h-4 w-4" />
+                            <span>{listing.viewCount}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Heart className="h-4 w-4" />
+                            <span>{listing.favoriteCount}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            <Eye className="h-4 w-4 mr-2" />
+                            Analytics
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            <Share2 className="h-4 w-4 mr-2" />
+                            Share
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <MapPin className="h-4 w-4" />
-                      <span>{listing.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Fuel className="h-4 w-4" />
-                      <span>{listing.fuelType} • {listing.transmission}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                    <div className="flex items-center gap-1">
-                      <Eye className="h-4 w-4" />
-                      <span>{listing.viewCount}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Heart className="h-4 w-4" />
-                      <span>{listing.favoriteCount}</span>
-                    </div>
-                  </div>
-                  
-                  <Separator className="mb-4" />
-                  
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => {
-                        // TODO: Implement edit functionality
-                        console.log('Edit listing:', listing.id);
-                      }}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      Edit
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        // TODO: Implement share functionality
-                        console.log('Share listing:', listing.id);
-                      }}
-                    >
-                      <Share2 className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        // TODO: Implement delete functionality
-                        console.log('Delete listing:', listing.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </div>
                 </CardContent>
               </Card>

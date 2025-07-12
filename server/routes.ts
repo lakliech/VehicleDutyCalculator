@@ -25,7 +25,15 @@ import {
   importEstimates,
   clearingCharges,
   exchangeRates,
-  importEstimateSchema
+  importEstimateSchema,
+  phoneClickTracking,
+  messages,
+  conversations,
+  dailyListingAnalytics,
+  phoneClickTrackingSchema,
+  messageSchema,
+  conversationSchema,
+  dailyListingAnalyticsSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -4049,6 +4057,282 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     } catch (error) {
       console.error('Remove from comparison error:', error);
       res.status(500).json({ error: 'Failed to remove from comparison' });
+    }
+  });
+
+  // ==============================
+  // MESSAGING AND ANALYTICS API
+  // ==============================
+  
+  // Track phone clicks
+  app.post('/api/track-phone-click', async (req, res) => {
+    try {
+      const { listingId, sellerId, clickerUserId, clickerIp, userAgent } = phoneClickTrackingSchema.parse(req.body);
+      
+      // Record the phone click
+      await db.insert(phoneClickTracking).values({
+        listingId,
+        sellerId,
+        clickerUserId,
+        clickerIp,
+        userAgent,
+        clickTimestamp: new Date()
+      });
+      
+      // Update daily analytics
+      const today = new Date().toISOString().split('T')[0];
+      await db
+        .insert(dailyListingAnalytics)
+        .values({
+          listingId,
+          date: today,
+          phoneClicks: 1,
+          views: 0,
+          messagesSent: 0,
+          favorites: 0,
+          shares: 0
+        })
+        .onConflictDoUpdate({
+          target: [dailyListingAnalytics.listingId, dailyListingAnalytics.date],
+          set: {
+            phoneClicks: sql`${dailyListingAnalytics.phoneClicks} + 1`,
+            updatedAt: new Date()
+          }
+        });
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error tracking phone click:", error);
+      res.status(500).json({ error: "Failed to track phone click" });
+    }
+  });
+  
+  // Send message
+  app.post('/api/send-message', async (req, res) => {
+    try {
+      const { listingId, sellerId, buyerId, message, messageType = 'text' } = messageSchema.parse(req.body);
+      
+      // Insert message
+      const [newMessage] = await db
+        .insert(messages)
+        .values({
+          listingId,
+          sellerId,
+          buyerId,
+          message,
+          messageType,
+          sentAt: new Date()
+        })
+        .returning();
+      
+      // Update or create conversation
+      await db
+        .insert(conversations)
+        .values({
+          listingId,
+          sellerId,
+          buyerId,
+          lastMessageId: newMessage.id,
+          lastMessageAt: new Date()
+        })
+        .onConflictDoUpdate({
+          target: [conversations.listingId, conversations.sellerId, conversations.buyerId],
+          set: {
+            lastMessageId: newMessage.id,
+            lastMessageAt: new Date(),
+            updatedAt: new Date()
+          }
+        });
+      
+      // Update daily analytics
+      const today = new Date().toISOString().split('T')[0];
+      await db
+        .insert(dailyListingAnalytics)
+        .values({
+          listingId,
+          date: today,
+          messagesSent: 1,
+          views: 0,
+          phoneClicks: 0,
+          favorites: 0,
+          shares: 0
+        })
+        .onConflictDoUpdate({
+          target: [dailyListingAnalytics.listingId, dailyListingAnalytics.date],
+          set: {
+            messagesSent: sql`${dailyListingAnalytics.messagesSent} + 1`,
+            updatedAt: new Date()
+          }
+        });
+      
+      res.json({ success: true, message: newMessage });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      res.status(500).json({ error: "Failed to send message" });
+    }
+  });
+  
+  // Get user messages/conversations
+  app.get('/api/user/messages', async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (!user) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      
+      const userConversations = await db
+        .select({
+          id: conversations.id,
+          listingId: conversations.listingId,
+          sellerId: conversations.sellerId,
+          buyerId: conversations.buyerId,
+          lastMessageAt: conversations.lastMessageAt,
+          isActive: conversations.isActive,
+          // Join with listing info
+          listingTitle: carListings.title,
+          listingMake: carListings.make,
+          listingModel: carListings.model,
+          listingPrice: carListings.price,
+          // Join with last message
+          lastMessage: messages.message,
+          lastMessageType: messages.messageType,
+          lastMessageRead: messages.isRead
+        })
+        .from(conversations)
+        .innerJoin(carListings, eq(conversations.listingId, carListings.id))
+        .leftJoin(messages, eq(conversations.lastMessageId, messages.id))
+        .where(
+          sql`${conversations.sellerId} = ${user.id} OR ${conversations.buyerId} = ${user.id}`
+        )
+        .orderBy(desc(conversations.lastMessageAt));
+      
+      res.json(userConversations);
+    } catch (error) {
+      console.error("Error fetching user messages:", error);
+      res.status(500).json({ error: "Failed to fetch messages" });
+    }
+  });
+  
+  // Get conversation messages
+  app.get('/api/conversation/:conversationId/messages', async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (!user) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      
+      const conversationId = parseInt(req.params.conversationId);
+      
+      // Verify user has access to this conversation
+      const conversation = await db
+        .select()
+        .from(conversations)
+        .where(
+          and(
+            eq(conversations.id, conversationId),
+            sql`${conversations.sellerId} = ${user.id} OR ${conversations.buyerId} = ${user.id}`
+          )
+        )
+        .limit(1);
+      
+      if (!conversation.length) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+      
+      const conversationMessages = await db
+        .select()
+        .from(messages)
+        .where(eq(messages.listingId, conversation[0].listingId))
+        .orderBy(messages.sentAt);
+      
+      res.json(conversationMessages);
+    } catch (error) {
+      console.error("Error fetching conversation messages:", error);
+      res.status(500).json({ error: "Failed to fetch conversation messages" });
+    }
+  });
+  
+  // Get listing performance analytics
+  app.get('/api/listing/:listingId/analytics', async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (!user) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      
+      const listingId = parseInt(req.params.listingId);
+      
+      // Verify user owns this listing
+      const listing = await db
+        .select()
+        .from(carListings)
+        .where(
+          and(
+            eq(carListings.id, listingId),
+            eq(carListings.sellerId, user.id)
+          )
+        )
+        .limit(1);
+      
+      if (!listing.length) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      
+      const analytics = await db
+        .select()
+        .from(dailyListingAnalytics)
+        .where(eq(dailyListingAnalytics.listingId, listingId))
+        .orderBy(dailyListingAnalytics.date);
+      
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching listing analytics:", error);
+      res.status(500).json({ error: "Failed to fetch listing analytics" });
+    }
+  });
+  
+  // Get user's listing analytics overview
+  app.get('/api/user/listings-analytics', async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (!user) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      
+      const userListings = await db
+        .select({ id: carListings.id })
+        .from(carListings)
+        .where(eq(carListings.sellerId, user.id));
+      
+      const listingIds = userListings.map(l => l.id);
+      
+      if (listingIds.length === 0) {
+        return res.json([]);
+      }
+      
+      const analytics = await db
+        .select({
+          listingId: dailyListingAnalytics.listingId,
+          date: dailyListingAnalytics.date,
+          views: dailyListingAnalytics.views,
+          phoneClicks: dailyListingAnalytics.phoneClicks,
+          messagesSent: dailyListingAnalytics.messagesSent,
+          favorites: dailyListingAnalytics.favorites,
+          shares: dailyListingAnalytics.shares,
+          // Join with listing info
+          listingTitle: carListings.title,
+          listingMake: carListings.make,
+          listingModel: carListings.model
+        })
+        .from(dailyListingAnalytics)
+        .innerJoin(carListings, eq(dailyListingAnalytics.listingId, carListings.id))
+        .where(sql`${dailyListingAnalytics.listingId} IN (${sql.join(listingIds.map(id => sql`${id}`), sql`, `)})`)
+        .orderBy(carListings.title, dailyListingAnalytics.date);
+      
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching user listings analytics:", error);
+      res.status(500).json({ error: "Failed to fetch user listings analytics" });
     }
   });
 

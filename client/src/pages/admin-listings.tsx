@@ -362,7 +362,12 @@ export default function AdminListings() {
 
   const [location, navigate] = useLocation();
   
-  const handleViewDetails = (listing: Listing) => {
+  const handleViewDetails = (listing: Listing, event?: React.MouseEvent) => {
+    // Prevent any default behavior that might cause new window
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     // Navigate to the listing details page instead of opening a dialog
     console.log('Navigating to listing details:', listing.listing.id);
     navigate(`/admin/listing-details/${listing.listing.id}`);
@@ -948,7 +953,7 @@ export default function AdminListings() {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => handleViewDetails(item)}
+                          onClick={(e) => handleViewDetails(item, e)}
                           className="flex items-center gap-1"
                         >
                           <Eye className="w-3 h-3" />

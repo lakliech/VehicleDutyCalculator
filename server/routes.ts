@@ -307,8 +307,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (returnUrl) {
       req.session.returnUrl = returnUrl;
       console.log('Stored returnUrl in session:', req.session.returnUrl);
+      // Save the session before redirecting to ensure it persists
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+        }
+        passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+      });
+    } else {
+      passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
     }
-    passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
   });
 
   app.get('/api/auth/google/callback',

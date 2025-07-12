@@ -187,6 +187,45 @@ export default function BuyACar() {
     }
   };
 
+  const handleViewDetails = (listingId: number) => {
+    // For now, show a detailed modal or navigate to detail page
+    toast({
+      title: "View Details",
+      description: `Opening details for car ID: ${listingId}`,
+    });
+    
+    // In a real implementation, you would navigate to a detail page:
+    // window.location.href = `/car-details/${listingId}`;
+    // or use your router to navigate
+  };
+
+  const handleCallSeller = (listingId: number) => {
+    // Mock phone number for demonstration
+    const phoneNumber = "+254712345678";
+    toast({
+      title: "Calling Seller",
+      description: `Initiating call to ${phoneNumber}`,
+    });
+    
+    // In a real implementation, you would:
+    // window.location.href = `tel:${phoneNumber}`;
+  };
+
+  const handleWhatsAppSeller = (listingId: number) => {
+    // Mock WhatsApp functionality
+    const phoneNumber = "254712345678"; // Remove + for WhatsApp
+    const message = encodeURIComponent(`Hi, I'm interested in your car listing (ID: ${listingId}). Is it still available?`);
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    
+    toast({
+      title: "Opening WhatsApp",
+      description: "Redirecting to WhatsApp chat with seller",
+    });
+    
+    // Open WhatsApp in new tab
+    window.open(whatsappUrl, '_blank');
+  };
+
   const FilterSidebar = () => (
     <div className="w-80 bg-white rounded-lg shadow-sm border border-gray-200 p-6 h-fit">
       <div className="flex items-center justify-between mb-6">
@@ -545,13 +584,26 @@ export default function BuyACar() {
           )}
           
           <div className="flex gap-2 mt-4">
-            <Button className="flex-1 bg-purple-600 hover:bg-purple-700">
+            <Button 
+              className="flex-1 bg-purple-600 hover:bg-purple-700"
+              onClick={() => handleViewDetails(car.id)}
+            >
               View Details
             </Button>
-            <Button variant="outline" size="sm" className="px-3">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="px-3"
+              onClick={() => handleCallSeller(car.id)}
+            >
               <Phone className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="sm" className="px-3">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="px-3"
+              onClick={() => handleWhatsAppSeller(car.id)}
+            >
               <MessageCircle className="h-4 w-4" />
             </Button>
           </div>

@@ -55,19 +55,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY 
 });
 
-// Role-based authentication middleware
-const authenticateAdmin = async (req: any, res: any, next: any) => {
-  // Check if user is authenticated via session (Google OAuth)
-  if (req.isAuthenticated && req.isAuthenticated() && req.user) {
-    const user = req.user;
-    // Check if user has admin role (role_id 3 = admin, role_id 4 = superadmin)
-    if (user.roleId === 3 || user.roleId === 4) {
-      return next();
-    }
-  }
-  
-  return res.status(401).json({ error: "Admin access required. Please login with an admin account." });
-};
+// Role-based authentication middleware is now handled by authenticateUser and requireRole functions
 
 // Helper function to get engine capacity filter based on category
 function getEngineCapacityFilter(category: string) {
@@ -1340,7 +1328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all vehicle references for admin
-  app.get("/api/admin/vehicle-references", authenticateAdmin, async (req, res) => {
+  app.get("/api/admin/vehicle-references", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const results = await db
         .select()
@@ -1355,7 +1343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add new vehicle reference
-  app.post("/api/admin/vehicle-references", authenticateAdmin, async (req, res) => {
+  app.post("/api/admin/vehicle-references", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const validation = z.object({
         make: z.string().min(1),
@@ -1391,7 +1379,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update vehicle reference
-  app.put("/api/admin/vehicle-references/:id", authenticateAdmin, async (req, res) => {
+  app.put("/api/admin/vehicle-references/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
@@ -1457,7 +1445,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete vehicle reference
-  app.delete("/api/admin/vehicle-references/:id", authenticateAdmin, async (req, res) => {
+  app.delete("/api/admin/vehicle-references/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const vehicleId = parseInt(req.params.id);
       
@@ -1478,7 +1466,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all tax rates
-  app.get("/api/admin/tax-rates", authenticateAdmin, async (req, res) => {
+  app.get("/api/admin/tax-rates", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const results = await db
         .select()
@@ -1492,7 +1480,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add new tax rate
-  app.post("/api/admin/tax-rates", authenticateAdmin, async (req, res) => {
+  app.post("/api/admin/tax-rates", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const validation = z.object({
         vehicleCategory: z.string().min(1),
@@ -1521,7 +1509,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update tax rate
-  app.put("/api/admin/tax-rates/:id", authenticateAdmin, async (req, res) => {
+  app.put("/api/admin/tax-rates/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
@@ -1559,7 +1547,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all processing fees
-  app.get("/api/admin/processing-fees", authenticateAdmin, async (req, res) => {
+  app.get("/api/admin/processing-fees", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const results = await db
         .select()
@@ -1573,7 +1561,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add new processing fee
-  app.post("/api/admin/processing-fees", authenticateAdmin, async (req, res) => {
+  app.post("/api/admin/processing-fees", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const validation = z.object({
         feeType: z.string().min(1),
@@ -1605,7 +1593,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update processing fee
-  app.put("/api/admin/processing-fees/:id", authenticateAdmin, async (req, res) => {
+  app.put("/api/admin/processing-fees/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
@@ -1642,7 +1630,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete processing fee
-  app.delete("/api/admin/processing-fees/:id", authenticateAdmin, async (req, res) => {
+  app.delete("/api/admin/processing-fees/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       
@@ -1667,7 +1655,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all category rules
-  app.get("/api/admin/category-rules", authenticateAdmin, async (req, res) => {
+  app.get("/api/admin/category-rules", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const results = await db
         .select()
@@ -1681,7 +1669,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add new category rule
-  app.post("/api/admin/category-rules", authenticateAdmin, async (req, res) => {
+  app.post("/api/admin/category-rules", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const validation = z.object({
         category: z.string().min(1),
@@ -1712,7 +1700,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update category rule
-  app.put("/api/admin/category-rules/:id", authenticateAdmin, async (req, res) => {
+  app.put("/api/admin/category-rules/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
@@ -1749,7 +1737,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all depreciation rates
-  app.get("/api/admin/depreciation-rates", authenticateAdmin, async (req, res) => {
+  app.get("/api/admin/depreciation-rates", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const results = await db
         .select()
@@ -1763,7 +1751,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update depreciation rate
-  app.put("/api/admin/depreciation-rates/:id", authenticateAdmin, async (req, res) => {
+  app.put("/api/admin/depreciation-rates/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
@@ -1801,7 +1789,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // CSV Upload functionality for vehicle references
   const upload = multer({ storage: multer.memoryStorage() });
 
-  app.post("/api/admin/upload-vehicle-csv", authenticateAdmin, upload.single('csv'), async (req, res) => {
+  app.post("/api/admin/upload-vehicle-csv", authenticateUser, requireRole(['admin', 'superadmin']), upload.single('csv'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No CSV file uploaded" });
@@ -1925,7 +1913,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get dashboard stats
-  app.get("/api/admin/stats", authenticateAdmin, async (req, res) => {
+  app.get("/api/admin/stats", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       // Get total users
       const totalUsersResult = await db
@@ -1971,7 +1959,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all users with their roles
-  app.get("/api/admin/users", authenticateAdmin, async (req, res) => {
+  app.get("/api/admin/users", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       // Get all users from the database with their roles
       const users = await db
@@ -2000,7 +1988,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update user role
-  app.put("/api/admin/users/:userId/role", authenticateAdmin, async (req, res) => {
+  app.put("/api/admin/users/:userId/role", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const { userId } = req.params;
       const { roleId } = req.body;
@@ -2018,7 +2006,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all roles
-  app.get("/api/admin/roles", authenticateAdmin, async (req, res) => {
+  app.get("/api/admin/roles", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const roles = await storage.getAllRoles();
       res.json(roles);
@@ -2592,7 +2580,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all listings for admin
-  app.get("/api/admin/listings", authenticateAdmin, async (req, res) => {
+  app.get("/api/admin/listings", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const listings = await storage.getAllListingsForAdmin();
       res.json(listings);
@@ -2603,7 +2591,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Approve listing
-  app.post("/api/admin/listings/:listingId/approve", authenticateAdmin, async (req, res) => {
+  app.post("/api/admin/listings/:listingId/approve", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const listingId = parseInt(req.params.listingId);
       const { notes } = req.body;
@@ -2621,7 +2609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Reject listing
-  app.post("/api/admin/listings/:listingId/reject", authenticateAdmin, async (req, res) => {
+  app.post("/api/admin/listings/:listingId/reject", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const listingId = parseInt(req.params.listingId);
       const { reason } = req.body;
@@ -2643,7 +2631,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Request changes to listing
-  app.post("/api/admin/listings/:listingId/request-changes", authenticateAdmin, async (req, res) => {
+  app.post("/api/admin/listings/:listingId/request-changes", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const listingId = parseInt(req.params.listingId);
       const { changes, notes } = req.body;

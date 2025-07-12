@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
+import { ProtectedRoute } from "@/components/protected-route";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import DutyCalculator from "@/pages/duty-calculator";
@@ -47,13 +48,41 @@ function Router() {
           <Route path="/ai-advisor" component={AIAdvisor} />
           <Route path="/price-trends" component={PriceTrends} />
           <Route path="/price-heatmap" component={PriceTrends} />
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/my-listings" component={MyListings} />
-          <Route path="/my-wishlists" component={MyWishlists} />
-          <Route path="/my-messages" component={MyMessages} />
-          <Route path="/admin" component={AdminDashboard} />
-          <Route path="/admin/listings" component={AdminListings} />
-          <Route path="/admin/users" component={AdminUsers} />
+          <Route path="/dashboard">
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/my-listings">
+            <ProtectedRoute>
+              <MyListings />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/my-wishlists">
+            <ProtectedRoute>
+              <MyWishlists />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/my-messages">
+            <ProtectedRoute>
+              <MyMessages />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/admin">
+            <ProtectedRoute requireAdmin={true}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/admin/listings">
+            <ProtectedRoute requireAdmin={true}>
+              <AdminListings />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/admin/users">
+            <ProtectedRoute requireAdmin={true}>
+              <AdminUsers />
+            </ProtectedRoute>
+          </Route>
           <Route path="/reset-password" component={ResetPassword} />
           <Route component={NotFound} />
         </Switch>

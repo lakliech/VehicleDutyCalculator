@@ -15,7 +15,7 @@ import {
   type FavoriteListing, type SavedSearch, type CarComparison
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, or, desc, sql, gt, inArray } from "drizzle-orm";
+import { eq, and, gte, lte, or, desc, sql, gt, inArray, isNull } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 export interface IStorage {
@@ -408,7 +408,11 @@ export class DatabaseStorage implements IStorage {
     const hashedPassword = await bcrypt.hash(password, 10);
     const [user] = await db
       .insert(appUsers)
-      .values({ ...userDataWithoutPassword, passwordHash: hashedPassword })
+      .values({ 
+        ...userDataWithoutPassword, 
+        passwordHash: hashedPassword,
+        id: crypto.randomUUID()
+      })
       .returning();
     
     // Create default user preferences
@@ -462,7 +466,7 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(userRoles, eq(appUsers.roleId, userRoles.id))
       .where(eq(appUsers.id, userId));
     
-    return result[0]?.role;
+    return result[0]?.role || undefined;
   }
 
   async updateUserRole(userId: string, roleId: number): Promise<void> {
@@ -529,7 +533,10 @@ export class DatabaseStorage implements IStorage {
   async createListing(listingData: InsertCarListing & { sellerId: string }): Promise<CarListing> {
     const [listing] = await db
       .insert(carListings)
-      .values(listingData)
+      .values({
+        ...listingData,
+        price: listingData.price.toString()
+      })
       .returning();
 
     // Create approval record
@@ -551,9 +558,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateListing(id: number, listingData: Partial<InsertCarListing>): Promise<CarListing> {
+    const updateData = { ...listingData, updatedAt: new Date() };
+    // Convert price to string if it exists
+    if (updateData.price !== undefined) {
+      (updateData as any).price = updateData.price.toString();
+    }
     const [listing] = await db
       .update(carListings)
-      .set({ ...listingData, updatedAt: new Date() })
+      .set(updateData)
       .where(eq(carListings.id, id))
       .returning();
     return listing;
@@ -718,7 +730,7 @@ export class DatabaseStorage implements IStorage {
         and(
           eq(passwordResetTokens.token, token),
           gt(passwordResetTokens.expiresAt, new Date()),
-          eq(passwordResetTokens.usedAt, null)
+          isNull(passwordResetTokens.usedAt)
         )
       );
     
@@ -1161,14 +1173,14 @@ export class DatabaseStorage implements IStorage {
               reviewerId: adminId,
               status,
               reviewNotes: reason,
-              reviewedAt: new Date().toISOString(),
+              reviewedAt: new Date(),
             })
             .onConflictDoUpdate({
               target: [listingApprovals.listingId],
               set: {
                 status,
                 reviewNotes: reason,
-                reviewedAt: new Date().toISOString(),
+                reviewedAt: new Date(),
               }
             });
         }

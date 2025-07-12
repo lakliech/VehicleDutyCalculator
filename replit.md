@@ -466,6 +466,7 @@ Changelog:
   - Added React Query integration with correct API response structure handling
   - Removed duplicate header sections from both pages to prevent duplication with main Navigation component
   - Removed ModuleNavigation component from both pages to fix logo duplication, keeping only main Navigation with logo
+  - Fixed header duplication issue by removing Navigation component from individual pages since it's already rendered globally in App.tsx
 
 ## User Preferences
 

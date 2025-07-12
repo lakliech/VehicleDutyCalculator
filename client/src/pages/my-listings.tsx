@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Navigation } from '@/components/navigation';
+
 import { useAuth } from '@/components/auth-provider';
 import { Link } from 'wouter';
 import { 
@@ -111,8 +111,6 @@ export default function MyListings() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-cyan-50">
-      <Navigation />
-      
       <div className="container mx-auto px-4 py-8">
 
 

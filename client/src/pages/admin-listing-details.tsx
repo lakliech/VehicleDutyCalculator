@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { 
@@ -52,6 +53,13 @@ export default function AdminListingDetails() {
   const [rejectionReason, setRejectionReason] = useState("");
   const [flagReason, setFlagReason] = useState("");
   const [adminNote, setAdminNote] = useState("");
+  
+  // Edit form states
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editPrice, setEditPrice] = useState("");
+  const [editNegotiable, setEditNegotiable] = useState(false);
+  const [editLocation, setEditLocation] = useState("");
 
   console.log('Admin Listing Details - Listing ID:', listingId);
 
@@ -64,6 +72,15 @@ export default function AdminListingDetails() {
   console.log('Listing data:', listingData);
   console.log('Query error:', error);
   console.log('Is loading:', isLoading);
+
+  // Initialize edit form when listing data loads
+  if (listingData && editTitle === "") {
+    setEditTitle(listingData.title || "");
+    setEditDescription(listingData.description || "");
+    setEditPrice(listingData.price || "");
+    setEditNegotiable(listingData.negotiable || false);
+    setEditLocation(listingData.location || "");
+  }
 
   // Mutation functions
   const approveMutation = useMutation({
@@ -151,6 +168,27 @@ export default function AdminListingDetails() {
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to add note", variant: "destructive" });
+    },
+  });
+
+  const editMutation = useMutation({
+    mutationFn: async (editData: { title: string; description: string; price: string; negotiable: boolean; location: string }) => {
+      const response = await fetch(`/api/admin/listings/${listingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editData),
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to edit listing');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
+      toast({ title: "Success", description: "Listing updated successfully" });
+      setIsEditOpen(false);
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update listing", variant: "destructive" });
     },
   });
 
@@ -473,10 +511,91 @@ export default function AdminListingDetails() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" className="flex items-center gap-2" onClick={() => setIsEditOpen(true)}>
-                  <Edit className="w-4 h-4" />
-                  Edit Listing
-                </Button>
+                <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <Edit className="w-4 h-4" />
+                      Edit Listing
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Edit Listing</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="editTitle">Title *</Label>
+                        <Input
+                          id="editTitle"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          placeholder="e.g., 2015 Toyota Fielder – Excellent Condition"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="editDescription">Description</Label>
+                        <Textarea
+                          id="editDescription"
+                          value={editDescription}
+                          onChange={(e) => setEditDescription(e.target.value)}
+                          placeholder="Correct grammar, remove prohibited words, or add details..."
+                          rows={5}
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="editPrice">Price (KES) *</Label>
+                          <Input
+                            id="editPrice"
+                            type="number"
+                            value={editPrice}
+                            onChange={(e) => setEditPrice(e.target.value)}
+                            placeholder="e.g., 750000"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="editLocation">Location *</Label>
+                          <Input
+                            id="editLocation"
+                            value={editLocation}
+                            onChange={(e) => setEditLocation(e.target.value)}
+                            placeholder="e.g., Nairobi, Kenya"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="editNegotiable"
+                          checked={editNegotiable}
+                          onCheckedChange={setEditNegotiable}
+                        />
+                        <Label htmlFor="editNegotiable">Price is negotiable</Label>
+                      </div>
+                      
+                      <div className="flex justify-end gap-2 pt-4">
+                        <Button variant="outline" onClick={() => setIsEditOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button 
+                          onClick={() => editMutation.mutate({
+                            title: editTitle,
+                            description: editDescription,
+                            price: editPrice,
+                            negotiable: editNegotiable,
+                            location: editLocation
+                          })}
+                          disabled={!editTitle.trim() || !editPrice.trim() || !editLocation.trim() || editMutation.isPending}
+                        >
+                          {editMutation.isPending ? "Saving..." : "Save Changes"}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 
                 <Dialog open={isNoteOpen} onOpenChange={setIsNoteOpen}>
                   <DialogTrigger asChild>

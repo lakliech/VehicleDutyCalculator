@@ -92,12 +92,15 @@ export default function Dashboard() {
                   <span>View personalized recommendations</span>
                 </div>
                 <div className="pt-4">
-                  <a
-                    href="/api/auth/google"
+                  <button
+                    onClick={() => {
+                      const currentUrl = window.location.pathname + window.location.search;
+                      window.location.href = `/api/auth/google?returnUrl=${encodeURIComponent(currentUrl)}`;
+                    }}
                     className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 transition-colors"
                   >
                     Sign in with Google
-                  </a>
+                  </button>
                 </div>
               </div>
             </CardContent>

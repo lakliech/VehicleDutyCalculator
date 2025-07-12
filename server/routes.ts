@@ -300,15 +300,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Google OAuth routes
-  app.get('/api/auth/google', 
-    passport.authenticate('google', { scope: ['profile', 'email'] })
-  );
+  app.get('/api/auth/google', (req: Request, res: Response, next: NextFunction) => {
+    // Store the original URL in the session for redirect after authentication
+    const returnUrl = req.query.returnUrl as string;
+    if (returnUrl) {
+      req.session.returnUrl = returnUrl;
+    }
+    passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+  });
 
   app.get('/api/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/?error=auth_failed' }),
     (req: Request, res: Response) => {
-      // Successful authentication, redirect home
-      res.redirect('/?social=google&success=true');
+      // Get the stored return URL or default to home
+      const returnUrl = req.session.returnUrl || '/';
+      delete req.session.returnUrl; // Clean up the session
+      
+      // Successful authentication, redirect to original page
+      res.redirect(`${returnUrl}?social=google&success=true`);
     }
   );
 

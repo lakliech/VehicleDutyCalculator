@@ -8,7 +8,8 @@ export function AdminLogin() {
   const { user } = useAuth();
 
   const handleGoogleLogin = () => {
-    window.location.href = '/api/auth/google';
+    const currentUrl = window.location.pathname + window.location.search;
+    window.location.href = `/api/auth/google?returnUrl=${encodeURIComponent(currentUrl)}`;
   };
 
   const isAdmin = user?.roleId === 3 || user?.roleId === 4;

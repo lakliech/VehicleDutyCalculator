@@ -39,34 +39,35 @@ export function generateDutyCalculationPDF(
     doc.text(text, x, y);
   };
 
-  // Add compact header background with gradient effect
-  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(0, 0, pageWidth, 28, 'F');
+  // Add white header background
+  doc.setFillColor(255, 255, 255);
+  doc.rect(0, 0, pageWidth, 35, 'F');
 
-  // Add Gariyangu Logo (smaller)
-  const logoWidth = 35;
-  const logoHeight = 14;
+  // Add Gariyangu Logo (larger)
+  const logoWidth = 50;
+  const logoHeight = 20;
   const logoX = marginLeft;
   doc.addImage(gariyanGuLogo, 'PNG', logoX, 7, logoWidth, logoHeight);
   
   // Add call-to-action text in header (compact)
-  doc.setTextColor(255, 255, 255);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.text("Do you wish to import a car? Contact: 0736 272719", logoX + logoWidth + 8, 12);
+  doc.text("Do you wish to import a car? Contact: 0736 272719", logoX + logoWidth + 10, 14);
   doc.setFontSize(7);
-  doc.text("Japan • UK • South Africa • Dubai • Australia • Singapore • Thailand", logoX + logoWidth + 8, 18);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.text("Japan • UK • South Africa • Dubai • Australia • Singapore • Thailand", logoX + logoWidth + 10, 22);
   
   // Reset text color
   doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   
   // Title with modern styling (compact)
   doc.setFont("helvetica", "bold");
-  addCenteredText("KENYA MOTOR VEHICLE DUTY CALCULATION", 38, 15, "bold");
+  addCenteredText("KENYA MOTOR VEHICLE DUTY CALCULATION", 43, 15, "bold");
   
   // Subtitle
   doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-  addCenteredText("Kenya Revenue Authority (KRA) Import Duty Assessment", 46, 9);
+  addCenteredText("Kenya Revenue Authority (KRA) Import Duty Assessment", 51, 9);
   
   // Date with modern styling (compact)
   const currentDate = new Date().toLocaleDateString('en-KE', {
@@ -76,14 +77,14 @@ export function generateDutyCalculationPDF(
   });
   doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   doc.setFontSize(8);
-  doc.text(`Report Date: ${currentDate}`, marginLeft, 55);
+  doc.text(`Report Date: ${currentDate}`, marginLeft, 60);
   
   // Modern line separator (compact)
   doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.setLineWidth(0.8);
-  doc.line(marginLeft, 58, pageWidth - marginRight, 58);
+  doc.line(marginLeft, 63, pageWidth - marginRight, 63);
   
-  let yPosition = 68;
+  let yPosition = 73;
   
   // Vehicle Information Section with modern card-like styling (compact)
   doc.setFillColor(248, 250, 252); // Light background
@@ -339,34 +340,35 @@ export function generateImportEstimatePDF(result: ImportEstimateResult) {
     doc.text(text, x, y);
   };
 
-  // Add compact header background with gradient effect
-  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(0, 0, pageWidth, 28, 'F');
+  // Add white header background
+  doc.setFillColor(255, 255, 255);
+  doc.rect(0, 0, pageWidth, 35, 'F');
 
-  // Add Gariyangu Logo (smaller)
-  const logoWidth = 35;
-  const logoHeight = 14;
+  // Add Gariyangu Logo (larger)
+  const logoWidth = 50;
+  const logoHeight = 20;
   const logoX = marginLeft;
   doc.addImage(gariyanGuLogo, 'PNG', logoX, 7, logoWidth, logoHeight);
   
   // Add call-to-action text in header (compact)
-  doc.setTextColor(255, 255, 255);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.text("Do you wish to import a car? Contact: 0736 272719", logoX + logoWidth + 8, 12);
+  doc.text("Do you wish to import a car? Contact: 0736 272719", logoX + logoWidth + 10, 14);
   doc.setFontSize(7);
-  doc.text("Japan • UK • South Africa • Dubai • Australia • Singapore • Thailand", logoX + logoWidth + 8, 18);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.text("Japan • UK • South Africa • Dubai • Australia • Singapore • Thailand", logoX + logoWidth + 10, 22);
   
   // Reset text color
   doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   
   // Title with modern styling (compact)
   doc.setFont("helvetica", "bold");
-  addCenteredText("VEHICLE IMPORT COST ESTIMATE", 38, 15, "bold");
+  addCenteredText("VEHICLE IMPORT COST ESTIMATE", 43, 15, "bold");
   
   // Subtitle
   doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-  addCenteredText("Comprehensive Import Cost Analysis for Kenya", 46, 9);
+  addCenteredText("Comprehensive Import Cost Analysis for Kenya", 51, 9);
   
   // Date with modern styling (compact)
   const currentDate = new Date().toLocaleDateString('en-KE', {
@@ -375,9 +377,9 @@ export function generateImportEstimatePDF(result: ImportEstimateResult) {
     day: 'numeric'
   });
   doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-  addCenteredText(`Generated on ${currentDate}`, 54, 8);
+  addCenteredText(`Generated on ${currentDate}`, 59, 8);
   
-  let yPosition = 70;
+  let yPosition = 75;
   
   // Vehicle Information Section
   doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);

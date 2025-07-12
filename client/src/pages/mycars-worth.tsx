@@ -59,6 +59,11 @@ export default function MyCarsWorth() {
       return response;
     },
     onSuccess: (data) => {
+      console.log("=== FRONTEND VALUATION DEBUG ===");
+      console.log("API Response:", data);
+      console.log("Market Value:", data.marketValue);
+      console.log("Type of Market Value:", typeof data.marketValue);
+      console.log("================================");
       setValuationResult(data);
       toast({
         title: "Valuation Complete",

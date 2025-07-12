@@ -22,6 +22,8 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import AdminListings from "@/pages/admin-listings";
 import AdminUsers from "@/pages/admin-users";
 import Dashboard from "@/pages/dashboard";
+import MyListings from "@/pages/my-listings";
+import MyWishlists from "@/pages/my-wishlists";
 import { ResetPassword } from "@/pages/reset-password";
 import { AuthProvider } from "@/components/auth-provider";
 
@@ -45,6 +47,8 @@ function Router() {
           <Route path="/price-trends" component={PriceTrends} />
           <Route path="/price-heatmap" component={PriceTrends} />
           <Route path="/dashboard" component={Dashboard} />
+          <Route path="/my-listings" component={MyListings} />
+          <Route path="/my-wishlists" component={MyWishlists} />
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/admin/listings" component={AdminListings} />
           <Route path="/admin/users" component={AdminUsers} />

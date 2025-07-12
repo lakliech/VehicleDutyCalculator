@@ -1235,17 +1235,38 @@ export class DatabaseStorage implements IStorage {
     await db.insert(savedSearches).values({
       userId,
       searchName,
-      filters,
+      filters: typeof filters === 'string' ? filters : JSON.stringify(filters),
       createdAt: new Date()
     });
   }
 
   async getUserSavedSearches(userId: string): Promise<any[]> {
-    return await db
+    const searches = await db
       .select()
       .from(savedSearches)
       .where(eq(savedSearches.userId, userId))
       .orderBy(desc(savedSearches.createdAt));
+    
+    // Transform the data to match frontend expectations
+    return searches.map(search => {
+      let parsedFilters = {};
+      try {
+        parsedFilters = typeof search.filters === 'string' ? JSON.parse(search.filters) : search.filters;
+      } catch (e) {
+        console.error('Error parsing filters for search:', search.id, e);
+        parsedFilters = {};
+      }
+      
+      return {
+        id: search.id,
+        userId: search.userId,
+        name: search.searchName, // Map searchName to name
+        filters: parsedFilters,
+        alertEnabled: search.alertEnabled,
+        createdAt: search.createdAt.toISOString(),
+        updatedAt: search.createdAt.toISOString() // Use createdAt as fallback for updatedAt
+      };
+    });
   }
 
   async addToComparison(userId: string, listingId: number): Promise<void> {

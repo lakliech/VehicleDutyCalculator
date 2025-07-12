@@ -75,15 +75,18 @@ export default function MyWishlists() {
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<'favorites' | 'searches'>('favorites');
   
-  const { data: favorites, isLoading: favoritesLoading, error: favoritesError, refetch: refetchFavorites } = useQuery<FavoriteListing[]>({
+  const { data: favoritesData, isLoading: favoritesLoading, error: favoritesError, refetch: refetchFavorites } = useQuery<{favorites: FavoriteListing[]}>({
     queryKey: ['/api/user/favorites'],
     enabled: isAuthenticated,
   });
 
-  const { data: savedSearches, isLoading: searchesLoading, error: searchesError, refetch: refetchSearches } = useQuery<SavedSearch[]>({
+  const { data: savedSearchesData, isLoading: searchesLoading, error: searchesError, refetch: refetchSearches } = useQuery<{savedSearches: SavedSearch[]}>({
     queryKey: ['/api/user/saved-searches'],
     enabled: isAuthenticated,
   });
+
+  const favorites = favoritesData?.favorites || [];
+  const savedSearches = savedSearchesData?.savedSearches || [];
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-KE', {

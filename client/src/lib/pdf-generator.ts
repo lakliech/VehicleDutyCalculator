@@ -312,8 +312,9 @@ export interface ImportEstimateResult {
 export function generateImportEstimatePDF(result: ImportEstimateResult) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
-  const marginLeft = 20;
-  const marginRight = 20;
+  const pageHeight = doc.internal.pageSize.height;
+  const marginLeft = 15;
+  const marginRight = 15;
   const contentWidth = pageWidth - marginLeft - marginRight;
   
   // Modern color scheme (New Gariyangu brand colors)
@@ -321,13 +322,16 @@ export function generateImportEstimatePDF(result: ImportEstimateResult) {
   const secondaryColor = [177, 5, 115]; // #b10573 - purple-pink
   const accentColor = [238, 0, 116]; // #ee0074 - bright pink
   const darkColor = [56, 16, 114]; // #381072 - dark purple
-  const lightGray = [156, 163, 175];
+  const lightColor = [196, 181, 253]; // Light purple
+  const whiteColor = [255, 255, 255];
+  const lightGray = [248, 250, 252];
+  const mediumGray = [156, 163, 175];
   
   // Helper function to format currency
   const formatCurrency = (amount: number) => {
     return `KES ${amount.toLocaleString('en-KE', { 
-      minimumFractionDigits: 2, 
-      maximumFractionDigits: 2 
+      minimumFractionDigits: 0, 
+      maximumFractionDigits: 0 
     })}`;
   };
 
@@ -340,46 +344,47 @@ export function generateImportEstimatePDF(result: ImportEstimateResult) {
     doc.text(text, x, y);
   };
 
-  // Add white header background
-  doc.setFillColor(255, 255, 255);
-  doc.rect(0, 0, pageWidth, 35, 'F');
+  // Helper function to create modern cards
+  const createCard = (x: number, y: number, width: number, height: number, color: number[]) => {
+    // Card shadow effect
+    doc.setFillColor(0, 0, 0, 0.1);
+    doc.roundedRect(x + 1, y + 1, width, height, 3, 3, 'F');
+    
+    // Main card
+    doc.setFillColor(color[0], color[1], color[2]);
+    doc.roundedRect(x, y, width, height, 3, 3, 'F');
+  };
 
-  // Add Gariyangu Logo (larger)
-  const logoWidth = 50;
-  const logoHeight = 20;
-  const logoX = marginLeft;
-  doc.addImage(gariyanGuLogo, 'PNG', logoX, 7, logoWidth, logoHeight);
+  // INFOGRAPHIC HEADER SECTION
+  // Gradient background
+  for (let i = 0; i < 50; i++) {
+    const ratio = i / 50;
+    const r = Math.round(primaryColor[0] * (1 - ratio) + lightColor[0] * ratio);
+    const g = Math.round(primaryColor[1] * (1 - ratio) + lightColor[1] * ratio);
+    const b = Math.round(primaryColor[2] * (1 - ratio) + lightColor[2] * ratio);
+    doc.setFillColor(r, g, b);
+    doc.rect(0, i, pageWidth, 1, 'F');
+  }
+
+  // Logo with white background circle
+  const logoCircleSize = 35;
+  doc.setFillColor(255, 255, 255);
+  doc.circle(marginLeft + 20, 25, logoCircleSize / 2, 'F');
+  doc.addImage(gariyanGuLogo, 'PNG', marginLeft + 5, 15, 30, 12);
   
-  // Add call-to-action text in header (compact)
-  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  // Main title with large, bold styling
+  doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.text("Do you wish to import a car? Contact: 0736 272719", logoX + logoWidth + 10, 14);
-  doc.setFontSize(7);
-  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-  doc.text("Japan • UK • South Africa • Dubai • Australia • Singapore • Thailand", logoX + logoWidth + 10, 22);
+  doc.setFontSize(18);
+  addCenteredText("VEHICLE IMPORT", 25, 18, "bold");
+  doc.setFontSize(16);
+  addCenteredText("COST INFOGRAPHIC", 35, 16, "bold");
   
-  // Reset text color
-  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  // Vehicle info banner
+  doc.setFontSize(10);
+  addCenteredText(`${result.vehicleInfo.make} ${result.vehicleInfo.model} (${result.vehicleInfo.year}) - ${result.vehicleInfo.engineCapacity}cc`, 45, 10);
   
-  // Title with modern styling (compact)
-  doc.setFont("helvetica", "bold");
-  addCenteredText("VEHICLE IMPORT COST ESTIMATE", 43, 15, "bold");
-  
-  // Subtitle
-  doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-  addCenteredText("Comprehensive Import Cost Analysis for Kenya", 51, 9);
-  
-  // Date with modern styling (compact)
-  const currentDate = new Date().toLocaleDateString('en-KE', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-  doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-  addCenteredText(`Generated on ${currentDate}`, 59, 8);
-  
-  let yPosition = 75;
+  let yPosition = 60;
   
   // Vehicle Information Section
   doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
@@ -417,109 +422,96 @@ export function generateImportEstimatePDF(result: ImportEstimateResult) {
   
   yPosition += 35;
   
-  // Cost Breakdown Section
+  // PERCENTAGE BREAKDOWN PIE CHART REPRESENTATION
   doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.text("COST BREAKDOWN", marginLeft, yPosition);
+  doc.setFontSize(12);
+  addCenteredText("COST DISTRIBUTION", yPosition, 12, "bold");
   
-  // Add decorative line under section title
-  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.setLineWidth(1);
-  doc.line(marginLeft, yPosition + 2, marginLeft + 60, yPosition + 2);
-  
-  yPosition += 15;
-  
-  // Cost breakdown items (simplified, no tax details)
-  const costItems = [
-    { 
-      label: "CIF Value", 
-      value: formatCurrency(result.breakdown.cifKes),
-      description: `${result.breakdown.cifCurrency} ${result.breakdown.cifAmount.toLocaleString()} @ ${result.breakdown.exchangeRate}`
-    },
-    { 
-      label: "Import Duty & Taxes", 
-      value: formatCurrency(result.breakdown.dutyPayable),
-      description: "Kenya Revenue Authority charges"
-    },
-    { 
-      label: "Clearing Charges", 
-      value: formatCurrency(result.breakdown.clearingCharges),
-      description: "Freight forwarding and documentation"
-    },
-    { 
-      label: "Transport Cost", 
-      value: formatCurrency(result.breakdown.transportCost),
-      description: "Local delivery and handling"
-    },
-    { 
-      label: "Service Fee", 
-      value: formatCurrency(result.breakdown.serviceFeeAmount),
-      description: `${result.breakdown.serviceFeePercentage}% of total cost`
-    }
+  yPosition += 20;
+
+  const total = result.breakdown.totalPayable;
+  const percentages = [
+    { label: "CIF", amount: result.breakdown.cifKes, color: lightColor, percentage: Math.round((result.breakdown.cifKes / total) * 100) },
+    { label: "DUTY", amount: result.breakdown.dutyPayable, color: primaryColor, percentage: Math.round((result.breakdown.dutyPayable / total) * 100) },
+    { label: "CLEARING", amount: result.breakdown.clearingCharges, color: secondaryColor, percentage: Math.round((result.breakdown.clearingCharges / total) * 100) },
+    { label: "TRANSPORT", amount: result.breakdown.transportCost, color: accentColor, percentage: Math.round((result.breakdown.transportCost / total) * 100) },
+    { label: "SERVICE", amount: result.breakdown.serviceFeeAmount, color: darkColor, percentage: Math.round((result.breakdown.serviceFeeAmount / total) * 100) }
   ];
-  
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  
-  costItems.forEach((item, index) => {
-    const itemY = yPosition + (index * 15);
+
+  // Visual percentage bars
+  percentages.forEach((item, index) => {
+    const barY = yPosition + index * 18;
+    const barWidth = (item.percentage / 100) * (contentWidth - 40);
     
-    // Item label
+    // Background bar
+    doc.setFillColor(240, 240, 240);
+    doc.roundedRect(marginLeft + 40, barY, contentWidth - 40, 12, 2, 2, 'F');
+    
+    // Colored progress bar
+    doc.setFillColor(item.color[0], item.color[1], item.color[2]);
+    doc.roundedRect(marginLeft + 40, barY, barWidth, 12, 2, 2, 'F');
+    
+    // Label and percentage
     doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
     doc.setFont("helvetica", "bold");
-    doc.text(item.label, marginLeft, itemY);
-    
-    // Item value (right-aligned)
-    doc.setFont("helvetica", "bold");
-    const valueWidth = doc.getStringUnitWidth(item.value) * 10 / doc.internal.scaleFactor;
-    doc.text(item.value, pageWidth - marginRight - valueWidth, itemY);
-    
-    // Item description
-    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.text(item.description, marginLeft, itemY + 6);
-    doc.setFontSize(10);
+    doc.text(item.label, marginLeft, barY + 8);
+    doc.text(`${item.percentage}%`, marginLeft + 25, barY + 8);
+    
+    // Amount in white on the bar if there's space
+    if (barWidth > 30) {
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(7);
+      const amountText = formatCurrency(item.amount);
+      doc.text(amountText, marginLeft + 42, barY + 8);
+    }
   });
-  
-  yPosition += costItems.length * 15 + 10;
-  
-  // Total section with background
-  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(marginLeft - 5, yPosition - 5, contentWidth + 10, 20, 'F');
-  
+
+  yPosition += percentages.length * 18 + 20;
+
+  // FINAL TOTAL HIGHLIGHT BOX
+  createCard(marginLeft, yPosition, contentWidth, 30, [0, 150, 0]);
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.text("TOTAL PAYABLE", marginLeft, yPosition + 8);
+  doc.setFontSize(16);
+  doc.text("💰 TOTAL IMPORT COST", marginLeft + 8, yPosition + 12);
+  doc.setFontSize(18);
+  const finalTotal = formatCurrency(result.breakdown.totalPayable);
+  const totalTextWidth = doc.getStringUnitWidth(finalTotal) * 18 / doc.internal.scaleFactor;
+  doc.text(finalTotal, pageWidth - marginRight - totalTextWidth - 5, yPosition + 22);
+
+  yPosition += 40;
   
-  const totalValue = formatCurrency(result.breakdown.totalPayable);
-  const totalWidth = doc.getStringUnitWidth(totalValue) * 14 / doc.internal.scaleFactor;
-  doc.text(totalValue, pageWidth - marginRight - totalWidth, yPosition + 8);
+  // MODERN FOOTER WITH CONTACT INFO
+  createCard(marginLeft, yPosition, contentWidth, 35, lightGray);
   
-  yPosition += 35;
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text("📞 NEED IMPORT ASSISTANCE?", marginLeft + 5, yPosition + 12);
   
-  // Footer with disclaimer
-  doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
+  doc.text("Contact our import specialists: 0736 272719", marginLeft + 5, yPosition + 20);
+  doc.text("Japan • UK • South Africa • Dubai • Australia • Singapore • Thailand", marginLeft + 5, yPosition + 27);
   
-  const disclaimerText = [
-    "DISCLAIMER: This estimate is for planning purposes only. Actual costs may vary based on:",
-    "• Current exchange rates and market conditions",
-    "• Additional inspection fees or documentation requirements", 
-    "• Changes in government tax rates or import regulations",
-    "• Vehicle-specific factors discovered during clearance process",
-    "",
-    "Contact us for the most current rates and professional import assistance.",
-    "Email: info@gariyangu.co.ke | Phone: 0736 272719"
-  ];
+  yPosition += 45;
   
-  disclaimerText.forEach((line, index) => {
-    doc.text(line, marginLeft, yPosition + (index * 6));
-  });
+  // DISCLAIMER BOX
+  createCard(marginLeft, yPosition, contentWidth, 25, [255, 248, 220]);
+  
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.text("⚠️ DISCLAIMER", marginLeft + 5, yPosition + 10);
+  
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7);
+  doc.text("This estimate is for planning purposes only. Actual costs may vary based on current", marginLeft + 5, yPosition + 16);
+  doc.text("exchange rates, inspection fees, and government regulations. Contact us for current rates.", marginLeft + 5, yPosition + 21);
   
   // Save the PDF
-  doc.save(`gariyangu-import-estimate-${result.vehicleInfo.make}-${result.vehicleInfo.model}-${new Date().getFullYear()}.pdf`);
+  doc.save(`gariyangu-import-infographic-${result.vehicleInfo.make}-${result.vehicleInfo.model}-${new Date().getFullYear()}.pdf`);
 }

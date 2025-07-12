@@ -978,7 +978,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/listings/:id/details", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
     try {
-      const details = await storage.getListingDetails(parseInt(req.params.id));
+      const details = await storage.getListingById(parseInt(req.params.id));
       res.json(details);
     } catch (error) {
       console.error("Failed to get listing details:", error);

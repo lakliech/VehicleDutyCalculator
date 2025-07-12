@@ -43,6 +43,7 @@ export interface IStorage {
   // Listing management methods
   getAllListingsForAdmin(): Promise<Array<CarListing & { seller: AppUser; approval?: ListingApproval }>>;
   getListingsByUser(userId: string): Promise<CarListing[]>;
+  getListingById(id: number): Promise<CarListing & { seller: AppUser; approval?: ListingApproval } | null>;
   createListing(listingData: InsertCarListing & { sellerId: string }): Promise<CarListing>;
   updateListing(id: number, listingData: Partial<InsertCarListing>): Promise<CarListing>;
   deleteListing(id: number): Promise<void>;
@@ -99,7 +100,7 @@ export interface IStorage {
   // Enhanced listing management methods
   flagListing(listingId: number, adminId: string, reason: string): Promise<void>;
   unflagListing(listingId: number, adminId: string): Promise<void>;
-  getListingDetails(listingId: number): Promise<any>;
+  // Remove this - replaced with getListingById
   addAdminNote(listingId: number, adminId: string, note: string): Promise<void>;
   getListingNotes(listingId: number): Promise<any[]>;
   markListingAsSold(listingId: number, adminId: string): Promise<void>;
@@ -1415,24 +1416,51 @@ export class DatabaseStorage implements IStorage {
     await this.logUserActivity(adminId, 'unflag_listing', 'listing', listingId.toString(), 'Removed flag from listing');
   }
 
-  async getListingDetails(listingId: number): Promise<any> {
-    const [listing] = await db
+  async getListingById(id: number): Promise<CarListing & { seller: AppUser; approval?: ListingApproval } | null> {
+    const [result] = await db
       .select({
+        // Listing fields
         listing: carListings,
+        // Seller information
         seller: {
           id: appUsers.id,
           firstName: appUsers.firstName,
           lastName: appUsers.lastName,
           email: appUsers.email,
           phoneNumber: appUsers.phoneNumber,
-          createdAt: appUsers.createdAt
+          createdAt: appUsers.createdAt,
+          updatedAt: appUsers.updatedAt,
+          roleId: appUsers.roleId,
+          isActive: appUsers.isActive,
+          lastLoginAt: appUsers.lastLoginAt,
+          isEmailVerified: appUsers.isEmailVerified
+        },
+        // Approval information
+        approval: {
+          id: listingApprovals.id,
+          listingId: listingApprovals.listingId,
+          status: listingApprovals.status,
+          reviewerId: listingApprovals.reviewerId,
+          reviewNotes: listingApprovals.reviewNotes,
+          reviewedAt: listingApprovals.reviewedAt,
+          createdAt: listingApprovals.createdAt
         }
       })
       .from(carListings)
       .leftJoin(appUsers, eq(carListings.sellerId, appUsers.id))
-      .where(eq(carListings.id, listingId));
+      .leftJoin(listingApprovals, eq(carListings.id, listingApprovals.listingId))
+      .where(eq(carListings.id, id));
     
-    return listing;
+    if (!result) {
+      return null;
+    }
+    
+    // Transform the result to match the expected interface
+    return {
+      ...result.listing,
+      seller: result.seller,
+      approval: result.approval?.id ? result.approval : undefined
+    } as CarListing & { seller: AppUser; approval?: ListingApproval };
   }
 
   async addAdminNote(listingId: number, adminId: string, note: string): Promise<void> {

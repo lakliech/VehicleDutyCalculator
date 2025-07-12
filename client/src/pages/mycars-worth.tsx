@@ -14,6 +14,7 @@ import { ImageUpload } from "@/components/image-upload";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { generateValuationPDF } from "@/lib/pdf-generator";
 
 interface ValuationResult {
   vehicleId: number;
@@ -149,6 +150,16 @@ export default function MyCarsWorth() {
     };
 
     valuationMutation.mutate(valuationData);
+  };
+
+  const handleDownloadPDF = () => {
+    if (!valuationResult) return;
+    
+    generateValuationPDF(valuationResult, frontImage);
+    toast({
+      title: "PDF Downloaded",
+      description: "Your vehicle valuation report has been downloaded.",
+    });
   };
 
   const formatCurrency = (amount: number | string) => {
@@ -413,6 +424,16 @@ export default function MyCarsWorth() {
                             {valuationResult.confidenceScore || 0}% Confidence
                           </Badge>
                         </div>
+                      </div>
+
+                      <div className="flex justify-center mt-4">
+                        <Button 
+                          onClick={handleDownloadPDF}
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                        >
+                          <Camera className="h-4 w-4 mr-2" />
+                          Download PDF Report
+                        </Button>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">

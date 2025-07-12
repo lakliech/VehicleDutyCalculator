@@ -523,3 +523,374 @@ export function generateImportEstimatePDF(result: ImportEstimateResult) {
   // Save the PDF
   doc.save(`gariyangu-import-estimate-${result.vehicleInfo.make}-${result.vehicleInfo.model}-${new Date().getFullYear()}.pdf`);
 }
+
+export interface ValuationResult {
+  vehicleId: number;
+  make: string;
+  model: string;
+  year: number;
+  engineCapacity: number;
+  fuelType: string;
+  mileage: number;
+  condition: string;
+  location: string;
+  marketValue: number;
+  depreciatedValue: number;
+  adjustedValue: number;
+  confidenceScore: number;
+  valuationFactors: {
+    ageDepreciation: number;
+    mileageAdjustment: number;
+    conditionAdjustment: number;
+    locationFactor: number;
+    basePrice: number;
+  };
+  aiAnalysis: string;
+  referenceVehicle: {
+    make: string;
+    model: string;
+    engineCapacity: number;
+    basePrice: number;
+  };
+  imageAnalysis?: {
+    frontAnalysis?: string;
+    reverseAnalysis?: string;
+    leftSideAnalysis?: string;
+    rightSideAnalysis?: string;
+    frontDamageScore?: number;
+    reverseDamageScore?: number;
+    leftSideDamageScore?: number;
+    rightSideDamageScore?: number;
+    overallDamageScore?: number;
+    damageDiscount?: number;
+    hasImageAnalysis?: boolean;
+  };
+}
+
+export function generateValuationPDF(result: ValuationResult, frontImage?: string) {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.width;
+  const marginLeft = 20;
+  const marginRight = 20;
+  const contentWidth = pageWidth - marginLeft - marginRight;
+  
+  // Modern color scheme (New Gariyangu brand colors)
+  const primaryColor = [116, 10, 114]; // #740a72 - medium purple
+  const secondaryColor = [177, 5, 115]; // #b10573 - purple-pink
+  const accentColor = [238, 0, 116]; // #ee0074 - bright pink
+  const darkColor = [56, 16, 114]; // #381072 - dark purple
+  const lightGray = [156, 163, 175];
+  
+  // Helper function to format currency
+  const formatCurrency = (amount: number) => {
+    return `KES ${amount.toLocaleString('en-KE', { 
+      minimumFractionDigits: 0, 
+      maximumFractionDigits: 0 
+    })}`;
+  };
+
+  // Helper function to add centered text
+  const addCenteredText = (text: string, y: number, fontSize: number = 12, fontStyle: string = "normal") => {
+    doc.setFont("helvetica", fontStyle);
+    doc.setFontSize(fontSize);
+    const textWidth = doc.getStringUnitWidth(text) * fontSize / doc.internal.scaleFactor;
+    const x = (pageWidth - textWidth) / 2;
+    doc.text(text, x, y);
+  };
+
+  // Add white header background
+  doc.setFillColor(255, 255, 255);
+  doc.rect(0, 0, pageWidth, 35, 'F');
+
+  // Add Gariyangu Logo
+  const logoWidth = 50;
+  const logoHeight = 20;
+  const logoX = marginLeft;
+  doc.addImage(gariyanGuLogo, 'PNG', logoX, 7, logoWidth, logoHeight);
+  
+  // Add call-to-action text in header
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text("Do you wish to import a car? Contact: 0736 272719", logoX + logoWidth + 10, 14);
+  doc.setFontSize(7);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.text("Japan • UK • South Africa • Dubai • Australia • Singapore • Thailand", logoX + logoWidth + 10, 22);
+  
+  // Reset text color
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  
+  // Title with modern styling
+  doc.setFont("helvetica", "bold");
+  addCenteredText("VEHICLE VALUATION REPORT", 43, 15, "bold");
+  
+  // Subtitle
+  doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+  addCenteredText("AI-Powered Market Value Assessment", 51, 9);
+  
+  // Date
+  const currentDate = new Date().toLocaleDateString('en-KE', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+  addCenteredText(`Generated on ${currentDate}`, 59, 8);
+  
+  let yPosition = 75;
+  
+  // Vehicle Information Section
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text("VEHICLE INFORMATION", marginLeft, yPosition);
+  
+  // Add decorative line
+  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setLineWidth(1);
+  doc.line(marginLeft, yPosition + 2, marginLeft + 60, yPosition + 2);
+  
+  yPosition += 12;
+  
+  // Vehicle details
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  
+  const vehicleDetails = [
+    { label: "Make:", value: result.make },
+    { label: "Model:", value: result.model },
+    { label: "Year:", value: result.year.toString() },
+    { label: "Engine Capacity:", value: `${result.engineCapacity}cc` },
+    { label: "Fuel Type:", value: result.fuelType },
+    { label: "Mileage:", value: `${result.mileage.toLocaleString()} km` },
+    { label: "Condition:", value: result.condition },
+    { label: "Location:", value: result.location }
+  ];
+  
+  vehicleDetails.forEach((detail, index) => {
+    const x = marginLeft + (index % 2) * (contentWidth / 2);
+    const y = yPosition + Math.floor(index / 2) * 10;
+    
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text(detail.label, x, y);
+    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+    doc.text(detail.value, x + 40, y);
+  });
+  
+  yPosition += 50;
+  
+  // Add front vehicle image if provided
+  if (frontImage) {
+    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("VEHICLE IMAGE", marginLeft, yPosition);
+    
+    doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.setLineWidth(1);
+    doc.line(marginLeft, yPosition + 2, marginLeft + 60, yPosition + 2);
+    
+    yPosition += 15;
+    
+    try {
+      // Add the front vehicle image
+      const imageWidth = 80;
+      const imageHeight = 60;
+      const imageX = (pageWidth - imageWidth) / 2;
+      doc.addImage(frontImage, 'JPEG', imageX, yPosition, imageWidth, imageHeight);
+      yPosition += imageHeight + 10;
+    } catch (error) {
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text("Vehicle image could not be processed", marginLeft, yPosition);
+      yPosition += 15;
+    }
+  }
+  
+  // Valuation Results Section
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text("VALUATION RESULTS", marginLeft, yPosition);
+  
+  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setLineWidth(1);
+  doc.line(marginLeft, yPosition + 2, marginLeft + 60, yPosition + 2);
+  
+  yPosition += 15;
+  
+  // Market value with prominent display
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(marginLeft - 5, yPosition - 5, contentWidth + 10, 20, 'F');
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text("ESTIMATED MARKET VALUE", marginLeft, yPosition + 8);
+  
+  const marketValueText = formatCurrency(result.marketValue);
+  const valueWidth = doc.getStringUnitWidth(marketValueText) * 14 / doc.internal.scaleFactor;
+  doc.text(marketValueText, pageWidth - marginRight - valueWidth, yPosition + 8);
+  
+  yPosition += 30;
+  
+  // Valuation breakdown
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  
+  const valuationItems = [
+    { label: "Base Price (CRSP)", value: formatCurrency(result.valuationFactors.basePrice) },
+    { label: "After Depreciation", value: formatCurrency(result.depreciatedValue) },
+    { label: "Market Adjustments", value: formatCurrency(result.adjustedValue) },
+    { label: "Confidence Score", value: `${result.confidenceScore}%` }
+  ];
+  
+  if (result.imageAnalysis?.hasImageAnalysis && result.imageAnalysis.damageDiscount > 0) {
+    valuationItems.push({
+      label: "AI Damage Discount",
+      value: `-${(result.imageAnalysis.damageDiscount * 100).toFixed(1)}%`
+    });
+  }
+  
+  valuationItems.forEach((item, index) => {
+    const itemY = yPosition + (index * 12);
+    
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text(item.label, marginLeft, itemY);
+    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+    doc.setFont("helvetica", "bold");
+    const itemValueWidth = doc.getStringUnitWidth(item.value) * 10 / doc.internal.scaleFactor;
+    doc.text(item.value, pageWidth - marginRight - itemValueWidth, itemY);
+    doc.setFont("helvetica", "normal");
+  });
+  
+  yPosition += valuationItems.length * 12 + 15;
+  
+  // AI Image Analysis Results (if available)
+  if (result.imageAnalysis?.hasImageAnalysis) {
+    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("AI IMAGE ANALYSIS", marginLeft, yPosition);
+    
+    doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.setLineWidth(1);
+    doc.line(marginLeft, yPosition + 2, marginLeft + 60, yPosition + 2);
+    
+    yPosition += 15;
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    
+    // Overall condition score
+    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+    doc.setFont("helvetica", "bold");
+    doc.text("Overall Condition Score:", marginLeft, yPosition);
+    const conditionScore = 100 - (result.imageAnalysis.overallDamageScore || 0);
+    doc.text(`${conditionScore}/100`, marginLeft + 60, yPosition);
+    
+    yPosition += 12;
+    
+    // Damage analysis by view
+    const damageAnalysis = [
+      { view: "Front View", score: result.imageAnalysis.frontDamageScore || 0, analysis: result.imageAnalysis.frontAnalysis || "" },
+      { view: "Rear View", score: result.imageAnalysis.reverseDamageScore || 0, analysis: result.imageAnalysis.reverseAnalysis || "" },
+      { view: "Left Side", score: result.imageAnalysis.leftSideDamageScore || 0, analysis: result.imageAnalysis.leftSideAnalysis || "" },
+      { view: "Right Side", score: result.imageAnalysis.rightSideDamageScore || 0, analysis: result.imageAnalysis.rightSideAnalysis || "" }
+    ];
+    
+    damageAnalysis.forEach((item, index) => {
+      if (yPosition > 250) { // Check if we need a new page
+        doc.addPage();
+        yPosition = 30;
+      }
+      
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+      doc.text(`${item.view}:`, marginLeft, yPosition);
+      doc.text(`Damage Score: ${item.score}/100`, marginLeft + 40, yPosition);
+      
+      yPosition += 8;
+      
+      // Analysis text (wrapped)
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      
+      const analysisLines = doc.splitTextToSize(item.analysis, contentWidth - 10);
+      doc.text(analysisLines, marginLeft + 5, yPosition);
+      yPosition += (analysisLines.length * 4) + 8;
+    });
+    
+    // Price impact
+    if (result.imageAnalysis.damageDiscount > 0) {
+      yPosition += 5;
+      doc.setFillColor(255, 235, 235); // Light red background
+      doc.rect(marginLeft - 5, yPosition - 5, contentWidth + 10, 15, 'F');
+      
+      doc.setTextColor(220, 53, 69); // Red color
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text("Price Impact:", marginLeft, yPosition + 5);
+      doc.text(`-${(result.imageAnalysis.damageDiscount * 100).toFixed(1)}% discount applied due to detected damage`, marginLeft + 35, yPosition + 5);
+      
+      yPosition += 20;
+    }
+  }
+  
+  // AI Market Analysis
+  if (yPosition > 230) {
+    doc.addPage();
+    yPosition = 30;
+  }
+  
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text("AI MARKET ANALYSIS", marginLeft, yPosition);
+  
+  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setLineWidth(1);
+  doc.line(marginLeft, yPosition + 2, marginLeft + 60, yPosition + 2);
+  
+  yPosition += 15;
+  
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  
+  const analysisLines = doc.splitTextToSize(result.aiAnalysis, contentWidth);
+  doc.text(analysisLines, marginLeft, yPosition);
+  yPosition += (analysisLines.length * 5) + 15;
+  
+  // Footer
+  if (yPosition > 250) {
+    doc.addPage();
+    yPosition = 30;
+  }
+  
+  doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  
+  const disclaimerLines = [
+    "DISCLAIMER: This valuation is an estimate based on market data and AI analysis. Actual market value may vary based on:",
+    "• Current market conditions and demand • Vehicle history and documentation • Specific vehicle condition and features",
+    "• Regional market variations • Timing of sale • Negotiation factors",
+    "",
+    "For professional vehicle inspection and market analysis, contact Gariyangu at 0736 272719"
+  ];
+  
+  disclaimerLines.forEach((line, index) => {
+    doc.text(line, marginLeft, yPosition + (index * 5));
+  });
+  
+  // Generate filename
+  const timestamp = new Date().toISOString().slice(0, 10);
+  const filename = `Gariyangu_Vehicle_Valuation_${result.make}_${result.model}_${timestamp}.pdf`;
+  
+  // Save the PDF
+  doc.save(filename);
+}

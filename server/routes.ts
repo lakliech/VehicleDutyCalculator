@@ -2802,15 +2802,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         clearingChargeAmount = parseFloat(clearingChargeResults[0].baseFee);
       }
 
-      // Convert CIF to KES - parse from string
+      // Convert CIF to KES - parse from string  
       const cifAmountNum = parseFloat(estimateData.cifAmount);
       const exchangeRateNum = parseFloat(estimateData.exchangeRate);
       const cifKes = cifAmountNum * exchangeRateNum;
 
-      // Calculate duty using the calculate duty API endpoint
+      // Get CRSP value from vehicle reference table for duty calculation
+      const vehicleRef = await db
+        .select()
+        .from(vehicleReferences)
+        .where(
+          and(
+            eq(vehicleReferences.make, estimateData.make),
+            eq(vehicleReferences.model, estimateData.model),
+            eq(vehicleReferences.engineCapacity, estimateData.engineCapacity)
+          )
+        )
+        .limit(1);
+
+      let crspValue = 0;
+      if (vehicleRef.length > 0) {
+        // Use current CRSP if available, fallback to CRSP2020
+        crspValue = vehicleRef[0].crspKes || vehicleRef[0].crsp2020 || 0;
+      }
+
+      if (crspValue === 0) {
+        throw new Error('CRSP value not found for this vehicle. Cannot calculate duty.');
+      }
+
+      // Calculate duty using CRSP value from vehicle reference table
       const dutyCalculationData = {
         vehicleCategory: vehicleCategory,
-        vehicleValue: cifKes,
+        vehicleValue: crspValue,  // Use CRSP value, not CIF
         vehicleAge: new Date().getFullYear() - estimateData.year + 1,
         isDirectImport: true,  // Import estimator is always for direct imports
         engineSize: estimateData.engineCapacity || 1500,
@@ -2836,20 +2859,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Break down the calculation for debugging
       console.log('=== DUTY CALCULATION BREAKDOWN ===');
-      console.log('1. CIF Value (KES):', cifKes);
-      console.log('2. Vehicle Age:', dutyCalculationData.vehicleAge, 'years');
-      console.log('3. Depreciation Rate:', dutyResult.depreciationRate * 100 + '%');
-      console.log('4. Depreciated Price:', dutyResult.depreciatedPrice);
-      console.log('5. Customs Value Rate: 0.45977 (for under1500cc)');
-      console.log('6. Customs Value:', dutyResult.customsValue);
-      console.log('7. Import Duty (35%):', dutyResult.importDuty);
-      console.log('8. Excise Value:', dutyResult.exciseValue);
-      console.log('9. Excise Duty (20%):', dutyResult.exciseDuty);
-      console.log('10. VAT Value:', dutyResult.vatValue);
-      console.log('11. VAT (16%):', dutyResult.vat);
-      console.log('12. RDL (2%):', dutyResult.rdl);
-      console.log('13. IDF (2.5%):', dutyResult.idfFees);
-      console.log('14. Total Taxes:', dutyResult.totalTaxes);
+      console.log('1. CIF Value (KES):', cifKes, '(used for clearing charges only)');
+      console.log('2. CRSP Value (KES):', crspValue, '(used for duty calculation)');
+      console.log('3. Vehicle Age:', dutyCalculationData.vehicleAge, 'years');
+      console.log('4. Depreciation Rate:', dutyResult.depreciationRate * 100 + '%');
+      console.log('5. Depreciated Price:', dutyResult.depreciatedPrice);
+      console.log('6. Customs Value Rate: 0.45977 (for under1500cc)');
+      console.log('7. Customs Value:', dutyResult.customsValue);
+      console.log('8. Import Duty (35%):', dutyResult.importDuty);
+      console.log('9. Excise Value:', dutyResult.exciseValue);
+      console.log('10. Excise Duty (20%):', dutyResult.exciseDuty);
+      console.log('11. VAT Value:', dutyResult.vatValue);
+      console.log('12. VAT (16%):', dutyResult.vat);
+      console.log('13. RDL (2%):', dutyResult.rdl);
+      console.log('14. IDF (2.5%):', dutyResult.idfFees);
+      console.log('15. Total Taxes:', dutyResult.totalTaxes);
       console.log('=================================');
 
       // Calculate total cost with service fee

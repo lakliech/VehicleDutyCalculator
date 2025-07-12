@@ -17,6 +17,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Settings, 
   Car, 
@@ -29,7 +30,6 @@ import {
   TrendingUp,
   Shield,
   Calculator,
-
   LogOut,
   Upload,
   FileText,
@@ -38,7 +38,11 @@ import {
   Users,
   Eye,
   MessageSquare,
-  AlertTriangle
+  AlertTriangle,
+  Check,
+  X,
+  Filter,
+  CheckSquare
 } from "lucide-react";
 import { z } from "zod";
 import type { 
@@ -538,49 +542,7 @@ function AuthenticatedAdminDashboard() {
 
           {/* Listings Management Tab */}
           <TabsContent value="listings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Comprehensive Listing Management</CardTitle>
-                <CardDescription>
-                  Access the full listing management system with advanced filtering, bulk operations, and detailed analytics.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <p className="text-gray-600">
-                    The comprehensive listing management system provides advanced features for moderating and managing vehicle listings with detailed analytics and bulk operations.
-                  </p>
-                  <div className="flex flex-wrap gap-4">
-                    <Link href="/admin/listings">
-                      <Button className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700">
-                        <Car className="w-4 h-4 mr-2" />
-                        Open Listing Management
-                      </Button>
-                    </Link>
-                    <Link href="/admin/users">
-                      <Button variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">
-                        <Users className="w-4 h-4 mr-2" />
-                        User Management
-                      </Button>
-                    </Link>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                    <div className="p-4 bg-purple-50 rounded-lg">
-                      <h4 className="font-semibold text-purple-900">Advanced Filtering</h4>
-                      <p className="text-sm text-purple-700">Filter by status, make, seller, flagged content, and more</p>
-                    </div>
-                    <div className="p-4 bg-cyan-50 rounded-lg">
-                      <h4 className="font-semibold text-cyan-900">Bulk Operations</h4>
-                      <p className="text-sm text-cyan-700">Approve, reject, or modify multiple listings at once</p>
-                    </div>
-                    <div className="p-4 bg-pink-50 rounded-lg">
-                      <h4 className="font-semibold text-pink-900">Analytics Dashboard</h4>
-                      <p className="text-sm text-pink-700">View performance metrics and user activity insights</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <EnhancedListingsManagementTab />
           </TabsContent>
 
           {/* Users Management Tab */}
@@ -2440,6 +2402,360 @@ function ListingsManagementTab() {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+// Enhanced Listings Management Tab Component
+function EnhancedListingsManagementTab() {
+  const { data: listings = [], isLoading } = useQuery<(CarListing & { seller: AppUser; approval?: ListingApproval })[]>({
+    queryKey: ["/api/admin/listings"],
+  });
+
+  const [selectedListings, setSelectedListings] = useState<number[]>([]);
+  const [bulkAction, setBulkAction] = useState<string>("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const approveListingMutation = useMutation({
+    mutationFn: async ({ listingId, notes }: { listingId: number; notes?: string }) => {
+      const response = await fetch(`/api/admin/listings/${listingId}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      toast({ title: "Success", description: "Listing approved successfully" });
+    },
+  });
+
+  const rejectListingMutation = useMutation({
+    mutationFn: async ({ listingId, reason }: { listingId: number; reason: string }) => {
+      const response = await fetch(`/api/admin/listings/${listingId}/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      toast({ title: "Success", description: "Listing rejected" });
+    },
+  });
+
+  const bulkActionMutation = useMutation({
+    mutationFn: async ({ listingIds, action }: { listingIds: number[]; action: string }) => {
+      const response = await fetch(`/api/admin/listings/bulk-action`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingIds, action }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      setSelectedListings([]);
+      setBulkAction("");
+      toast({ title: "Success", description: "Bulk action completed successfully" });
+    },
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active": return "bg-green-500";
+      case "pending": return "bg-yellow-500";
+      case "suspended": return "bg-red-500";
+      case "draft": return "bg-gray-500";
+      default: return "bg-gray-500";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "active": return "Active";
+      case "pending": return "Pending Review";
+      case "suspended": return "Suspended";
+      case "draft": return "Draft";
+      default: return status;
+    }
+  };
+
+  const handleSelectListing = (listingId: number) => {
+    setSelectedListings(prev => 
+      prev.includes(listingId) 
+        ? prev.filter(id => id !== listingId)
+        : [...prev, listingId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedListings.length === filteredListings.length) {
+      setSelectedListings([]);
+    } else {
+      setSelectedListings(filteredListings.map(listing => listing.id));
+    }
+  };
+
+  const filteredListings = listings.filter(listing => {
+    const matchesStatus = filterStatus === "all" || listing.status === filterStatus;
+    const matchesSearch = !searchTerm || 
+      listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      listing.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      listing.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      listing.seller.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      listing.seller.lastName.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesStatus && matchesSearch;
+  });
+
+  const handleBulkAction = () => {
+    if (bulkAction && selectedListings.length > 0) {
+      bulkActionMutation.mutate({ listingIds: selectedListings, action: bulkAction });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header with Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Total Listings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{listings.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-yellow-600">Pending</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">
+              {listings.filter(l => l.status === "pending").length}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-green-600">Active</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {listings.filter(l => l.status === "active").length}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-red-600">Suspended</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">
+              {listings.filter(l => l.status === "suspended").length}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters and Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filters & Actions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Status:</label>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="suspended">Suspended</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Search:</label>
+              <Input
+                placeholder="Search listings..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-64"
+              />
+            </div>
+            <Link href="/admin/listings">
+              <Button className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700">
+                <Settings className="w-4 h-4 mr-2" />
+                Advanced Management
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bulk Actions */}
+      {selectedListings.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckSquare className="h-5 w-5" />
+              Bulk Actions ({selectedListings.length} selected)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <Select value={bulkAction} onValueChange={setBulkAction}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Select action" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="approve">Approve</SelectItem>
+                  <SelectItem value="reject">Reject</SelectItem>
+                  <SelectItem value="suspend">Suspend</SelectItem>
+                  <SelectItem value="archive">Archive</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button 
+                onClick={handleBulkAction}
+                disabled={!bulkAction || bulkActionMutation.isPending}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                Apply to {selectedListings.length} listing{selectedListings.length !== 1 ? 's' : ''}
+              </Button>
+              <Button 
+                onClick={() => setSelectedListings([])}
+                variant="outline"
+              >
+                Clear Selection
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Listings Table */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Car className="h-5 w-5" />
+              Listings ({filteredListings.length})
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={selectedListings.length === filteredListings.length}
+                onCheckedChange={handleSelectAll}
+              />
+              <span className="text-sm text-gray-600">Select All</span>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-center py-8">Loading listings...</div>
+          ) : filteredListings.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">No listings found</div>
+          ) : (
+            <div className="space-y-4">
+              {filteredListings.map((listing) => (
+                <div key={listing.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start gap-4">
+                    <Checkbox
+                      checked={selectedListings.includes(listing.id)}
+                      onCheckedChange={() => handleSelectListing(listing.id)}
+                    />
+                    
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold text-lg">{listing.title}</h3>
+                        <Badge className={`${getStatusColor(listing.status)} text-white`}>
+                          {getStatusText(listing.status)}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium">Price:</span> KES {listing.price.toLocaleString()}
+                        </div>
+                        <div>
+                          <span className="font-medium">Make:</span> {listing.make}
+                        </div>
+                        <div>
+                          <span className="font-medium">Model:</span> {listing.model}
+                        </div>
+                        <div>
+                          <span className="font-medium">Year:</span> {listing.year}
+                        </div>
+                      </div>
+                      <div className="mt-2 text-sm text-gray-600">
+                        <span className="font-medium">Seller:</span> {listing.seller.firstName} {listing.seller.lastName} ({listing.seller.email})
+                      </div>
+                      {listing.approval && (
+                        <div className="mt-2 text-sm">
+                          <span className="font-medium">Approval Status:</span> {listing.approval.status}
+                          {listing.approval.reviewNotes && (
+                            <div className="text-gray-600 mt-1">Notes: {listing.approval.reviewNotes}</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      {listing.status === "pending" && (
+                        <>
+                          <Button
+                            size="sm"
+                            onClick={() => approveListingMutation.mutate({ listingId: listing.id })}
+                            disabled={approveListingMutation.isPending}
+                          >
+                            <Check className="h-4 w-4 mr-1" />
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => rejectListingMutation.mutate({ listingId: listing.id, reason: "Rejected by admin" })}
+                            disabled={rejectListingMutation.isPending}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Reject
+                          </Button>
+                        </>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => window.open(`/admin/listings/${listing.id}`, '_blank')}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 

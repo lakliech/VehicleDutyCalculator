@@ -288,239 +288,6 @@ export default function AdminListingDetails() {
 
         {/* Main Layout with Sidebar */}
         <div className="flex gap-6">
-          {/* Right Sidebar */}
-          <div className="w-80 space-y-6">
-            {/* Primary Actions Card - Moved to top */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5" />
-                  Primary Actions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="w-full flex items-center gap-2">
-                      <Edit className="w-4 h-4" />
-                      Edit Listing
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Edit Listing</DialogTitle>
-                    </DialogHeader>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="title">Title</Label>
-                        <Input
-                          id="title"
-                          value={editTitle}
-                          onChange={(e) => setEditTitle(e.target.value)}
-                          placeholder="Enter listing title"
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="description">Description</Label>
-                        <Textarea
-                          id="description"
-                          value={editDescription}
-                          onChange={(e) => setEditDescription(e.target.value)}
-                          placeholder="Enter listing description"
-                          rows={4}
-                        />
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="price">Price (KES)</Label>
-                          <Input
-                            id="price"
-                            type="number"
-                            value={editPrice}
-                            onChange={(e) => setEditPrice(e.target.value)}
-                            placeholder="Enter price"
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="location">Location</Label>
-                          <Input
-                            id="location"
-                            value={editLocation}
-                            onChange={(e) => setEditLocation(e.target.value)}
-                            placeholder="Enter location"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          id="negotiable"
-                          checked={editNegotiable}
-                          onCheckedChange={setEditNegotiable}
-                        />
-                        <Label htmlFor="negotiable">Price is negotiable</Label>
-                      </div>
-                      
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline">
-                          Cancel
-                        </Button>
-                        <Button 
-                          onClick={() => {
-                            updateMutation.mutate({
-                              title: editTitle,
-                              description: editDescription,
-                              price: parseFloat(editPrice),
-                              negotiable: editNegotiable,
-                              location: editLocation
-                            });
-                          }}
-                          disabled={updateMutation.isPending}
-                        >
-                          {updateMutation.isPending ? 'Updating...' : 'Update Listing'}
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
-                <Button
-                  variant="outline"
-                  className="w-full flex items-center gap-2 text-orange-600 hover:text-orange-700"
-                  onClick={() => flagMutation.mutate({ reason: flagReason })}
-                  disabled={flagMutation.isPending}
-                >
-                  <Flag className="w-4 h-4" />
-                  {flagMutation.isPending ? "Flagging..." : "Flag Listing"}
-                </Button>
-
-                {listingData.status === 'pending' && (
-                  <>
-                    <Button variant="default" className="w-full flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" />
-                      Approve
-                    </Button>
-
-                    <Button variant="destructive" className="w-full flex items-center gap-2">
-                      <X className="w-4 h-4" />
-                      Reject
-                    </Button>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Admin Meta Fields */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5" />
-                  Admin Meta Fields
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="metaStatus">Listing Status *</Label>
-                  <select
-                    id="metaStatus"
-                    value={metaStatus || listingData?.status || ""}
-                    onChange={(e) => setMetaStatus(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="archived">Archived</option>
-                    <option value="flagged">Flagged</option>
-                    <option value="sold">Sold</option>
-                  </select>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="metaFeatured"
-                    checked={metaFeatured !== undefined ? metaFeatured : Boolean(listingData?.featured)}
-                    onCheckedChange={setMetaFeatured}
-                  />
-                  <Label htmlFor="metaFeatured">Featured Listing</Label>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="metaVerified"
-                    checked={metaVerified !== undefined ? metaVerified : Boolean(listingData?.isVerified)}
-                    onCheckedChange={setMetaVerified}
-                  />
-                  <Label htmlFor="metaVerified">Verified Listing</Label>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="metaExpirationDate">Expiration Date</Label>
-                  <Input
-                    id="metaExpirationDate"
-                    type="date"
-                    value={metaExpirationDate || (listingData?.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "")}
-                    onChange={(e) => setMetaExpirationDate(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="metaSellerId">Reassign to User/Seller</Label>
-                  <select
-                    id="metaSellerId"
-                    value={metaSellerId || listingData?.sellerId || ""}
-                    onChange={(e) => setMetaSellerId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                  >
-                    <option value={listingData?.sellerId || ""}>
-                      {listingData?.seller?.firstName} {listingData?.seller?.lastName} (Current)
-                    </option>
-                    {availableUsers.filter((user: any) => user.id !== listingData?.sellerId).map((user: any) => (
-                      <option key={user.id} value={user.id}>
-                        {user.firstName} {user.lastName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="metaAdminNotes">Admin Notes</Label>
-                  <Textarea
-                    id="metaAdminNotes"
-                    value={metaAdminNotes || listingData?.adminNotes || ""}
-                    onChange={(e) => setMetaAdminNotes(e.target.value)}
-                    placeholder="Internal admin notes..."
-                    rows={3}
-                  />
-                </div>
-                
-                <Button 
-                  onClick={() => {
-                    const updateData = {
-                      status: metaStatus || listingData?.status,
-                      featured: metaFeatured !== undefined ? metaFeatured : listingData?.featured,
-                      isVerified: metaVerified !== undefined ? metaVerified : listingData?.isVerified,
-                      expirationDate: metaExpirationDate || null,
-                      listingSource: metaListingSource || listingData?.listingSource,
-                      sellerId: metaSellerId || listingData?.sellerId,
-                      adminNotes: metaAdminNotes || ""
-                    };
-                    metaMutation.mutate(updateData);
-                  }}
-                  disabled={metaMutation.isPending}
-                  className="w-full"
-                >
-                  {metaMutation.isPending ? 'Updating...' : 'Update Meta Fields'}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
           {/* Main Content */}
           <div className="flex-1 space-y-6">
             {/* Listing Images */}
@@ -939,6 +706,239 @@ export default function AdminListingDetails() {
                   )}
 
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="w-80 space-y-6">
+            {/* Primary Actions Card - Edit and Flag at top */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                  Primary Actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full flex items-center gap-2">
+                      <Edit className="w-4 h-4" />
+                      Edit Listing
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Edit Listing</DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="title">Title</Label>
+                        <Input
+                          id="title"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          placeholder="Enter listing title"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                          id="description"
+                          value={editDescription}
+                          onChange={(e) => setEditDescription(e.target.value)}
+                          placeholder="Enter listing description"
+                          rows={4}
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="price">Price (KES)</Label>
+                          <Input
+                            id="price"
+                            type="number"
+                            value={editPrice}
+                            onChange={(e) => setEditPrice(e.target.value)}
+                            placeholder="Enter price"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="location">Location</Label>
+                          <Input
+                            id="location"
+                            value={editLocation}
+                            onChange={(e) => setEditLocation(e.target.value)}
+                            placeholder="Enter location"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="negotiable"
+                          checked={editNegotiable}
+                          onCheckedChange={setEditNegotiable}
+                        />
+                        <Label htmlFor="negotiable">Price is negotiable</Label>
+                      </div>
+                      
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline">
+                          Cancel
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            updateMutation.mutate({
+                              title: editTitle,
+                              description: editDescription,
+                              price: parseFloat(editPrice),
+                              negotiable: editNegotiable,
+                              location: editLocation
+                            });
+                          }}
+                          disabled={updateMutation.isPending}
+                        >
+                          {updateMutation.isPending ? 'Updating...' : 'Update Listing'}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center gap-2 text-orange-600 hover:text-orange-700"
+                  onClick={() => flagMutation.mutate({ reason: flagReason })}
+                  disabled={flagMutation.isPending}
+                >
+                  <Flag className="w-4 h-4" />
+                  {flagMutation.isPending ? "Flagging..." : "Flag Listing"}
+                </Button>
+
+                {listingData.status === 'pending' && (
+                  <>
+                    <Button variant="default" className="w-full flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      Approve
+                    </Button>
+
+                    <Button variant="destructive" className="w-full flex items-center gap-2">
+                      <X className="w-4 h-4" />
+                      Reject
+                    </Button>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Admin Meta Fields */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                  Admin Meta Fields
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="metaStatus">Listing Status *</Label>
+                  <select
+                    id="metaStatus"
+                    value={metaStatus || listingData?.status || ""}
+                    onChange={(e) => setMetaStatus(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="archived">Archived</option>
+                    <option value="flagged">Flagged</option>
+                    <option value="sold">Sold</option>
+                  </select>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="metaFeatured"
+                    checked={metaFeatured !== undefined ? metaFeatured : Boolean(listingData?.featured)}
+                    onCheckedChange={setMetaFeatured}
+                  />
+                  <Label htmlFor="metaFeatured">Featured Listing</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="metaVerified"
+                    checked={metaVerified !== undefined ? metaVerified : Boolean(listingData?.isVerified)}
+                    onCheckedChange={setMetaVerified}
+                  />
+                  <Label htmlFor="metaVerified">Verified Listing</Label>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="metaExpirationDate">Expiration Date</Label>
+                  <Input
+                    id="metaExpirationDate"
+                    type="date"
+                    value={metaExpirationDate || (listingData?.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "")}
+                    onChange={(e) => setMetaExpirationDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="metaSellerId">Reassign to User/Seller</Label>
+                  <select
+                    id="metaSellerId"
+                    value={metaSellerId || listingData?.sellerId || ""}
+                    onChange={(e) => setMetaSellerId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                  >
+                    <option value={listingData?.sellerId || ""}>
+                      {listingData?.seller?.firstName} {listingData?.seller?.lastName} (Current)
+                    </option>
+                    {availableUsers.filter((user: any) => user.id !== listingData?.sellerId).map((user: any) => (
+                      <option key={user.id} value={user.id}>
+                        {user.firstName} {user.lastName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="metaAdminNotes">Admin Notes</Label>
+                  <Textarea
+                    id="metaAdminNotes"
+                    value={metaAdminNotes || listingData?.adminNotes || ""}
+                    onChange={(e) => setMetaAdminNotes(e.target.value)}
+                    placeholder="Internal admin notes..."
+                    rows={3}
+                  />
+                </div>
+                
+                <Button 
+                  onClick={() => {
+                    const updateData = {
+                      status: metaStatus || listingData?.status,
+                      featured: metaFeatured !== undefined ? metaFeatured : listingData?.featured,
+                      isVerified: metaVerified !== undefined ? metaVerified : listingData?.isVerified,
+                      expirationDate: metaExpirationDate || null,
+                      listingSource: metaListingSource || listingData?.listingSource,
+                      sellerId: metaSellerId || listingData?.sellerId,
+                      adminNotes: metaAdminNotes || ""
+                    };
+                    metaMutation.mutate(updateData);
+                  }}
+                  disabled={metaMutation.isPending}
+                  className="w-full"
+                >
+                  {metaMutation.isPending ? 'Updating...' : 'Update Meta Fields'}
+                </Button>
               </CardContent>
             </Card>
           </div>

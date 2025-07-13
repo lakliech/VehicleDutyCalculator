@@ -51,6 +51,24 @@ export default function ImportationEstimator() {
   const [estimateResult, setEstimateResult] = useState<any>(null);
   const { toast } = useToast();
 
+  const form = useForm<ImportEstimateForm>({
+    resolver: zodResolver(importEstimateFormSchema),
+    defaultValues: {
+      make: "",
+      model: "",
+      year: undefined,
+      engineCapacity: undefined,
+      cifCurrency: "USD",
+      cifAmount: undefined,
+      exchangeRate: undefined,
+      transportCost: 0,
+      serviceFeePercentage: 5,
+      customerName: "",
+      customerEmail: "",
+      customerPhone: "",
+    },
+  });
+
   // Handle URL parameters from AI Advisor
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -95,24 +113,6 @@ export default function ImportationEstimator() {
       description: "Your import estimate report has been downloaded successfully.",
     });
   };
-
-  const form = useForm<ImportEstimateForm>({
-    resolver: zodResolver(importEstimateFormSchema),
-    defaultValues: {
-      make: "",
-      model: "",
-      year: undefined,
-      engineCapacity: undefined,
-      cifCurrency: "USD",
-      cifAmount: undefined,
-      exchangeRate: undefined,
-      transportCost: 0,
-      serviceFeePercentage: 5,
-      customerName: "",
-      customerEmail: "",
-      customerPhone: "",
-    },
-  });
 
   // Fetch exchange rates
   const { data: exchangeRates } = useQuery({

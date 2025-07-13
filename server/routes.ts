@@ -2801,7 +2801,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Query listings with filters
       const dbListings = await db
-        .select()
+        .select({
+          listing: carListings
+        })
         .from(carListings)
         .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
         .where(and(...whereConditions))
@@ -2810,32 +2812,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .offset(offset);
 
       // Transform database results to match expected format
-      const transformedListings = dbListings.map(listing => ({
-        id: listing.id,
-        make: listing.make,
-        model: listing.model,
-        year: listing.year,
-        price: parseInt(listing.price),
-        mileage: parseInt(listing.mileage || '0'),
-        fuelType: listing.fuelType,
-        transmission: listing.transmission,
-        bodyType: listing.bodyType,
-        location: listing.location,
-        condition: listing.condition,
-        exteriorColor: listing.exteriorColor,
-        doors: listing.doors,
-        images: listing.images || [],
-        features: listing.features || [],
-        isVerified: listing.isVerified || false,
-        hasWarranty: listing.hasWarranty || false,
-        hasFreeDelivery: listing.freeDelivery || false,
-        viewCount: 0, // TODO: Add analytics
-        favoriteCount: 0, // TODO: Add analytics
-        createdAt: listing.createdAt.toISOString(),
-        sellerId: listing.sellerId,
-        title: listing.title,
-        description: listing.description
-      }));
+      const transformedListings = dbListings.map(row => {
+        return {
+          id: row.listing.id,
+          make: row.listing.make,
+          model: row.listing.model,
+          year: row.listing.year,
+          price: parseInt(row.listing.price),
+          mileage: parseInt(row.listing.mileage || '0'),
+          fuelType: row.listing.fuelType,
+          transmission: row.listing.transmission,
+          bodyType: row.listing.bodyType,
+          location: row.listing.location,
+          condition: row.listing.condition,
+          exteriorColor: row.listing.exteriorColor,
+          doors: row.listing.doors,
+          images: row.listing.images || [],
+          features: row.listing.features || [],
+          isVerified: row.listing.isVerified || false,
+          hasWarranty: row.listing.hasWarranty || false,
+          hasFreeDelivery: row.listing.freeDelivery || false,
+          viewCount: 0, // TODO: Add analytics
+          favoriteCount: 0, // TODO: Add analytics
+          createdAt: row.listing.createdAt ? row.listing.createdAt.toISOString() : new Date().toISOString(),
+          sellerId: row.listing.sellerId,
+          title: row.listing.title,
+          description: row.listing.description
+        };
+      });
 
       const totalPages = Math.ceil(totalCount.count / limitNum);
 

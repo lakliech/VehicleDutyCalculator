@@ -2639,7 +2639,7 @@ export class DatabaseStorage implements IStorage {
   }): Promise<any> {
     const now = new Date();
     
-    const [message] = await db.execute(sql`
+    const messageResult = await db.execute(sql`
       INSERT INTO messages (
         conversation_id, sender_id, content, message_type, metadata, 
         reply_to_message_id, created_at, updated_at
@@ -2661,7 +2661,7 @@ export class DatabaseStorage implements IStorage {
       WHERE id = ${data.conversationId}
     `);
 
-    return message.rows[0];
+    return messageResult.rows[0];
   }
 
   async getMessages(conversationId: number, limit: number = 50, offset: number = 0): Promise<any[]> {

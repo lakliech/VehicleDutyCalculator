@@ -67,7 +67,7 @@ export default function AdminListingDetails() {
 
   // Fetch listing data - force fresh data
   const { data: listingData, isLoading, error } = useQuery({
-    queryKey: ['/api/admin/listing-details', id],
+    queryKey: ['listing', id],
     queryFn: () => apiRequest('GET', `/api/admin/listing-details/${id}`),
     enabled: !!id,
     staleTime: 0, // Always fetch fresh data
@@ -76,7 +76,7 @@ export default function AdminListingDetails() {
 
   // Fetch available users for reassignment
   const { data: usersData } = useQuery({
-    queryKey: ['/api/admin/users-management'],
+    queryKey: ['users'],
     queryFn: () => apiRequest('GET', '/api/admin/users-management'),
   });
 
@@ -161,7 +161,7 @@ export default function AdminListingDetails() {
     mutationFn: (data: any) => apiRequest('PUT', `/api/admin/listing/${id}`, data),
     onSuccess: () => {
       toast({ title: "Success", description: "Listing updated successfully" });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
+      queryClient.invalidateQueries({ queryKey: ['listing', id] });
     },
     onError: () => toast({ title: "Error", description: "Failed to update listing", variant: "destructive" }),
   });
@@ -170,7 +170,7 @@ export default function AdminListingDetails() {
     mutationFn: (data: any) => apiRequest('PUT', `/api/admin/listings/${id}/meta`, data),
     onSuccess: () => {
       toast({ title: "Success", description: "Meta fields updated successfully" });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
+      queryClient.invalidateQueries({ queryKey: ['listing', id] });
     },
     onError: () => toast({ title: "Error", description: "Failed to update meta fields", variant: "destructive" }),
   });
@@ -179,7 +179,7 @@ export default function AdminListingDetails() {
     mutationFn: (data: any) => apiRequest('POST', `/api/admin/listing/${id}/media`, data),
     onSuccess: () => {
       toast({ title: "Success", description: "Media updated successfully" });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
+      queryClient.invalidateQueries({ queryKey: ['listing', id] });
       setIsMediaOpen(false);
     },
     onError: () => toast({ title: "Error", description: "Failed to update media", variant: "destructive" }),

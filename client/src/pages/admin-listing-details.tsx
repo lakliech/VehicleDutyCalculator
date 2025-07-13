@@ -68,12 +68,14 @@ export default function AdminListingDetails() {
   // Fetch listing data
   const { data: listingData, isLoading, error } = useQuery({
     queryKey: ['/api/admin/listing-details', id],
+    queryFn: () => apiRequest('GET', `/api/admin/listing-details/${id}`),
     enabled: !!id,
   });
 
   // Fetch available users for reassignment
   const { data: availableUsers } = useQuery({
     queryKey: ['/api/admin/users-management'],
+    queryFn: () => apiRequest('GET', '/api/admin/users-management'),
   });
 
   // Initialize form data when listing loads

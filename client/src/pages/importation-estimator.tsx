@@ -71,9 +71,18 @@ export default function ImportationEstimator() {
   const form = useForm<ImportEstimateForm>({
     resolver: zodResolver(importEstimateFormSchema),
     defaultValues: {
+      make: "",
+      model: "",
+      year: undefined,
+      engineCapacity: undefined,
       cifCurrency: "USD",
+      cifAmount: undefined,
+      exchangeRate: undefined,
       transportCost: 0,
       serviceFeePercentage: 5,
+      customerName: "",
+      customerEmail: "",
+      customerPhone: "",
     },
   });
 

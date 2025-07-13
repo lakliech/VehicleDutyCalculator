@@ -4299,21 +4299,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fuelType: 'petrol' as const
       };
 
-      // Make internal API call to calculate duty endpoint
+      // Calculate duty directly using storage method (more efficient than API call)
       console.log('Duty calculation input:', dutyCalculationData);
-      const dutyResponse = await fetch(`http://localhost:5000/api/calculate-duty`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dutyCalculationData)
-      });
-
-      if (!dutyResponse.ok) {
-        throw new Error('Failed to calculate duty');
-      }
-
-      const dutyResult = await dutyResponse.json();
+      const dutyResult = await storage.calculateDuty(dutyCalculationData);
       console.log('Duty calculation result:', dutyResult);
       
       // Break down the calculation for debugging

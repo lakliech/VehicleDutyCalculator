@@ -28,6 +28,7 @@ import { UserProfile } from "@/pages/user-profile";
 import MyListings from "@/pages/my-listings";
 import MyWishlists from "@/pages/my-wishlists";
 import MyMessages from "@/pages/my-messages";
+import Messages from "@/pages/messages";
 import { ResetPassword } from "@/pages/reset-password";
 import { AuthProvider } from "@/components/auth-provider";
 
@@ -75,6 +76,7 @@ function Router() {
               <MyMessages />
             </ProtectedRoute>
           </Route>
+          <Route path="/messages" component={Messages} />
           <Route path="/admin">
             <ProtectedRoute requireAdmin={true}>
               <AdminDashboard />

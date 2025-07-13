@@ -152,6 +152,75 @@ export interface IStorage {
     priority: 'high' | 'medium' | 'low';
     reason: string;
   }>>;
+
+  // Messaging system methods
+  // Conversation management
+  createConversation(data: {
+    type: string;
+    title: string;
+    context?: any;
+    participants: Array<{ userId: string; role: string }>;
+  }): Promise<any>;
+  getConversation(id: number): Promise<any>;
+  getUserConversations(userId: string, limit?: number): Promise<any[]>;
+  updateConversationStatus(id: number, status: string): Promise<void>;
+  archiveConversation(id: number): Promise<void>;
+  addParticipant(conversationId: number, userId: string, role: string): Promise<void>;
+  removeParticipant(conversationId: number, userId: string): Promise<void>;
+  
+  // Message management
+  sendMessage(data: {
+    conversationId: number;
+    senderId: string;
+    content: string;
+    messageType?: string;
+    metadata?: any;
+    replyToMessageId?: number;
+  }): Promise<any>;
+  getMessages(conversationId: number, limit?: number, offset?: number): Promise<any[]>;
+  getMessage(id: number): Promise<any>;
+  editMessage(id: number, content: string): Promise<void>;
+  deleteMessage(id: number): Promise<void>;
+  markMessageAsRead(messageId: number, userId: string): Promise<void>;
+  markConversationAsRead(conversationId: number, userId: string): Promise<void>;
+  
+  // Message templates
+  getMessageTemplates(userId?: string, category?: string): Promise<any[]>;
+  createMessageTemplate(data: {
+    title: string;
+    content: string;
+    category: string;
+    isAdminOnly?: boolean;
+    tags?: string[];
+    createdBy: string;
+  }): Promise<any>;
+  updateMessageTemplate(id: number, data: Partial<{
+    title: string;
+    content: string;
+    category: string;
+    tags: string[];
+  }>): Promise<void>;
+  deleteMessageTemplate(id: number): Promise<void>;
+  
+  // User blocking and spam prevention
+  blockUser(blockerId: string, blockedId: string, reason?: string, blockType?: string): Promise<void>;
+  unblockUser(blockerId: string, blockedId: string): Promise<void>;
+  getBlockedUsers(userId: string): Promise<any[]>;
+  isUserBlocked(userId1: string, userId2: string): Promise<boolean>;
+  
+  // Notification preferences
+  getNotificationSettings(userId: string): Promise<any[]>;
+  updateNotificationSettings(userId: string, conversationType: string, settings: any): Promise<void>;
+  
+  // Analytics and insights
+  getConversationAnalytics(conversationId: number): Promise<any>;
+  updateConversationAnalytics(conversationId: number, data: any): Promise<void>;
+  getMessagingStats(userId: string): Promise<{
+    totalConversations: number;
+    activeConversations: number;
+    totalMessages: number;
+    avgResponseTime: number;
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2426,6 +2495,513 @@ export class DatabaseStorage implements IStorage {
     
     // Log the bulk action for audit purposes
     console.log(`Bulk action ${action} performed by ${adminId} on ${userIds.length} users`);
+  }
+
+  // ========================================
+  // MESSAGING SYSTEM IMPLEMENTATION
+  // ========================================
+
+  async createConversation(data: {
+    type: string;
+    title: string;
+    context?: any;
+    participants: Array<{ userId: string; role: string }>;
+  }): Promise<any> {
+    const now = new Date();
+    
+    // Create conversation using raw SQL
+    const conversationResult = await db.execute(sql`
+      INSERT INTO conversations (type, title, context, participant_count, created_at, updated_at, last_activity_at)
+      VALUES (${data.type}, ${data.title}, ${data.context ? JSON.stringify(data.context) : null}, 
+              ${data.participants.length}, ${now.toISOString()}, ${now.toISOString()}, ${now.toISOString()})
+      RETURNING *
+    `);
+    
+    const conversation = conversationResult.rows[0];
+
+    // Add participants
+    for (const participant of data.participants) {
+      await db.execute(sql`
+        INSERT INTO conversation_participants (conversation_id, user_id, role, joined_at, created_at)
+        VALUES (${conversation.id}, ${participant.userId}, ${participant.role}, 
+                ${now.toISOString()}, ${now.toISOString()})
+      `);
+    }
+
+    return conversation;
+  }
+
+  async getConversation(id: number): Promise<any> {
+    // Get conversation with participants
+    const conversation = await db.execute(sql`
+      SELECT c.*, 
+             array_agg(
+               json_build_object(
+                 'id', cp.id,
+                 'userId', cp.user_id,
+                 'role', cp.role,
+                 'joinedAt', cp.joined_at,
+                 'isActive', cp.is_active,
+                 'user', json_build_object(
+                   'id', u.id,
+                   'firstName', u.first_name,
+                   'lastName', u.last_name,
+                   'email', u.email,
+                   'profileImageUrl', u.profile_image_url
+                 )
+               )
+             ) as participants
+      FROM conversations c
+      LEFT JOIN conversation_participants cp ON c.id = cp.conversation_id
+      LEFT JOIN app_users u ON cp.user_id = u.id
+      WHERE c.id = ${id}
+      GROUP BY c.id
+    `);
+
+    return conversation.rows[0] || null;
+  }
+
+  async getUserConversations(userId: string, limit: number = 20): Promise<any[]> {
+    const conversations = await db.execute(sql`
+      SELECT c.*,
+             (SELECT COUNT(*) FROM messages m WHERE m.conversation_id = c.id) as message_count,
+             (SELECT COUNT(*) FROM messages m 
+              WHERE m.conversation_id = c.id 
+              AND m.id > COALESCE(cp.last_read_message_id, 0)) as unread_count
+      FROM conversations c
+      JOIN conversation_participants cp ON c.id = cp.conversation_id
+      WHERE cp.user_id = ${userId} AND cp.is_active = true
+      ORDER BY c.last_activity_at DESC
+      LIMIT ${limit}
+    `);
+
+    return conversations.rows;
+  }
+
+  async updateConversationStatus(id: number, status: string): Promise<void> {
+    await db.execute(sql`
+      UPDATE conversations 
+      SET status = ${status}, updated_at = NOW()
+      WHERE id = ${id}
+    `);
+  }
+
+  async archiveConversation(id: number): Promise<void> {
+    await this.updateConversationStatus(id, 'archived');
+  }
+
+  async addParticipant(conversationId: number, userId: string, role: string): Promise<void> {
+    const now = new Date();
+    
+    await db.execute(sql`
+      INSERT INTO conversation_participants (conversation_id, user_id, role, joined_at, created_at)
+      VALUES (${conversationId}, ${userId}, ${role}, ${now.toISOString()}, ${now.toISOString()})
+    `);
+
+    // Update participant count
+    await db.execute(sql`
+      UPDATE conversations 
+      SET participant_count = (
+        SELECT COUNT(*) FROM conversation_participants 
+        WHERE conversation_id = ${conversationId} AND is_active = true
+      ),
+      updated_at = NOW()
+      WHERE id = ${conversationId}
+    `);
+  }
+
+  async removeParticipant(conversationId: number, userId: string): Promise<void> {
+    await db.execute(sql`
+      UPDATE conversation_participants 
+      SET is_active = false, left_at = NOW()
+      WHERE conversation_id = ${conversationId} AND user_id = ${userId}
+    `);
+
+    // Update participant count
+    await db.execute(sql`
+      UPDATE conversations 
+      SET participant_count = (
+        SELECT COUNT(*) FROM conversation_participants 
+        WHERE conversation_id = ${conversationId} AND is_active = true
+      ),
+      updated_at = NOW()
+      WHERE id = ${conversationId}
+    `);
+  }
+
+  async sendMessage(data: {
+    conversationId: number;
+    senderId: string;
+    content: string;
+    messageType?: string;
+    metadata?: any;
+    replyToMessageId?: number;
+  }): Promise<any> {
+    const now = new Date();
+    
+    const [message] = await db.execute(sql`
+      INSERT INTO messages (
+        conversation_id, sender_id, content, message_type, metadata, 
+        reply_to_message_id, created_at, updated_at
+      )
+      VALUES (
+        ${data.conversationId}, ${data.senderId}, ${data.content}, 
+        ${data.messageType || 'text'}, ${data.metadata ? JSON.stringify(data.metadata) : null},
+        ${data.replyToMessageId || null}, ${now.toISOString()}, ${now.toISOString()}
+      )
+      RETURNING *
+    `);
+
+    // Update conversation last message time
+    await db.execute(sql`
+      UPDATE conversations 
+      SET last_message_at = ${now.toISOString()}, 
+          last_activity_at = ${now.toISOString()},
+          updated_at = ${now.toISOString()}
+      WHERE id = ${data.conversationId}
+    `);
+
+    return message.rows[0];
+  }
+
+  async getMessages(conversationId: number, limit: number = 50, offset: number = 0): Promise<any[]> {
+    const messages = await db.execute(sql`
+      SELECT m.*,
+             json_build_object(
+               'id', u.id,
+               'firstName', u.first_name,
+               'lastName', u.last_name,
+               'email', u.email,
+               'profileImageUrl', u.profile_image_url
+             ) as sender,
+             (SELECT COUNT(*) FROM message_read_receipts mr WHERE mr.message_id = m.id) as read_count
+      FROM messages m
+      JOIN app_users u ON m.sender_id = u.id
+      WHERE m.conversation_id = ${conversationId} 
+        AND m.is_deleted = false
+      ORDER BY m.created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `);
+
+    return messages.rows.reverse(); // Return in chronological order
+  }
+
+  async getMessage(id: number): Promise<any> {
+    const message = await db.execute(sql`
+      SELECT m.*,
+             json_build_object(
+               'id', u.id,
+               'firstName', u.first_name,
+               'lastName', u.last_name,
+               'email', u.email,
+               'profileImageUrl', u.profile_image_url
+             ) as sender
+      FROM messages m
+      JOIN app_users u ON m.sender_id = u.id
+      WHERE m.id = ${id} AND m.is_deleted = false
+    `);
+
+    return message.rows[0] || null;
+  }
+
+  async editMessage(id: number, content: string): Promise<void> {
+    await db.execute(sql`
+      UPDATE messages 
+      SET content = ${content}, 
+          is_edited = true, 
+          edited_at = NOW(),
+          updated_at = NOW()
+      WHERE id = ${id}
+    `);
+  }
+
+  async deleteMessage(id: number): Promise<void> {
+    await db.execute(sql`
+      UPDATE messages 
+      SET is_deleted = true, 
+          deleted_at = NOW(),
+          updated_at = NOW()
+      WHERE id = ${id}
+    `);
+  }
+
+  async markMessageAsRead(messageId: number, userId: string): Promise<void> {
+    // Insert read receipt if not already exists
+    await db.execute(sql`
+      INSERT INTO message_read_receipts (message_id, user_id, read_at)
+      VALUES (${messageId}, ${userId}, NOW())
+      ON CONFLICT (message_id, user_id) DO NOTHING
+    `);
+  }
+
+  async markConversationAsRead(conversationId: number, userId: string): Promise<void> {
+    // Get the latest message ID in the conversation
+    const latestMessage = await db.execute(sql`
+      SELECT id FROM messages 
+      WHERE conversation_id = ${conversationId} 
+      ORDER BY created_at DESC 
+      LIMIT 1
+    `);
+
+    if (latestMessage.rows.length > 0) {
+      const latestMessageId = latestMessage.rows[0].id;
+      
+      // Update participant's last read message
+      await db.execute(sql`
+        UPDATE conversation_participants 
+        SET last_read_message_id = ${latestMessageId}
+        WHERE conversation_id = ${conversationId} AND user_id = ${userId}
+      `);
+    }
+  }
+
+  async getMessageTemplates(userId?: string, category?: string): Promise<any[]> {
+    let query = sql`
+      SELECT mt.*,
+             json_build_object(
+               'id', u.id,
+               'firstName', u.first_name,
+               'lastName', u.last_name
+             ) as creator
+      FROM message_templates mt
+      JOIN app_users u ON mt.created_by = u.id
+      WHERE mt.is_active = true
+    `;
+
+    if (category) {
+      query = sql`${query} AND mt.category = ${category}`;
+    }
+
+    if (userId) {
+      // Show user's templates and public templates
+      query = sql`${query} AND (mt.created_by = ${userId} OR mt.is_admin_only = false)`;
+    }
+
+    query = sql`${query} ORDER BY mt.usage_count DESC, mt.created_at DESC`;
+
+    const templates = await db.execute(query);
+    return templates.rows;
+  }
+
+  async createMessageTemplate(data: {
+    title: string;
+    content: string;
+    category: string;
+    isAdminOnly?: boolean;
+    tags?: string[];
+    createdBy: string;
+  }): Promise<any> {
+    const now = new Date();
+    
+    const [template] = await db.execute(sql`
+      INSERT INTO message_templates (
+        title, content, category, is_admin_only, tags, created_by, created_at, updated_at
+      )
+      VALUES (
+        ${data.title}, ${data.content}, ${data.category}, 
+        ${data.isAdminOnly || false}, ${data.tags || []}, 
+        ${data.createdBy}, ${now.toISOString()}, ${now.toISOString()}
+      )
+      RETURNING *
+    `);
+
+    return template.rows[0];
+  }
+
+  async updateMessageTemplate(id: number, data: Partial<{
+    title: string;
+    content: string;
+    category: string;
+    tags: string[];
+  }>): Promise<void> {
+    const updates: string[] = [];
+    const values: any[] = [];
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined) {
+        updates.push(`${key} = $${values.length + 1}`);
+        values.push(value);
+      }
+    });
+
+    if (updates.length > 0) {
+      updates.push(`updated_at = NOW()`);
+      
+      await db.execute(sql`
+        UPDATE message_templates 
+        SET ${sql.raw(updates.join(', '))}
+        WHERE id = ${id}
+      `);
+    }
+  }
+
+  async deleteMessageTemplate(id: number): Promise<void> {
+    await db.execute(sql`
+      UPDATE message_templates 
+      SET is_active = false, updated_at = NOW()
+      WHERE id = ${id}
+    `);
+  }
+
+  async blockUser(blockerId: string, blockedId: string, reason?: string, blockType?: string): Promise<void> {
+    const now = new Date();
+    
+    await db.execute(sql`
+      INSERT INTO blocked_users (blocker_id, blocked_id, reason, block_type, created_at)
+      VALUES (${blockerId}, ${blockedId}, ${reason || null}, ${blockType || 'messaging'}, ${now.toISOString()})
+      ON CONFLICT (blocker_id, blocked_id) 
+      DO UPDATE SET is_active = true, reason = ${reason || null}, block_type = ${blockType || 'messaging'}
+    `);
+  }
+
+  async unblockUser(blockerId: string, blockedId: string): Promise<void> {
+    await db.execute(sql`
+      UPDATE blocked_users 
+      SET is_active = false
+      WHERE blocker_id = ${blockerId} AND blocked_id = ${blockedId}
+    `);
+  }
+
+  async getBlockedUsers(userId: string): Promise<any[]> {
+    const blocked = await db.execute(sql`
+      SELECT bu.*,
+             json_build_object(
+               'id', u.id,
+               'firstName', u.first_name,
+               'lastName', u.last_name,
+               'email', u.email,
+               'profileImageUrl', u.profile_image_url
+             ) as blocked_user
+      FROM blocked_users bu
+      JOIN app_users u ON bu.blocked_id = u.id
+      WHERE bu.blocker_id = ${userId} AND bu.is_active = true
+      ORDER BY bu.created_at DESC
+    `);
+
+    return blocked.rows;
+  }
+
+  async isUserBlocked(userId1: string, userId2: string): Promise<boolean> {
+    const result = await db.execute(sql`
+      SELECT 1 FROM blocked_users 
+      WHERE ((blocker_id = ${userId1} AND blocked_id = ${userId2}) 
+             OR (blocker_id = ${userId2} AND blocked_id = ${userId1}))
+        AND is_active = true
+      LIMIT 1
+    `);
+
+    return result.rows.length > 0;
+  }
+
+  async getNotificationSettings(userId: string): Promise<any[]> {
+    const settings = await db.execute(sql`
+      SELECT * FROM message_notification_settings 
+      WHERE user_id = ${userId}
+      ORDER BY conversation_type
+    `);
+
+    return settings.rows;
+  }
+
+  async updateNotificationSettings(userId: string, conversationType: string, settings: any): Promise<void> {
+    const now = new Date();
+    
+    await db.execute(sql`
+      INSERT INTO message_notification_settings (
+        user_id, conversation_type, email_enabled, sms_enabled, push_enabled,
+        digest_frequency, quiet_hours_start, quiet_hours_end, weekends_enabled,
+        created_at, updated_at
+      )
+      VALUES (
+        ${userId}, ${conversationType}, ${settings.emailEnabled || true}, 
+        ${settings.smsEnabled || false}, ${settings.pushEnabled || true},
+        ${settings.digestFrequency || 'immediate'}, ${settings.quietHoursStart || null},
+        ${settings.quietHoursEnd || null}, ${settings.weekendsEnabled || true},
+        ${now.toISOString()}, ${now.toISOString()}
+      )
+      ON CONFLICT (user_id, conversation_type)
+      DO UPDATE SET
+        email_enabled = ${settings.emailEnabled || true},
+        sms_enabled = ${settings.smsEnabled || false},
+        push_enabled = ${settings.pushEnabled || true},
+        digest_frequency = ${settings.digestFrequency || 'immediate'},
+        quiet_hours_start = ${settings.quietHoursStart || null},
+        quiet_hours_end = ${settings.quietHoursEnd || null},
+        weekends_enabled = ${settings.weekendsEnabled || true},
+        updated_at = ${now.toISOString()}
+    `);
+  }
+
+  async getConversationAnalytics(conversationId: number): Promise<any> {
+    const analytics = await db.execute(sql`
+      SELECT * FROM conversation_analytics 
+      WHERE conversation_id = ${conversationId}
+    `);
+
+    return analytics.rows[0] || null;
+  }
+
+  async updateConversationAnalytics(conversationId: number, data: any): Promise<void> {
+    const now = new Date();
+    
+    await db.execute(sql`
+      INSERT INTO conversation_analytics (
+        conversation_id, message_count, participant_count, avg_response_time,
+        first_response_time, resolution_time, satisfaction_rating, outcome,
+        lead_quality, created_at, updated_at
+      )
+      VALUES (
+        ${conversationId}, ${data.messageCount || 0}, ${data.participantCount || 0},
+        ${data.avgResponseTime || null}, ${data.firstResponseTime || null},
+        ${data.resolutionTime || null}, ${data.satisfactionRating || null},
+        ${data.outcome || null}, ${data.leadQuality || null},
+        ${now.toISOString()}, ${now.toISOString()}
+      )
+      ON CONFLICT (conversation_id)
+      DO UPDATE SET
+        message_count = ${data.messageCount || 0},
+        participant_count = ${data.participantCount || 0},
+        avg_response_time = ${data.avgResponseTime || null},
+        first_response_time = ${data.firstResponseTime || null},
+        resolution_time = ${data.resolutionTime || null},
+        satisfaction_rating = ${data.satisfactionRating || null},
+        outcome = ${data.outcome || null},
+        lead_quality = ${data.leadQuality || null},
+        updated_at = ${now.toISOString()}
+    `);
+  }
+
+  async getMessagingStats(userId: string): Promise<{
+    totalConversations: number;
+    activeConversations: number;
+    totalMessages: number;
+    avgResponseTime: number;
+  }> {
+    const stats = await db.execute(sql`
+      SELECT 
+        COUNT(DISTINCT c.id) as total_conversations,
+        COUNT(DISTINCT CASE WHEN c.status = 'active' THEN c.id END) as active_conversations,
+        COUNT(m.id) as total_messages,
+        AVG(EXTRACT(EPOCH FROM (
+          SELECT MIN(m2.created_at) 
+          FROM messages m2 
+          WHERE m2.conversation_id = m.conversation_id 
+            AND m2.sender_id = ${userId}
+            AND m2.created_at > m.created_at
+        )) / 60) as avg_response_time_minutes
+      FROM conversations c
+      JOIN conversation_participants cp ON c.id = cp.conversation_id
+      LEFT JOIN messages m ON c.id = m.conversation_id
+      WHERE cp.user_id = ${userId} AND cp.is_active = true
+    `);
+
+    const result = stats.rows[0];
+    return {
+      totalConversations: parseInt(result.total_conversations) || 0,
+      activeConversations: parseInt(result.active_conversations) || 0,
+      totalMessages: parseInt(result.total_messages) || 0,
+      avgResponseTime: parseFloat(result.avg_response_time_minutes) || 0
+    };
   }
 }
 

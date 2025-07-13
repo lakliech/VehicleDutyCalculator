@@ -4937,6 +4937,446 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
+  // ========================================
+  // COMPREHENSIVE MESSAGING SYSTEM ENDPOINTS
+  // ========================================
+
+  // Create a new conversation
+  app.post('/api/messaging/conversations', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const { type, title, context, participantIds } = req.body;
+
+      if (!title || !participantIds?.length) {
+        return res.status(400).json({ error: "Title and participants are required" });
+      }
+
+      // Check if blocked users
+      for (const participantId of participantIds) {
+        if (participantId !== user.id) {
+          const isBlocked = await storage.isUserBlocked(user.id, participantId);
+          if (isBlocked) {
+            return res.status(403).json({ error: "Cannot message blocked user" });
+          }
+        }
+      }
+
+      // Prepare participants data
+      const participants = [
+        { userId: user.id, role: 'creator' },
+        ...participantIds.filter((id: string) => id !== user.id).map((id: string) => ({ userId: id, role: 'participant' }))
+      ];
+
+      const conversation = await storage.createConversation({
+        type: type || 'listing_inquiry',
+        title,
+        context,
+        participants
+      });
+
+      res.json(conversation);
+    } catch (error) {
+      console.error("Error creating conversation:", error);
+      res.status(500).json({ error: "Failed to create conversation" });
+    }
+  });
+
+  // Get user's conversations
+  app.get('/api/messaging/conversations', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const limit = parseInt(req.query.limit as string) || 20;
+
+      const conversations = await storage.getUserConversations(user.id, limit);
+      res.json(conversations);
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+      res.status(500).json({ error: "Failed to fetch conversations" });
+    }
+  });
+
+  // Get a specific conversation
+  app.get('/api/messaging/conversations/:id', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const conversationId = parseInt(req.params.id);
+
+      const conversation = await storage.getConversation(conversationId);
+      
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+
+      // Check if user is a participant
+      const isParticipant = conversation.participants?.some((p: any) => p.userId === user.id && p.isActive);
+      if (!isParticipant) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      res.json(conversation);
+    } catch (error) {
+      console.error("Error fetching conversation:", error);
+      res.status(500).json({ error: "Failed to fetch conversation" });
+    }
+  });
+
+  // Send a message
+  app.post('/api/messaging/conversations/:id/messages', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const conversationId = parseInt(req.params.id);
+      const { content, messageType, metadata, replyToMessageId } = req.body;
+
+      if (!content?.trim()) {
+        return res.status(400).json({ error: "Message content is required" });
+      }
+
+      // Verify conversation access
+      const conversation = await storage.getConversation(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+
+      const isParticipant = conversation.participants?.some((p: any) => p.userId === user.id && p.isActive);
+      if (!isParticipant) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const message = await storage.sendMessage({
+        conversationId,
+        senderId: user.id,
+        content: content.trim(),
+        messageType: messageType || 'text',
+        metadata,
+        replyToMessageId
+      });
+
+      res.json(message);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      res.status(500).json({ error: "Failed to send message" });
+    }
+  });
+
+  // Get conversation messages
+  app.get('/api/messaging/conversations/:id/messages', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const conversationId = parseInt(req.params.id);
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = parseInt(req.query.offset as string) || 0;
+
+      // Verify conversation access
+      const conversation = await storage.getConversation(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+
+      const isParticipant = conversation.participants?.some((p: any) => p.userId === user.id && p.isActive);
+      if (!isParticipant) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const messages = await storage.getMessages(conversationId, limit, offset);
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      res.status(500).json({ error: "Failed to fetch messages" });
+    }
+  });
+
+  // Mark conversation as read
+  app.post('/api/messaging/conversations/:id/read', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const conversationId = parseInt(req.params.id);
+
+      await storage.markConversationAsRead(conversationId, user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking conversation as read:", error);
+      res.status(500).json({ error: "Failed to mark conversation as read" });
+    }
+  });
+
+  // Edit a message
+  app.put('/api/messaging/messages/:id', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const messageId = parseInt(req.params.id);
+      const { content } = req.body;
+
+      if (!content?.trim()) {
+        return res.status(400).json({ error: "Message content is required" });
+      }
+
+      // Verify message ownership
+      const message = await storage.getMessage(messageId);
+      if (!message) {
+        return res.status(404).json({ error: "Message not found" });
+      }
+
+      if (message.sender_id !== user.id) {
+        return res.status(403).json({ error: "Can only edit your own messages" });
+      }
+
+      await storage.editMessage(messageId, content.trim());
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error editing message:", error);
+      res.status(500).json({ error: "Failed to edit message" });
+    }
+  });
+
+  // Delete a message
+  app.delete('/api/messaging/messages/:id', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const messageId = parseInt(req.params.id);
+
+      // Verify message ownership
+      const message = await storage.getMessage(messageId);
+      if (!message) {
+        return res.status(404).json({ error: "Message not found" });
+      }
+
+      if (message.sender_id !== user.id) {
+        return res.status(403).json({ error: "Can only delete your own messages" });
+      }
+
+      await storage.deleteMessage(messageId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      res.status(500).json({ error: "Failed to delete message" });
+    }
+  });
+
+  // Get message templates
+  app.get('/api/messaging/templates', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const category = req.query.category as string;
+
+      const templates = await storage.getMessageTemplates(user.id, category);
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching message templates:", error);
+      res.status(500).json({ error: "Failed to fetch message templates" });
+    }
+  });
+
+  // Create message template
+  app.post('/api/messaging/templates', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const { title, content, category, isAdminOnly, tags } = req.body;
+
+      if (!title || !content || !category) {
+        return res.status(400).json({ error: "Title, content, and category are required" });
+      }
+
+      const template = await storage.createMessageTemplate({
+        title,
+        content,
+        category,
+        isAdminOnly: isAdminOnly || false,
+        tags: tags || [],
+        createdBy: user.id
+      });
+
+      res.json(template);
+    } catch (error) {
+      console.error("Error creating message template:", error);
+      res.status(500).json({ error: "Failed to create message template" });
+    }
+  });
+
+  // Block a user
+  app.post('/api/messaging/block', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const { userId, reason, blockType } = req.body;
+
+      if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+      }
+
+      if (userId === user.id) {
+        return res.status(400).json({ error: "Cannot block yourself" });
+      }
+
+      await storage.blockUser(user.id, userId, reason, blockType);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error blocking user:", error);
+      res.status(500).json({ error: "Failed to block user" });
+    }
+  });
+
+  // Unblock a user
+  app.post('/api/messaging/unblock', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const { userId } = req.body;
+
+      if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+      }
+
+      await storage.unblockUser(user.id, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error unblocking user:", error);
+      res.status(500).json({ error: "Failed to unblock user" });
+    }
+  });
+
+  // Get blocked users
+  app.get('/api/messaging/blocked', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const blockedUsers = await storage.getBlockedUsers(user.id);
+      res.json(blockedUsers);
+    } catch (error) {
+      console.error("Error fetching blocked users:", error);
+      res.status(500).json({ error: "Failed to fetch blocked users" });
+    }
+  });
+
+  // Get messaging stats
+  app.get('/api/messaging/stats', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const stats = await storage.getMessagingStats(user.id);
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching messaging stats:", error);
+      res.status(500).json({ error: "Failed to fetch messaging stats" });
+    }
+  });
+
+  // Get notification settings
+  app.get('/api/messaging/notification-settings', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const settings = await storage.getNotificationSettings(user.id);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching notification settings:", error);
+      res.status(500).json({ error: "Failed to fetch notification settings" });
+    }
+  });
+
+  // Update notification settings
+  app.put('/api/messaging/notification-settings', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const { conversationType, settings } = req.body;
+
+      if (!conversationType) {
+        return res.status(400).json({ error: "Conversation type is required" });
+      }
+
+      await storage.updateNotificationSettings(user.id, conversationType, settings);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating notification settings:", error);
+      res.status(500).json({ error: "Failed to update notification settings" });
+    }
+  });
+
+  // Archive conversation
+  app.post('/api/messaging/conversations/:id/archive', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const conversationId = parseInt(req.params.id);
+
+      // Verify conversation access
+      const conversation = await storage.getConversation(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+
+      const isParticipant = conversation.participants?.some((p: any) => p.userId === user.id && p.isActive);
+      if (!isParticipant) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      await storage.archiveConversation(conversationId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error archiving conversation:", error);
+      res.status(500).json({ error: "Failed to archive conversation" });
+    }
+  });
+
+  // Admin messaging endpoints
+  app.get('/api/admin/messaging/conversations', authenticateUser, requireRole('admin'), async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = parseInt(req.query.offset as string) || 0;
+      
+      const conversations = await db.execute(sql`
+        SELECT c.*, 
+               json_build_object(
+                 'totalMessages', (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id),
+                 'participants', (
+                   SELECT array_agg(
+                     json_build_object(
+                       'userId', cp.user_id,
+                       'role', cp.role,
+                       'firstName', u.first_name,
+                       'lastName', u.last_name,
+                       'email', u.email
+                     )
+                   )
+                   FROM conversation_participants cp
+                   JOIN app_users u ON cp.user_id = u.id
+                   WHERE cp.conversation_id = c.id AND cp.is_active = true
+                 )
+               ) as details
+        FROM conversations c
+        ORDER BY c.last_activity_at DESC
+        LIMIT ${limit} OFFSET ${offset}
+      `);
+
+      res.json(conversations.rows);
+    } catch (error) {
+      console.error("Error fetching admin conversations:", error);
+      res.status(500).json({ error: "Failed to fetch conversations" });
+    }
+  });
+
+  app.get('/api/admin/messaging/analytics', authenticateUser, requireRole('admin'), async (req, res) => {
+    try {
+      const analytics = await db.execute(sql`
+        SELECT 
+          DATE_TRUNC('day', created_at) as date,
+          COUNT(DISTINCT c.id) as conversations_created,
+          COUNT(m.id) as messages_sent,
+          AVG(
+            EXTRACT(EPOCH FROM (
+              SELECT MIN(m2.created_at) 
+              FROM messages m2 
+              WHERE m2.conversation_id = c.id 
+                AND m2.created_at > c.created_at
+            )) / 3600
+          ) as avg_first_response_hours
+        FROM conversations c
+        LEFT JOIN messages m ON c.id = m.conversation_id
+        WHERE c.created_at >= CURRENT_DATE - INTERVAL '30 days'
+        GROUP BY DATE_TRUNC('day', c.created_at)
+        ORDER BY date DESC
+      `);
+
+      res.json(analytics.rows);
+    } catch (error) {
+      console.error("Error fetching messaging analytics:", error);
+      res.status(500).json({ error: "Failed to fetch messaging analytics" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

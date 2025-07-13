@@ -83,6 +83,10 @@ export function Navigation() {
                           <Heart className="mr-2 h-4 w-4" />
                           <span>My Wishlists</span>
                         </Link>
+                        <Link href="/messages" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                          <MessageCircle className="mr-2 h-4 w-4" />
+                          <span>Messages</span>
+                        </Link>
                         <Link href="/my-messages" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
                           <MessageCircle className="mr-2 h-4 w-4" />
                           <span>My Messages</span>

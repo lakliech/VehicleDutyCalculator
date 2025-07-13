@@ -813,6 +813,216 @@ export type AdminCredential = typeof adminCredentials.$inferSelect;
 export type InsertAdminCredential = z.infer<typeof adminCredentialSchema>;
 export type AdminLogin = z.infer<typeof adminLoginSchema>;
 
+// ==============================
+// COMPREHENSIVE MESSAGING SYSTEM
+// ==============================
+
+// Conversations table - represents a conversation between multiple participants
+export const conversations = pgTable("conversations", {
+  id: serial("id").primaryKey(),
+  type: text("type").notNull(), // 'listing_inquiry', 'duty_calculation', 'transfer_request', 'general_support', 'admin_moderation'
+  title: text("title").notNull(), // Auto-generated based on type and context
+  context: text("context"), // JSON object with relevant context (listingId, calculationId, etc.)
+  status: text("status").notNull().default("active"), // 'active', 'archived', 'closed', 'escalated'
+  priority: text("priority").notNull().default("normal"), // 'low', 'normal', 'high', 'urgent'
+  isModerated: boolean("is_moderated").default(false), // true if admin is monitoring
+  moderatorId: varchar("moderator_id", { length: 255 }), // admin user ID if moderated
+  lastMessageAt: timestamp("last_message_at"),
+  lastActivityAt: timestamp("last_activity_at").defaultNow(),
+  participantCount: integer("participant_count").default(2),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Conversation participants - who is part of each conversation
+export const conversationParticipants = pgTable("conversation_participants", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").references(() => conversations.id, { onDelete: "cascade" }).notNull(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  role: text("role").notNull(), // 'buyer', 'seller', 'admin', 'moderator', 'participant'
+  joinedAt: timestamp("joined_at").defaultNow().notNull(),
+  leftAt: timestamp("left_at"), // null if still active participant
+  isActive: boolean("is_active").default(true),
+  lastReadMessageId: integer("last_read_message_id"), // for read receipts
+  notificationsEnabled: boolean("notifications_enabled").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Messages table - individual messages within conversations
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").references(() => conversations.id, { onDelete: "cascade" }).notNull(),
+  senderId: varchar("sender_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  messageType: text("message_type").notNull().default("text"), // 'text', 'image', 'file', 'system', 'template'
+  content: text("content").notNull(),
+  metadata: text("metadata"), // JSON for attachments, system message details, etc.
+  replyToMessageId: integer("reply_to_message_id").references(() => messages.id), // for threading
+  isSystemMessage: boolean("is_system_message").default(false),
+  isEdited: boolean("is_edited").default(false),
+  editedAt: timestamp("edited_at"),
+  isDeleted: boolean("is_deleted").default(false),
+  deletedAt: timestamp("deleted_at"),
+  deliveryStatus: text("delivery_status").default("sent"), // 'sent', 'delivered', 'read', 'failed'
+  readCount: integer("read_count").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Message attachments table
+export const messageAttachments = pgTable("message_attachments", {
+  id: serial("id").primaryKey(),
+  messageId: integer("message_id").references(() => messages.id, { onDelete: "cascade" }).notNull(),
+  fileName: text("file_name").notNull(),
+  originalName: text("original_name").notNull(),
+  fileSize: integer("file_size").notNull(), // in bytes
+  mimeType: text("mime_type").notNull(),
+  fileUrl: text("file_url").notNull(),
+  thumbnailUrl: text("thumbnail_url"), // for images/videos
+  isPublic: boolean("is_public").default(false),
+  downloadCount: integer("download_count").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Message read receipts for tracking who read what
+export const messageReadReceipts = pgTable("message_read_receipts", {
+  id: serial("id").primaryKey(),
+  messageId: integer("message_id").references(() => messages.id, { onDelete: "cascade" }).notNull(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  readAt: timestamp("read_at").defaultNow().notNull(),
+});
+
+// Message templates for common responses (admin and user)
+export const messageTemplates = pgTable("message_templates", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  category: text("category").notNull(), // 'greeting', 'pricing_inquiry', 'viewing_request', 'admin_response', etc.
+  isAdminOnly: boolean("is_admin_only").default(false),
+  isActive: boolean("is_active").default(true),
+  usageCount: integer("usage_count").default(0),
+  tags: text("tags").array(), // for categorization and search
+  createdBy: varchar("created_by", { length: 255 }).references(() => appUsers.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Conversation analytics for insights
+export const conversationAnalytics = pgTable("conversation_analytics", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").references(() => conversations.id, { onDelete: "cascade" }).notNull(),
+  messageCount: integer("message_count").default(0),
+  participantCount: integer("participant_count").default(0),
+  avgResponseTime: integer("avg_response_time"), // in minutes
+  firstResponseTime: integer("first_response_time"), // in minutes
+  resolutionTime: integer("resolution_time"), // in minutes
+  satisfactionRating: integer("satisfaction_rating"), // 1-5 scale, null if not rated
+  outcome: text("outcome"), // 'sale_completed', 'no_response', 'price_negotiation', 'viewing_scheduled', etc.
+  leadQuality: text("lead_quality"), // 'hot', 'warm', 'cold', 'spam'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Notification preferences per conversation type
+export const messageNotificationSettings = pgTable("message_notification_settings", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  conversationType: text("conversation_type").notNull(),
+  emailEnabled: boolean("email_enabled").default(true),
+  smsEnabled: boolean("sms_enabled").default(false),
+  pushEnabled: boolean("push_enabled").default(true),
+  digestFrequency: text("digest_frequency").default("immediate"), // 'immediate', 'hourly', 'daily', 'never'
+  quietHoursStart: text("quiet_hours_start"), // "22:00"
+  quietHoursEnd: text("quiet_hours_end"), // "08:00"
+  weekendsEnabled: boolean("weekends_enabled").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Blocked users and spam prevention
+export const blockedUsers = pgTable("blocked_users", {
+  id: serial("id").primaryKey(),
+  blockerId: varchar("blocker_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  blockedId: varchar("blocked_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  reason: text("reason"), // 'spam', 'harassment', 'inappropriate', 'other'
+  blockType: text("block_type").default("messaging"), // 'messaging', 'complete', 'viewing'
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  // Unique constraint to prevent duplicate blocks
+}, (table) => ({
+  uniqueBlock: {
+    name: "unique_user_block",
+    columns: [table.blockerId, table.blockedId],
+  },
+}));
+
+// Schemas for messaging system
+export const conversationSchema = createInsertSchema(conversations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastMessageAt: true,
+  lastActivityAt: true,
+  participantCount: true,
+});
+
+export const messageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  deliveryStatus: true,
+  readCount: true,
+  isEdited: true,
+  editedAt: true,
+  isDeleted: true,
+  deletedAt: true,
+});
+
+export const participantSchema = createInsertSchema(conversationParticipants).omit({
+  id: true,
+  createdAt: true,
+  joinedAt: true,
+});
+
+export const messageTemplateSchema = createInsertSchema(messageTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  usageCount: true,
+});
+
+// New conversation request schema
+export const newConversationSchema = z.object({
+  type: z.enum(['listing_inquiry', 'duty_calculation', 'transfer_request', 'general_support']),
+  title: z.string().min(5, "Title must be at least 5 characters"),
+  context: z.object({
+    listingId: z.number().optional(),
+    calculationId: z.number().optional(),
+    vehicleInfo: z.object({
+      make: z.string(),
+      model: z.string(),
+      year: z.number(),
+    }).optional(),
+  }).optional(),
+  recipientId: z.string().min(1, "Recipient is required"),
+  initialMessage: z.string().min(10, "Initial message must be at least 10 characters"),
+});
+
+// Type exports for messaging system
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = z.infer<typeof conversationSchema>;
+export type ConversationParticipant = typeof conversationParticipants.$inferSelect;
+export type InsertConversationParticipant = z.infer<typeof participantSchema>;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = z.infer<typeof messageSchema>;
+export type MessageAttachment = typeof messageAttachments.$inferSelect;
+export type MessageReadReceipt = typeof messageReadReceipts.$inferSelect;
+export type MessageTemplate = typeof messageTemplates.$inferSelect;
+export type InsertMessageTemplate = z.infer<typeof messageTemplateSchema>;
+export type ConversationAnalytics = typeof conversationAnalytics.$inferSelect;
+export type MessageNotificationSettings = typeof messageNotificationSettings.$inferSelect;
+export type BlockedUser = typeof blockedUsers.$inferSelect;
+export type NewConversation = z.infer<typeof newConversationSchema>;
+
 // Vehicle Valuation Schema (old version - to be replaced)
 
 // Manual vehicle data for proration
@@ -1095,31 +1305,7 @@ export const phoneClickTracking = pgTable("phone_click_tracking", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Messages table for tracking conversations
-export const messages = pgTable("messages", {
-  id: serial("id").primaryKey(),
-  listingId: integer("listing_id").references(() => carListings.id).notNull(),
-  sellerId: text("seller_id").notNull(),
-  buyerId: text("buyer_id").notNull(),
-  message: text("message").notNull(),
-  messageType: text("message_type").notNull().default("text"), // text, image, etc.
-  isRead: boolean("is_read").default(false).notNull(),
-  sentAt: timestamp("sent_at").defaultNow().notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Conversations table for organizing messages
-export const conversations = pgTable("conversations", {
-  id: serial("id").primaryKey(),
-  listingId: integer("listing_id").references(() => carListings.id).notNull(),
-  sellerId: text("seller_id").notNull(),
-  buyerId: text("buyer_id").notNull(),
-  lastMessageId: integer("last_message_id").references(() => messages.id),
-  lastMessageAt: timestamp("last_message_at").defaultNow().notNull(),
-  isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+// Note: Comprehensive messaging system tables are defined above in the MESSAGING SYSTEM section
 
 // Daily listing performance analytics
 export const dailyListingAnalytics = pgTable("daily_listing_analytics", {
@@ -1141,16 +1327,7 @@ export const phoneClickTrackingSchema = createInsertSchema(phoneClickTracking).o
   createdAt: true,
 });
 
-export const messageSchema = createInsertSchema(messages).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const conversationSchema = createInsertSchema(conversations).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+// Note: Messaging schemas are defined above in the MESSAGING SYSTEM section
 
 export const dailyListingAnalyticsSchema = createInsertSchema(dailyListingAnalytics).omit({
   id: true,
@@ -1160,9 +1337,6 @@ export const dailyListingAnalyticsSchema = createInsertSchema(dailyListingAnalyt
 
 export type PhoneClickTracking = typeof phoneClickTracking.$inferSelect;
 export type InsertPhoneClickTracking = z.infer<typeof phoneClickTrackingSchema>;
-export type Message = typeof messages.$inferSelect;
-export type InsertMessage = z.infer<typeof messageSchema>;
-export type Conversation = typeof conversations.$inferSelect;
-export type InsertConversation = z.infer<typeof conversationSchema>;
+// Note: Message and Conversation types are defined above in the MESSAGING SYSTEM section
 export type DailyListingAnalytics = typeof dailyListingAnalytics.$inferSelect;
 export type InsertDailyListingAnalytics = z.infer<typeof dailyListingAnalyticsSchema>;

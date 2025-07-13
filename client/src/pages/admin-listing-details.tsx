@@ -188,14 +188,23 @@ export default function AdminListingDetails() {
     }).format(price);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-KE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return 'Not set';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Invalid Date';
+      
+      return date.toLocaleDateString('en-KE', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch (error) {
+      return 'Invalid Date';
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -450,10 +459,6 @@ export default function AdminListingDetails() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Display current values for debugging */}
-                <div className="text-xs text-gray-500 p-2 bg-gray-100 rounded">
-                  Debug: Status={listingData?.status}, Featured={String(listingData?.featured)}, Verified={String(listingData?.isVerified)}
-                </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="metaStatus">Listing Status *</Label>

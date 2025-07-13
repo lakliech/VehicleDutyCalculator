@@ -35,7 +35,8 @@ import {
   conversationSchema,
   dailyListingAnalyticsSchema,
   carListings,
-  adminUpdateListingSchema
+  adminUpdateListingSchema,
+  mediaManagementSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -1126,6 +1127,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to export listings:", error);
       res.status(500).json({ error: "Failed to export listings" });
+    }
+  });
+
+  // Media management endpoints
+  app.post("/api/admin/listings/:id/media", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      const validation = mediaManagementSchema.safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const { action, images, deleteIndex, featuredIndex, newOrder } = validation.data;
+      
+      switch (action) {
+        case 'upload':
+          if (!images || images.length === 0) {
+            return res.status(400).json({ error: "Images are required for upload" });
+          }
+          await storage.addListingImages(listingId, images);
+          break;
+          
+        case 'delete':
+          if (deleteIndex === undefined) {
+            return res.status(400).json({ error: "Delete index is required" });
+          }
+          await storage.deleteListingImage(listingId, deleteIndex);
+          break;
+          
+        case 'reorder':
+          if (!newOrder || newOrder.length === 0) {
+            return res.status(400).json({ error: "New order is required for reordering" });
+          }
+          await storage.reorderListingImages(listingId, newOrder);
+          break;
+          
+        case 'set_featured':
+          if (featuredIndex === undefined) {
+            return res.status(400).json({ error: "Featured index is required" });
+          }
+          await storage.setFeaturedImage(listingId, featuredIndex);
+          break;
+          
+        default:
+          return res.status(400).json({ error: "Invalid action" });
+      }
+      
+      // Return updated listing with new images
+      const updatedListing = await storage.getListingById(listingId);
+      res.json(updatedListing);
+    } catch (error) {
+      console.error("Failed to manage media:", error);
+      res.status(500).json({ error: "Failed to manage media" });
     }
   });
 

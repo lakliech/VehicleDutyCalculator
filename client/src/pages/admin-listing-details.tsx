@@ -31,7 +31,13 @@ import {
   Palette,
   Wrench,
   Hash,
-  X
+  X,
+  Upload,
+  Trash2,
+  Star,
+  ArrowUp,
+  ArrowDown,
+  Image as ImageIcon
 } from "lucide-react";
 
 export default function AdminListingDetails() {
@@ -53,6 +59,7 @@ export default function AdminListingDetails() {
   const [rejectionReason, setRejectionReason] = useState("");
   const [flagReason, setFlagReason] = useState("");
   const [adminNote, setAdminNote] = useState("");
+  const [isMediaOpen, setIsMediaOpen] = useState(false);
   
   // Edit form states
   const [editTitle, setEditTitle] = useState("");
@@ -187,6 +194,20 @@ export default function AdminListingDetails() {
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to update listing", variant: "destructive" });
+    },
+  });
+
+  // Media management mutations
+  const mediaMutation = useMutation({
+    mutationFn: async (mediaData: { action: string; images?: string[]; deleteIndex?: number; featuredIndex?: number; newOrder?: number[] }) => {
+      return apiRequest('POST', `/api/admin/listings/${listingId}/media`, mediaData);
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Media updated successfully" });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update media", variant: "destructive" });
     },
   });
 
@@ -574,22 +595,161 @@ export default function AdminListingDetails() {
                         <Label htmlFor="editNegotiable">Price is negotiable</Label>
                       </div>
                       
-                      <div className="flex justify-end gap-2 pt-4">
+                      <div className="flex justify-end gap-2">
                         <Button variant="outline" onClick={() => setIsEditOpen(false)}>
                           Cancel
                         </Button>
                         <Button 
-                          onClick={() => editMutation.mutate({
-                            title: editTitle,
-                            description: editDescription,
-                            price: editPrice,
-                            negotiable: editNegotiable,
-                            location: editLocation
-                          })}
-                          disabled={!editTitle.trim() || !editPrice.trim() || !editLocation.trim() || editMutation.isPending}
+                          onClick={() => {
+                            editMutation.mutate({
+                              title: editTitle,
+                              description: editDescription,
+                              price: editPrice,
+                              negotiable: editNegotiable,
+                              location: editLocation
+                            });
+                          }}
+                          disabled={editMutation.isPending}
                         >
-                          {editMutation.isPending ? "Saving..." : "Save Changes"}
+                          {editMutation.isPending ? 'Saving...' : 'Save Changes'}
                         </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                  
+                <Dialog open={isMediaOpen} onOpenChange={setIsMediaOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4" />
+                      Manage Media
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Manage Media</DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="space-y-6">
+                      {/* Current Images Display */}
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3">Current Images ({(listingData?.images || []).length})</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          {(listingData?.images || []).map((image, index) => (
+                            <div key={index} className="relative group">
+                              <img 
+                                src={image} 
+                                alt={`Listing image ${index + 1}`}
+                                className="w-full h-32 object-cover rounded-lg border"
+                              />
+                              {index === 0 && (
+                                <div className="absolute top-2 left-2">
+                                  <Badge className="bg-yellow-500 text-white">
+                                    <Star className="w-3 h-3 mr-1" />
+                                    Featured
+                                  </Badge>
+                                </div>
+                              )}
+                              
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                <div className="flex gap-2">
+                                  {index !== 0 && (
+                                    <Button
+                                      size="sm"
+                                      variant="secondary"
+                                      onClick={() => mediaMutation.mutate({ action: 'set_featured', featuredIndex: index })}
+                                    >
+                                      <Star className="w-3 h-3" />
+                                    </Button>
+                                  )}
+                                  {index > 0 && (
+                                    <Button
+                                      size="sm"
+                                      variant="secondary"
+                                      onClick={() => {
+                                        const newOrder = [...Array((listingData?.images || []).length).keys()];
+                                        [newOrder[index], newOrder[index - 1]] = [newOrder[index - 1], newOrder[index]];
+                                        mediaMutation.mutate({ action: 'reorder', newOrder });
+                                      }}
+                                    >
+                                      <ArrowUp className="w-3 h-3" />
+                                    </Button>
+                                  )}
+                                  {index < (listingData?.images || []).length - 1 && (
+                                    <Button
+                                      size="sm"
+                                      variant="secondary"
+                                      onClick={() => {
+                                        const newOrder = [...Array((listingData?.images || []).length).keys()];
+                                        [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+                                        mediaMutation.mutate({ action: 'reorder', newOrder });
+                                      }}
+                                    >
+                                      <ArrowDown className="w-3 h-3" />
+                                    </Button>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => mediaMutation.mutate({ action: 'delete', deleteIndex: index })}
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Upload New Images */}
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3">Upload New Images</h3>
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+                          <p className="text-gray-500 mb-4">
+                            Drag and drop images here, or click to browse
+                          </p>
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            className="hidden"
+                            id="image-upload"
+                            onChange={(e) => {
+                              const files = Array.from(e.target.files || []);
+                              // Convert files to base64 or upload URLs
+                              Promise.all(files.map(file => {
+                                return new Promise<string>((resolve) => {
+                                  const reader = new FileReader();
+                                  reader.onload = (e) => resolve(e.target?.result as string);
+                                  reader.readAsDataURL(file);
+                                });
+                              })).then(imageUrls => {
+                                mediaMutation.mutate({ action: 'upload', images: imageUrls });
+                              });
+                            }}
+                          />
+                          <Button 
+                            variant="outline"
+                            onClick={() => document.getElementById('image-upload')?.click()}
+                          >
+                            <Upload className="w-4 h-4 mr-2" />
+                            Select Images
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Instructions */}
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <h4 className="font-semibold text-blue-900 mb-2">Media Management Instructions:</h4>
+                        <ul className="text-sm text-blue-800 space-y-1">
+                          <li>• The first image is automatically set as the featured thumbnail</li>
+                          <li>• Use the star button to set any image as featured</li>
+                          <li>• Use arrow buttons to reorder images</li>
+                          <li>• Use trash button to delete images</li>
+                          <li>• Maximum 10 images per listing recommended</li>
+                        </ul>
                       </div>
                     </div>
                   </DialogContent>

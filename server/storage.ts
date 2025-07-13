@@ -1593,6 +1593,116 @@ export class DatabaseStorage implements IStorage {
     
     return await query.orderBy(desc(carListings.createdAt));
   }
+
+  // Media management methods
+  async addListingImages(listingId: number, newImages: string[]): Promise<void> {
+    const [listing] = await db
+      .select({ images: carListings.images })
+      .from(carListings)
+      .where(eq(carListings.id, listingId));
+    
+    if (!listing) {
+      throw new Error('Listing not found');
+    }
+    
+    const currentImages = listing.images || [];
+    const updatedImages = [...currentImages, ...newImages];
+    
+    await db
+      .update(carListings)
+      .set({ 
+        images: updatedImages,
+        updatedAt: new Date()
+      })
+      .where(eq(carListings.id, listingId));
+  }
+
+  async deleteListingImage(listingId: number, imageIndex: number): Promise<void> {
+    const [listing] = await db
+      .select({ images: carListings.images })
+      .from(carListings)
+      .where(eq(carListings.id, listingId));
+    
+    if (!listing) {
+      throw new Error('Listing not found');
+    }
+    
+    const currentImages = listing.images || [];
+    if (imageIndex < 0 || imageIndex >= currentImages.length) {
+      throw new Error('Invalid image index');
+    }
+    
+    const updatedImages = currentImages.filter((_, index) => index !== imageIndex);
+    
+    await db
+      .update(carListings)
+      .set({ 
+        images: updatedImages,
+        updatedAt: new Date()
+      })
+      .where(eq(carListings.id, listingId));
+  }
+
+  async reorderListingImages(listingId: number, newOrder: number[]): Promise<void> {
+    const [listing] = await db
+      .select({ images: carListings.images })
+      .from(carListings)
+      .where(eq(carListings.id, listingId));
+    
+    if (!listing) {
+      throw new Error('Listing not found');
+    }
+    
+    const currentImages = listing.images || [];
+    if (newOrder.length !== currentImages.length) {
+      throw new Error('New order must contain all image indices');
+    }
+    
+    // Validate that all indices are valid
+    const validIndices = newOrder.every(index => index >= 0 && index < currentImages.length);
+    if (!validIndices) {
+      throw new Error('Invalid image indices in new order');
+    }
+    
+    const reorderedImages = newOrder.map(index => currentImages[index]);
+    
+    await db
+      .update(carListings)
+      .set({ 
+        images: reorderedImages,
+        updatedAt: new Date()
+      })
+      .where(eq(carListings.id, listingId));
+  }
+
+  async setFeaturedImage(listingId: number, featuredIndex: number): Promise<void> {
+    const [listing] = await db
+      .select({ images: carListings.images })
+      .from(carListings)
+      .where(eq(carListings.id, listingId));
+    
+    if (!listing) {
+      throw new Error('Listing not found');
+    }
+    
+    const currentImages = listing.images || [];
+    if (featuredIndex < 0 || featuredIndex >= currentImages.length) {
+      throw new Error('Invalid featured image index');
+    }
+    
+    // Move the featured image to the first position
+    const featuredImage = currentImages[featuredIndex];
+    const otherImages = currentImages.filter((_, index) => index !== featuredIndex);
+    const reorderedImages = [featuredImage, ...otherImages];
+    
+    await db
+      .update(carListings)
+      .set({ 
+        images: reorderedImages,
+        updatedAt: new Date()
+      })
+      .where(eq(carListings.id, listingId));
+  }
 }
 
 export const storage = new DatabaseStorage();

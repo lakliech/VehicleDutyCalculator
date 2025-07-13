@@ -356,6 +356,16 @@ export const adminUpdateListingSchema = z.object({
   price: z.number().min(1, "Price must be greater than 0").optional(),
   negotiable: z.boolean().optional(),
   location: z.string().min(1, "Location is required").optional(),
+  images: z.array(z.string()).optional(),
+});
+
+// Schema for media management operations
+export const mediaManagementSchema = z.object({
+  action: z.enum(['upload', 'delete', 'reorder', 'set_featured']),
+  images: z.array(z.string()).optional(),
+  deleteIndex: z.number().optional(),
+  featuredIndex: z.number().optional(),
+  newOrder: z.array(z.number()).optional(),
 });
 
 export const carInquirySchema = createInsertSchema(carInquiries).omit({

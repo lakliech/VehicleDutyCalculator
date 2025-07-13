@@ -44,6 +44,7 @@ import { useAuth } from "@/components/auth-provider";
 
 interface VehicleDetails {
   id: number;
+  sellerId: number;
   make: string;
   model: string;
   year: number;

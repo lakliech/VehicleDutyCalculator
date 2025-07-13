@@ -2951,6 +2951,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Transform database listing to car details format
       const carDetails = {
         id: listing.id,
+        sellerId: listing.sellerId,
         make: listing.make,
         model: listing.model,
         year: listing.year,

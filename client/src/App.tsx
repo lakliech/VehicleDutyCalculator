@@ -24,6 +24,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import AdminListingDetails from "@/pages/admin-listing-details";
 import AdminUsers from "@/pages/admin-users";
 import Dashboard from "@/pages/dashboard";
+import { UserProfile } from "@/pages/user-profile";
 import MyListings from "@/pages/my-listings";
 import MyWishlists from "@/pages/my-wishlists";
 import MyMessages from "@/pages/my-messages";
@@ -52,6 +53,11 @@ function Router() {
           <Route path="/dashboard">
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/profile">
+            <ProtectedRoute>
+              <UserProfile />
             </ProtectedRoute>
           </Route>
           <Route path="/my-listings">

@@ -83,20 +83,30 @@ export default function AdminListingDetails() {
   // Initialize form data when listing loads
   useEffect(() => {
     if (listingData) {
+      console.log('Initializing form data with:', listingData);
+      
       setEditTitle(listingData.title || "");
       setEditDescription(listingData.description || "");
       setEditPrice(listingData.price?.toString() || "");
       setEditLocation(listingData.location || "");
       setEditNegotiable(listingData.negotiable || false);
       
-      // Initialize meta fields
-      setMetaStatus(listingData.status || "");
-      setMetaFeatured(listingData.featured || false);
-      setMetaVerified(listingData.isVerified || false);
+      // Initialize meta fields with current values
+      setMetaStatus(listingData.status || "pending");
+      setMetaFeatured(!!listingData.featured);
+      setMetaVerified(!!listingData.isVerified);
       setMetaExpirationDate(listingData.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "");
       setMetaListingSource(listingData.listingSource || "user-submitted");
       setMetaSellerId(listingData.sellerId || "");
       setMetaAdminNotes(listingData.adminNotes || "");
+      
+      console.log('Meta fields initialized:', {
+        status: listingData.status,
+        featured: listingData.featured,
+        verified: listingData.isVerified,
+        source: listingData.listingSource,
+        sellerId: listingData.sellerId
+      });
     }
   }, [listingData]);
 
@@ -445,7 +455,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaStatus">Listing Status *</Label>
                   <select
                     id="metaStatus"
-                    value={metaStatus}
+                    value={metaStatus || listingData?.status || "pending"}
                     onChange={(e) => setMetaStatus(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
@@ -461,7 +471,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaListingSource">Listing Source</Label>
                   <select
                     id="metaListingSource"
-                    value={metaListingSource}
+                    value={metaListingSource || listingData?.listingSource || "user-submitted"}
                     onChange={(e) => setMetaListingSource(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
@@ -476,7 +486,7 @@ export default function AdminListingDetails() {
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="metaFeatured"
-                      checked={metaFeatured}
+                      checked={metaFeatured || !!listingData?.featured}
                       onCheckedChange={setMetaFeatured}
                     />
                     <Label htmlFor="metaFeatured">Featured Listing</Label>
@@ -485,7 +495,7 @@ export default function AdminListingDetails() {
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="metaVerified"
-                      checked={metaVerified}
+                      checked={metaVerified || !!listingData?.isVerified}
                       onCheckedChange={setMetaVerified}
                     />
                     <Label htmlFor="metaVerified">Verified Badge</Label>
@@ -497,7 +507,7 @@ export default function AdminListingDetails() {
                   <Input
                     id="metaExpirationDate"
                     type="date"
-                    value={metaExpirationDate}
+                    value={metaExpirationDate || (listingData?.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "")}
                     onChange={(e) => setMetaExpirationDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                   />
@@ -507,7 +517,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaSellerId">Reassign to User/Seller</Label>
                   <select
                     id="metaSellerId"
-                    value={metaSellerId}
+                    value={metaSellerId || listingData?.sellerId || ""}
                     onChange={(e) => setMetaSellerId(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                   >
@@ -526,7 +536,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaAdminNotes">Admin Notes</Label>
                   <Textarea
                     id="metaAdminNotes"
-                    value={metaAdminNotes}
+                    value={metaAdminNotes || listingData?.adminNotes || ""}
                     onChange={(e) => setMetaAdminNotes(e.target.value)}
                     placeholder="Internal admin notes..."
                     rows={3}

@@ -76,13 +76,14 @@ export function VehicleChatbot({ onVehicleSelect }: VehicleChatbotProps) {
       });
 
       const responseData = await response.json();
+      console.log('Chatbot response:', responseData);
 
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: responseData.message,
+        content: responseData.message || responseData.content || "No response received",
         timestamp: new Date(),
-        vehicleRecommendations: responseData.recommendations
+        vehicleRecommendations: responseData.recommendations || []
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -148,7 +149,9 @@ export function VehicleChatbot({ onVehicleSelect }: VehicleChatbotProps) {
                       : 'bg-gray-100 text-gray-900'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap">
+                    {message.content || "Message content unavailable"}
+                  </p>
                   
                   {message.vehicleRecommendations && message.vehicleRecommendations.length > 0 && (
                     <div className="mt-3 space-y-2">
@@ -188,7 +191,11 @@ export function VehicleChatbot({ onVehicleSelect }: VehicleChatbotProps) {
                   )}
                   
                   <p className="text-xs opacity-70 mt-2">
-                    {message.timestamp.toLocaleTimeString()}
+                    {new Date(message.timestamp).toLocaleTimeString('en-US', { 
+                      hour: '2-digit', 
+                      minute: '2-digit',
+                      hour12: true 
+                    })}
                   </p>
                 </div>
                 

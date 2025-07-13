@@ -1314,6 +1314,10 @@ export const dailyListingAnalytics = pgTable("daily_listing_analytics", {
   date: text("date").notNull(), // YYYY-MM-DD format  
   totalViews: integer("total_views").default(0),
   uniqueVisitors: integer("unique_visitors").default(0),
+  phoneClicks: integer("phone_clicks").default(0),
+  inquiries: integer("inquiries").default(0),
+  favorites: integer("favorites").default(0),
+  shares: integer("shares").default(0),
   impressions: integer("impressions").default(0),
   clickThroughRate: decimal("click_through_rate", { precision: 5, scale: 4 }).default("0.0000"),
   deviceDesktop: integer("device_desktop").default(0),

@@ -79,7 +79,8 @@ interface AnalyticsData {
     favorites: number;
     phoneClicks: number;
     shares: number;
-    averageTimeSpent: number;
+    impressions: number;
+    clickThroughRate: number;
   };
   audienceInsights: {
     locationBreakdown: Record<string, number>;
@@ -324,7 +325,7 @@ export default function ListingAnalytics() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <AreaChart data={analytics.performanceMetrics.dailyTrend}>
+                    <AreaChart data={analytics?.performanceMetrics?.dailyTrend || []}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" />
                       <YAxis />

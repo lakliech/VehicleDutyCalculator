@@ -45,7 +45,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
-import { sql, eq, desc, and } from "drizzle-orm";
+import { sql, eq, desc, and, or } from "drizzle-orm";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 import bcrypt from "bcrypt";

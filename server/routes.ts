@@ -4693,16 +4693,12 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         .values({
           listingId,
           date: today,
-          phoneClicks: 1,
-          totalViews: 0,
-          inquiries: 0,
-          favorites: 0,
-          shares: 0
+          totalViews: 0
         })
         .onConflictDoUpdate({
           target: [dailyListingAnalytics.listingId, dailyListingAnalytics.date],
           set: {
-            phoneClicks: sql`${dailyListingAnalytics.phoneClicks} + 1`,
+            totalViews: sql`${dailyListingAnalytics.totalViews} + 1`,
             updatedAt: new Date()
           }
         });
@@ -4848,16 +4844,12 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         .values({
           listingId,
           date: today,
-          inquiries: 1,
-          totalViews: 0,
-          phoneClicks: 0,
-          favorites: 0,
-          shares: 0
+          totalViews: 0
         })
         .onConflictDoUpdate({
           target: [dailyListingAnalytics.listingId, dailyListingAnalytics.date],
           set: {
-            inquiries: sql`${dailyListingAnalytics.inquiries} + 1`,
+            totalViews: sql`${dailyListingAnalytics.totalViews} + 1`,
             updatedAt: new Date()
           }
         });
@@ -5037,13 +5029,8 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           SELECT 
             COALESCE(SUM(total_views), 0) as total_views,
             COALESCE(SUM(unique_visitors), 0) as total_unique_visitors,
-            COALESCE(COUNT(*), 0) as total_phone_clicks,
-            COALESCE(COUNT(*), 0) as total_inquiries,
-            COALESCE(COUNT(*), 0) as total_favorites,
-            COALESCE(COUNT(*), 0) as total_shares,
             COALESCE(SUM(impressions), 0) as total_impressions,
-            COALESCE(AVG(click_through_rate), 0) as avg_ctr,
-            COALESCE(AVG(300), 0) as avg_time_spent
+            COALESCE(AVG(click_through_rate), 0) as avg_ctr
           FROM daily_listing_analytics 
           WHERE listing_id = ${listingId}
         `),
@@ -5119,11 +5106,11 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         
         // 2. Buyer Engagement Metrics
         engagementMetrics: {
-          inquiries: totalViews.rows[0]?.total_inquiries || 0,
-          favorites: totalViews.rows[0]?.total_favorites || 0,
-          phoneClicks: totalViews.rows[0]?.total_phone_clicks || 0,
-          shares: totalViews.rows[0]?.total_shares || 0,
-          averageTimeSpent: totalViews.rows[0]?.avg_time_spent || 0
+          impressions: totalViews.rows[0]?.total_impressions || 0,
+          clickThroughRate: (totalViews.rows[0]?.avg_ctr || 0) * 100,
+          deviceMobile: dailyAnalytics.reduce((sum, day) => sum + (day.device_mobile || 0), 0),
+          deviceDesktop: dailyAnalytics.reduce((sum, day) => sum + (day.device_desktop || 0), 0),
+          deviceTablet: dailyAnalytics.reduce((sum, day) => sum + (day.device_tablet || 0), 0)
         },
         
         // 3. Audience Demographics (based on daily analytics)
@@ -5397,10 +5384,9 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           listingId: dailyListingAnalytics.listingId,
           date: dailyListingAnalytics.date,
           views: dailyListingAnalytics.totalViews,
-          phoneClicks: dailyListingAnalytics.phoneClicks,
-          messagesSent: dailyListingAnalytics.inquiries,
-          favorites: dailyListingAnalytics.favorites,
-          shares: dailyListingAnalytics.shares,
+          impressions: dailyListingAnalytics.impressions,
+          clickThroughRate: dailyListingAnalytics.clickThroughRate,
+          uniqueVisitors: dailyListingAnalytics.uniqueVisitors,
           // Join with listing info
           listingTitle: carListings.title,
           listingMake: carListings.make,

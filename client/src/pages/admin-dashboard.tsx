@@ -227,6 +227,29 @@ function AuthenticatedAdminDashboard() {
     },
   });
 
+  // Automated flagging analytics
+  const { data: autoFlagRules = [] } = useQuery({
+    queryKey: ["/api/admin/auto-flag-rules"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/auto-flag-rules", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: flaggingStats } = useQuery({
+    queryKey: ["/api/admin/flagging-stats"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/flagging-stats", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
   // CSV Upload mutation
   const uploadCsvMutation = useMutation({
     mutationFn: async (formData: FormData) => {
@@ -500,7 +523,7 @@ function AuthenticatedAdminDashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Database className="h-4 w-4" />
               Overview
@@ -512,6 +535,10 @@ function AuthenticatedAdminDashboard() {
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Users
+            </TabsTrigger>
+            <TabsTrigger value="flagging" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Auto-Flagging
             </TabsTrigger>
             <TabsTrigger value="vehicles" className="flex items-center gap-2">
               <Car className="h-4 w-4" />
@@ -584,6 +611,145 @@ function AuthenticatedAdminDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Automated Flagging System Tab */}
+          <TabsContent value="flagging">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Automated Flagging System
+                  </CardTitle>
+                  <CardDescription>
+                    Monitor and manage the intelligent flagging system with automated violation detection and response capabilities.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Shield className="h-5 w-5 text-blue-600" />
+                        <span className="font-semibold text-blue-900">Total Flags</span>
+                      </div>
+                      <div className="text-2xl font-bold text-blue-600">
+                        {flaggingStats?.totalFlags || 0}
+                      </div>
+                      <p className="text-sm text-blue-700">All-time reports</p>
+                    </div>
+                    
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="h-5 w-5 text-green-600" />
+                        <span className="font-semibold text-green-900">Recent Activity</span>
+                      </div>
+                      <div className="text-2xl font-bold text-green-600">
+                        {flaggingStats?.recentFlags || 0}
+                      </div>
+                      <p className="text-sm text-green-700">Last 30 days</p>
+                    </div>
+                    
+                    <div className="p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg border border-purple-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Settings className="h-5 w-5 text-purple-600" />
+                        <span className="font-semibold text-purple-900">Auto Actions</span>
+                      </div>
+                      <div className="text-2xl font-bold text-purple-600">
+                        {flaggingStats?.automatedActions || 0}
+                      </div>
+                      <p className="text-sm text-purple-700">System responses</p>
+                    </div>
+                    
+                    <div className="p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertTriangle className="h-5 w-5 text-orange-600" />
+                        <span className="font-semibold text-orange-900">Active Rules</span>
+                      </div>
+                      <div className="text-2xl font-bold text-orange-600">
+                        {autoFlagRules.length}
+                      </div>
+                      <p className="text-sm text-orange-700">Monitoring violations</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    {Object.entries(
+                      autoFlagRules.reduce((acc: any, rule: any) => {
+                        if (!acc[rule.category]) acc[rule.category] = [];
+                        acc[rule.category].push(rule);
+                        return acc;
+                      }, {})
+                    ).map(([category, rules]: [string, any]) => {
+                      const getCategoryIcon = (cat: string) => {
+                        switch (cat) {
+                          case 'content': return <FileText className="w-5 h-5" />;
+                          case 'misleading': return <AlertTriangle className="w-5 h-5" />;
+                          case 'suspicious': return <Shield className="w-5 h-5" />;
+                          case 'behavior': return <Users className="w-5 h-5" />;
+                          case 'platform': return <Settings className="w-5 h-5" />;
+                          default: return <Shield className="w-5 h-5" />;
+                        }
+                      };
+
+                      const getCategoryTitle = (cat: string) => {
+                        switch (cat) {
+                          case 'content': return 'Content Quality Issues';
+                          case 'misleading': return 'Misleading Information';
+                          case 'suspicious': return 'Suspicious Activity';
+                          case 'behavior': return 'Seller Behavior';
+                          case 'platform': return 'Platform Policy Violations';
+                          default: return 'Other Issues';
+                        }
+                      };
+
+                      const getSeverityColor = (severity: string) => {
+                        switch (severity) {
+                          case 'critical': return 'text-red-600 bg-red-50';
+                          case 'high': return 'text-orange-600 bg-orange-50';
+                          case 'medium': return 'text-yellow-600 bg-yellow-50';
+                          case 'low': return 'text-green-600 bg-green-50';
+                          default: return 'text-gray-600 bg-gray-50';
+                        }
+                      };
+
+                      return (
+                        <Card key={category}>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-purple-900">
+                              {getCategoryIcon(category)}
+                              {getCategoryTitle(category)}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid gap-4">
+                              {rules.map((rule: any) => (
+                                <div key={rule.flagType} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-1">
+                                      <span className="font-medium text-gray-900">{rule.displayName}</span>
+                                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${getSeverityColor(rule.severity)}`}>
+                                        {rule.severity}
+                                      </span>
+                                    </div>
+                                    <div className="text-sm text-gray-600">
+                                      <strong>Trigger:</strong> {rule.triggerCount} report{rule.triggerCount !== 1 ? 's' : ''} → {rule.actionDescription}
+                                    </div>
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    ID: {rule.flagType}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Vehicle References Tab */}

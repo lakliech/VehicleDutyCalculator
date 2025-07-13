@@ -1,0 +1,26 @@
+| **Flag Type / Reason**                        | **Trigger Count** | **Action Trigger**                                                                 |
+| --------------------------------------------- | ----------------- | ---------------------------------------------------------------------------------- |
+| 📷 Inappropriate or offensive images          | ≥1                | Immediately hide listing images + send for admin review                            |
+| 📷 Blurry or low-quality photos               | ≥3                | Flag for quality check; send alert to seller; optionally remove from featured pool |
+| 📷 Stolen or copyrighted images               | ≥1                | Auto-hide images + lock listing pending admin verification                         |
+| 📷 Misleading or unrelated vehicle photos     | ≥2                | Remove listing from search + admin notification                                    |
+| 🔤 Incorrect make, model, or year             | ≥3                | Mark listing "Under Review" + notify seller                                        |
+| 🔤 Fake mileage / tampered odometer           | ≥1                | Auto-flag for fraud review; suspend listing temporarily                            |
+| 🔤 Wrong price (e.g., KES 1 car)              | ≥1                | Hide from results + request correction from seller                                 |
+| 🔤 Misrepresentation of condition             | ≥2                | Suspend listing visibility; send to review queue                                   |
+| 🔎 Fake or non-existent vehicle               | ≥1                | Immediate suspension + flag for manual moderation                                  |
+| 🔎 Scam/phishing attempt                      | ≥1                | Auto-unlist + lock seller account (pending admin review)                           |
+| 🔎 Request for deposit / off-platform contact | ≥1                | Remove listing + mark seller as “High Risk”                                        |
+| 🔎 Duplicate listing                          | ≥2                | Auto-archive older duplicates + notify seller                                      |
+| 🔎 Suspected stolen vehicle                   | ≥1                | Immediate take-down + notify moderation team and legal desk (if available)         |
+| 🧍 Seller unresponsive / unreachable          | ≥3                | Mark seller as low reputation + prompt for verification                            |
+| 🧍 Abusive or rude seller behavior            | ≥2                | Send warning to seller; restrict comment/messaging privileges                      |
+| 🧍 Impersonation or fake profile              | ≥1                | Disable listing + request identity verification                                    |
+| ⚙️ Banned item or vehicle category            | ≥1                | Remove listing immediately + log violation                                         |
+| ⚙️ Prohibited keywords in title/description   | ≥2                | Strip text + notify seller + auto-replace with default placeholder if needed       |
+| ⚙️ Link to external websites                  | ≥1                | Remove link + auto-flag content for manual approval                                |
+| ⚙️ Listing spam / minimal changes reposts     | ≥3                | Limit further posts + hide similar listings                                        |
+| 📂 Expired or outdated listing                | ≥2                | Auto-mark as expired + suggest renewal                                             |
+| 📂 Vehicle already sold                       | ≥1                | Mark as sold + notify seller                                                       |
+| 📂 Wrong category                             | ≥2                | Auto-suggest correct category or auto-move (if enabled)                            |
+| 📂 Other (free text input)                    | ≥2                | Send for manual admin review                                                       |

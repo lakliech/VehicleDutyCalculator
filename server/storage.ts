@@ -3,6 +3,7 @@ import {
   userRoles, appUsers, userSessions, userActivities, listingApprovals, userPreferences, userStats, carListings, passwordResetTokens,
   adminCredentials, adminAuditLog, listingFlags, listingAnalytics, adminNotes, userWarnings, adminTemplates,
   favoriteListings, savedSearches, carComparisons,
+  autoFlagRules, flagCountTracking, automatedActionsLog, sellerReputationTracking,
   type Vehicle, type Calculation, type InsertVehicle, type InsertCalculation, type DutyCalculation, type DutyResult, 
   type DepreciationRate, type TaxRate, type ProcessingFee, type VehicleCategoryRule, type RegistrationFee, 
   type Trailer, type HeavyMachinery, type UserRole, type AppUser, type InsertAppUser, type InsertUserRole,
@@ -12,7 +13,8 @@ import {
   type ListingFlag, type InsertListingFlag, type ListingAnalytics, type InsertListingAnalytics,
   type AdminNote, type InsertAdminNote, type UserWarning, type InsertUserWarning,
   type AdminTemplate, type InsertAdminTemplate,
-  type FavoriteListing, type SavedSearch, type CarComparison
+  type FavoriteListing, type SavedSearch, type CarComparison,
+  type AutoFlagRule, type FlagCountTracking, type AutomatedActionsLog, type SellerReputationTracking
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, desc, sql, gt, inArray, isNull } from "drizzle-orm";
@@ -108,6 +110,16 @@ export interface IStorage {
   restoreListing(listingId: number, adminId: string): Promise<void>;
   duplicateCheck(listingId: number): Promise<any[]>;
   exportListings(filters?: any): Promise<any[]>;
+  
+  // Automated flagging system methods
+  processAutomatedFlag(listingId: number, flagType: string, reporterId?: string): Promise<{ actionTriggered: boolean; actionType?: string; actionDescription?: string }>;
+  getAutoFlagRule(flagType: string): Promise<AutoFlagRule | undefined>;
+  updateFlagCount(listingId: number, flagType: string): Promise<FlagCountTracking>;
+  executeAutomatedAction(listingId: number, flagRule: AutoFlagRule, flagCount: number): Promise<void>;
+  logAutomatedAction(listingId: number, flagType: string, actionType: string, triggerCount: number, actionDescription: string, success: boolean, errorMessage?: string): Promise<void>;
+  updateSellerReputation(sellerId: string, flagType: string, severity: string): Promise<void>;
+  getSellerReputationScore(sellerId: string): Promise<number>;
+  rollbackAutomatedAction(actionId: number): Promise<void>;
   
   // Dashboard recommendations method
   generateUserRecommendations(userId: string): Promise<Array<{
@@ -1408,6 +1420,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(carListings.id, listingId));
     
     await this.logUserActivity(adminId, 'flag_listing', 'listing', listingId.toString(), `Flagged listing: ${flagData.flagReason}`);
+    
+    // Process automated flagging system
+    try {
+      await this.processAutomatedFlag(listingId, reason, adminId);
+    } catch (error) {
+      console.error('Error processing automated flag:', error);
+      // Don't fail the main flagging operation if automated system fails
+    }
   }
 
   async unflagListing(listingId: number, adminId: string): Promise<void> {
@@ -1856,6 +1876,272 @@ export class DatabaseStorage implements IStorage {
       .from(appUsers)
       .where(eq(appUsers.isActive, true))
       .orderBy(appUsers.firstName);
+  }
+
+  // =========================
+  // AUTOMATED FLAGGING SYSTEM
+  // =========================
+
+  async processAutomatedFlag(listingId: number, flagType: string, reporterId?: string): Promise<{ actionTriggered: boolean; actionType?: string; actionDescription?: string }> {
+    try {
+      // Get the auto flag rule for this flag type
+      const flagRule = await this.getAutoFlagRule(flagType);
+      if (!flagRule || !flagRule.isActive) {
+        return { actionTriggered: false };
+      }
+
+      // Update flag count tracking
+      const flagCount = await this.updateFlagCount(listingId, flagType);
+
+      // Check if we've reached the trigger count
+      if (flagCount.flagCount >= flagRule.triggerCount && !flagCount.actionTriggered) {
+        // Execute the automated action
+        await this.executeAutomatedAction(listingId, flagRule, flagCount.flagCount);
+
+        // Mark action as triggered
+        await db.update(flagCountTracking)
+          .set({ 
+            actionTriggered: true, 
+            actionTriggeredAt: new Date().toISOString(),
+            actionType: flagRule.actionType 
+          })
+          .where(and(
+            eq(flagCountTracking.listingId, listingId),
+            eq(flagCountTracking.flagType, flagType)
+          ));
+
+        // Log the automated action
+        await this.logAutomatedAction(
+          listingId, 
+          flagType, 
+          flagRule.actionType, 
+          flagCount.flagCount, 
+          flagRule.actionDescription, 
+          true
+        );
+
+        // Update seller reputation
+        const listing = await this.getListingById(listingId);
+        if (listing) {
+          await this.updateSellerReputation(listing.sellerId, flagType, flagRule.severity);
+        }
+
+        return { 
+          actionTriggered: true, 
+          actionType: flagRule.actionType, 
+          actionDescription: flagRule.actionDescription 
+        };
+      }
+
+      return { actionTriggered: false };
+    } catch (error) {
+      console.error('Error processing automated flag:', error);
+      
+      // Log failed automated action
+      await this.logAutomatedAction(
+        listingId, 
+        flagType, 
+        'error', 
+        0, 
+        'Failed to process automated flag', 
+        false, 
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+      
+      throw error;
+    }
+  }
+
+  async getAutoFlagRule(flagType: string): Promise<AutoFlagRule | undefined> {
+    const results = await db.select()
+      .from(autoFlagRules)
+      .where(eq(autoFlagRules.flagType, flagType))
+      .limit(1);
+    
+    return results[0];
+  }
+
+  async updateFlagCount(listingId: number, flagType: string): Promise<FlagCountTracking> {
+    // Check if flag count tracking already exists
+    const existing = await db.select()
+      .from(flagCountTracking)
+      .where(and(
+        eq(flagCountTracking.listingId, listingId),
+        eq(flagCountTracking.flagType, flagType)
+      ))
+      .limit(1);
+
+    if (existing.length > 0) {
+      // Increment existing count
+      const updated = await db.update(flagCountTracking)
+        .set({ 
+          flagCount: existing[0].flagCount + 1,
+          lastFlaggedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        })
+        .where(and(
+          eq(flagCountTracking.listingId, listingId),
+          eq(flagCountTracking.flagType, flagType)
+        ))
+        .returning();
+      
+      return updated[0];
+    } else {
+      // Create new flag count tracking
+      const created = await db.insert(flagCountTracking)
+        .values({
+          listingId,
+          flagType,
+          flagCount: 1,
+          lastFlaggedAt: new Date().toISOString(),
+          actionTriggered: false
+        })
+        .returning();
+      
+      return created[0];
+    }
+  }
+
+  async executeAutomatedAction(listingId: number, flagRule: AutoFlagRule, flagCount: number): Promise<void> {
+    try {
+      switch (flagRule.actionType) {
+        case 'hide_images_admin_review':
+          await this.hideListingImages(listingId);
+          await this.sendToAdminReview(listingId, flagRule.flagType);
+          break;
+
+        case 'suspend_listing':
+          await this.suspendListing(listingId, `Automated action: ${flagRule.actionDescription}`);
+          break;
+
+        case 'remove_from_search':
+          await this.removeFromSearchResults(listingId);
+          break;
+
+        case 'mark_under_review':
+          await this.updateListingStatus(listingId, 'pending');
+          break;
+
+        case 'immediate_suspension':
+          await this.suspendListing(listingId, 'Immediate suspension for manual moderation');
+          break;
+
+        default:
+          console.warn(`Action type ${flagRule.actionType} not yet implemented`);
+          // For now, just suspend the listing as a safe default
+          await this.suspendListing(listingId, `Automated action: ${flagRule.actionDescription}`);
+          break;
+      }
+    } catch (error) {
+      console.error(`Error executing automated action ${flagRule.actionType}:`, error);
+      throw error;
+    }
+  }
+
+  async logAutomatedAction(
+    listingId: number, 
+    flagType: string, 
+    actionType: string, 
+    triggerCount: number, 
+    actionDescription: string, 
+    success: boolean, 
+    errorMessage?: string
+  ): Promise<void> {
+    await db.insert(automatedActionsLog).values({
+      listingId,
+      flagType,
+      actionType,
+      triggerCount,
+      actionDescription,
+      success,
+      errorMessage,
+      executedBy: 'system'
+    });
+  }
+
+  async updateSellerReputation(sellerId: string, flagType: string, severity: string): Promise<void> {
+    // Get or create seller reputation tracking
+    const existing = await db.select()
+      .from(sellerReputationTracking)
+      .where(eq(sellerReputationTracking.sellerId, sellerId))
+      .limit(1);
+
+    const severityScores = { low: 1, medium: 5, high: 10, critical: 20 };
+    const severityScore = severityScores[severity as keyof typeof severityScores] || 5;
+
+    if (existing.length > 0) {
+      const current = existing[0];
+      const newScore = Math.max(0, current.reputationScore - severityScore);
+      const isHighRisk = newScore < 50 || current.criticalFlags > 0;
+      
+      await db.update(sellerReputationTracking)
+        .set({
+          reputationScore: newScore,
+          totalFlags: current.totalFlags + 1,
+          highSeverityFlags: severity === 'high' ? current.highSeverityFlags + 1 : current.highSeverityFlags,
+          criticalFlags: severity === 'critical' ? current.criticalFlags + 1 : current.criticalFlags,
+          isHighRisk,
+          lastFlaggedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        })
+        .where(eq(sellerReputationTracking.sellerId, sellerId));
+    } else {
+      const initialScore = Math.max(0, 100 - severityScore);
+      await db.insert(sellerReputationTracking).values({
+        sellerId,
+        reputationScore: initialScore,
+        totalFlags: 1,
+        highSeverityFlags: severity === 'high' ? 1 : 0,
+        criticalFlags: severity === 'critical' ? 1 : 0,
+        isHighRisk: severity === 'critical',
+        lastFlaggedAt: new Date().toISOString()
+      });
+    }
+  }
+
+  async getSellerReputationScore(sellerId: string): Promise<number> {
+    const result = await db.select()
+      .from(sellerReputationTracking)
+      .where(eq(sellerReputationTracking.sellerId, sellerId))
+      .limit(1);
+    
+    return result.length > 0 ? result[0].reputationScore : 100;
+  }
+
+  async rollbackAutomatedAction(actionId: number): Promise<void> {
+    console.log(`Rollback requested for action ID: ${actionId}`);
+  }
+
+  // Helper methods for specific automated actions
+  private async hideListingImages(listingId: number): Promise<void> {
+    await db.update(carListings)
+      .set({ images: null })
+      .where(eq(carListings.id, listingId));
+  }
+
+  private async sendToAdminReview(listingId: number, flagType: string): Promise<void> {
+    await this.addAdminNote(listingId, 'system', `Automated flag triggered: ${flagType} - Images hidden, requires admin review`);
+  }
+
+  private async updateListingStatus(listingId: number, status: string): Promise<void> {
+    await db.update(carListings)
+      .set({ status })
+      .where(eq(carListings.id, listingId));
+  }
+
+  private async suspendListing(listingId: number, reason: string): Promise<void> {
+    await db.update(carListings)
+      .set({ 
+        status: 'inactive',
+        adminNotes: reason
+      })
+      .where(eq(carListings.id, listingId));
+  }
+
+  private async removeFromSearchResults(listingId: number): Promise<void> {
+    await db.update(carListings)
+      .set({ status: 'inactive' })
+      .where(eq(carListings.id, listingId));
   }
 }
 

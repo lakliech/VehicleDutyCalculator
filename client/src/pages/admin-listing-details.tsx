@@ -83,6 +83,7 @@ export default function AdminListingDetails() {
   const [rejectionReason, setRejectionReason] = useState("");
   const [flagReason, setFlagReason] = useState("");
   const [adminNote, setAdminNote] = useState("");
+  const [autoFlagRules, setAutoFlagRules] = useState<any[]>([]);
 
   // Fetch listing data - force fresh data
   const { data: listingData, isLoading, error } = useQuery({
@@ -101,6 +102,15 @@ export default function AdminListingDetails() {
     queryKey: ['users'],
     queryFn: async () => {
       const response = await apiRequest('GET', '/api/admin/users-management');
+      return await response.json();
+    },
+  });
+
+  // Fetch auto flag rules for intelligent flagging
+  const { data: flagRulesData } = useQuery({
+    queryKey: ['auto-flag-rules'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/admin/auto-flag-rules');
       return await response.json();
     },
   });
@@ -818,154 +828,89 @@ export default function AdminListingDetails() {
                         <DialogTitle>Flag Listing - Report Issue</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-6">
-                        <div className="text-sm text-gray-600">
-                          Please select the most appropriate reason for flagging this listing. This helps maintain platform quality and user trust.
-                        </div>
-                        
-                        {/* Content Issues */}
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2 font-medium text-purple-700">
-                            <ImageIcon className="w-4 h-4" />
-                            Content Issues
-                          </div>
-                          <div className="grid gap-2 ml-6">
-                            {[
-                              'Inappropriate or offensive images',
-                              'Blurry or low-quality photos',
-                              'Stolen or copyrighted images',
-                              'Watermarked images from another platform',
-                              'Misleading vehicle photos (not matching title/specs)'
-                            ].map(reason => (
-                              <label key={reason} className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="flagReason"
-                                  value={reason}
-                                  checked={flagReason === reason}
-                                  onChange={(e) => setFlagReason(e.target.value)}
-                                  className="text-purple-600"
-                                />
-                                <span className="text-sm">{reason}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Misleading Information */}
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2 font-medium text-purple-700">
-                            <X className="w-4 h-4" />
-                            Misleading or False Information
-                          </div>
-                          <div className="grid gap-2 ml-6">
-                            {[
-                              'Incorrect make, model, or year',
-                              'Fake mileage or tampered odometer',
-                              'Wrong price (e.g., 1 KES for a Lexus LX 2023)',
-                              'Listing vehicle that doesn\'t exist',
-                              'Misrepresentation (e.g., calling a damaged car "new")'
-                            ].map(reason => (
-                              <label key={reason} className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="flagReason"
-                                  value={reason}
-                                  checked={flagReason === reason}
-                                  onChange={(e) => setFlagReason(e.target.value)}
-                                  className="text-purple-600"
-                                />
-                                <span className="text-sm">{reason}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Suspicious Activity */}
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2 font-medium text-purple-700">
+                        <div className="p-4 bg-gradient-to-r from-purple-50 to-cyan-50 rounded-lg border border-purple-200">
+                          <div className="flex items-center gap-2 text-sm font-medium text-purple-700 mb-2">
                             <Flag className="w-4 h-4" />
-                            Suspicious or Fraudulent Activity
+                            Intelligent Flagging System
                           </div>
-                          <div className="grid gap-2 ml-6">
-                            {[
-                              'Scam or phishing attempt',
-                              'Request for upfront payment or deposit',
-                              'Duplicate listing (posted multiple times)',
-                              'Stolen vehicle suspected',
-                              'VIN or registration does not match details'
-                            ].map(reason => (
-                              <label key={reason} className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="flagReason"
-                                  value={reason}
-                                  checked={flagReason === reason}
-                                  onChange={(e) => setFlagReason(e.target.value)}
-                                  className="text-purple-600"
-                                />
-                                <span className="text-sm">{reason}</span>
-                              </label>
-                            ))}
-                          </div>
+                          <p className="text-sm text-gray-600">
+                            Select a flag reason below. Our automated system will track violation counts and apply appropriate actions based on severity and frequency.
+                          </p>
                         </div>
 
-                        {/* Seller Behavior */}
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2 font-medium text-purple-700">
-                            <User className="w-4 h-4" />
-                            Seller Behavior
-                          </div>
-                          <div className="grid gap-2 ml-6">
-                            {[
-                              'Seller not responding or unreachable',
-                              'Rude, abusive, or threatening communication',
-                              'Seller requested off-platform transaction',
-                              'Seller using fake name or contact details',
-                              'Impersonating a dealer or another user'
-                            ].map(reason => (
-                              <label key={reason} className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="flagReason"
-                                  value={reason}
-                                  checked={flagReason === reason}
-                                  onChange={(e) => setFlagReason(e.target.value)}
-                                  className="text-purple-600"
-                                />
-                                <span className="text-sm">{reason}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
+                        {flagRulesData && Object.entries(
+                          flagRulesData.reduce((acc: any, rule: any) => {
+                            if (!acc[rule.category]) acc[rule.category] = [];
+                            acc[rule.category].push(rule);
+                            return acc;
+                          }, {})
+                        ).map(([category, rules]: [string, any]) => {
+                          const getCategoryIcon = (cat: string) => {
+                            switch (cat) {
+                              case 'content': return <ImageIcon className="w-4 h-4" />;
+                              case 'misleading': return <X className="w-4 h-4" />;
+                              case 'suspicious': return <Flag className="w-4 h-4" />;
+                              case 'behavior': return <User className="w-4 h-4" />;
+                              case 'platform': return <Settings className="w-4 h-4" />;
+                              default: return <Flag className="w-4 h-4" />;
+                            }
+                          };
 
-                        {/* Platform Policy Violations */}
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2 font-medium text-purple-700">
-                            <Settings className="w-4 h-4" />
-                            Platform Policy Violations
-                          </div>
-                          <div className="grid gap-2 ml-6">
-                            {[
-                              'Banned item or vehicle type (e.g., commercial vehicles if not allowed)',
-                              'Prohibited keywords in title/description',
-                              'Links to external websites or ads',
-                              'Spamming multiple listings with minor changes',
-                              'Attempt to bypass platform fees or verification'
-                            ].map(reason => (
-                              <label key={reason} className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="flagReason"
-                                  value={reason}
-                                  checked={flagReason === reason}
-                                  onChange={(e) => setFlagReason(e.target.value)}
-                                  className="text-purple-600"
-                                />
-                                <span className="text-sm">{reason}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
+                          const getCategoryTitle = (cat: string) => {
+                            switch (cat) {
+                              case 'content': return 'Content Issues';
+                              case 'misleading': return 'Misleading Information';
+                              case 'suspicious': return 'Suspicious Activity';
+                              case 'behavior': return 'Seller Behavior';
+                              case 'platform': return 'Platform Violations';
+                              default: return 'Other Issues';
+                            }
+                          };
+
+                          const getSeverityColor = (severity: string) => {
+                            switch (severity) {
+                              case 'critical': return 'text-red-600 bg-red-50';
+                              case 'high': return 'text-orange-600 bg-orange-50';
+                              case 'medium': return 'text-yellow-600 bg-yellow-50';
+                              case 'low': return 'text-green-600 bg-green-50';
+                              default: return 'text-gray-600 bg-gray-50';
+                            }
+                          };
+
+                          return (
+                            <div key={category} className="space-y-3">
+                              <div className="flex items-center gap-2 font-medium text-purple-700">
+                                {getCategoryIcon(category)}
+                                {getCategoryTitle(category)}
+                              </div>
+                              <div className="grid gap-3 ml-6">
+                                {rules.map((rule: any) => (
+                                  <label key={rule.flagType} className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 border border-gray-200 transition-colors">
+                                    <input
+                                      type="radio"
+                                      name="flagReason"
+                                      value={rule.flagType}
+                                      checked={flagReason === rule.flagType}
+                                      onChange={(e) => setFlagReason(e.target.value)}
+                                      className="text-purple-600 mt-1"
+                                    />
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-sm font-medium">{rule.displayName}</span>
+                                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${getSeverityColor(rule.severity)}`}>
+                                          {rule.severity}
+                                        </span>
+                                      </div>
+                                      <div className="text-xs text-gray-500">
+                                        <strong>Trigger:</strong> {rule.triggerCount} report{rule.triggerCount !== 1 ? 's' : ''} → {rule.actionDescription}
+                                      </div>
+                                    </div>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
 
                         {/* Additional Notes */}
                         <div className="space-y-2">

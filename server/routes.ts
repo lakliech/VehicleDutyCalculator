@@ -37,7 +37,11 @@ import {
   carListings,
   adminUpdateListingSchema,
   mediaManagementSchema,
-  adminMetaUpdateSchema
+  adminMetaUpdateSchema,
+  autoFlagRules,
+  automatedActionsLog,
+  flagCountTracking,
+  sellerReputationTracking
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -641,6 +645,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Flag listing error:', error);
       res.status(500).json({ error: 'Failed to flag listing' });
+    }
+  });
+
+  // Automated flagging system endpoints
+  app.get('/api/admin/auto-flag-rules', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const rules = await db.select().from(autoFlagRules).orderBy(autoFlagRules.category, autoFlagRules.displayName);
+      res.json(rules);
+    } catch (error) {
+      console.error('Get auto flag rules error:', error);
+      res.status(500).json({ error: 'Failed to get auto flag rules' });
+    }
+  });
+
+  app.get('/api/admin/automated-actions/:listingId', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      const actions = await db.select()
+        .from(automatedActionsLog)
+        .where(eq(automatedActionsLog.listingId, listingId))
+        .orderBy(desc(automatedActionsLog.createdAt));
+      
+      res.json(actions);
+    } catch (error) {
+      console.error('Get automated actions error:', error);
+      res.status(500).json({ error: 'Failed to get automated actions' });
+    }
+  });
+
+  app.get('/api/admin/flag-count-tracking/:listingId', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      const flagCounts = await db.select()
+        .from(flagCountTracking)
+        .where(eq(flagCountTracking.listingId, listingId))
+        .orderBy(desc(flagCountTracking.flagCount));
+      
+      res.json(flagCounts);
+    } catch (error) {
+      console.error('Get flag count tracking error:', error);
+      res.status(500).json({ error: 'Failed to get flag count tracking' });
+    }
+  });
+
+  app.get('/api/admin/seller-reputation/:sellerId', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const sellerId = req.params.sellerId;
+      const reputation = await storage.getSellerReputationScore(sellerId);
+      
+      const fullReputation = await db.select()
+        .from(sellerReputationTracking)
+        .where(eq(sellerReputationTracking.sellerId, sellerId))
+        .limit(1);
+      
+      res.json({
+        reputationScore: reputation,
+        details: fullReputation[0] || null
+      });
+    } catch (error) {
+      console.error('Get seller reputation error:', error);
+      res.status(500).json({ error: 'Failed to get seller reputation' });
+    }
+  });
+
+  app.get('/api/admin/flagging-stats', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      // Get total flagged listings
+      const totalFlags = await db.select({ count: sql`count(*)` })
+        .from(listingFlags);
+
+      // Get flagging activity in last 30 days
+      const recentFlags = await db.select({ count: sql`count(*)` })
+        .from(listingFlags)
+        .where(sql`created_at >= now() - interval '30 days'`);
+
+      // Get automated actions count
+      const automatedActions = await db.select({ count: sql`count(*)` })
+        .from(automatedActionsLog);
+
+      // Get top flag reasons
+      const topReasons = await db.select({
+        flagType: listingFlags.flagType,
+        count: sql`count(*)`
+      })
+        .from(listingFlags)
+        .groupBy(listingFlags.flagType)
+        .orderBy(sql`count(*) desc`)
+        .limit(5);
+
+      res.json({
+        totalFlags: totalFlags[0]?.count || 0,
+        recentFlags: recentFlags[0]?.count || 0,
+        automatedActions: automatedActions[0]?.count || 0,
+        topReasons
+      });
+    } catch (error) {
+      console.error('Get flagging stats error:', error);
+      res.status(500).json({ error: 'Failed to get flagging statistics' });
     }
   });
 

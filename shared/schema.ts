@@ -648,6 +648,69 @@ export const listingFlags = pgTable("listing_flags", {
   createdAt: text("created_at").default("now()").notNull(),
 });
 
+// Automated flag rules table - defines trigger counts and actions for each flag type
+export const autoFlagRules = pgTable("auto_flag_rules", {
+  id: serial("id").primaryKey(),
+  flagType: varchar("flag_type", { length: 100 }).notNull().unique(),
+  displayName: varchar("display_name", { length: 150 }).notNull(),
+  emoji: varchar("emoji", { length: 10 }).notNull(),
+  category: varchar("category", { length: 50 }).notNull(), // content, misleading, suspicious, behavior, platform
+  triggerCount: integer("trigger_count").notNull(),
+  actionType: varchar("action_type", { length: 50 }).notNull(), // hide_images, suspend_listing, lock_account, etc.
+  actionDescription: text("action_description").notNull(),
+  severity: varchar("severity", { length: 20 }).notNull(), // low, medium, high, critical
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
+// Flag count tracking table - tracks how many times each flag type has been reported per listing
+export const flagCountTracking = pgTable("flag_count_tracking", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  flagType: varchar("flag_type", { length: 100 }).notNull(),
+  flagCount: integer("flag_count").default(1).notNull(),
+  lastFlaggedAt: text("last_flagged_at").default("now()").notNull(),
+  actionTriggered: boolean("action_triggered").default(false).notNull(),
+  actionTriggeredAt: text("action_triggered_at"),
+  actionType: varchar("action_type", { length: 50 }),
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
+// Automated actions log table - tracks all automated actions taken
+export const automatedActionsLog = pgTable("automated_actions_log", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  flagType: varchar("flag_type", { length: 100 }).notNull(),
+  actionType: varchar("action_type", { length: 50 }).notNull(),
+  triggerCount: integer("trigger_count").notNull(),
+  actionDescription: text("action_description").notNull(),
+  executedBy: varchar("executed_by", { length: 50 }).default("system").notNull(),
+  success: boolean("success").default(true).notNull(),
+  errorMessage: text("error_message"),
+  rollbackId: integer("rollback_id"), // for reversible actions
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
+// Seller reputation tracking based on flag patterns
+export const sellerReputationTracking = pgTable("seller_reputation_tracking", {
+  id: serial("id").primaryKey(),
+  sellerId: varchar("seller_id", { length: 255 }).notNull().unique(),
+  reputationScore: integer("reputation_score").default(100).notNull(), // 0-100
+  totalFlags: integer("total_flags").default(0).notNull(),
+  highSeverityFlags: integer("high_severity_flags").default(0).notNull(),
+  criticalFlags: integer("critical_flags").default(0).notNull(),
+  isHighRisk: boolean("is_high_risk").default(false).notNull(),
+  isRestricted: boolean("is_restricted").default(false).notNull(),
+  restrictionReason: text("restriction_reason"),
+  restrictedAt: text("restricted_at"),
+  restrictedUntil: text("restricted_until"),
+  lastFlaggedAt: text("last_flagged_at"),
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
 // Listing analytics table for tracking views and interactions
 export const listingAnalytics = pgTable("listing_analytics", {
   id: serial("id").primaryKey(),
@@ -727,6 +790,23 @@ export type UserWarning = typeof userWarnings.$inferSelect;
 export const insertAdminTemplateSchema = createInsertSchema(adminTemplates);
 export type InsertAdminTemplate = typeof adminTemplates.$inferInsert;
 export type AdminTemplate = typeof adminTemplates.$inferSelect;
+
+// Automated flagging schema types
+export const insertAutoFlagRuleSchema = createInsertSchema(autoFlagRules);
+export type InsertAutoFlagRule = typeof autoFlagRules.$inferInsert;
+export type AutoFlagRule = typeof autoFlagRules.$inferSelect;
+
+export const insertFlagCountTrackingSchema = createInsertSchema(flagCountTracking);
+export type InsertFlagCountTracking = typeof flagCountTracking.$inferInsert;
+export type FlagCountTracking = typeof flagCountTracking.$inferSelect;
+
+export const insertAutomatedActionsLogSchema = createInsertSchema(automatedActionsLog);
+export type InsertAutomatedActionsLog = typeof automatedActionsLog.$inferInsert;
+export type AutomatedActionsLog = typeof automatedActionsLog.$inferSelect;
+
+export const insertSellerReputationTrackingSchema = createInsertSchema(sellerReputationTracking);
+export type InsertSellerReputationTracking = typeof sellerReputationTracking.$inferInsert;
+export type SellerReputationTracking = typeof sellerReputationTracking.$inferSelect;
 
 export type AdminCredential = typeof adminCredentials.$inferSelect;
 export type InsertAdminCredential = z.infer<typeof adminCredentialSchema>;

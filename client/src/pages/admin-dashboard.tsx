@@ -2949,10 +2949,10 @@ function UsersManagementTab() {
     sort: sortConfig.field,
     order: sortConfig.direction,
     ...(filters.search && { search: filters.search }),
-    ...(filters.role && { role: filters.role }),
+    ...(filters.role && filters.role !== "all" && { role: filters.role }),
     ...(filters.joinedFrom && { joinedFrom: filters.joinedFrom }),
     ...(filters.joinedTo && { joinedTo: filters.joinedTo }),
-    ...(filters.status && { status: filters.status }),
+    ...(filters.status && filters.status !== "all" && { status: filters.status }),
   });
 
   const { data: usersData, isLoading } = useQuery<{
@@ -3097,8 +3097,8 @@ function UsersManagementTab() {
                   <SelectValue placeholder="All roles" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All roles</SelectItem>
-                  {roles.map((role) => (
+                  <SelectItem value="all">All roles</SelectItem>
+                  {roles.filter(role => role.name && role.name.trim() !== "").map((role) => (
                     <SelectItem key={role.id} value={role.name}>
                       {role.name}
                     </SelectItem>
@@ -3115,7 +3115,7 @@ function UsersManagementTab() {
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All statuses</SelectItem>
+                  <SelectItem value="all">All statuses</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="suspended">Suspended</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
@@ -3179,7 +3179,7 @@ function UsersManagementTab() {
                   <SelectValue placeholder="Change role..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map((role) => (
+                  {roles.filter(role => role.name && role.name.trim() !== "").map((role) => (
                     <SelectItem key={role.id} value={role.id.toString()}>
                       Change to {role.name}
                     </SelectItem>
@@ -3331,7 +3331,7 @@ function UsersManagementTab() {
                                   <SelectValue placeholder="Role" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {roles.map((role) => (
+                                  {roles.filter(role => role.name && role.name.trim() !== "").map((role) => (
                                     <SelectItem key={role.id} value={role.id.toString()}>
                                       {role.name}
                                     </SelectItem>

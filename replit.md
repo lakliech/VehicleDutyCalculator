@@ -495,6 +495,12 @@ Changelog:
   - Added Platform Violations: banned items, prohibited keywords, external links, spam listings, fee bypass attempts
   - Enhanced backend to capture additional notes with flag reasons for better context
   - Updated flag mutation to support detailed reason selection and optional administrative notes
+- January 13, 2025. Implemented automatic listing hiding for suspended users:
+  - Added database schema support with status field for app_users table (active/suspended/pending)
+  - Enhanced car-listings API endpoint to filter out listings from suspended users automatically
+  - Updated database queries to join with app_users table and exclude suspended sellers
+  - Verified that listings from suspended users are completely hidden from buy-a-car module
+  - Integrated with user management bulk actions for immediate listing visibility control
 
 ## User Preferences
 

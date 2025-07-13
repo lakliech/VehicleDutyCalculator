@@ -2699,8 +2699,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Build query conditions for filtering
       let whereConditions = [];
       
-      // Only show approved/active listings
+      // Only show approved/active listings from active users
       whereConditions.push(eq(carListings.status, 'active'));
+      whereConditions.push(eq(appUsers.status, 'active'));
       
       if (search) {
         const searchTerm = `%${search}%`;
@@ -2771,6 +2772,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const [totalCount] = await db
         .select({ count: sql<number>`count(*)` })
         .from(carListings)
+        .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
         .where(and(...whereConditions));
 
       // Build ordering
@@ -2801,6 +2803,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const dbListings = await db
         .select()
         .from(carListings)
+        .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
         .where(and(...whereConditions))
         .orderBy(orderBy)
         .limit(limitNum)

@@ -53,6 +53,7 @@ import { db } from "./db";
 import { sql, eq, desc, and, or } from "drizzle-orm";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
+import ListingQualityAssessment, { triggerQualityAssessment } from './quality-assessment';
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 import crypto from "crypto";
@@ -5358,6 +5359,80 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     } catch (error) {
       console.error("Error fetching listing conversations:", error);
       res.status(500).json({ error: "Failed to fetch listing conversations" });
+    }
+  });
+
+  // Trigger quality assessment for a listing
+  app.post('/api/listing/:listingId/assess-quality', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const listingId = parseInt(req.params.listingId);
+      
+      // Verify user owns this listing
+      const listing = await db
+        .select()
+        .from(carListings)
+        .where(
+          and(
+            eq(carListings.id, listingId),
+            eq(carListings.sellerId, user.id)
+          )
+        )
+        .limit(1);
+      
+      if (!listing.length) {
+        return res.status(404).json({ error: "Listing not found or access denied" });
+      }
+      
+      // Run quality assessment
+      const qualityResults = await ListingQualityAssessment.assessListingQuality(listingId);
+      
+      res.json({
+        success: true,
+        message: "Quality assessment completed",
+        assessment: qualityResults
+      });
+    } catch (error) {
+      console.error("Error assessing listing quality:", error);
+      res.status(500).json({ error: "Failed to assess listing quality" });
+    }
+  });
+
+  // Get quality assessment for a listing
+  app.get('/api/listing/:listingId/quality-score', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const listingId = parseInt(req.params.listingId);
+      
+      // Verify user owns this listing
+      const listing = await db
+        .select()
+        .from(carListings)
+        .where(
+          and(
+            eq(carListings.id, listingId),
+            eq(carListings.sellerId, user.id)
+          )
+        )
+        .limit(1);
+      
+      if (!listing.length) {
+        return res.status(404).json({ error: "Listing not found or access denied" });
+      }
+      
+      // Get existing quality assessment
+      const qualityAssessment = await ListingQualityAssessment.getQualityAssessment(listingId);
+      
+      if (!qualityAssessment) {
+        // No assessment exists, run one
+        const newAssessment = await ListingQualityAssessment.assessListingQuality(listingId);
+        return res.json(newAssessment);
+      }
+      
+      res.json(qualityAssessment);
+    } catch (error) {
+      console.error("Error getting quality score:", error);
+      res.status(500).json({ error: "Failed to get quality score" });
     }
   });
 

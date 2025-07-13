@@ -76,7 +76,6 @@ export function VehicleChatbot({ onVehicleSelect }: VehicleChatbotProps) {
       });
 
       const responseData = await response.json();
-      console.log('Chatbot response:', responseData);
 
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),

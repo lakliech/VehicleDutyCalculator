@@ -538,6 +538,13 @@ Changelog:
   - Implemented 30-second auto-refresh for conversation counts to show real-time updates
   - Removed separate "View Chat" button in favor of making entire card clickable for better UX
   - Dialog automatically closes when user clicks on a conversation to navigate to Messages
+- January 13, 2025. Fixed AI Advisor chatbot issues:
+  - Removed duplicate ModuleNavigation component causing double navigation bars
+  - Fixed API response parsing in VehicleChatbot component by adding proper .json() call
+  - Improved timestamp formatting to display proper time format (hour:minute AM/PM)
+  - Added fallback text handling for empty message content
+  - Enhanced error handling and response parsing with proper fallbacks
+  - Verified OpenAI GPT-4o integration working correctly with vehicle recommendations
 - January 13, 2025. Implemented comprehensive Vehicle Seller Analytics System:
   - Created extensive database schema with 8+ new analytics tables (listing_views, search_impressions, market_benchmarks, listing_quality_scores, search_keywords, promotion_tracking, listing_recommendations)
   - Enhanced daily_listing_analytics table with comprehensive tracking fields including unique visitors, device breakdown, location analysis, traffic sources, and active hours

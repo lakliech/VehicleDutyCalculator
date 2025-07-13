@@ -2413,24 +2413,72 @@ function OverviewTab() {
 
 
 
+// Helper function for auth headers
+function getAuthHeaders() {
+  return {
+    'Content-Type': 'application/json',
+  };
+}
+
 // Enhanced Listings Management Tab Component
 function EnhancedListingsManagementTab() {
-  const { data: listings = [], isLoading } = useQuery<(CarListing & { seller: AppUser; approval?: ListingApproval })[]>({
-    queryKey: ["/api/admin/listings"],
+  // Enhanced filtering and sorting state
+  const [filters, setFilters] = useState({
+    status: 'all',
+    sellerType: 'all', 
+    make: 'all',
+    model: 'all',
+    minPrice: '',
+    maxPrice: '',
+    location: 'all',
+    dateFrom: '',
+    dateTo: '',
+    search: ''
+  });
+  
+  const [sorting, setSorting] = useState({
+    sortBy: 'createdAt',
+    sortOrder: 'desc'
+  });
+  
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 50
   });
 
   const [selectedListings, setSelectedListings] = useState<number[]>([]);
   const [bulkAction, setBulkAction] = useState<string>("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
+
+  // Build query parameters
+  const queryParams = new URLSearchParams({
+    ...filters,
+    ...sorting,
+    page: pagination.page.toString(),
+    limit: pagination.limit.toString()
+  });
+
+  const { data: listingsResponse, isLoading } = useQuery({
+    queryKey: ["/api/admin/listings-with-stats", queryParams.toString()],
+    queryFn: async () => {
+      const response = await fetch(`/api/admin/listings-with-stats?${queryParams}`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const listings = listingsResponse?.listings || [];
+  const paginationInfo = listingsResponse?.pagination;
+  const filterOptions = listingsResponse?.filters;
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const approveListingMutation = useMutation({
     mutationFn: async ({ listingId, notes }: { listingId: number; notes?: string }) => {
-      const response = await fetch(`/api/admin/listings/${listingId}/approve`, {
-        method: "POST",
+      const response = await fetch(`/api/admin/listing/${listingId}/approve`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ notes }),
       });
@@ -2438,15 +2486,15 @@ function EnhancedListingsManagementTab() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings-with-stats"] });
       toast({ title: "Success", description: "Listing approved successfully" });
     },
   });
 
   const rejectListingMutation = useMutation({
     mutationFn: async ({ listingId, reason }: { listingId: number; reason: string }) => {
-      const response = await fetch(`/api/admin/listings/${listingId}/reject`, {
-        method: "POST",
+      const response = await fetch(`/api/admin/listing/${listingId}/reject`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason }),
       });
@@ -2454,23 +2502,23 @@ function EnhancedListingsManagementTab() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings-with-stats"] });
       toast({ title: "Success", description: "Listing rejected" });
     },
   });
 
   const bulkActionMutation = useMutation({
     mutationFn: async ({ listingIds, action }: { listingIds: number[]; action: string }) => {
-      const response = await fetch(`/api/admin/listings/bulk-action`, {
+      const response = await fetch(`/api/admin/bulk-update-listings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listingIds, action }),
+        body: JSON.stringify({ listingIds, status: action }),
       });
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings-with-stats"] });
       setSelectedListings([]);
       setBulkAction("");
       toast({ title: "Success", description: "Bulk action completed successfully" });
@@ -2505,25 +2553,42 @@ function EnhancedListingsManagementTab() {
     );
   };
 
-  const handleSelectAll = () => {
-    if (selectedListings.length === filteredListings.length) {
-      setSelectedListings([]);
-    } else {
-      setSelectedListings(filteredListings.map(listing => listing.id));
-    }
+  // Filter handlers
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setPagination(prev => ({ ...prev, page: 1 })); // Reset to first page
   };
 
-  const filteredListings = listings.filter(listing => {
-    const matchesStatus = filterStatus === "all" || listing.status === filterStatus;
-    const matchesSearch = !searchTerm || 
-      listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      listing.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      listing.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      listing.seller.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      listing.seller.lastName.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesStatus && matchesSearch;
-  });
+  const handleSortChange = (sortBy: string) => {
+    setSorting(prev => ({
+      sortBy,
+      sortOrder: prev.sortBy === sortBy && prev.sortOrder === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      status: 'all',
+      sellerType: 'all', 
+      make: 'all',
+      model: 'all',
+      minPrice: '',
+      maxPrice: '',
+      location: 'all',
+      dateFrom: '',
+      dateTo: '',
+      search: ''
+    });
+    setPagination({ page: 1, limit: 50 });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedListings.length === listings.length) {
+      setSelectedListings([]);
+    } else {
+      setSelectedListings(listings.map((listing: any) => listing.id));
+    }
+  };
 
   const handleBulkAction = () => {
     if (bulkAction && selectedListings.length > 0) {
@@ -2532,232 +2597,366 @@ function EnhancedListingsManagementTab() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header with Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="flex gap-6">
+      {/* Filters Sidebar */}
+      <div className="w-80 space-y-6">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Listings</CardTitle>
+          <CardHeader>
+            <CardTitle className="text-lg">Filters</CardTitle>
+            <Button variant="outline" size="sm" onClick={clearFilters}>
+              Clear All
+            </Button>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{listings.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-yellow-600">Pending</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
-              {listings.filter(l => l.status === "pending").length}
+          <CardContent className="space-y-4">
+            {/* Search */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Search</label>
+              <Input
+                placeholder="Search listings, sellers..."
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+              />
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-green-600">Active</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {listings.filter(l => l.status === "active").length}
+
+            {/* Status Filter */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Status</label>
+              <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  {filterOptions?.statusOptions?.map((status: string) => (
+                    <SelectItem key={status} value={status}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-red-600">Suspended</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {listings.filter(l => l.status === "suspended").length}
+
+            {/* Seller Type Filter */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Seller Type</label>
+              <Select value={filters.sellerType} onValueChange={(value) => handleFilterChange('sellerType', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {filterOptions?.sellerTypes?.map((type: string) => (
+                    <SelectItem key={type} value={type}>
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Make Filter */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Make</label>
+              <Select value={filters.make} onValueChange={(value) => handleFilterChange('make', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Makes</SelectItem>
+                  {filterOptions?.makes?.map((make: string) => (
+                    <SelectItem key={make} value={make}>
+                      {make}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Location Filter */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Location</label>
+              <Select value={filters.location} onValueChange={(value) => handleFilterChange('location', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Locations</SelectItem>
+                  {filterOptions?.locations?.map((location: string) => (
+                    <SelectItem key={location} value={location}>
+                      {location}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Price Range */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Price Range (KES)</label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Min"
+                  type="number"
+                  value={filters.minPrice}
+                  onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                />
+                <Input
+                  placeholder="Max"
+                  type="number"
+                  value={filters.maxPrice}
+                  onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Date Range */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Date Range</label>
+              <div className="space-y-2">
+                <Input
+                  placeholder="From"
+                  type="date"
+                  value={filters.dateFrom}
+                  onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                />
+                <Input
+                  placeholder="To"
+                  type="date"
+                  value={filters.dateTo}
+                  onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters and Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filters & Actions
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Status:</label>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="suspended">Suspended</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Search:</label>
-              <Input
-                placeholder="Search listings..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-64"
-              />
-            </div>
-
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Bulk Actions */}
-      {selectedListings.length > 0 && (
+      {/* Main Content */}
+      <div className="flex-1">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckSquare className="h-5 w-5" />
-              Bulk Actions ({selectedListings.length} selected)
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Car className="h-5 w-5" />
+                  Listings Management
+                </CardTitle>
+                <CardDescription>
+                  {paginationInfo && `Showing ${((paginationInfo.page - 1) * paginationInfo.limit) + 1}-${Math.min(paginationInfo.page * paginationInfo.limit, paginationInfo.total)} of ${paginationInfo.total} listings`}
+                </CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setSorting(prev => ({ ...prev, sortOrder: prev.sortOrder === 'asc' ? 'desc' : 'asc' }))}>
+                  {sorting.sortOrder === 'asc' ? '↑' : '↓'} Sort
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-4">
-              <Select value={bulkAction} onValueChange={setBulkAction}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Select action" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="approve">Approve</SelectItem>
-                  <SelectItem value="reject">Reject</SelectItem>
-                  <SelectItem value="suspend">Suspend</SelectItem>
-                  <SelectItem value="archive">Archive</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button 
-                onClick={handleBulkAction}
-                disabled={!bulkAction || bulkActionMutation.isPending}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                Apply to {selectedListings.length} listing{selectedListings.length !== 1 ? 's' : ''}
-              </Button>
-              <Button 
-                onClick={() => setSelectedListings([])}
-                variant="outline"
-              >
-                Clear Selection
-              </Button>
+            <div className="space-y-6">
+              {/* Bulk Actions */}
+              {selectedListings.length > 0 && (
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <span className="font-medium">{selectedListings.length} listing(s) selected</span>
+                    <Select value={bulkAction} onValueChange={setBulkAction}>
+                      <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Select action" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Set Active</SelectItem>
+                        <SelectItem value="inactive">Set Inactive</SelectItem>
+                        <SelectItem value="pending">Set Pending</SelectItem>
+                        <SelectItem value="rejected">Reject</SelectItem>
+                        <SelectItem value="archived">Archive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button 
+                      onClick={handleBulkAction}
+                      disabled={!bulkAction || bulkActionMutation.isPending}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      Apply
+                    </Button>
+                    <Button 
+                      onClick={() => setSelectedListings([])}
+                      variant="outline"
+                    >
+                      Clear Selection
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Sorting Controls */}
+              <div className="flex gap-2 flex-wrap">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleSortChange('createdAt')}
+                  className={sorting.sortBy === 'createdAt' ? 'bg-purple-100' : ''}
+                >
+                  Date {sorting.sortBy === 'createdAt' && (sorting.sortOrder === 'asc' ? '↑' : '↓')}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleSortChange('price')}
+                  className={sorting.sortBy === 'price' ? 'bg-purple-100' : ''}
+                >
+                  Price {sorting.sortBy === 'price' && (sorting.sortOrder === 'asc' ? '↑' : '↓')}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleSortChange('viewCount')}
+                  className={sorting.sortBy === 'viewCount' ? 'bg-purple-100' : ''}
+                >
+                  Views {sorting.sortBy === 'viewCount' && (sorting.sortOrder === 'asc' ? '↑' : '↓')}
+                </Button>
+              </div>
+
+              {/* Listings */}
+              {isLoading ? (
+                <div className="text-center py-8">Loading listings...</div>
+              ) : listings.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">No listings found</div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Checkbox
+                      checked={selectedListings.length === listings.length}
+                      onCheckedChange={handleSelectAll}
+                    />
+                    <span className="text-sm text-gray-600">Select All</span>
+                  </div>
+                  
+                  {listings.map((listing: any) => (
+                    <div key={listing.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex items-start gap-4">
+                        <Checkbox
+                          checked={selectedListings.includes(listing.id)}
+                          onCheckedChange={() => handleSelectListing(listing.id)}
+                        />
+                        
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold text-lg">{listing.title}</h3>
+                            <Badge className={`${getStatusColor(listing.status)} text-white`}>
+                              {getStatusText(listing.status)}
+                            </Badge>
+                            {listing.isFlagged && (
+                              <Badge variant="destructive">Flagged</Badge>
+                            )}
+                            {listing.isVerified && (
+                              <Badge variant="default" className="bg-green-600">Verified</Badge>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <span className="font-medium">Price:</span> KES {Number(listing.price).toLocaleString()}
+                            </div>
+                            <div>
+                              <span className="font-medium">Make:</span> {listing.make}
+                            </div>
+                            <div>
+                              <span className="font-medium">Model:</span> {listing.model}
+                            </div>
+                            <div>
+                              <span className="font-medium">Year:</span> {listing.year}
+                            </div>
+                            <div>
+                              <span className="font-medium">Views:</span> {listing.viewCount || 0}
+                            </div>
+                            <div>
+                              <span className="font-medium">Favorites:</span> {listing.favoriteCount || 0}
+                            </div>
+                            <div>
+                              <span className="font-medium">Location:</span> {listing.location}
+                            </div>
+                            <div>
+                              <span className="font-medium">Listed:</span> {new Date(listing.createdAt).toLocaleDateString()}
+                            </div>
+                          </div>
+                          <div className="mt-2 text-sm text-gray-600">
+                            <span className="font-medium">Seller:</span> {listing.sellerFirstName} {listing.sellerLastName} ({listing.sellerEmail})
+                            {listing.sellerRoleId > 1 && (
+                              <Badge variant="outline" className="ml-2">Premium</Badge>
+                            )}
+                          </div>
+                          {listing.flagReason && (
+                            <div className="mt-2 text-sm text-red-600">
+                              <span className="font-medium">Flag Reason:</span> {listing.flagReason}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(`/admin/listing-details/${listing.id}`, '_blank')}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
+                          {listing.status === "pending" && (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={() => approveListingMutation.mutate({ listingId: listing.id })}
+                                disabled={approveListingMutation.isPending}
+                              >
+                                <Check className="h-4 w-4 mr-1" />
+                                Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => rejectListingMutation.mutate({ listingId: listing.id, reason: "Rejected by admin" })}
+                                disabled={rejectListingMutation.isPending}
+                              >
+                                <X className="h-4 w-4 mr-1" />
+                                Reject
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Pagination */}
+              {paginationInfo && paginationInfo.pages > 1 && (
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-600">
+                    Page {paginationInfo.page} of {paginationInfo.pages}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={paginationInfo.page <= 1}
+                      onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={paginationInfo.page >= paginationInfo.pages}
+                      onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* Listings Table */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Car className="h-5 w-5" />
-              Listings ({filteredListings.length})
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                checked={selectedListings.length === filteredListings.length}
-                onCheckedChange={handleSelectAll}
-              />
-              <span className="text-sm text-gray-600">Select All</span>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-center py-8">Loading listings...</div>
-          ) : filteredListings.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">No listings found</div>
-          ) : (
-            <div className="space-y-4">
-              {filteredListings.map((listing) => (
-                <div key={listing.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-start gap-4">
-                    <Checkbox
-                      checked={selectedListings.includes(listing.id)}
-                      onCheckedChange={() => handleSelectListing(listing.id)}
-                    />
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-lg">{listing.title}</h3>
-                        <Badge className={`${getStatusColor(listing.status)} text-white`}>
-                          {getStatusText(listing.status)}
-                        </Badge>
-                      </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <span className="font-medium">Price:</span> KES {listing.price.toLocaleString()}
-                        </div>
-                        <div>
-                          <span className="font-medium">Make:</span> {listing.make}
-                        </div>
-                        <div>
-                          <span className="font-medium">Model:</span> {listing.model}
-                        </div>
-                        <div>
-                          <span className="font-medium">Year:</span> {listing.year}
-                        </div>
-                      </div>
-                      <div className="mt-2 text-sm text-gray-600">
-                        <span className="font-medium">Seller:</span> {listing.seller.firstName} {listing.seller.lastName} ({listing.seller.email})
-                      </div>
-                      {listing.approval && (
-                        <div className="mt-2 text-sm">
-                          <span className="font-medium">Approval Status:</span> {listing.approval.status}
-                          {listing.approval.reviewNotes && (
-                            <div className="text-gray-600 mt-1">Notes: {listing.approval.reviewNotes}</div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      {listing.status === "pending" && (
-                        <>
-                          <Button
-                            size="sm"
-                            onClick={() => approveListingMutation.mutate({ listingId: listing.id })}
-                            disabled={approveListingMutation.isPending}
-                          >
-                            <Check className="h-4 w-4 mr-1" />
-                            Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => rejectListingMutation.mutate({ listingId: listing.id, reason: "Rejected by admin" })}
-                            disabled={rejectListingMutation.isPending}
-                          >
-                            <X className="h-4 w-4 mr-1" />
-                            Reject
-                          </Button>
-                        </>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => window.location.href = `/admin/listings/${listing.id}`}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }

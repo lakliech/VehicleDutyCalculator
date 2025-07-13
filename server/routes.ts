@@ -493,23 +493,189 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Listing Management with Advanced Filtering
+  // Enhanced Listing Management with Comprehensive Filtering and Sorting
   app.get('/api/admin/listings-with-stats', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
-      const { status, make, seller, flagged, sortBy, page, limit } = req.query;
-      
-      const filters = {
-        status: status as string,
-        make: make as string,
-        seller: seller as string,
-        flagged: flagged === 'true',
-        sortBy: sortBy as string,
-        page: page ? parseInt(page as string) : 1,
-        limit: limit ? parseInt(limit as string) : 20,
-      };
+      const { 
+        status, 
+        sellerType, 
+        make, 
+        model, 
+        minPrice, 
+        maxPrice, 
+        location, 
+        dateFrom, 
+        dateTo,
+        sortBy = 'createdAt',
+        sortOrder = 'desc',
+        page = '1',
+        limit = '50',
+        search
+      } = req.query;
 
-      const result = await storage.getListingsWithStats(filters);
-      res.json(result);
+      let query = db.select({
+        id: carListings.id,
+        sellerId: carListings.sellerId,
+        title: carListings.title,
+        make: carListings.make,
+        model: carListings.model,
+        year: carListings.year,
+        price: carListings.price,
+        status: carListings.status,
+        location: carListings.location,
+        createdAt: carListings.createdAt,
+        updatedAt: carListings.updatedAt,
+        viewCount: carListings.viewCount,
+        favoriteCount: carListings.favoriteCount,
+        isFlagged: carListings.isFlagged,
+        flagReason: carListings.flagReason,
+        isVerified: carListings.isVerified,
+        featured: carListings.featured,
+        mileage: carListings.mileage,
+        fuelType: carListings.fuelType,
+        bodyType: carListings.bodyType,
+        engineSize: carListings.engineSize,
+        transmission: carListings.transmission,
+        condition: carListings.condition,
+        sellerFirstName: appUsers.firstName,
+        sellerLastName: appUsers.lastName,
+        sellerEmail: appUsers.email,
+        sellerPhone: appUsers.phoneNumber,
+        sellerRoleId: appUsers.roleId
+      })
+      .from(carListings)
+      .leftJoin(appUsers, eq(carListings.sellerId, appUsers.id));
+
+      // Apply filters
+      const conditions = [];
+
+      if (status && status !== 'all') {
+        conditions.push(eq(carListings.status, status as string));
+      }
+
+      if (make && make !== 'all') {
+        conditions.push(eq(carListings.make, make as string));
+      }
+
+      if (model && model !== 'all') {
+        conditions.push(eq(carListings.model, model as string));
+      }
+
+      if (minPrice) {
+        conditions.push(sql`${carListings.price}::numeric >= ${parseFloat(minPrice as string)}`);
+      }
+
+      if (maxPrice) {
+        conditions.push(sql`${carListings.price}::numeric <= ${parseFloat(maxPrice as string)}`);
+      }
+
+      if (location && location !== 'all') {
+        conditions.push(sql`${carListings.location} ILIKE ${'%' + location + '%'}`);
+      }
+
+      if (dateFrom) {
+        conditions.push(sql`${carListings.createdAt} >= ${new Date(dateFrom as string)}`);
+      }
+
+      if (dateTo) {
+        conditions.push(sql`${carListings.createdAt} <= ${new Date(dateTo as string)}`);
+      }
+
+      if (search) {
+        conditions.push(sql`(
+          ${carListings.title} ILIKE ${'%' + search + '%'} OR 
+          ${carListings.make} ILIKE ${'%' + search + '%'} OR 
+          ${carListings.model} ILIKE ${'%' + search + '%'} OR
+          ${appUsers.firstName} ILIKE ${'%' + search + '%'} OR
+          ${appUsers.lastName} ILIKE ${'%' + search + '%'} OR
+          ${appUsers.email} ILIKE ${'%' + search + '%'}
+        )`);
+      }
+
+      if (sellerType === 'verified') {
+        conditions.push(eq(carListings.isVerified, true));
+      } else if (sellerType === 'flagged') {
+        conditions.push(eq(carListings.isFlagged, true));
+      } else if (sellerType === 'featured') {
+        conditions.push(eq(carListings.featured, true));
+      } else if (sellerType === 'premium') {
+        conditions.push(sql`${appUsers.roleId} > 1`);
+      }
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+
+      // Apply sorting
+      const validSortFields = ['createdAt', 'updatedAt', 'price', 'viewCount', 'favoriteCount', 'year', 'make', 'model', 'mileage'];
+      const sortField = validSortFields.includes(sortBy as string) ? sortBy as string : 'createdAt';
+      const order = sortOrder === 'asc' ? 'asc' : 'desc';
+      
+      if (sortField === 'price') {
+        query = query.orderBy(order === 'asc' ? sql`${carListings.price}::numeric ASC` : sql`${carListings.price}::numeric DESC`);
+      } else if (sortField === 'mileage') {
+        query = query.orderBy(order === 'asc' ? asc(carListings.mileage) : desc(carListings.mileage));
+      } else {
+        const column = carListings[sortField as keyof typeof carListings];
+        query = query.orderBy(order === 'asc' ? asc(column) : desc(column));
+      }
+
+      // Apply pagination
+      const pageNum = Math.max(1, parseInt(page as string));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit as string)));
+      const offset = (pageNum - 1) * limitNum;
+
+      query = query.limit(limitNum).offset(offset);
+
+      const listings = await query;
+
+      // Get total count for pagination
+      let countQuery = db.select({ count: sql`count(*)` })
+        .from(carListings)
+        .leftJoin(appUsers, eq(carListings.sellerId, appUsers.id));
+
+      if (conditions.length > 0) {
+        countQuery = countQuery.where(and(...conditions));
+      }
+
+      const totalCountResult = await countQuery;
+      const totalCount = parseInt(totalCountResult[0]?.count as string) || 0;
+
+      // Get filter options for UI
+      const makes = await db.selectDistinct({ make: carListings.make })
+        .from(carListings)
+        .where(sql`${carListings.make} IS NOT NULL`)
+        .orderBy(carListings.make);
+
+      const models = await db.selectDistinct({ 
+        make: carListings.make,
+        model: carListings.model 
+      })
+        .from(carListings)
+        .where(sql`${carListings.make} IS NOT NULL AND ${carListings.model} IS NOT NULL`)
+        .orderBy(carListings.make, carListings.model);
+
+      const locations = await db.selectDistinct({ location: carListings.location })
+        .from(carListings)
+        .where(sql`${carListings.location} IS NOT NULL`)
+        .orderBy(carListings.location);
+
+      res.json({
+        listings,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total: totalCount,
+          pages: Math.ceil(totalCount / limitNum)
+        },
+        filters: {
+          makes: makes.map(m => m.make),
+          models: models,
+          locations: locations.map(l => l.location),
+          statusOptions: ['pending', 'active', 'inactive', 'rejected', 'archived'],
+          sellerTypes: ['all', 'verified', 'flagged', 'featured', 'premium']
+        }
+      });
     } catch (error) {
       console.error('Listings with stats error:', error);
       res.status(500).json({ error: 'Failed to load listings' });
@@ -711,26 +877,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/flagging-stats', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
-      // Get total flagged listings
+      // Get total flagged listings (using car_listings table)
       const totalFlags = await db.select({ count: sql`count(*)` })
-        .from(listingFlags);
+        .from(carListings)
+        .where(eq(carListings.isFlagged, true));
 
       // Get flagging activity in last 30 days
       const recentFlags = await db.select({ count: sql`count(*)` })
-        .from(listingFlags)
-        .where(sql`created_at >= now() - interval '30 days'`);
+        .from(carListings)
+        .where(sql`${carListings.isFlagged} = true AND ${carListings.flaggedAt} >= now() - interval '30 days'`);
 
       // Get automated actions count
       const automatedActions = await db.select({ count: sql`count(*)` })
         .from(automatedActionsLog);
 
-      // Get top flag reasons
-      const topReasons = await db.select({
-        flagType: listingFlags.flagType,
+      // Get flag reasons count
+      const flagReasons = await db.select({
+        flagReason: carListings.flagReason,
         count: sql`count(*)`
       })
-        .from(listingFlags)
-        .groupBy(listingFlags.flagType)
+        .from(carListings)
+        .where(sql`${carListings.flagReason} IS NOT NULL`)
+        .groupBy(carListings.flagReason)
         .orderBy(sql`count(*) desc`)
         .limit(5);
 
@@ -738,7 +906,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalFlags: totalFlags[0]?.count || 0,
         recentFlags: recentFlags[0]?.count || 0,
         automatedActions: automatedActions[0]?.count || 0,
-        topReasons
+        topReasons: flagReasons
       });
     } catch (error) {
       console.error('Get flagging stats error:', error);

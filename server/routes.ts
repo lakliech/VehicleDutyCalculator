@@ -1220,19 +1220,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/listings/:id/meta", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {
       const listingId = parseInt(req.params.id);
-      console.log('Meta update request data:', JSON.stringify(req.body, null, 2));
-      
       const validation = adminMetaUpdateSchema.safeParse(req.body);
       
       if (!validation.success) {
-        console.log('Validation failed:', validation.error.issues);
         return res.status(400).json({ 
           error: "Invalid input data", 
           details: validation.error.issues 
         });
       }
 
-      console.log('Validation successful, updating listing:', listingId);
       const updatedListing = await storage.updateListingMeta(listingId, validation.data, req.user.id);
       res.json(updatedListing);
     } catch (error) {

@@ -4694,7 +4694,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           listingId,
           date: today,
           phoneClicks: 1,
-          views: 0,
+          totalViews: 0,
           messagesSent: 0,
           favorites: 0,
           shares: 0
@@ -4849,7 +4849,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           listingId,
           date: today,
           messagesSent: 1,
-          views: 0,
+          totalViews: 0,
           phoneClicks: 0,
           favorites: 0,
           shares: 0
@@ -5396,7 +5396,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         .select({
           listingId: dailyListingAnalytics.listingId,
           date: dailyListingAnalytics.date,
-          views: dailyListingAnalytics.views,
+          views: dailyListingAnalytics.totalViews,
           phoneClicks: dailyListingAnalytics.phoneClicks,
           messagesSent: dailyListingAnalytics.messagesSent,
           favorites: dailyListingAnalytics.favorites,

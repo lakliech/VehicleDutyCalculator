@@ -5228,49 +5228,38 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         
         await db.execute(sql`
           INSERT INTO daily_listing_analytics (
-            listing_id, date, views, unique_visitors, phone_clicks, 
-            messages_sent, favorites, shares, impressions, click_through_rate,
-            average_time_spent, test_drive_requests, device_breakdown,
-            location_breakdown, traffic_sources, active_hours
+            listing_id, date, total_views, unique_visitors, phone_clicks, 
+            inquiries, favorites, shares, impressions, click_through_rate,
+            device_mobile, device_desktop, device_tablet,
+            location_nairobi, location_mombasa, location_kisumu, location_other, 
+            peak_hour_morning, peak_hour_afternoon, peak_hour_evening
           ) VALUES (
             ${listingId}, ${date}, ${views}, ${uniqueVisitors}, ${phoneClicks},
             ${messagesSent}, ${favorites}, ${shares}, ${impressions}, 
-            ${(views / impressions).toFixed(4)}, ${Math.floor(Math.random() * 180) + 60},
-            ${Math.floor(Math.random() * 2)},
-            ${JSON.stringify({
-              mobile: Math.floor(views * 0.6),
-              desktop: Math.floor(views * 0.3),
-              tablet: Math.floor(views * 0.1)
-            })},
-            ${JSON.stringify({
-              "Nairobi": Math.floor(views * 0.4),
-              "Mombasa": Math.floor(views * 0.2),
-              "Kisumu": Math.floor(views * 0.15),
-              "Nakuru": Math.floor(views * 0.15),
-              "Other": Math.floor(views * 0.1)
-            })},
-            ${JSON.stringify({
-              organic: Math.floor(views * 0.5),
-              direct: Math.floor(views * 0.3),
-              referral: Math.floor(views * 0.2)
-            })},
-            ${JSON.stringify({
-              "9-12": Math.floor(views * 0.25),
-              "12-15": Math.floor(views * 0.35),
-              "15-18": Math.floor(views * 0.3),
-              "18-21": Math.floor(views * 0.1)
-            })}
+            ${(views / impressions).toFixed(4)},
+            ${Math.floor(views * 0.6)}, ${Math.floor(views * 0.3)}, ${Math.floor(views * 0.1)},
+            ${Math.floor(views * 0.4)}, ${Math.floor(views * 0.2)}, ${Math.floor(views * 0.15)}, ${Math.floor(views * 0.25)},
+            ${Math.floor(views * 0.25)}, ${Math.floor(views * 0.35)}, ${Math.floor(views * 0.3)}
           )
           ON CONFLICT (listing_id, date) DO UPDATE SET
-            views = EXCLUDED.views,
+            total_views = EXCLUDED.total_views,
             unique_visitors = EXCLUDED.unique_visitors,
             phone_clicks = EXCLUDED.phone_clicks,
-            messages_sent = EXCLUDED.messages_sent,
+            inquiries = EXCLUDED.inquiries,
             favorites = EXCLUDED.favorites,
             shares = EXCLUDED.shares,
             impressions = EXCLUDED.impressions,
             click_through_rate = EXCLUDED.click_through_rate,
-            average_time_spent = EXCLUDED.average_time_spent,
+            device_mobile = EXCLUDED.device_mobile,
+            device_desktop = EXCLUDED.device_desktop,
+            device_tablet = EXCLUDED.device_tablet,
+            location_nairobi = EXCLUDED.location_nairobi,
+            location_mombasa = EXCLUDED.location_mombasa,
+            location_kisumu = EXCLUDED.location_kisumu,
+            location_other = EXCLUDED.location_other,
+            peak_hour_morning = EXCLUDED.peak_hour_morning,
+            peak_hour_afternoon = EXCLUDED.peak_hour_afternoon,
+            peak_hour_evening = EXCLUDED.peak_hour_evening,
             updated_at = NOW()
         `);
       }

@@ -103,17 +103,7 @@ export function Navigation() {
                             </Badge>
                           )}
                         </Link>
-                        <Link href="/my-messages" className="flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                          <div className="flex items-center">
-                            <MessageCircle className="mr-2 h-4 w-4" />
-                            <span>My Messages</span>
-                          </div>
-                          {messagingStats?.unreadCount && messagingStats.unreadCount > 0 && (
-                            <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                              {messagingStats.unreadCount > 99 ? '99+' : messagingStats.unreadCount}
-                            </Badge>
-                          )}
-                        </Link>
+
                         {/* Admin Dashboard for users with admin role */}
                         {(() => {
                           const userRole = (user as any)?.role;

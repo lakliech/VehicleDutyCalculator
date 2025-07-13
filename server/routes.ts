@@ -625,14 +625,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/admin/listing/:id/flag', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const listingId = parseInt(req.params.id);
-      const { reason } = req.body;
+      const { reason, notes } = req.body;
       const adminId = req.user.id;
       
       if (!reason) {
         return res.status(400).json({ error: 'Flag reason is required' });
       }
       
-      await storage.flagListing(listingId, adminId, reason);
+      await storage.flagListing(listingId, adminId, reason, notes);
       
       res.json({ 
         success: true, 

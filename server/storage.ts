@@ -98,7 +98,7 @@ export interface IStorage {
   getUserHistory(userId: string): Promise<{ listings: CarListing[]; warnings: any[]; activities: UserActivity[]; }>;
   
   // Enhanced listing management methods
-  flagListing(listingId: number, adminId: string, reason: string): Promise<void>;
+  flagListing(listingId: number, adminId: string, reason: string, notes?: string): Promise<void>;
   unflagListing(listingId: number, adminId: string): Promise<void>;
   // Remove this - replaced with getListingById
   addAdminNote(listingId: number, adminId: string, note: string): Promise<void>;
@@ -1390,17 +1390,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Enhanced listing management methods implementation
-  async flagListing(listingId: number, adminId: string, reason: string): Promise<void> {
+  async flagListing(listingId: number, adminId: string, reason: string, notes?: string): Promise<void> {
+    const flagData: any = { 
+      isFlagged: true, 
+      flagReason: reason, 
+      flaggedAt: new Date(),
+      flaggedBy: adminId 
+    };
+    
+    // If notes are provided, append them to the reason
+    if (notes && notes.trim()) {
+      flagData.flagReason = `${reason} - Additional notes: ${notes.trim()}`;
+    }
+    
     await db.update(carListings)
-      .set({ 
-        isFlagged: true, 
-        flagReason: reason, 
-        flaggedAt: new Date(),
-        flaggedBy: adminId 
-      })
+      .set(flagData)
       .where(eq(carListings.id, listingId));
     
-    await this.logUserActivity(adminId, 'flag_listing', 'listing', listingId.toString(), `Flagged listing: ${reason}`);
+    await this.logUserActivity(adminId, 'flag_listing', 'listing', listingId.toString(), `Flagged listing: ${flagData.flagReason}`);
   }
 
   async unflagListing(listingId: number, adminId: string): Promise<void> {

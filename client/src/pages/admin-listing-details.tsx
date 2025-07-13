@@ -803,15 +803,210 @@ export default function AdminListingDetails() {
                     </DialogContent>
                   </Dialog>
 
-                  <Button
-                    variant="outline"
-                    className="w-full flex items-center gap-2"
-                    onClick={() => flagMutation.mutate({ reason: flagReason })}
-                    disabled={flagMutation.isPending}
-                  >
-                    <Flag className="w-4 h-4" />
-                    {flagMutation.isPending ? "Flagging..." : "Flag Listing"}
-                  </Button>
+                  <Dialog open={isFlagOpen} onOpenChange={setIsFlagOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full flex items-center gap-2"
+                      >
+                        <Flag className="w-4 h-4" />
+                        Flag Listing
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Flag Listing - Report Issue</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-6">
+                        <div className="text-sm text-gray-600">
+                          Please select the most appropriate reason for flagging this listing. This helps maintain platform quality and user trust.
+                        </div>
+                        
+                        {/* Content Issues */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 font-medium text-purple-700">
+                            <ImageIcon className="w-4 h-4" />
+                            Content Issues
+                          </div>
+                          <div className="grid gap-2 ml-6">
+                            {[
+                              'Inappropriate or offensive images',
+                              'Blurry or low-quality photos',
+                              'Stolen or copyrighted images',
+                              'Watermarked images from another platform',
+                              'Misleading vehicle photos (not matching title/specs)'
+                            ].map(reason => (
+                              <label key={reason} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="flagReason"
+                                  value={reason}
+                                  checked={flagReason === reason}
+                                  onChange={(e) => setFlagReason(e.target.value)}
+                                  className="text-purple-600"
+                                />
+                                <span className="text-sm">{reason}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Misleading Information */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 font-medium text-purple-700">
+                            <X className="w-4 h-4" />
+                            Misleading or False Information
+                          </div>
+                          <div className="grid gap-2 ml-6">
+                            {[
+                              'Incorrect make, model, or year',
+                              'Fake mileage or tampered odometer',
+                              'Wrong price (e.g., 1 KES for a Lexus LX 2023)',
+                              'Listing vehicle that doesn\'t exist',
+                              'Misrepresentation (e.g., calling a damaged car "new")'
+                            ].map(reason => (
+                              <label key={reason} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="flagReason"
+                                  value={reason}
+                                  checked={flagReason === reason}
+                                  onChange={(e) => setFlagReason(e.target.value)}
+                                  className="text-purple-600"
+                                />
+                                <span className="text-sm">{reason}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Suspicious Activity */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 font-medium text-purple-700">
+                            <Flag className="w-4 h-4" />
+                            Suspicious or Fraudulent Activity
+                          </div>
+                          <div className="grid gap-2 ml-6">
+                            {[
+                              'Scam or phishing attempt',
+                              'Request for upfront payment or deposit',
+                              'Duplicate listing (posted multiple times)',
+                              'Stolen vehicle suspected',
+                              'VIN or registration does not match details'
+                            ].map(reason => (
+                              <label key={reason} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="flagReason"
+                                  value={reason}
+                                  checked={flagReason === reason}
+                                  onChange={(e) => setFlagReason(e.target.value)}
+                                  className="text-purple-600"
+                                />
+                                <span className="text-sm">{reason}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Seller Behavior */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 font-medium text-purple-700">
+                            <User className="w-4 h-4" />
+                            Seller Behavior
+                          </div>
+                          <div className="grid gap-2 ml-6">
+                            {[
+                              'Seller not responding or unreachable',
+                              'Rude, abusive, or threatening communication',
+                              'Seller requested off-platform transaction',
+                              'Seller using fake name or contact details',
+                              'Impersonating a dealer or another user'
+                            ].map(reason => (
+                              <label key={reason} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="flagReason"
+                                  value={reason}
+                                  checked={flagReason === reason}
+                                  onChange={(e) => setFlagReason(e.target.value)}
+                                  className="text-purple-600"
+                                />
+                                <span className="text-sm">{reason}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Platform Policy Violations */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 font-medium text-purple-700">
+                            <Settings className="w-4 h-4" />
+                            Platform Policy Violations
+                          </div>
+                          <div className="grid gap-2 ml-6">
+                            {[
+                              'Banned item or vehicle type (e.g., commercial vehicles if not allowed)',
+                              'Prohibited keywords in title/description',
+                              'Links to external websites or ads',
+                              'Spamming multiple listings with minor changes',
+                              'Attempt to bypass platform fees or verification'
+                            ].map(reason => (
+                              <label key={reason} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="flagReason"
+                                  value={reason}
+                                  checked={flagReason === reason}
+                                  onChange={(e) => setFlagReason(e.target.value)}
+                                  className="text-purple-600"
+                                />
+                                <span className="text-sm">{reason}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Additional Notes */}
+                        <div className="space-y-2">
+                          <Label htmlFor="flagNotes">Additional Notes (Optional)</Label>
+                          <Textarea
+                            id="flagNotes"
+                            placeholder="Provide any additional details that would help us understand the issue..."
+                            rows={3}
+                            value={adminNote}
+                            onChange={(e) => setAdminNote(e.target.value)}
+                          />
+                        </div>
+
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" onClick={() => setIsFlagOpen(false)}>
+                            Cancel
+                          </Button>
+                          <Button 
+                            onClick={() => {
+                              if (!flagReason) {
+                                toast({ 
+                                  title: "Error", 
+                                  description: "Please select a reason for flagging", 
+                                  variant: "destructive" 
+                                });
+                                return;
+                              }
+                              flagMutation.mutate({ 
+                                reason: flagReason,
+                                notes: adminNote 
+                              });
+                            }}
+                            disabled={flagMutation.isPending || !flagReason}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            {flagMutation.isPending ? "Flagging..." : "Flag Listing"}
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
 
                   {listingData.status === 'pending' && (
                     <>

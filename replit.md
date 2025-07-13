@@ -486,6 +486,15 @@ Changelog:
   - Removed "flagged", "sold", and "verified" status options from admin interface dropdown per user request
   - Updated status options to: pending, active, inactive, rejected, archived
   - Enhanced admin listing details page with proper status validation and error handling
+- January 13, 2025. Enhanced flag listing implementation with comprehensive reason categories:
+  - Created comprehensive flag dialog with 25 detailed reason options across 5 categories
+  - Added Content Issues: inappropriate images, blurry photos, stolen images, watermarked content, misleading photos
+  - Added Misleading Information: incorrect specs, fake mileage, wrong pricing, non-existent vehicles, misrepresentation
+  - Added Suspicious Activity: scams, upfront payments, duplicates, stolen vehicles, VIN mismatches
+  - Added Seller Behavior: unresponsive sellers, rude communication, off-platform requests, fake details, impersonation
+  - Added Platform Violations: banned items, prohibited keywords, external links, spam listings, fee bypass attempts
+  - Enhanced backend to capture additional notes with flag reasons for better context
+  - Updated flag mutation to support detailed reason selection and optional administrative notes
 
 ## User Preferences
 

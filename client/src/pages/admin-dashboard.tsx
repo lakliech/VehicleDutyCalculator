@@ -3389,14 +3389,29 @@ function UsersManagementTab() {
   );
 }
 
-// User Details Modal Component
+// Enhanced User Profile Management Modal
 function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => void }) {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [showSuspendDialog, setShowSuspendDialog] = useState(false);
+  const [showRoleDialog, setShowRoleDialog] = useState(false);
+  
   const { data: userDetails, isLoading } = useQuery<{
     listings: any[];
     warnings: any[];
     activities: any[];
   }>({
     queryKey: [`/api/admin/user/${userId}/history`],
+  });
+
+  // Get user info from users list
+  const { data: usersData } = useQuery({
+    queryKey: ["/api/admin/users-management"],
+  });
+
+  const currentUser = usersData?.users?.find((u: any) => u.id === userId);
+
+  const { data: rolesData } = useQuery({
+    queryKey: ["/api/admin/roles"],
   });
 
   const queryClient = useQueryClient();
@@ -3414,28 +3429,46 @@ function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => 
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users-management"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/user", userId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/user/${userId}/history`] });
       toast({ title: "Success", description: "User suspended successfully" });
-      onClose();
+      setShowSuspendDialog(false);
+    },
+  });
+
+  const updateRoleMutation = useMutation({
+    mutationFn: async (roleId: number) => {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roleId }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users-management"] });
+      toast({ title: "Success", description: "User role updated successfully" });
+      setShowRoleDialog(false);
     },
   });
 
   if (isLoading) {
     return (
       <Dialog open={true} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl">
-          <div className="text-center py-8">Loading user details...</div>
+        <DialogContent className="max-w-6xl max-h-[90vh]">
+          <DialogTitle>Loading User Profile</DialogTitle>
+          <div className="text-center py-8">Loading user profile...</div>
         </DialogContent>
       </Dialog>
     );
   }
 
-  if (!userDetails) {
+  if (!userDetails || !currentUser) {
     return (
       <Dialog open={true} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl">
-          <DialogTitle>User Details</DialogTitle>
-          <div className="text-center py-8 text-red-500">Failed to load user details</div>
+        <DialogContent className="max-w-6xl">
+          <DialogTitle>User Profile</DialogTitle>
+          <div className="text-center py-8 text-red-500">Failed to load user profile</div>
         </DialogContent>
       </Dialog>
     );
@@ -3443,112 +3476,387 @@ function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => 
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            User History and Details
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
+        <DialogHeader className="border-b pb-4">
+          <DialogTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={currentUser.profilePicture} />
+                <AvatarFallback className="bg-purple-500 text-white">
+                  {currentUser.firstName?.[0]}{currentUser.lastName?.[0]}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h2 className="text-xl font-semibold">{currentUser.firstName} {currentUser.lastName}</h2>
+                <p className="text-sm text-gray-600">{currentUser.email}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge className={currentUser.status === 'active' ? 'bg-green-500' : 'bg-red-500'}>
+                {currentUser.status}
+              </Badge>
+              <Badge className="bg-purple-500">{currentUser.role?.name || 'No Role'}</Badge>
+            </div>
           </DialogTitle>
         </DialogHeader>
-        
-        <div className="grid grid-cols-1 gap-6">
-          {/* User Listings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">User Listings ({userDetails.listings?.length || 0})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {userDetails.listings && userDetails.listings.length > 0 ? (
-                <div className="space-y-3">
-                  {userDetails.listings.slice(0, 5).map((listing: any) => (
-                    <div key={listing.id} className="border p-3 rounded">
-                      <div className="font-medium">{listing.title}</div>
-                      <div className="text-sm text-gray-600">
-                        KES {listing.price?.toLocaleString()} • {listing.status}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Created: {new Date(listing.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                  ))}
-                  {userDetails.listings.length > 5 && (
-                    <div className="text-sm text-gray-500">
-                      ... and {userDetails.listings.length - 5} more listings
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-gray-500">No listings found</div>
-              )}
-            </CardContent>
-          </Card>
 
-          {/* User Warnings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Warnings & Flags ({userDetails.warnings?.length || 0})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {userDetails.warnings && userDetails.warnings.length > 0 ? (
-                <div className="space-y-3">
-                  {userDetails.warnings.slice(0, 5).map((warning: any, index: number) => (
-                    <div key={index} className="border-l-4 border-red-500 pl-3 py-2">
-                      <div className="font-medium text-red-600">{warning.type || 'Warning'}</div>
-                      <div className="text-sm text-gray-600">{warning.reason || warning.message}</div>
-                      <div className="text-xs text-gray-500">
-                        {warning.createdAt ? new Date(warning.createdAt).toLocaleDateString() : 'Unknown date'}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-gray-500">No warnings or flags</div>
-              )}
-            </CardContent>
-          </Card>
+        {/* Quick Admin Actions Bar */}
+        <div className="flex gap-2 py-3 border-b">
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={() => setShowRoleDialog(true)}
+            className="flex items-center gap-2"
+          >
+            <Shield className="h-4 w-4" />
+            Change Role
+          </Button>
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={() => setShowSuspendDialog(true)}
+            className="flex items-center gap-2"
+          >
+            <Ban className="h-4 w-4" />
+            Suspend User
+          </Button>
+          <Button 
+            size="sm" 
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Mail className="h-4 w-4" />
+            Send Message
+          </Button>
+          <Button 
+            size="sm" 
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            View Reports
+          </Button>
+        </div>
 
-          {/* Recent Activities */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Recent Activities ({userDetails.activities?.length || 0})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {userDetails.activities && userDetails.activities.length > 0 ? (
-                <div className="space-y-3">
-                  {userDetails.activities.slice(0, 10).map((activity: any, index: number) => (
-                    <div key={index} className="border p-3 rounded">
-                      <div className="font-medium">{activity.action || activity.type}</div>
-                      <div className="text-sm text-gray-600">{activity.description || activity.details}</div>
-                      <div className="text-xs text-gray-500">
-                        {activity.createdAt ? new Date(activity.createdAt).toLocaleDateString() : 'Unknown date'}
-                      </div>
+        {/* Tab Navigation */}
+        <div className="flex space-x-1 border-b">
+          {[
+            { id: "overview", label: "Overview", icon: User },
+            { id: "listings", label: "Listings", icon: Car },
+            { id: "activity", label: "Activity", icon: Activity },
+            { id: "warnings", label: "Warnings", icon: AlertTriangle },
+            { id: "settings", label: "Settings", icon: Settings }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                activeTab === tab.id
+                  ? 'bg-purple-50 text-purple-600 border-b-2 border-purple-600'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {activeTab === "overview" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* User Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Personal Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">First Name</label>
+                      <p className="font-medium">{currentUser.firstName || "Not provided"}</p>
                     </div>
-                  ))}
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Last Name</label>
+                      <p className="font-medium">{currentUser.lastName || "Not provided"}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Email</label>
+                    <p className="font-medium">{currentUser.email}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Phone</label>
+                    <p className="font-medium">{currentUser.phoneNumber || "Not provided"}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Joined</label>
+                    <p className="font-medium">{new Date(currentUser.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Location</label>
+                    <p className="font-medium">{currentUser.location || "Not provided"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Account Statistics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Account Statistics</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">{userDetails.listings?.length || 0}</div>
+                      <div className="text-sm text-blue-600">Total Listings</div>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">
+                        {userDetails.listings?.filter((l: any) => l.status === 'active').length || 0}
+                      </div>
+                      <div className="text-sm text-green-600">Active Listings</div>
+                    </div>
+                    <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                      <div className="text-2xl font-bold text-yellow-600">{userDetails.warnings?.length || 0}</div>
+                      <div className="text-sm text-yellow-600">Warnings</div>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-600">{userDetails.activities?.length || 0}</div>
+                      <div className="text-sm text-purple-600">Activities</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === "listings" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>User Listings ({userDetails.listings?.length || 0})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {userDetails.listings && userDetails.listings.length > 0 ? (
+                  <div className="space-y-4">
+                    {userDetails.listings.map((listing: any) => (
+                      <div key={listing.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium">{listing.title}</h4>
+                            <p className="text-sm text-gray-600">
+                              {listing.make} {listing.model} • {listing.year}
+                            </p>
+                            <p className="text-lg font-semibold text-green-600">
+                              KES {listing.price?.toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={
+                              listing.status === 'active' ? 'bg-green-500' :
+                              listing.status === 'pending' ? 'bg-yellow-500' :
+                              'bg-red-500'
+                            }>
+                              {listing.status}
+                            </Badge>
+                            <Button size="sm" variant="outline">
+                              View Details
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                          Created: {new Date(listing.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">No listings found</div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {activeTab === "activity" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activities ({userDetails.activities?.length || 0})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {userDetails.activities && userDetails.activities.length > 0 ? (
+                  <div className="space-y-3">
+                    {userDetails.activities.map((activity: any, index: number) => (
+                      <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+                        <div className="p-2 bg-blue-100 rounded-full">
+                          <Activity className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium">{activity.activity_type || activity.action}</div>
+                          <div className="text-sm text-gray-600">{activity.description}</div>
+                          <div className="text-xs text-gray-500">
+                            {activity.created_at ? new Date(activity.created_at).toLocaleString() : 'Unknown date'}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">No recent activities</div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {activeTab === "warnings" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Warnings & Flags ({userDetails.warnings?.length || 0})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {userDetails.warnings && userDetails.warnings.length > 0 ? (
+                  <div className="space-y-3">
+                    {userDetails.warnings.map((warning: any, index: number) => (
+                      <div key={index} className="border-l-4 border-red-500 pl-4 py-3 bg-red-50 rounded-r-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-red-800">{warning.warning_type || 'Warning'}</div>
+                            <div className="text-sm text-red-700">{warning.description}</div>
+                            <div className="text-xs text-red-600 mt-1">
+                              Severity: {warning.severity} • {warning.created_at ? new Date(warning.created_at).toLocaleDateString() : 'Unknown date'}
+                            </div>
+                          </div>
+                          <Badge className={warning.acknowledged ? 'bg-green-500' : 'bg-yellow-500'}>
+                            {warning.acknowledged ? 'Acknowledged' : 'Pending'}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">No warnings or flags</div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {activeTab === "settings" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Account Settings & Admin Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="h-16 flex flex-col items-center gap-2"
+                    onClick={() => setShowRoleDialog(true)}
+                  >
+                    <Shield className="h-6 w-6" />
+                    Change User Role
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-16 flex flex-col items-center gap-2"
+                    onClick={() => setShowSuspendDialog(true)}
+                  >
+                    <Ban className="h-6 w-6" />
+                    Suspend Account
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-16 flex flex-col items-center gap-2"
+                  >
+                    <RefreshCw className="h-6 w-6" />
+                    Reset Password
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-16 flex flex-col items-center gap-2"
+                  >
+                    <Download className="h-6 w-6" />
+                    Export Data
+                  </Button>
                 </div>
-              ) : (
-                <div className="text-gray-500">No recent activities</div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
-          <Button 
-            variant="destructive"
-            onClick={() => {
-              const reason = prompt("Enter suspension reason:");
-              if (reason) {
-                suspendUserMutation.mutate({ reason });
-              }
-            }}
-          >
-            Suspend User
-          </Button>
+        <div className="flex justify-between items-center border-t pt-4">
+          <div className="text-sm text-gray-500">
+            Last updated: {new Date().toLocaleString()}
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose}>
+              Close
+            </Button>
+            <Button onClick={() => setActiveTab("settings")}>
+              Admin Actions
+            </Button>
+          </div>
         </div>
+
+        {/* Suspend User Dialog */}
+        {showSuspendDialog && (
+          <Dialog open={showSuspendDialog} onOpenChange={setShowSuspendDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Suspend User</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p>Are you sure you want to suspend {currentUser.firstName} {currentUser.lastName}?</p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      const reason = prompt("Enter suspension reason:");
+                      if (reason) {
+                        suspendUserMutation.mutate({ reason });
+                      }
+                    }}
+                  >
+                    Confirm Suspension
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowSuspendDialog(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Change Role Dialog */}
+        {showRoleDialog && (
+          <Dialog open={showRoleDialog} onOpenChange={setShowRoleDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Change User Role</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p>Select a new role for {currentUser.firstName} {currentUser.lastName}:</p>
+                <div className="space-y-2">
+                  {rolesData?.map((role: any) => (
+                    <Button
+                      key={role.id}
+                      variant={currentUser.role?.id === role.id ? "default" : "outline"}
+                      className="w-full justify-start"
+                      onClick={() => updateRoleMutation.mutate(role.id)}
+                    >
+                      <Shield className="h-4 w-4 mr-2" />
+                      {role.name} - {role.description}
+                    </Button>
+                  ))}
+                </div>
+                <Button variant="outline" onClick={() => setShowRoleDialog(false)} className="w-full">
+                  Cancel
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -88,78 +88,22 @@ export default function AdminListingDetails() {
 
   const availableUsers = usersData?.users?.map((item: any) => item.user) || [];
 
-  // Debug query response
+  // Initialize form data when listing loads
   useEffect(() => {
-    console.log('Query state:', { 
-      listingData: listingData ? 'RECEIVED' : 'NULL', 
-      isLoading, 
-      error: error ? 'ERROR' : 'NO ERROR',
-      dataKeys: listingData ? Object.keys(listingData) : 'N/A'
-    });
-  }, [listingData, isLoading, error]);
-
-  // Initialize form data when listing loads - ensure data is fully loaded
-  useEffect(() => {
-    console.log('Form initialization check:', {
-      hasData: !!listingData,
-      isLoadingStatus: isLoading,
-      shouldInitialize: !!listingData && !isLoading,
-      listingDataType: typeof listingData,
-      dataStructure: listingData ? Object.keys(listingData) : 'no data'
-    });
-    
     if (listingData && !isLoading) {
-      console.log('FORM INITIALIZATION TRIGGERED - Raw Data Type:', typeof listingData);
-      console.log('FORM INITIALIZATION TRIGGERED - Raw Data Keys:', Object.keys(listingData));
-      console.log('FORM INITIALIZATION TRIGGERED - Full Data:', JSON.stringify(listingData, null, 2));
+      setEditTitle(listingData.title || "");
+      setEditDescription(listingData.description || "");
+      setEditPrice(listingData.price?.toString() || "");
+      setEditLocation(listingData.location || "");
+      setEditNegotiable(Boolean(listingData.negotiable));
       
-      // Since we're now parsing JSON in queryFn, data should be direct
-      console.log('Extracted values:', {
-        status: listingData.status,
-        featured: listingData.featured,
-        verified: listingData.isVerified,
-        source: listingData.listingSource,
-        seller: listingData.seller,
-        notes: listingData.adminNotes
-      });
-      
-      // Clear existing state first
-      setEditTitle("");
-      setEditDescription("");
-      setEditPrice("");
-      setEditLocation("");
-      setEditNegotiable(false);
-      setMetaStatus("");
-      setMetaFeatured(false);
-      setMetaVerified(false);
-      setMetaExpirationDate("");
-      setMetaListingSource("");
-      setMetaSellerId("");
-      setMetaAdminNotes("");
-      
-      // Wait a tick then set the data
-      setTimeout(() => {
-        setEditTitle(listingData.title || "");
-        setEditDescription(listingData.description || "");
-        setEditPrice(listingData.price?.toString() || "");
-        setEditLocation(listingData.location || "");
-        setEditNegotiable(Boolean(listingData.negotiable));
-        
-        // Always reinitialize when data changes
-        setMetaStatus(listingData.status || "pending");
-        setMetaFeatured(Boolean(listingData.featured));
-        setMetaVerified(Boolean(listingData.isVerified));
-        setMetaExpirationDate(listingData.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "");
-        setMetaListingSource(listingData.listingSource || "user-submitted");
-        setMetaSellerId(listingData.sellerId || "");
-        setMetaAdminNotes(listingData.adminNotes || "");
-        
-        console.log('Form state AFTER async initialization:', {
-          metaStatus: listingData.status,
-          metaFeatured: Boolean(listingData.featured),
-          metaVerified: Boolean(listingData.isVerified)
-        });
-      }, 10);
+      setMetaStatus(listingData.status || "pending");
+      setMetaFeatured(Boolean(listingData.featured));
+      setMetaVerified(Boolean(listingData.isVerified));
+      setMetaExpirationDate(listingData.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "");
+      setMetaListingSource(listingData.listingSource || "user-submitted");
+      setMetaSellerId(listingData.sellerId || "");
+      setMetaAdminNotes(listingData.adminNotes || "");
     }
   }, [listingData, isLoading]);
 
@@ -344,13 +288,257 @@ export default function AdminListingDetails() {
 
         {/* Main Layout with Sidebar */}
         <div className="flex gap-6">
+          {/* Right Sidebar */}
+          <div className="w-80 space-y-6">
+            {/* Primary Actions Card - Moved to top */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                  Primary Actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full flex items-center gap-2">
+                      <Edit className="w-4 h-4" />
+                      Edit Listing
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Edit Listing</DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="title">Title</Label>
+                        <Input
+                          id="title"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          placeholder="Enter listing title"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                          id="description"
+                          value={editDescription}
+                          onChange={(e) => setEditDescription(e.target.value)}
+                          placeholder="Enter listing description"
+                          rows={4}
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="price">Price (KES)</Label>
+                          <Input
+                            id="price"
+                            type="number"
+                            value={editPrice}
+                            onChange={(e) => setEditPrice(e.target.value)}
+                            placeholder="Enter price"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="location">Location</Label>
+                          <Input
+                            id="location"
+                            value={editLocation}
+                            onChange={(e) => setEditLocation(e.target.value)}
+                            placeholder="Enter location"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="negotiable"
+                          checked={editNegotiable}
+                          onCheckedChange={setEditNegotiable}
+                        />
+                        <Label htmlFor="negotiable">Price is negotiable</Label>
+                      </div>
+                      
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline">
+                          Cancel
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            updateMutation.mutate({
+                              title: editTitle,
+                              description: editDescription,
+                              price: parseFloat(editPrice),
+                              negotiable: editNegotiable,
+                              location: editLocation
+                            });
+                          }}
+                          disabled={updateMutation.isPending}
+                        >
+                          {updateMutation.isPending ? 'Updating...' : 'Update Listing'}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center gap-2 text-orange-600 hover:text-orange-700"
+                  onClick={() => flagMutation.mutate({ reason: flagReason })}
+                  disabled={flagMutation.isPending}
+                >
+                  <Flag className="w-4 h-4" />
+                  {flagMutation.isPending ? "Flagging..." : "Flag Listing"}
+                </Button>
+
+                {listingData.status === 'pending' && (
+                  <>
+                    <Button variant="default" className="w-full flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      Approve
+                    </Button>
+
+                    <Button variant="destructive" className="w-full flex items-center gap-2">
+                      <X className="w-4 h-4" />
+                      Reject
+                    </Button>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Admin Meta Fields */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                  Admin Meta Fields
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="metaStatus">Listing Status *</Label>
+                  <select
+                    id="metaStatus"
+                    value={metaStatus || listingData?.status || ""}
+                    onChange={(e) => setMetaStatus(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="archived">Archived</option>
+                    <option value="flagged">Flagged</option>
+                    <option value="sold">Sold</option>
+                  </select>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="metaFeatured"
+                    checked={metaFeatured !== undefined ? metaFeatured : Boolean(listingData?.featured)}
+                    onCheckedChange={setMetaFeatured}
+                  />
+                  <Label htmlFor="metaFeatured">Featured Listing</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="metaVerified"
+                    checked={metaVerified !== undefined ? metaVerified : Boolean(listingData?.isVerified)}
+                    onCheckedChange={setMetaVerified}
+                  />
+                  <Label htmlFor="metaVerified">Verified Listing</Label>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="metaExpirationDate">Expiration Date</Label>
+                  <Input
+                    id="metaExpirationDate"
+                    type="date"
+                    value={metaExpirationDate || (listingData?.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "")}
+                    onChange={(e) => setMetaExpirationDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="metaSellerId">Reassign to User/Seller</Label>
+                  <select
+                    id="metaSellerId"
+                    value={metaSellerId || listingData?.sellerId || ""}
+                    onChange={(e) => setMetaSellerId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                  >
+                    <option value={listingData?.sellerId || ""}>
+                      {listingData?.seller?.firstName} {listingData?.seller?.lastName} (Current)
+                    </option>
+                    {availableUsers.filter((user: any) => user.id !== listingData?.sellerId).map((user: any) => (
+                      <option key={user.id} value={user.id}>
+                        {user.firstName} {user.lastName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="metaAdminNotes">Admin Notes</Label>
+                  <Textarea
+                    id="metaAdminNotes"
+                    value={metaAdminNotes || listingData?.adminNotes || ""}
+                    onChange={(e) => setMetaAdminNotes(e.target.value)}
+                    placeholder="Internal admin notes..."
+                    rows={3}
+                  />
+                </div>
+                
+                <Button 
+                  onClick={() => {
+                    const updateData = {
+                      status: metaStatus || listingData?.status,
+                      featured: metaFeatured !== undefined ? metaFeatured : listingData?.featured,
+                      isVerified: metaVerified !== undefined ? metaVerified : listingData?.isVerified,
+                      expirationDate: metaExpirationDate || null,
+                      listingSource: metaListingSource || listingData?.listingSource,
+                      sellerId: metaSellerId || listingData?.sellerId,
+                      adminNotes: metaAdminNotes || ""
+                    };
+                    metaMutation.mutate(updateData);
+                  }}
+                  disabled={metaMutation.isPending}
+                  className="w-full"
+                >
+                  {metaMutation.isPending ? 'Updating...' : 'Update Meta Fields'}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Main Content */}
           <div className="flex-1 space-y-6">
             {/* Listing Images */}
             {listingData.images && listingData.images.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Images</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Images</CardTitle>
+                    <Button 
+                      onClick={() => setIsMediaOpen(true)}
+                      variant="outline" 
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <ImageIcon className="w-4 h-4" />
+                      Manage Media
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -513,34 +701,8 @@ export default function AdminListingDetails() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Current Values Display */}
-                <div className="bg-blue-50 p-3 rounded-lg text-sm">
-                  <div className="font-medium text-blue-800 mb-2">Current Database Values:</div>
-                  <div className="space-y-1 text-blue-700">
-                    <div>Status: <span className="font-medium">{listingData?.status || 'Loading...'}</span></div>
-                    <div>Featured: <span className="font-medium">{listingData?.featured ? 'Yes' : 'No'}</span></div>
-                    <div>Verified: <span className="font-medium">{listingData?.isVerified ? 'Yes' : 'No'}</span></div>
-                    <div>Source: <span className="font-medium">{listingData?.listingSource || 'Loading...'}</span></div>
-                    <div>Seller: <span className="font-medium">{listingData?.seller?.firstName} {listingData?.seller?.lastName}</span></div>
-                  </div>
-                </div>
-                
-                {/* Form State Display */}
-                <div className="bg-green-50 p-3 rounded-lg text-sm">
-                  <div className="font-medium text-green-800 mb-2">Form State Values:</div>
-                  <div className="space-y-1 text-green-700">
-                    <div>Status: <span className="font-medium">{metaStatus || 'Not set'}</span></div>
-                    <div>Featured: <span className="font-medium">{metaFeatured !== undefined ? (metaFeatured ? 'Yes' : 'No') : 'Not set'}</span></div>
-                    <div>Verified: <span className="font-medium">{metaVerified !== undefined ? (metaVerified ? 'Yes' : 'No') : 'Not set'}</span></div>
-                    <div>Source: <span className="font-medium">{metaListingSource || 'Not set'}</span></div>
-                  </div>
-                </div>
-                
                 <div className="space-y-2">
                   <Label htmlFor="metaStatus">Listing Status *</Label>
-                  <div className="text-xs text-gray-500 mb-1">
-                    Current: {metaStatus || 'undefined'} | DB: {listingData?.status || 'undefined'}
-                  </div>
                   <select
                     id="metaStatus"
                     value={metaStatus || listingData?.status || "pending"}
@@ -653,12 +815,12 @@ export default function AdminListingDetails() {
               </CardContent>
             </Card>
 
-            {/* Admin Actions Card */}
+            {/* Primary Actions Card - Moved to top */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <StickyNote className="w-5 h-5" />
-                  Admin Actions
+                  <Settings className="w-5 h-5" />
+                  Primary Actions
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -752,9 +914,14 @@ export default function AdminListingDetails() {
                     </DialogContent>
                   </Dialog>
 
-                  <Button variant="outline" className="w-full flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4" />
-                    Manage Media
+                  <Button
+                    variant="outline"
+                    className="w-full flex items-center gap-2"
+                    onClick={() => flagMutation.mutate({ reason: flagReason })}
+                    disabled={flagMutation.isPending}
+                  >
+                    <Flag className="w-4 h-4" />
+                    {flagMutation.isPending ? "Flagging..." : "Flag Listing"}
                   </Button>
 
                   {listingData.status === 'pending' && (
@@ -771,15 +938,6 @@ export default function AdminListingDetails() {
                     </>
                   )}
 
-                  <Button
-                    variant="outline"
-                    className="w-full flex items-center gap-2"
-                    onClick={() => flagMutation.mutate({ reason: flagReason })}
-                    disabled={flagMutation.isPending}
-                  >
-                    <Flag className="w-4 h-4" />
-                    {flagMutation.isPending ? "Flagging..." : "Flag Listing"}
-                  </Button>
                 </div>
               </CardContent>
             </Card>

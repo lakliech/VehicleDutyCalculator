@@ -5101,6 +5101,59 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       res.status(500).json({ error: "Failed to fetch listing conversations" });
     }
   });
+
+  // Get conversation counts for all user's listings
+  app.get('/api/user/listings/conversation-counts', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      
+      // Get all user's listings
+      const userListings = await db
+        .select({ id: carListings.id })
+        .from(carListings)
+        .where(eq(carListings.sellerId, user.id));
+      
+      if (!userListings.length) {
+        return res.json({});
+      }
+      
+      const listingIds = userListings.map(l => l.id);
+      
+      // Get conversation counts for each listing
+      const conversationCounts = await db.execute(sql`
+        SELECT 
+          (c.context::jsonb->>'listingId')::integer as listing_id,
+          COUNT(c.id) as total_conversations,
+          COALESCE(SUM(
+            (SELECT COUNT(*) FROM messages m 
+             WHERE m.conversation_id = c.id 
+             AND m.read_count = 0 AND m.sender_id != ${user.id})
+          ), 0) as unread_messages
+        FROM conversations c
+        JOIN conversation_participants cp ON c.id = cp.conversation_id
+        WHERE cp.user_id = ${user.id} 
+          AND cp.is_active = true
+          AND c.type = 'listing_inquiry'
+          AND (c.context::jsonb->>'listingId')::integer = ANY(${listingIds})
+        GROUP BY (c.context::jsonb->>'listingId')::integer
+      `);
+      
+      // Format response as object with listing_id as key
+      const result: Record<number, { total: number; unread: number }> = {};
+      
+      conversationCounts.rows.forEach((row: any) => {
+        result[row.listing_id] = {
+          total: parseInt(row.total_conversations),
+          unread: parseInt(row.unread_messages)
+        };
+      });
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching listing conversation counts:", error);
+      res.status(500).json({ error: "Failed to fetch conversation counts" });
+    }
+  });
   
   // Get user's listing analytics overview
   app.get('/api/user/listings-analytics', async (req, res) => {

@@ -525,6 +525,13 @@ Changelog:
   - Dialog displays participant names, last messages, unread counts, and message statistics
   - Added "View Chat" button linking directly to specific conversations in Messages page
   - Enhanced listing management with direct access to buyer inquiries and conversation tracking
+- January 13, 2025. Enhanced Inquiries button with unread message counts and direct navigation:
+  - Added `/api/user/listings/conversation-counts` endpoint for real-time unread message tracking
+  - Inquiries button now displays red badge with unread message count for each listing
+  - Made inquiry cards in popup clickable - clicking navigates directly to Messages page
+  - Implemented 30-second auto-refresh for conversation counts to show real-time updates
+  - Removed separate "View Chat" button in favor of making entire card clickable for better UX
+  - Dialog automatically closes when user clicks on a conversation to navigate to Messages
 
 ## User Preferences
 

@@ -89,6 +89,13 @@ export default function MyListings() {
     enabled: !!selectedListingId && showInquiriesDialog,
   });
 
+  // Get conversation counts for all listings
+  const { data: listingConversationCounts = {} } = useQuery<Record<number, { total: number; unread: number }>>({
+    queryKey: ['/api/user/listings/conversation-counts'],
+    enabled: isAuthenticated && !!listings,
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
@@ -362,9 +369,18 @@ export default function MyListings() {
                             size="sm" 
                             variant="outline"
                             onClick={() => handleShowInquiries(listing.id)}
+                            className="relative"
                           >
                             <MessageCircle className="h-4 w-4 mr-2" />
                             Inquiries
+                            {listingConversationCounts[listing.id]?.unread > 0 && (
+                              <Badge 
+                                variant="destructive" 
+                                className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                              >
+                                {listingConversationCounts[listing.id].unread}
+                              </Badge>
+                            )}
                           </Button>
                           <Button size="sm" variant="outline">
                             <Eye className="h-4 w-4 mr-2" />
@@ -417,54 +433,56 @@ export default function MyListings() {
                 <ScrollArea className="h-[400px]">
                   <div className="space-y-3">
                     {listingConversations.map((conversation) => (
-                      <Card key={conversation.id} className="hover:shadow-md transition-shadow">
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <div className="flex items-center gap-2">
-                                  <User className="h-4 w-4 text-gray-500" />
-                                  <span className="font-medium">
-                                    {conversation.participants && conversation.participants.length > 0
-                                      ? `${conversation.participants[0].firstName} ${conversation.participants[0].lastName}`
-                                      : 'Unknown User'
-                                    }
-                                  </span>
+                      <Link 
+                        key={conversation.id} 
+                        href={`/messages?conversation=${conversation.id}`}
+                        onClick={() => setShowInquiriesDialog(false)}
+                      >
+                        <Card className="hover:shadow-md transition-shadow cursor-pointer hover:bg-gray-50">
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <User className="h-4 w-4 text-gray-500" />
+                                    <span className="font-medium">
+                                      {conversation.participants && conversation.participants.length > 0
+                                        ? `${conversation.participants[0].firstName} ${conversation.participants[0].lastName}`
+                                        : 'Unknown User'
+                                      }
+                                    </span>
+                                  </div>
+                                  {conversation.unread_count > 0 && (
+                                    <Badge variant="destructive" className="text-xs">
+                                      {conversation.unread_count} unread
+                                    </Badge>
+                                  )}
                                 </div>
-                                {conversation.unread_count > 0 && (
-                                  <Badge variant="destructive" className="text-xs">
-                                    {conversation.unread_count} unread
-                                  </Badge>
+                                
+                                {conversation.last_message && (
+                                  <div className="mb-2">
+                                    <p className="text-sm text-gray-600 line-clamp-2">
+                                      {conversation.last_message.content}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      {formatTime(conversation.last_message.createdAt)} by {conversation.last_message.senderName}
+                                    </p>
+                                  </div>
                                 )}
-                              </div>
-                              
-                              {conversation.last_message && (
-                                <div className="mb-2">
-                                  <p className="text-sm text-gray-600 line-clamp-2">
-                                    {conversation.last_message.content}
-                                  </p>
-                                  <p className="text-xs text-gray-500 mt-1">
-                                    {formatTime(conversation.last_message.createdAt)} by {conversation.last_message.senderName}
-                                  </p>
+                                
+                                <div className="flex items-center gap-4 text-xs text-gray-500">
+                                  <span>{conversation.message_count} messages</span>
+                                  <span>Last activity: {formatTime(conversation.last_activity_at)}</span>
                                 </div>
-                              )}
+                              </div>
                               
-                              <div className="flex items-center gap-4 text-xs text-gray-500">
-                                <span>{conversation.message_count} messages</span>
-                                <span>Last activity: {formatTime(conversation.last_activity_at)}</span>
+                              <div className="flex items-center text-purple-600">
+                                <MessageCircle className="h-4 w-4" />
                               </div>
                             </div>
-                            
-                            <div className="flex flex-col gap-2">
-                              <Link href={`/messages?conversation=${conversation.id}`}>
-                                <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                                  View Chat
-                                </Button>
-                              </Link>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                          </CardContent>
+                        </Card>
+                      </Link>
                     ))}
                   </div>
                 </ScrollArea>

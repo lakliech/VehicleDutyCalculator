@@ -2915,7 +2915,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get individual car details
+  // Get individual car details with real-time view tracking
   app.get('/api/car-listings/:id/details', async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -2924,6 +2924,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(listingId)) {
         return res.status(400).json({ error: 'Invalid listing ID' });
       }
+
+      // Extract tracking parameters from query
+      const viewerId = req.query.viewerId as string || `anonymous_${Date.now()}`;
+      const sessionId = req.query.sessionId as string || `session_${Date.now()}`;
+      const searchQuery = req.query.searchQuery as string;
+      const deviceType = req.query.deviceType as string || 'desktop';
+      const userAgent = req.headers['user-agent'] || 'unknown';
+      const ipAddress = req.ip || 'unknown';
       
       // Fetch real listing from database with seller info
       const results = await db
@@ -2954,6 +2962,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = results[0];
       const listing = result.listing;
       const seller = result.seller;
+
+      // REAL-TIME VIEW TRACKING - Execute immediately
+      try {
+        // 1. Track listing view in listing_views table
+        await db.execute(sql`
+          INSERT INTO listing_views (
+            listing_id, viewer_id, session_id, search_query, 
+            device_type, location, user_agent, created_at
+          ) VALUES (
+            ${listingId}, ${viewerId}, ${sessionId}, ${searchQuery || null},
+            ${deviceType}, ${ipAddress}, ${userAgent}, NOW()
+          )
+        `);
+
+        // 2. Increment view count in car_listings table (immediate update)
+        await db
+          .update(carListings)
+          .set({ 
+            viewCount: sql`COALESCE(${carListings.viewCount}, 0) + 1`,
+            updatedAt: new Date()
+          })
+          .where(eq(carListings.id, listingId));
+
+        // 3. Update daily analytics (immediate update with location detection)
+        const today = new Date().toISOString().split('T')[0];
+        const isNairobi = ipAddress.includes('nairobi') || ipAddress.includes('196.201') || ipAddress.includes('102.0');
+        const isMombasa = ipAddress.includes('mombasa') || ipAddress.includes('196.207');
+        const isMobile = deviceType === 'mobile' || userAgent.toLowerCase().includes('mobile');
+        const isTablet = deviceType === 'tablet' || userAgent.toLowerCase().includes('tablet');
+        const isDesktop = !isMobile && !isTablet;
+
+        await db.execute(sql`
+          INSERT INTO daily_listing_analytics (
+            listing_id, date, total_views, unique_visitors, impressions,
+            device_mobile, device_desktop, device_tablet,
+            location_nairobi, location_mombasa, location_kisumu, location_other,
+            created_at, updated_at
+          ) VALUES (
+            ${listingId}, ${today}, 1, 1, 1,
+            ${isMobile ? 1 : 0}, ${isDesktop ? 1 : 0}, ${isTablet ? 1 : 0},
+            ${isNairobi ? 1 : 0}, ${isMombasa ? 1 : 0}, 0,
+            ${!isNairobi && !isMombasa ? 1 : 0},
+            NOW(), NOW()
+          )
+          ON CONFLICT (listing_id, date) DO UPDATE SET
+            total_views = daily_listing_analytics.total_views + 1,
+            unique_visitors = daily_listing_analytics.unique_visitors + 1,
+            impressions = daily_listing_analytics.impressions + 1,
+            device_mobile = daily_listing_analytics.device_mobile + ${isMobile ? 1 : 0},
+            device_desktop = daily_listing_analytics.device_desktop + ${isDesktop ? 1 : 0},
+            device_tablet = daily_listing_analytics.device_tablet + ${isTablet ? 1 : 0},
+            location_nairobi = daily_listing_analytics.location_nairobi + ${isNairobi ? 1 : 0},
+            location_mombasa = daily_listing_analytics.location_mombasa + ${isMombasa ? 1 : 0},
+            location_other = daily_listing_analytics.location_other + ${!isNairobi && !isMombasa ? 1 : 0},
+            updated_at = NOW()
+        `);
+
+        // 4. Track search click if this came from search results (keyword analytics)
+        if (searchQuery && viewerId) {
+          await KeywordAnalytics.trackSearchClick({
+            listingId,
+            keyword: searchQuery,
+            searchQuery,
+            wasClicked: true,
+            viewerId,
+            sessionId,
+            deviceType,
+            location: ipAddress
+          });
+        }
+
+        console.log(`✓ Real-time view tracked: Listing ${listingId}, Viewer ${viewerId}, Device ${deviceType}`);
+      } catch (trackingError) {
+        console.error('Error in real-time view tracking:', trackingError);
+        // Don't fail the request if analytics tracking fails
+      }
 
       // Transform database listing to car details format
       const carDetails = {
@@ -4673,46 +4757,219 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   // MESSAGING AND ANALYTICS API
   // ==============================
   
-  // Track phone clicks
+  // Track phone clicks with real-time analytics updates
   app.post('/api/track-phone-click', async (req, res) => {
     try {
-      const { listingId, sellerId, clickerUserId, clickerIp, userAgent } = phoneClickTrackingSchema.parse(req.body);
+      const { listingId, sellerId, clickerUserId, clickerIp, userAgent, searchQuery, viewerId } = req.body;
       
-      // Record the phone click
-      await db.insert(phoneClickTracking).values({
-        listingId,
-        sellerId,
-        clickerUserId,
-        clickerIp,
-        userAgent,
-        clickTimestamp: new Date()
-      });
-      
-      // Update daily analytics
+      // Validate required fields
+      if (!listingId) {
+        return res.status(400).json({ error: 'Listing ID is required' });
+      }
+
+      const listingIdNum = parseInt(listingId);
       const today = new Date().toISOString().split('T')[0];
-      await db
-        .insert(dailyListingAnalytics)
-        .values({
-          listingId,
-          date: today,
-          phoneClicks: 1,
-          totalViews: 0,
-          inquiries: 0,
-          favorites: 0,
-          shares: 0
-        })
-        .onConflictDoUpdate({
-          target: [dailyListingAnalytics.listingId, dailyListingAnalytics.date],
-          set: {
-            phoneClicks: sql`${dailyListingAnalytics.phoneClicks} + 1`,
-            updatedAt: new Date()
-          }
-        });
-      
-      res.json({ success: true });
+
+      // 1. Record the phone click in phone_click_tracking table
+      try {
+        await db.execute(sql`
+          INSERT INTO phone_click_tracking (
+            listing_id, seller_id, clicker_user_id, clicker_ip, 
+            user_agent, click_timestamp
+          ) VALUES (
+            ${listingIdNum}, ${sellerId || null}, ${clickerUserId || null}, 
+            ${clickerIp || 'unknown'}, ${userAgent || 'unknown'}, NOW()
+          )
+        `);
+      } catch (insertError) {
+        console.error('Error inserting phone click record:', insertError);
+      }
+
+      // 2. Update daily analytics immediately
+      await db.execute(sql`
+        INSERT INTO daily_listing_analytics (
+          listing_id, date, phone_clicks, total_views, unique_visitors, 
+          inquiries, favorites, shares, impressions, created_at, updated_at
+        ) VALUES (
+          ${listingIdNum}, ${today}, 1, 0, 0, 0, 0, 0, 0, NOW(), NOW()
+        )
+        ON CONFLICT (listing_id, date) DO UPDATE SET
+          phone_clicks = daily_listing_analytics.phone_clicks + 1,
+          updated_at = NOW()
+      `);
+
+      // 3. Track conversion in keyword analytics if search context exists
+      if (searchQuery && viewerId) {
+        try {
+          await KeywordAnalytics.trackKeywordConversion({
+            listingId: listingIdNum,
+            keyword: searchQuery,
+            conversionType: 'phone_click',
+            viewerId
+          });
+        } catch (conversionError) {
+          console.error('Error tracking keyword conversion:', conversionError);
+        }
+      }
+
+      console.log(`✓ Phone click tracked: Listing ${listingIdNum}, User ${clickerUserId || 'anonymous'}`);
+      res.json({ success: true, message: 'Phone click tracked successfully' });
     } catch (error) {
       console.error("Error tracking phone click:", error);
       res.status(500).json({ error: "Failed to track phone click" });
+    }
+  });
+
+  // Track favorite/unfavorite actions with real-time updates
+  app.post('/api/track-favorite', async (req, res) => {
+    try {
+      const { listingId, userId, action, searchQuery, viewerId } = req.body; // action: 'add' or 'remove'
+      
+      if (!listingId || !action) {
+        return res.status(400).json({ error: 'Listing ID and action are required' });
+      }
+
+      const listingIdNum = parseInt(listingId);
+      const today = new Date().toISOString().split('T')[0];
+      const increment = action === 'add' ? 1 : -1;
+
+      // 1. Update car_listings favorite count
+      await db
+        .update(carListings)
+        .set({ 
+          favoriteCount: sql`COALESCE(${carListings.favoriteCount}, 0) + ${increment}`,
+          updatedAt: new Date()
+        })
+        .where(eq(carListings.id, listingIdNum));
+
+      // 2. Update daily analytics (only increment for 'add' actions)
+      if (action === 'add') {
+        await db.execute(sql`
+          INSERT INTO daily_listing_analytics (
+            listing_id, date, favorites, total_views, unique_visitors, 
+            phone_clicks, inquiries, shares, impressions, created_at, updated_at
+          ) VALUES (
+            ${listingIdNum}, ${today}, 1, 0, 0, 0, 0, 0, 0, NOW(), NOW()
+          )
+          ON CONFLICT (listing_id, date) DO UPDATE SET
+            favorites = daily_listing_analytics.favorites + 1,
+            updated_at = NOW()
+        `);
+
+        // 3. Track conversion in keyword analytics
+        if (searchQuery && viewerId) {
+          try {
+            await KeywordAnalytics.trackKeywordConversion({
+              listingId: listingIdNum,
+              keyword: searchQuery,
+              conversionType: 'favorite',
+              viewerId
+            });
+          } catch (conversionError) {
+            console.error('Error tracking keyword conversion:', conversionError);
+          }
+        }
+      }
+
+      console.log(`✓ Favorite ${action} tracked: Listing ${listingIdNum}, User ${userId || 'anonymous'}`);
+      res.json({ success: true, message: `Favorite ${action} tracked successfully` });
+    } catch (error) {
+      console.error("Error tracking favorite:", error);
+      res.status(500).json({ error: "Failed to track favorite action" });
+    }
+  });
+
+  // Track inquiry/message sending with real-time updates
+  app.post('/api/track-inquiry', async (req, res) => {
+    try {
+      const { listingId, senderId, messageContent, searchQuery, viewerId } = req.body;
+      
+      if (!listingId) {
+        return res.status(400).json({ error: 'Listing ID is required' });
+      }
+
+      const listingIdNum = parseInt(listingId);
+      const today = new Date().toISOString().split('T')[0];
+
+      // 1. Update daily analytics immediately
+      await db.execute(sql`
+        INSERT INTO daily_listing_analytics (
+          listing_id, date, inquiries, total_views, unique_visitors, 
+          phone_clicks, favorites, shares, impressions, created_at, updated_at
+        ) VALUES (
+          ${listingIdNum}, ${today}, 1, 0, 0, 0, 0, 0, 0, NOW(), NOW()
+        )
+        ON CONFLICT (listing_id, date) DO UPDATE SET
+          inquiries = daily_listing_analytics.inquiries + 1,
+          updated_at = NOW()
+      `);
+
+      // 2. Track conversion in keyword analytics
+      if (searchQuery && viewerId) {
+        try {
+          await KeywordAnalytics.trackKeywordConversion({
+            listingId: listingIdNum,
+            keyword: searchQuery,
+            conversionType: 'inquiry',
+            viewerId
+          });
+        } catch (conversionError) {
+          console.error('Error tracking keyword conversion:', conversionError);
+        }
+      }
+
+      console.log(`✓ Inquiry tracked: Listing ${listingIdNum}, Sender ${senderId || 'anonymous'}`);
+      res.json({ success: true, message: 'Inquiry tracked successfully' });
+    } catch (error) {
+      console.error("Error tracking inquiry:", error);
+      res.status(500).json({ error: "Failed to track inquiry" });
+    }
+  });
+
+  // Track share actions with real-time updates
+  app.post('/api/track-share', async (req, res) => {
+    try {
+      const { listingId, userId, platform, searchQuery, viewerId } = req.body; // platform: 'whatsapp', 'facebook', 'twitter', etc.
+      
+      if (!listingId) {
+        return res.status(400).json({ error: 'Listing ID is required' });
+      }
+
+      const listingIdNum = parseInt(listingId);
+      const today = new Date().toISOString().split('T')[0];
+
+      // 1. Update daily analytics immediately
+      await db.execute(sql`
+        INSERT INTO daily_listing_analytics (
+          listing_id, date, shares, total_views, unique_visitors, 
+          phone_clicks, inquiries, favorites, impressions, created_at, updated_at
+        ) VALUES (
+          ${listingIdNum}, ${today}, 1, 0, 0, 0, 0, 0, 0, NOW(), NOW()
+        )
+        ON CONFLICT (listing_id, date) DO UPDATE SET
+          shares = daily_listing_analytics.shares + 1,
+          updated_at = NOW()
+      `);
+
+      // 2. Track conversion in keyword analytics
+      if (searchQuery && viewerId) {
+        try {
+          await KeywordAnalytics.trackKeywordConversion({
+            listingId: listingIdNum,
+            keyword: searchQuery,
+            conversionType: 'share',
+            viewerId
+          });
+        } catch (conversionError) {
+          console.error('Error tracking keyword conversion:', conversionError);
+        }
+      }
+
+      console.log(`✓ Share tracked: Listing ${listingIdNum}, Platform ${platform}, User ${userId || 'anonymous'}`);
+      res.json({ success: true, message: 'Share tracked successfully' });
+    } catch (error) {
+      console.error("Error tracking share:", error);
+      res.status(500).json({ error: "Failed to track share action" });
     }
   });
   

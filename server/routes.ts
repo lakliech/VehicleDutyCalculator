@@ -4767,11 +4767,20 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
 
       // Create conversation if it doesn't exist
       if (!conversation) {
+        // Get the listing title for the conversation
+        const [listing] = await db
+          .select({ title: carListings.title })
+          .from(carListings)
+          .where(eq(carListings.id, listingId))
+          .limit(1);
+        
+        const conversationTitle = listing ? `Inquiry: ${listing.title}` : `Inquiry about listing #${listingId}`;
+        
         const [newConversation] = await db
           .insert(conversations)
           .values({
             type: 'listing_inquiry',
-            title: `Inquiry about listing #${listingId}`,
+            title: conversationTitle,
             context: JSON.stringify({ listingId: listingId.toString() }),
             status: 'active',
             priority: 'normal',
@@ -5242,7 +5251,6 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       }
 
       const messages = await storage.getMessages(conversationId, limit, offset);
-      console.log("Raw messages from storage:", JSON.stringify(messages, null, 2));
       res.json(messages);
     } catch (error) {
       console.error("Error fetching messages:", error);

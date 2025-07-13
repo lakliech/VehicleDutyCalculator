@@ -682,23 +682,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User Management with Filtering
+  // Enhanced User Management with Comprehensive Filtering
   app.get('/api/admin/users-management', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
-      const { search, role, page, limit } = req.query;
+      const { 
+        search, 
+        role, 
+        status, 
+        joinedFrom, 
+        joinedTo, 
+        page, 
+        limit, 
+        sort, 
+        order 
+      } = req.query;
       
       const filters = {
         search: search as string,
         role: role as string,
+        status: status as string,
+        joinedFrom: joinedFrom as string,
+        joinedTo: joinedTo as string,
         page: page ? parseInt(page as string) : 1,
         limit: limit ? parseInt(limit as string) : 20,
+        sort: sort as string || 'createdAt',
+        order: order as string || 'desc',
       };
 
-      const result = await storage.getAllUsers(filters);
+      const result = await storage.getEnhancedUsersWithStats(filters);
       res.json(result);
     } catch (error) {
-      console.error('Users management error:', error);
+      console.error('Enhanced users management error:', error);
       res.status(500).json({ error: 'Failed to load users' });
+    }
+  });
+
+  // Update User Role
+  app.put('/api/admin/users/:userId/role', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      const { roleId } = req.body;
+      
+      if (!roleId) {
+        return res.status(400).json({ error: 'Role ID is required' });
+      }
+
+      await storage.updateUserRole(userId, roleId);
+      res.json({ success: true, message: 'User role updated successfully' });
+    } catch (error) {
+      console.error('Update user role error:', error);
+      res.status(500).json({ error: 'Failed to update user role' });
+    }
+  });
+
+  // Bulk User Actions
+  app.post('/api/admin/users/bulk-action', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const { userIds, action, data } = req.body;
+      
+      if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+        return res.status(400).json({ error: 'User IDs are required' });
+      }
+      
+      if (!action) {
+        return res.status(400).json({ error: 'Action is required' });
+      }
+
+      const adminId = req.user.id; // Get from authenticated user session
+      
+      await storage.bulkUserAction(userIds, action, adminId, data);
+      
+      res.json({ 
+        success: true, 
+        message: `Successfully performed ${action} on ${userIds.length} users` 
+      });
+    } catch (error) {
+      console.error('Bulk user action error:', error);
+      res.status(500).json({ error: 'Failed to perform bulk action' });
     }
   });
 

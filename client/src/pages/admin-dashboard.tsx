@@ -42,7 +42,8 @@ import {
   Check,
   X,
   Filter,
-  CheckSquare
+  CheckSquare,
+  User
 } from "lucide-react";
 import { z } from "zod";
 import type { 
@@ -2961,10 +2962,41 @@ function EnhancedListingsManagementTab() {
   );
 }
 
-// Users Management Tab Component
+// Enhanced Users Management Tab Component
 function UsersManagementTab() {
-  const { data: users = [], isLoading } = useQuery<(AppUser & { role?: UserRole })[]>({
-    queryKey: ["/api/admin/users"],
+  // State for filtering and searching
+  const [filters, setFilters] = useState({
+    search: "",
+    role: "",
+    joinedFrom: "",
+    joinedTo: "",
+    status: "",
+  });
+  
+  const [pagination, setPagination] = useState({ page: 1, limit: 20 });
+  const [sortConfig, setSortConfig] = useState({ field: "createdAt", direction: "desc" });
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [showUserDetails, setShowUserDetails] = useState<string | null>(null);
+
+  // Build query parameters
+  const queryParams = new URLSearchParams({
+    page: pagination.page.toString(),
+    limit: pagination.limit.toString(),
+    sort: sortConfig.field,
+    order: sortConfig.direction,
+    ...(filters.search && { search: filters.search }),
+    ...(filters.role && { role: filters.role }),
+    ...(filters.joinedFrom && { joinedFrom: filters.joinedFrom }),
+    ...(filters.joinedTo && { joinedTo: filters.joinedTo }),
+    ...(filters.status && { status: filters.status }),
+  });
+
+  const { data: usersData, isLoading } = useQuery<{
+    users: (AppUser & { role?: UserRole; listingsCount?: number; recentActivity?: string })[];
+    totalCount: number;
+    pageCount: number;
+  }>({
+    queryKey: ["/api/admin/users-management", queryParams.toString()],
   });
 
   const { data: roles = [] } = useQuery<UserRole[]>({
@@ -2974,6 +3006,7 @@ function UsersManagementTab() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Mutations
   const updateUserRoleMutation = useMutation({
     mutationFn: async ({ userId, roleId }: { userId: string; roleId: number }) => {
       const response = await fetch(`/api/admin/users/${userId}/role`, {
@@ -2985,11 +3018,45 @@ function UsersManagementTab() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users-management"] });
       toast({ title: "Success", description: "User role updated successfully" });
     },
   });
 
+  const suspendUserMutation = useMutation({
+    mutationFn: async ({ userId, reason, duration }: { userId: string; reason: string; duration?: string }) => {
+      const response = await fetch(`/api/admin/user/${userId}/suspend`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason, duration }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users-management"] });
+      toast({ title: "Success", description: "User suspended successfully" });
+    },
+  });
+
+  const bulkActionMutation = useMutation({
+    mutationFn: async ({ userIds, action, data }: { userIds: string[]; action: string; data?: any }) => {
+      const response = await fetch(`/api/admin/users/bulk-action`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userIds, action, data }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users-management"] });
+      setSelectedUsers([]);
+      toast({ title: "Success", description: "Bulk action completed successfully" });
+    },
+  });
+
+  // Helper functions
   const getRoleColor = (roleName: string) => {
     switch (roleName?.toLowerCase()) {
       case "superadmin": return "bg-red-500";
@@ -3000,77 +3067,541 @@ function UsersManagementTab() {
     }
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "active": return "bg-green-100 text-green-800";
+      case "suspended": return "bg-red-100 text-red-800";
+      case "pending": return "bg-yellow-100 text-yellow-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const handleSort = (field: string) => {
+    setSortConfig(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === "asc" ? "desc" : "asc"
+    }));
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedUsers(usersData?.users.map(user => user.id) || []);
+    } else {
+      setSelectedUsers([]);
+    }
+  };
+
+  const handleSelectUser = (userId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedUsers(prev => [...prev, userId]);
+    } else {
+      setSelectedUsers(prev => prev.filter(id => id !== userId));
+    }
+  };
+
+  const paginationInfo = usersData ? {
+    page: pagination.page,
+    pages: usersData.pageCount,
+    total: usersData.totalCount,
+    showing: usersData.users.length
+  } : null;
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5" />
-          User Management ({users.length})
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="text-center py-8">Loading users...</div>
-        ) : users.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">No users found</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">
-                      {user.firstName} {user.lastName}
-                    </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.phoneNumber}</TableCell>
-                    <TableCell>
-                      <Badge className={`${getRoleColor(user.role?.name)} text-white`}>
-                        {user.role?.name || "No Role"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        value={user.role?.id?.toString() || ""}
-                        onValueChange={(value) => 
-                          updateUserRoleMutation.mutate({ 
-                            userId: user.id, 
-                            roleId: parseInt(value) 
-                          })
-                        }
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue placeholder="Change role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {roles.map((role) => (
-                            <SelectItem key={role.id} value={role.id.toString()}>
-                              {role.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+    <div className="flex gap-6">
+      {/* Filter Sidebar */}
+      <div className="w-80 space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">User Filters</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Search */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Search Users</label>
+              <Input
+                placeholder="Search by name, email, phone..."
+                value={filters.search}
+                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              />
+            </div>
+
+            {/* Role Filter */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Role</label>
+              <Select value={filters.role} onValueChange={(value) => setFilters(prev => ({ ...prev, role: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All roles" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All roles</SelectItem>
+                  {roles.map((role) => (
+                    <SelectItem key={role.id} value={role.name}>
+                      {role.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Status Filter */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Status</label>
+              <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All statuses</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="suspended">Suspended</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date Range */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Joined Date Range</label>
+              <div className="space-y-2">
+                <Input
+                  type="date"
+                  placeholder="From date"
+                  value={filters.joinedFrom}
+                  onChange={(e) => setFilters(prev => ({ ...prev, joinedFrom: e.target.value }))}
+                />
+                <Input
+                  type="date"
+                  placeholder="To date"
+                  value={filters.joinedTo}
+                  onChange={(e) => setFilters(prev => ({ ...prev, joinedTo: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            {/* Clear Filters */}
+            <Button
+              variant="outline"
+              onClick={() => setFilters({ search: "", role: "", joinedFrom: "", joinedTo: "", status: "" })}
+              className="w-full"
+            >
+              Clear Filters
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Bulk Actions */}
+        {selectedUsers.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Bulk Actions ({selectedUsers.length})</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button
+                variant="outline"
+                onClick={() => bulkActionMutation.mutate({ userIds: selectedUsers, action: "suspend" })}
+                className="w-full"
+              >
+                Suspend Selected
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => bulkActionMutation.mutate({ userIds: selectedUsers, action: "activate" })}
+                className="w-full"
+              >
+                Activate Selected
+              </Button>
+              <Select onValueChange={(roleId) => bulkActionMutation.mutate({ userIds: selectedUsers, action: "changeRole", data: { roleId: parseInt(roleId) } })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Change role..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {roles.map((role) => (
+                    <SelectItem key={role.id} value={role.id.toString()}>
+                      Change to {role.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
         )}
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                User Management 
+                {paginationInfo && (
+                  <span className="text-sm font-normal text-gray-600">
+                    ({paginationInfo.total} total, showing {paginationInfo.showing})
+                  </span>
+                )}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Select 
+                  value={`${sortConfig.field}-${sortConfig.direction}`}
+                  onValueChange={(value) => {
+                    const [field, direction] = value.split('-');
+                    setSortConfig({ field, direction: direction as 'asc' | 'desc' });
+                  }}
+                >
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Sort by..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="createdAt-desc">Newest First</SelectItem>
+                    <SelectItem value="createdAt-asc">Oldest First</SelectItem>
+                    <SelectItem value="firstName-asc">Name A-Z</SelectItem>
+                    <SelectItem value="firstName-desc">Name Z-A</SelectItem>
+                    <SelectItem value="email-asc">Email A-Z</SelectItem>
+                    <SelectItem value="listingsCount-desc">Most Listings</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="text-center py-8">Loading users...</div>
+            ) : !usersData?.users || usersData.users.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">No users found</div>
+            ) : (
+              <div className="space-y-4">
+                {/* Users Table */}
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-12">
+                          <Checkbox
+                            checked={selectedUsers.length === usersData.users.length}
+                            onCheckedChange={handleSelectAll}
+                          />
+                        </TableHead>
+                        <TableHead 
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => handleSort('firstName')}
+                        >
+                          Name {sortConfig.field === 'firstName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead 
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => handleSort('email')}
+                        >
+                          Email {sortConfig.field === 'email' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Listings</TableHead>
+                        <TableHead 
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => handleSort('createdAt')}
+                        >
+                          Joined {sortConfig.field === 'createdAt' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        </TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {usersData.users.map((user) => (
+                        <TableRow key={user.id}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedUsers.includes(user.id)}
+                              onCheckedChange={(checked) => handleSelectUser(user.id, checked as boolean)}
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-sm font-medium">
+                                {user.firstName?.[0]}{user.lastName?.[0]}
+                              </div>
+                              <div>
+                                <div>{user.firstName} {user.lastName}</div>
+                                {user.recentActivity && (
+                                  <div className="text-xs text-gray-500">{user.recentActivity}</div>
+                                )}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>{user.email}</TableCell>
+                          <TableCell>{user.phoneNumber || "-"}</TableCell>
+                          <TableCell>
+                            <Badge className={`${getRoleColor(user.role?.name)} text-white`}>
+                              {user.role?.name || "No Role"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getStatusColor(user.status || "active")}>
+                              {user.status || "active"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{user.listingsCount || 0}</TableCell>
+                          <TableCell>
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setShowUserDetails(user.id)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Select
+                                value={user.role?.id?.toString() || ""}
+                                onValueChange={(value) => 
+                                  updateUserRoleMutation.mutate({ 
+                                    userId: user.id, 
+                                    roleId: parseInt(value) 
+                                  })
+                                }
+                              >
+                                <SelectTrigger className="w-32">
+                                  <SelectValue placeholder="Role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {roles.map((role) => (
+                                    <SelectItem key={role.id} value={role.id.toString()}>
+                                      {role.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Pagination */}
+                {paginationInfo && paginationInfo.pages > 1 && (
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-600">
+                      Page {paginationInfo.page} of {paginationInfo.pages}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={paginationInfo.page <= 1}
+                        onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={paginationInfo.page >= paginationInfo.pages}
+                        onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* User Details Modal */}
+      {showUserDetails && (
+        <UserDetailsModal 
+          userId={showUserDetails}
+          onClose={() => setShowUserDetails(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// User Details Modal Component
+function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => void }) {
+  const { data: userDetails, isLoading } = useQuery<{
+    user: AppUser & { role?: UserRole };
+    listings: any[];
+    activity: any[];
+    stats: any;
+  }>({
+    queryKey: ["/api/admin/user", userId, "history"],
+  });
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const suspendUserMutation = useMutation({
+    mutationFn: async ({ reason, duration }: { reason: string; duration?: string }) => {
+      const response = await fetch(`/api/admin/user/${userId}/suspend`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason, duration }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users-management"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/user", userId] });
+      toast({ title: "Success", description: "User suspended successfully" });
+      onClose();
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl">
+          <div className="text-center py-8">Loading user details...</div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!userDetails) {
+    return (
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl">
+          <div className="text-center py-8 text-red-500">Failed to load user details</div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            User Details: {userDetails.user.firstName} {userDetails.user.lastName}
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="grid grid-cols-2 gap-6">
+          {/* User Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Personal Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <label className="text-sm font-medium text-gray-600">Full Name</label>
+                <div>{userDetails.user.firstName} {userDetails.user.lastName}</div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600">Email</label>
+                <div>{userDetails.user.email}</div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600">Phone</label>
+                <div>{userDetails.user.phoneNumber || "Not provided"}</div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600">Role</label>
+                <div>
+                  <Badge className="bg-purple-500 text-white">
+                    {userDetails.user.role?.name || "No Role"}
+                  </Badge>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600">Joined</label>
+                <div>{new Date(userDetails.user.createdAt).toLocaleDateString()}</div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* User Statistics */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Activity Statistics</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total Listings</span>
+                <span className="font-medium">{userDetails.stats?.totalListings || 0}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Active Listings</span>
+                <span className="font-medium">{userDetails.stats?.activeListings || 0}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total Views</span>
+                <span className="font-medium">{userDetails.stats?.totalViews || 0}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total Favorites</span>
+                <span className="font-medium">{userDetails.stats?.totalFavorites || 0}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Last Activity</span>
+                <span className="font-medium">
+                  {userDetails.stats?.lastActivity ? 
+                    new Date(userDetails.stats.lastActivity).toLocaleDateString() : 
+                    "Never"
+                  }
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Listings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Recent Listings ({userDetails.listings?.length || 0})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {userDetails.listings && userDetails.listings.length > 0 ? (
+              <div className="space-y-2">
+                {userDetails.listings.slice(0, 5).map((listing: any) => (
+                  <div key={listing.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <div className="font-medium">{listing.title}</div>
+                      <div className="text-sm text-gray-600">
+                        {listing.make} {listing.model} • {listing.price ? `KSh ${listing.price.toLocaleString()}` : "Price not set"}
+                      </div>
+                    </div>
+                    <Badge className={listing.status === 'active' ? 'bg-green-500' : 'bg-yellow-500'}>
+                      {listing.status}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-gray-500">No listings found</div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onClose}>
+            Close
+          </Button>
+          <Button 
+            variant="destructive"
+            onClick={() => {
+              const reason = prompt("Enter suspension reason:");
+              if (reason) {
+                suspendUserMutation.mutate({ reason });
+              }
+            }}
+          >
+            Suspend User
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

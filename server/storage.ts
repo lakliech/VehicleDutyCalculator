@@ -17,7 +17,7 @@ import {
   type AutoFlagRule, type FlagCountTracking, type AutomatedActionsLog, type SellerReputationTracking
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, or, desc, sql, gt, inArray, isNull } from "drizzle-orm";
+import { eq, and, gte, lte, or, desc, asc, sql, gt, inArray, isNull, ilike } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 export interface IStorage {
@@ -98,6 +98,25 @@ export interface IStorage {
   getAdminDashboardStats(): Promise<{ totalListings: number; pendingApproval: number; approvedListings: number; rejectedListings: number; flaggedListings: number; }>;
   bulkUpdateListingStatus(listingIds: number[], status: string, adminId: string, reason?: string): Promise<void>;
   getUserHistory(userId: string): Promise<{ listings: CarListing[]; warnings: any[]; activities: UserActivity[]; }>;
+
+  // Enhanced user management methods
+  getEnhancedUsersWithStats(filters?: { 
+    search?: string; 
+    role?: string; 
+    status?: string; 
+    joinedFrom?: string; 
+    joinedTo?: string; 
+    page?: number; 
+    limit?: number; 
+    sort?: string; 
+    order?: string; 
+  }): Promise<{ 
+    users: (AppUser & { role?: UserRole; listingsCount?: number; recentActivity?: string })[]; 
+    totalCount: number; 
+    pageCount: number; 
+  }>;
+  updateUserRole(userId: string, roleId: number): Promise<void>;
+  bulkUserAction(userIds: string[], action: string, adminId: string, data?: any): Promise<void>;
   
   // Enhanced listing management methods
   flagListing(listingId: number, adminId: string, reason: string, notes?: string): Promise<void>;
@@ -2142,6 +2161,176 @@ export class DatabaseStorage implements IStorage {
     await db.update(carListings)
       .set({ status: 'inactive' })
       .where(eq(carListings.id, listingId));
+  }
+
+  // Enhanced user management implementations
+  async getEnhancedUsersWithStats(filters: { 
+    search?: string; 
+    role?: string; 
+    status?: string; 
+    joinedFrom?: string; 
+    joinedTo?: string; 
+    page?: number; 
+    limit?: number; 
+    sort?: string; 
+    order?: string; 
+  } = {}): Promise<{ 
+    users: (AppUser & { role?: UserRole; listingsCount?: number; recentActivity?: string })[]; 
+    totalCount: number; 
+    pageCount: number; 
+  }> {
+    const { 
+      search, 
+      role, 
+      status, 
+      joinedFrom, 
+      joinedTo, 
+      page = 1, 
+      limit = 20, 
+      sort = 'createdAt', 
+      order = 'desc' 
+    } = filters;
+    
+    // Build where conditions
+    const whereConditions = [];
+    
+    if (search) {
+      whereConditions.push(or(
+        ilike(appUsers.firstName, `%${search}%`),
+        ilike(appUsers.lastName, `%${search}%`),
+        ilike(appUsers.email, `%${search}%`),
+        ilike(appUsers.phoneNumber, `%${search}%`)
+      ));
+    }
+    
+    if (role) {
+      whereConditions.push(eq(userRoles.name, role));
+    }
+    
+    if (status) {
+      whereConditions.push(eq(appUsers.status, status));
+    }
+    
+    if (joinedFrom) {
+      whereConditions.push(gte(appUsers.createdAt, joinedFrom));
+    }
+    
+    if (joinedTo) {
+      whereConditions.push(lte(appUsers.createdAt, joinedTo));
+    }
+
+    const whereClause = whereConditions.length > 0 ? and(...whereConditions) : undefined;
+    
+    // Get total count
+    const countResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(appUsers)
+      .leftJoin(userRoles, eq(appUsers.roleId, userRoles.id))
+      .where(whereClause);
+    
+    const totalCount = countResult[0]?.count || 0;
+    const pageCount = Math.ceil(totalCount / limit);
+    
+    // Build order by clause
+    const orderByField = sort === 'firstName' ? appUsers.firstName :
+                        sort === 'email' ? appUsers.email :
+                        sort === 'createdAt' ? appUsers.createdAt :
+                        appUsers.createdAt;
+    
+    const orderByClause = order === 'asc' ? asc(orderByField) : desc(orderByField);
+    
+    // Get users with role information and listing counts
+    const usersResult = await db
+      .select({
+        user: appUsers,
+        role: userRoles,
+        listingsCount: sql<number>`count(${carListings.id})`
+      })
+      .from(appUsers)
+      .leftJoin(userRoles, eq(appUsers.roleId, userRoles.id))
+      .leftJoin(carListings, eq(appUsers.id, carListings.sellerId))
+      .where(whereClause)
+      .groupBy(appUsers.id, userRoles.id)
+      .orderBy(orderByClause)
+      .limit(limit)
+      .offset((page - 1) * limit);
+    
+    // Get recent activity for each user
+    const userIds = usersResult.map(u => u.user.id);
+    const recentActivities = await db
+      .select({
+        userId: carListings.sellerId,
+        lastActivity: sql<string>`max(${carListings.createdAt})`
+      })
+      .from(carListings)
+      .where(inArray(carListings.sellerId, userIds))
+      .groupBy(carListings.sellerId);
+    
+    const activityMap = new Map(recentActivities.map(a => [a.userId, a.lastActivity]));
+    
+    // Format the response
+    const enhancedUsers = usersResult.map(result => ({
+      ...result.user,
+      role: result.role,
+      listingsCount: result.listingsCount || 0,
+      recentActivity: activityMap.get(result.user.id) ? 
+        `Last listing: ${new Date(activityMap.get(result.user.id)!).toLocaleDateString()}` : 
+        'No activity'
+    }));
+    
+    return {
+      users: enhancedUsers,
+      totalCount,
+      pageCount
+    };
+  }
+
+  async updateUserRole(userId: string, roleId: number): Promise<void> {
+    await db.update(appUsers)
+      .set({ 
+        roleId, 
+        updatedAt: new Date().toISOString() 
+      })
+      .where(eq(appUsers.id, userId));
+  }
+
+  async bulkUserAction(userIds: string[], action: string, adminId: string, data?: any): Promise<void> {
+    switch (action) {
+      case 'suspend':
+        await db.update(appUsers)
+          .set({ 
+            status: 'suspended',
+            updatedAt: new Date().toISOString()
+          })
+          .where(inArray(appUsers.id, userIds));
+        break;
+        
+      case 'activate':
+        await db.update(appUsers)
+          .set({ 
+            status: 'active',
+            updatedAt: new Date().toISOString()
+          })
+          .where(inArray(appUsers.id, userIds));
+        break;
+        
+      case 'changeRole':
+        if (data?.roleId) {
+          await db.update(appUsers)
+            .set({ 
+              roleId: data.roleId,
+              updatedAt: new Date().toISOString()
+            })
+            .where(inArray(appUsers.id, userIds));
+        }
+        break;
+        
+      default:
+        throw new Error(`Unknown bulk action: ${action}`);
+    }
+    
+    // Log the bulk action for audit purposes
+    console.log(`Bulk action ${action} performed by ${adminId} on ${userIds.length} users`);
   }
 }
 

@@ -80,10 +80,17 @@ export default function AdminListingDetails() {
 
   const availableUsers = usersData?.users?.map((item: any) => item.user) || [];
 
-  // Initialize form data when listing loads - initialize once only
+  // Initialize form data when listing loads - ensure data is fully loaded
   useEffect(() => {
-    if (listingData && !metaStatus) {
-      console.log('Initializing form data:', listingData);
+    if (listingData && !isLoading) {
+      console.log('Initializing form data:', {
+        status: listingData.status,
+        featured: listingData.featured,
+        verified: listingData.isVerified,
+        source: listingData.listingSource,
+        seller: listingData.seller,
+        notes: listingData.adminNotes
+      });
       
       setEditTitle(listingData.title || "");
       setEditDescription(listingData.description || "");
@@ -91,7 +98,7 @@ export default function AdminListingDetails() {
       setEditLocation(listingData.location || "");
       setEditNegotiable(listingData.negotiable || false);
       
-      // Initialize meta fields once
+      // Always reinitialize when data changes
       setMetaStatus(listingData.status || "pending");
       setMetaFeatured(Boolean(listingData.featured));
       setMetaVerified(Boolean(listingData.isVerified));
@@ -100,7 +107,7 @@ export default function AdminListingDetails() {
       setMetaSellerId(listingData.sellerId || "");
       setMetaAdminNotes(listingData.adminNotes || "");
     }
-  }, [listingData, metaStatus]);
+  }, [listingData, isLoading]);
 
   // Mutations
   const updateMutation = useMutation({
@@ -454,13 +461,24 @@ export default function AdminListingDetails() {
               <CardContent className="space-y-4">
                 {/* Current Values Display */}
                 <div className="bg-blue-50 p-3 rounded-lg text-sm">
-                  <div className="font-medium text-blue-800 mb-2">Current Values:</div>
+                  <div className="font-medium text-blue-800 mb-2">Current Database Values:</div>
                   <div className="space-y-1 text-blue-700">
-                    <div>Status: <span className="font-medium">{listingData?.status}</span></div>
+                    <div>Status: <span className="font-medium">{listingData?.status || 'Loading...'}</span></div>
                     <div>Featured: <span className="font-medium">{listingData?.featured ? 'Yes' : 'No'}</span></div>
                     <div>Verified: <span className="font-medium">{listingData?.isVerified ? 'Yes' : 'No'}</span></div>
-                    <div>Source: <span className="font-medium">{listingData?.listingSource}</span></div>
+                    <div>Source: <span className="font-medium">{listingData?.listingSource || 'Loading...'}</span></div>
                     <div>Seller: <span className="font-medium">{listingData?.seller?.firstName} {listingData?.seller?.lastName}</span></div>
+                  </div>
+                </div>
+                
+                {/* Form State Display */}
+                <div className="bg-green-50 p-3 rounded-lg text-sm">
+                  <div className="font-medium text-green-800 mb-2">Form State Values:</div>
+                  <div className="space-y-1 text-green-700">
+                    <div>Status: <span className="font-medium">{metaStatus || 'Not set'}</span></div>
+                    <div>Featured: <span className="font-medium">{metaFeatured !== undefined ? (metaFeatured ? 'Yes' : 'No') : 'Not set'}</span></div>
+                    <div>Verified: <span className="font-medium">{metaVerified !== undefined ? (metaVerified ? 'Yes' : 'No') : 'Not set'}</span></div>
+                    <div>Source: <span className="font-medium">{metaListingSource || 'Not set'}</span></div>
                   </div>
                 </div>
                 

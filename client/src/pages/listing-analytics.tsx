@@ -81,6 +81,7 @@ interface AnalyticsData {
     shares: number;
     impressions: number;
     clickThroughRate: number;
+    averageTimeSpent?: number;
   };
   audienceInsights: {
     locationBreakdown: Record<string, number>;
@@ -372,10 +373,12 @@ export default function ListingAnalytics() {
                     <span className="text-sm text-gray-600">Shares</span>
                     <span className="font-semibold">{analytics.engagementMetrics.shares}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Avg. Time Spent</span>
-                    <span className="font-semibold">{formatTime(analytics.engagementMetrics.averageTimeSpent)}</span>
-                  </div>
+                  {analytics.engagementMetrics.averageTimeSpent && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Avg. Time Spent</span>
+                      <span className="font-semibold">{formatTime(analytics.engagementMetrics.averageTimeSpent)}</span>
+                    </div>
+                  )}
                   <Separator />
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Conversion Rate</p>

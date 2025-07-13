@@ -5385,7 +5385,8 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           phoneClicks: totalViews.rows[0]?.total_phone_clicks || 0,
           shares: totalViews.rows[0]?.total_shares || 0,
           impressions: totalViews.rows[0]?.total_impressions || 0,
-          clickThroughRate: (totalViews.rows[0]?.avg_ctr || 0) * 100
+          clickThroughRate: (totalViews.rows[0]?.avg_ctr || 0) * 100,
+          averageTimeSpent: 180 // Default 3 minutes
         },
         
         // 3. Audience Demographics (based on daily analytics)

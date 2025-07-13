@@ -84,7 +84,7 @@ export default function AdminListingDetails() {
 
   // Fetch listing data - force fresh data
   const { data: listingData, isLoading, error } = useQuery({
-    queryKey: ['listing', id],
+    queryKey: ['/api/admin/listing-details', id],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/admin/listing-details/${id}`);
       return await response.json();
@@ -144,10 +144,10 @@ export default function AdminListingDetails() {
 
   // Mutations
   const updateMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('PUT', `/api/admin/listing/${id}`, data),
+    mutationFn: (data: any) => apiRequest('PUT', `/api/admin/listings/${id}`, data),
     onSuccess: () => {
       toast({ title: "Success", description: "Listing updated successfully" });
-      queryClient.invalidateQueries({ queryKey: ['listing', id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
     },
     onError: () => toast({ title: "Error", description: "Failed to update listing", variant: "destructive" }),
   });
@@ -156,7 +156,7 @@ export default function AdminListingDetails() {
     mutationFn: (data: any) => apiRequest('PUT', `/api/admin/listings/${id}/meta`, data),
     onSuccess: () => {
       toast({ title: "Success", description: "Meta fields updated successfully" });
-      queryClient.invalidateQueries({ queryKey: ['listing', id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
     },
     onError: () => toast({ title: "Error", description: "Failed to update meta fields", variant: "destructive" }),
   });
@@ -165,7 +165,7 @@ export default function AdminListingDetails() {
     mutationFn: (data: any) => apiRequest('POST', `/api/admin/listing/${id}/media`, data),
     onSuccess: () => {
       toast({ title: "Success", description: "Media updated successfully" });
-      queryClient.invalidateQueries({ queryKey: ['listing', id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
       setIsMediaOpen(false);
     },
     onError: () => toast({ title: "Error", description: "Failed to update media", variant: "destructive" }),

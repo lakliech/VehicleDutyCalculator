@@ -83,7 +83,14 @@ export default function AdminListingDetails() {
   // Initialize form data when listing loads
   useEffect(() => {
     if (listingData) {
-      console.log('Initializing form data with:', listingData);
+      console.log('Listing data received:', {
+        status: listingData.status,
+        featured: listingData.featured,
+        verified: listingData.isVerified,
+        source: listingData.listingSource,
+        notes: listingData.adminNotes,
+        sellerId: listingData.sellerId
+      });
       
       setEditTitle(listingData.title || "");
       setEditDescription(listingData.description || "");
@@ -91,22 +98,14 @@ export default function AdminListingDetails() {
       setEditLocation(listingData.location || "");
       setEditNegotiable(listingData.negotiable || false);
       
-      // Initialize meta fields with current values
+      // Initialize meta fields with current values - force update
       setMetaStatus(listingData.status || "pending");
-      setMetaFeatured(!!listingData.featured);
-      setMetaVerified(!!listingData.isVerified);
+      setMetaFeatured(Boolean(listingData.featured));
+      setMetaVerified(Boolean(listingData.isVerified));
       setMetaExpirationDate(listingData.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "");
       setMetaListingSource(listingData.listingSource || "user-submitted");
       setMetaSellerId(listingData.sellerId || "");
       setMetaAdminNotes(listingData.adminNotes || "");
-      
-      console.log('Meta fields initialized:', {
-        status: listingData.status,
-        featured: listingData.featured,
-        verified: listingData.isVerified,
-        source: listingData.listingSource,
-        sellerId: listingData.sellerId
-      });
     }
   }, [listingData]);
 
@@ -455,7 +454,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaStatus">Listing Status *</Label>
                   <select
                     id="metaStatus"
-                    value={metaStatus || listingData?.status || "pending"}
+                    value={metaStatus !== "" ? metaStatus : (listingData?.status || "pending")}
                     onChange={(e) => setMetaStatus(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
@@ -471,7 +470,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaListingSource">Listing Source</Label>
                   <select
                     id="metaListingSource"
-                    value={metaListingSource || listingData?.listingSource || "user-submitted"}
+                    value={metaListingSource !== "" ? metaListingSource : (listingData?.listingSource || "user-submitted")}
                     onChange={(e) => setMetaListingSource(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
@@ -486,7 +485,7 @@ export default function AdminListingDetails() {
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="metaFeatured"
-                      checked={metaFeatured || !!listingData?.featured}
+                      checked={Boolean(metaFeatured !== undefined ? metaFeatured : listingData?.featured)}
                       onCheckedChange={setMetaFeatured}
                     />
                     <Label htmlFor="metaFeatured">Featured Listing</Label>
@@ -495,7 +494,7 @@ export default function AdminListingDetails() {
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="metaVerified"
-                      checked={metaVerified || !!listingData?.isVerified}
+                      checked={Boolean(metaVerified !== undefined ? metaVerified : listingData?.isVerified)}
                       onCheckedChange={setMetaVerified}
                     />
                     <Label htmlFor="metaVerified">Verified Badge</Label>
@@ -545,17 +544,19 @@ export default function AdminListingDetails() {
                 
                 <Button 
                   onClick={() => {
-                    metaMutation.mutate({
-                      status: metaStatus,
-                      featured: metaFeatured,
-                      isVerified: metaVerified,
+                    const updateData = {
+                      status: metaStatus || listingData?.status,
+                      featured: metaFeatured !== undefined ? metaFeatured : listingData?.featured,
+                      isVerified: metaVerified !== undefined ? metaVerified : listingData?.isVerified,
                       expirationDate: metaExpirationDate || null,
-                      listingSource: metaListingSource,
-                      sellerId: metaSellerId,
-                      adminNotes: metaAdminNotes
-                    });
+                      listingSource: metaListingSource || listingData?.listingSource,
+                      sellerId: metaSellerId || listingData?.sellerId,
+                      adminNotes: metaAdminNotes || ""
+                    };
+                    console.log('Updating meta fields with:', updateData);
+                    metaMutation.mutate(updateData);
                   }}
-                  disabled={!metaStatus || metaMutation.isPending}
+                  disabled={metaMutation.isPending}
                   className="w-full"
                 >
                   {metaMutation.isPending ? 'Updating...' : 'Update Meta Fields'}

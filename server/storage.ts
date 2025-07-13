@@ -2023,6 +2023,12 @@ export class DatabaseStorage implements IStorage {
 
   async executeAutomatedAction(listingId: number, flagRule: AutoFlagRule, flagCount: number): Promise<void> {
     try {
+      // Get listing details to access seller information
+      const listing = await this.getListingById(listingId);
+      if (!listing) {
+        throw new Error(`Listing ${listingId} not found`);
+      }
+
       switch (flagRule.actionType) {
         case 'hide_images_admin_review':
           await this.hideListingImages(listingId);
@@ -2043,6 +2049,39 @@ export class DatabaseStorage implements IStorage {
 
         case 'immediate_suspension':
           await this.suspendListing(listingId, 'Immediate suspension for manual moderation');
+          break;
+
+        // User account suspension actions
+        case 'auto_unlist_lock_account':
+          await this.suspendListing(listingId, `Automated action: ${flagRule.actionDescription}`);
+          await this.suspendUserAccount(listing.sellerId, `Automated suspension: ${flagRule.flagType}`, 'critical');
+          break;
+
+        case 'disable_listing_request_verification':
+          await this.suspendListing(listingId, `Automated action: ${flagRule.actionDescription}`);
+          await this.suspendUserAccount(listing.sellerId, `Automated suspension: ${flagRule.flagType}`, 'high');
+          break;
+
+        case 'remove_mark_high_risk':
+          await this.suspendListing(listingId, `Automated action: ${flagRule.actionDescription}`);
+          await this.markUserHighRisk(listing.sellerId, flagRule.flagType);
+          break;
+
+        case 'immediate_takedown_notify_legal':
+          await this.suspendListing(listingId, 'Immediate takedown - legal review required');
+          await this.suspendUserAccount(listing.sellerId, `Critical violation: ${flagRule.flagType}`, 'critical');
+          await this.notifyLegalTeam(listingId, listing.sellerId, flagRule.flagType);
+          break;
+
+        case 'auto_flag_fraud_review':
+          await this.suspendListing(listingId, 'Suspended pending fraud review');
+          await this.suspendUserAccount(listing.sellerId, `Fraud review: ${flagRule.flagType}`, 'critical');
+          break;
+
+        case 'auto_hide_lock_listing':
+          await this.hideListingImages(listingId);
+          await this.suspendListing(listingId, 'Locked pending admin verification');
+          await this.suspendUserAccount(listing.sellerId, `Copyright violation: ${flagRule.flagType}`, 'critical');
           break;
 
         default:
@@ -2161,6 +2200,38 @@ export class DatabaseStorage implements IStorage {
     await db.update(carListings)
       .set({ status: 'inactive' })
       .where(eq(carListings.id, listingId));
+  }
+
+  // User account suspension methods
+  private async suspendUserAccount(sellerId: string, reason: string, severity: 'low' | 'medium' | 'high' | 'critical'): Promise<void> {
+    const now = new Date();
+    
+    // Suspend the user account
+    await db.update(appUsers)
+      .set({ 
+        status: 'suspended',
+        updatedAt: now
+      })
+      .where(eq(appUsers.id, sellerId));
+
+    // Log the automated suspension
+    console.log(`Automated user suspension: ${sellerId} - ${reason} (${severity})`);
+  }
+
+  private async markUserHighRisk(sellerId: string, flagType: string): Promise<void> {
+    // Update seller reputation with high risk marker
+    await this.updateSellerReputation(sellerId, flagType, 'high');
+    
+    // Log the high risk marking
+    console.log(`User marked as high risk: ${sellerId} - ${flagType}`);
+  }
+
+  private async notifyLegalTeam(listingId: number, sellerId: string, flagType: string): Promise<void> {
+    // Log legal notification requirement
+    console.log(`LEGAL NOTIFICATION REQUIRED: Listing ${listingId}, User ${sellerId}, Flag: ${flagType}`);
+    
+    // Add admin note for legal review
+    await this.addAdminNote(listingId, 'system', `LEGAL REVIEW REQUIRED: ${flagType} - Automated detection triggered legal notification protocol`);
   }
 
   // Enhanced user management implementations

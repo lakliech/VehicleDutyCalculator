@@ -501,6 +501,13 @@ Changelog:
   - Updated database queries to join with app_users table and exclude suspended sellers
   - Verified that listings from suspended users are completely hidden from buy-a-car module
   - Integrated with user management bulk actions for immediate listing visibility control
+- January 13, 2025. Enhanced automated flagging system with user account suspension:
+  - Updated executeAutomatedAction method to include user-level suspension for critical violations
+  - Added automatic user suspension for scam_phishing_attempt, impersonation_fake_profile, stolen_vehicle, fraud, and copyright violations
+  - Implemented suspendUserAccount, markUserHighRisk, and notifyLegalTeam helper methods
+  - Verified automated flagging triggers user suspension which immediately hides all user listings from marketplace
+  - Critical auto-flag rules now properly suspend user accounts in addition to listing actions
+  - System automatically integrates user suspension with existing listing visibility controls
 
 ## User Preferences
 

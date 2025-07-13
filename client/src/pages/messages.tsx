@@ -74,6 +74,15 @@ export default function MessagesPage() {
   // Get messages for selected conversation
   const { data: messages = [], isLoading: messagesLoading } = useQuery({
     queryKey: ['/api/messaging/conversations', selectedConversation, 'messages'],
+    queryFn: async () => {
+      const response = await fetch(`/api/messaging/conversations/${selectedConversation}/messages`, {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch messages');
+      }
+      return response.json();
+    },
     enabled: !!selectedConversation && !!user
   });
 

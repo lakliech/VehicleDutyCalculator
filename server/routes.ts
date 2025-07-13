@@ -1144,7 +1144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const { action, images, deleteIndex, featuredIndex, newOrder } = validation.data;
+      const { action, images, videos, documents, deleteIndex, deleteVideoIndex, deleteDocumentIndex, featuredIndex, newOrder } = validation.data;
       
       switch (action) {
         case 'upload':
@@ -1154,11 +1154,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.addListingImages(listingId, images);
           break;
           
+        case 'upload_video':
+          if (!videos || videos.length === 0) {
+            return res.status(400).json({ error: "Videos are required for video upload" });
+          }
+          await storage.addListingVideos(listingId, videos);
+          break;
+          
+        case 'upload_document':
+          if (!documents || documents.length === 0) {
+            return res.status(400).json({ error: "Documents are required for document upload" });
+          }
+          await storage.addListingDocuments(listingId, documents);
+          break;
+          
         case 'delete':
           if (deleteIndex === undefined) {
             return res.status(400).json({ error: "Delete index is required" });
           }
           await storage.deleteListingImage(listingId, deleteIndex);
+          break;
+          
+        case 'delete_video':
+          if (deleteVideoIndex === undefined) {
+            return res.status(400).json({ error: "Video delete index is required" });
+          }
+          await storage.deleteListingVideo(listingId, deleteVideoIndex);
+          break;
+          
+        case 'delete_document':
+          if (deleteDocumentIndex === undefined) {
+            return res.status(400).json({ error: "Document delete index is required" });
+          }
+          await storage.deleteListingDocument(listingId, deleteDocumentIndex);
           break;
           
         case 'reorder':

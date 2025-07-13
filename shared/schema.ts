@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, decimal, boolean, timestamp, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, decimal, boolean, timestamp, varchar, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -239,6 +239,8 @@ export const carListings = pgTable("car_listings", {
   description: text("description"),
   features: text("features").array(), // Array of features/accessories
   images: text("images").array(), // Array of image URLs
+  videos: text("videos").array(), // Array of video URLs
+  documents: json("documents").$type<Array<{url: string; name: string; type: 'logbook' | 'inspection' | 'ownership' | 'other'}>>(), // Array of document objects
   location: text("location").notNull(),
   phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
   whatsappNumber: varchar("whatsapp_number", { length: 20 }),
@@ -400,9 +402,17 @@ export const adminMetaUpdateSchema = z.object({
 
 // Schema for media management operations
 export const mediaManagementSchema = z.object({
-  action: z.enum(['upload', 'delete', 'reorder', 'set_featured']),
+  action: z.enum(['upload', 'delete', 'reorder', 'set_featured', 'upload_video', 'delete_video', 'upload_document', 'delete_document']),
   images: z.array(z.string()).optional(),
+  videos: z.array(z.string()).optional(),
+  documents: z.array(z.object({
+    url: z.string(),
+    name: z.string(),
+    type: z.enum(['logbook', 'inspection', 'ownership', 'other'])
+  })).optional(),
   deleteIndex: z.number().optional(),
+  deleteVideoIndex: z.number().optional(),
+  deleteDocumentIndex: z.number().optional(),
   featuredIndex: z.number().optional(),
   newOrder: z.array(z.number()).optional(),
 });

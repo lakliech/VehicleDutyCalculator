@@ -1704,6 +1704,104 @@ export class DatabaseStorage implements IStorage {
       .where(eq(carListings.id, listingId));
   }
 
+  // Video management methods
+  async addListingVideos(listingId: number, newVideos: string[]): Promise<void> {
+    const [listing] = await db
+      .select({ videos: carListings.videos })
+      .from(carListings)
+      .where(eq(carListings.id, listingId));
+    
+    if (!listing) {
+      throw new Error('Listing not found');
+    }
+    
+    const currentVideos = listing.videos || [];
+    const updatedVideos = [...currentVideos, ...newVideos];
+    
+    await db
+      .update(carListings)
+      .set({ 
+        videos: updatedVideos,
+        updatedAt: new Date()
+      })
+      .where(eq(carListings.id, listingId));
+  }
+
+  async deleteListingVideo(listingId: number, videoIndex: number): Promise<void> {
+    const [listing] = await db
+      .select({ videos: carListings.videos })
+      .from(carListings)
+      .where(eq(carListings.id, listingId));
+    
+    if (!listing) {
+      throw new Error('Listing not found');
+    }
+    
+    const currentVideos = listing.videos || [];
+    if (videoIndex < 0 || videoIndex >= currentVideos.length) {
+      throw new Error('Invalid video index');
+    }
+    
+    const updatedVideos = currentVideos.filter((_, index) => index !== videoIndex);
+    
+    await db
+      .update(carListings)
+      .set({ 
+        videos: updatedVideos,
+        updatedAt: new Date()
+      })
+      .where(eq(carListings.id, listingId));
+  }
+
+  // Document management methods
+  async addListingDocuments(listingId: number, newDocuments: Array<{url: string; name: string; type: 'logbook' | 'inspection' | 'ownership' | 'other'}>): Promise<void> {
+    const [listing] = await db
+      .select({ documents: carListings.documents })
+      .from(carListings)
+      .where(eq(carListings.id, listingId));
+    
+    if (!listing) {
+      throw new Error('Listing not found');
+    }
+    
+    const currentDocuments = listing.documents || [];
+    const updatedDocuments = [...currentDocuments, ...newDocuments];
+    
+    await db
+      .update(carListings)
+      .set({ 
+        documents: updatedDocuments,
+        updatedAt: new Date()
+      })
+      .where(eq(carListings.id, listingId));
+  }
+
+  async deleteListingDocument(listingId: number, documentIndex: number): Promise<void> {
+    const [listing] = await db
+      .select({ documents: carListings.documents })
+      .from(carListings)
+      .where(eq(carListings.id, listingId));
+    
+    if (!listing) {
+      throw new Error('Listing not found');
+    }
+    
+    const currentDocuments = listing.documents || [];
+    if (documentIndex < 0 || documentIndex >= currentDocuments.length) {
+      throw new Error('Invalid document index');
+    }
+    
+    const updatedDocuments = currentDocuments.filter((_, index) => index !== documentIndex);
+    
+    await db
+      .update(carListings)
+      .set({ 
+        documents: updatedDocuments,
+        updatedAt: new Date()
+      })
+      .where(eq(carListings.id, listingId));
+  }
+
   // Admin meta fields management
   async updateListingMeta(listingId: number, metaData: any, adminId: string): Promise<any> {
     const updateData: any = {

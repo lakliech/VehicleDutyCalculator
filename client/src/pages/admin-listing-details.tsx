@@ -28,6 +28,8 @@ import {
   ArrowUp,
   ArrowDown,
   Image as ImageIcon,
+  Film,
+  FileText,
   Settings
 } from "lucide-react";
 
@@ -937,16 +939,19 @@ export default function AdminListingDetails() {
 
         {/* Media Management Dialog */}
         <Dialog open={isMediaOpen} onOpenChange={setIsMediaOpen}>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Manage Media</DialogTitle>
+              <DialogTitle>Manage Media (Images, Videos, Documents)</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {/* Current Images */}
               {listingData.images && listingData.images.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Current Images</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    <ImageIcon className="w-5 h-5" />
+                    Current Images ({listingData.images.length})
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {listingData.images.map((image: string, index: number) => (
                       <div key={index} className="relative group">
                         <img
@@ -954,7 +959,7 @@ export default function AdminListingDetails() {
                           alt={`Image ${index + 1}`}
                           className="w-full h-32 object-cover rounded-lg"
                         />
-                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
                           <Button
                             size="sm"
                             variant="destructive"
@@ -977,7 +982,7 @@ export default function AdminListingDetails() {
                               });
                             }}
                           >
-                            Set Featured
+                            Featured
                           </Button>
                         </div>
                         {index === 0 && (
@@ -991,72 +996,284 @@ export default function AdminListingDetails() {
                 </div>
               )}
 
+              {/* Current Videos */}
+              {listingData.videos && listingData.videos.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    <Film className="w-5 h-5" />
+                    Current Videos ({listingData.videos.length})
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {listingData.videos.map((video: string, index: number) => (
+                      <div key={index} className="relative group">
+                        <video
+                          src={video}
+                          className="w-full h-32 object-cover rounded-lg"
+                          controls
+                        />
+                        <div className="absolute top-2 right-2">
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => {
+                              mediaMutation.mutate({
+                                action: 'delete_video',
+                                deleteVideoIndex: index
+                              });
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Current Documents */}
+              {listingData.documents && listingData.documents.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Current Documents ({listingData.documents.length})
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {listingData.documents.map((doc: any, index: number) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4" />
+                          <div>
+                            <p className="font-medium">{doc.name}</p>
+                            <p className="text-sm text-gray-500 capitalize">{doc.type}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(doc.url, '_blank')}
+                          >
+                            View
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => {
+                              mediaMutation.mutate({
+                                action: 'delete_document',
+                                deleteDocumentIndex: index
+                              });
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Upload New Images */}
               <div>
                 <h3 className="text-lg font-semibold mb-3">Add New Images</h3>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <p className="text-gray-500 mb-2">Click to upload images or drag and drop</p>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-                      if (files.length > 0) {
-                        // For now, show a message that file upload would need to be implemented
-                        toast({ 
-                          title: "File Upload", 
-                          description: "File upload functionality needs to be implemented with proper image hosting",
-                          variant: "destructive"
-                        });
-                      }
-                    }}
-                    className="hidden"
-                    id="imageUpload"
-                  />
-                  <label
-                    htmlFor="imageUpload"
-                    className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Choose Files
-                  </label>
-                </div>
-              </div>
-
-              {/* Image URL Input (temporary solution) */}
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Add Image by URL</h3>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Enter image URL..."
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        const url = e.currentTarget.value.trim();
+                <div className="space-y-3">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <p className="text-gray-500 mb-2">Click to upload images or drag and drop</p>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (files.length > 0) {
+                          toast({ 
+                            title: "File Upload", 
+                            description: "File upload functionality needs to be implemented with proper image hosting",
+                            variant: "destructive"
+                          });
+                        }
+                      }}
+                      className="hidden"
+                      id="imageUpload"
+                    />
+                    <label
+                      htmlFor="imageUpload"
+                      className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Choose Image Files
+                    </label>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter image URL..."
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          const url = e.currentTarget.value.trim();
+                          if (url) {
+                            mediaMutation.mutate({
+                              action: 'upload',
+                              images: [url]
+                            });
+                            e.currentTarget.value = '';
+                          }
+                        }
+                      }}
+                    />
+                    <Button
+                      onClick={() => {
+                        const input = document.querySelector('input[placeholder="Enter image URL..."]') as HTMLInputElement;
+                        const url = input?.value.trim();
                         if (url) {
                           mediaMutation.mutate({
                             action: 'upload',
                             images: [url]
                           });
-                          e.currentTarget.value = '';
+                          input.value = '';
                         }
-                      }
-                    }}
-                  />
+                      }}
+                      disabled={mediaMutation.isPending}
+                    >
+                      {mediaMutation.isPending ? 'Adding...' : 'Add Image URL'}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Upload New Videos */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Add New Videos</h3>
+                <div className="space-y-3">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <p className="text-gray-500 mb-2">Click to upload videos or drag and drop</p>
+                    <input
+                      type="file"
+                      multiple
+                      accept="video/*"
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (files.length > 0) {
+                          toast({ 
+                            title: "File Upload", 
+                            description: "Video upload functionality needs to be implemented with proper video hosting",
+                            variant: "destructive"
+                          });
+                        }
+                      }}
+                      className="hidden"
+                      id="videoUpload"
+                    />
+                    <label
+                      htmlFor="videoUpload"
+                      className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Choose Video Files
+                    </label>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter video URL..."
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          const url = e.currentTarget.value.trim();
+                          if (url) {
+                            mediaMutation.mutate({
+                              action: 'upload_video',
+                              videos: [url]
+                            });
+                            e.currentTarget.value = '';
+                          }
+                        }
+                      }}
+                    />
+                    <Button
+                      onClick={() => {
+                        const input = document.querySelector('input[placeholder="Enter video URL..."]') as HTMLInputElement;
+                        const url = input?.value.trim();
+                        if (url) {
+                          mediaMutation.mutate({
+                            action: 'upload_video',
+                            videos: [url]
+                          });
+                          input.value = '';
+                        }
+                      }}
+                      disabled={mediaMutation.isPending}
+                    >
+                      {mediaMutation.isPending ? 'Adding...' : 'Add Video URL'}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Upload New Documents */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Add New Documents</h3>
+                <div className="space-y-3">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <p className="text-gray-500 mb-2">Click to upload documents or drag and drop</p>
+                    <input
+                      type="file"
+                      multiple
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (files.length > 0) {
+                          toast({ 
+                            title: "File Upload", 
+                            description: "Document upload functionality needs to be implemented with proper file hosting",
+                            variant: "destructive"
+                          });
+                        }
+                      }}
+                      className="hidden"
+                      id="documentUpload"
+                    />
+                    <label
+                      htmlFor="documentUpload"
+                      className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Choose Document Files
+                    </label>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <Input placeholder="Document name..." id="docName" />
+                    <select className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" id="docType">
+                      <option value="logbook">Logbook</option>
+                      <option value="inspection">Inspection Certificate</option>
+                      <option value="ownership">Ownership Proof</option>
+                      <option value="other">Other</option>
+                    </select>
+                    <Input placeholder="Document URL..." id="docUrl" />
+                  </div>
+                  
                   <Button
                     onClick={() => {
-                      const input = document.querySelector('input[placeholder="Enter image URL..."]') as HTMLInputElement;
-                      const url = input?.value.trim();
-                      if (url) {
+                      const nameInput = document.getElementById('docName') as HTMLInputElement;
+                      const typeSelect = document.getElementById('docType') as HTMLSelectElement;
+                      const urlInput = document.getElementById('docUrl') as HTMLInputElement;
+                      
+                      const name = nameInput?.value.trim();
+                      const type = typeSelect?.value as 'logbook' | 'inspection' | 'ownership' | 'other';
+                      const url = urlInput?.value.trim();
+                      
+                      if (name && type && url) {
                         mediaMutation.mutate({
-                          action: 'upload',
-                          images: [url]
+                          action: 'upload_document',
+                          documents: [{ name, type, url }]
                         });
-                        input.value = '';
+                        nameInput.value = '';
+                        urlInput.value = '';
                       }
                     }}
                     disabled={mediaMutation.isPending}
+                    className="w-full"
                   >
-                    {mediaMutation.isPending ? 'Adding...' : 'Add URL'}
+                    {mediaMutation.isPending ? 'Adding...' : 'Add Document'}
                   </Button>
                 </div>
               </div>

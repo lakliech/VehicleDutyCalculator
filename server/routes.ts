@@ -4729,83 +4729,48 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         return res.status(400).json({ error: "Cannot message yourself" });
       }
 
-      // Check if conversation already exists for this listing between these participants
-      const existingConversations = await db
-        .select()
-        .from(conversations)
-        .where(
-          and(
-            eq(conversations.type, 'listing_inquiry'),
-            sql`${conversations.context}::jsonb @> ${JSON.stringify({ listingId: listingId.toString() })}`
-          )
-        );
-
+      // Always create a new conversation for each inquiry to keep them separate
       let conversation = null;
+
+      // Create a new conversation for each inquiry
+      // Get the listing title for the conversation
+      const [listing] = await db
+        .select({ title: carListings.title })
+        .from(carListings)
+        .where(eq(carListings.id, listingId))
+        .limit(1);
       
-      // Check if any of these conversations has both users as participants
-      for (const conv of existingConversations) {
-        const participants = await db
-          .select()
-          .from(conversationParticipants)
-          .where(
-            and(
-              eq(conversationParticipants.conversationId, conv.id),
-              or(
-                eq(conversationParticipants.userId, user.id),
-                eq(conversationParticipants.userId, sellerId)
-              ),
-              eq(conversationParticipants.isActive, true)
-            )
-          );
-        
-        const userIds = participants.map(p => p.userId);
-        if (userIds.includes(user.id) && userIds.includes(sellerId)) {
-          conversation = conv;
-          break;
+      const conversationTitle = listing ? `Inquiry: ${listing.title}` : `Inquiry about listing #${listingId}`;
+      
+      const [newConversation] = await db
+        .insert(conversations)
+        .values({
+          type: 'listing_inquiry',
+          title: conversationTitle,
+          context: JSON.stringify({ listingId: listingId.toString() }),
+          status: 'active',
+          priority: 'normal',
+          lastActivityAt: new Date()
+        })
+        .returning();
+
+      // Add participants
+      await db.insert(conversationParticipants).values([
+        {
+          conversationId: newConversation.id,
+          userId: user.id,
+          role: 'buyer',
+          isActive: true
+        },
+        {
+          conversationId: newConversation.id,
+          userId: sellerId,
+          role: 'seller',
+          isActive: true
         }
-      }
+      ]);
 
-      // Create conversation if it doesn't exist
-      if (!conversation) {
-        // Get the listing title for the conversation
-        const [listing] = await db
-          .select({ title: carListings.title })
-          .from(carListings)
-          .where(eq(carListings.id, listingId))
-          .limit(1);
-        
-        const conversationTitle = listing ? `Inquiry: ${listing.title}` : `Inquiry about listing #${listingId}`;
-        
-        const [newConversation] = await db
-          .insert(conversations)
-          .values({
-            type: 'listing_inquiry',
-            title: conversationTitle,
-            context: JSON.stringify({ listingId: listingId.toString() }),
-            status: 'active',
-            priority: 'normal',
-            lastActivityAt: new Date()
-          })
-          .returning();
-
-        // Add participants
-        await db.insert(conversationParticipants).values([
-          {
-            conversationId: newConversation.id,
-            userId: user.id,
-            role: 'buyer',
-            isActive: true
-          },
-          {
-            conversationId: newConversation.id,
-            userId: sellerId,
-            role: 'seller',
-            isActive: true
-          }
-        ]);
-
-        conversation = newConversation;
-      }
+      conversation = newConversation;
 
       // Send the message
       const [newMessage] = await db

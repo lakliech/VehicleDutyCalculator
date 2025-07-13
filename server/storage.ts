@@ -2568,7 +2568,34 @@ export class DatabaseStorage implements IStorage {
              (SELECT COUNT(*) FROM messages m WHERE m.conversation_id = c.id) as message_count,
              (SELECT COUNT(*) FROM messages m 
               WHERE m.conversation_id = c.id 
-              AND m.id > COALESCE(cp.last_read_message_id, 0)) as unread_count
+              AND m.read_count = 0 AND m.sender_id != ${userId}) as unread_count,
+             (SELECT json_agg(
+               json_build_object(
+                 'id', u.id,
+                 'firstName', u.first_name,
+                 'lastName', u.last_name,
+                 'email', u.email,
+                 'profileImageUrl', u.profile_image_url,
+                 'role', cp2.role
+               )
+             ) FROM conversation_participants cp2
+             JOIN app_users u ON cp2.user_id = u.id
+             WHERE cp2.conversation_id = c.id 
+               AND cp2.user_id != ${userId} 
+               AND cp2.is_active = true
+             ) as participants,
+             (SELECT json_build_object(
+               'id', last_msg.id,
+               'content', last_msg.content,
+               'createdAt', last_msg.created_at,
+               'senderId', last_msg.sender_id,
+               'senderName', CONCAT(sender.first_name, ' ', sender.last_name)
+             ) FROM messages last_msg
+             JOIN app_users sender ON last_msg.sender_id = sender.id
+             WHERE last_msg.conversation_id = c.id
+             ORDER BY last_msg.created_at DESC
+             LIMIT 1
+             ) as last_message
       FROM conversations c
       JOIN conversation_participants cp ON c.id = cp.conversation_id
       WHERE cp.user_id = ${userId} AND cp.is_active = true

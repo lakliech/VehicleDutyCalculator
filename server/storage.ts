@@ -2683,7 +2683,13 @@ export class DatabaseStorage implements IStorage {
       LIMIT ${limit} OFFSET ${offset}
     `);
 
-    return messages.rows.reverse(); // Return in chronological order
+    // Parse the sender JSON field from string to object
+    const parsedMessages = messages.rows.map(row => ({
+      ...row,
+      sender: typeof row.sender === 'string' ? JSON.parse(row.sender) : row.sender
+    }));
+
+    return parsedMessages.reverse(); // Return in chronological order
   }
 
   async getMessage(id: number): Promise<any> {

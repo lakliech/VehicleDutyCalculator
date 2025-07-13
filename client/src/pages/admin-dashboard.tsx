@@ -3392,12 +3392,11 @@ function UsersManagementTab() {
 // User Details Modal Component
 function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => void }) {
   const { data: userDetails, isLoading } = useQuery<{
-    user: AppUser & { role?: UserRole };
     listings: any[];
-    activity: any[];
-    stats: any;
+    warnings: any[];
+    activities: any[];
   }>({
-    queryKey: ["/api/admin/user", userId, "history"],
+    queryKey: [`/api/admin/user/${userId}/history`],
   });
 
   const queryClient = useQueryClient();
@@ -3435,6 +3434,7 @@ function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => 
     return (
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl">
+          <DialogTitle>User Details</DialogTitle>
           <div className="text-center py-8 text-red-500">Failed to load user details</div>
         </DialogContent>
       </Dialog>
@@ -3447,106 +3447,90 @@ function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            User Details: {userDetails.user.firstName} {userDetails.user.lastName}
+            User History and Details
           </DialogTitle>
         </DialogHeader>
         
-        <div className="grid grid-cols-2 gap-6">
-          {/* User Information */}
+        <div className="grid grid-cols-1 gap-6">
+          {/* User Listings */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Personal Information</CardTitle>
+              <CardTitle className="text-lg">User Listings ({userDetails.listings?.length || 0})</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <label className="text-sm font-medium text-gray-600">Full Name</label>
-                <div>{userDetails.user.firstName} {userDetails.user.lastName}</div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-600">Email</label>
-                <div>{userDetails.user.email}</div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-600">Phone</label>
-                <div>{userDetails.user.phoneNumber || "Not provided"}</div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-600">Role</label>
-                <div>
-                  <Badge className="bg-purple-500 text-white">
-                    {userDetails.user.role?.name || "No Role"}
-                  </Badge>
+            <CardContent>
+              {userDetails.listings && userDetails.listings.length > 0 ? (
+                <div className="space-y-3">
+                  {userDetails.listings.slice(0, 5).map((listing: any) => (
+                    <div key={listing.id} className="border p-3 rounded">
+                      <div className="font-medium">{listing.title}</div>
+                      <div className="text-sm text-gray-600">
+                        KES {listing.price?.toLocaleString()} • {listing.status}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Created: {new Date(listing.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ))}
+                  {userDetails.listings.length > 5 && (
+                    <div className="text-sm text-gray-500">
+                      ... and {userDetails.listings.length - 5} more listings
+                    </div>
+                  )}
                 </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-600">Joined</label>
-                <div>{new Date(userDetails.user.createdAt).toLocaleDateString()}</div>
-              </div>
+              ) : (
+                <div className="text-gray-500">No listings found</div>
+              )}
             </CardContent>
           </Card>
 
-          {/* User Statistics */}
+          {/* User Warnings */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Activity Statistics</CardTitle>
+              <CardTitle className="text-lg">Warnings & Flags ({userDetails.warnings?.length || 0})</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Total Listings</span>
-                <span className="font-medium">{userDetails.stats?.totalListings || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Active Listings</span>
-                <span className="font-medium">{userDetails.stats?.activeListings || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Total Views</span>
-                <span className="font-medium">{userDetails.stats?.totalViews || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Total Favorites</span>
-                <span className="font-medium">{userDetails.stats?.totalFavorites || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Last Activity</span>
-                <span className="font-medium">
-                  {userDetails.stats?.lastActivity ? 
-                    new Date(userDetails.stats.lastActivity).toLocaleDateString() : 
-                    "Never"
-                  }
-                </span>
-              </div>
+            <CardContent>
+              {userDetails.warnings && userDetails.warnings.length > 0 ? (
+                <div className="space-y-3">
+                  {userDetails.warnings.slice(0, 5).map((warning: any, index: number) => (
+                    <div key={index} className="border-l-4 border-red-500 pl-3 py-2">
+                      <div className="font-medium text-red-600">{warning.type || 'Warning'}</div>
+                      <div className="text-sm text-gray-600">{warning.reason || warning.message}</div>
+                      <div className="text-xs text-gray-500">
+                        {warning.createdAt ? new Date(warning.createdAt).toLocaleDateString() : 'Unknown date'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-500">No warnings or flags</div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent Activities */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Recent Activities ({userDetails.activities?.length || 0})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {userDetails.activities && userDetails.activities.length > 0 ? (
+                <div className="space-y-3">
+                  {userDetails.activities.slice(0, 10).map((activity: any, index: number) => (
+                    <div key={index} className="border p-3 rounded">
+                      <div className="font-medium">{activity.action || activity.type}</div>
+                      <div className="text-sm text-gray-600">{activity.description || activity.details}</div>
+                      <div className="text-xs text-gray-500">
+                        {activity.createdAt ? new Date(activity.createdAt).toLocaleDateString() : 'Unknown date'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-500">No recent activities</div>
+              )}
             </CardContent>
           </Card>
         </div>
-
-        {/* Recent Listings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Recent Listings ({userDetails.listings?.length || 0})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {userDetails.listings && userDetails.listings.length > 0 ? (
-              <div className="space-y-2">
-                {userDetails.listings.slice(0, 5).map((listing: any) => (
-                  <div key={listing.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <div className="font-medium">{listing.title}</div>
-                      <div className="text-sm text-gray-600">
-                        {listing.make} {listing.model} • {listing.price ? `KSh ${listing.price.toLocaleString()}` : "Price not set"}
-                      </div>
-                    </div>
-                    <Badge className={listing.status === 'active' ? 'bg-green-500' : 'bg-yellow-500'}>
-                      {listing.status}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-4 text-gray-500">No listings found</div>
-            )}
-          </CardContent>
-        </Card>
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-2">

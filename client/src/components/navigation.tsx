@@ -2,8 +2,10 @@ import { Link, useLocation } from "wouter";
 import { Database, LogOut, List, Heart, MessageCircle, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/components/auth-provider";
 import { AuthForms } from "@/components/auth-forms";
+import { useQuery } from "@tanstack/react-query";
 import gariyangu from "@assets/gylogo_1752064168868.png";
 
 export function Navigation() {
@@ -12,6 +14,13 @@ export function Navigation() {
   
   // Check if current page is an admin page
   const isAdminPage = location.startsWith('/admin');
+
+  // Get unread message count for authenticated users
+  const { data: messagingStats } = useQuery({
+    queryKey: ['/api/messaging/stats'],
+    enabled: !!isAuthenticated && !!user && !isAdminPage,
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
 
   const handleLogout = () => {
     logout();
@@ -83,13 +92,27 @@ export function Navigation() {
                           <Heart className="mr-2 h-4 w-4" />
                           <span>My Wishlists</span>
                         </Link>
-                        <Link href="/messages" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                          <MessageCircle className="mr-2 h-4 w-4" />
-                          <span>Messages</span>
+                        <Link href="/messages" className="flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                          <div className="flex items-center">
+                            <MessageCircle className="mr-2 h-4 w-4" />
+                            <span>Messages</span>
+                          </div>
+                          {messagingStats?.unreadCount && messagingStats.unreadCount > 0 && (
+                            <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                              {messagingStats.unreadCount > 99 ? '99+' : messagingStats.unreadCount}
+                            </Badge>
+                          )}
                         </Link>
-                        <Link href="/my-messages" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                          <MessageCircle className="mr-2 h-4 w-4" />
-                          <span>My Messages</span>
+                        <Link href="/my-messages" className="flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                          <div className="flex items-center">
+                            <MessageCircle className="mr-2 h-4 w-4" />
+                            <span>My Messages</span>
+                          </div>
+                          {messagingStats?.unreadCount && messagingStats.unreadCount > 0 && (
+                            <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                              {messagingStats.unreadCount > 99 ? '99+' : messagingStats.unreadCount}
+                            </Badge>
+                          )}
                         </Link>
                         {/* Admin Dashboard for users with admin role */}
                         {(() => {

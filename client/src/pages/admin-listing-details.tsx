@@ -458,12 +458,13 @@ export default function AdminListingDetails() {
                   Admin Meta Fields
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4" key={`meta-fields-${listingData?.id}-${listingData?.updatedAt}`}>
                 
                 <div className="space-y-2">
                   <Label htmlFor="metaStatus">Listing Status *</Label>
                   <select
                     id="metaStatus"
+                    key={`status-${listingData?.id}`}
                     defaultValue={listingData?.status || "pending"}
                     onChange={(e) => setMetaStatus(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -480,6 +481,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaListingSource">Listing Source</Label>
                   <select
                     id="metaListingSource"
+                    key={`source-${listingData?.id}`}
                     defaultValue={listingData?.listingSource || "user-submitted"}
                     onChange={(e) => setMetaListingSource(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -495,6 +497,7 @@ export default function AdminListingDetails() {
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="metaFeatured"
+                      key={`featured-${listingData?.id}`}
                       defaultChecked={Boolean(listingData?.featured)}
                       onCheckedChange={setMetaFeatured}
                     />
@@ -504,6 +507,7 @@ export default function AdminListingDetails() {
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="metaVerified"
+                      key={`verified-${listingData?.id}`}
                       defaultChecked={Boolean(listingData?.isVerified)}
                       onCheckedChange={setMetaVerified}
                     />
@@ -515,6 +519,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaExpirationDate">Expiration Date</Label>
                   <Input
                     id="metaExpirationDate"
+                    key={`expiration-${listingData?.id}`}
                     type="date"
                     defaultValue={listingData?.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : ""}
                     onChange={(e) => setMetaExpirationDate(e.target.value)}
@@ -526,6 +531,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaSellerId">Reassign to User/Seller</Label>
                   <select
                     id="metaSellerId"
+                    key={`seller-${listingData?.id}`}
                     defaultValue={listingData?.sellerId || ""}
                     onChange={(e) => setMetaSellerId(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
@@ -545,6 +551,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaAdminNotes">Admin Notes</Label>
                   <Textarea
                     id="metaAdminNotes"
+                    key={`notes-${listingData?.id}`}
                     defaultValue={listingData?.adminNotes || ""}
                     onChange={(e) => setMetaAdminNotes(e.target.value)}
                     placeholder="Internal admin notes..."

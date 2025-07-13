@@ -2289,18 +2289,20 @@ export class DatabaseStorage implements IStorage {
     await db.update(appUsers)
       .set({ 
         roleId, 
-        updatedAt: new Date().toISOString() 
+        updatedAt: new Date() 
       })
       .where(eq(appUsers.id, userId));
   }
 
   async bulkUserAction(userIds: string[], action: string, adminId: string, data?: any): Promise<void> {
+    const now = new Date();
+    
     switch (action) {
       case 'suspend':
         await db.update(appUsers)
           .set({ 
             status: 'suspended',
-            updatedAt: new Date().toISOString()
+            updatedAt: now
           })
           .where(inArray(appUsers.id, userIds));
         break;
@@ -2309,7 +2311,7 @@ export class DatabaseStorage implements IStorage {
         await db.update(appUsers)
           .set({ 
             status: 'active',
-            updatedAt: new Date().toISOString()
+            updatedAt: now
           })
           .where(inArray(appUsers.id, userIds));
         break;
@@ -2319,7 +2321,7 @@ export class DatabaseStorage implements IStorage {
           await db.update(appUsers)
             .set({ 
               roleId: data.roleId,
-              updatedAt: new Date().toISOString()
+              updatedAt: now
             })
             .where(inArray(appUsers.id, userIds));
         }

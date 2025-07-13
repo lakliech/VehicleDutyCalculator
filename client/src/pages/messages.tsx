@@ -438,26 +438,26 @@ export default function MessagesPage() {
                         {messages.map((message: Message) => (
                           <div
                             key={message.id}
-                            className={`flex ${message.senderId === user.id ? 'justify-end' : 'justify-start'}`}
+                            className={`flex ${message.sender?.id === user.id ? 'justify-end' : 'justify-start'}`}
                           >
                             <div
                               className={`max-w-[70%] p-3 rounded-lg ${
-                                message.senderId === user.id
+                                message.sender?.id === user.id
                                   ? 'bg-purple-600 text-white'
                                   : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
                               }`}
                             >
-                              {message.senderId !== user.id && (
+                              {message.sender?.id !== user.id && (
                                 <p className="text-xs font-medium mb-1 opacity-70">
-                                  {message.senderName || 'Unknown User'}
+                                  {message.sender ? `${message.sender.firstName} ${message.sender.lastName}` : 'Unknown User'}
                                 </p>
                               )}
                               <p className="text-sm">{message.content}</p>
                               <p className={`text-xs mt-1 ${
-                                message.senderId === user.id ? 'text-purple-200' : 'text-gray-500'
+                                message.sender?.id === user.id ? 'text-purple-200' : 'text-gray-500'
                               }`}>
-                                {formatTime(message.createdAt)}
-                                {message.isEdited && ' (edited)'}
+                                {formatTime(message.created_at)}
+                                {message.is_edited && ' (edited)'}
                               </p>
                             </div>
                           </div>

@@ -554,6 +554,14 @@ Changelog:
   - Added URL parameter handling in Buy A Car page to accept AI Advisor recommendations
   - Added URL parameter handling in Import Estimator page to pre-fill vehicle details
   - Enhanced user experience with seamless transitions between AI recommendations and marketplace tools
+- January 13, 2025. Redesigned home page for lean and tidy experience:
+  - Completely simplified home page layout removing complex animations and excessive styling
+  - Streamlined to clean white/gray design with focused messaging
+  - Reduced tool sections to 4 core tools (Duty Calculator, Buy Car, Sell Car, AI Advisor) prominently displayed
+  - Added compact grid of 6 additional tools as secondary navigation
+  - Simplified hero section with clear value proposition and primary action buttons
+  - Maintained essential contact section for import services
+  - Improved performance by removing complex gradient animations and effects
 - January 13, 2025. Implemented comprehensive Vehicle Seller Analytics System:
   - Created extensive database schema with 8+ new analytics tables (listing_views, search_impressions, market_benchmarks, listing_quality_scores, search_keywords, promotion_tracking, listing_recommendations)
   - Enhanced daily_listing_analytics table with comprehensive tracking fields including unique visitors, device breakdown, location analysis, traffic sources, and active hours

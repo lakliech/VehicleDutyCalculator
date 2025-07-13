@@ -7,8 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/components/auth-provider";
 import { useQuery } from "@tanstack/react-query";
-import { Navigation } from "@/components/navigation";
-
 export function UserProfile() {
   const [activeTab, setActiveTab] = useState("profile");
   const { user } = useAuth();
@@ -37,7 +35,6 @@ export function UserProfile() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
-        <Navigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Please sign in to view your profile</h1>
@@ -50,8 +47,6 @@ export function UserProfile() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
-      <Navigation />
-      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* User Profile Header */}
         <div className="mb-8 px-6 py-6 bg-gradient-to-r from-purple-600 to-cyan-400 text-white rounded-lg shadow-lg">

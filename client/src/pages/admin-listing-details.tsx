@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -36,12 +37,28 @@ export default function AdminListingDetails() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // State for editing
+  // State for editing - Basic fields
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [editLocation, setEditLocation] = useState("");
   const [editNegotiable, setEditNegotiable] = useState(false);
+  
+  // State for editing - Vehicle details
+  const [editMake, setEditMake] = useState("");
+  const [editModel, setEditModel] = useState("");
+  const [editYear, setEditYear] = useState("");
+  const [editMileage, setEditMileage] = useState("");
+  const [editTransmission, setEditTransmission] = useState("");
+  const [editFuelType, setEditFuelType] = useState("");
+  const [editEngineSize, setEditEngineSize] = useState("");
+  const [editDriveType, setEditDriveType] = useState("");
+  const [editBodyType, setEditBodyType] = useState("");
+  const [editExteriorColor, setEditExteriorColor] = useState("");
+  const [editInteriorColor, setEditInteriorColor] = useState("");
+  const [editCondition, setEditCondition] = useState("");
+  const [editVinNumber, setEditVinNumber] = useState("");
+  const [editRegistrationNumber, setEditRegistrationNumber] = useState("");
 
   // State for meta fields
   const [metaStatus, setMetaStatus] = useState("");
@@ -91,12 +108,30 @@ export default function AdminListingDetails() {
   // Initialize form data when listing loads
   useEffect(() => {
     if (listingData && !isLoading) {
+      // Basic fields
       setEditTitle(listingData.title || "");
       setEditDescription(listingData.description || "");
       setEditPrice(listingData.price?.toString() || "");
       setEditLocation(listingData.location || "");
       setEditNegotiable(Boolean(listingData.negotiable));
       
+      // Vehicle details
+      setEditMake(listingData.make || "");
+      setEditModel(listingData.model || "");
+      setEditYear(listingData.year?.toString() || "");
+      setEditMileage(listingData.mileage?.toString() || "");
+      setEditTransmission(listingData.transmission || "");
+      setEditFuelType(listingData.fuelType || "");
+      setEditEngineSize(listingData.engineSize?.toString() || "");
+      setEditDriveType(listingData.driveConfiguration || "");
+      setEditBodyType(listingData.bodyType || "");
+      setEditExteriorColor(listingData.exteriorColor || "");
+      setEditInteriorColor(listingData.interiorColor || "");
+      setEditCondition(listingData.condition || "");
+      setEditVinNumber(listingData.vinNumber || "");
+      setEditRegistrationNumber(listingData.registrationNumber || "");
+      
+      // Meta fields
       setMetaStatus(listingData.status || "pending");
       setMetaFeatured(Boolean(listingData.featured));
       setMetaVerified(Boolean(listingData.isVerified));
@@ -480,58 +515,251 @@ export default function AdminListingDetails() {
                         <DialogTitle>Edit Listing</DialogTitle>
                       </DialogHeader>
                       
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="title">Title</Label>
-                          <Input
-                            id="title"
-                            value={editTitle}
-                            onChange={(e) => setEditTitle(e.target.value)}
-                            placeholder="Enter listing title"
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="description">Description</Label>
-                          <Textarea
-                            id="description"
-                            value={editDescription}
-                            onChange={(e) => setEditDescription(e.target.value)}
-                            placeholder="Enter listing description"
-                            rows={4}
-                          />
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-6">
+                        {/* Basic Information */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-purple-900">Basic Information</h3>
+                          
                           <div>
-                            <Label htmlFor="price">Price (KES)</Label>
+                            <Label htmlFor="title">Title</Label>
                             <Input
-                              id="price"
-                              type="number"
-                              value={editPrice}
-                              onChange={(e) => setEditPrice(e.target.value)}
-                              placeholder="Enter price"
+                              id="title"
+                              value={editTitle}
+                              onChange={(e) => setEditTitle(e.target.value)}
+                              placeholder="Enter listing title"
                             />
                           </div>
                           
                           <div>
-                            <Label htmlFor="location">Location</Label>
-                            <Input
-                              id="location"
-                              value={editLocation}
-                              onChange={(e) => setEditLocation(e.target.value)}
-                              placeholder="Enter location"
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea
+                              id="description"
+                              value={editDescription}
+                              onChange={(e) => setEditDescription(e.target.value)}
+                              placeholder="Enter listing description"
+                              rows={4}
                             />
                           </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="price">Price (KES)</Label>
+                              <Input
+                                id="price"
+                                type="number"
+                                value={editPrice}
+                                onChange={(e) => setEditPrice(e.target.value)}
+                                placeholder="Enter price"
+                              />
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="location">Location</Label>
+                              <Input
+                                id="location"
+                                value={editLocation}
+                                onChange={(e) => setEditLocation(e.target.value)}
+                                placeholder="Enter location"
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              id="negotiable"
+                              checked={editNegotiable}
+                              onCheckedChange={setEditNegotiable}
+                            />
+                            <Label htmlFor="negotiable">Price is negotiable</Label>
+                          </div>
                         </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <Switch
-                            id="negotiable"
-                            checked={editNegotiable}
-                            onCheckedChange={setEditNegotiable}
-                          />
-                          <Label htmlFor="negotiable">Price is negotiable</Label>
+
+                        {/* Vehicle Details */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-purple-900">Vehicle Details</h3>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="make">Make</Label>
+                              <Input
+                                id="make"
+                                value={editMake}
+                                onChange={(e) => setEditMake(e.target.value)}
+                                placeholder="e.g., Toyota"
+                              />
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="model">Model</Label>
+                              <Input
+                                id="model"
+                                value={editModel}
+                                onChange={(e) => setEditModel(e.target.value)}
+                                placeholder="e.g., Camry"
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="year">Year of Manufacture</Label>
+                              <Input
+                                id="year"
+                                type="number"
+                                value={editYear}
+                                onChange={(e) => setEditYear(e.target.value)}
+                                placeholder="e.g., 2020"
+                                min="1990"
+                                max={new Date().getFullYear()}
+                              />
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="mileage">Mileage (km)</Label>
+                              <Input
+                                id="mileage"
+                                type="number"
+                                value={editMileage}
+                                onChange={(e) => setEditMileage(e.target.value)}
+                                placeholder="e.g., 50000"
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="transmission">Transmission</Label>
+                              <Select value={editTransmission} onValueChange={setEditTransmission}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select transmission" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="automatic">Automatic</SelectItem>
+                                  <SelectItem value="manual">Manual</SelectItem>
+                                  <SelectItem value="cvt">CVT</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="fuelType">Fuel Type</Label>
+                              <Select value={editFuelType} onValueChange={setEditFuelType}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select fuel type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="petrol">Petrol</SelectItem>
+                                  <SelectItem value="diesel">Diesel</SelectItem>
+                                  <SelectItem value="hybrid">Hybrid</SelectItem>
+                                  <SelectItem value="electric">Electric</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="engineSize">Engine Size (CC)</Label>
+                              <Input
+                                id="engineSize"
+                                type="number"
+                                value={editEngineSize}
+                                onChange={(e) => setEditEngineSize(e.target.value)}
+                                placeholder="e.g., 1800"
+                              />
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="driveType">Drive Type</Label>
+                              <Select value={editDriveType} onValueChange={setEditDriveType}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select drive type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="2WD">2WD</SelectItem>
+                                  <SelectItem value="4WD">4WD</SelectItem>
+                                  <SelectItem value="AWD">AWD</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="bodyType">Body Type</Label>
+                            <Select value={editBodyType} onValueChange={setEditBodyType}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select body type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="sedan">Sedan</SelectItem>
+                                <SelectItem value="suv">SUV</SelectItem>
+                                <SelectItem value="hatchback">Hatchback</SelectItem>
+                                <SelectItem value="wagon">Wagon</SelectItem>
+                                <SelectItem value="coupe">Coupe</SelectItem>
+                                <SelectItem value="convertible">Convertible</SelectItem>
+                                <SelectItem value="pickup">Pickup</SelectItem>
+                                <SelectItem value="van">Van</SelectItem>
+                                <SelectItem value="minivan">Minivan</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="exteriorColor">Exterior Color</Label>
+                              <Input
+                                id="exteriorColor"
+                                value={editExteriorColor}
+                                onChange={(e) => setEditExteriorColor(e.target.value)}
+                                placeholder="e.g., White"
+                              />
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="interiorColor">Interior Color</Label>
+                              <Input
+                                id="interiorColor"
+                                value={editInteriorColor}
+                                onChange={(e) => setEditInteriorColor(e.target.value)}
+                                placeholder="e.g., Black"
+                              />
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="condition">Condition</Label>
+                            <Select value={editCondition} onValueChange={setEditCondition}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select condition" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="new">New</SelectItem>
+                                <SelectItem value="used">Used</SelectItem>
+                                <SelectItem value="locally-used">Locally Used</SelectItem>
+                                <SelectItem value="foreign-used">Foreign Used</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="vinNumber">VIN/Chassis Number</Label>
+                            <Input
+                              id="vinNumber"
+                              value={editVinNumber}
+                              onChange={(e) => setEditVinNumber(e.target.value)}
+                              placeholder="Enter VIN or chassis number"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="registrationNumber">Registration Number (Optional)</Label>
+                            <Input
+                              id="registrationNumber"
+                              value={editRegistrationNumber}
+                              onChange={(e) => setEditRegistrationNumber(e.target.value)}
+                              placeholder="Enter registration number"
+                            />
+                          </div>
                         </div>
                         
                         <div className="flex justify-end gap-2">
@@ -541,11 +769,27 @@ export default function AdminListingDetails() {
                           <Button 
                             onClick={() => {
                               updateMutation.mutate({
+                                // Basic fields
                                 title: editTitle,
                                 description: editDescription,
-                                price: parseFloat(editPrice),
+                                price: parseFloat(editPrice) || 0,
                                 negotiable: editNegotiable,
-                                location: editLocation
+                                location: editLocation,
+                                // Vehicle details
+                                make: editMake,
+                                model: editModel,
+                                year: parseInt(editYear) || null,
+                                mileage: parseInt(editMileage) || null,
+                                transmission: editTransmission,
+                                fuelType: editFuelType,
+                                engineSize: parseInt(editEngineSize) || null,
+                                driveConfiguration: editDriveType,
+                                bodyType: editBodyType,
+                                exteriorColor: editExteriorColor,
+                                interiorColor: editInteriorColor,
+                                condition: editCondition,
+                                vinNumber: editVinNumber,
+                                registrationNumber: editRegistrationNumber
                               });
                             }}
                             disabled={updateMutation.isPending}

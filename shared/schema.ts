@@ -232,6 +232,8 @@ export const carListings = pgTable("car_listings", {
   exteriorColor: text("exterior_color"),
   interiorColor: text("interior_color"),
   condition: text("condition"), // excellent, good, fair, poor
+  vinNumber: text("vin_number"), // VIN/Chassis number
+  registrationNumber: text("registration_number"), // Vehicle registration number
   price: decimal("price", { precision: 12, scale: 2 }).notNull(),
   negotiable: boolean("negotiable").default(true),
   description: text("description"),
@@ -354,8 +356,9 @@ export const carListingSchema = createInsertSchema(carListings).omit({
   price: z.number().min(50000, "Price must be at least 50,000 KES"),
 });
 
-// Schema for admin updates with more flexible validation
+// Schema for admin updates with comprehensive vehicle details
 export const adminUpdateListingSchema = z.object({
+  // Basic fields
   title: z.string().min(1, "Title is required").optional(),
   description: z.string().min(1, "Description is required").optional(),
   price: z.number().min(1, "Price must be greater than 0").optional(),
@@ -366,6 +369,22 @@ export const adminUpdateListingSchema = z.object({
   featured: z.boolean().optional(),
   isVerified: z.boolean().optional(),
   sellerId: z.string().optional(), // For reassigning to another user
+  
+  // Vehicle details
+  make: z.string().optional(),
+  model: z.string().optional(),
+  year: z.number().min(1990).max(new Date().getFullYear()).optional(),
+  mileage: z.number().min(0).optional(),
+  transmission: z.enum(['automatic', 'manual', 'cvt']).optional(),
+  fuelType: z.enum(['petrol', 'diesel', 'hybrid', 'electric']).optional(),
+  engineSize: z.number().min(1).optional(),
+  driveConfiguration: z.enum(['2WD', '4WD', 'AWD']).optional(),
+  bodyType: z.enum(['sedan', 'suv', 'hatchback', 'wagon', 'coupe', 'convertible', 'pickup', 'van', 'minivan']).optional(),
+  exteriorColor: z.string().optional(),
+  interiorColor: z.string().optional(),
+  condition: z.enum(['new', 'used', 'locally-used', 'foreign-used']).optional(),
+  vinNumber: z.string().optional(),
+  registrationNumber: z.string().optional(),
 });
 
 // Schema for admin meta field updates

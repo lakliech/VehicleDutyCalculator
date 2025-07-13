@@ -26,6 +26,7 @@ import AdminUsers from "@/pages/admin-users";
 import Dashboard from "@/pages/dashboard";
 import { UserProfile } from "@/pages/user-profile";
 import MyListings from "@/pages/my-listings";
+import ListingAnalytics from "@/pages/listing-analytics";
 import MyWishlists from "@/pages/my-wishlists";
 import MyMessages from "@/pages/my-messages";
 import Messages from "@/pages/messages";
@@ -64,6 +65,11 @@ function Router() {
           <Route path="/my-listings">
             <ProtectedRoute>
               <MyListings />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/listing/:id/analytics">
+            <ProtectedRoute>
+              <ListingAnalytics />
             </ProtectedRoute>
           </Route>
           <Route path="/my-wishlists">

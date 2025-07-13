@@ -1307,18 +1307,138 @@ export const phoneClickTracking = pgTable("phone_click_tracking", {
 
 // Note: Comprehensive messaging system tables are defined above in the MESSAGING SYSTEM section
 
-// Daily listing performance analytics
+// Daily listing performance analytics - Enhanced for comprehensive seller analytics
 export const dailyListingAnalytics = pgTable("daily_listing_analytics", {
   id: serial("id").primaryKey(),
   listingId: integer("listing_id").references(() => carListings.id).notNull(),
   date: text("date").notNull(), // YYYY-MM-DD format
   views: integer("views").default(0).notNull(),
+  uniqueVisitors: integer("unique_visitors").default(0).notNull(),
   phoneClicks: integer("phone_clicks").default(0).notNull(),
   messagesSent: integer("messages_sent").default(0).notNull(),
   favorites: integer("favorites").default(0).notNull(),
   shares: integer("shares").default(0).notNull(),
+  impressions: integer("impressions").default(0).notNull(), // Search result appearances
+  clickThroughRate: decimal("click_through_rate", { precision: 5, scale: 4 }).default("0.0000"),
+  averageTimeSpent: integer("average_time_spent").default(0), // Seconds
+  testDriveRequests: integer("test_drive_requests").default(0),
+  deviceBreakdown: json("device_breakdown"), // {mobile: count, desktop: count, tablet: count}
+  locationBreakdown: json("location_breakdown"), // {city1: count, city2: count, ...}
+  trafficSources: json("traffic_sources"), // {organic: count, direct: count, referral: count, ...}
+  activeHours: json("active_hours"), // {hour0: count, hour1: count, ...}
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Detailed listing view tracking for seller analytics
+export const listingViews = pgTable("listing_views", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  viewerId: text("viewer_id"), // Anonymous or user ID
+  sessionId: text("session_id"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  deviceType: text("device_type"), // 'mobile', 'tablet', 'desktop'
+  location: text("location"), // City/County if available
+  referrer: text("referrer"), // Where they came from
+  searchQuery: text("search_query"), // What they searched for
+  viewedAt: timestamp("viewed_at").defaultNow().notNull(),
+  timeSpent: integer("time_spent"), // Seconds spent on listing page
+  isUniqueVisitor: boolean("is_unique_visitor").default(true),
+  scrollDepth: integer("scroll_depth"), // Percentage scrolled
+  actionsPerformed: json("actions_performed"), // Array of actions on the page
+});
+
+// Search impressions tracking for seller insights
+export const searchImpressions = pgTable("search_impressions", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  searchQuery: text("search_query"),
+  searchFilters: json("search_filters"), // Applied filters as JSON
+  position: integer("position"), // Position in search results
+  wasClicked: boolean("was_clicked").default(false),
+  viewerId: text("viewer_id"),
+  deviceType: text("device_type"),
+  location: text("location"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Market benchmarking data for competitive analysis
+export const marketBenchmarks = pgTable("market_benchmarks", {
+  id: serial("id").primaryKey(),
+  make: text("make").notNull(),
+  model: text("model").notNull(),
+  year: integer("year").notNull(),
+  bodyType: text("body_type"),
+  fuelType: text("fuel_type"),
+  transmission: text("transmission"),
+  averagePrice: decimal("average_price", { precision: 12, scale: 2 }),
+  priceRange: json("price_range"), // { min, max, median }
+  averageDaysOnMarket: integer("average_days_on_market"),
+  totalListings: integer("total_listings"),
+  location: text("location"), // City/region
+  performanceMetrics: json("performance_metrics"), // Average views, inquiries, etc.
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+});
+
+// Listing quality scores for seller guidance
+export const listingQualityScores = pgTable("listing_quality_scores", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  overallScore: integer("overall_score").notNull(), // 0-100
+  photoScore: integer("photo_score").notNull(), // Based on number and quality of photos
+  descriptionScore: integer("description_score").notNull(), // Completeness and quality
+  completenessScore: integer("completeness_score").notNull(), // All required fields filled
+  competitivenessScore: integer("competitiveness_score"), // Price vs market
+  photoCount: integer("photo_count"),
+  missingFields: json("missing_fields"), // Array of missing field names
+  suggestedImprovements: json("suggested_improvements"), // Array of improvement suggestions
+  benchmarkComparison: json("benchmark_comparison"), // vs similar listings
+  lastCalculated: timestamp("last_calculated").defaultNow().notNull(),
+});
+
+// Search keywords that led to listing views
+export const searchKeywords = pgTable("search_keywords", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  keyword: text("keyword").notNull(),
+  searchCount: integer("search_count").default(1),
+  clickCount: integer("click_count").default(0),
+  conversionCount: integer("conversion_count").default(0), // Led to inquiry
+  lastSearched: timestamp("last_searched").defaultNow().notNull(),
+});
+
+// Promotion effectiveness tracking
+export const promotionTracking = pgTable("promotion_tracking", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  promotionType: text("promotion_type").notNull(), // 'featured', 'boost', 'top_listing'
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date"),
+  cost: decimal("cost", { precision: 10, scale: 2 }),
+  viewsBefore: integer("views_before"),
+  viewsAfter: integer("views_after"),
+  inquiriesBefore: integer("inquiries_before"),
+  inquiriesAfter: integer("inquiries_after"),
+  leadConversion: decimal("lead_conversion", { precision: 5, scale: 4 }), // Conversion rate
+  roi: decimal("roi", { precision: 10, scale: 2 }), // Return on investment
+  effectivenessScore: integer("effectiveness_score"), // 0-100
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Listing performance recommendations for sellers
+export const listingRecommendations = pgTable("listing_recommendations", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  recommendationType: text("recommendation_type").notNull(), // 'price_adjustment', 'photo_improvement', 'description_update'
+  priority: text("priority").notNull(), // 'low', 'medium', 'high', 'critical'
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  expectedImpact: text("expected_impact"), // Expected improvement description
+  actionRequired: json("action_required"), // Specific steps to take
+  isActive: boolean("is_active").default(true),
+  implementedAt: timestamp("implemented_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Messaging and analytics schemas
@@ -1335,8 +1455,58 @@ export const dailyListingAnalyticsSchema = createInsertSchema(dailyListingAnalyt
   updatedAt: true,
 });
 
+// Schemas for new analytics tables
+export const listingViewsSchema = createInsertSchema(listingViews).omit({
+  id: true,
+  viewedAt: true,
+});
+
+export const searchImpressionsSchema = createInsertSchema(searchImpressions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const marketBenchmarksSchema = createInsertSchema(marketBenchmarks).omit({
+  id: true,
+  lastUpdated: true,
+});
+
+export const listingQualityScoresSchema = createInsertSchema(listingQualityScores).omit({
+  id: true,
+  lastCalculated: true,
+});
+
+export const searchKeywordsSchema = createInsertSchema(searchKeywords).omit({
+  id: true,
+  lastSearched: true,
+});
+
+export const promotionTrackingSchema = createInsertSchema(promotionTracking).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const listingRecommendationsSchema = createInsertSchema(listingRecommendations).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Type exports for analytics
 export type PhoneClickTracking = typeof phoneClickTracking.$inferSelect;
 export type InsertPhoneClickTracking = z.infer<typeof phoneClickTrackingSchema>;
-// Note: Message and Conversation types are defined above in the MESSAGING SYSTEM section
 export type DailyListingAnalytics = typeof dailyListingAnalytics.$inferSelect;
 export type InsertDailyListingAnalytics = z.infer<typeof dailyListingAnalyticsSchema>;
+export type ListingViews = typeof listingViews.$inferSelect;
+export type InsertListingViews = z.infer<typeof listingViewsSchema>;
+export type SearchImpressions = typeof searchImpressions.$inferSelect;
+export type InsertSearchImpressions = z.infer<typeof searchImpressionsSchema>;
+export type MarketBenchmarks = typeof marketBenchmarks.$inferSelect;
+export type InsertMarketBenchmarks = z.infer<typeof marketBenchmarksSchema>;
+export type ListingQualityScores = typeof listingQualityScores.$inferSelect;
+export type InsertListingQualityScores = z.infer<typeof listingQualityScoresSchema>;
+export type SearchKeywords = typeof searchKeywords.$inferSelect;
+export type InsertSearchKeywords = z.infer<typeof searchKeywordsSchema>;
+export type PromotionTracking = typeof promotionTracking.$inferSelect;
+export type InsertPromotionTracking = z.infer<typeof promotionTrackingSchema>;
+export type ListingRecommendations = typeof listingRecommendations.$inferSelect;
+export type InsertListingRecommendations = z.infer<typeof listingRecommendationsSchema>;

@@ -20,7 +20,7 @@ import VehicleLoans from "@/pages/vehicle-loans";
 import AIAdvisor from "@/pages/ai-advisor";
 import PriceTrends from "@/pages/price-trends";
 import AdminDashboard from "@/pages/admin-dashboard";
-import AdminListings from "@/pages/admin-listings";
+
 import AdminListingDetails from "@/pages/admin-listing-details";
 import AdminUsers from "@/pages/admin-users";
 import Dashboard from "@/pages/dashboard";
@@ -74,11 +74,7 @@ function Router() {
               <AdminDashboard />
             </ProtectedRoute>
           </Route>
-          <Route path="/admin/listings">
-            <ProtectedRoute requireAdmin={true}>
-              <AdminListings />
-            </ProtectedRoute>
-          </Route>
+
           <Route path="/admin/listings/:id">
             <ProtectedRoute requireAdmin={true}>
               <AdminListingDetails />

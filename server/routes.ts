@@ -5029,6 +5029,78 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       res.status(500).json({ error: "Failed to fetch listing analytics" });
     }
   });
+
+  // Get listing conversations/inquiries
+  app.get('/api/listing/:listingId/conversations', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const listingId = parseInt(req.params.listingId);
+      
+      // Verify user owns this listing
+      const listing = await db
+        .select()
+        .from(carListings)
+        .where(
+          and(
+            eq(carListings.id, listingId),
+            eq(carListings.sellerId, user.id)
+          )
+        )
+        .limit(1);
+      
+      if (!listing.length) {
+        return res.status(404).json({ error: "Listing not found or access denied" });
+      }
+      
+      // Get conversations for this specific listing
+      const listingConversations = await db.execute(sql`
+        SELECT c.*,
+               (SELECT COUNT(*) FROM messages m WHERE m.conversation_id = c.id) as message_count,
+               (SELECT COUNT(*) FROM messages m 
+                WHERE m.conversation_id = c.id 
+                AND m.read_count = 0 AND m.sender_id != ${user.id}) as unread_count,
+               (SELECT json_agg(
+                 json_build_object(
+                   'id', u.id,
+                   'firstName', u.first_name,
+                   'lastName', u.last_name,
+                   'email', u.email,
+                   'profileImageUrl', u.profile_image_url,
+                   'role', cp2.role
+                 )
+               ) FROM conversation_participants cp2
+               JOIN app_users u ON cp2.user_id = u.id
+               WHERE cp2.conversation_id = c.id 
+                 AND cp2.user_id != ${user.id} 
+                 AND cp2.is_active = true
+               ) as participants,
+               (SELECT json_build_object(
+                 'id', last_msg.id,
+                 'content', last_msg.content,
+                 'createdAt', last_msg.created_at,
+                 'senderId', last_msg.sender_id,
+                 'senderName', CONCAT(sender.first_name, ' ', sender.last_name)
+               ) FROM messages last_msg
+               JOIN app_users sender ON last_msg.sender_id = sender.id
+               WHERE last_msg.conversation_id = c.id
+               ORDER BY last_msg.created_at DESC
+               LIMIT 1
+               ) as last_message
+        FROM conversations c
+        JOIN conversation_participants cp ON c.id = cp.conversation_id
+        WHERE cp.user_id = ${user.id} 
+          AND cp.is_active = true
+          AND c.type = 'listing_inquiry'
+          AND c.context::jsonb @> ${JSON.stringify({ listingId: listingId.toString() })}
+        ORDER BY c.last_activity_at DESC
+      `);
+      
+      res.json(listingConversations.rows);
+    } catch (error) {
+      console.error("Error fetching listing conversations:", error);
+      res.status(500).json({ error: "Failed to fetch listing conversations" });
+    }
+  });
   
   // Get user's listing analytics overview
   app.get('/api/user/listings-analytics', async (req, res) => {

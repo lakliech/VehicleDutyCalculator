@@ -518,6 +518,13 @@ Changelog:
   - Each user now has their own private conversation thread with sellers for better message organization
   - Fixed duplicate Navigation components on Messages page by removing local Navigation import
   - Messages page now uses only the global Navigation from App.tsx, eliminating duplicate headers and call-to-action sections
+- January 13, 2025. Added Inquiries button to My Listings page:
+  - Created new API endpoint `/api/listing/:listingId/conversations` to fetch listing-specific conversations
+  - Added "Inquiries" button next to Analytics button on each listing in My Listings page
+  - Implemented comprehensive inquiries dialog showing all conversations for selected listing
+  - Dialog displays participant names, last messages, unread counts, and message statistics
+  - Added "View Chat" button linking directly to specific conversations in Messages page
+  - Enhanced listing management with direct access to buyer inquiries and conversation tracking
 
 ## User Preferences
 

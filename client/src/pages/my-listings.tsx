@@ -4,8 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { useAuth } from '@/components/auth-provider';
+import { Navigation } from '@/components/navigation';
 import { Link } from 'wouter';
 import { 
   Car, 
@@ -20,7 +23,9 @@ import {
   Trash2,
   Plus,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  MessageCircle,
+  User
 } from 'lucide-react';
 
 interface CarListing {
@@ -44,12 +49,44 @@ interface CarListing {
   images: string[];
 }
 
+interface ListingConversation {
+  id: number;
+  title: string;
+  type: string;
+  status: string;
+  message_count: number;
+  unread_count: number;
+  last_activity_at: string;
+  participants: Array<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+  }>;
+  last_message: {
+    id: number;
+    content: string;
+    createdAt: string;
+    senderId: string;
+    senderName: string;
+  } | null;
+}
+
 export default function MyListings() {
   const { user, isAuthenticated } = useAuth();
+  const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
+  const [showInquiriesDialog, setShowInquiriesDialog] = useState(false);
   
   const { data: listings, isLoading, error, refetch } = useQuery<CarListing[]>({
     queryKey: ['/api/user/listings'],
     enabled: isAuthenticated,
+  });
+
+  // Get conversations for selected listing
+  const { data: listingConversations = [], isLoading: conversationsLoading } = useQuery<ListingConversation[]>({
+    queryKey: ['/api/listing', selectedListingId, 'conversations'],
+    enabled: !!selectedListingId && showInquiriesDialog,
   });
 
   const formatCurrency = (amount: number) => {
@@ -86,6 +123,35 @@ export default function MyListings() {
       case 'suspended': return 'Suspended';
       case 'draft': return 'Draft';
       default: return status;
+    }
+  };
+
+  const handleShowInquiries = (listingId: number) => {
+    setSelectedListingId(listingId);
+    setShowInquiriesDialog(true);
+  };
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+    
+    if (diffHours < 1) {
+      return 'Just now';
+    } else if (diffHours < 24) {
+      return date.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      });
+    } else if (diffHours < 168) { // 7 days
+      return date.toLocaleDateString('en-US', { weekday: 'short' });
+    } else {
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      });
     }
   };
 
@@ -292,6 +358,14 @@ export default function MyListings() {
                         </div>
                         
                         <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleShowInquiries(listing.id)}
+                          >
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            Inquiries
+                          </Button>
                           <Button size="sm" variant="outline">
                             <Eye className="h-4 w-4 mr-2" />
                             Analytics
@@ -309,6 +383,104 @@ export default function MyListings() {
             ))}
           </div>
         )}
+
+        {/* Inquiries Dialog */}
+        <Dialog open={showInquiriesDialog} onOpenChange={setShowInquiriesDialog}>
+          <DialogContent className="max-w-4xl max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5" />
+                Listing Inquiries
+                {selectedListingId && listings && (
+                  <span className="text-sm font-normal text-gray-600">
+                    - {listings.find(l => l.id === selectedListingId)?.title}
+                  </span>
+                )}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {conversationsLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                  <p className="text-gray-600 mt-2">Loading inquiries...</p>
+                </div>
+              ) : listingConversations.length === 0 ? (
+                <div className="text-center py-8">
+                  <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-600 mb-2">No Inquiries Yet</h3>
+                  <p className="text-gray-500">
+                    When buyers message you about this listing, their inquiries will appear here.
+                  </p>
+                </div>
+              ) : (
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-3">
+                    {listingConversations.map((conversation) => (
+                      <Card key={conversation.id} className="hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <div className="flex items-center gap-2">
+                                  <User className="h-4 w-4 text-gray-500" />
+                                  <span className="font-medium">
+                                    {conversation.participants && conversation.participants.length > 0
+                                      ? `${conversation.participants[0].firstName} ${conversation.participants[0].lastName}`
+                                      : 'Unknown User'
+                                    }
+                                  </span>
+                                </div>
+                                {conversation.unread_count > 0 && (
+                                  <Badge variant="destructive" className="text-xs">
+                                    {conversation.unread_count} unread
+                                  </Badge>
+                                )}
+                              </div>
+                              
+                              {conversation.last_message && (
+                                <div className="mb-2">
+                                  <p className="text-sm text-gray-600 line-clamp-2">
+                                    {conversation.last_message.content}
+                                  </p>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {formatTime(conversation.last_message.createdAt)} by {conversation.last_message.senderName}
+                                  </p>
+                                </div>
+                              )}
+                              
+                              <div className="flex items-center gap-4 text-xs text-gray-500">
+                                <span>{conversation.message_count} messages</span>
+                                <span>Last activity: {formatTime(conversation.last_activity_at)}</span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-col gap-2">
+                              <Link href={`/messages?conversation=${conversation.id}`}>
+                                <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                                  View Chat
+                                </Button>
+                              </Link>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
+              
+              {listingConversations.length > 0 && (
+                <div className="text-center text-sm text-gray-500 pt-4 border-t">
+                  <p>
+                    Total: {listingConversations.length} inquiries • 
+                    {listingConversations.reduce((sum, conv) => sum + conv.unread_count, 0)} unread messages
+                  </p>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

@@ -54,6 +54,7 @@ import { sql, eq, desc, and, or } from "drizzle-orm";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 import ListingQualityAssessment, { triggerQualityAssessment } from './quality-assessment';
+import KeywordAnalytics from './keyword-analytics';
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 import crypto from "crypto";
@@ -5090,6 +5091,9 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         suggested_improvements: ['Add more photos', 'Improve description']
       };
 
+      // Get top keywords for this listing from KeywordAnalytics
+      const listingTopKeywords = await KeywordAnalytics.getListingKeywords(listingId, 10);
+
       // Prepare comprehensive analytics response
       const analyticsData = {
         listingInfo: {
@@ -5176,8 +5180,8 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           ]
         },
         
-        // 6. Top Search Keywords
-        topKeywords: topKeywords.length > 0 ? topKeywords : [
+        // 6. Top Search Keywords  
+        topKeywords: listingTopKeywords.length > 0 ? listingTopKeywords : [
           { keyword: "Toyota Camry", search_count: 156, click_count: 23 },
           { keyword: "2020 sedan", search_count: 89, click_count: 15 },
           { keyword: "automatic transmission", search_count: 67, click_count: 12 },
@@ -5948,6 +5952,86 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     } catch (error) {
       console.error("Error fetching messaging analytics:", error);
       res.status(500).json({ error: "Failed to fetch messaging analytics" });
+    }
+  });
+
+  // ========================================
+  // KEYWORD ANALYTICS ENDPOINTS
+  // ========================================
+  
+  // Track keyword conversion (inquiry, phone click, etc.)
+  app.post('/api/keyword-analytics/conversion', async (req: Request, res: Response) => {
+    try {
+      const { listingId, keyword, conversionType, viewerId } = req.body;
+      
+      await KeywordAnalytics.trackKeywordConversion({
+        listingId,
+        keyword,
+        conversionType,
+        viewerId
+      });
+      
+      res.json({ message: 'Conversion tracked successfully' });
+    } catch (error) {
+      console.error('Error tracking keyword conversion:', error);
+      res.status(500).json({ error: 'Failed to track conversion' });
+    }
+  });
+
+  // Get keyword analytics for a specific listing
+  app.get('/api/listing/:listingId/keywords', async (req: Request, res: Response) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      const keywords = await KeywordAnalytics.getListingKeywords(listingId, limit);
+      
+      res.json(keywords);
+    } catch (error) {
+      console.error('Error fetching listing keywords:', error);
+      res.status(500).json({ error: 'Failed to fetch listing keywords' });
+    }
+  });
+
+  // Get keyword analytics for seller's listings
+  app.get('/api/seller/:sellerId/keyword-analytics', async (req: Request, res: Response) => {
+    try {
+      const sellerId = req.params.sellerId;
+      
+      const analytics = await KeywordAnalytics.getSellerKeywordAnalytics(sellerId);
+      
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching seller keyword analytics:', error);
+      res.status(500).json({ error: 'Failed to fetch keyword analytics' });
+    }
+  });
+
+  // Get trending keywords across platform
+  app.get('/api/keyword-analytics/trending', async (req: Request, res: Response) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      const trendingKeywords = await KeywordAnalytics.getTrendingKeywords(limit);
+      
+      res.json(trendingKeywords);
+    } catch (error) {
+      console.error('Error fetching trending keywords:', error);
+      res.status(500).json({ error: 'Failed to fetch trending keywords' });
+    }
+  });
+
+  // Get keyword recommendations for listing optimization
+  app.get('/api/listing/:listingId/keyword-recommendations', async (req: Request, res: Response) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      
+      const recommendations = await KeywordAnalytics.generateKeywordRecommendations(listingId);
+      
+      res.json({ recommendations });
+    } catch (error) {
+      console.error('Error generating keyword recommendations:', error);
+      res.status(500).json({ error: 'Failed to generate recommendations' });
     }
   });
 

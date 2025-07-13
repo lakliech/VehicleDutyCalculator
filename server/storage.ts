@@ -1714,10 +1714,12 @@ export class DatabaseStorage implements IStorage {
     if (metaData.status !== undefined) updateData.status = metaData.status;
     if (metaData.featured !== undefined) updateData.featured = metaData.featured;
     if (metaData.isVerified !== undefined) updateData.isVerified = metaData.isVerified;
-    if (metaData.expirationDate !== undefined) updateData.expirationDate = new Date(metaData.expirationDate);
+    if (metaData.expirationDate !== undefined) {
+      updateData.expirationDate = metaData.expirationDate ? new Date(metaData.expirationDate) : null;
+    }
     if (metaData.listingSource !== undefined) updateData.listingSource = metaData.listingSource;
     if (metaData.sellerId !== undefined) updateData.sellerId = metaData.sellerId;
-    if (metaData.adminNotes !== undefined) updateData.adminNotes = metaData.adminNotes;
+    if (metaData.adminNotes !== undefined) updateData.adminNotes = metaData.adminNotes || null;
 
     // Handle status-specific fields
     if (metaData.status === 'archived') {

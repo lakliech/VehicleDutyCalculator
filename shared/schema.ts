@@ -373,10 +373,10 @@ export const adminMetaUpdateSchema = z.object({
   status: z.enum(['pending', 'active', 'verified', 'rejected', 'archived']),
   featured: z.boolean().optional(),
   isVerified: z.boolean().optional(),
-  expirationDate: z.string().optional(), // ISO date string
+  expirationDate: z.string().nullable().optional(), // ISO date string or null
   listingSource: z.enum(['user-submitted', 'agent', 'walk-in', 'api-imported']).optional(),
   sellerId: z.string().optional(), // For reassigning
-  adminNotes: z.string().optional(),
+  adminNotes: z.string().nullable().optional(), // Allow null/empty strings
 });
 
 // Schema for media management operations

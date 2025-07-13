@@ -849,7 +849,6 @@ export default function AdminListingDetails() {
                     <option value="pending">Pending</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
-                    <option value="verified">Verified</option>
                     <option value="rejected">Rejected</option>
                     <option value="archived">Archived</option>
                   </select>

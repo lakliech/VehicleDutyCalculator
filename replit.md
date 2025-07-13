@@ -483,8 +483,8 @@ Changelog:
   - Enhanced car details API to join car listings with seller information for complete data
   - Identified and fixed "Failed to update meta fields" validation error
   - Added "inactive" status to adminMetaUpdateSchema validation for proper admin functionality
-  - Removed "flagged" and "sold" status options from admin interface dropdown per user request
-  - Updated status options to: pending, active, inactive, verified, rejected, archived
+  - Removed "flagged", "sold", and "verified" status options from admin interface dropdown per user request
+  - Updated status options to: pending, active, inactive, rejected, archived
   - Enhanced admin listing details page with proper status validation and error handling
 
 ## User Preferences

@@ -65,11 +65,13 @@ export default function AdminListingDetails() {
   const [flagReason, setFlagReason] = useState("");
   const [adminNote, setAdminNote] = useState("");
 
-  // Fetch listing data
+  // Fetch listing data - force fresh data
   const { data: listingData, isLoading, error } = useQuery({
     queryKey: ['/api/admin/listing-details', id],
     queryFn: () => apiRequest('GET', `/api/admin/listing-details/${id}`),
     enabled: !!id,
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache the response
   });
 
   // Fetch available users for reassignment
@@ -95,11 +97,16 @@ export default function AdminListingDetails() {
     console.log('Form initialization check:', {
       hasData: !!listingData,
       isLoadingStatus: isLoading,
-      shouldInitialize: !!listingData && !isLoading
+      shouldInitialize: !!listingData && !isLoading,
+      listingDataType: typeof listingData,
+      dataStructure: listingData ? Object.keys(listingData) : 'no data'
     });
     
     if (listingData && !isLoading) {
-      console.log('FORM INITIALIZATION TRIGGERED - Raw Data:', listingData);
+      console.log('FORM INITIALIZATION TRIGGERED - Raw Data Type:', typeof listingData);
+      console.log('FORM INITIALIZATION TRIGGERED - Raw Data Keys:', Object.keys(listingData));
+      console.log('FORM INITIALIZATION TRIGGERED - Full Data:', JSON.stringify(listingData, null, 2));
+      
       console.log('Extracted values:', {
         status: listingData.status,
         featured: listingData.featured,
@@ -109,26 +116,43 @@ export default function AdminListingDetails() {
         notes: listingData.adminNotes
       });
       
-      setEditTitle(listingData.title || "");
-      setEditDescription(listingData.description || "");
-      setEditPrice(listingData.price?.toString() || "");
-      setEditLocation(listingData.location || "");
-      setEditNegotiable(listingData.negotiable || false);
+      // Clear existing state first
+      setEditTitle("");
+      setEditDescription("");
+      setEditPrice("");
+      setEditLocation("");
+      setEditNegotiable(false);
+      setMetaStatus("");
+      setMetaFeatured(false);
+      setMetaVerified(false);
+      setMetaExpirationDate("");
+      setMetaListingSource("");
+      setMetaSellerId("");
+      setMetaAdminNotes("");
       
-      // Always reinitialize when data changes
-      setMetaStatus(listingData.status || "pending");
-      setMetaFeatured(Boolean(listingData.featured));
-      setMetaVerified(Boolean(listingData.isVerified));
-      setMetaExpirationDate(listingData.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "");
-      setMetaListingSource(listingData.listingSource || "user-submitted");
-      setMetaSellerId(listingData.sellerId || "");
-      setMetaAdminNotes(listingData.adminNotes || "");
-      
-      console.log('Form state AFTER initialization:', {
-        metaStatus: listingData.status,
-        metaFeatured: Boolean(listingData.featured),
-        metaVerified: Boolean(listingData.isVerified)
-      });
+      // Wait a tick then set the data
+      setTimeout(() => {
+        setEditTitle(listingData.title || "");
+        setEditDescription(listingData.description || "");
+        setEditPrice(listingData.price?.toString() || "");
+        setEditLocation(listingData.location || "");
+        setEditNegotiable(Boolean(listingData.negotiable));
+        
+        // Always reinitialize when data changes
+        setMetaStatus(listingData.status || "pending");
+        setMetaFeatured(Boolean(listingData.featured));
+        setMetaVerified(Boolean(listingData.isVerified));
+        setMetaExpirationDate(listingData.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "");
+        setMetaListingSource(listingData.listingSource || "user-submitted");
+        setMetaSellerId(listingData.sellerId || "");
+        setMetaAdminNotes(listingData.adminNotes || "");
+        
+        console.log('Form state AFTER async initialization:', {
+          metaStatus: listingData.status,
+          metaFeatured: Boolean(listingData.featured),
+          metaVerified: Boolean(listingData.isVerified)
+        });
+      }, 10);
     }
   }, [listingData, isLoading]);
 

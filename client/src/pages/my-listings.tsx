@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { useAuth } from '@/components/auth-provider';
 import { Navigation } from '@/components/navigation';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { 
   Car, 
   MapPin, 
@@ -75,6 +75,7 @@ interface ListingConversation {
 
 export default function MyListings() {
   const { user, isAuthenticated } = useAuth();
+  const [, navigate] = useLocation();
   const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
   const [showInquiriesDialog, setShowInquiriesDialog] = useState(false);
   
@@ -136,6 +137,10 @@ export default function MyListings() {
   const handleShowInquiries = (listingId: number) => {
     setSelectedListingId(listingId);
     setShowInquiriesDialog(true);
+  };
+
+  const handleShowAnalytics = (listingId: number) => {
+    navigate(`/listing/${listingId}/analytics`);
   };
 
   const formatTime = (dateString: string) => {
@@ -382,7 +387,11 @@ export default function MyListings() {
                               </Badge>
                             )}
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleShowAnalytics(listing.id)}
+                          >
                             <Eye className="h-4 w-4 mr-2" />
                             Analytics
                           </Button>

@@ -73,10 +73,12 @@ export default function AdminListingDetails() {
   });
 
   // Fetch available users for reassignment
-  const { data: availableUsers } = useQuery({
+  const { data: usersData } = useQuery({
     queryKey: ['/api/admin/users-management'],
     queryFn: () => apiRequest('GET', '/api/admin/users-management'),
   });
+
+  const availableUsers = usersData?.users?.map((item: any) => item.user) || [];
 
   // Initialize form data when listing loads
   useEffect(() => {
@@ -512,7 +514,7 @@ export default function AdminListingDetails() {
                     <option value={listingData?.sellerId || ""}>
                       {listingData?.seller?.firstName} {listingData?.seller?.lastName} (Current)
                     </option>
-                    {(availableUsers || []).filter(user => user.id !== listingData?.sellerId).map(user => (
+                    {availableUsers.filter((user: any) => user.id !== listingData?.sellerId).map((user: any) => (
                       <option key={user.id} value={user.id}>
                         {user.firstName} {user.lastName}
                       </option>

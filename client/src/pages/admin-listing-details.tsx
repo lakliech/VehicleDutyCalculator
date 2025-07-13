@@ -80,17 +80,10 @@ export default function AdminListingDetails() {
 
   const availableUsers = usersData?.users?.map((item: any) => item.user) || [];
 
-  // Initialize form data when listing loads
+  // Initialize form data when listing loads - initialize once only
   useEffect(() => {
-    if (listingData) {
-      console.log('Listing data received:', {
-        status: listingData.status,
-        featured: listingData.featured,
-        verified: listingData.isVerified,
-        source: listingData.listingSource,
-        notes: listingData.adminNotes,
-        sellerId: listingData.sellerId
-      });
+    if (listingData && !metaStatus) {
+      console.log('Initializing form data:', listingData);
       
       setEditTitle(listingData.title || "");
       setEditDescription(listingData.description || "");
@@ -98,7 +91,7 @@ export default function AdminListingDetails() {
       setEditLocation(listingData.location || "");
       setEditNegotiable(listingData.negotiable || false);
       
-      // Initialize meta fields with current values - force update
+      // Initialize meta fields once
       setMetaStatus(listingData.status || "pending");
       setMetaFeatured(Boolean(listingData.featured));
       setMetaVerified(Boolean(listingData.isVerified));
@@ -107,7 +100,7 @@ export default function AdminListingDetails() {
       setMetaSellerId(listingData.sellerId || "");
       setMetaAdminNotes(listingData.adminNotes || "");
     }
-  }, [listingData]);
+  }, [listingData, metaStatus]);
 
   // Mutations
   const updateMutation = useMutation({
@@ -458,14 +451,24 @@ export default function AdminListingDetails() {
                   Admin Meta Fields
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4" key={`meta-fields-${listingData?.id}-${listingData?.updatedAt}`}>
+              <CardContent className="space-y-4">
+                {/* Current Values Display */}
+                <div className="bg-blue-50 p-3 rounded-lg text-sm">
+                  <div className="font-medium text-blue-800 mb-2">Current Values:</div>
+                  <div className="space-y-1 text-blue-700">
+                    <div>Status: <span className="font-medium">{listingData?.status}</span></div>
+                    <div>Featured: <span className="font-medium">{listingData?.featured ? 'Yes' : 'No'}</span></div>
+                    <div>Verified: <span className="font-medium">{listingData?.isVerified ? 'Yes' : 'No'}</span></div>
+                    <div>Source: <span className="font-medium">{listingData?.listingSource}</span></div>
+                    <div>Seller: <span className="font-medium">{listingData?.seller?.firstName} {listingData?.seller?.lastName}</span></div>
+                  </div>
+                </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="metaStatus">Listing Status *</Label>
                   <select
                     id="metaStatus"
-                    key={`status-${listingData?.id}`}
-                    defaultValue={listingData?.status || "pending"}
+                    value={metaStatus || listingData?.status || "pending"}
                     onChange={(e) => setMetaStatus(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
@@ -481,8 +484,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaListingSource">Listing Source</Label>
                   <select
                     id="metaListingSource"
-                    key={`source-${listingData?.id}`}
-                    defaultValue={listingData?.listingSource || "user-submitted"}
+                    value={metaListingSource || listingData?.listingSource || "user-submitted"}
                     onChange={(e) => setMetaListingSource(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
@@ -497,21 +499,19 @@ export default function AdminListingDetails() {
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="metaFeatured"
-                      key={`featured-${listingData?.id}`}
-                      defaultChecked={Boolean(listingData?.featured)}
+                      checked={metaFeatured !== undefined ? metaFeatured : (listingData?.featured || false)}
                       onCheckedChange={setMetaFeatured}
                     />
-                    <Label htmlFor="metaFeatured">Featured Listing (Current: {String(listingData?.featured)})</Label>
+                    <Label htmlFor="metaFeatured">Featured Listing</Label>
                   </div>
                   
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="metaVerified"
-                      key={`verified-${listingData?.id}`}
-                      defaultChecked={Boolean(listingData?.isVerified)}
+                      checked={metaVerified !== undefined ? metaVerified : (listingData?.isVerified || false)}
                       onCheckedChange={setMetaVerified}
                     />
-                    <Label htmlFor="metaVerified">Verified Badge (Current: {String(listingData?.isVerified)})</Label>
+                    <Label htmlFor="metaVerified">Verified Badge</Label>
                   </div>
                 </div>
                 
@@ -519,9 +519,8 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaExpirationDate">Expiration Date</Label>
                   <Input
                     id="metaExpirationDate"
-                    key={`expiration-${listingData?.id}`}
                     type="date"
-                    defaultValue={listingData?.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : ""}
+                    value={metaExpirationDate || (listingData?.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "")}
                     onChange={(e) => setMetaExpirationDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                   />
@@ -531,8 +530,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaSellerId">Reassign to User/Seller</Label>
                   <select
                     id="metaSellerId"
-                    key={`seller-${listingData?.id}`}
-                    defaultValue={listingData?.sellerId || ""}
+                    value={metaSellerId || listingData?.sellerId || ""}
                     onChange={(e) => setMetaSellerId(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                   >
@@ -551,8 +549,7 @@ export default function AdminListingDetails() {
                   <Label htmlFor="metaAdminNotes">Admin Notes</Label>
                   <Textarea
                     id="metaAdminNotes"
-                    key={`notes-${listingData?.id}`}
-                    defaultValue={listingData?.adminNotes || ""}
+                    value={metaAdminNotes || listingData?.adminNotes || ""}
                     onChange={(e) => setMetaAdminNotes(e.target.value)}
                     placeholder="Internal admin notes..."
                     rows={3}
@@ -561,21 +558,14 @@ export default function AdminListingDetails() {
                 
                 <Button 
                   onClick={() => {
-                    // Get current form values directly from DOM elements
-                    const statusSelect = document.getElementById('metaStatus') as HTMLSelectElement;
-                    const sourceSelect = document.getElementById('metaListingSource') as HTMLSelectElement;
-                    const sellerSelect = document.getElementById('metaSellerId') as HTMLSelectElement;
-                    const notesTextarea = document.getElementById('metaAdminNotes') as HTMLTextAreaElement;
-                    const dateInput = document.getElementById('metaExpirationDate') as HTMLInputElement;
-                    
                     const updateData = {
-                      status: statusSelect?.value || listingData?.status,
+                      status: metaStatus || listingData?.status,
                       featured: metaFeatured !== undefined ? metaFeatured : listingData?.featured,
                       isVerified: metaVerified !== undefined ? metaVerified : listingData?.isVerified,
-                      expirationDate: dateInput?.value || null,
-                      listingSource: sourceSelect?.value || listingData?.listingSource,
-                      sellerId: sellerSelect?.value || listingData?.sellerId,
-                      adminNotes: notesTextarea?.value || ""
+                      expirationDate: metaExpirationDate || null,
+                      listingSource: metaListingSource || listingData?.listingSource,
+                      sellerId: metaSellerId || listingData?.sellerId,
+                      adminNotes: metaAdminNotes || ""
                     };
                     console.log('Updating meta fields with:', updateData);
                     metaMutation.mutate(updateData);

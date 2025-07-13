@@ -5242,6 +5242,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       }
 
       const messages = await storage.getMessages(conversationId, limit, offset);
+      console.log("Raw messages from storage:", JSON.stringify(messages, null, 2));
       res.json(messages);
     } catch (error) {
       console.error("Error fetching messages:", error);

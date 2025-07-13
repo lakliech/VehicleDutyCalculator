@@ -1254,13 +1254,35 @@ export class DatabaseStorage implements IStorage {
     warnings: any[]; 
     activities: UserActivity[]; 
   }> {
-    const [listings, warnings, activities] = await Promise.all([
-      db.select().from(carListings).where(eq(carListings.sellerId, userId)).orderBy(desc(carListings.createdAt)),
-      db.select().from(userWarnings).where(eq(userWarnings.userId, userId)).orderBy(desc(userWarnings.createdAt)),
-      db.select().from(userActivities).where(eq(userActivities.userId, userId)).orderBy(desc(userActivities.createdAt)).limit(50)
-    ]);
+    try {
+      const [listings, warnings, activities] = await Promise.all([
+        db.select().from(carListings).where(eq(carListings.sellerId, userId)).orderBy(desc(carListings.createdAt)),
+        // Use raw SQL for user_warnings to match actual table structure
+        db.execute(sql`
+          SELECT id, user_id, warning_type, description, issued_by, severity, acknowledged, created_at
+          FROM user_warnings 
+          WHERE user_id = ${userId} 
+          ORDER BY created_at DESC
+        `),
+        // Use raw SQL for user_activities to match actual table structure  
+        db.execute(sql`
+          SELECT id, user_id, activity_type, entity_type, entity_id, description, metadata, ip_address, user_agent, created_at
+          FROM user_activities 
+          WHERE user_id = ${userId} 
+          ORDER BY created_at DESC 
+          LIMIT 50
+        `)
+      ]);
 
-    return { listings, warnings, activities };
+      return { 
+        listings, 
+        warnings: warnings.rows || [], 
+        activities: activities.rows || [] 
+      };
+    } catch (error) {
+      console.error('Error in getUserHistory:', error);
+      return { listings: [], warnings: [], activities: [] };
+    }
   }
 
   // User engagement methods implementation

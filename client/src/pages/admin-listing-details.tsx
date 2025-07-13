@@ -162,7 +162,7 @@ export default function AdminListingDetails() {
   });
 
   const mediaMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('POST', `/api/admin/listing/${id}/media`, data),
+    mutationFn: (data: any) => apiRequest('POST', `/api/admin/listings/${id}/media`, data),
     onSuccess: () => {
       toast({ title: "Success", description: "Media updated successfully" });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });

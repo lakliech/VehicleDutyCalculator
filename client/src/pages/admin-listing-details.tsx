@@ -934,6 +934,135 @@ export default function AdminListingDetails() {
             </Card>
           </div>
         </div>
+
+        {/* Media Management Dialog */}
+        <Dialog open={isMediaOpen} onOpenChange={setIsMediaOpen}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Manage Media</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {/* Current Images */}
+              {listingData.images && listingData.images.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Current Images</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {listingData.images.map((image: string, index: number) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={image}
+                          alt={`Image ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => {
+                              mediaMutation.mutate({
+                                action: 'delete',
+                                deleteIndex: index
+                              });
+                            }}
+                          >
+                            Delete
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={() => {
+                              mediaMutation.mutate({
+                                action: 'set_featured',
+                                featuredIndex: index
+                              });
+                            }}
+                          >
+                            Set Featured
+                          </Button>
+                        </div>
+                        {index === 0 && (
+                          <div className="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 text-xs rounded">
+                            Featured
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Upload New Images */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Add New Images</h3>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <p className="text-gray-500 mb-2">Click to upload images or drag and drop</p>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length > 0) {
+                        // For now, show a message that file upload would need to be implemented
+                        toast({ 
+                          title: "File Upload", 
+                          description: "File upload functionality needs to be implemented with proper image hosting",
+                          variant: "destructive"
+                        });
+                      }
+                    }}
+                    className="hidden"
+                    id="imageUpload"
+                  />
+                  <label
+                    htmlFor="imageUpload"
+                    className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Choose Files
+                  </label>
+                </div>
+              </div>
+
+              {/* Image URL Input (temporary solution) */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Add Image by URL</h3>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter image URL..."
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        const url = e.currentTarget.value.trim();
+                        if (url) {
+                          mediaMutation.mutate({
+                            action: 'upload',
+                            images: [url]
+                          });
+                          e.currentTarget.value = '';
+                        }
+                      }
+                    }}
+                  />
+                  <Button
+                    onClick={() => {
+                      const input = document.querySelector('input[placeholder="Enter image URL..."]') as HTMLInputElement;
+                      const url = input?.value.trim();
+                      if (url) {
+                        mediaMutation.mutate({
+                          action: 'upload',
+                          images: [url]
+                        });
+                        input.value = '';
+                      }
+                    }}
+                    disabled={mediaMutation.isPending}
+                  >
+                    {mediaMutation.isPending ? 'Adding...' : 'Add URL'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

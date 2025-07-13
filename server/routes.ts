@@ -29,6 +29,7 @@ import {
   phoneClickTracking,
   messages,
   conversations,
+  conversationParticipants,
   dailyListingAnalytics,
   phoneClickTrackingSchema,
   messageSchema,
@@ -4728,61 +4729,95 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         return res.status(400).json({ error: "Cannot message yourself" });
       }
 
-      // Check if conversation already exists
-      let conversation = await db
+      // Check if conversation already exists for this listing between these participants
+      const existingConversations = await db
         .select()
         .from(conversations)
         .where(
           and(
-            eq(conversations.listingId, listingId),
-            or(
-              and(eq(conversations.sellerId, sellerId), eq(conversations.buyerId, user.id)),
-              and(eq(conversations.sellerId, user.id), eq(conversations.buyerId, sellerId))
-            )
+            eq(conversations.type, 'listing_inquiry'),
+            sql`${conversations.context}::jsonb @> ${JSON.stringify({ listingId: listingId.toString() })}`
           )
-        )
-        .limit(1);
+        );
+
+      let conversation = null;
+      
+      // Check if any of these conversations has both users as participants
+      for (const conv of existingConversations) {
+        const participants = await db
+          .select()
+          .from(conversationParticipants)
+          .where(
+            and(
+              eq(conversationParticipants.conversationId, conv.id),
+              or(
+                eq(conversationParticipants.userId, user.id),
+                eq(conversationParticipants.userId, sellerId)
+              ),
+              eq(conversationParticipants.isActive, true)
+            )
+          );
+        
+        const userIds = participants.map(p => p.userId);
+        if (userIds.includes(user.id) && userIds.includes(sellerId)) {
+          conversation = conv;
+          break;
+        }
+      }
 
       // Create conversation if it doesn't exist
-      if (conversation.length === 0) {
+      if (!conversation) {
         const [newConversation] = await db
           .insert(conversations)
           .values({
-            listingId,
-            sellerId,
-            buyerId: user.id,
-            isActive: true,
-            createdAt: new Date(),
-            lastMessageAt: new Date()
+            type: 'listing_inquiry',
+            title: `Inquiry about listing #${listingId}`,
+            context: JSON.stringify({ listingId: listingId.toString() }),
+            status: 'active',
+            priority: 'normal',
+            lastActivityAt: new Date()
           })
           .returning();
 
-        conversation = [newConversation];
+        // Add participants
+        await db.insert(conversationParticipants).values([
+          {
+            conversationId: newConversation.id,
+            userId: user.id,
+            role: 'buyer',
+            isActive: true
+          },
+          {
+            conversationId: newConversation.id,
+            userId: sellerId,
+            role: 'seller',
+            isActive: true
+          }
+        ]);
+
+        conversation = newConversation;
       }
 
       // Send the message
       const [newMessage] = await db
         .insert(messages)
         .values({
-          conversationId: conversation[0].id,
+          conversationId: conversation.id,
           senderId: user.id,
-          receiverId: sellerId,
-          listingId,
-          message: message.trim(),
           messageType: 'text',
-          isRead: false,
-          sentAt: new Date()
+          content: message.trim(),
+          deliveryStatus: 'sent'
         })
         .returning();
 
-      // Update conversation's last message
+      // Update conversation's last message and activity
       await db
         .update(conversations)
         .set({
-          lastMessageId: newMessage.id,
-          lastMessageAt: new Date()
+          lastMessageAt: new Date(),
+          lastActivityAt: new Date()
         })
-        .where(eq(conversations.id, conversation[0].id));
+        .where(eq(conversations.id, conversation.id));
 
       res.json({ success: true, message: newMessage });
     } catch (error) {

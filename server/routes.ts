@@ -5110,8 +5110,8 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           uniqueVisitors: totalViews.rows[0]?.total_unique_visitors || 0,
           dailyTrend: dailyAnalytics.map(day => ({
             date: day.date,
-            views: day.totalViews || 0,
-            uniqueVisitors: day.uniqueVisitors || 0
+            views: day.total_views || 0,
+            uniqueVisitors: day.unique_visitors || 0
           })),
           impressions: totalViews.rows[0]?.total_impressions || 0,
           clickThroughRate: (totalViews.rows[0]?.avg_ctr || 0) * 100,
@@ -5129,20 +5129,20 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         // 3. Audience Demographics (based on daily analytics)
         audienceInsights: {
           locationBreakdown: {
-            "Nairobi": dailyAnalytics.reduce((sum, day) => sum + (day.locationNairobi || 0), 0),
-            "Mombasa": dailyAnalytics.reduce((sum, day) => sum + (day.locationMombasa || 0), 0),
-            "Kisumu": dailyAnalytics.reduce((sum, day) => sum + (day.locationKisumu || 0), 0),
-            "Other": dailyAnalytics.reduce((sum, day) => sum + (day.locationOther || 0), 0)
+            "Nairobi": dailyAnalytics.reduce((sum, day) => sum + (day.location_nairobi || 0), 0),
+            "Mombasa": dailyAnalytics.reduce((sum, day) => sum + (day.location_mombasa || 0), 0),
+            "Kisumu": dailyAnalytics.reduce((sum, day) => sum + (day.location_kisumu || 0), 0),
+            "Other": dailyAnalytics.reduce((sum, day) => sum + (day.location_other || 0), 0)
           },
           deviceBreakdown: {
-            mobile: dailyAnalytics.reduce((sum, day) => sum + (day.deviceMobile || 0), 0),
-            desktop: dailyAnalytics.reduce((sum, day) => sum + (day.deviceDesktop || 0), 0),
-            tablet: dailyAnalytics.reduce((sum, day) => sum + (day.deviceTablet || 0), 0)
+            mobile: dailyAnalytics.reduce((sum, day) => sum + (day.device_mobile || 0), 0),
+            desktop: dailyAnalytics.reduce((sum, day) => sum + (day.device_desktop || 0), 0),
+            tablet: dailyAnalytics.reduce((sum, day) => sum + (day.device_tablet || 0), 0)
           },
           activeHours: {
-            "9-12": dailyAnalytics.reduce((sum, day) => sum + (day.peakHourMorning || 0), 0),
-            "12-15": dailyAnalytics.reduce((sum, day) => sum + (day.peakHourAfternoon || 0), 0),
-            "15-18": dailyAnalytics.reduce((sum, day) => sum + (day.peakHourEvening || 0), 0)
+            "9-12": dailyAnalytics.reduce((sum, day) => sum + (day.peak_hour_morning || 0), 0),
+            "12-15": dailyAnalytics.reduce((sum, day) => sum + (day.peak_hour_afternoon || 0), 0),
+            "15-18": dailyAnalytics.reduce((sum, day) => sum + (day.peak_hour_evening || 0), 0)
           }
         },
         

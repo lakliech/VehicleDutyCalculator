@@ -1703,6 +1703,53 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(carListings.id, listingId));
   }
+
+  // Admin meta fields management
+  async updateListingMeta(listingId: number, metaData: any, adminId: string): Promise<any> {
+    const updateData: any = {
+      updatedAt: new Date()
+    };
+
+    // Map meta fields
+    if (metaData.status !== undefined) updateData.status = metaData.status;
+    if (metaData.featured !== undefined) updateData.featured = metaData.featured;
+    if (metaData.isVerified !== undefined) updateData.isVerified = metaData.isVerified;
+    if (metaData.expirationDate !== undefined) updateData.expirationDate = new Date(metaData.expirationDate);
+    if (metaData.listingSource !== undefined) updateData.listingSource = metaData.listingSource;
+    if (metaData.sellerId !== undefined) updateData.sellerId = metaData.sellerId;
+    if (metaData.adminNotes !== undefined) updateData.adminNotes = metaData.adminNotes;
+
+    // Handle status-specific fields
+    if (metaData.status === 'archived') {
+      updateData.archivedAt = new Date();
+      updateData.archivedBy = adminId;
+    } else if (updateData.archivedAt) {
+      updateData.archivedAt = null;
+      updateData.archivedBy = null;
+    }
+
+    const [updatedListing] = await db
+      .update(carListings)
+      .set(updateData)
+      .where(eq(carListings.id, listingId))
+      .returning();
+
+    return this.getListingById(listingId);
+  }
+
+  async getAvailableUsers(): Promise<any[]> {
+    return await db
+      .select({
+        id: appUsers.id,
+        firstName: appUsers.firstName,
+        lastName: appUsers.lastName,
+        email: appUsers.email,
+        roleId: appUsers.roleId
+      })
+      .from(appUsers)
+      .where(eq(appUsers.isActive, true))
+      .orderBy(appUsers.firstName);
+  }
 }
 
 export const storage = new DatabaseStorage();

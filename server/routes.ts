@@ -36,7 +36,8 @@ import {
   dailyListingAnalyticsSchema,
   carListings,
   adminUpdateListingSchema,
-  mediaManagementSchema
+  mediaManagementSchema,
+  adminMetaUpdateSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -1184,6 +1185,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to manage media:", error);
       res.status(500).json({ error: "Failed to manage media" });
+    }
+  });
+
+  // Admin meta fields update endpoint
+  app.put("/api/admin/listings/:id/meta", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      const validation = adminMetaUpdateSchema.safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const updatedListing = await storage.updateListingMeta(listingId, validation.data, req.user.id);
+      res.json(updatedListing);
+    } catch (error) {
+      console.error("Failed to update listing meta:", error);
+      res.status(500).json({ error: "Failed to update listing meta" });
+    }
+  });
+
+  // Get available users for reassignment
+  app.get("/api/admin/available-users", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+    try {
+      const users = await storage.getAvailableUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Failed to get available users:", error);
+      res.status(500).json({ error: "Failed to get available users" });
     }
   });
 

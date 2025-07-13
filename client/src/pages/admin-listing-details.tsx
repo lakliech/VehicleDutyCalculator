@@ -37,7 +37,8 @@ import {
   Star,
   ArrowUp,
   ArrowDown,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Settings
 } from "lucide-react";
 
 export default function AdminListingDetails() {
@@ -60,6 +61,7 @@ export default function AdminListingDetails() {
   const [flagReason, setFlagReason] = useState("");
   const [adminNote, setAdminNote] = useState("");
   const [isMediaOpen, setIsMediaOpen] = useState(false);
+  const [isMetaOpen, setIsMetaOpen] = useState(false);
   
   // Edit form states
   const [editTitle, setEditTitle] = useState("");
@@ -67,6 +69,15 @@ export default function AdminListingDetails() {
   const [editPrice, setEditPrice] = useState("");
   const [editNegotiable, setEditNegotiable] = useState(false);
   const [editLocation, setEditLocation] = useState("");
+  
+  // Meta form states
+  const [metaStatus, setMetaStatus] = useState("");
+  const [metaFeatured, setMetaFeatured] = useState(false);
+  const [metaVerified, setMetaVerified] = useState(false);
+  const [metaExpirationDate, setMetaExpirationDate] = useState("");
+  const [metaListingSource, setMetaListingSource] = useState("");
+  const [metaSellerId, setMetaSellerId] = useState("");
+  const [metaAdminNotes, setMetaAdminNotes] = useState("");
 
   console.log('Admin Listing Details - Listing ID:', listingId);
 
@@ -74,6 +85,11 @@ export default function AdminListingDetails() {
   const { data: listingData, isLoading, error } = useQuery({
     queryKey: [`/api/admin/listing-details/${listingId}`],
     enabled: !!listingId,
+  });
+
+  // Available users query for reassignment
+  const { data: availableUsers } = useQuery({
+    queryKey: ['/api/admin/available-users'],
   });
 
   console.log('Listing data:', listingData);
@@ -87,6 +103,15 @@ export default function AdminListingDetails() {
     setEditPrice(listingData.price || "");
     setEditNegotiable(listingData.negotiable || false);
     setEditLocation(listingData.location || "");
+    
+    // Initialize meta form
+    setMetaStatus(listingData.status || "");
+    setMetaFeatured(listingData.featured || false);
+    setMetaVerified(listingData.isVerified || false);
+    setMetaExpirationDate(listingData.expirationDate ? listingData.expirationDate.split('T')[0] : "");
+    setMetaListingSource(listingData.listingSource || "user-submitted");
+    setMetaSellerId(listingData.sellerId || "");
+    setMetaAdminNotes(listingData.adminNotes || "");
   }
 
   // Mutation functions
@@ -208,6 +233,21 @@ export default function AdminListingDetails() {
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to update media", variant: "destructive" });
+    },
+  });
+
+  // Meta fields mutation
+  const metaMutation = useMutation({
+    mutationFn: async (metaData: any) => {
+      return apiRequest('PUT', `/api/admin/listings/${listingId}/meta`, metaData);
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Listing meta fields updated successfully" });
+      setIsMetaOpen(false);
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update listing meta fields", variant: "destructive" });
     },
   });
 
@@ -750,6 +790,151 @@ export default function AdminListingDetails() {
                           <li>• Use trash button to delete images</li>
                           <li>• Maximum 10 images per listing recommended</li>
                         </ul>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog open={isMetaOpen} onOpenChange={setIsMetaOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <Settings className="w-4 h-4" />
+                      Edit Meta Fields
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Edit Listing Meta & Admin Fields</DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="metaStatus">Listing Status *</Label>
+                          <select
+                            id="metaStatus"
+                            value={metaStatus}
+                            onChange={(e) => setMetaStatus(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="active">Active</option>
+                            <option value="verified">Verified</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="archived">Archived</option>
+                          </select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="metaListingSource">Listing Source</Label>
+                          <select
+                            id="metaListingSource"
+                            value={metaListingSource}
+                            onChange={(e) => setMetaListingSource(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          >
+                            <option value="user-submitted">User-submitted</option>
+                            <option value="agent">Agent</option>
+                            <option value="walk-in">Walk-in</option>
+                            <option value="api-imported">API-imported</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="metaFeatured"
+                            checked={metaFeatured}
+                            onCheckedChange={setMetaFeatured}
+                          />
+                          <Label htmlFor="metaFeatured">Featured Listing</Label>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="metaVerified"
+                            checked={metaVerified}
+                            onCheckedChange={setMetaVerified}
+                          />
+                          <Label htmlFor="metaVerified">Verified Badge</Label>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="metaExpirationDate">Expiration Date</Label>
+                          <Input
+                            id="metaExpirationDate"
+                            type="date"
+                            value={metaExpirationDate}
+                            onChange={(e) => setMetaExpirationDate(e.target.value)}
+                            min={new Date().toISOString().split('T')[0]}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="metaSellerId">Reassign to User/Seller</Label>
+                          <select
+                            id="metaSellerId"
+                            value={metaSellerId}
+                            onChange={(e) => setMetaSellerId(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          >
+                            <option value={listingData?.sellerId || ""}>
+                              {listingData?.seller?.firstName} {listingData?.seller?.lastName} (Current)
+                            </option>
+                            {(availableUsers || []).filter(user => user.id !== listingData?.sellerId).map(user => (
+                              <option key={user.id} value={user.id}>
+                                {user.firstName} {user.lastName} ({user.email})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="metaAdminNotes">Admin Notes</Label>
+                        <Textarea
+                          id="metaAdminNotes"
+                          value={metaAdminNotes}
+                          onChange={(e) => setMetaAdminNotes(e.target.value)}
+                          placeholder="Internal admin notes about this listing..."
+                          rows={3}
+                        />
+                      </div>
+                      
+                      <div className="bg-yellow-50 p-4 rounded-lg">
+                        <h4 className="font-semibold text-yellow-900 mb-2">Status Change Effects:</h4>
+                        <ul className="text-sm text-yellow-800 space-y-1">
+                          <li>• <strong>Pending:</strong> Awaiting admin review, not visible to public</li>
+                          <li>• <strong>Active:</strong> Live and searchable by users</li>
+                          <li>• <strong>Verified:</strong> Approved with verification badge</li>
+                          <li>• <strong>Rejected:</strong> Disapproved, not visible to public</li>
+                          <li>• <strong>Archived:</strong> Hidden from search, preserved for records</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setIsMetaOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            metaMutation.mutate({
+                              status: metaStatus,
+                              featured: metaFeatured,
+                              isVerified: metaVerified,
+                              expirationDate: metaExpirationDate || null,
+                              listingSource: metaListingSource,
+                              sellerId: metaSellerId,
+                              adminNotes: metaAdminNotes
+                            });
+                          }}
+                          disabled={!metaStatus || metaMutation.isPending}
+                        >
+                          {metaMutation.isPending ? 'Updating...' : 'Update Meta Fields'}
+                        </Button>
                       </div>
                     </div>
                   </DialogContent>

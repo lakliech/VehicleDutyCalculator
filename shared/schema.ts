@@ -254,6 +254,11 @@ export const carListings = pgTable("car_listings", {
   soldBy: varchar("sold_by", { length: 255 }),
   archivedAt: timestamp("archived_at"),
   archivedBy: varchar("archived_by", { length: 255 }),
+  // Admin meta fields
+  expirationDate: timestamp("expiration_date"),
+  listingSource: text("listing_source").default("user-submitted"), // user-submitted, agent, walk-in, api-imported
+  verifiedBadgeType: text("verified_badge_type"), // trusted-seller, dealer, agent
+  adminNotes: text("admin_notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -357,6 +362,21 @@ export const adminUpdateListingSchema = z.object({
   negotiable: z.boolean().optional(),
   location: z.string().min(1, "Location is required").optional(),
   images: z.array(z.string()).optional(),
+  status: z.enum(['pending', 'active', 'verified', 'rejected', 'archived']).optional(),
+  featured: z.boolean().optional(),
+  isVerified: z.boolean().optional(),
+  sellerId: z.string().optional(), // For reassigning to another user
+});
+
+// Schema for admin meta field updates
+export const adminMetaUpdateSchema = z.object({
+  status: z.enum(['pending', 'active', 'verified', 'rejected', 'archived']),
+  featured: z.boolean().optional(),
+  isVerified: z.boolean().optional(),
+  expirationDate: z.string().optional(), // ISO date string
+  listingSource: z.enum(['user-submitted', 'agent', 'walk-in', 'api-imported']).optional(),
+  sellerId: z.string().optional(), // For reassigning
+  adminNotes: z.string().optional(),
 });
 
 // Schema for media management operations

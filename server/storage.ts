@@ -219,6 +219,7 @@ export interface IStorage {
     totalConversations: number;
     activeConversations: number;
     totalMessages: number;
+    unreadCount: number;
     avgResponseTime: number;
   }>;
 }
@@ -2981,6 +2982,7 @@ export class DatabaseStorage implements IStorage {
     totalConversations: number;
     activeConversations: number;
     totalMessages: number;
+    unreadCount: number;
     avgResponseTime: number;
   }> {
     const stats = await db.execute(sql`
@@ -2988,6 +2990,7 @@ export class DatabaseStorage implements IStorage {
         COUNT(DISTINCT c.id) as total_conversations,
         COUNT(DISTINCT CASE WHEN c.status = 'active' THEN c.id END) as active_conversations,
         COUNT(m.id) as total_messages,
+        COUNT(CASE WHEN m.read_count = 0 AND m.sender_id != ${userId} THEN 1 END) as unread_count,
         AVG(EXTRACT(EPOCH FROM (
           SELECT MIN(m2.created_at) 
           FROM messages m2 
@@ -3006,6 +3009,7 @@ export class DatabaseStorage implements IStorage {
       totalConversations: parseInt(result.total_conversations) || 0,
       activeConversations: parseInt(result.active_conversations) || 0,
       totalMessages: parseInt(result.total_messages) || 0,
+      unreadCount: parseInt(result.unread_count) || 0,
       avgResponseTime: parseFloat(result.avg_response_time_minutes) || 0
     };
   }

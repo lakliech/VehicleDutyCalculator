@@ -2575,9 +2575,124 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/car-listings/:id/details', async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
+      const listingId = parseInt(id);
       
-      // Mock detailed car data - in real implementation, fetch from database
-      const mockCarDetails = {
+      if (isNaN(listingId)) {
+        return res.status(400).json({ error: 'Invalid listing ID' });
+      }
+      
+      // Fetch real listing from database with seller info
+      const results = await db
+        .select({
+          listing: carListings,
+          seller: {
+            id: appUsers.id,
+            firstName: appUsers.firstName,
+            lastName: appUsers.lastName,
+            email: appUsers.email,
+            phoneNumber: appUsers.phoneNumber,
+            createdAt: appUsers.createdAt,
+            updatedAt: appUsers.updatedAt,
+            roleId: appUsers.roleId,
+            isActive: appUsers.isActive,
+            lastLoginAt: appUsers.lastLoginAt,
+            isEmailVerified: appUsers.isEmailVerified
+          }
+        })
+        .from(carListings)
+        .leftJoin(appUsers, eq(carListings.sellerId, appUsers.id))
+        .where(eq(carListings.id, listingId));
+      
+      if (!results || results.length === 0) {
+        return res.status(404).json({ error: 'Car not found' });
+      }
+      
+      const result = results[0];
+      const listing = result.listing;
+      const seller = result.seller;
+
+      // Transform database listing to car details format
+      const carDetails = {
+        id: listing.id,
+        make: listing.make,
+        model: listing.model,
+        year: listing.year,
+        price: Number(listing.price),
+        mileage: listing.mileage || 0,
+        fuelType: listing.fuelType || "Unknown",
+        transmission: listing.transmission || "Unknown",
+        bodyType: listing.bodyType || "Unknown",
+        engineSize: listing.engineSize ? `${listing.engineSize}cc` : "Unknown",
+        doors: 5, // Default value
+        seats: 5, // Default value
+        exteriorColor: listing.exteriorColor || "Unknown",
+        interiorColor: listing.interiorColor || "Unknown",
+        condition: listing.condition || "Unknown",
+        location: listing.location,
+        images: listing.images || [],
+        videos: listing.videos || [],
+        documents: listing.documents || [],
+        features: listing.features || [],
+        isVerified: listing.isVerified,
+        hasWarranty: false, // Default value
+        hasFreeDelivery: false, // Default value
+        warrantyDetails: "Contact seller for warranty information",
+        deliveryInfo: "Contact seller for delivery information",
+        viewCount: listing.viewCount,
+        favoriteCount: listing.favoriteCount,
+        createdAt: listing.createdAt.toISOString(),
+        description: listing.description || "No description available",
+        registrationNumber: listing.registrationNumber,
+        vinNumber: listing.vinNumber,
+        negotiable: listing.negotiable,
+        sellerInfo: {
+          name: seller ? `${seller.firstName} ${seller.lastName}` : "Unknown Seller",
+          type: "individual" as const,
+          rating: 4.5, // Default rating
+          reviewCount: 0, // Default review count
+          location: listing.location,
+          phone: listing.phoneNumber,
+          whatsapp: listing.whatsappNumber
+        },
+        vehicleHistory: {
+          previousOwners: 1, // Default value
+          serviceHistory: "Contact seller for service history",
+          accidentHistory: "Contact seller for accident history", 
+          motStatus: "Contact seller for inspection status",
+          lastService: "Contact seller for service information"
+        },
+        financingOptions: {
+          monthlyPayment: Math.round(Number(listing.price) * 0.02), // Rough estimate 2% of price
+          depositAmount: Math.round(Number(listing.price) * 0.2), // 20% deposit
+          loanTerm: 48, // 4 years
+          interestRate: 12.5 // Standard rate
+        }
+      };
+
+      res.json(carDetails);
+    } catch (error) {
+      console.error('Failed to fetch car details:', error);
+      res.status(500).json({ error: 'Failed to fetch car details' });
+    }
+  });
+
+  // ===============================
+  // ADMIN LISTING MANAGEMENT
+  // ===============================
+
+  // Get all listings for admin
+  app.get("/api/admin/listings", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+    try {
+      const listings = await storage.getAllListingsForAdmin();
+      res.json(listings);
+    } catch (error) {
+      console.error("Failed to fetch listings:", error);
+      res.status(500).json({ error: "Failed to fetch listings" });
+    }
+  });
+
+  // Mock car details for backwards compatibility (unused)
+  const unusedMockCarDetails = {
         1: {
           id: 1,
           make: "Toyota",
@@ -2880,18 +2995,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       };
 
-      const carDetails = mockCarDetails[id as keyof typeof mockCarDetails];
-      
-      if (!carDetails) {
-        return res.status(404).json({ error: 'Car not found' });
-      }
 
-      res.json(carDetails);
-    } catch (error) {
-      console.error('Failed to fetch car details:', error);
-      res.status(500).json({ error: 'Failed to fetch car details' });
-    }
-  });
 
   // ===============================
   // ADMIN LISTING MANAGEMENT

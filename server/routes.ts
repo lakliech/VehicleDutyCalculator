@@ -4899,36 +4899,63 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         return res.status(401).json({ error: "Authentication required" });
       }
       
-      // First get all conversations for the user
+      // Get all conversations where user is a participant
+      const userParticipations = await db
+        .select()
+        .from(conversationParticipants)
+        .where(
+          and(
+            eq(conversationParticipants.userId, user.id),
+            eq(conversationParticipants.isActive, true)
+          )
+        );
+      
+      const conversationIds = userParticipations.map(p => p.conversationId);
+      
+      if (conversationIds.length === 0) {
+        return res.json([]);
+      }
+      
+      // Get conversation details
       const userConversations = await db
         .select()
         .from(conversations)
-        .where(
-          or(
-            eq(conversations.sellerId, user.id),
-            eq(conversations.buyerId, user.id)
-          )
-        )
+        .where(sql`${conversations.id} = ANY(${conversationIds})`)
         .orderBy(desc(conversations.lastMessageAt));
       
-      // For each conversation, get the listing details
+      // For each conversation, get the listing details and last message
       const conversationsWithDetails = await Promise.all(
         userConversations.map(async (conversation) => {
-          const [listing] = await db
-            .select()
-            .from(carListings)
-            .where(eq(carListings.id, conversation.listingId))
-            .limit(1);
+          let listing = null;
+          
+          // Extract listingId from context if it's a listing inquiry
+          if (conversation.type === 'listing_inquiry' && conversation.context) {
+            try {
+              const context = JSON.parse(conversation.context);
+              if (context.listingId) {
+                const [listingResult] = await db
+                  .select()
+                  .from(carListings)
+                  .where(eq(carListings.id, parseInt(context.listingId)))
+                  .limit(1);
+                listing = listingResult;
+              }
+            } catch (e) {
+              console.error('Error parsing conversation context:', e);
+            }
+          }
           
           // Get last message if exists
           let lastMessage = null;
-          if (conversation.lastMessageId) {
-            const [msg] = await db
-              .select()
-              .from(messages)
-              .where(eq(messages.id, conversation.lastMessageId))
-              .limit(1);
-            lastMessage = msg;
+          const lastMessages = await db
+            .select()
+            .from(messages)
+            .where(eq(messages.conversationId, conversation.id))
+            .orderBy(desc(messages.createdAt))
+            .limit(1);
+          
+          if (lastMessages.length > 0) {
+            lastMessage = lastMessages[0];
           }
           
           return {
@@ -4937,9 +4964,9 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
             listingMake: listing?.make || '',
             listingModel: listing?.model || '',
             listingPrice: listing?.price || 0,
-            lastMessage: lastMessage?.message || '',
+            lastMessage: lastMessage?.content || '',
             lastMessageType: lastMessage?.messageType || '',
-            lastMessageRead: lastMessage?.isRead || false
+            lastMessageRead: lastMessage?.deliveryStatus === 'read'
           };
         })
       );

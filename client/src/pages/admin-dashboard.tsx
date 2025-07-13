@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Settings, 
   Car, 
@@ -43,7 +44,15 @@ import {
   X,
   Filter,
   CheckSquare,
-  User
+  User,
+  Heart,
+  Search,
+  Lock,
+  Mail,
+  Ban,
+  Activity,
+  RefreshCw,
+  Download
 } from "lucide-react";
 import { z } from "zod";
 import type { 
@@ -3389,13 +3398,15 @@ function UsersManagementTab() {
   );
 }
 
-// Enhanced User Profile Management Modal
+// User Profile Dashboard Modal (Admin View of User's Profile)
 function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => void }) {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("profile");
   const [showSuspendDialog, setShowSuspendDialog] = useState(false);
   const [showRoleDialog, setShowRoleDialog] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
   
-  const { data: userDetails, isLoading } = useQuery<{
+  // Get user's actual profile data (what they see when logged in)
+  const { data: userDetails, isLoading: loadingHistory } = useQuery<{
     listings: any[];
     warnings: any[];
     activities: any[];
@@ -3406,6 +3417,17 @@ function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => 
   // Get user info from users list
   const { data: usersData } = useQuery({
     queryKey: ["/api/admin/users-management"],
+  });
+
+  // Get user's favorites and wishlists (their actual profile data)
+  const { data: userFavorites } = useQuery({
+    queryKey: [`/api/user/${userId}/favorites`],
+    enabled: !!userId,
+  });
+
+  const { data: userSavedSearches } = useQuery({
+    queryKey: [`/api/user/${userId}/saved-searches`],
+    enabled: !!userId,
   });
 
   const currentUser = usersData?.users?.find((u: any) => u.id === userId);
@@ -3452,10 +3474,10 @@ function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => 
     },
   });
 
-  if (isLoading) {
+  if (loadingHistory) {
     return (
       <Dialog open={true} onOpenChange={onClose}>
-        <DialogContent className="max-w-6xl max-h-[90vh]">
+        <DialogContent className="max-w-7xl max-h-[95vh]">
           <DialogTitle>Loading User Profile</DialogTitle>
           <div className="text-center py-8">Loading user profile...</div>
         </DialogContent>
@@ -3463,10 +3485,10 @@ function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => 
     );
   }
 
-  if (!userDetails || !currentUser) {
+  if (!currentUser) {
     return (
       <Dialog open={true} onOpenChange={onClose}>
-        <DialogContent className="max-w-6xl">
+        <DialogContent className="max-w-7xl">
           <DialogTitle>User Profile</DialogTitle>
           <div className="text-center py-8 text-red-500">Failed to load user profile</div>
         </DialogContent>
@@ -3476,310 +3498,358 @@ function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => 
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
-        <DialogHeader className="border-b pb-4">
-          <DialogTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={currentUser.profilePicture} />
-                <AvatarFallback className="bg-purple-500 text-white">
-                  {currentUser.firstName?.[0]}{currentUser.lastName?.[0]}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h2 className="text-xl font-semibold">{currentUser.firstName} {currentUser.lastName}</h2>
-                <p className="text-sm text-gray-600">{currentUser.email}</p>
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden p-0">
+        {/* Admin Control Bar */}
+        <div className="bg-red-50 border-b border-red-200 px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Shield className="h-4 w-4 text-red-600" />
+            <span className="text-sm font-medium text-red-800">Admin View: {currentUser.firstName} {currentUser.lastName}'s Profile</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => setShowAdminPanel(!showAdminPanel)}
+              className="border-red-200 text-red-700 hover:bg-red-100"
+            >
+              {showAdminPanel ? 'Hide Admin Panel' : 'Show Admin Panel'}
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={onClose}
+              className="border-red-200 text-red-700 hover:bg-red-100"
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+
+        {/* Admin Panel (Collapsible) */}
+        {showAdminPanel && (
+          <div className="bg-gray-50 border-b px-6 py-4">
+            <div className="flex gap-3 flex-wrap">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => setShowRoleDialog(true)}
+                className="flex items-center gap-2"
+              >
+                <Shield className="h-4 w-4" />
+                Change Role
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => setShowSuspendDialog(true)}
+                className="flex items-center gap-2"
+              >
+                <Ban className="h-4 w-4" />
+                Suspend User
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Mail className="h-4 w-4" />
+                Send Message
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                Export Data
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* User's Actual Profile Header (what they see) */}
+        <div className="px-6 py-6 bg-gradient-to-r from-purple-600 to-cyan-400 text-white">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={currentUser.profilePicture} />
+              <AvatarFallback className="bg-white text-purple-600 text-xl">
+                {currentUser.firstName?.[0]}{currentUser.lastName?.[0]}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold">{currentUser.firstName} {currentUser.lastName}</h1>
+              <p className="text-purple-100">{currentUser.email}</p>
+              <p className="text-purple-100">{currentUser.phoneNumber || "Phone not provided"}</p>
+              <div className="flex items-center gap-4 mt-2">
+                <span className="text-sm bg-white/20 px-3 py-1 rounded-full">
+                  Member since {new Date(currentUser.createdAt).toLocaleDateString()}
+                </span>
+                <span className="text-sm bg-white/20 px-3 py-1 rounded-full">
+                  {currentUser.location || "Location not set"}
+                </span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge className={currentUser.status === 'active' ? 'bg-green-500' : 'bg-red-500'}>
-                {currentUser.status}
-              </Badge>
-              <Badge className="bg-purple-500">{currentUser.role?.name || 'No Role'}</Badge>
+            <div className="text-right">
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div className="bg-white/20 rounded-lg p-3">
+                  <div className="text-2xl font-bold">{userDetails?.listings?.length || 0}</div>
+                  <div className="text-sm">Listings</div>
+                </div>
+                <div className="bg-white/20 rounded-lg p-3">
+                  <div className="text-2xl font-bold">{userFavorites?.length || 0}</div>
+                  <div className="text-sm">Favorites</div>
+                </div>
+              </div>
             </div>
-          </DialogTitle>
-        </DialogHeader>
-
-        {/* Quick Admin Actions Bar */}
-        <div className="flex gap-2 py-3 border-b">
-          <Button 
-            size="sm" 
-            variant="outline"
-            onClick={() => setShowRoleDialog(true)}
-            className="flex items-center gap-2"
-          >
-            <Shield className="h-4 w-4" />
-            Change Role
-          </Button>
-          <Button 
-            size="sm" 
-            variant="outline"
-            onClick={() => setShowSuspendDialog(true)}
-            className="flex items-center gap-2"
-          >
-            <Ban className="h-4 w-4" />
-            Suspend User
-          </Button>
-          <Button 
-            size="sm" 
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Mail className="h-4 w-4" />
-            Send Message
-          </Button>
-          <Button 
-            size="sm" 
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <FileText className="h-4 w-4" />
-            View Reports
-          </Button>
+          </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex space-x-1 border-b">
-          {[
-            { id: "overview", label: "Overview", icon: User },
-            { id: "listings", label: "Listings", icon: Car },
-            { id: "activity", label: "Activity", icon: Activity },
-            { id: "warnings", label: "Warnings", icon: AlertTriangle },
-            { id: "settings", label: "Settings", icon: Settings }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-                activeTab === tab.id
-                  ? 'bg-purple-50 text-purple-600 border-b-2 border-purple-600'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-            >
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
-            </button>
-          ))}
+        {/* User's Profile Navigation (what they see) */}
+        <div className="border-b bg-white px-6">
+          <div className="flex space-x-1">
+            {[
+              { id: "profile", label: "Profile Overview", icon: User },
+              { id: "my-listings", label: "My Listings", icon: Car },
+              { id: "favorites", label: "My Favorites", icon: Heart },
+              { id: "saved-searches", label: "Saved Searches", icon: Search },
+              { id: "account-settings", label: "Account Settings", icon: Settings }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-purple-600 text-purple-600 bg-purple-50'
+                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                }`}
+              >
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Tab Content */}
-        <div className="flex-1 overflow-y-auto p-4">
-          {activeTab === "overview" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* User Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Personal Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">First Name</label>
-                      <p className="font-medium">{currentUser.firstName || "Not provided"}</p>
+        {/* User's Profile Content (what they actually see when logged in) */}
+        <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+          {activeTab === "profile" && (
+            <div className="space-y-6">
+              {/* Profile Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="bg-white shadow-sm">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-lg">My Listings</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <div className="text-3xl font-bold text-purple-600 mb-2">{userDetails?.listings?.length || 0}</div>
+                    <div className="text-sm text-gray-600">
+                      {userDetails?.listings?.filter((l: any) => l.status === 'active').length || 0} active, {' '}
+                      {userDetails?.listings?.filter((l: any) => l.status === 'pending').length || 0} pending
                     </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Last Name</label>
-                      <p className="font-medium">{currentUser.lastName || "Not provided"}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Email</label>
-                    <p className="font-medium">{currentUser.email}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Phone</label>
-                    <p className="font-medium">{currentUser.phoneNumber || "Not provided"}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Joined</label>
-                    <p className="font-medium">{new Date(currentUser.createdAt).toLocaleDateString()}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Location</label>
-                    <p className="font-medium">{currentUser.location || "Not provided"}</p>
-                  </div>
-                </CardContent>
-              </Card>
+                    <Button size="sm" className="mt-3 w-full">View All Listings</Button>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-white shadow-sm">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-lg">Favorite Cars</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <div className="text-3xl font-bold text-red-500 mb-2">{userFavorites?.length || 0}</div>
+                    <div className="text-sm text-gray-600">Cars you've saved</div>
+                    <Button size="sm" className="mt-3 w-full" variant="outline">View Favorites</Button>
+                  </CardContent>
+                </Card>
 
-              {/* Account Statistics */}
-              <Card>
+                <Card className="bg-white shadow-sm">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-lg">Saved Searches</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <div className="text-3xl font-bold text-green-600 mb-2">{userSavedSearches?.length || 0}</div>
+                    <div className="text-sm text-gray-600">Search alerts</div>
+                    <Button size="sm" className="mt-3 w-full" variant="outline">Manage Searches</Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Recent Activity */}
+              <Card className="bg-white shadow-sm">
                 <CardHeader>
-                  <CardTitle>Account Statistics</CardTitle>
+                  <CardTitle>Recent Activity</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">{userDetails.listings?.length || 0}</div>
-                      <div className="text-sm text-blue-600">Total Listings</div>
+                <CardContent>
+                  {userDetails?.activities && userDetails.activities.length > 0 ? (
+                    <div className="space-y-4">
+                      {userDetails.activities.slice(0, 5).map((activity: any, index: number) => (
+                        <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                          <div className="p-2 bg-purple-100 rounded-full">
+                            <Activity className="h-4 w-4 text-purple-600" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium">{activity.activity_type}</div>
+                            <div className="text-sm text-gray-600">{activity.description}</div>
+                            <div className="text-xs text-gray-500">
+                              {activity.created_at ? new Date(activity.created_at).toLocaleDateString() : 'Unknown date'}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">
-                        {userDetails.listings?.filter((l: any) => l.status === 'active').length || 0}
-                      </div>
-                      <div className="text-sm text-green-600">Active Listings</div>
-                    </div>
-                    <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                      <div className="text-2xl font-bold text-yellow-600">{userDetails.warnings?.length || 0}</div>
-                      <div className="text-sm text-yellow-600">Warnings</div>
-                    </div>
-                    <div className="text-center p-4 bg-purple-50 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">{userDetails.activities?.length || 0}</div>
-                      <div className="text-sm text-purple-600">Activities</div>
-                    </div>
-                  </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">No recent activity</div>
+                  )}
                 </CardContent>
               </Card>
             </div>
           )}
 
-          {activeTab === "listings" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>User Listings ({userDetails.listings?.length || 0})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {userDetails.listings && userDetails.listings.length > 0 ? (
-                  <div className="space-y-4">
-                    {userDetails.listings.map((listing: any) => (
-                      <div key={listing.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-medium">{listing.title}</h4>
-                            <p className="text-sm text-gray-600">
-                              {listing.make} {listing.model} • {listing.year}
-                            </p>
-                            <p className="text-lg font-semibold text-green-600">
-                              KES {listing.price?.toLocaleString()}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Badge className={
-                              listing.status === 'active' ? 'bg-green-500' :
-                              listing.status === 'pending' ? 'bg-yellow-500' :
-                              'bg-red-500'
-                            }>
-                              {listing.status}
-                            </Badge>
-                            <Button size="sm" variant="outline">
-                              View Details
-                            </Button>
-                          </div>
+          {activeTab === "my-listings" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">My Listings</h2>
+                <Button className="bg-purple-600 hover:bg-purple-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Listing
+                </Button>
+              </div>
+              
+              {userDetails?.listings && userDetails.listings.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {userDetails.listings.map((listing: any) => (
+                    <Card key={listing.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
+                      <div className="aspect-video bg-gray-200 rounded-t-lg flex items-center justify-center">
+                        <Car className="h-12 w-12 text-gray-400" />
+                      </div>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="font-semibold text-lg truncate">{listing.title}</h3>
+                          <Badge className={
+                            listing.status === 'active' ? 'bg-green-500' :
+                            listing.status === 'pending' ? 'bg-yellow-500' :
+                            'bg-red-500'
+                          }>
+                            {listing.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">{listing.make} {listing.model} • {listing.year}</p>
+                        <p className="text-xl font-bold text-green-600 mb-3">KES {listing.price?.toLocaleString()}</p>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="flex-1">Edit</Button>
+                          <Button size="sm" variant="outline" className="flex-1">View</Button>
                         </div>
                         <div className="text-xs text-gray-500 mt-2">
                           Created: {new Date(listing.createdAt).toLocaleDateString()}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">No listings found</div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {activeTab === "activity" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activities ({userDetails.activities?.length || 0})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {userDetails.activities && userDetails.activities.length > 0 ? (
-                  <div className="space-y-3">
-                    {userDetails.activities.map((activity: any, index: number) => (
-                      <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
-                        <div className="p-2 bg-blue-100 rounded-full">
-                          <Activity className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-medium">{activity.activity_type || activity.action}</div>
-                          <div className="text-sm text-gray-600">{activity.description}</div>
-                          <div className="text-xs text-gray-500">
-                            {activity.created_at ? new Date(activity.created_at).toLocaleString() : 'Unknown date'}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">No recent activities</div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {activeTab === "warnings" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Warnings & Flags ({userDetails.warnings?.length || 0})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {userDetails.warnings && userDetails.warnings.length > 0 ? (
-                  <div className="space-y-3">
-                    {userDetails.warnings.map((warning: any, index: number) => (
-                      <div key={index} className="border-l-4 border-red-500 pl-4 py-3 bg-red-50 rounded-r-lg">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-medium text-red-800">{warning.warning_type || 'Warning'}</div>
-                            <div className="text-sm text-red-700">{warning.description}</div>
-                            <div className="text-xs text-red-600 mt-1">
-                              Severity: {warning.severity} • {warning.created_at ? new Date(warning.created_at).toLocaleDateString() : 'Unknown date'}
-                            </div>
-                          </div>
-                          <Badge className={warning.acknowledged ? 'bg-green-500' : 'bg-yellow-500'}>
-                            {warning.acknowledged ? 'Acknowledged' : 'Pending'}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">No warnings or flags</div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {activeTab === "settings" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Account Settings & Admin Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Button 
-                    variant="outline" 
-                    className="h-16 flex flex-col items-center gap-2"
-                    onClick={() => setShowRoleDialog(true)}
-                  >
-                    <Shield className="h-6 w-6" />
-                    Change User Role
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="h-16 flex flex-col items-center gap-2"
-                    onClick={() => setShowSuspendDialog(true)}
-                  >
-                    <Ban className="h-6 w-6" />
-                    Suspend Account
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="h-16 flex flex-col items-center gap-2"
-                  >
-                    <RefreshCw className="h-6 w-6" />
-                    Reset Password
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="h-16 flex flex-col items-center gap-2"
-                  >
-                    <Download className="h-6 w-6" />
-                    Export Data
-                  </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-              </CardContent>
-            </Card>
+              ) : (
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="text-center py-12">
+                    <Car className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-600 mb-2">No listings yet</h3>
+                    <p className="text-gray-500 mb-4">Start selling your car by creating your first listing</p>
+                    <Button className="bg-purple-600 hover:bg-purple-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create First Listing
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {activeTab === "favorites" && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">My Favorite Cars</h2>
+              
+              <Card className="bg-white shadow-sm">
+                <CardContent className="text-center py-12">
+                  <Heart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No favorites yet</h3>
+                  <p className="text-gray-500 mb-4">Save cars you're interested in to view them here</p>
+                  <Button variant="outline">Browse Cars</Button>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === "saved-searches" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Saved Searches</h2>
+                <Button variant="outline">
+                  <Search className="h-4 w-4 mr-2" />
+                  Create Search Alert
+                </Button>
+              </div>
+              
+              <Card className="bg-white shadow-sm">
+                <CardContent className="text-center py-12">
+                  <Search className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No saved searches</h3>
+                  <p className="text-gray-500 mb-4">Create search alerts to get notified when new cars match your criteria</p>
+                  <Button variant="outline">Create Search Alert</Button>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === "account-settings" && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Account Settings</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-white shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Personal Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Full Name</label>
+                      <p className="font-medium">{currentUser.firstName} {currentUser.lastName}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Email</label>
+                      <p className="font-medium">{currentUser.email}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Phone</label>
+                      <p className="font-medium">{currentUser.phoneNumber || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Location</label>
+                      <p className="font-medium">{currentUser.location || "Not set"}</p>
+                    </div>
+                    <Button size="sm" variant="outline" className="w-full">Edit Profile</Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Account Security</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <Button size="sm" variant="outline" className="w-full justify-start">
+                        <Lock className="h-4 w-4 mr-2" />
+                        Change Password
+                      </Button>
+                      <Button size="sm" variant="outline" className="w-full justify-start">
+                        <Shield className="h-4 w-4 mr-2" />
+                        Privacy Settings
+                      </Button>
+                      <Button size="sm" variant="outline" className="w-full justify-start">
+                        <Mail className="h-4 w-4 mr-2" />
+                        Email Preferences
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           )}
         </div>
 

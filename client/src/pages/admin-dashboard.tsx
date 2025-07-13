@@ -575,43 +575,7 @@ function AuthenticatedAdminDashboard() {
 
           {/* Users Management Tab */}
           <TabsContent value="users">
-            <Card>
-              <CardHeader>
-                <CardTitle>Comprehensive User Management</CardTitle>
-                <CardDescription>
-                  Manage users, roles, permissions, and monitor user activity with advanced moderation tools.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <p className="text-gray-600">
-                    The comprehensive user management system provides detailed user oversight, role management, and activity monitoring with suspension and warning capabilities.
-                  </p>
-                  <div className="flex flex-wrap gap-4">
-                    <Link href="/admin/users">
-                      <Button className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700">
-                        <Users className="w-4 h-4 mr-2" />
-                        Open User Management
-                      </Button>
-                    </Link>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                    <div className="p-4 bg-purple-50 rounded-lg">
-                      <h4 className="font-semibold text-purple-900">User Oversight</h4>
-                      <p className="text-sm text-purple-700">Monitor user activity, listings, and engagement metrics</p>
-                    </div>
-                    <div className="p-4 bg-cyan-50 rounded-lg">
-                      <h4 className="font-semibold text-cyan-900">Role Management</h4>
-                      <p className="text-sm text-cyan-700">Assign roles, permissions, and manage user access levels</p>
-                    </div>
-                    <div className="p-4 bg-pink-50 rounded-lg">
-                      <h4 className="font-semibold text-pink-900">Moderation Tools</h4>
-                      <p className="text-sm text-pink-700">Suspend users, issue warnings, and review user history</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <UsersManagementTab />
           </TabsContent>
 
           {/* Automated Flagging System Tab */}

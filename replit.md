@@ -508,6 +508,14 @@ Changelog:
   - Verified automated flagging triggers user suspension which immediately hides all user listings from marketplace
   - Critical auto-flag rules now properly suspend user accounts in addition to listing actions
   - System automatically integrates user suspension with existing listing visibility controls
+- January 13, 2025. Enhanced messaging system for distinct user conversations:
+  - Modified conversation creation logic to always create separate conversations for each inquiry
+  - Removed conversation reuse that was merging different users' inquiries about same listing
+  - Enhanced getUserConversations to include participant information and sender names in conversation list
+  - Updated messaging stats API to include unreadCount field with proper calculation
+  - Added unread message count badges to navigation menu with real-time polling every 30 seconds
+  - Separated existing merged conversations from Chris Otieno and Jane Smith into distinct conversations
+  - Each user now has their own private conversation thread with sellers for better message organization
 
 ## User Preferences
 

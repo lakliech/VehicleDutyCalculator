@@ -4695,7 +4695,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           date: today,
           phoneClicks: 1,
           totalViews: 0,
-          messagesSent: 0,
+          inquiries: 0,
           favorites: 0,
           shares: 0
         })
@@ -4848,7 +4848,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         .values({
           listingId,
           date: today,
-          messagesSent: 1,
+          inquiries: 1,
           totalViews: 0,
           phoneClicks: 0,
           favorites: 0,
@@ -4857,7 +4857,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         .onConflictDoUpdate({
           target: [dailyListingAnalytics.listingId, dailyListingAnalytics.date],
           set: {
-            messagesSent: sql`${dailyListingAnalytics.messagesSent} + 1`,
+            inquiries: sql`${dailyListingAnalytics.inquiries} + 1`,
             updatedAt: new Date()
           }
         });
@@ -5398,7 +5398,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           date: dailyListingAnalytics.date,
           views: dailyListingAnalytics.totalViews,
           phoneClicks: dailyListingAnalytics.phoneClicks,
-          messagesSent: dailyListingAnalytics.messagesSent,
+          messagesSent: dailyListingAnalytics.inquiries,
           favorites: dailyListingAnalytics.favorites,
           shares: dailyListingAnalytics.shares,
           // Join with listing info

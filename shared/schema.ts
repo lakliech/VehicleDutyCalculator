@@ -1312,20 +1312,28 @@ export const dailyListingAnalytics = pgTable("daily_listing_analytics", {
   id: serial("id").primaryKey(),
   listingId: integer("listing_id").references(() => carListings.id).notNull(),
   date: text("date").notNull(), // YYYY-MM-DD format
-  views: integer("views").default(0).notNull(),
+  totalViews: integer("total_views").default(0).notNull(),
   uniqueVisitors: integer("unique_visitors").default(0).notNull(),
   phoneClicks: integer("phone_clicks").default(0).notNull(),
-  messagesSent: integer("messages_sent").default(0).notNull(),
+  inquiries: integer("inquiries").default(0).notNull(),
   favorites: integer("favorites").default(0).notNull(),
   shares: integer("shares").default(0).notNull(),
   impressions: integer("impressions").default(0).notNull(), // Search result appearances
   clickThroughRate: decimal("click_through_rate", { precision: 5, scale: 4 }).default("0.0000"),
-  averageTimeSpent: integer("average_time_spent").default(0), // Seconds
-  testDriveRequests: integer("test_drive_requests").default(0),
-  deviceBreakdown: json("device_breakdown"), // {mobile: count, desktop: count, tablet: count}
-  locationBreakdown: json("location_breakdown"), // {city1: count, city2: count, ...}
-  trafficSources: json("traffic_sources"), // {organic: count, direct: count, referral: count, ...}
-  activeHours: json("active_hours"), // {hour0: count, hour1: count, ...}
+  deviceMobile: integer("device_mobile").default(0),
+  deviceDesktop: integer("device_desktop").default(0),
+  deviceTablet: integer("device_tablet").default(0),
+  locationNairobi: integer("location_nairobi").default(0),
+  locationMombasa: integer("location_mombasa").default(0),
+  locationKisumu: integer("location_kisumu").default(0),
+  locationOther: integer("location_other").default(0),
+  trafficSourceDirect: integer("traffic_source_direct").default(0),
+  trafficSourceSearch: integer("traffic_source_search").default(0),
+  trafficSourceReferral: integer("traffic_source_referral").default(0),
+  trafficSourceSocial: integer("traffic_source_social").default(0),
+  peakHourMorning: integer("peak_hour_morning").default(0),
+  peakHourAfternoon: integer("peak_hour_afternoon").default(0),
+  peakHourEvening: integer("peak_hour_evening").default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

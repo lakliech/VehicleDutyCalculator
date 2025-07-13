@@ -4708,6 +4708,88 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
   
+  // Send message to seller (from car details page)
+  app.post('/api/messaging/send', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const { message, listingId, sellerId } = req.body;
+
+      if (!message?.trim()) {
+        return res.status(400).json({ error: "Message content is required" });
+      }
+
+      if (!listingId || !sellerId) {
+        return res.status(400).json({ error: "Listing ID and seller ID are required" });
+      }
+
+      // Check if user is trying to message themselves
+      if (user.id === sellerId) {
+        return res.status(400).json({ error: "Cannot message yourself" });
+      }
+
+      // Check if conversation already exists
+      let conversation = await db
+        .select()
+        .from(conversations)
+        .where(
+          and(
+            eq(conversations.listingId, listingId),
+            or(
+              and(eq(conversations.sellerId, sellerId), eq(conversations.buyerId, user.id)),
+              and(eq(conversations.sellerId, user.id), eq(conversations.buyerId, sellerId))
+            )
+          )
+        )
+        .limit(1);
+
+      // Create conversation if it doesn't exist
+      if (conversation.length === 0) {
+        const [newConversation] = await db
+          .insert(conversations)
+          .values({
+            listingId,
+            sellerId,
+            buyerId: user.id,
+            isActive: true,
+            createdAt: new Date(),
+            lastMessageAt: new Date()
+          })
+          .returning();
+
+        conversation = [newConversation];
+      }
+
+      // Send the message
+      const [newMessage] = await db
+        .insert(messages)
+        .values({
+          conversationId: conversation[0].id,
+          senderId: user.id,
+          receiverId: sellerId,
+          listingId,
+          message: message.trim(),
+          messageType: 'text',
+          isRead: false,
+          sentAt: new Date()
+        })
+        .returning();
+
+      // Update conversation's last message
+      await db
+        .update(conversations)
+        .set({
+          lastMessageId: newMessage.id,
+          lastMessageAt: new Date()
+        })
+        .where(eq(conversations.id, conversation[0].id));
+
+      res.json({ success: true, message: newMessage });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      res.status(500).json({ error: "Failed to send message" });
+    }
+  });
+
   // Send message
   app.post('/api/send-message', async (req, res) => {
     try {
@@ -4781,33 +4863,52 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         return res.status(401).json({ error: "Authentication required" });
       }
       
+      // First get all conversations for the user
       const userConversations = await db
-        .select({
-          id: conversations.id,
-          listingId: conversations.listingId,
-          sellerId: conversations.sellerId,
-          buyerId: conversations.buyerId,
-          lastMessageAt: conversations.lastMessageAt,
-          isActive: conversations.isActive,
-          // Join with listing info
-          listingTitle: carListings.title,
-          listingMake: carListings.make,
-          listingModel: carListings.model,
-          listingPrice: carListings.price,
-          // Join with last message
-          lastMessage: messages.message,
-          lastMessageType: messages.messageType,
-          lastMessageRead: messages.isRead
-        })
+        .select()
         .from(conversations)
-        .innerJoin(carListings, eq(conversations.listingId, carListings.id))
-        .leftJoin(messages, eq(conversations.lastMessageId, messages.id))
         .where(
-          sql`${conversations.sellerId} = ${user.id} OR ${conversations.buyerId} = ${user.id}`
+          or(
+            eq(conversations.sellerId, user.id),
+            eq(conversations.buyerId, user.id)
+          )
         )
         .orderBy(desc(conversations.lastMessageAt));
       
-      res.json(userConversations);
+      // For each conversation, get the listing details
+      const conversationsWithDetails = await Promise.all(
+        userConversations.map(async (conversation) => {
+          const [listing] = await db
+            .select()
+            .from(carListings)
+            .where(eq(carListings.id, conversation.listingId))
+            .limit(1);
+          
+          // Get last message if exists
+          let lastMessage = null;
+          if (conversation.lastMessageId) {
+            const [msg] = await db
+              .select()
+              .from(messages)
+              .where(eq(messages.id, conversation.lastMessageId))
+              .limit(1);
+            lastMessage = msg;
+          }
+          
+          return {
+            ...conversation,
+            listingTitle: listing?.title || 'Unknown Listing',
+            listingMake: listing?.make || '',
+            listingModel: listing?.model || '',
+            listingPrice: listing?.price || 0,
+            lastMessage: lastMessage?.message || '',
+            lastMessageType: lastMessage?.messageType || '',
+            lastMessageRead: lastMessage?.isRead || false
+          };
+        })
+      );
+      
+      res.json(conversationsWithDetails);
     } catch (error) {
       console.error("Error fetching user messages:", error);
       res.status(500).json({ error: "Failed to fetch messages" });

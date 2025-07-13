@@ -5,6 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ArrowLeft,
   Heart,
@@ -33,9 +37,10 @@ import {
   FileText
 } from "lucide-react";
 import { ModuleNavigation } from "@/components/module-navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/auth-provider";
 
 interface VehicleDetails {
   id: number;
@@ -93,7 +98,12 @@ export default function CarDetails() {
   const [, setLocation] = useLocation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showContactForm, setShowContactForm] = useState(false);
+  const [showMessageDialog, setShowMessageDialog] = useState(false);
+  const [messageText, setMessageText] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const { toast } = useToast();
+  const { user, isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
 
   // Fetch vehicle details
   const { data: vehicle, isLoading } = useQuery({
@@ -101,6 +111,36 @@ export default function CarDetails() {
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/car-listings/${id}/details`);
       return response.json();
+    },
+  });
+
+  // Fetch message templates
+  const { data: messageTemplates = [] } = useQuery({
+    queryKey: ['/api/messaging/templates'],
+    enabled: isAuthenticated,
+  });
+
+  // Send message mutation
+  const sendMessageMutation = useMutation({
+    mutationFn: async (messageData: { message: string; listingId: number; sellerId: string }) => {
+      return await apiRequest('POST', '/api/messaging/send', messageData);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Message Sent",
+        description: "Your message has been sent to the seller successfully.",
+      });
+      setShowMessageDialog(false);
+      setMessageText("");
+      setSelectedTemplate("");
+      queryClient.invalidateQueries({ queryKey: ['/api/messaging/conversations'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -151,6 +191,53 @@ export default function CarDetails() {
     const message = encodeURIComponent(`Hi, I'm interested in your ${vehicle?.year} ${vehicle?.make} ${vehicle?.model}. Is it still available?`);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
     window.open(whatsappUrl, '_blank');
+  };
+
+  const handleMessageSeller = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to message the seller.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (user?.id === vehicle?.sellerId) {
+      toast({
+        title: "Cannot Message Yourself",
+        description: "This is your own listing.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setShowMessageDialog(true);
+  };
+
+  const handleTemplateSelect = (templateId: string) => {
+    const template = messageTemplates.find((t: any) => t.id === templateId);
+    if (template) {
+      setMessageText(template.content);
+      setSelectedTemplate(templateId);
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (!messageText.trim()) {
+      toast({
+        title: "Message Required",
+        description: "Please enter a message to send.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    sendMessageMutation.mutate({
+      message: messageText.trim(),
+      listingId: parseInt(id!),
+      sellerId: vehicle.sellerId,
+    });
   };
 
   const handleShare = () => {
@@ -523,6 +610,15 @@ export default function CarDetails() {
                     variant="outline" 
                     className="w-full" 
                     size="lg"
+                    onClick={handleMessageSeller}
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Message Seller
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    size="lg"
                     onClick={handleWhatsAppSeller}
                   >
                     <MessageCircle className="h-4 w-4 mr-2" />
@@ -610,6 +706,72 @@ export default function CarDetails() {
           </div>
         </div>
       </div>
+
+      {/* Message Seller Dialog */}
+      <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Message Seller</DialogTitle>
+            <DialogDescription>
+              Send a message to the seller about this {vehicle?.year} {vehicle?.make} {vehicle?.model}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Message Templates */}
+            {messageTemplates.length > 0 && (
+              <div>
+                <Label htmlFor="template">Quick Templates</Label>
+                <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a template (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {messageTemplates
+                      .filter((template: any) => !template.isAdminOnly)
+                      .map((template: any) => (
+                        <SelectItem key={template.id} value={template.id}>
+                          {template.title}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
+            {/* Message Input */}
+            <div>
+              <Label htmlFor="message">Your Message</Label>
+              <Textarea
+                id="message"
+                placeholder="Hi, I'm interested in your vehicle..."
+                value={messageText}
+                onChange={(e) => setMessageText(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+            
+            {/* Actions */}
+            <div className="flex gap-2 justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowMessageDialog(false)}
+                disabled={sendMessageMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSendMessage}
+                disabled={sendMessageMutation.isPending || !messageText.trim()}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                {sendMessageMutation.isPending ? "Sending..." : "Send Message"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -566,12 +566,6 @@ function AuthenticatedAdminDashboard() {
                         Open User Management
                       </Button>
                     </Link>
-                    <Link href="/admin/listings">
-                      <Button variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">
-                        <Car className="w-4 h-4 mr-2" />
-                        Listing Management
-                      </Button>
-                    </Link>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                     <div className="p-4 bg-purple-50 rounded-lg">

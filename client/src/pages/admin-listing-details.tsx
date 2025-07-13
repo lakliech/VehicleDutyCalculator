@@ -80,10 +80,27 @@ export default function AdminListingDetails() {
 
   const availableUsers = usersData?.users?.map((item: any) => item.user) || [];
 
+  // Debug query response
+  useEffect(() => {
+    console.log('Query state:', { 
+      listingData: listingData ? 'RECEIVED' : 'NULL', 
+      isLoading, 
+      error: error ? 'ERROR' : 'NO ERROR',
+      dataKeys: listingData ? Object.keys(listingData) : 'N/A'
+    });
+  }, [listingData, isLoading, error]);
+
   // Initialize form data when listing loads - ensure data is fully loaded
   useEffect(() => {
+    console.log('Form initialization check:', {
+      hasData: !!listingData,
+      isLoadingStatus: isLoading,
+      shouldInitialize: !!listingData && !isLoading
+    });
+    
     if (listingData && !isLoading) {
-      console.log('Initializing form data:', {
+      console.log('FORM INITIALIZATION TRIGGERED - Raw Data:', listingData);
+      console.log('Extracted values:', {
         status: listingData.status,
         featured: listingData.featured,
         verified: listingData.isVerified,
@@ -106,6 +123,12 @@ export default function AdminListingDetails() {
       setMetaListingSource(listingData.listingSource || "user-submitted");
       setMetaSellerId(listingData.sellerId || "");
       setMetaAdminNotes(listingData.adminNotes || "");
+      
+      console.log('Form state AFTER initialization:', {
+        metaStatus: listingData.status,
+        metaFeatured: Boolean(listingData.featured),
+        metaVerified: Boolean(listingData.isVerified)
+      });
     }
   }, [listingData, isLoading]);
 
@@ -484,6 +507,9 @@ export default function AdminListingDetails() {
                 
                 <div className="space-y-2">
                   <Label htmlFor="metaStatus">Listing Status *</Label>
+                  <div className="text-xs text-gray-500 mb-1">
+                    Current: {metaStatus || 'undefined'} | DB: {listingData?.status || 'undefined'}
+                  </div>
                   <select
                     id="metaStatus"
                     value={metaStatus || listingData?.status || "pending"}

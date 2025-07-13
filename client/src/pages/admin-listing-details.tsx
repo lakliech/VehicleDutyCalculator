@@ -1,40 +1,29 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useParams, useLocation } from "wouter";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import { 
-  ArrowLeft, 
-  Car, 
-  User, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Calendar, 
-  Eye,
-  Flag,
-  CheckCircle,
+import {
+  ArrowLeft,
   RefreshCw,
+  Car,
+  User,
   Edit,
-  StickyNote,
-  DollarSign,
-  Fuel,
-  Gauge,
-  Palette,
-  Wrench,
-  Hash,
+  CheckCircle,
   X,
+  Flag,
+  StickyNote,
+  Star,
   Upload,
   Trash2,
-  Star,
   ArrowUp,
   ArrowDown,
   Image as ImageIcon,
@@ -42,35 +31,19 @@ import {
 } from "lucide-react";
 
 export default function AdminListingDetails() {
-  const params = useParams();
-  const listingId = params.id;
+  const { id } = useParams();
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Dialog states
-  const [isApproveOpen, setIsApproveOpen] = useState(false);
-  const [isRejectOpen, setIsRejectOpen] = useState(false);
-  const [isFlagOpen, setIsFlagOpen] = useState(false);
-  const [isNoteOpen, setIsNoteOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-
-  // Form states
-  const [approvalNotes, setApprovalNotes] = useState("");
-  const [rejectionReason, setRejectionReason] = useState("");
-  const [flagReason, setFlagReason] = useState("");
-  const [adminNote, setAdminNote] = useState("");
-  const [isMediaOpen, setIsMediaOpen] = useState(false);
-  const [isMetaOpen, setIsMetaOpen] = useState(false);
-  
-  // Edit form states
+  // State for editing
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editPrice, setEditPrice] = useState("");
-  const [editNegotiable, setEditNegotiable] = useState(false);
   const [editLocation, setEditLocation] = useState("");
-  
-  // Meta form states
+  const [editNegotiable, setEditNegotiable] = useState(false);
+
+  // State for meta fields
   const [metaStatus, setMetaStatus] = useState("");
   const [metaFeatured, setMetaFeatured] = useState(false);
   const [metaVerified, setMetaVerified] = useState(false);
@@ -79,178 +52,121 @@ export default function AdminListingDetails() {
   const [metaSellerId, setMetaSellerId] = useState("");
   const [metaAdminNotes, setMetaAdminNotes] = useState("");
 
-  console.log('Admin Listing Details - Listing ID:', listingId);
+  // State for dialogs
+  const [isMediaOpen, setIsMediaOpen] = useState(false);
+  const [isApproveOpen, setIsApproveOpen] = useState(false);
+  const [isRejectOpen, setIsRejectOpen] = useState(false);
+  const [isFlagOpen, setIsFlagOpen] = useState(false);
+  const [isNoteOpen, setIsNoteOpen] = useState(false);
 
-  // Individual listing details query
+  // State for approval/rejection
+  const [approvalNotes, setApprovalNotes] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [flagReason, setFlagReason] = useState("");
+  const [adminNote, setAdminNote] = useState("");
+
+  // Fetch listing data
   const { data: listingData, isLoading, error } = useQuery({
-    queryKey: [`/api/admin/listing-details/${listingId}`],
-    enabled: !!listingId,
+    queryKey: ['/api/admin/listing-details', id],
+    enabled: !!id,
   });
 
-  // Available users query for reassignment
+  // Fetch available users for reassignment
   const { data: availableUsers } = useQuery({
-    queryKey: ['/api/admin/available-users'],
+    queryKey: ['/api/admin/users-management'],
   });
 
-  console.log('Listing data:', listingData);
-  console.log('Query error:', error);
-  console.log('Is loading:', isLoading);
+  // Initialize form data when listing loads
+  useEffect(() => {
+    if (listingData) {
+      setEditTitle(listingData.title || "");
+      setEditDescription(listingData.description || "");
+      setEditPrice(listingData.price?.toString() || "");
+      setEditLocation(listingData.location || "");
+      setEditNegotiable(listingData.negotiable || false);
+      
+      // Initialize meta fields
+      setMetaStatus(listingData.status || "");
+      setMetaFeatured(listingData.featured || false);
+      setMetaVerified(listingData.isVerified || false);
+      setMetaExpirationDate(listingData.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "");
+      setMetaListingSource(listingData.listingSource || "user-submitted");
+      setMetaSellerId(listingData.sellerId || "");
+      setMetaAdminNotes(listingData.adminNotes || "");
+    }
+  }, [listingData]);
 
-  // Initialize edit form when listing data loads
-  if (listingData && editTitle === "") {
-    setEditTitle(listingData.title || "");
-    setEditDescription(listingData.description || "");
-    setEditPrice(listingData.price || "");
-    setEditNegotiable(listingData.negotiable || false);
-    setEditLocation(listingData.location || "");
-    
-    // Initialize meta form
-    setMetaStatus(listingData.status || "");
-    setMetaFeatured(listingData.featured || false);
-    setMetaVerified(listingData.isVerified || false);
-    setMetaExpirationDate(listingData.expirationDate ? listingData.expirationDate.split('T')[0] : "");
-    setMetaListingSource(listingData.listingSource || "user-submitted");
-    setMetaSellerId(listingData.sellerId || "");
-    setMetaAdminNotes(listingData.adminNotes || "");
-  }
-
-  // Mutation functions
-  const approveMutation = useMutation({
-    mutationFn: async ({ notes }: { notes?: string }) => {
-      const response = await fetch(`/api/admin/listing/${listingId}/approve`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes }),
-        credentials: 'include',
-      });
-      if (!response.ok) throw new Error('Failed to approve listing');
-      return response.json();
-    },
+  // Mutations
+  const updateMutation = useMutation({
+    mutationFn: (data: any) => apiRequest('PUT', `/api/admin/listing/${id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
+      toast({ title: "Success", description: "Listing updated successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
+    },
+    onError: () => toast({ title: "Error", description: "Failed to update listing", variant: "destructive" }),
+  });
+
+  const metaMutation = useMutation({
+    mutationFn: (data: any) => apiRequest('PUT', `/api/admin/listings/${id}/meta`, data),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Meta fields updated successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
+    },
+    onError: () => toast({ title: "Error", description: "Failed to update meta fields", variant: "destructive" }),
+  });
+
+  const mediaMutation = useMutation({
+    mutationFn: (data: any) => apiRequest('POST', `/api/admin/listing/${id}/media`, data),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Media updated successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
+      setIsMediaOpen(false);
+    },
+    onError: () => toast({ title: "Error", description: "Failed to update media", variant: "destructive" }),
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: (data: any) => apiRequest('PUT', `/api/admin/listing/${id}/approve`, data),
+    onSuccess: () => {
       toast({ title: "Success", description: "Listing approved successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
       setIsApproveOpen(false);
-      setApprovalNotes("");
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to approve listing", variant: "destructive" });
-    },
+    onError: () => toast({ title: "Error", description: "Failed to approve listing", variant: "destructive" }),
   });
 
   const rejectMutation = useMutation({
-    mutationFn: async ({ reason }: { reason: string }) => {
-      const response = await fetch(`/api/admin/listing/${listingId}/reject`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason }),
-        credentials: 'include',
-      });
-      if (!response.ok) throw new Error('Failed to reject listing');
-      return response.json();
-    },
+    mutationFn: (data: any) => apiRequest('PUT', `/api/admin/listing/${id}/reject`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
       toast({ title: "Success", description: "Listing rejected successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
       setIsRejectOpen(false);
-      setRejectionReason("");
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to reject listing", variant: "destructive" });
-    },
+    onError: () => toast({ title: "Error", description: "Failed to reject listing", variant: "destructive" }),
   });
 
   const flagMutation = useMutation({
-    mutationFn: async ({ reason }: { reason: string }) => {
-      const response = await fetch(`/api/admin/listing/${listingId}/flag`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason }),
-        credentials: 'include',
-      });
-      if (!response.ok) throw new Error('Failed to flag listing');
-      return response.json();
-    },
+    mutationFn: (data: any) => apiRequest('PUT', `/api/admin/listing/${id}/flag`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
       toast({ title: "Success", description: "Listing flagged successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
       setIsFlagOpen(false);
-      setFlagReason("");
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to flag listing", variant: "destructive" });
-    },
+    onError: () => toast({ title: "Error", description: "Failed to flag listing", variant: "destructive" }),
   });
 
   const addNoteMutation = useMutation({
-    mutationFn: async ({ note }: { note: string }) => {
-      const response = await fetch(`/api/admin/listing/${listingId}/note`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note }),
-        credentials: 'include',
-      });
-      if (!response.ok) throw new Error('Failed to add note');
-      return response.json();
-    },
+    mutationFn: (data: any) => apiRequest('POST', `/api/admin/listing/${id}/note`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
       toast({ title: "Success", description: "Note added successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-details', id] });
       setIsNoteOpen(false);
       setAdminNote("");
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to add note", variant: "destructive" });
-    },
+    onError: () => toast({ title: "Error", description: "Failed to add note", variant: "destructive" }),
   });
 
-  const editMutation = useMutation({
-    mutationFn: async (editData: { title: string; description: string; price: string; negotiable: boolean; location: string }) => {
-      // Convert price to number for validation
-      const processedData = {
-        ...editData,
-        price: parseFloat(editData.price)
-      };
-      return apiRequest('PUT', `/api/admin/listings/${listingId}`, processedData);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
-      toast({ title: "Success", description: "Listing updated successfully" });
-      setIsEditOpen(false);
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update listing", variant: "destructive" });
-    },
-  });
-
-  // Media management mutations
-  const mediaMutation = useMutation({
-    mutationFn: async (mediaData: { action: string; images?: string[]; deleteIndex?: number; featuredIndex?: number; newOrder?: number[] }) => {
-      return apiRequest('POST', `/api/admin/listings/${listingId}/media`, mediaData);
-    },
-    onSuccess: () => {
-      toast({ title: "Success", description: "Media updated successfully" });
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update media", variant: "destructive" });
-    },
-  });
-
-  // Meta fields mutation
-  const metaMutation = useMutation({
-    mutationFn: async (metaData: any) => {
-      return apiRequest('PUT', `/api/admin/listings/${listingId}/meta`, metaData);
-    },
-    onSuccess: () => {
-      toast({ title: "Success", description: "Listing meta fields updated successfully" });
-      setIsMetaOpen(false);
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/listing-details/${listingId}`] });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update listing meta fields", variant: "destructive" });
-    },
-  });
-
+  // Helper functions
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
@@ -264,34 +180,42 @@ export default function AdminListingDetails() {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
   const getStatusBadge = (status: string) => {
-    const statusColors = {
-      active: 'bg-green-100 text-green-800',
-      pending: 'bg-yellow-100 text-yellow-800',
-      rejected: 'bg-red-100 text-red-800',
-      expired: 'bg-gray-100 text-gray-800',
+    const variants: Record<string, string> = {
+      pending: "bg-yellow-500",
+      active: "bg-green-500",
+      verified: "bg-blue-500",
+      rejected: "bg-red-500",
+      archived: "bg-gray-500",
     };
-    
-    return (
-      <Badge className={statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800'}>
-        {status}
-      </Badge>
-    );
+    return <Badge className={variants[status] || "bg-gray-500"}>{status}</Badge>;
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto p-6">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading listing details...</p>
-            </div>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <p>Loading listing details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <X className="w-8 h-8 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600">Error loading listing details</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Try Again
+          </Button>
         </div>
       </div>
     );
@@ -299,16 +223,14 @@ export default function AdminListingDetails() {
 
   if (!listingData) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto p-6">
-          <div className="text-center py-12">
-            <Car className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Listing Not Found</h2>
-            <p className="text-gray-600 mb-4">The requested listing could not be found.</p>
-            <Button onClick={() => navigate('/admin')}>
-              Back to Dashboard
-            </Button>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Car className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Listing Not Found</h2>
+          <p className="text-gray-600 mb-4">The requested listing could not be found.</p>
+          <Button onClick={() => navigate('/admin')}>
+            Back to Dashboard
+          </Button>
         </div>
       </div>
     );
@@ -317,58 +239,59 @@ export default function AdminListingDetails() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto p-6">
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <Button 
-                onClick={() => navigate('/admin')}
-                variant="outline"
-                className="mb-4"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Dashboard
-              </Button>
-              <h1 className="text-3xl font-bold text-gray-900">Listing Details</h1>
-              <p className="text-gray-600">Complete information about this listing</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {getStatusBadge(listingData.status)}
-              <Button 
-                onClick={() => window.location.reload()}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Refresh
-              </Button>
-            </div>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <Button 
+              onClick={() => navigate('/admin')}
+              variant="outline"
+              className="mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            <h1 className="text-3xl font-bold text-gray-900">Listing Details</h1>
+            <p className="text-gray-600">Complete information about this listing</p>
           </div>
+          <div className="flex items-center gap-2">
+            {getStatusBadge(listingData.status)}
+            <Button 
+              onClick={() => window.location.reload()}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </Button>
+          </div>
+        </div>
 
-          {/* Listing Images */}
-          {listingData.images && listingData.images.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Images</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {listingData.images.map((image: string, index: number) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`${listingData.title} - Image ${index + 1}`}
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+        {/* Main Layout with Sidebar */}
+        <div className="flex gap-6">
+          {/* Main Content */}
+          <div className="flex-1 space-y-6">
+            {/* Listing Images */}
+            {listingData.images && listingData.images.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Images</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {listingData.images.map((image: string, index: number) => (
+                      <img
+                        key={index}
+                        src={image}
+                        alt={`${listingData.title} - Image ${index + 1}`}
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-          {/* Detailed Listing Information */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Basic Information */}
+            {/* Vehicle Information */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -501,593 +424,262 @@ export default function AdminListingDetails() {
                 </div>
               </CardContent>
             </Card>
+          </div>
 
-            {/* Approval Status */}
+          {/* Right Sidebar - Admin Actions */}
+          <div className="w-80 space-y-6">
+            {/* Meta Fields Card */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5" />
-                  Approval Status
+                  <Settings className="w-5 h-5" />
+                  Admin Meta Fields
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Status</label>
-                  <Badge variant={listingData.approval?.status === 'approved' ? 'default' : listingData.approval?.status === 'rejected' ? 'destructive' : 'secondary'}>
-                    {listingData.approval?.status || 'pending'}
-                  </Badge>
+                <div className="space-y-2">
+                  <Label htmlFor="metaStatus">Listing Status *</Label>
+                  <select
+                    id="metaStatus"
+                    value={metaStatus}
+                    onChange={(e) => setMetaStatus(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="active">Active</option>
+                    <option value="verified">Verified</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="archived">Archived</option>
+                  </select>
                 </div>
-                {listingData.approval?.reviewedAt && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Reviewed At</label>
-                    <p className="text-sm">{formatDate(listingData.approval.reviewedAt)}</p>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="metaListingSource">Listing Source</Label>
+                  <select
+                    id="metaListingSource"
+                    value={metaListingSource}
+                    onChange={(e) => setMetaListingSource(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="user-submitted">User-submitted</option>
+                    <option value="agent">Agent</option>
+                    <option value="walk-in">Walk-in</option>
+                    <option value="api-imported">API-imported</option>
+                  </select>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="metaFeatured"
+                      checked={metaFeatured}
+                      onCheckedChange={setMetaFeatured}
+                    />
+                    <Label htmlFor="metaFeatured">Featured Listing</Label>
                   </div>
-                )}
-                {listingData.approval?.reviewNotes && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Review Notes</label>
-                    <p className="text-sm">{listingData.approval.reviewNotes}</p>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="metaVerified"
+                      checked={metaVerified}
+                      onCheckedChange={setMetaVerified}
+                    />
+                    <Label htmlFor="metaVerified">Verified Badge</Label>
                   </div>
-                )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="metaExpirationDate">Expiration Date</Label>
+                  <Input
+                    id="metaExpirationDate"
+                    type="date"
+                    value={metaExpirationDate}
+                    onChange={(e) => setMetaExpirationDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="metaSellerId">Reassign to User/Seller</Label>
+                  <select
+                    id="metaSellerId"
+                    value={metaSellerId}
+                    onChange={(e) => setMetaSellerId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                  >
+                    <option value={listingData?.sellerId || ""}>
+                      {listingData?.seller?.firstName} {listingData?.seller?.lastName} (Current)
+                    </option>
+                    {(availableUsers || []).filter(user => user.id !== listingData?.sellerId).map(user => (
+                      <option key={user.id} value={user.id}>
+                        {user.firstName} {user.lastName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="metaAdminNotes">Admin Notes</Label>
+                  <Textarea
+                    id="metaAdminNotes"
+                    value={metaAdminNotes}
+                    onChange={(e) => setMetaAdminNotes(e.target.value)}
+                    placeholder="Internal admin notes..."
+                    rows={3}
+                  />
+                </div>
+                
+                <Button 
+                  onClick={() => {
+                    metaMutation.mutate({
+                      status: metaStatus,
+                      featured: metaFeatured,
+                      isVerified: metaVerified,
+                      expirationDate: metaExpirationDate || null,
+                      listingSource: metaListingSource,
+                      sellerId: metaSellerId,
+                      adminNotes: metaAdminNotes
+                    });
+                  }}
+                  disabled={!metaStatus || metaMutation.isPending}
+                  className="w-full"
+                >
+                  {metaMutation.isPending ? 'Updating...' : 'Update Meta Fields'}
+                </Button>
               </CardContent>
             </Card>
-          </div>
 
-          {/* Statistics */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="w-5 h-5" />
-                Statistics
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Views</label>
-                  <p className="text-lg font-semibold">{listingData.viewCount || 0}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Favorites</label>
-                  <p className="text-lg font-semibold">{listingData.favoriteCount || 0}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Inquiries</label>
-                  <p className="text-lg font-semibold">{listingData.inquiryCount || 0}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Flags</label>
-                  <p className="text-lg font-semibold">{listingData.flagCount || 0}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Admin Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Admin Actions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <Edit className="w-4 h-4" />
-                      Edit Listing
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Edit Listing</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="editTitle">Title *</Label>
-                        <Input
-                          id="editTitle"
-                          value={editTitle}
-                          onChange={(e) => setEditTitle(e.target.value)}
-                          placeholder="e.g., 2015 Toyota Fielder – Excellent Condition"
-                        />
-                      </div>
+            {/* Admin Actions Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <StickyNote className="w-5 h-5" />
+                  Admin Actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full flex items-center gap-2">
+                        <Edit className="w-4 h-4" />
+                        Edit Listing
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Edit Listing</DialogTitle>
+                      </DialogHeader>
                       
-                      <div className="space-y-2">
-                        <Label htmlFor="editDescription">Description</Label>
-                        <Textarea
-                          id="editDescription"
-                          value={editDescription}
-                          onChange={(e) => setEditDescription(e.target.value)}
-                          placeholder="Correct grammar, remove prohibited words, or add details..."
-                          rows={5}
-                        />
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="editPrice">Price (KES) *</Label>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="title">Title</Label>
                           <Input
-                            id="editPrice"
-                            type="number"
-                            value={editPrice}
-                            onChange={(e) => setEditPrice(e.target.value)}
-                            placeholder="e.g., 750000"
+                            id="title"
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                            placeholder="Enter listing title"
                           />
                         </div>
                         
-                        <div className="space-y-2">
-                          <Label htmlFor="editLocation">Location *</Label>
-                          <Input
-                            id="editLocation"
-                            value={editLocation}
-                            onChange={(e) => setEditLocation(e.target.value)}
-                            placeholder="e.g., Nairobi, Kenya"
+                        <div>
+                          <Label htmlFor="description">Description</Label>
+                          <Textarea
+                            id="description"
+                            value={editDescription}
+                            onChange={(e) => setEditDescription(e.target.value)}
+                            placeholder="Enter listing description"
+                            rows={4}
                           />
                         </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          id="editNegotiable"
-                          checked={editNegotiable}
-                          onCheckedChange={setEditNegotiable}
-                        />
-                        <Label htmlFor="editNegotiable">Price is negotiable</Label>
-                      </div>
-                      
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setIsEditOpen(false)}>
-                          Cancel
-                        </Button>
-                        <Button 
-                          onClick={() => {
-                            editMutation.mutate({
-                              title: editTitle,
-                              description: editDescription,
-                              price: editPrice,
-                              negotiable: editNegotiable,
-                              location: editLocation
-                            });
-                          }}
-                          disabled={editMutation.isPending}
-                        >
-                          {editMutation.isPending ? 'Saving...' : 'Save Changes'}
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-                  
-                <Dialog open={isMediaOpen} onOpenChange={setIsMediaOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <ImageIcon className="w-4 h-4" />
-                      Manage Media
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Manage Media</DialogTitle>
-                    </DialogHeader>
-                    
-                    <div className="space-y-6">
-                      {/* Current Images Display */}
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Current Images ({(listingData?.images || []).length})</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                          {(listingData?.images || []).map((image, index) => (
-                            <div key={index} className="relative group">
-                              <img 
-                                src={image} 
-                                alt={`Listing image ${index + 1}`}
-                                className="w-full h-32 object-cover rounded-lg border"
-                              />
-                              {index === 0 && (
-                                <div className="absolute top-2 left-2">
-                                  <Badge className="bg-yellow-500 text-white">
-                                    <Star className="w-3 h-3 mr-1" />
-                                    Featured
-                                  </Badge>
-                                </div>
-                              )}
-                              
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                <div className="flex gap-2">
-                                  {index !== 0 && (
-                                    <Button
-                                      size="sm"
-                                      variant="secondary"
-                                      onClick={() => mediaMutation.mutate({ action: 'set_featured', featuredIndex: index })}
-                                    >
-                                      <Star className="w-3 h-3" />
-                                    </Button>
-                                  )}
-                                  {index > 0 && (
-                                    <Button
-                                      size="sm"
-                                      variant="secondary"
-                                      onClick={() => {
-                                        const newOrder = [...Array((listingData?.images || []).length).keys()];
-                                        [newOrder[index], newOrder[index - 1]] = [newOrder[index - 1], newOrder[index]];
-                                        mediaMutation.mutate({ action: 'reorder', newOrder });
-                                      }}
-                                    >
-                                      <ArrowUp className="w-3 h-3" />
-                                    </Button>
-                                  )}
-                                  {index < (listingData?.images || []).length - 1 && (
-                                    <Button
-                                      size="sm"
-                                      variant="secondary"
-                                      onClick={() => {
-                                        const newOrder = [...Array((listingData?.images || []).length).keys()];
-                                        [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
-                                        mediaMutation.mutate({ action: 'reorder', newOrder });
-                                      }}
-                                    >
-                                      <ArrowDown className="w-3 h-3" />
-                                    </Button>
-                                  )}
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => mediaMutation.mutate({ action: 'delete', deleteIndex: index })}
-                                  >
-                                    <Trash2 className="w-3 h-3" />
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="price">Price (KES)</Label>
+                            <Input
+                              id="price"
+                              type="number"
+                              value={editPrice}
+                              onChange={(e) => setEditPrice(e.target.value)}
+                              placeholder="Enter price"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="location">Location</Label>
+                            <Input
+                              id="location"
+                              value={editLocation}
+                              onChange={(e) => setEditLocation(e.target.value)}
+                              placeholder="Enter location"
+                            />
+                          </div>
                         </div>
-                      </div>
-                      
-                      {/* Upload New Images */}
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Upload New Images</h3>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
-                          <p className="text-gray-500 mb-4">
-                            Drag and drop images here, or click to browse
-                          </p>
-                          <input
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            className="hidden"
-                            id="image-upload"
-                            onChange={(e) => {
-                              const files = Array.from(e.target.files || []);
-                              // Convert files to base64 or upload URLs
-                              Promise.all(files.map(file => {
-                                return new Promise<string>((resolve) => {
-                                  const reader = new FileReader();
-                                  reader.onload = (e) => resolve(e.target?.result as string);
-                                  reader.readAsDataURL(file);
-                                });
-                              })).then(imageUrls => {
-                                mediaMutation.mutate({ action: 'upload', images: imageUrls });
+                        
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="negotiable"
+                            checked={editNegotiable}
+                            onCheckedChange={setEditNegotiable}
+                          />
+                          <Label htmlFor="negotiable">Price is negotiable</Label>
+                        </div>
+                        
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline">
+                            Cancel
+                          </Button>
+                          <Button 
+                            onClick={() => {
+                              updateMutation.mutate({
+                                title: editTitle,
+                                description: editDescription,
+                                price: parseFloat(editPrice),
+                                negotiable: editNegotiable,
+                                location: editLocation
                               });
                             }}
-                          />
-                          <Button 
-                            variant="outline"
-                            onClick={() => document.getElementById('image-upload')?.click()}
+                            disabled={updateMutation.isPending}
                           >
-                            <Upload className="w-4 h-4 mr-2" />
-                            Select Images
+                            {updateMutation.isPending ? 'Updating...' : 'Update Listing'}
                           </Button>
                         </div>
                       </div>
-                      
-                      {/* Instructions */}
-                      <div className="bg-blue-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-blue-900 mb-2">Media Management Instructions:</h4>
-                        <ul className="text-sm text-blue-800 space-y-1">
-                          <li>• The first image is automatically set as the featured thumbnail</li>
-                          <li>• Use the star button to set any image as featured</li>
-                          <li>• Use arrow buttons to reorder images</li>
-                          <li>• Use trash button to delete images</li>
-                          <li>• Maximum 10 images per listing recommended</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                    </DialogContent>
+                  </Dialog>
 
-                <Dialog open={isMetaOpen} onOpenChange={setIsMetaOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <Settings className="w-4 h-4" />
-                      Edit Meta Fields
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Edit Listing Meta & Admin Fields</DialogTitle>
-                    </DialogHeader>
-                    
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="metaStatus">Listing Status *</Label>
-                          <select
-                            id="metaStatus"
-                            value={metaStatus}
-                            onChange={(e) => setMetaStatus(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="active">Active</option>
-                            <option value="verified">Verified</option>
-                            <option value="rejected">Rejected</option>
-                            <option value="archived">Archived</option>
-                          </select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="metaListingSource">Listing Source</Label>
-                          <select
-                            id="metaListingSource"
-                            value={metaListingSource}
-                            onChange={(e) => setMetaListingSource(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          >
-                            <option value="user-submitted">User-submitted</option>
-                            <option value="agent">Agent</option>
-                            <option value="walk-in">Walk-in</option>
-                            <option value="api-imported">API-imported</option>
-                          </select>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="flex items-center space-x-2">
-                          <Switch
-                            id="metaFeatured"
-                            checked={metaFeatured}
-                            onCheckedChange={setMetaFeatured}
-                          />
-                          <Label htmlFor="metaFeatured">Featured Listing</Label>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <Switch
-                            id="metaVerified"
-                            checked={metaVerified}
-                            onCheckedChange={setMetaVerified}
-                          />
-                          <Label htmlFor="metaVerified">Verified Badge</Label>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="metaExpirationDate">Expiration Date</Label>
-                          <Input
-                            id="metaExpirationDate"
-                            type="date"
-                            value={metaExpirationDate}
-                            onChange={(e) => setMetaExpirationDate(e.target.value)}
-                            min={new Date().toISOString().split('T')[0]}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="metaSellerId">Reassign to User/Seller</Label>
-                          <select
-                            id="metaSellerId"
-                            value={metaSellerId}
-                            onChange={(e) => setMetaSellerId(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          >
-                            <option value={listingData?.sellerId || ""}>
-                              {listingData?.seller?.firstName} {listingData?.seller?.lastName} (Current)
-                            </option>
-                            {(availableUsers || []).filter(user => user.id !== listingData?.sellerId).map(user => (
-                              <option key={user.id} value={user.id}>
-                                {user.firstName} {user.lastName} ({user.email})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="metaAdminNotes">Admin Notes</Label>
-                        <Textarea
-                          id="metaAdminNotes"
-                          value={metaAdminNotes}
-                          onChange={(e) => setMetaAdminNotes(e.target.value)}
-                          placeholder="Internal admin notes about this listing..."
-                          rows={3}
-                        />
-                      </div>
-                      
-                      <div className="bg-yellow-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-yellow-900 mb-2">Status Change Effects:</h4>
-                        <ul className="text-sm text-yellow-800 space-y-1">
-                          <li>• <strong>Pending:</strong> Awaiting admin review, not visible to public</li>
-                          <li>• <strong>Active:</strong> Live and searchable by users</li>
-                          <li>• <strong>Verified:</strong> Approved with verification badge</li>
-                          <li>• <strong>Rejected:</strong> Disapproved, not visible to public</li>
-                          <li>• <strong>Archived:</strong> Hidden from search, preserved for records</li>
-                        </ul>
-                      </div>
-                      
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setIsMetaOpen(false)}>
-                          Cancel
-                        </Button>
-                        <Button 
-                          onClick={() => {
-                            metaMutation.mutate({
-                              status: metaStatus,
-                              featured: metaFeatured,
-                              isVerified: metaVerified,
-                              expirationDate: metaExpirationDate || null,
-                              listingSource: metaListingSource,
-                              sellerId: metaSellerId,
-                              adminNotes: metaAdminNotes
-                            });
-                          }}
-                          disabled={!metaStatus || metaMutation.isPending}
-                        >
-                          {metaMutation.isPending ? 'Updating...' : 'Update Meta Fields'}
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-                
-                <Dialog open={isNoteOpen} onOpenChange={setIsNoteOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <StickyNote className="w-4 h-4" />
-                      Add Note
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add Admin Note</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="note">Admin Note</Label>
-                        <Textarea
-                          id="note"
-                          placeholder="Enter admin note..."
-                          value={adminNote}
-                          onChange={(e) => setAdminNote(e.target.value)}
-                          rows={4}
-                        />
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setIsNoteOpen(false)}>Cancel</Button>
-                        <Button 
-                          onClick={() => addNoteMutation.mutate({ note: adminNote })}
-                          disabled={!adminNote.trim() || addNoteMutation.isPending}
-                        >
-                          {addNoteMutation.isPending ? "Adding..." : "Add Note"}
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                  <Button variant="outline" className="w-full flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4" />
+                    Manage Media
+                  </Button>
 
-                {listingData.status === 'pending' && (
-                  <>
-                    <Dialog open={isApproveOpen} onOpenChange={setIsApproveOpen}>
-                      <DialogTrigger asChild>
-                        <Button variant="default" className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4" />
-                          Approve
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Approve Listing</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <Label htmlFor="approvalNotes">Approval Notes (Optional)</Label>
-                            <Textarea
-                              id="approvalNotes"
-                              placeholder="Enter approval notes..."
-                              value={approvalNotes}
-                              onChange={(e) => setApprovalNotes(e.target.value)}
-                              rows={3}
-                            />
-                          </div>
-                          <div className="flex justify-end gap-2">
-                            <Button variant="outline" onClick={() => setIsApproveOpen(false)}>Cancel</Button>
-                            <Button 
-                              onClick={() => approveMutation.mutate({ notes: approvalNotes })}
-                              disabled={approveMutation.isPending}
-                            >
-                              {approveMutation.isPending ? "Approving..." : "Approve"}
-                            </Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                  {listingData.status === 'pending' && (
+                    <>
+                      <Button variant="default" className="w-full flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4" />
+                        Approve
+                      </Button>
 
-                    <Dialog open={isRejectOpen} onOpenChange={setIsRejectOpen}>
-                      <DialogTrigger asChild>
-                        <Button variant="destructive" className="flex items-center gap-2">
-                          <X className="w-4 h-4" />
-                          Reject
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Reject Listing</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <Label htmlFor="rejectionReason">Rejection Reason *</Label>
-                            <Textarea
-                              id="rejectionReason"
-                              placeholder="Enter rejection reason..."
-                              value={rejectionReason}
-                              onChange={(e) => setRejectionReason(e.target.value)}
-                              rows={3}
-                            />
-                          </div>
-                          <div className="flex justify-end gap-2">
-                            <Button variant="outline" onClick={() => setIsRejectOpen(false)}>Cancel</Button>
-                            <Button 
-                              onClick={() => rejectMutation.mutate({ reason: rejectionReason })}
-                              disabled={!rejectionReason.trim() || rejectMutation.isPending}
-                              variant="destructive"
-                            >
-                              {rejectMutation.isPending ? "Rejecting..." : "Reject"}
-                            </Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </>
-                )}
+                      <Button variant="destructive" className="w-full flex items-center gap-2">
+                        <X className="w-4 h-4" />
+                        Reject
+                      </Button>
+                    </>
+                  )}
 
-                <Dialog open={isFlagOpen} onOpenChange={setIsFlagOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <Flag className="w-4 h-4" />
-                      Flag
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Flag Listing</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="flagReason">Flag Reason *</Label>
-                        <Textarea
-                          id="flagReason"
-                          placeholder="Enter reason for flagging..."
-                          value={flagReason}
-                          onChange={(e) => setFlagReason(e.target.value)}
-                          rows={3}
-                        />
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setIsFlagOpen(false)}>Cancel</Button>
-                        <Button 
-                          onClick={() => flagMutation.mutate({ reason: flagReason })}
-                          disabled={!flagReason.trim() || flagMutation.isPending}
-                          variant="destructive"
-                        >
-                          {flagMutation.isPending ? "Flagging..." : "Flag"}
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </CardContent>
-          </Card>
+                  <Button
+                    variant="outline"
+                    className="w-full flex items-center gap-2"
+                    onClick={() => flagMutation.mutate({ reason: flagReason })}
+                    disabled={flagMutation.isPending}
+                  >
+                    <Flag className="w-4 h-4" />
+                    {flagMutation.isPending ? "Flagging..." : "Flag Listing"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

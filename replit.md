@@ -516,6 +516,8 @@ Changelog:
   - Added unread message count badges to navigation menu with real-time polling every 30 seconds
   - Separated existing merged conversations from Chris Otieno and Jane Smith into distinct conversations
   - Each user now has their own private conversation thread with sellers for better message organization
+  - Fixed duplicate Navigation components on Messages page by removing local Navigation import
+  - Messages page now uses only the global Navigation from App.tsx, eliminating duplicate headers and call-to-action sections
 
 ## User Preferences
 

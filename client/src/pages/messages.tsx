@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { MessageCircle, Send, Plus, Archive, Search, MoreVertical, Edit, Trash2, CheckCheck } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Navigation } from "@/components/navigation";
+
 import { useAuth } from "@/components/auth-provider";
 
 interface Message {
@@ -237,7 +237,6 @@ export default function MessagesPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
-        <Navigation />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Please sign in to access messages</h1>
@@ -252,8 +251,6 @@ export default function MessagesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
-      <Navigation />
-      
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Messages</h1>

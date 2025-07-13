@@ -75,12 +75,14 @@ export function VehicleChatbot({ onVehicleSelect }: VehicleChatbotProps) {
         conversationHistory: messages.slice(-5) // Send last 5 messages for context
       });
 
+      const responseData = await response.json();
+
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.message,
+        content: responseData.message,
         timestamp: new Date(),
-        vehicleRecommendations: response.recommendations
+        vehicleRecommendations: responseData.recommendations
       };
 
       setMessages(prev => [...prev, assistantMessage]);

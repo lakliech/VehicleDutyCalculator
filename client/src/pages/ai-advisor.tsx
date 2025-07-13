@@ -132,8 +132,7 @@ export default function AIAdvisor() {
               </CardContent>
             </Card>
 
-            {/* Module Navigation */}
-            <ModuleNavigation currentModule="AI Vehicle Advisor" />
+
           </div>
         </div>
       </div>

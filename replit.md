@@ -545,6 +545,15 @@ Changelog:
   - Added fallback text handling for empty message content
   - Enhanced error handling and response parsing with proper fallbacks
   - Verified OpenAI GPT-4o integration working correctly with vehicle recommendations
+- January 13, 2025. Enhanced AI Advisor with comprehensive vehicle action modal:
+  - Replaced "SELECT THIS CAR" button with "View Options" button that opens action modal
+  - Created comprehensive modal with three vehicle actions: Find Car, Import Cost, and Show Specs
+  - Find Car option navigates to Buy A Car page with pre-applied filters (make, model, price range)
+  - Import Cost option navigates to Import Estimator with pre-filled vehicle details
+  - Show Specs option displays vehicle specifications in alert dialog
+  - Added URL parameter handling in Buy A Car page to accept AI Advisor recommendations
+  - Added URL parameter handling in Import Estimator page to pre-fill vehicle details
+  - Enhanced user experience with seamless transitions between AI recommendations and marketplace tools
 - January 13, 2025. Implemented comprehensive Vehicle Seller Analytics System:
   - Created extensive database schema with 8+ new analytics tables (listing_views, search_impressions, market_benchmarks, listing_quality_scores, search_keywords, promotion_tracking, listing_recommendations)
   - Enhanced daily_listing_analytics table with comprehensive tracking fields including unique visitors, device breakdown, location analysis, traffic sources, and active hours

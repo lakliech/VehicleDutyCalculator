@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,6 +50,34 @@ export default function ImportationEstimator() {
   const [showResults, setShowResults] = useState(false);
   const [estimateResult, setEstimateResult] = useState<any>(null);
   const { toast } = useToast();
+
+  // Handle URL parameters from AI Advisor
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const make = urlParams.get('make');
+    const model = urlParams.get('model');
+    const engineCapacity = urlParams.get('engineCapacity');
+    
+    if (make && model && engineCapacity) {
+      const vehicleData = {
+        make,
+        model,
+        engineCapacity: parseInt(engineCapacity)
+      };
+      
+      setSelectedVehicle(vehicleData);
+      
+      // Update form values
+      form.setValue('make', make);
+      form.setValue('model', model);
+      form.setValue('engineCapacity', parseInt(engineCapacity));
+      
+      toast({
+        title: "AI Recommendation Applied",
+        description: `Pre-filled vehicle: ${make} ${model} (${engineCapacity}cc)`,
+      });
+    }
+  }, [toast, form]);
 
   // Function to handle PDF download
   const handleDownloadPDF = () => {

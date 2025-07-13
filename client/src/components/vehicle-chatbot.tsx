@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Bot, User, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { MessageCircle, Send, Bot, User, Loader2, Search, Calculator, FileText } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { useLocation } from "wouter";
 
 interface ChatMessage {
   id: string;
@@ -40,7 +42,10 @@ export function VehicleChatbot({ onVehicleSelect }: VehicleChatbotProps) {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<VehicleRecommendation | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [, navigate] = useLocation();
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -111,6 +116,37 @@ export function VehicleChatbot({ onVehicleSelect }: VehicleChatbotProps) {
     return `KES ${amount.toLocaleString('en-KE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   };
 
+  const handleFindCar = (vehicle: VehicleRecommendation) => {
+    const searchParams = new URLSearchParams({
+      make: vehicle.make,
+      model: vehicle.model,
+      maxPrice: vehicle.estimatedPrice.toString(),
+      engineCapacity: vehicle.engineCapacity.toString()
+    });
+    navigate(`/buy-a-car?${searchParams.toString()}`);
+    setIsModalOpen(false);
+  };
+
+  const handleImportCost = (vehicle: VehicleRecommendation) => {
+    const searchParams = new URLSearchParams({
+      make: vehicle.make,
+      model: vehicle.model,
+      engineCapacity: vehicle.engineCapacity.toString()
+    });
+    navigate(`/importation-estimator?${searchParams.toString()}`);
+    setIsModalOpen(false);
+  };
+
+  const handleShowSpecs = (vehicle: VehicleRecommendation) => {
+    alert(`${vehicle.make} ${vehicle.model} Specifications:\n\nEngine Capacity: ${vehicle.engineCapacity}cc\nEstimated Price: ${formatCurrency(vehicle.estimatedPrice)}\nRecommendation: ${vehicle.reason}\nSuitability: ${vehicle.suitability}`);
+    setIsModalOpen(false);
+  };
+
+  const handleVehicleAction = (vehicle: VehicleRecommendation) => {
+    setSelectedVehicle(vehicle);
+    setIsModalOpen(true);
+  };
+
   return (
     <Card className="h-[600px] flex flex-col">
       <CardHeader className="pb-3">
@@ -174,16 +210,14 @@ export function VehicleChatbot({ onVehicleSelect }: VehicleChatbotProps) {
                           </div>
                           <p className="text-xs text-gray-700 mb-2">{rec.reason}</p>
                           <p className="text-xs text-green-700 font-medium">{rec.suitability}</p>
-                          {onVehicleSelect && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="mt-2 text-xs"
-                              onClick={() => onVehicleSelect(rec.make, rec.model)}
-                            >
-                              Select This Vehicle
-                            </Button>
-                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="mt-2 text-xs"
+                            onClick={() => handleVehicleAction(rec)}
+                          >
+                            View Options
+                          </Button>
                         </div>
                       ))}
                     </div>
@@ -249,6 +283,69 @@ export function VehicleChatbot({ onVehicleSelect }: VehicleChatbotProps) {
           </p>
         </div>
       </CardContent>
+      
+      {/* Vehicle Action Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-purple-800">
+              {selectedVehicle && `${selectedVehicle.make} ${selectedVehicle.model}`}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedVehicle && (
+            <div className="space-y-4">
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Engine Capacity</span>
+                  <span className="font-medium">{selectedVehicle.engineCapacity}cc</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Estimated Price</span>
+                  <span className="font-medium text-purple-600">{formatCurrency(selectedVehicle.estimatedPrice)}</span>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <p className="text-sm text-gray-700 mb-2">{selectedVehicle.reason}</p>
+                <p className="text-sm text-green-700 font-medium">{selectedVehicle.suitability}</p>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-3">
+                <Button
+                  onClick={() => handleFindCar(selectedVehicle)}
+                  className="flex items-center gap-2"
+                  variant="default"
+                >
+                  <Search className="h-4 w-4" />
+                  Find Car
+                  <span className="text-xs opacity-70">(Browse marketplace)</span>
+                </Button>
+                
+                <Button
+                  onClick={() => handleImportCost(selectedVehicle)}
+                  className="flex items-center gap-2"
+                  variant="outline"
+                >
+                  <Calculator className="h-4 w-4" />
+                  Import Cost
+                  <span className="text-xs opacity-70">(Calculate import duties)</span>
+                </Button>
+                
+                <Button
+                  onClick={() => handleShowSpecs(selectedVehicle)}
+                  className="flex items-center gap-2"
+                  variant="outline"
+                >
+                  <FileText className="h-4 w-4" />
+                  Show Specs
+                  <span className="text-xs opacity-70">(View specifications)</span>
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

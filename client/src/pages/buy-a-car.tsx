@@ -103,6 +103,31 @@ export default function BuyACar() {
     sortBy: 'recommended'
   });
 
+  // Handle URL parameters from AI Advisor
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const make = urlParams.get('make');
+    const model = urlParams.get('model');
+    const maxPrice = urlParams.get('maxPrice');
+    const engineCapacity = urlParams.get('engineCapacity');
+    
+    if (make || model || maxPrice) {
+      setFilters(prev => ({
+        ...prev,
+        make: make ? [make] : prev.make,
+        model: model ? [model] : prev.model,
+        maxPrice: maxPrice ? parseInt(maxPrice) : prev.maxPrice,
+        search: `${make || ''} ${model || ''}`.trim()
+      }));
+      
+      // Show toast notification
+      toast({
+        title: "AI Recommendation Applied",
+        description: `Filtered results for ${make} ${model}${maxPrice ? ` under ${parseInt(maxPrice).toLocaleString()} KES` : ''}`,
+      });
+    }
+  }, [toast]);
+
   // Fetch car listings
   const { data: listings, isLoading: listingsLoading } = useQuery({
     queryKey: ['/api/car-listings', filters, currentPage],

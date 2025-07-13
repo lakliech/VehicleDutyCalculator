@@ -107,13 +107,18 @@ export default function AdminListingDetails() {
       console.log('FORM INITIALIZATION TRIGGERED - Raw Data Keys:', Object.keys(listingData));
       console.log('FORM INITIALIZATION TRIGGERED - Full Data:', JSON.stringify(listingData, null, 2));
       
+      // Check if listingData contains HTTP response wrapper
+      const actualData = listingData.data || listingData;
+      console.log('Actual listing data:', actualData);
+      console.log('Actual data keys:', actualData ? Object.keys(actualData) : 'no data');
+      
       console.log('Extracted values:', {
-        status: listingData.status,
-        featured: listingData.featured,
-        verified: listingData.isVerified,
-        source: listingData.listingSource,
-        seller: listingData.seller,
-        notes: listingData.adminNotes
+        status: actualData.status,
+        featured: actualData.featured,
+        verified: actualData.isVerified,
+        source: actualData.listingSource,
+        seller: actualData.seller,
+        notes: actualData.adminNotes
       });
       
       // Clear existing state first
@@ -132,25 +137,27 @@ export default function AdminListingDetails() {
       
       // Wait a tick then set the data
       setTimeout(() => {
-        setEditTitle(listingData.title || "");
-        setEditDescription(listingData.description || "");
-        setEditPrice(listingData.price?.toString() || "");
-        setEditLocation(listingData.location || "");
-        setEditNegotiable(Boolean(listingData.negotiable));
+        const actualData = listingData.data || listingData;
+        
+        setEditTitle(actualData.title || "");
+        setEditDescription(actualData.description || "");
+        setEditPrice(actualData.price?.toString() || "");
+        setEditLocation(actualData.location || "");
+        setEditNegotiable(Boolean(actualData.negotiable));
         
         // Always reinitialize when data changes
-        setMetaStatus(listingData.status || "pending");
-        setMetaFeatured(Boolean(listingData.featured));
-        setMetaVerified(Boolean(listingData.isVerified));
-        setMetaExpirationDate(listingData.expirationDate ? new Date(listingData.expirationDate).toISOString().split('T')[0] : "");
-        setMetaListingSource(listingData.listingSource || "user-submitted");
-        setMetaSellerId(listingData.sellerId || "");
-        setMetaAdminNotes(listingData.adminNotes || "");
+        setMetaStatus(actualData.status || "pending");
+        setMetaFeatured(Boolean(actualData.featured));
+        setMetaVerified(Boolean(actualData.isVerified));
+        setMetaExpirationDate(actualData.expirationDate ? new Date(actualData.expirationDate).toISOString().split('T')[0] : "");
+        setMetaListingSource(actualData.listingSource || "user-submitted");
+        setMetaSellerId(actualData.sellerId || "");
+        setMetaAdminNotes(actualData.adminNotes || "");
         
         console.log('Form state AFTER async initialization:', {
-          metaStatus: listingData.status,
-          metaFeatured: Boolean(listingData.featured),
-          metaVerified: Boolean(listingData.isVerified)
+          metaStatus: actualData.status,
+          metaFeatured: Boolean(actualData.featured),
+          metaVerified: Boolean(actualData.isVerified)
         });
       }, 10);
     }
@@ -510,11 +517,11 @@ export default function AdminListingDetails() {
                 <div className="bg-blue-50 p-3 rounded-lg text-sm">
                   <div className="font-medium text-blue-800 mb-2">Current Database Values:</div>
                   <div className="space-y-1 text-blue-700">
-                    <div>Status: <span className="font-medium">{listingData?.status || 'Loading...'}</span></div>
-                    <div>Featured: <span className="font-medium">{listingData?.featured ? 'Yes' : 'No'}</span></div>
-                    <div>Verified: <span className="font-medium">{listingData?.isVerified ? 'Yes' : 'No'}</span></div>
-                    <div>Source: <span className="font-medium">{listingData?.listingSource || 'Loading...'}</span></div>
-                    <div>Seller: <span className="font-medium">{listingData?.seller?.firstName} {listingData?.seller?.lastName}</span></div>
+                    <div>Status: <span className="font-medium">{(listingData?.data || listingData)?.status || 'Loading...'}</span></div>
+                    <div>Featured: <span className="font-medium">{(listingData?.data || listingData)?.featured ? 'Yes' : 'No'}</span></div>
+                    <div>Verified: <span className="font-medium">{(listingData?.data || listingData)?.isVerified ? 'Yes' : 'No'}</span></div>
+                    <div>Source: <span className="font-medium">{(listingData?.data || listingData)?.listingSource || 'Loading...'}</span></div>
+                    <div>Seller: <span className="font-medium">{(listingData?.data || listingData)?.seller?.firstName} {(listingData?.data || listingData)?.seller?.lastName}</span></div>
                   </div>
                 </div>
                 
@@ -532,7 +539,7 @@ export default function AdminListingDetails() {
                 <div className="space-y-2">
                   <Label htmlFor="metaStatus">Listing Status *</Label>
                   <div className="text-xs text-gray-500 mb-1">
-                    Current: {metaStatus || 'undefined'} | DB: {listingData?.status || 'undefined'}
+                    Current: {metaStatus || 'undefined'} | DB: {(listingData?.data || listingData)?.status || 'undefined'}
                   </div>
                   <select
                     id="metaStatus"

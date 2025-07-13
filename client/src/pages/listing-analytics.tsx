@@ -409,7 +409,7 @@ export default function ListingAnalytics() {
                   <ResponsiveContainer width="100%" height={250}>
                     <PieChart>
                       <Pie
-                        data={Object.entries(analytics.audienceInsights.deviceBreakdown).map(([key, value]) => ({
+                        data={Object.entries(analytics?.audienceInsights?.deviceBreakdown || {}).map(([key, value]) => ({
                           name: key.charAt(0).toUpperCase() + key.slice(1),
                           value,
                         }))}
@@ -419,7 +419,7 @@ export default function ListingAnalytics() {
                         outerRadius={100}
                         dataKey="value"
                       >
-                        {Object.entries(analytics.audienceInsights.deviceBreakdown).map((_, index) => (
+                        {Object.entries(analytics?.audienceInsights?.deviceBreakdown || {}).map((_, index) => (
                           <Cell key={`cell-${index}`} fill={deviceColors[index % deviceColors.length]} />
                         ))}
                       </Pie>
@@ -438,7 +438,7 @@ export default function ListingAnalytics() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {Object.entries(analytics.audienceInsights.locationBreakdown)
+                  {Object.entries(analytics?.audienceInsights?.locationBreakdown || {})
                     .sort(([,a], [,b]) => b - a)
                     .map(([location, count], index) => (
                       <div key={location} className="flex justify-between items-center">
@@ -447,7 +447,7 @@ export default function ListingAnalytics() {
                           <div className="w-16 bg-gray-200 rounded-full h-2">
                             <div 
                               className="bg-purple-600 h-2 rounded-full" 
-                              style={{ width: `${(count / Math.max(...Object.values(analytics.audienceInsights.locationBreakdown))) * 100}%` }}
+                              style={{ width: `${(count / Math.max(...Object.values(analytics?.audienceInsights?.locationBreakdown || {}))) * 100}%` }}
                             ></div>
                           </div>
                           <span className="text-sm font-semibold w-8">{count}%</span>
@@ -468,7 +468,7 @@ export default function ListingAnalytics() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={Object.entries(analytics.audienceInsights.activeHours).map(([hour, value]) => ({
+                    <BarChart data={Object.entries(analytics?.audienceInsights?.activeHours || {}).map(([hour, value]) => ({
                       hour,
                       value,
                     }))}>
@@ -565,11 +565,11 @@ export default function ListingAnalytics() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {[
-                    { label: 'Overall Score', score: analytics.qualityIndicators.overall_score },
-                    { label: 'Photo Quality', score: analytics.qualityIndicators.photo_score },
-                    { label: 'Description', score: analytics.qualityIndicators.description_score },
-                    { label: 'Completeness', score: analytics.qualityIndicators.completeness_score },
-                    { label: 'Competitiveness', score: analytics.qualityIndicators.competitiveness_score },
+                    { label: 'Overall Score', score: analytics?.qualityIndicators?.overall_score || 0 },
+                    { label: 'Photo Quality', score: analytics?.qualityIndicators?.photo_score || 0 },
+                    { label: 'Description', score: analytics?.qualityIndicators?.description_score || 0 },
+                    { label: 'Completeness', score: analytics?.qualityIndicators?.completeness_score || 0 },
+                    { label: 'Competitiveness', score: analytics?.qualityIndicators?.competitiveness_score || 0 },
                   ].map(({ label, score }) => (
                     <div key={label} className="space-y-2">
                       <div className="flex justify-between items-center">
@@ -591,7 +591,7 @@ export default function ListingAnalytics() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {analytics.qualityIndicators.suggested_improvements.map((suggestion, index) => (
+                  {(analytics?.qualityIndicators?.suggested_improvements || []).map((suggestion, index) => (
                     <div key={index} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
                       <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                       <span className="text-sm text-gray-700">{suggestion}</span>
@@ -614,7 +614,7 @@ export default function ListingAnalytics() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {analytics.topKeywords.map((keyword, index) => (
+                  {(analytics?.topKeywords || []).map((keyword, index) => (
                     <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                       <div>
                         <p className="font-medium">{keyword.keyword}</p>
@@ -640,7 +640,7 @@ export default function ListingAnalytics() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {analytics.recommendations.map((rec, index) => (
+                  {(analytics?.recommendations || []).map((rec, index) => (
                     <div key={index} className="p-4 border rounded-lg">
                       <div className="flex items-start justify-between mb-2">
                         <h4 className="font-medium">{rec.title}</h4>

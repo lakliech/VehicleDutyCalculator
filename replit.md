@@ -150,6 +150,12 @@ The system implements updated depreciation rates:
 ## Changelog
 
 Changelog:
+- January 13, 2025. Fixed vehicle import calculator functionality:
+  - Resolved API call issue by replacing inefficient internal fetch with direct storage method
+  - Fixed form validation preventing submission by adding proper default values
+  - Removed debugging code and test buttons after confirming functionality
+  - Import calculator now correctly processes CIF conversion, duty calculations, and total cost breakdowns
+  - Verified working with multiple vehicle examples (Honda Fit, BMW 116i) with proper CRSP value lookup
 - July 06, 2025. Initial setup
 - January 09, 2025. Converted to Kenya Motor Vehicle Duty Calculator using official KRA valuation formulas and tax rates
 - January 10, 2025. Updated vehicle selection flow:

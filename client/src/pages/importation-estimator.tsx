@@ -152,19 +152,8 @@ export default function ImportationEstimator() {
   });
 
   const onSubmit = (data: ImportEstimateForm) => {
-    console.log('Form submitted with data:', data);
-    console.log('Form errors:', form.formState.errors);
-    console.log('Form values:', form.getValues());
     calculateEstimate.mutate(data);
   };
-
-  // Debug function to check form state
-  React.useEffect(() => {
-    const subscription = form.watch((value, { name, type }) => {
-      console.log('Form field changed:', name, value[name], 'All values:', value);
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-KE', {
@@ -368,61 +357,23 @@ export default function ImportationEstimator() {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <Button
-                          type="submit"
-                          className="w-full"
-                          disabled={calculateEstimate.isPending}
-                          onClick={(e) => {
-                            console.log('Button clicked - Form valid:', form.formState.isValid);
-                            console.log('Form errors:', form.formState.errors);
-                            console.log('Current form values:', form.getValues());
-                            
-                            // Check if form is invalid and prevent submission
-                            if (!form.formState.isValid) {
-                              e.preventDefault();
-                              console.log('Form is invalid, preventing submission');
-                              form.trigger(); // Trigger validation to show errors
-                            }
-                          }}
-                        >
-                          {calculateEstimate.isPending ? (
-                            <>
-                              <Calculator className="mr-2 h-4 w-4 animate-spin" />
-                              Calculating...
-                            </>
-                          ) : (
-                            <>
-                              <Calculator className="mr-2 h-4 w-4" />
-                              Calculate Import Cost
-                            </>
-                          )}
-                        </Button>
-                        
-                        {/* Debug test button */}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => {
-                            const testData = {
-                              make: "HONDA",
-                              model: "FIT AT",
-                              year: 2020,
-                              engineCapacity: 1330,
-                              cifCurrency: "USD" as const,
-                              cifAmount: 8000,
-                              exchangeRate: 129.5,
-                              transportCost: 0,
-                              serviceFeePercentage: 5
-                            };
-                            console.log('Testing with sample data:', testData);
-                            calculateEstimate.mutate(testData);
-                          }}
-                        >
-                          Test with Sample Data
-                        </Button>
-                      </div>
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={calculateEstimate.isPending}
+                      >
+                        {calculateEstimate.isPending ? (
+                          <>
+                            <Calculator className="mr-2 h-4 w-4 animate-spin" />
+                            Calculating...
+                          </>
+                        ) : (
+                          <>
+                            <Calculator className="mr-2 h-4 w-4" />
+                            Calculate Import Cost
+                          </>
+                        )}
+                      </Button>
                     </form>
                   </Form>
                 </CardContent>

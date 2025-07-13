@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
+import { useAuth } from '@/components/auth-provider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -124,11 +125,12 @@ interface AnalyticsData {
 
 export default function ListingAnalytics() {
   const [location, navigate] = useLocation();
+  const { isAuthenticated } = useAuth();
   const listingId = location.split('listing/')[1]?.split('/analytics')[0];
 
   const { data: analytics, isLoading, error } = useQuery<AnalyticsData>({
-    queryKey: ['/api/listing', listingId, 'analytics'],
-    enabled: !!listingId,
+    queryKey: [`/api/listing/${listingId}/analytics`],
+    enabled: !!listingId && isAuthenticated,
   });
 
   const formatCurrency = (amount: number) => {

@@ -726,7 +726,7 @@ export default function BuyACar() {
 
             {/* Listings Grid */}
             {listingsLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {Array.from({length: 6}).map((_, i) => (
                   <Card key={i} className="animate-pulse">
                     <div className="aspect-video bg-gray-200 rounded-t-lg" />
@@ -740,7 +740,7 @@ export default function BuyACar() {
               </div>
             ) : listings?.cars?.length > 0 ? (
               <>
-                <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+                <div className={`grid gap-8 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
                   {listings.cars.map((car: CarListing) => (
                     <CarCard key={car.id} car={car} />
                   ))}

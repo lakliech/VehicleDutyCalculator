@@ -47,7 +47,7 @@ export function Navigation() {
               </Link>
               <div className="text-center lg:text-left">
                 
-                <p className="text-sm lg:text-lg text-gray-600">we get super excited about cars</p>
+                <p className="text-sm lg:text-lg text-gray-600 font-bold">we get super excited about cars</p>
               </div>
             </div>
             
@@ -191,7 +191,6 @@ export function Navigation() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/auth-provider";
 import { useQuery } from "@tanstack/react-query";
-import { Navigation } from "@/components/navigation";
 import { 
   Calculator, 
   Car, 
@@ -164,7 +163,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
       {/* Clean Hero Section */}
       <section className="bg-white border-b">
         <div className="max-w-6xl mx-auto px-4 py-8">

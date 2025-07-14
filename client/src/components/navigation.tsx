@@ -35,128 +35,126 @@ export function Navigation() {
     <div className="bg-white shadow-sm border-b border-gray-200">
       {/* Header with Logo */}
       <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-            <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
-              <Link href="/">
-                <img 
-                  src={gariyangu} 
-                  alt="Gariyangu Logo" 
-                  className="h-20 lg:h-32 w-auto object-contain cursor-pointer hover:opacity-90 transition-opacity"
-                />
-              </Link>
-              <div className="text-center lg:text-left">
-                
-                <p className="text-sm lg:text-lg text-gray-600 font-medium">we get super excited about cars</p>
-              </div>
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
+            <Link href="/">
+              <img 
+                src={gariyangu} 
+                alt="Gariyangu Logo" 
+                className="h-20 lg:h-32 w-auto object-contain cursor-pointer hover:opacity-90 transition-opacity"
+              />
+            </Link>
+            <div className="text-center lg:text-left">
+              
+              <p className="text-sm lg:text-lg text-gray-600 font-medium">we get super excited about cars</p>
             </div>
+          </div>
+          
+          {/* Navigation Menu & Auth Section */}
+          <div className="flex items-center space-x-6">
+            {/* Navigation Menu */}
+            <nav className="hidden md:flex items-center space-x-6">
+              <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
+                About Us
+              </Link>
+              <Link href="/careers" className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
+                Careers
+              </Link>
+            </nav>
             
-            {/* Navigation Menu & Auth Section */}
-            <div className="flex items-center space-x-6">
-              {/* Navigation Menu */}
-              <nav className="hidden md:flex items-center space-x-6">
-                <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
-                  About Us
-                </Link>
-                <Link href="/careers" className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
-                  Careers
-                </Link>
-              </nav>
-              
-              {/* Auth Section */}
-              <div className="flex items-center space-x-4">
-                {!isAuthenticated && (
-                  <div className="hidden sm:flex items-center space-x-3">
-                    <AuthForms />
-                  </div>
-                )}
-              </div>
-              
-              {isAuthenticated ? (
-                <>
-                  {/* User Menu */}
-                  <div className="relative group">
-                    <div className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || ""} />
-                        <AvatarFallback className="bg-purple-600 text-white">
-                          {getUserInitials(user)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm font-medium text-gray-900">
-                        {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email?.split('@')[0] || 'User'}
-                      </span>
-                    </div>
-                    
-                    {/* Dropdown Menu - appears on hover */}
-                    <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                      <div className="p-3 border-b border-gray-100">
-                        <div className="flex flex-col space-y-1">
-                          <p className="text-sm font-medium leading-none">{user?.firstName} {user?.lastName}</p>
-                          <p className="text-xs leading-none text-gray-500">{user?.email}</p>
-                        </div>
-                      </div>
-                      <div className="py-1">
-                        <Link href="/profile" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                          <User className="mr-2 h-4 w-4" />
-                          <span>My Profile</span>
-                        </Link>
-                        <Link href="/my-listings" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                          <List className="mr-2 h-4 w-4" />
-                          <span>My Listings</span>
-                        </Link>
-                        <Link href="/my-wishlists" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                          <Heart className="mr-2 h-4 w-4" />
-                          <span>My Wishlists</span>
-                        </Link>
-                        <Link href="/messages" className="flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                          <div className="flex items-center">
-                            <MessageCircle className="mr-2 h-4 w-4" />
-                            <span>Messages</span>
-                          </div>
-                          {messagingStats?.unreadCount && messagingStats.unreadCount > 0 && (
-                            <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                              {messagingStats.unreadCount > 99 ? '99+' : messagingStats.unreadCount}
-                            </Badge>
-                          )}
-                        </Link>
-
-                        {/* Admin Dashboard for users with admin role */}
-                        {(() => {
-                          const userRole = (user as any)?.role;
-                          const roleId = (user as any)?.roleId || userRole?.id;
-                          const roleName = userRole?.name?.toLowerCase();
-                          const isAdmin = roleId === 3 || roleId === 4 || 
-                                         roleName === 'admin' || roleName === 'superadmin';
-                          
-                          return isAdmin ? (
-                            <Link href="/admin" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                              <Database className="mr-2 h-4 w-4" />
-                              <span>Admin Dashboard</span>
-                            </Link>
-                          ) : null;
-                        })()}
-                        <button 
-                          onClick={handleLogout}
-                          className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-50 transition-colors text-left"
-                        >
-                          <LogOut className="mr-2 h-4 w-4" />
-                          <span>Log out</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  
-{/* Admin button removed - Admin Dashboard is now available in user dropdown menu for admin users */}
-                </>
-              ) : (
-                !isAdminPage && (
-                  <div className="sm:hidden">
-                    <AuthForms />
-                  </div>
-                )
+            {/* Auth Section */}
+            <div className="flex items-center space-x-4">
+              {!isAuthenticated && (
+                <div className="hidden sm:flex items-center space-x-3">
+                  <AuthForms />
+                </div>
               )}
             </div>
+            
+            {isAuthenticated ? (
+              <>
+                {/* User Menu */}
+                <div className="relative group">
+                  <div className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || ""} />
+                      <AvatarFallback className="bg-purple-600 text-white">
+                        {getUserInitials(user)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium text-gray-900">
+                      {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email?.split('@')[0] || 'User'}
+                    </span>
+                  </div>
+                  
+                  {/* Dropdown Menu - appears on hover */}
+                  <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="p-3 border-b border-gray-100">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user?.firstName} {user?.lastName}</p>
+                        <p className="text-xs leading-none text-gray-500">{user?.email}</p>
+                      </div>
+                    </div>
+                    <div className="py-1">
+                      <Link href="/profile" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>My Profile</span>
+                      </Link>
+                      <Link href="/my-listings" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                        <List className="mr-2 h-4 w-4" />
+                        <span>My Listings</span>
+                      </Link>
+                      <Link href="/my-wishlists" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                        <Heart className="mr-2 h-4 w-4" />
+                        <span>My Wishlists</span>
+                      </Link>
+                      <Link href="/messages" className="flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center">
+                          <MessageCircle className="mr-2 h-4 w-4" />
+                          <span>Messages</span>
+                        </div>
+                        {messagingStats?.unreadCount && messagingStats.unreadCount > 0 && (
+                          <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                            {messagingStats.unreadCount > 99 ? '99+' : messagingStats.unreadCount}
+                          </Badge>
+                        )}
+                      </Link>
+
+                      {/* Admin Dashboard for users with admin role */}
+                      {(() => {
+                        const userRole = (user as any)?.role;
+                        const roleId = (user as any)?.roleId || userRole?.id;
+                        const roleName = userRole?.name?.toLowerCase();
+                        const isAdmin = roleId === 3 || roleId === 4 || 
+                                       roleName === 'admin' || roleName === 'superadmin';
+                        
+                        return isAdmin ? (
+                          <Link href="/admin" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                            <Database className="mr-2 h-4 w-4" />
+                            <span>Admin Dashboard</span>
+                          </Link>
+                        ) : null;
+                      })()}
+                      <button 
+                        onClick={handleLogout}
+                        className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-50 transition-colors text-left"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Log out</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+{/* Admin button removed - Admin Dashboard is now available in user dropdown menu for admin users */}
+              </>
+            ) : (
+              !isAdminPage && (
+                <div className="sm:hidden">
+                  <AuthForms />
+                </div>
+              )
+            )}
           </div>
         </div>
       </div>

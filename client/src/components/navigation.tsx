@@ -46,9 +46,7 @@ export function Navigation() {
                 />
               </Link>
               <div className="text-center lg:text-left">
-                <Link href="/">
-                  <h1 className="text-xl lg:text-4xl font-bold text-gray-900 cursor-pointer hover:text-purple-600 transition-colors">Kenya's Car Marketplace</h1>
-                </Link>
+                
                 <p className="text-sm lg:text-lg text-gray-600">we get super excited about cars</p>
               </div>
             </div>

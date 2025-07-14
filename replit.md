@@ -562,6 +562,7 @@ Changelog:
   - Simplified hero section with clear value proposition and primary action buttons
   - Maintained essential contact section for import services
   - Improved performance by removing complex gradient animations and effects
+  - Enhanced with larger icons: core tools use 10x10 icons, additional tools use 6x6 icons for better visual impact
 - January 13, 2025. Implemented comprehensive Vehicle Seller Analytics System:
   - Created extensive database schema with 8+ new analytics tables (listing_views, search_impressions, market_benchmarks, listing_quality_scores, search_keywords, promotion_tracking, listing_recommendations)
   - Enhanced daily_listing_analytics table with comprehensive tracking fields including unique visitors, device breakdown, location analysis, traffic sources, and active hours

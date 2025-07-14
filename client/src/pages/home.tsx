@@ -79,17 +79,17 @@ const ADDITIONAL_TOOLS = [
   }
 ];
 
-// Simple tool card component
+// Simple tool card component with larger icons
 const ToolCard = ({ tool, size = "default" }: { tool: any; size?: "default" | "small" }) => {
   const IconComponent = tool.icon;
   const isLarge = size === "default";
   
   return (
     <Link href={tool.href}>
-      <Card className={`group cursor-pointer hover:shadow-lg transition-all duration-200 ${isLarge ? 'h-48' : 'h-24'}`}>
+      <Card className={`group cursor-pointer hover:shadow-lg transition-all duration-200 ${isLarge ? 'h-48' : 'h-28'}`}>
         <CardHeader className={`text-center ${isLarge ? 'pb-4 pt-6' : 'p-4'}`}>
-          <div className={`bg-purple-100 rounded-lg ${isLarge ? 'w-12 h-12 mb-3' : 'w-8 h-8 mb-2'} flex items-center justify-center mx-auto`}>
-            <IconComponent className={`${isLarge ? 'h-6 w-6' : 'h-4 w-4'} text-purple-600`} />
+          <div className={`bg-purple-100 rounded-lg ${isLarge ? 'w-16 h-16 mb-3' : 'w-12 h-12 mb-2'} flex items-center justify-center mx-auto group-hover:bg-purple-200 transition-colors duration-200`}>
+            <IconComponent className={`${isLarge ? 'h-10 w-10' : 'h-6 w-6'} text-purple-600`} />
           </div>
           <CardTitle className={`${isLarge ? 'text-lg' : 'text-sm'} font-semibold text-gray-900`}>
             {tool.title}

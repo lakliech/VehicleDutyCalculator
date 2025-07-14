@@ -8,6 +8,8 @@ import { Footer } from "@/components/footer";
 import { ProtectedRoute } from "@/components/protected-route";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
+import About from "@/pages/about";
+import Careers from "@/pages/careers";
 import DutyCalculator from "@/pages/duty-calculator";
 import ImportationEstimator from "@/pages/importation-estimator";
 import ServiceEstimator from "@/pages/service-estimator";
@@ -40,6 +42,8 @@ function Router() {
       <main className="flex-1">
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/about" component={About} />
+          <Route path="/careers" component={Careers} />
           <Route path="/duty-calculator" component={DutyCalculator} />
           <Route path="/importation-estimator" component={ImportationEstimator} />
           <Route path="/service-estimator" component={ServiceEstimator} />

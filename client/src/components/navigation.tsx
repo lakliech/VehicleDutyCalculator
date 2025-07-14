@@ -53,8 +53,27 @@ export function Navigation() {
               </div>
             </div>
             
-            {/* Auth Section */}
-            <div className="flex items-center space-x-4">
+            {/* Navigation Menu & Auth Section */}
+            <div className="flex items-center space-x-6">
+              {/* Navigation Menu */}
+              <nav className="hidden md:flex items-center space-x-6">
+                <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
+                  About Us
+                </Link>
+                <Link href="/careers" className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
+                  Careers
+                </Link>
+              </nav>
+              
+              {/* Auth Section */}
+              <div className="flex items-center space-x-4">
+                {!isAuthenticated && (
+                  <div className="hidden sm:flex items-center space-x-3">
+                    <AuthForms />
+                  </div>
+                )}
+              </div>
+              
               {isAuthenticated ? (
                 <>
                   {/* User Menu */}
@@ -133,7 +152,11 @@ export function Navigation() {
 {/* Admin button removed - Admin Dashboard is now available in user dropdown menu for admin users */}
                 </>
               ) : (
-                !isAdminPage && <AuthForms />
+                !isAdminPage && (
+                  <div className="sm:hidden">
+                    <AuthForms />
+                  </div>
+                )
               )}
             </div>
           </div>

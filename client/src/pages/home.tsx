@@ -1,9 +1,11 @@
 import { Link } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/auth-provider";
+import { useQuery } from "@tanstack/react-query";
 import { 
   Calculator, 
   Car, 
@@ -108,6 +110,33 @@ const ToolCard = ({ tool, size = "default" }: { tool: any; size?: "default" | "s
 export default function Home() {
   const { toast } = useToast();
   const { user } = useAuth();
+  const [selectedMake, setSelectedMake] = useState<string>("");
+  const [selectedModel, setSelectedModel] = useState<string>("");
+  const [selectedPriceRange, setSelectedPriceRange] = useState<string>("");
+
+  // Fetch vehicle makes
+  const { data: makes } = useQuery({
+    queryKey: ['/api/car-listing-filters'],
+    select: (data: any) => data.makes || []
+  });
+
+  // Fetch models based on selected make
+  const { data: models } = useQuery({
+    queryKey: ['/api/car-listing-filters', selectedMake],
+    enabled: !!selectedMake && selectedMake !== "any",
+    select: (data: any) => data.models || []
+  });
+
+  const handleSearch = () => {
+    // Build query params for the Buy A Car page
+    const params = new URLSearchParams();
+    if (selectedMake && selectedMake !== "any") params.append('make', selectedMake);
+    if (selectedModel && selectedModel !== "any") params.append('model', selectedModel);
+    if (selectedPriceRange && selectedPriceRange !== "any") params.append('priceRange', selectedPriceRange);
+    
+    // Navigate to buy-a-car with filters
+    window.location.href = `/buy-a-car${params.toString() ? '?' + params.toString() : ''}`;
+  };
 
   // Handle OAuth success/error messages
   useEffect(() => {
@@ -140,10 +169,78 @@ export default function Home() {
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Kenya's Car Marketplace
           </h1>
-          <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             Professional automotive tools with official government rates. 
             Buy, sell, import, and manage vehicles with confidence.
           </p>
+          
+          {/* Vehicle Search Filter */}
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 mb-8 max-w-4xl mx-auto">
+            <div className="flex flex-col md:flex-row gap-3 items-end">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Make</label>
+                <Select value={selectedMake} onValueChange={(value) => {
+                  setSelectedMake(value);
+                  setSelectedModel("any"); // Reset model when make changes
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select make" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any make</SelectItem>
+                    {makes?.map((make: string) => (
+                      <SelectItem key={make} value={make}>{make}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
+                <Select 
+                  value={selectedModel} 
+                  onValueChange={setSelectedModel}
+                  disabled={!selectedMake || selectedMake === "any"}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any model</SelectItem>
+                    {models?.map((model: string) => (
+                      <SelectItem key={model} value={model}>{model}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Price Range</label>
+                <Select value={selectedPriceRange} onValueChange={setSelectedPriceRange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select price" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any price</SelectItem>
+                    <SelectItem value="0-500000">Under KES 500K</SelectItem>
+                    <SelectItem value="500000-1000000">KES 500K - 1M</SelectItem>
+                    <SelectItem value="1000000-2000000">KES 1M - 2M</SelectItem>
+                    <SelectItem value="2000000-3000000">KES 2M - 3M</SelectItem>
+                    <SelectItem value="3000000-5000000">KES 3M - 5M</SelectItem>
+                    <SelectItem value="5000000-">Above KES 5M</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <Button 
+                onClick={handleSearch}
+                className="bg-purple-600 hover:bg-purple-700 px-8 h-10"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search Cars
+              </Button>
+            </div>
+          </div>
           
           {user && (
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-2 mb-6 inline-block">

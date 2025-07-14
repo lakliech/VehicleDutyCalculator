@@ -136,22 +136,22 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       {/* Clean Hero Section */}
       <section className="bg-white border-b">
-        <div className="max-w-6xl mx-auto px-4 py-16 text-center">
+        <div className="max-w-6xl mx-auto px-4 py-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Kenya's Car Marketplace
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
             Professional automotive tools with official government rates. 
             Buy, sell, import, and manage vehicles with confidence.
           </p>
           
           {user && (
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-8 inline-block">
-              <span className="text-purple-700">Welcome back, {user.firstName || 'User'}!</span>
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-2 mb-6 inline-block">
+              <span className="text-purple-700 text-sm">Welcome back, {user.firstName || 'User'}!</span>
             </div>
           )}
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/duty-calculator">
               <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
                 Calculate Import Duties
@@ -168,24 +168,24 @@ export default function Home() {
       </section>
 
       {/* Main Tools Section */}
-      <section className="max-w-6xl mx-auto px-4 py-16">
-        <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+      <section className="max-w-6xl mx-auto px-4 py-8">
+        <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
           Popular Tools
         </h2>
         
         {/* Core Tools Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {CORE_TOOLS.map((tool) => (
             <ToolCard key={tool.href} tool={tool} />
           ))}
         </div>
 
         {/* Additional Tools */}
-        <div className="border-t pt-12">
-          <h3 className="text-lg font-semibold text-gray-700 mb-6 text-center">
+        <div className="border-t pt-8">
+          <h3 className="text-base font-semibold text-gray-700 mb-4 text-center">
             Additional Services
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {ADDITIONAL_TOOLS.map((tool) => (
               <ToolCard key={tool.href} tool={tool} size="small" />
             ))}
@@ -195,9 +195,9 @@ export default function Home() {
 
       {/* Simple Contact Section */}
       <section className="bg-purple-600 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-12 text-center">
-          <h3 className="text-2xl font-bold mb-4">Need Help Importing?</h3>
-          <p className="text-purple-100 mb-6 max-w-2xl mx-auto">
+        <div className="max-w-6xl mx-auto px-4 py-8 text-center">
+          <h3 className="text-xl font-bold mb-3">Need Help Importing?</h3>
+          <p className="text-purple-100 mb-4 max-w-2xl mx-auto text-sm">
             Professional import services from Japan, UK, Dubai, and more countries.
           </p>
           <Button 

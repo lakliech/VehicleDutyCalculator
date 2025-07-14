@@ -35,7 +35,8 @@ export function Navigation() {
     <div className="bg-white shadow-sm border-b border-gray-200">
       {/* Header with Logo */}
       <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
           <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
             <Link href="/">
               <img 
@@ -155,6 +156,7 @@ export function Navigation() {
                 </div>
               )
             )}
+          </div>
           </div>
         </div>
       </div>

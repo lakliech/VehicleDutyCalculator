@@ -41,7 +41,7 @@ export function Navigation() {
               <img 
                 src={gariyangu} 
                 alt="Gariyangu Logo" 
-                className="h-20 lg:h-32 w-auto object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                className="h-20 lg:h-32 w-auto object-contain cursor-pointer hover:opacity-90 transition-opacity ml-[10px] mr-[10px]"
               />
             </Link>
             <div className="text-center lg:text-left">

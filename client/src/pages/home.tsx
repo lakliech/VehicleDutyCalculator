@@ -113,6 +113,9 @@ export default function Home() {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string>("");
+  const [selectedFuelType, setSelectedFuelType] = useState<string>("");
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false);
 
   // Fetch vehicle makes
   const { data: makes } = useQuery({
@@ -133,6 +136,8 @@ export default function Home() {
     if (selectedMake && selectedMake !== "any") params.append('make', selectedMake);
     if (selectedModel && selectedModel !== "any") params.append('model', selectedModel);
     if (selectedPriceRange && selectedPriceRange !== "any") params.append('priceRange', selectedPriceRange);
+    if (selectedYear && selectedYear !== "any") params.append('year', selectedYear);
+    if (selectedFuelType && selectedFuelType !== "any") params.append('fuelType', selectedFuelType);
     
     // Navigate to buy-a-car with filters
     window.location.href = `/buy-a-car${params.toString() ? '?' + params.toString() : ''}`;
@@ -146,19 +151,22 @@ export default function Home() {
       <section className="bg-white border-b">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Left Side - Vehicle Search Filter */}
+            {/* Left Side - Smart Vehicle Filter */}
             <div className="lg:col-span-1">
-              <div className="bg-gray-50 border border-gray-200 rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Buy used cars online</h3>
+              <div className="bg-gradient-to-br from-purple-50 to-cyan-50 border border-purple-200 rounded-lg shadow-lg p-6">
+                <div className="flex items-center mb-4">
+                  <Search className="h-5 w-5 text-purple-600 mr-2" />
+                  <h3 className="text-lg font-semibold text-gray-900">Smart Car Finder</h3>
+                </div>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Make</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Make</label>
                     <Select value={selectedMake} onValueChange={(value) => {
                       setSelectedMake(value);
                       setSelectedModel("any"); // Reset model when make changes
                     }}>
-                      <SelectTrigger>
+                      <SelectTrigger className="border-purple-200 focus:border-purple-500">
                         <SelectValue placeholder="Select make" />
                       </SelectTrigger>
                       <SelectContent>
@@ -177,7 +185,7 @@ export default function Home() {
                       onValueChange={setSelectedModel}
                       disabled={!selectedMake || selectedMake === "any"}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="border-purple-200 focus:border-purple-500">
                         <SelectValue placeholder="Select model" />
                       </SelectTrigger>
                       <SelectContent>
@@ -190,13 +198,13 @@ export default function Home() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Budget Range</label>
                     <Select value={selectedPriceRange} onValueChange={setSelectedPriceRange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select price" />
+                      <SelectTrigger className="border-purple-200 focus:border-purple-500">
+                        <SelectValue placeholder="Select budget" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="any">Any price</SelectItem>
+                        <SelectItem value="any">Any budget</SelectItem>
                         <SelectItem value="0-500000">Under KES 500K</SelectItem>
                         <SelectItem value="500000-1000000">KES 500K - 1M</SelectItem>
                         <SelectItem value="1000000-2000000">KES 1M - 2M</SelectItem>
@@ -207,13 +215,145 @@ export default function Home() {
                     </Select>
                   </div>
                   
-                  <Button 
-                    onClick={handleSearch}
-                    className="w-full bg-purple-600 hover:bg-purple-700"
-                  >
-                    <Search className="mr-2 h-4 w-4" />
-                    Search Cars
-                  </Button>
+                  {/* Advanced filters toggle */}
+                  <div className="text-center">
+                    <button
+                      onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                      className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+                    >
+                      {showAdvancedFilters ? 'Hide' : 'Show'} Advanced Filters
+                    </button>
+                  </div>
+                  
+                  {showAdvancedFilters && (
+                    <div className="grid grid-cols-2 gap-3 pt-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
+                        <Select value={selectedYear} onValueChange={setSelectedYear}>
+                          <SelectTrigger className="border-purple-200 focus:border-purple-500">
+                            <SelectValue placeholder="Any year" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="any">Any year</SelectItem>
+                            <SelectItem value="2020-">2020 & newer</SelectItem>
+                            <SelectItem value="2015-2019">2015-2019</SelectItem>
+                            <SelectItem value="2010-2014">2010-2014</SelectItem>
+                            <SelectItem value="2005-2009">2005-2009</SelectItem>
+                            <SelectItem value="-2004">Before 2005</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Fuel</label>
+                        <Select value={selectedFuelType} onValueChange={setSelectedFuelType}>
+                          <SelectTrigger className="border-purple-200 focus:border-purple-500">
+                            <SelectValue placeholder="Any fuel" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="any">Any fuel</SelectItem>
+                            <SelectItem value="petrol">Petrol</SelectItem>
+                            <SelectItem value="diesel">Diesel</SelectItem>
+                            <SelectItem value="hybrid">Hybrid</SelectItem>
+                            <SelectItem value="electric">Electric</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={handleSearch}
+                      className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                    >
+                      <Search className="mr-2 h-4 w-4" />
+                      Find Perfect Car
+                    </Button>
+                    {(selectedMake || selectedModel || selectedPriceRange || selectedYear || selectedFuelType) && (
+                      <Button 
+                        onClick={() => {
+                          setSelectedMake("");
+                          setSelectedModel("");
+                          setSelectedPriceRange("");
+                          setSelectedYear("");
+                          setSelectedFuelType("");
+                        }}
+                        variant="outline"
+                        className="px-3 py-3 border-purple-200 hover:bg-purple-50"
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {/* Active filters display */}
+                  {(selectedMake || selectedModel || selectedPriceRange || selectedYear || selectedFuelType) && (
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500">
+                        {[selectedMake, selectedModel, selectedPriceRange, selectedYear, selectedFuelType].filter(Boolean).length} filter(s) applied
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Smart suggestions */}
+                  <div className="mt-4 pt-4 border-t border-purple-200">
+                    <p className="text-xs text-gray-600 mb-2">Popular searches:</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button 
+                        onClick={() => {
+                          setSelectedMake("Toyota");
+                          setSelectedPriceRange("500000-1000000");
+                          setSelectedYear("2015-2019");
+                          setSelectedFuelType("petrol");
+                        }}
+                        className="px-2 py-1 bg-white border border-purple-200 rounded-full text-xs text-purple-600 hover:bg-purple-50 transition-colors"
+                      >
+                        Toyota Petrol 2015-2019
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setSelectedMake("Nissan");
+                          setSelectedPriceRange("1000000-2000000");
+                          setSelectedYear("2010-2014");
+                          setSelectedFuelType("petrol");
+                        }}
+                        className="px-2 py-1 bg-white border border-purple-200 rounded-full text-xs text-purple-600 hover:bg-purple-50 transition-colors"
+                      >
+                        Nissan 1M-2M
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setSelectedMake("Subaru");
+                          setSelectedPriceRange("2000000-3000000");
+                          setSelectedYear("2015-2019");
+                          setSelectedFuelType("petrol");
+                        }}
+                        className="px-2 py-1 bg-white border border-purple-200 rounded-full text-xs text-purple-600 hover:bg-purple-50 transition-colors"
+                      >
+                        Subaru AWD
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setSelectedFuelType("hybrid");
+                          setSelectedPriceRange("2000000-3000000");
+                          setSelectedYear("2015-2019");
+                        }}
+                        className="px-2 py-1 bg-white border border-purple-200 rounded-full text-xs text-purple-600 hover:bg-purple-50 transition-colors"
+                      >
+                        Hybrid Cars
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setSelectedPriceRange("0-500000");
+                          setSelectedYear("2010-2014");
+                        }}
+                        className="px-2 py-1 bg-white border border-purple-200 rounded-full text-xs text-purple-600 hover:bg-purple-50 transition-colors"
+                      >
+                        Budget Cars
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

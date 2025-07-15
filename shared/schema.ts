@@ -442,6 +442,183 @@ export type CarComparison = typeof carComparisons.$inferSelect;
 export type VehicleColor = typeof vehicleColors.$inferSelect;
 export type DriveConfiguration = typeof driveConfigurations.$inferSelect;
 
+// Financial Services Tables for Loan Pre-approval and Trade-in
+export const bankPartners = pgTable("bank_partners", {
+  id: serial("id").primaryKey(),
+  bankName: text("bank_name").notNull(),
+  bankCode: varchar("bank_code", { length: 10 }).notNull().unique(),
+  logoUrl: varchar("logo_url", { length: 500 }),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 20 }),
+  websiteUrl: varchar("website_url", { length: 255 }),
+  apiEndpoint: varchar("api_endpoint", { length: 255 }), // For integration
+  apiKey: varchar("api_key", { length: 255 }), // Encrypted API key
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const loanProducts = pgTable("loan_products", {
+  id: serial("id").primaryKey(),
+  bankId: integer("bank_id").references(() => bankPartners.id).notNull(),
+  productName: text("product_name").notNull(),
+  productType: text("product_type").notNull(), // 'new_vehicle', 'used_vehicle', 'refinancing'
+  minLoanAmount: decimal("min_loan_amount", { precision: 12, scale: 2 }).notNull(),
+  maxLoanAmount: decimal("max_loan_amount", { precision: 12, scale: 2 }).notNull(),
+  minInterestRate: decimal("min_interest_rate", { precision: 5, scale: 2 }).notNull(), // Annual percentage
+  maxInterestRate: decimal("max_interest_rate", { precision: 5, scale: 2 }).notNull(),
+  minTenureMonths: integer("min_tenure_months").notNull(),
+  maxTenureMonths: integer("max_tenure_months").notNull(),
+  maxFinancingPercentage: decimal("max_financing_percentage", { precision: 5, scale: 2 }).notNull(), // 80% = 0.80
+  minDownPaymentPercentage: decimal("min_down_payment_percentage", { precision: 5, scale: 2 }).notNull(),
+  processingFeeRate: decimal("processing_fee_rate", { precision: 5, scale: 4 }), // As percentage of loan amount
+  processingFeeFixed: decimal("processing_fee_fixed", { precision: 10, scale: 2 }), // Fixed amount
+  insuranceRequired: boolean("insurance_required").default(true),
+  guarantorRequired: boolean("guarantor_required").default(false),
+  minMonthlyIncome: decimal("min_monthly_income", { precision: 10, scale: 2 }),
+  maxAge: integer("max_age"), // Maximum borrower age
+  eligibilityCriteria: json("eligibility_criteria").$type<string[]>(), // Array of criteria
+  requiredDocuments: json("required_documents").$type<string[]>(), // Array of required documents
+  features: json("features").$type<string[]>(), // Array of product features
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const loanApplications = pgTable("loan_applications", {
+  id: serial("id").primaryKey(),
+  applicationNumber: varchar("application_number", { length: 20 }).notNull().unique(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  loanProductId: integer("loan_product_id").references(() => loanProducts.id).notNull(),
+  vehicleListingId: integer("vehicle_listing_id").references(() => carListings.id), // Optional - for specific vehicle
+  
+  // Applicant Information
+  applicantName: text("applicant_name").notNull(),
+  applicantEmail: varchar("applicant_email", { length: 255 }).notNull(),
+  applicantPhone: varchar("applicant_phone", { length: 20 }).notNull(),
+  nationalId: varchar("national_id", { length: 20 }).notNull(),
+  dateOfBirth: timestamp("date_of_birth").notNull(),
+  maritalStatus: text("marital_status").notNull(), // 'single', 'married', 'divorced', 'widowed'
+  employmentStatus: text("employment_status").notNull(), // 'employed', 'self_employed', 'business_owner', 'unemployed'
+  employerName: text("employer_name"),
+  jobTitle: text("job_title"),
+  monthlyIncome: decimal("monthly_income", { precision: 10, scale: 2 }).notNull(),
+  monthlyExpenses: decimal("monthly_expenses", { precision: 10, scale: 2 }),
+  
+  // Loan Details
+  requestedAmount: decimal("requested_amount", { precision: 12, scale: 2 }).notNull(),
+  downPaymentAmount: decimal("down_payment_amount", { precision: 12, scale: 2 }).notNull(),
+  preferredTenureMonths: integer("preferred_tenure_months").notNull(),
+  
+  // Vehicle Information (if specific vehicle)
+  vehicleMake: text("vehicle_make"),
+  vehicleModel: text("vehicle_model"),
+  vehicleYear: integer("vehicle_year"),
+  vehiclePrice: decimal("vehicle_price", { precision: 12, scale: 2 }),
+  
+  // Application Status
+  status: text("status").notNull().default("pending"), // 'pending', 'pre_approved', 'approved', 'rejected', 'withdrawn'
+  preApprovalAmount: decimal("pre_approval_amount", { precision: 12, scale: 2 }),
+  approvedInterestRate: decimal("approved_interest_rate", { precision: 5, scale: 2 }),
+  approvedTenureMonths: integer("approved_tenure_months"),
+  remarks: text("remarks"),
+  
+  // Documents
+  uploadedDocuments: json("uploaded_documents").$type<Array<{url: string; name: string; type: string}>>(),
+  
+  // Tracking
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: varchar("reviewed_by", { length: 255 }),
+  expiresAt: timestamp("expires_at"), // Pre-approval expiry
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const tradeInEvaluations = pgTable("trade_in_evaluations", {
+  id: serial("id").primaryKey(),
+  evaluationNumber: varchar("evaluation_number", { length: 20 }).notNull().unique(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id),
+  
+  // Vehicle Information
+  make: text("make").notNull(),
+  model: text("model").notNull(),
+  year: integer("year").notNull(),
+  mileage: integer("mileage").notNull(),
+  engineSize: integer("engine_size"),
+  fuelType: text("fuel_type").notNull(),
+  transmission: text("transmission").notNull(),
+  bodyType: text("body_type").notNull(),
+  exteriorColor: text("exterior_color"),
+  condition: text("condition").notNull(), // 'excellent', 'good', 'fair', 'poor'
+  
+  // Condition Details
+  hasAccidents: boolean("has_accidents").default(false),
+  accidentDetails: text("accident_details"),
+  serviceHistory: text("service_history"), // 'complete', 'partial', 'none'
+  hasModifications: boolean("has_modifications").default(false),
+  modificationDetails: text("modification_details"),
+  hasDefects: boolean("has_defects").default(false),
+  defectDetails: text("defect_details"),
+  
+  // Evaluation Results
+  marketValue: decimal("market_value", { precision: 10, scale: 2 }),
+  tradeInValue: decimal("trade_in_value", { precision: 10, scale: 2 }),
+  privatePartyValue: decimal("private_party_value", { precision: 10, scale: 2 }),
+  dealerRetailValue: decimal("dealer_retail_value", { precision: 10, scale: 2 }),
+  
+  // Factors affecting value
+  depreciationFactor: decimal("depreciation_factor", { precision: 5, scale: 4 }),
+  conditionAdjustment: decimal("condition_adjustment", { precision: 5, scale: 4 }),
+  mileageAdjustment: decimal("mileage_adjustment", { precision: 5, scale: 4 }),
+  marketDemandFactor: decimal("market_demand_factor", { precision: 5, scale: 4 }),
+  
+  // Contact Information
+  ownerName: text("owner_name").notNull(),
+  ownerPhone: varchar("owner_phone", { length: 20 }).notNull(),
+  ownerEmail: varchar("owner_email", { length: 255 }),
+  location: text("location").notNull(),
+  
+  // Images
+  images: text("images").array(), // Array of image URLs
+  
+  // Status
+  status: text("status").notNull().default("pending"), // 'pending', 'completed', 'expired'
+  evaluatedBy: varchar("evaluated_by", { length: 255 }),
+  evaluatedAt: timestamp("evaluated_at"),
+  expiresAt: timestamp("expires_at"), // Evaluation validity
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const loanCalculations = pgTable("loan_calculations", {
+  id: serial("id").primaryKey(),
+  sessionId: varchar("session_id", { length: 100 }), // For anonymous calculations
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id),
+  
+  // Loan Parameters
+  vehiclePrice: decimal("vehicle_price", { precision: 12, scale: 2 }).notNull(),
+  downPayment: decimal("down_payment", { precision: 12, scale: 2 }).notNull(),
+  loanAmount: decimal("loan_amount", { precision: 12, scale: 2 }).notNull(),
+  interestRate: decimal("interest_rate", { precision: 5, scale: 2 }).notNull(),
+  tenureMonths: integer("tenure_months").notNull(),
+  
+  // Calculation Results
+  monthlyPayment: decimal("monthly_payment", { precision: 10, scale: 2 }).notNull(),
+  totalInterest: decimal("total_interest", { precision: 12, scale: 2 }).notNull(),
+  totalPayable: decimal("total_payable", { precision: 12, scale: 2 }).notNull(),
+  processingFee: decimal("processing_fee", { precision: 10, scale: 2 }),
+  insuranceCost: decimal("insurance_cost", { precision: 10, scale: 2 }),
+  
+  // Additional costs
+  registrationFees: decimal("registration_fees", { precision: 10, scale: 2 }),
+  transferFees: decimal("transfer_fees", { precision: 10, scale: 2 }),
+  totalInitialCost: decimal("total_initial_cost", { precision: 12, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // User management and authentication tables
 export const userRoles = pgTable("user_roles", {
   id: serial("id").primaryKey(),
@@ -1518,3 +1695,89 @@ export type PromotionTracking = typeof promotionTracking.$inferSelect;
 export type InsertPromotionTracking = z.infer<typeof promotionTrackingSchema>;
 export type ListingRecommendations = typeof listingRecommendations.$inferSelect;
 export type InsertListingRecommendations = z.infer<typeof listingRecommendationsSchema>;
+
+// ==============================
+// FINANCIAL SERVICES VALIDATION SCHEMAS
+// ==============================
+
+// Financial services validation schemas
+export const loanApplicationSchema = createInsertSchema(loanApplications).omit({
+  id: true,
+  applicationNumber: true,
+  status: true,
+  preApprovalAmount: true,
+  approvedInterestRate: true,
+  approvedTenureMonths: true,
+  remarks: true,
+  submittedAt: true,
+  reviewedAt: true,
+  reviewedBy: true,
+  expiresAt: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  applicantName: z.string().min(2, "Name must be at least 2 characters"),
+  applicantEmail: z.string().email("Valid email required"),
+  applicantPhone: z.string().min(10, "Valid phone number required"),
+  nationalId: z.string().min(8, "Valid National ID required"),
+  monthlyIncome: z.number().min(20000, "Minimum monthly income is KES 20,000"),
+  requestedAmount: z.number().min(100000, "Minimum loan amount is KES 100,000"),
+  downPaymentAmount: z.number().min(0, "Down payment cannot be negative"),
+});
+
+export const tradeInEvaluationSchema = createInsertSchema(tradeInEvaluations).omit({
+  id: true,
+  evaluationNumber: true,
+  marketValue: true,
+  tradeInValue: true,
+  privatePartyValue: true,
+  dealerRetailValue: true,
+  depreciationFactor: true,
+  conditionAdjustment: true,
+  mileageAdjustment: true,
+  marketDemandFactor: true,
+  status: true,
+  evaluatedBy: true,
+  evaluatedAt: true,
+  expiresAt: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  make: z.string().min(1, "Vehicle make is required"),
+  model: z.string().min(1, "Vehicle model is required"),
+  year: z.number().min(1990).max(new Date().getFullYear(), "Year must be valid"),
+  mileage: z.number().min(0, "Mileage cannot be negative"),
+  ownerName: z.string().min(2, "Owner name is required"),
+  ownerPhone: z.string().min(10, "Valid phone number required"),
+  location: z.string().min(1, "Location is required"),
+});
+
+export const loanCalculationSchema = createInsertSchema(loanCalculations).omit({
+  id: true,
+  sessionId: true,
+  monthlyPayment: true,
+  totalInterest: true,
+  totalPayable: true,
+  processingFee: true,
+  insuranceCost: true,
+  registrationFees: true,
+  transferFees: true,
+  totalInitialCost: true,
+  createdAt: true,
+}).extend({
+  vehiclePrice: z.number().min(50000, "Vehicle price must be at least KES 50,000"),
+  downPayment: z.number().min(0, "Down payment cannot be negative"),
+  loanAmount: z.number().min(10000, "Loan amount must be at least KES 10,000"),
+  interestRate: z.number().min(0.1).max(35, "Interest rate must be between 0.1% and 35%"),
+  tenureMonths: z.number().min(6).max(84, "Tenure must be between 6 and 84 months"),
+});
+
+// Financial services types
+export type BankPartner = typeof bankPartners.$inferSelect;
+export type LoanProduct = typeof loanProducts.$inferSelect;
+export type LoanApplication = typeof loanApplications.$inferSelect;
+export type TradeInEvaluation = typeof tradeInEvaluations.$inferSelect;
+export type LoanCalculation = typeof loanCalculations.$inferSelect;
+export type InsertLoanApplication = z.infer<typeof loanApplicationSchema>;
+export type InsertTradeInEvaluation = z.infer<typeof tradeInEvaluationSchema>;
+export type InsertLoanCalculation = z.infer<typeof loanCalculationSchema>;

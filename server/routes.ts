@@ -46,7 +46,15 @@ import {
   autoFlagRules,
   automatedActionsLog,
   flagCountTracking,
-  sellerReputationTracking
+  sellerReputationTracking,
+  loanApplicationSchema,
+  tradeInEvaluationSchema,
+  loanCalculationSchema,
+  bankPartners,
+  loanProducts,
+  loanApplications,
+  tradeInEvaluations,
+  loanCalculations
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -6484,6 +6492,269 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     } catch (error) {
       console.error('Error generating keyword recommendations:', error);
       res.status(500).json({ error: 'Failed to generate recommendations' });
+    }
+  });
+
+  // ==============================
+  // FINANCIAL SERVICES ROUTES
+  // ==============================
+
+  // Get bank partners
+  app.get('/api/financial/banks', async (req: Request, res: Response) => {
+    try {
+      const banks = await db.select().from(bankPartners).where(eq(bankPartners.isActive, true));
+      res.json(banks);
+    } catch (error) {
+      console.error('Error fetching banks:', error);
+      res.status(500).json({ error: 'Failed to fetch banks' });
+    }
+  });
+
+  // Get loan products by bank
+  app.get('/api/financial/loan-products/:bankId?', async (req: Request, res: Response) => {
+    try {
+      const bankId = req.params.bankId ? parseInt(req.params.bankId) : null;
+      
+      let query = db.select({
+        id: loanProducts.id,
+        bankId: loanProducts.bankId,
+        productName: loanProducts.productName,
+        productType: loanProducts.productType,
+        minLoanAmount: loanProducts.minLoanAmount,
+        maxLoanAmount: loanProducts.maxLoanAmount,
+        minInterestRate: loanProducts.minInterestRate,
+        maxInterestRate: loanProducts.maxInterestRate,
+        minTenureMonths: loanProducts.minTenureMonths,
+        maxTenureMonths: loanProducts.maxTenureMonths,
+        maxFinancingPercentage: loanProducts.maxFinancingPercentage,
+        minDownPaymentPercentage: loanProducts.minDownPaymentPercentage,
+        processingFeeRate: loanProducts.processingFeeRate,
+        processingFeeFixed: loanProducts.processingFeeFixed,
+        insuranceRequired: loanProducts.insuranceRequired,
+        guarantorRequired: loanProducts.guarantorRequired,
+        minMonthlyIncome: loanProducts.minMonthlyIncome,
+        maxAge: loanProducts.maxAge,
+        eligibilityCriteria: loanProducts.eligibilityCriteria,
+        requiredDocuments: loanProducts.requiredDocuments,
+        features: loanProducts.features,
+        bankName: bankPartners.bankName,
+      }).from(loanProducts)
+        .leftJoin(bankPartners, eq(loanProducts.bankId, bankPartners.id))
+        .where(eq(loanProducts.isActive, true));
+
+      if (bankId) {
+        query = query.where(eq(loanProducts.bankId, bankId));
+      }
+
+      const products = await query;
+      res.json(products);
+    } catch (error) {
+      console.error('Error fetching loan products:', error);
+      res.status(500).json({ error: 'Failed to fetch loan products' });
+    }
+  });
+
+  // Submit loan application
+  app.post('/api/financial/loan-application', async (req: Request, res: Response) => {
+    try {
+      const data = loanApplicationSchema.parse(req.body);
+      const loanProductId = req.body.loanProductId;
+
+      if (!loanProductId) {
+        return res.status(400).json({ error: 'Loan product ID is required' });
+      }
+
+      // Generate application number
+      const applicationNumber = `LA${Date.now()}${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+
+      const applicationData = {
+        ...data,
+        loanProductId,
+        applicationNumber,
+        status: 'pending' as const,
+        submittedAt: new Date(),
+      };
+
+      const [application] = await db.insert(loanApplications).values(applicationData).returning();
+
+      // In a real implementation, trigger approval workflow here
+      
+      res.json({ 
+        message: 'Application submitted successfully',
+        applicationNumber: application.applicationNumber,
+        applicationId: application.id 
+      });
+    } catch (error) {
+      console.error('Error submitting loan application:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid application data', details: error.errors });
+      }
+      res.status(500).json({ error: 'Failed to submit application' });
+    }
+  });
+
+  // Calculate loan payment
+  app.post('/api/financial/calculate-loan', async (req: Request, res: Response) => {
+    try {
+      const { vehiclePrice, downPayment, interestRate, tenureMonths } = req.body;
+
+      if (!vehiclePrice || downPayment < 0 || !interestRate || !tenureMonths) {
+        return res.status(400).json({ error: 'Missing required calculation parameters' });
+      }
+
+      const loanAmount = vehiclePrice - downPayment;
+      const monthlyRate = interestRate / 100 / 12;
+      
+      // Calculate monthly payment using loan formula
+      const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, tenureMonths)) / 
+                            (Math.pow(1 + monthlyRate, tenureMonths) - 1);
+
+      const totalPayable = monthlyPayment * tenureMonths;
+      const totalInterest = totalPayable - loanAmount;
+
+      // Additional costs (estimates)
+      const processingFee = loanAmount * 0.02; // 2% processing fee
+      const insuranceCost = vehiclePrice * 0.035; // 3.5% annual comprehensive insurance
+      const registrationFees = vehiclePrice <= 1000000 ? 2210 : vehiclePrice <= 2000000 ? 4420 : 6630;
+      const transferFees = vehiclePrice <= 1000000 ? 2210 : vehiclePrice <= 2000000 ? 4420 : 6630;
+
+      const totalInitialCost = downPayment + processingFee + insuranceCost + registrationFees + transferFees;
+
+      // Store calculation for reference
+      const calculationData = {
+        vehiclePrice,
+        downPayment,
+        loanAmount,
+        interestRate,
+        tenureMonths,
+        monthlyPayment: Math.round(monthlyPayment),
+        totalInterest: Math.round(totalInterest),
+        totalPayable: Math.round(totalPayable),
+        processingFee: Math.round(processingFee),
+        insuranceCost: Math.round(insuranceCost),
+        registrationFees,
+        transferFees,
+        totalInitialCost: Math.round(totalInitialCost),
+      };
+
+      await db.insert(loanCalculations).values(calculationData);
+
+      res.json({
+        monthlyPayment: Math.round(monthlyPayment),
+        totalInterest: Math.round(totalInterest),
+        totalPayable: Math.round(totalPayable),
+        processingFee: Math.round(processingFee),
+        insuranceCost: Math.round(insuranceCost),
+        registrationFees,
+        transferFees,
+        totalInitialCost: Math.round(totalInitialCost),
+      });
+    } catch (error) {
+      console.error('Error calculating loan:', error);
+      res.status(500).json({ error: 'Failed to calculate loan payment' });
+    }
+  });
+
+  // Submit trade-in evaluation
+  app.post('/api/financial/trade-in-evaluation', async (req: Request, res: Response) => {
+    try {
+      const data = tradeInEvaluationSchema.parse(req.body);
+
+      // Generate evaluation number
+      const evaluationNumber = `TIE${Date.now()}${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+
+      // Calculate base value (simplified algorithm)
+      const currentYear = new Date().getFullYear();
+      const vehicleAge = currentYear - data.year;
+      
+      // Base value estimation (would be more sophisticated in real implementation)
+      let baseValue = 1000000; // Default base value
+      
+      // Adjust based on make/model (simplified)
+      const premiumMakes = ['bmw', 'mercedes', 'audi', 'lexus', 'land rover'];
+      const popularMakes = ['toyota', 'nissan', 'honda', 'mazda', 'subaru'];
+      
+      if (premiumMakes.includes(data.make.toLowerCase())) {
+        baseValue = 2500000;
+      } else if (popularMakes.includes(data.make.toLowerCase())) {
+        baseValue = 1500000;
+      }
+
+      // Adjust for engine size
+      if (data.engineSize && data.engineSize > 2500) {
+        baseValue *= 1.3;
+      } else if (data.engineSize && data.engineSize > 2000) {
+        baseValue *= 1.2;
+      }
+
+      // Calculate depreciation
+      const depreciationRate = Math.min(0.15 * vehicleAge, 0.8); // Max 80% depreciation
+      const depreciationDeduction = baseValue * depreciationRate;
+
+      // Condition adjustments
+      const conditionMultipliers = {
+        excellent: 0.1,
+        good: 0,
+        fair: -0.15,
+        poor: -0.3,
+      };
+      const conditionAdjustment = baseValue * (conditionMultipliers[data.condition] || 0);
+
+      // Mileage adjustments (assuming average 15,000 km/year)
+      const expectedMileage = vehicleAge * 15000;
+      const mileageDiff = data.mileage - expectedMileage;
+      const mileageAdjustment = mileageDiff > 0 ? -Math.abs(mileageDiff) * 2 : Math.abs(mileageDiff) * 1; // Penalize high mileage more
+
+      // Market demand factor (simplified)
+      const marketAdjustment = popularMakes.includes(data.make.toLowerCase()) ? baseValue * 0.05 : 0;
+
+      // Calculate final values
+      const marketValue = Math.max(50000, baseValue - depreciationDeduction + conditionAdjustment + mileageAdjustment + marketAdjustment);
+      const tradeInValue = marketValue * 0.75; // Trade-in typically 75% of market value
+      const privatePartyValue = marketValue * 0.95; // Private party 95% of market value  
+      const dealerRetailValue = marketValue * 1.25; // Dealer retail 125% of market value
+
+      const evaluationData = {
+        ...data,
+        evaluationNumber,
+        marketValue: Math.round(marketValue),
+        tradeInValue: Math.round(tradeInValue),
+        privatePartyValue: Math.round(privatePartyValue),
+        dealerRetailValue: Math.round(dealerRetailValue),
+        depreciationFactor: depreciationRate,
+        conditionAdjustment: Math.round(conditionAdjustment),
+        mileageAdjustment: Math.round(mileageAdjustment),
+        marketDemandFactor: Math.round(marketAdjustment),
+        status: 'completed' as const,
+        evaluatedAt: new Date(),
+      };
+
+      const [evaluation] = await db.insert(tradeInEvaluations).values(evaluationData).returning();
+
+      res.json({
+        evaluationNumber: evaluation.evaluationNumber,
+        marketValue: evaluation.marketValue,
+        tradeInValue: evaluation.tradeInValue,
+        privatePartyValue: evaluation.privatePartyValue,
+        dealerRetailValue: evaluation.dealerRetailValue,
+        depreciationFactor: evaluation.depreciationFactor,
+        conditionAdjustment: evaluation.conditionAdjustment,
+        mileageAdjustment: evaluation.mileageAdjustment,
+        marketDemandFactor: evaluation.marketDemandFactor,
+        factorsBreakdown: {
+          baseValue: Math.round(baseValue),
+          depreciationDeduction: Math.round(depreciationDeduction),
+          conditionAdjustment: evaluation.conditionAdjustment,
+          mileageAdjustment: evaluation.mileageAdjustment,
+          marketAdjustment: evaluation.marketDemandFactor,
+        }
+      });
+    } catch (error) {
+      console.error('Error processing trade-in evaluation:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid evaluation data', details: error.errors });
+      }
+      res.status(500).json({ error: 'Failed to process evaluation' });
     }
   });
 

@@ -170,7 +170,7 @@ export default function Home() {
             {/* Left Side - Vehicle Search Filter */}
             <div className="lg:col-span-1">
               <div className="bg-gray-50 border border-gray-200 rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Find Your Car</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Buy used cars online</h3>
                 
                 <div className="space-y-4">
                   <div>
@@ -272,7 +272,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Main Tools Section */}
       <section className="max-w-6xl mx-auto px-4 py-8">
         <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
@@ -298,7 +297,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Simple Contact Section */}
       <section className="bg-purple-600 text-white">
         <div className="max-w-6xl mx-auto px-4 py-8 text-center">

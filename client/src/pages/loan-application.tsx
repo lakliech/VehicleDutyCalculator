@@ -79,24 +79,6 @@ export default function LoanApplicationPage() {
     refetchOnWindowFocus: true,
   });
 
-  // Redirect if not authenticated
-  if (!authLoading && !authStatus?.authenticated) {
-    setLocation('/');
-    return null;
-  }
-
-  // Show loading while checking authentication
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
-
   // Fetch vehicle details
   const { data: vehicleData, isLoading: loadingVehicle } = useQuery({
     queryKey: ['/api/car-listings', carId, 'details'],
@@ -163,6 +145,24 @@ export default function LoanApplicationPage() {
       });
     }
   });
+
+  // Redirect if not authenticated
+  if (!authLoading && !authStatus?.authenticated) {
+    setLocation('/');
+    return null;
+  }
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   const onSubmit = (data: LoanApplicationForm) => {
     submitApplicationMutation.mutate(data);

@@ -185,9 +185,44 @@ export default function LoanApplicationPage() {
     submitApplicationMutation.mutate(data);
   };
 
-  const nextStep = () => {
-    if (currentStep < totalSteps) {
+  const nextStep = async () => {
+    console.log("=== NEXTSTEP FUNCTION CALLED ===");
+    console.log("Next button clicked, current step:", currentStep);
+    
+    // Validate current step before proceeding
+    let fieldsToValidate: string[] = [];
+    
+    switch (currentStep) {
+      case 1:
+        fieldsToValidate = ['applicantName', 'applicantEmail', 'applicantPhone', 'nationalId', 'dateOfBirth', 'maritalStatus'];
+        break;
+      case 2:
+        fieldsToValidate = ['employmentStatus', 'monthlyIncome'];
+        break;
+      case 3:
+        fieldsToValidate = ['requestedAmount', 'downPaymentAmount', 'preferredTenureMonths'];
+        break;
+    }
+    
+    console.log("Fields to validate:", fieldsToValidate);
+    
+    // Trigger validation for current step
+    const isValid = await form.trigger(fieldsToValidate);
+    console.log("Validation result:", isValid);
+    
+    if (isValid && currentStep < totalSteps) {
+      console.log("Skipping validation, directly advancing step");
+      console.log("Moving to next step:", currentStep + 1);
+      console.log("setCurrentStep called, prev:", currentStep, "new:", currentStep + 1);
       setCurrentStep(currentStep + 1);
+      console.log("Step update call completed");
+    } else if (!isValid) {
+      console.log("Validation failed, showing errors");
+      toast({
+        title: "Please complete all required fields",
+        description: "Fill in all required information before proceeding to the next step.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -679,7 +714,11 @@ export default function LoanApplicationPage() {
                       </Button>
                       
                       {currentStep < totalSteps ? (
-                        <Button type="button" onClick={nextStep}>
+                        <Button type="button" onClick={() => {
+                          console.log("=== DIRECT NEXT CLICKED ===");
+                          console.log("About to call nextStep()");
+                          nextStep();
+                        }}>
                           Next
                         </Button>
                       ) : (

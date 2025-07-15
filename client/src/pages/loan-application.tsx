@@ -205,24 +205,29 @@ export default function LoanApplicationPage() {
   };
 
   const nextStep = async () => {
-    console.log('=== NEXTSTEP FUNCTION CALLED ===');
-    console.log('Next button clicked, current step:', currentStep);
+    setIsValidating(true);
     
-    // Skip validation entirely for testing
     try {
-      console.log('Skipping validation, directly advancing step');
-      if (currentStep < totalSteps) {
-        console.log('Moving to next step:', currentStep + 1);
-        setCurrentStep(prev => {
-          console.log('setCurrentStep called, prev:', prev, 'new:', prev + 1);
-          return prev + 1;
+      // Get fields for current step validation
+      const fieldsToValidate = getFieldsForStep(currentStep);
+      
+      // Validate current step fields
+      const isStepValid = await form.trigger(fieldsToValidate);
+      
+      if (isStepValid && currentStep < totalSteps) {
+        setCurrentStep(currentStep + 1);
+      } else if (!isStepValid) {
+        // Show validation errors
+        toast({
+          title: "Please complete all required fields",
+          description: "Fill in all required fields before proceeding to the next step.",
+          variant: "destructive",
         });
-        console.log('Step update call completed');
-      } else {
-        console.log('Already at last step');
       }
     } catch (error) {
       console.error('Error in nextStep:', error);
+    } finally {
+      setIsValidating(false);
     }
   };
 
@@ -336,20 +341,6 @@ export default function LoanApplicationPage() {
               </CardHeader>
               
               <CardContent>
-                {/* Reset to Step 1 for testing */}
-                <div className="mb-4 p-3 bg-blue-100 border border-blue-300 rounded">
-                  <button 
-                    onClick={() => {
-                      console.log('=== RESET TO STEP 1 ===');
-                      setCurrentStep(1);
-                    }}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mr-2"
-                  >
-                    Reset to Step 1
-                  </button>
-                  <span className="text-sm text-blue-800">Current: Step {currentStep} of {totalSteps}</span>
-                </div>
-                
                 <Form {...form}>
                   <form onSubmit={(e) => {
                     e.preventDefault();
@@ -754,42 +745,18 @@ export default function LoanApplicationPage() {
                   </button>
                   
                   {currentStep < totalSteps ? (
-                    <div className="space-y-2">
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          console.log('=== DIRECT NEXT CLICKED ===');
-                          console.log('About to call nextStep()');
-                          nextStep();
-                        }}
-                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium mr-2"
-                      >
-                        Direct Next
-                      </button>
-                      <button 
-                        type="button"
-                        onMouseDown={() => console.log('Mouse down on Next button')}
-                        onMouseUp={() => console.log('Mouse up on Next button')}
-                        onClick={(e) => {
-                          console.log('=== NEXT BUTTON CLICKED ===');
-                          console.log('Event object:', e);
-                          console.log('Current step:', currentStep);
-                          console.log('Total steps:', totalSteps);
-                          console.log('isValidating:', isValidating);
-                          e.preventDefault();
-                          e.stopPropagation();
-                          nextStep();
-                        }}
-                        disabled={isValidating}
-                        className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
-                      >
-                        {isValidating ? (
-                          <>⏳ Validating...</>
-                        ) : (
-                          `Next (Step ${currentStep})`
-                        )}
-                      </button>
-                    </div>
+                    <button 
+                      type="button"
+                      onClick={nextStep}
+                      disabled={isValidating}
+                      className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
+                    >
+                      {isValidating ? (
+                        <>⏳ Validating...</>
+                      ) : (
+                        'Next'
+                      )}
+                    </button>
                   ) : (
                     <button
                       type="button"

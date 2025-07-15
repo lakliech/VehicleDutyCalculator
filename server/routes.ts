@@ -58,7 +58,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
-import { sql, eq, desc, and, or } from "drizzle-orm";
+import { sql, eq, desc, and, or, gte } from "drizzle-orm";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 import ListingQualityAssessment, { triggerQualityAssessment } from './quality-assessment';
@@ -7069,56 +7069,64 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       }
       
       const vehicle = listing[0];
+      const vehiclePrice = parseFloat(vehicle.price.toString());
       
       // Get all active loan products
-      const loanProducts = await db.select({
-        id: loanProductsTable.id,
-        bankName: banksTable.bankName,
-        bankCode: banksTable.bankCode,
-        productName: loanProductsTable.productName,
-        productType: loanProductsTable.productType,
-        minInterestRate: loanProductsTable.minInterestRate,
-        maxInterestRate: loanProductsTable.maxInterestRate,
-        minLoanAmount: loanProductsTable.minLoanAmount,
-        maxLoanAmount: loanProductsTable.maxLoanAmount,
-        minTenureMonths: loanProductsTable.minTenureMonths,
-        maxTenureMonths: loanProductsTable.maxTenureMonths,
-        processingFeePercentage: loanProductsTable.processingFeePercentage,
-        requiresDownPayment: loanProductsTable.requiresDownPayment,
-        minDownPaymentPercentage: loanProductsTable.minDownPaymentPercentage,
-        maxLtvRatio: loanProductsTable.maxLtvRatio,
-        eligibilityRequirements: loanProductsTable.eligibilityRequirements,
-        features: loanProductsTable.features,
-        contactInfo: banksTable.contactEmail,
-        contactPhone: banksTable.contactPhone
+      const financialProducts = await db.select({
+        id: loanProducts.id,
+        bankName: bankPartners.bankName,
+        bankCode: bankPartners.bankCode,
+        productName: loanProducts.productName,
+        productType: loanProducts.productType,
+        minInterestRate: loanProducts.minInterestRate,
+        maxInterestRate: loanProducts.maxInterestRate,
+        minLoanAmount: loanProducts.minLoanAmount,
+        maxLoanAmount: loanProducts.maxLoanAmount,
+        minTenureMonths: loanProducts.minTenureMonths,
+        maxTenureMonths: loanProducts.maxTenureMonths,
+        processingFeeRate: loanProducts.processingFeeRate,
+        minDownPaymentPercentage: loanProducts.minDownPaymentPercentage,
+        maxFinancingPercentage: loanProducts.maxFinancingPercentage,
+        eligibilityCriteria: loanProducts.eligibilityCriteria,
+        features: loanProducts.features,
+        contactInfo: bankPartners.contactEmail,
+        contactPhone: bankPartners.contactPhone
       })
-      .from(loanProductsTable)
-      .innerJoin(banksTable, eq(loanProductsTable.bankId, banksTable.id))
+      .from(loanProducts)
+      .innerJoin(bankPartners, eq(loanProducts.bankId, bankPartners.id))
       .where(and(
-        eq(loanProductsTable.isActive, true),
-        eq(banksTable.isActive, true),
+        eq(loanProducts.isActive, true),
+        eq(bankPartners.isActive, true),
         or(
-          eq(loanProductsTable.productType, 'auto_loan'),
-          eq(loanProductsTable.productType, 'asset_finance')
+          eq(loanProducts.productType, 'new_vehicle'),
+          eq(loanProducts.productType, 'used_vehicle'),
+          eq(loanProducts.productType, 'auto_loan'),
+          eq(loanProducts.productType, 'asset_finance'),
+          eq(loanProducts.productType, 'vehicle_loan')
         ),
-        gte(loanProductsTable.maxLoanAmount, vehicle.price * 0.5) // Show products that can finance at least 50% of vehicle price
+        gte(loanProducts.maxLoanAmount, vehiclePrice * 0.5) // Show products that can finance at least 50% of vehicle price
       ));
       
       // Calculate personalized loan options for each product
-      const personalizedProducts = loanProducts.map(product => {
-        const loanAmount = Math.min(vehicle.price * (product.maxLtvRatio / 100), product.maxLoanAmount);
-        const downPayment = vehicle.price - loanAmount;
-        const processingFee = (loanAmount * (product.processingFeePercentage || 2)) / 100;
+      const personalizedProducts = financialProducts.map(product => {
+        const maxFinancingPercentage = parseFloat(product.maxFinancingPercentage.toString());
+        const maxLoanAmount = parseFloat(product.maxLoanAmount.toString());
+        const minInterestRate = parseFloat(product.minInterestRate.toString());
+        const processingFeeRate = parseFloat(product.processingFeeRate?.toString() || '0.02');
+        
+        const loanAmount = Math.min(vehiclePrice * maxFinancingPercentage, maxLoanAmount);
+        const downPayment = vehiclePrice - loanAmount;
+        const processingFee = loanAmount * processingFeeRate;
         
         // Calculate monthly payment (approximate)
-        const monthlyRate = (product.minInterestRate / 100) / 12;
+        const monthlyRate = (minInterestRate / 100) / 12;
         const months = product.maxTenureMonths;
         const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
                               (Math.pow(1 + monthlyRate, months) - 1);
         
         return {
           ...product,
-          vehiclePrice: vehicle.price,
+          vehiclePrice: vehiclePrice,
           recommendedLoanAmount: Math.round(loanAmount),
           recommendedDownPayment: Math.round(downPayment),
           estimatedProcessingFee: Math.round(processingFee),
@@ -7135,11 +7143,11 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         const currentYear = new Date().getFullYear();
         const vehicleAge = currentYear - vehicle.year;
         const depreciationRate = Math.min(0.15 * vehicleAge, 0.65); // 15% per year, max 65%
-        const baseTradeInValue = vehicle.price * (1 - depreciationRate);
+        const baseTradeInValue = vehiclePrice * (1 - depreciationRate);
         
         tradeInEstimate = {
           estimatedValue: Math.round(baseTradeInValue),
-          marketValue: vehicle.price,
+          marketValue: vehiclePrice,
           depreciationRate: depreciationRate * 100,
           vehicleAge,
           notes: `Estimated based on ${depreciationRate * 100}% depreciation for ${vehicleAge}-year-old vehicle`

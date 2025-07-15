@@ -18,7 +18,8 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Car, CreditCard, User, MapPin, FileText, Calculator, Check, Clock, AlertCircle } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 
-const loanApplicationSchema = z.object({
+// Frontend form schema - extends the shared schema for form validation
+const loanApplicationFormSchema = z.object({
   applicantName: z.string().min(2, "Name must be at least 2 characters"),
   applicantEmail: z.string().email("Valid email required"),
   applicantPhone: z.string().min(10, "Valid phone number required"),
@@ -37,7 +38,7 @@ const loanApplicationSchema = z.object({
   additionalNotes: z.string().optional()
 });
 
-type LoanApplicationForm = z.infer<typeof loanApplicationSchema>;
+type LoanApplicationForm = z.infer<typeof loanApplicationFormSchema>;
 
 interface LoanProduct {
   id: number;
@@ -91,7 +92,7 @@ export default function LoanApplicationPage() {
   });
 
   const form = useForm<LoanApplicationForm>({
-    resolver: zodResolver(loanApplicationSchema),
+    resolver: zodResolver(loanApplicationFormSchema),
     defaultValues: {
       applicantName: '',
       applicantEmail: '',
@@ -178,10 +179,10 @@ export default function LoanApplicationPage() {
     const transformedData = {
       ...data,
       dateOfBirth: new Date(data.dateOfBirth),
-      monthlyIncome: data.monthlyIncome.toString(),
-      monthlyExpenses: data.monthlyExpenses ? data.monthlyExpenses.toString() : "0",
-      requestedAmount: data.requestedAmount.toString(),
-      downPaymentAmount: data.downPaymentAmount.toString(),
+      monthlyIncome: data.monthlyIncome, // Keep as number
+      monthlyExpenses: data.monthlyExpenses || 0, // Keep as number
+      requestedAmount: data.requestedAmount, // Keep as number
+      downPaymentAmount: data.downPaymentAmount, // Keep as number
       userId: authStatus?.user?.id,
       vehicleListingId: parseInt(carId!),
       loanProductId: parseInt(productId!)

@@ -72,6 +72,9 @@ export default function LoanApplicationPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
   
+  // Loan calculation state
+  const [loanCalculation, setLoanCalculation] = useState(null);
+  
   // Check authentication status
   const { data: authStatus, isLoading: authLoading } = useQuery({
     queryKey: ['/api/auth/status'],
@@ -126,8 +129,51 @@ export default function LoanApplicationPage() {
       
       // Auto-set preferred tenure to product's maximum tenure
       form.setValue('preferredTenureMonths', product.maxTenureMonths);
+      
+      // Automatically calculate loan details with default values
+      calculateLoanMutation.mutate({
+        listingId: carId!,
+        productId: productId!,
+        requestedAmount: Math.round(maxLoanAmount),
+        downPayment: Math.round(minDownPayment),
+        tenure: product.maxTenureMonths
+      });
     }
-  }, [vehicleData, loanProduct, form]);
+  }, [vehicleData, loanProduct, form, carId, productId]);
+
+  // Function to recalculate loan
+  const recalculateLoan = () => {
+    const formValues = form.getValues();
+    calculateLoanMutation.mutate({
+      listingId: carId!,
+      productId: productId!,
+      requestedAmount: formValues.requestedAmount,
+      downPayment: formValues.downPaymentAmount,
+      tenure: formValues.preferredTenureMonths
+    });
+  };
+
+  // Loan calculation mutation
+  const calculateLoanMutation = useMutation({
+    mutationFn: async (data: { listingId: string; productId: string; requestedAmount?: number; downPayment?: number; tenure?: number }) => {
+      const response = await apiRequest('POST', '/api/calculate-loan', data);
+      return response;
+    },
+    onSuccess: (data) => {
+      setLoanCalculation(data);
+      toast({
+        title: "Loan Calculated Successfully!",
+        description: `Monthly payment: KES ${data.loanDetails.monthlyPayment.toLocaleString()}`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Calculation Failed",
+        description: error.message || "Failed to calculate loan details. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
 
   // Submit mutation
   const submitApplicationMutation = useMutation({
@@ -502,69 +548,6 @@ export default function LoanApplicationPage() {
                       </div>
                     )}
 
-                    {/* Step 3: Loan Details */}
-                    {currentStep === 3 && (
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="requestedAmount"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Requested Loan Amount (KES) *</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    placeholder="1000000"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="downPaymentAmount"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Down Payment (KES) *</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    placeholder="200000"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <FormField
-                          control={form.control}
-                          name="preferredTenureMonths"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Preferred Loan Tenure (Months) *</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="60"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-
-                      </div>
-                    )}
-
                     {/* Step 3: Review */}
                     {currentStep === 3 && (
                       <div className="space-y-6">
@@ -584,6 +567,18 @@ export default function LoanApplicationPage() {
                               <p><strong>Loan Amount:</strong> KES {form.watch('requestedAmount')?.toLocaleString()}</p>
                               <p><strong>Down Payment:</strong> KES {form.watch('downPaymentAmount')?.toLocaleString()}</p>
                             </div>
+                          </div>
+                          
+                          {/* Recalculate button */}
+                          <div className="mt-4 text-center">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={recalculateLoan}
+                              disabled={calculateLoanMutation.isPending}
+                            >
+                              {calculateLoanMutation.isPending ? 'Calculating...' : 'Recalculate Loan'}
+                            </Button>
                           </div>
                         </div>
 
@@ -683,6 +678,73 @@ export default function LoanApplicationPage() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Loan Calculation Results */}
+            {loanCalculation && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Check className="h-5 w-5 mr-2" />
+                    Loan Calculation
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3 text-sm">
+                    <div className="border-b pb-2">
+                      <p><strong>Monthly Payment:</strong> KES {loanCalculation.loanDetails.monthlyPayment.toLocaleString()}</p>
+                      <p><strong>Loan Amount:</strong> KES {loanCalculation.loanDetails.requestedAmount.toLocaleString()}</p>
+                      <p><strong>Down Payment:</strong> KES {loanCalculation.loanDetails.downPayment.toLocaleString()}</p>
+                      <p><strong>Tenure:</strong> {loanCalculation.loanDetails.tenure} months</p>
+                    </div>
+                    
+                    <div className="border-b pb-2">
+                      <p><strong>Total Interest:</strong> KES {loanCalculation.loanDetails.totalInterest.toLocaleString()}</p>
+                      <p><strong>Total Payable:</strong> KES {loanCalculation.loanDetails.totalPayable.toLocaleString()}</p>
+                    </div>
+                    
+                    <div className="border-b pb-2">
+                      <p><strong>Processing Fee:</strong> KES {loanCalculation.fees.processingFee.toLocaleString()}</p>
+                      <p><strong>Insurance Cost:</strong> KES {loanCalculation.fees.insuranceCost.toLocaleString()}</p>
+                      <p><strong>Transfer Fee:</strong> KES {loanCalculation.fees.transferFee.toLocaleString()}</p>
+                      <p><strong>Registration Fee:</strong> KES {loanCalculation.fees.registrationFee.toLocaleString()}</p>
+                    </div>
+                    
+                    <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded">
+                      <p className="font-semibold text-purple-800 dark:text-purple-200">
+                        <strong>Total Initial Cost:</strong> KES {loanCalculation.fees.totalInitialCost.toLocaleString()}
+                      </p>
+                      <p className="text-purple-700 dark:text-purple-300">
+                        <strong>Total Vehicle Cost:</strong> KES {loanCalculation.summary.totalCost.toLocaleString()}
+                      </p>
+                    </div>
+                    
+                    <div className="mt-3">
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        <strong>Required Monthly Income:</strong> KES {loanCalculation.affordability.requiredMonthlyIncome.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        <strong>Debt-to-Income Ratio:</strong> {loanCalculation.affordability.debtToIncomeRatio}%
+                      </p>
+                      <div className={`text-xs mt-1 ${loanCalculation.affordability.isAffordable ? 'text-green-600' : 'text-red-600'}`}>
+                        {loanCalculation.affordability.isAffordable ? '✓ Affordable' : '⚠ High debt ratio'}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Calculation Loading State */}
+            {calculateLoanMutation.isPending && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                    <p className="mt-2 text-sm text-gray-600">Calculating loan details...</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

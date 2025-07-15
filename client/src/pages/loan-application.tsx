@@ -128,12 +128,14 @@ export default function LoanApplicationPage() {
     mutationFn: async (data: LoanApplicationForm) => {
       return apiRequest('POST', '/api/financial/loan-application', {
         ...data,
+        userId: authStatus?.user?.id,
+        dateOfBirth: new Date(data.dateOfBirth).toISOString(),
         loanProductId: parseInt(productId!),
         vehicleListingId: carId ? parseInt(carId) : null,
         vehicleMake: vehicleData?.make,
         vehicleModel: vehicleData?.model,
         vehicleYear: vehicleData?.year,
-        vehiclePrice: vehicleData?.price
+        vehiclePrice: vehicleData?.price?.toString()
       });
     },
     onSuccess: (response) => {

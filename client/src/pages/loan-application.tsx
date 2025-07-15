@@ -93,7 +93,7 @@ export default function LoanApplicationPage() {
 
   const form = useForm<LoanApplicationForm>({
     resolver: zodResolver(loanApplicationSchema),
-    mode: 'onChange',
+    mode: 'onSubmit',  // Only validate on submit, not on change
     defaultValues: {
       applicantName: '',
       applicantEmail: '',
@@ -289,7 +289,7 @@ export default function LoanApplicationPage() {
               
               <CardContent>
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
                     {/* Step 1: Personal Information */}
                     {currentStep === 1 && (
                       <div className="space-y-6">

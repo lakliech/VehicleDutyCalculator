@@ -54,7 +54,8 @@ import {
   loanProducts,
   loanApplications,
   tradeInEvaluations,
-  loanCalculations
+  loanCalculations,
+  savedSearches
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -2293,10 +2294,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const results = await db
         .select()
         .from(savedSearches)
-        .where(and(
-          eq(savedSearches.userId, userId),
-          eq(savedSearches.isActive, true)
-        ))
+        .where(eq(savedSearches.userId, userId))
         .orderBy(desc(savedSearches.createdAt));
 
       res.json(results);

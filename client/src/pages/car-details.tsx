@@ -615,11 +615,12 @@ export default function CarDetails() {
                                         onClick={() => {
                                           // Check if user is authenticated before allowing loan application
                                           if (!isAuthenticated) {
-                                            toast({
-                                              title: "Authentication Required",
-                                              description: "Please sign in to apply for a loan",
-                                              variant: "destructive",
-                                            });
+                                            // Store the intended destination for post-auth redirect
+                                            const returnUrl = `/loan-application/${id}/${product.id}`;
+                                            localStorage.setItem('returnUrl', returnUrl);
+                                            
+                                            // Redirect to Google OAuth with return URL
+                                            window.location.href = `/api/auth/google?returnUrl=${encodeURIComponent(returnUrl)}`;
                                             return;
                                           }
                                           setLocation(`/loan-application/${id}/${product.id}`);

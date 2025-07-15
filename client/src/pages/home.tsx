@@ -138,28 +138,7 @@ export default function Home() {
     window.location.href = `/buy-a-car${params.toString() ? '?' + params.toString() : ''}`;
   };
 
-  // Handle OAuth success/error messages
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const social = urlParams.get('social');
-    const success = urlParams.get('success');
-    const error = urlParams.get('error');
-
-    if (social === 'google' && success === 'true') {
-      toast({
-        title: "Login Successful",
-        description: "You have been logged in with Google successfully!",
-      });
-      window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (error === 'auth_failed') {
-      toast({
-        title: "Authentication Failed",
-        description: "Google authentication failed. Please try again.",
-        variant: "destructive",
-      });
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, [toast]);
+  // OAuth handling is now done globally in App.tsx via useAuthRedirect
 
   return (
     <div className="min-h-screen bg-gray-50">

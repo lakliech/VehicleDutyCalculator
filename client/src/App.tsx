@@ -40,8 +40,10 @@ import MyMessages from "@/pages/my-messages";
 import Messages from "@/pages/messages";
 import { ResetPassword } from "@/pages/reset-password";
 import { AuthProvider } from "@/components/auth-provider";
+import { useAuthRedirect } from "@/hooks/use-auth-redirect";
 
 function Router() {
+  useAuthRedirect();  // Handle OAuth redirects globally
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />

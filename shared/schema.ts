@@ -469,9 +469,9 @@ export const loanProducts = pgTable("loan_products", {
   maxInterestRate: decimal("max_interest_rate", { precision: 5, scale: 2 }).notNull(),
   minTenureMonths: integer("min_tenure_months").notNull(),
   maxTenureMonths: integer("max_tenure_months").notNull(),
-  maxFinancingPercentage: decimal("max_financing_percentage", { precision: 5, scale: 2 }).notNull(), // 80% = 0.80
-  minDownPaymentPercentage: decimal("min_down_payment_percentage", { precision: 5, scale: 2 }).notNull(),
-  processingFeeRate: decimal("processing_fee_rate", { precision: 5, scale: 4 }), // As percentage of loan amount
+  maxFinancingPercentage: decimal("max_financing_percentage", { precision: 6, scale: 2 }).notNull(), // 80% = 80.00 or 0.80
+  minDownPaymentPercentage: decimal("min_down_payment_percentage", { precision: 6, scale: 2 }).notNull(),
+  processingFeeRate: decimal("processing_fee_rate", { precision: 6, scale: 2 }), // As percentage of loan amount
   processingFeeFixed: decimal("processing_fee_fixed", { precision: 10, scale: 2 }), // Fixed amount
   insuranceRequired: boolean("insurance_required").default(true),
   guarantorRequired: boolean("guarantor_required").default(false),

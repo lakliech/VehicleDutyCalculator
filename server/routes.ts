@@ -6816,7 +6816,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   // Get all loan products for admin management
   app.get('/api/admin/financial/loan-products', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
-      const products = await db.select({
+      const dbProducts = await db.select({
         id: loanProducts.id,
         bankId: loanProducts.bankId,
         productName: loanProducts.productName,
@@ -6845,6 +6845,15 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       }).from(loanProducts)
         .leftJoin(bankPartners, eq(loanProducts.bankId, bankPartners.id))
         .orderBy(bankPartners.bankName, loanProducts.productName);
+      
+      // Map database fields to frontend expected field names
+      const products = dbProducts.map(product => ({
+        ...product,
+        maxLtvRatio: product.maxFinancingPercentage, // Map to frontend field name
+        processingFeePercentage: product.processingFeeRate, // Map to frontend field name
+        eligibilityRequirements: product.eligibilityCriteria, // Map to frontend field name
+      }));
+      
       res.json(products);
     } catch (error) {
       console.error('Error fetching loan products for admin:', error);
@@ -6855,7 +6864,33 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   // Create new loan product
   app.post('/api/admin/financial/loan-products', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
-      const productData = req.body;
+      const formData = req.body;
+      
+      // Map frontend form fields to database fields
+      const productData = {
+        bankId: formData.bankId,
+        productName: formData.productName,
+        productType: formData.productType,
+        minLoanAmount: formData.minLoanAmount,
+        maxLoanAmount: formData.maxLoanAmount,
+        minInterestRate: formData.minInterestRate,
+        maxInterestRate: formData.maxInterestRate,
+        minTenureMonths: formData.minTenureMonths,
+        maxTenureMonths: formData.maxTenureMonths,
+        maxFinancingPercentage: formData.maxLtvRatio, // Frontend field name: maxLtvRatio
+        minDownPaymentPercentage: formData.minDownPaymentPercentage,
+        processingFeeRate: formData.processingFeePercentage, // Frontend field name: processingFeePercentage
+        processingFeeFixed: formData.processingFeeFixed,
+        insuranceRequired: formData.insuranceRequired,
+        guarantorRequired: formData.guarantorRequired,
+        minMonthlyIncome: formData.minMonthlyIncome,
+        maxAge: formData.maxAge,
+        eligibilityCriteria: formData.eligibilityRequirements, // Frontend field name: eligibilityRequirements
+        requiredDocuments: formData.requiredDocuments,
+        features: formData.features,
+        isActive: formData.isActive,
+      };
+      
       const [newProduct] = await db.insert(loanProducts).values(productData).returning();
       res.json(newProduct);
     } catch (error) {
@@ -6868,9 +6903,36 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   app.put('/api/admin/financial/loan-products/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const productData = req.body;
+      const formData = req.body;
+      
+      // Map frontend form fields to database fields
+      const productData = {
+        bankId: formData.bankId,
+        productName: formData.productName,
+        productType: formData.productType,
+        minLoanAmount: formData.minLoanAmount,
+        maxLoanAmount: formData.maxLoanAmount,
+        minInterestRate: formData.minInterestRate,
+        maxInterestRate: formData.maxInterestRate,
+        minTenureMonths: formData.minTenureMonths,
+        maxTenureMonths: formData.maxTenureMonths,
+        maxFinancingPercentage: formData.maxLtvRatio, // Frontend field name: maxLtvRatio
+        minDownPaymentPercentage: formData.minDownPaymentPercentage,
+        processingFeeRate: formData.processingFeePercentage, // Frontend field name: processingFeePercentage
+        processingFeeFixed: formData.processingFeeFixed,
+        insuranceRequired: formData.insuranceRequired,
+        guarantorRequired: formData.guarantorRequired,
+        minMonthlyIncome: formData.minMonthlyIncome,
+        maxAge: formData.maxAge,
+        eligibilityCriteria: formData.eligibilityRequirements, // Frontend field name: eligibilityRequirements
+        requiredDocuments: formData.requiredDocuments,
+        features: formData.features,
+        isActive: formData.isActive,
+        updatedAt: new Date(),
+      };
+      
       const [updatedProduct] = await db.update(loanProducts)
-        .set({ ...productData, updatedAt: new Date() })
+        .set(productData)
         .where(eq(loanProducts.id, parseInt(id)))
         .returning();
       res.json(updatedProduct);

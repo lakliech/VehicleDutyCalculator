@@ -175,14 +175,14 @@ export default function LoanApplicationPage() {
   }
 
   const onSubmit = (data: LoanApplicationForm) => {
-    // Transform data to match backend schema expectations
+    // Transform data to match backend schema expectations - the backend schema uses .extend() which expects numbers
     const transformedData = {
       ...data,
-      dateOfBirth: new Date(data.dateOfBirth),
-      monthlyIncome: data.monthlyIncome.toString(), // Convert to string for decimal field
+      dateOfBirth: data.dateOfBirth, // Keep as string - createInsertSchema expects string for timestamp
+      monthlyIncome: data.monthlyIncome, // Keep as number - .extend() overrides to expect number
       monthlyExpenses: data.monthlyExpenses ? data.monthlyExpenses.toString() : undefined, // Convert to string for decimal field
-      requestedAmount: data.requestedAmount.toString(), // Convert to string for decimal field
-      downPaymentAmount: data.downPaymentAmount.toString(), // Convert to string for decimal field
+      requestedAmount: data.requestedAmount, // Keep as number - .extend() overrides to expect number
+      downPaymentAmount: data.downPaymentAmount, // Keep as number - .extend() overrides to expect number
       userId: authStatus?.user?.id,
       vehicleListingId: parseInt(carId!),
       loanProductId: parseInt(productId!)

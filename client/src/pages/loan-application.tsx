@@ -104,33 +104,42 @@ export default function LoanApplicationPage() {
 
   // Set default loan amount when vehicle price is available
   useEffect(() => {
-    console.log('Vehicle data check:', { vehicleData, loanProduct });
-    console.log('Full vehicle data structure:', vehicleData);
-    if (vehicleData && loanProduct) {
-      // Check if vehicleData.price exists, else use vehicleData.priceKes
-      const rawPrice = vehicleData.price || vehicleData.priceKes;
-      console.log('Raw price value:', rawPrice, 'Vehicle data keys:', Object.keys(vehicleData));
-      console.log('Full vehicle object:', vehicleData);
+    console.log('Debug vehicle data:', vehicleData);
+    console.log('Debug loan product:', loanProduct);
+    
+    if (vehicleData && loanProduct && Array.isArray(loanProduct) && loanProduct.length > 0) {
+      // Try different possible price field names
+      const possiblePriceFields = ['priceKes', 'price', 'listingPrice', 'amount'];
+      let vehiclePrice = null;
       
-      const vehiclePrice = parseFloat(rawPrice);
-      const maxFinancing = parseFloat(loanProduct.maxFinancingPercentage);
-      const minDownPayment = parseFloat(loanProduct.minDownPaymentPercentage);
+      for (const field of possiblePriceFields) {
+        if (vehicleData[field] !== undefined && vehicleData[field] !== null) {
+          vehiclePrice = parseFloat(vehicleData[field]);
+          console.log(`Found price in field "${field}":`, vehiclePrice);
+          break;
+        }
+      }
       
-      // The requested amount should be the full vehicle price initially
+      // Get the first loan product from the array
+      const selectedProduct = loanProduct[0];
+      const maxFinancing = parseFloat(selectedProduct.maxFinancingPercentage);
+      const minDownPayment = parseFloat(selectedProduct.minDownPaymentPercentage);
+      
+      // Calculate loan amounts
       const requestedAmount = vehiclePrice;
       const minDownPaymentAmount = vehiclePrice * minDownPayment;
       
       console.log('Setting loan defaults:', {
-        vehicleData: vehicleData,
-        rawPrice,
+        allVehicleFields: Object.keys(vehicleData),
         vehiclePrice,
         requestedAmount,
         minDownPaymentAmount,
         maxFinancing,
-        minDownPayment
+        minDownPayment,
+        selectedProduct: selectedProduct.productName
       });
       
-      if (!isNaN(vehiclePrice)) {
+      if (!isNaN(vehiclePrice) && !isNaN(minDownPaymentAmount)) {
         form.setValue('requestedAmount', Math.round(requestedAmount));
         form.setValue('downPaymentAmount', Math.round(minDownPaymentAmount));
       }
@@ -506,7 +515,7 @@ export default function LoanApplicationPage() {
                                 <span className="font-medium">Financing for:</span> {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
                               </div>
                               <div className="font-bold text-purple-600">
-                                KES {parseFloat(vehicleData?.price || vehicleData?.priceKes || '0').toLocaleString()}
+                                KES {parseFloat(vehicleData?.priceKes || '0').toLocaleString()}
                               </div>
                             </div>
                           </AlertDescription>
@@ -638,7 +647,7 @@ export default function LoanApplicationPage() {
                               <p><span className="font-medium">Year:</span> {vehicleData?.year}</p>
                             </div>
                             <div>
-                              <p><span className="font-medium">Vehicle Price:</span> KES {parseFloat(vehicleData?.price || vehicleData?.priceKes || '0').toLocaleString()}</p>
+                              <p><span className="font-medium">Vehicle Price:</span> KES {parseFloat(vehicleData?.priceKes || '0').toLocaleString()}</p>
                               <p><span className="font-medium">Loan Bank:</span> {loanProduct?.bankName}</p>
                             </div>
                           </div>

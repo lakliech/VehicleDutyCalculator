@@ -192,7 +192,7 @@ export default function LoanApplicationPage() {
     console.log("Moving to next step:", currentStep + 1);
     setCurrentStep(prev => {
       console.log("setCurrentStep called, prev:", prev, "new:", prev + 1);
-      return prev + 1;
+      return Math.min(prev + 1, totalSteps);
     });
     console.log("Step update call completed");
   };
@@ -685,19 +685,30 @@ export default function LoanApplicationPage() {
                       </Button>
                       
                       {currentStep < totalSteps ? (
-                        <Button 
-                          type="button" 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            console.log("=== DIRECT NEXT CLICKED ===");
-                            console.log("About to call nextStep()");
-                            console.log("Current form values:", form.getValues());
-                            nextStep();
-                          }}
-                          className="bg-purple-600 hover:bg-purple-700"
-                        >
-                          Next
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            type="button" 
+                            onClick={() => {
+                              console.log("=== DIRECT NEXT CLICKED ===");
+                              console.log("About to call nextStep()");
+                              nextStep();
+                            }}
+                            className="bg-purple-600 hover:bg-purple-700"
+                          >
+                            Next
+                          </Button>
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              console.log("=== SIMPLE BUTTON CLICKED ===");
+                              setCurrentStep(currentStep + 1);
+                            }}
+                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                          >
+                            Test Next
+                          </button>
+                          <span className="ml-2 text-xs text-gray-500">Step {currentStep} of {totalSteps}</span>
+                        </div>
                       ) : (
                         <Button
                           type="submit"
@@ -718,32 +729,7 @@ export default function LoanApplicationPage() {
                   </form>
                 </Form>
                 
-                {/* Test button outside form */}
-                <div className="mt-4 p-4 bg-gray-100 rounded">
-                  <p className="text-sm mb-2">Debug: Test button outside form</p>
-                  <Button 
-                    onClick={() => {
-                      console.log("=== TEST BUTTON CLICKED ===");
-                      console.log("Current step:", currentStep);
-                      setCurrentStep(prev => {
-                        console.log("Test button - updating step from", prev, "to", prev + 1);
-                        return Math.min(prev + 1, totalSteps);
-                      });
-                    }}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Test Next Step
-                  </Button>
-                  <Button 
-                    onClick={() => {
-                      console.log("=== RESET TO STEP 1 ===");
-                      setCurrentStep(1);
-                    }}
-                    className="ml-2 bg-red-600 hover:bg-red-700"
-                  >
-                    Reset to Step 1
-                  </Button>
-                </div>
+
               </CardContent>
             </Card>
           </div>

@@ -177,7 +177,10 @@ export default function LoanApplicationPage() {
     }
   });
 
-  // Redirect to OAuth with return URL if not authenticated
+  // Handle authentication properly
+  const isAuthenticated = !authLoading && authStatus?.authenticated;
+  
+  // Only redirect if user is definitely not authenticated (not loading)
   if (!authLoading && !authStatus?.authenticated) {
     const currentUrl = window.location.pathname;
     localStorage.setItem('returnUrl', currentUrl);
@@ -338,7 +341,21 @@ export default function LoanApplicationPage() {
               </CardHeader>
               
               <CardContent>
-
+                {/* Quick Test - Check if ANY button works */}
+                <div className="mb-4 p-3 bg-green-100 border border-green-300 rounded">
+                  <button 
+                    onClick={() => {
+                      console.log('=== GREEN TEST BUTTON WORKS ===');
+                      console.log('Auth status:', authStatus?.authenticated);
+                      console.log('Auth loading:', authLoading);
+                      alert(`Green button clicked! Auth: ${authStatus?.authenticated}, Loading: ${authLoading}`);
+                    }}
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2"
+                  >
+                    Test Auth Status
+                  </button>
+                  <span className="text-sm text-green-800">Step {currentStep} of {totalSteps}</span>
+                </div>
                 
                 <Form {...form}>
                   <form onSubmit={(e) => {
@@ -726,51 +743,64 @@ export default function LoanApplicationPage() {
                     </div>
                     )}
 
-                    {/* Navigation Buttons */}
-                    <div className="flex justify-between pt-6">
-                      <button
-                        type="button"
-                        onClick={prevStep}
-                        disabled={currentStep === 1}
-                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Previous
-                      </button>
-                      
-                      {currentStep < totalSteps ? (
-                        <button 
-                          type="button"
-                          onClick={(e) => {
-                            console.log('=== NEXT BUTTON CLICKED ===');
-                            e.preventDefault();
-                            e.stopPropagation();
-                            nextStep();
-                          }}
-                          disabled={isValidating}
-                          className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
-                        >
-                          {isValidating ? (
-                            <>⏳ Validating...</>
-                          ) : (
-                            'Next'
-                          )}
-                        </button>
-                      ) : (
-                        <button
-                          type="submit"
-                          disabled={submitApplicationMutation.isPending}
-                          className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
-                        >
-                          {submitApplicationMutation.isPending ? (
-                            <>⏳ Submitting...</>
-                          ) : (
-                            'Submit Application'
-                          )}
-                        </button>
-                      )}
-                    </div>
                   </form>
                 </Form>
+                
+                {/* Navigation Buttons - OUTSIDE FORM */}
+                <div className="flex justify-between pt-6">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      console.log('=== PREV BUTTON CLICKED ===');
+                      prevStep();
+                    }}
+                    disabled={currentStep === 1}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  
+                  {currentStep < totalSteps ? (
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        console.log('=== NEXT BUTTON CLICKED OUTSIDE FORM ===');
+                        console.log('Current step:', currentStep);
+                        console.log('Is authenticated:', isAuthenticated);
+                        console.log('Is validating:', isValidating);
+                        e.preventDefault();
+                        e.stopPropagation();
+                        nextStep();
+                      }}
+                      disabled={isValidating}
+                      className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
+                    >
+                      {isValidating ? (
+                        <>⏳ Validating...</>
+                      ) : (
+                        `Next Step ${currentStep + 1}`
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        console.log('=== SUBMIT BUTTON CLICKED OUTSIDE FORM ===');
+                        const formData = form.getValues();
+                        console.log('Form data:', formData);
+                        onSubmit(formData);
+                      }}
+                      disabled={submitApplicationMutation.isPending}
+                      className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
+                    >
+                      {submitApplicationMutation.isPending ? (
+                        <>⏳ Submitting...</>
+                      ) : (
+                        'Submit Application'
+                      )}
+                    </button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>

@@ -205,28 +205,24 @@ export default function LoanApplicationPage() {
   };
 
   const nextStep = async () => {
+    console.log('=== NEXTSTEP FUNCTION CALLED ===');
     console.log('Next button clicked, current step:', currentStep);
     setIsValidating(true);
     
     try {
-      // Add form validation for current step before proceeding
-      const fieldsToValidate = getFieldsForStep(currentStep);
-      const isStepValid = await form.trigger(fieldsToValidate);
-      
-      if (isStepValid && currentStep < totalSteps) {
+      // Skip validation for now to test if this is the issue
+      console.log('Skipping validation, moving to next step');
+      if (currentStep < totalSteps) {
         console.log('Moving to next step:', currentStep + 1);
         setCurrentStep(currentStep + 1);
-      } else if (!isStepValid) {
-        // Show validation errors
-        toast({
-          title: "Please complete all required fields",
-          description: "Fill in all required fields before proceeding to the next step.",
-          variant: "destructive",
-        });
+        console.log('Step updated successfully');
+      } else {
+        console.log('Already at last step');
       }
     } catch (error) {
       console.error('Error in nextStep:', error);
     } finally {
+      console.log('Setting isValidating to false');
       setIsValidating(false);
     }
   };
@@ -761,26 +757,41 @@ export default function LoanApplicationPage() {
                   </button>
                   
                   {currentStep < totalSteps ? (
-                    <button 
-                      type="button"
-                      onClick={(e) => {
-                        console.log('=== NEXT BUTTON CLICKED OUTSIDE FORM ===');
-                        console.log('Current step:', currentStep);
-                        console.log('Is authenticated:', isAuthenticated);
-                        console.log('Is validating:', isValidating);
-                        e.preventDefault();
-                        e.stopPropagation();
-                        nextStep();
-                      }}
-                      disabled={isValidating}
-                      className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
-                    >
-                      {isValidating ? (
-                        <>⏳ Validating...</>
-                      ) : (
-                        `Next Step ${currentStep + 1}`
-                      )}
-                    </button>
+                    <div className="space-y-2">
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          console.log('=== SIMPLE NEXT CLICKED ===');
+                          console.log('Current step before:', currentStep);
+                          setCurrentStep(currentStep + 1);
+                          console.log('Current step after:', currentStep + 1);
+                        }}
+                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md font-medium mr-2"
+                      >
+                        Simple Next (No validation)
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={(e) => {
+                          console.log('=== NEXT BUTTON CLICKED OUTSIDE FORM ===');
+                          console.log('Current step:', currentStep);
+                          console.log('Is authenticated:', isAuthenticated);
+                          console.log('Is validating:', isValidating);
+                          console.log('Disabled state:', isValidating);
+                          e.preventDefault();
+                          e.stopPropagation();
+                          nextStep();
+                        }}
+                        disabled={isValidating}
+                        className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
+                      >
+                        {isValidating ? (
+                          <>⏳ Validating...</>
+                        ) : (
+                          `Next Step ${currentStep + 1} (With validation)`
+                        )}
+                      </button>
+                    </div>
                   ) : (
                     <button
                       type="button"

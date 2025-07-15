@@ -121,6 +121,35 @@ const depreciationRateSchema = z.object({
   depreciationPercentage: z.number().min(0).max(100),
 });
 
+const bankSchema = z.object({
+  bankName: z.string().min(1, "Bank name is required"),
+  bankCode: z.string().min(1, "Bank code is required"),
+  contactEmail: z.string().email("Valid email is required"),
+  contactPhone: z.string().min(1, "Contact phone is required"),
+  websiteUrl: z.string().url().optional().or(z.literal("")),
+  address: z.string().optional(),
+  isActive: z.boolean().default(true),
+});
+
+const loanProductSchema = z.object({
+  bankId: z.number().min(1, "Bank selection is required"),
+  productName: z.string().min(1, "Product name is required"),
+  productType: z.enum(["auto_loan", "asset_finance", "personal_loan"]),
+  minInterestRate: z.number().min(0).max(100),
+  maxInterestRate: z.number().min(0).max(100),
+  minLoanAmount: z.number().min(1000),
+  maxLoanAmount: z.number().min(1000),
+  minTenureMonths: z.number().min(1),
+  maxTenureMonths: z.number().min(1),
+  processingFeePercentage: z.number().min(0).max(10).optional(),
+  requiresDownPayment: z.boolean().default(true),
+  minDownPaymentPercentage: z.number().min(0).max(100).optional(),
+  maxLtvRatio: z.number().min(0).max(100),
+  eligibilityRequirements: z.array(z.string()).optional(),
+  features: z.array(z.string()).optional(),
+  isActive: z.boolean().default(true),
+});
+
 const listingApprovalSchema = z.object({
   notes: z.string().optional(),
   reason: z.string().optional(),
@@ -133,6 +162,8 @@ type ProcessingFeeForm = z.infer<typeof processingFeeSchema>;
 type ListingApprovalForm = z.infer<typeof listingApprovalSchema>;
 type CategoryRuleForm = z.infer<typeof categoryRuleSchema>;
 type DepreciationRateForm = z.infer<typeof depreciationRateSchema>;
+type BankForm = z.infer<typeof bankSchema>;
+type LoanProductForm = z.infer<typeof loanProductSchema>;
 
 export default function AdminDashboard() {
   // No need for auth check here since the route is protected by ProtectedRoute
@@ -144,6 +175,13 @@ function AuthenticatedAdminDashboard() {
   const queryClient = useQueryClient();
   const { logout, getAuthHeaders } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [selectedFinancialTab, setSelectedFinancialTab] = useState("banks");
+  const [showAddBankDialog, setShowAddBankDialog] = useState(false);
+  const [showEditBankDialog, setShowEditBankDialog] = useState(false);
+  const [showAddLoanProductDialog, setShowAddLoanProductDialog] = useState(false);
+  const [showEditLoanProductDialog, setShowEditLoanProductDialog] = useState(false);
+  const [editingBank, setEditingBank] = useState<any>(null);
+  const [editingLoanProduct, setEditingLoanProduct] = useState<any>(null);
   const [uploadResults, setUploadResults] = useState<{
     total: number;
     added: number;
@@ -4115,6 +4153,69 @@ function FinancialServicesTab({
     },
   });
 
+  // Loan product management mutations
+  const createLoanProductMutation = useMutation({
+    mutationFn: async (productData: any) => {
+      const response = await fetch("/api/admin/financial/loan-products", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify(productData),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/financial/loan-products"] });
+      toast({ title: "Success", description: "Loan product created successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const updateLoanProductMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      const response = await fetch(`/api/admin/financial/loan-products/${id}`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/financial/loan-products"] });
+      toast({ title: "Success", description: "Loan product updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteLoanProductMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/admin/financial/loan-products/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/financial/loan-products"] });
+      toast({ title: "Success", description: "Loan product deleted successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
   // Loan application status update
   const updateLoanApplicationMutation = useMutation({
     mutationFn: async ({ id, status, remarks, preApprovalAmount, approvedInterestRate, approvedTenureMonths }: any) => {
@@ -4175,10 +4276,18 @@ function FinancialServicesTab({
             <TabsContent value="banks" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Bank Partners</h3>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Bank
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Bank
+                    </Button>
+                  </DialogTrigger>
+                  <AddBankDialog 
+                    onSubmit={(data) => createBankMutation.mutate(data)}
+                    isLoading={createBankMutation.isPending}
+                  />
+                </Dialog>
               </div>
               
               {banksLoading ? (
@@ -4210,9 +4319,18 @@ function FinancialServicesTab({
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                              <Button variant="outline" size="sm">
-                                <Edit className="h-4 w-4" />
-                              </Button>
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <EditBankDialog 
+                                  bank={bank}
+                                  onSubmit={(data) => updateBankMutation.mutate({ id: bank.id, data })}
+                                  isLoading={updateBankMutation.isPending}
+                                />
+                              </Dialog>
                               <Button variant="outline" size="sm" onClick={() => deleteBankMutation.mutate(bank.id)}>
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -4230,10 +4348,19 @@ function FinancialServicesTab({
             <TabsContent value="loan-products" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Loan Products</h3>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Loan Product
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Loan Product
+                    </Button>
+                  </DialogTrigger>
+                  <AddLoanProductDialog 
+                    banks={banks}
+                    onSubmit={(data) => createLoanProductMutation.mutate(data)}
+                    isLoading={createLoanProductMutation.isPending}
+                  />
+                </Dialog>
               </div>
               
               {loanProductsLoading ? (
@@ -4273,10 +4400,20 @@ function FinancialServicesTab({
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                              <Button variant="outline" size="sm">
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button variant="outline" size="sm">
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <EditLoanProductDialog 
+                                  product={product}
+                                  banks={banks}
+                                  onSubmit={(data) => updateLoanProductMutation.mutate({ id: product.id, data })}
+                                  isLoading={updateLoanProductMutation.isPending}
+                                />
+                              </Dialog>
+                              <Button variant="outline" size="sm" onClick={() => deleteLoanProductMutation.mutate(product.id)}>
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
@@ -4438,5 +4575,935 @@ function FinancialServicesTab({
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+// Bank Dialog Components
+function AddBankDialog({ onSubmit, isLoading }: { onSubmit: (data: BankForm) => void; isLoading: boolean }) {
+  const form = useForm<BankForm>({
+    resolver: zodResolver(bankSchema),
+    defaultValues: {
+      bankName: "",
+      bankCode: "",
+      contactEmail: "",
+      contactPhone: "",
+      websiteUrl: "",
+      address: "",
+      isActive: true,
+    },
+  });
+
+  const handleSubmit = (data: BankForm) => {
+    onSubmit(data);
+  };
+
+  return (
+    <DialogContent className="max-w-md">
+      <DialogHeader>
+        <DialogTitle>Add New Bank Partner</DialogTitle>
+      </DialogHeader>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="bankName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Bank Name *</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter bank name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="bankCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Bank Code *</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter bank code" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="contactEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Contact Email *</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="Enter contact email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="contactPhone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Contact Phone *</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter contact phone" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="websiteUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Website URL</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter website URL" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Address</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Enter bank address" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="isActive"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>Active Status</FormLabel>
+                  <FormDescription>
+                    Enable this bank for loan products
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <div className="flex gap-2">
+            <Button type="submit" disabled={isLoading} className="flex-1">
+              {isLoading ? "Adding..." : "Add Bank"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </DialogContent>
+  );
+}
+
+function EditBankDialog({ bank, onSubmit, isLoading }: { bank: any; onSubmit: (data: BankForm) => void; isLoading: boolean }) {
+  const form = useForm<BankForm>({
+    resolver: zodResolver(bankSchema),
+    defaultValues: {
+      bankName: bank.bankName || "",
+      bankCode: bank.bankCode || "",
+      contactEmail: bank.contactEmail || "",
+      contactPhone: bank.contactPhone || "",
+      websiteUrl: bank.websiteUrl || "",
+      address: bank.address || "",
+      isActive: bank.isActive ?? true,
+    },
+  });
+
+  const handleSubmit = (data: BankForm) => {
+    onSubmit(data);
+  };
+
+  return (
+    <DialogContent className="max-w-md">
+      <DialogHeader>
+        <DialogTitle>Edit Bank Partner</DialogTitle>
+      </DialogHeader>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="bankName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Bank Name *</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter bank name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="bankCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Bank Code *</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter bank code" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="contactEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Contact Email *</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="Enter contact email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="contactPhone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Contact Phone *</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter contact phone" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="websiteUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Website URL</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter website URL" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Address</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Enter bank address" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="isActive"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>Active Status</FormLabel>
+                  <FormDescription>
+                    Enable this bank for loan products
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <div className="flex gap-2">
+            <Button type="submit" disabled={isLoading} className="flex-1">
+              {isLoading ? "Updating..." : "Update Bank"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </DialogContent>
+  );
+}
+
+// Loan Product Dialog Components
+function AddLoanProductDialog({ banks, onSubmit, isLoading }: { banks: any[]; onSubmit: (data: LoanProductForm) => void; isLoading: boolean }) {
+  const form = useForm<LoanProductForm>({
+    resolver: zodResolver(loanProductSchema),
+    defaultValues: {
+      bankId: 0,
+      productName: "",
+      productType: "auto_loan",
+      minInterestRate: 0,
+      maxInterestRate: 0,
+      minLoanAmount: 100000,
+      maxLoanAmount: 5000000,
+      minTenureMonths: 12,
+      maxTenureMonths: 60,
+      processingFeePercentage: 1,
+      requiresDownPayment: true,
+      minDownPaymentPercentage: 20,
+      maxLtvRatio: 80,
+      eligibilityRequirements: [],
+      features: [],
+      isActive: true,
+    },
+  });
+
+  const handleSubmit = (data: LoanProductForm) => {
+    onSubmit(data);
+  };
+
+  return (
+    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogHeader>
+        <DialogTitle>Add New Loan Product</DialogTitle>
+      </DialogHeader>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="bankId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bank *</FormLabel>
+                  <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select bank" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {banks.map((bank) => (
+                        <SelectItem key={bank.id} value={bank.id.toString()}>
+                          {bank.bankName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="productName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Product Name *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter product name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="productType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Product Type *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="auto_loan">Auto Loan</SelectItem>
+                      <SelectItem value="asset_finance">Asset Finance</SelectItem>
+                      <SelectItem value="personal_loan">Personal Loan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxLtvRatio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max LTV Ratio (%)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="80" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="minInterestRate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Min Interest Rate (%)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      step="0.1"
+                      placeholder="12.5" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxInterestRate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Interest Rate (%)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      step="0.1"
+                      placeholder="18.5" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="minLoanAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Min Loan Amount (KES)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="100000" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxLoanAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Loan Amount (KES)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="5000000" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="minTenureMonths"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Min Tenure (Months)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="12" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxTenureMonths"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Tenure (Months)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="60" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="processingFeePercentage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Processing Fee (%)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      step="0.1"
+                      placeholder="1.0" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="minDownPaymentPercentage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Min Down Payment (%)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="20" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="requiresDownPayment"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Requires Down Payment</FormLabel>
+                    <FormDescription>
+                      Does this product require a down payment?
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isActive"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Active Status</FormLabel>
+                    <FormDescription>
+                      Enable this loan product
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <Button type="submit" disabled={isLoading} className="flex-1">
+              {isLoading ? "Adding..." : "Add Loan Product"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </DialogContent>
+  );
+}
+
+function EditLoanProductDialog({ product, banks, onSubmit, isLoading }: { product: any; banks: any[]; onSubmit: (data: LoanProductForm) => void; isLoading: boolean }) {
+  const form = useForm<LoanProductForm>({
+    resolver: zodResolver(loanProductSchema),
+    defaultValues: {
+      bankId: product.bankId || 0,
+      productName: product.productName || "",
+      productType: product.productType || "auto_loan",
+      minInterestRate: product.minInterestRate || 0,
+      maxInterestRate: product.maxInterestRate || 0,
+      minLoanAmount: product.minLoanAmount || 100000,
+      maxLoanAmount: product.maxLoanAmount || 5000000,
+      minTenureMonths: product.minTenureMonths || 12,
+      maxTenureMonths: product.maxTenureMonths || 60,
+      processingFeePercentage: product.processingFeePercentage || 1,
+      requiresDownPayment: product.requiresDownPayment ?? true,
+      minDownPaymentPercentage: product.minDownPaymentPercentage || 20,
+      maxLtvRatio: product.maxLtvRatio || 80,
+      eligibilityRequirements: product.eligibilityRequirements || [],
+      features: product.features || [],
+      isActive: product.isActive ?? true,
+    },
+  });
+
+  const handleSubmit = (data: LoanProductForm) => {
+    onSubmit(data);
+  };
+
+  return (
+    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogHeader>
+        <DialogTitle>Edit Loan Product</DialogTitle>
+      </DialogHeader>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="bankId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bank *</FormLabel>
+                  <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select bank" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {banks.map((bank) => (
+                        <SelectItem key={bank.id} value={bank.id.toString()}>
+                          {bank.bankName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="productName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Product Name *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter product name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="productType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Product Type *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="auto_loan">Auto Loan</SelectItem>
+                      <SelectItem value="asset_finance">Asset Finance</SelectItem>
+                      <SelectItem value="personal_loan">Personal Loan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxLtvRatio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max LTV Ratio (%)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="80" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="minInterestRate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Min Interest Rate (%)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      step="0.1"
+                      placeholder="12.5" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxInterestRate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Interest Rate (%)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      step="0.1"
+                      placeholder="18.5" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="minLoanAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Min Loan Amount (KES)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="100000" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxLoanAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Loan Amount (KES)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="5000000" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="minTenureMonths"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Min Tenure (Months)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="12" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxTenureMonths"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Tenure (Months)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="60" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="processingFeePercentage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Processing Fee (%)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      step="0.1"
+                      placeholder="1.0" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="minDownPaymentPercentage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Min Down Payment (%)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="20" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="requiresDownPayment"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Requires Down Payment</FormLabel>
+                    <FormDescription>
+                      Does this product require a down payment?
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isActive"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Active Status</FormLabel>
+                    <FormDescription>
+                      Enable this loan product
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <Button type="submit" disabled={isLoading} className="flex-1">
+              {isLoading ? "Updating..." : "Update Loan Product"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </DialogContent>
   );
 }

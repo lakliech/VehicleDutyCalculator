@@ -81,7 +81,7 @@ export default function LoanApplicationPage() {
 
   // Fetch vehicle details
   const { data: vehicleData, isLoading: loadingVehicle } = useQuery({
-    queryKey: ['/api/car-listings', carId, 'details'],
+    queryKey: [`/api/car-listings/${carId}/details`],
     enabled: !!carId && !!authStatus?.authenticated,
   });
 
@@ -105,10 +105,12 @@ export default function LoanApplicationPage() {
   // Set default loan amount when vehicle price is available
   useEffect(() => {
     console.log('Vehicle data check:', { vehicleData, loanProduct });
+    console.log('Full vehicle data structure:', vehicleData);
     if (vehicleData && loanProduct) {
       // Check if vehicleData.price exists, else use vehicleData.priceKes
       const rawPrice = vehicleData.price || vehicleData.priceKes;
       console.log('Raw price value:', rawPrice, 'Vehicle data keys:', Object.keys(vehicleData));
+      console.log('Full vehicle object:', vehicleData);
       
       const vehiclePrice = parseFloat(rawPrice);
       const maxFinancing = parseFloat(loanProduct.maxFinancingPercentage);
@@ -128,8 +130,10 @@ export default function LoanApplicationPage() {
         minDownPayment
       });
       
-      form.setValue('requestedAmount', Math.round(requestedAmount));
-      form.setValue('downPaymentAmount', Math.round(minDownPaymentAmount));
+      if (!isNaN(vehiclePrice)) {
+        form.setValue('requestedAmount', Math.round(requestedAmount));
+        form.setValue('downPaymentAmount', Math.round(minDownPaymentAmount));
+      }
     }
   }, [vehicleData, loanProduct, form]);
 

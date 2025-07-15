@@ -29,11 +29,7 @@ const loanApplicationSchema = z.object({
   monthlyExpenses: z.coerce.number().min(0, "Monthly expenses cannot be negative"),
   requestedAmount: z.coerce.number().min(100000, "Minimum loan amount is KES 100,000"),
   downPaymentAmount: z.coerce.number().min(0, "Down payment cannot be negative"),
-  preferredTenureMonths: z.coerce.number().min(12).max(84, "Tenure must be between 12 and 84 months"),
-  collateralDescription: z.string().optional(),
-  emergencyContactName: z.string().min(2, "Emergency contact name is required"),
-  emergencyContactPhone: z.string().min(10, "Emergency contact phone is required"),
-  emergencyContactRelation: z.string().min(1, "Emergency contact relation is required")
+  preferredTenureMonths: z.coerce.number().min(12).max(84, "Tenure must be between 12 and 84 months")
 });
 
 type LoanApplicationForm = z.infer<typeof loanApplicationSchema>;
@@ -74,7 +70,7 @@ export default function LoanApplicationPage() {
   
   // Simple step management
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 3;
   
   // Check authentication status
   const { data: authStatus, isLoading: authLoading } = useQuery({
@@ -111,15 +107,11 @@ export default function LoanApplicationPage() {
       monthlyExpenses: 0,
       requestedAmount: 100000,
       downPaymentAmount: 0,
-      preferredTenureMonths: 60,
-      collateralDescription: '',
-      emergencyContactName: '',
-      emergencyContactPhone: '',
-      emergencyContactRelation: ''
+      preferredTenureMonths: 60
     }
   });
 
-  // Set default loan amount when vehicle price is available
+  // Set default loan amount and terms when vehicle price and product are available
   useEffect(() => {
     if (vehicleData && loanProduct && Array.isArray(loanProduct) && loanProduct.length > 0) {
       const vehiclePrice = parseFloat(vehicleData.price);
@@ -128,8 +120,12 @@ export default function LoanApplicationPage() {
       const maxLoanAmount = vehiclePrice * (maxFinancingPercentage / 100);
       const minDownPayment = vehiclePrice * (parseFloat(product.minDownPaymentPercentage) / 100);
       
+      // Auto-populate loan amount from vehicle price
       form.setValue('requestedAmount', Math.round(maxLoanAmount));
       form.setValue('downPaymentAmount', Math.round(minDownPayment));
+      
+      // Auto-set preferred tenure to product's maximum tenure
+      form.setValue('preferredTenureMonths', product.maxTenureMonths);
     }
   }, [vehicleData, loanProduct, form]);
 
@@ -161,11 +157,8 @@ export default function LoanApplicationPage() {
     }
   });
 
-  // Enhanced navigation functions with validation
+  // Clean navigation functions with validation
   const nextStep = async () => {
-    console.log('=== DIRECT NEXT CLICKED ===');
-    console.log('About to call nextStep()');
-    
     try {
       // Define fields to validate for each step
       const getFieldsForStep = (step: number): (keyof LoanApplicationForm)[] => {
@@ -175,18 +168,14 @@ export default function LoanApplicationPage() {
           case 2:
             return ['employmentStatus', 'monthlyIncome', 'employerName'];
           case 3:
-            return ['requestedAmount', 'downPaymentAmount', 'preferredTenureMonths', 'emergencyContactName', 'emergencyContactPhone', 'emergencyContactRelation'];
+            return ['requestedAmount', 'downPaymentAmount', 'preferredTenureMonths'];
           default:
             return [];
         }
       };
 
-      console.log('=== NEXTSTEP FUNCTION CALLED ===');
-      console.log('Next button clicked, current step:', currentStep);
-      
-      // Skip validation for step 4 (review)
-      if (currentStep >= 4) {
-        console.log('Already at final step, no more progression');
+      // Skip validation for final step (review)
+      if (currentStep >= totalSteps) {
         return;
       }
       
@@ -194,18 +183,9 @@ export default function LoanApplicationPage() {
       const fieldsToValidate = getFieldsForStep(currentStep);
       const isStepValid = await form.trigger(fieldsToValidate);
       
-      console.log('Fields to validate:', fieldsToValidate);
-      console.log('Form validation result:', isStepValid);
-      console.log('Form errors:', form.formState.errors);
-      
       if (isStepValid) {
-        console.log('Skipping validation, directly advancing step');
-        console.log('Moving to next step:', currentStep + 1);
-        console.log('setCurrentStep called, prev:', currentStep, 'new:', currentStep + 1);
         setCurrentStep(currentStep + 1);
-        console.log('Step update call completed');
       } else {
-        console.log('Validation failed, showing error');
         toast({
           title: "Please complete all required fields",
           description: "Fill in all required fields before proceeding to the next step.",
@@ -213,7 +193,6 @@ export default function LoanApplicationPage() {
         });
       }
     } catch (error) {
-      console.error('Error in nextStep:', error);
       toast({
         title: "Error",
         description: "An error occurred while processing the form. Please try again.",
@@ -292,7 +271,7 @@ export default function LoanApplicationPage() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            {[1, 2, 3, 4].map((step) => (
+            {[1, 2, 3].map((step) => (
               <div
                 key={step}
                 className={`flex items-center justify-center w-10 h-10 rounded-full ${
@@ -322,19 +301,16 @@ export default function LoanApplicationPage() {
                 <CardTitle className="flex items-center">
                   {currentStep === 1 && <User className="h-5 w-5 mr-2" />}
                   {currentStep === 2 && <DollarSign className="h-5 w-5 mr-2" />}
-                  {currentStep === 3 && <FileText className="h-5 w-5 mr-2" />}
-                  {currentStep === 4 && <Check className="h-5 w-5 mr-2" />}
+                  {currentStep === 3 && <Check className="h-5 w-5 mr-2" />}
                   
                   {currentStep === 1 && "Personal Information"}
-                  {currentStep === 2 && "Financial Information"}
-                  {currentStep === 3 && "Loan Details"}
-                  {currentStep === 4 && "Review & Submit"}
+                  {currentStep === 2 && "Employment & Income"}
+                  {currentStep === 3 && "Review & Submit"}
                 </CardTitle>
                 <CardDescription>
                   {currentStep === 1 && "Please provide your personal details"}
-                  {currentStep === 2 && "Tell us about your financial situation"}
-                  {currentStep === 3 && "Configure your loan preferences"}
-                  {currentStep === 4 && "Review your application before submitting"}
+                  {currentStep === 2 && "Tell us about your employment and income"}
+                  {currentStep === 3 && "Review your application before submitting"}
                 </CardDescription>
               </CardHeader>
               
@@ -585,75 +561,12 @@ export default function LoanApplicationPage() {
                           )}
                         />
 
-                        <FormField
-                          control={form.control}
-                          name="collateralDescription"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Collateral Description (Optional)</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Describe any additional collateral you can provide"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
 
-                        <div className="space-y-4 mt-6">
-                          <h4 className="font-medium">Emergency Contact</h4>
-                          
-                          <FormField
-                            control={form.control}
-                            name="emergencyContactName"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Emergency Contact Name *</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Enter contact person name" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField
-                              control={form.control}
-                              name="emergencyContactPhone"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Contact Phone *</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="0712345678" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name="emergencyContactRelation"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Relationship *</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="e.g., Spouse, Parent, Sibling" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                        </div>
                       </div>
                     )}
 
-                    {/* Step 4: Review */}
-                    {currentStep === 4 && (
+                    {/* Step 3: Review */}
+                    {currentStep === 3 && (
                       <div className="space-y-6">
                         <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
                           <h3 className="text-lg font-semibold mb-4">Application Summary</h3>
@@ -693,63 +606,24 @@ export default function LoanApplicationPage() {
                 </Form>
                 
                 {/* Navigation Buttons */}
-                <div className="pt-6 mt-6 border-t">
-                  {/* DEBUG: Show current step */}
-                  <div className="text-xs text-gray-500 mb-2 text-center">
-                    DEBUG: Current Step: {currentStep} / {totalSteps}
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={prevStep}
-                      disabled={currentStep === 1}
-                    >
-                      Previous
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        console.log('=== RESET TO STEP 1 ===');
-                        setCurrentStep(1);
-                      }}
-                      className="bg-red-600 hover:bg-red-700 text-white"
-                    >
-                      Reset
-                    </Button>
-                  </div>
+                <div className="flex justify-between pt-6 mt-6 border-t">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={prevStep}
+                    disabled={currentStep === 1}
+                  >
+                    Previous
+                  </Button>
                   
                   {currentStep < totalSteps ? (
-                    <div className="flex gap-2">
-                      <Button 
-                        type="button"
-                        onClick={() => {
-                          console.log('=== NEXT BUTTON CLICKED ===');
-                          console.log('Current step before:', currentStep);
-                          nextStep();
-                        }}
-                        className="bg-purple-600 hover:bg-purple-700"
-                      >
-                        Next
-                      </Button>
-                      <Button 
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          console.log('=== TEST SKIP BUTTON CLICKED ===');
-                          console.log('Current step before:', currentStep);
-                          console.log('Auth status:', authStatus?.authenticated);
-                          console.log('Auth loading:', authLoading);
-                          setCurrentStep(currentStep + 1);
-                          console.log('Current step after:', currentStep + 1);
-                        }}
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        Test Skip
-                      </Button>
-                    </div>
+                    <Button 
+                      type="button"
+                      onClick={nextStep}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      Next
+                    </Button>
                   ) : (
                     <Button
                       type="button"
@@ -759,7 +633,6 @@ export default function LoanApplicationPage() {
                       {submitApplicationMutation.isPending ? 'Submitting...' : 'Submit Application'}
                     </Button>
                   )}
-                  </div>
                 </div>
               </CardContent>
             </Card>

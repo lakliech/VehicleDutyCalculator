@@ -23,7 +23,7 @@ const loanApplicationSchema = z.object({
   applicantEmail: z.string().email("Valid email required"),
   applicantPhone: z.string().min(10, "Valid phone number required"),
   nationalId: z.string().min(8, "Valid National ID required"),
-  // dateOfBirth: z.string().min(1, "Date of birth is required"),
+  dateOfBirth: z.string().min(1, "Date of birth is required"),
   maritalStatus: z.enum(['single', 'married', 'divorced', 'widowed']),
   employmentStatus: z.enum(['employed', 'self_employed', 'business_owner', 'unemployed']),
   employerName: z.string().optional(),
@@ -81,7 +81,7 @@ export default function LoanApplicationPage() {
 
   // Fetch vehicle details
   const { data: vehicleData, isLoading: loadingVehicle } = useQuery({
-    queryKey: [`/api/car-listings/${carId}/details`],
+    queryKey: ['/api/car-listings', carId, 'details'],
     enabled: !!carId && !!authStatus?.authenticated,
   });
 
@@ -93,46 +93,43 @@ export default function LoanApplicationPage() {
 
   const form = useForm<LoanApplicationForm>({
     resolver: zodResolver(loanApplicationSchema),
-    mode: 'onSubmit',  // Only validate on submit, not on change
     defaultValues: {
-      applicantName: '',
-      applicantEmail: '',
-      applicantPhone: '',
-      nationalId: '',
-      // dateOfBirth: '',
       maritalStatus: 'single',
       employmentStatus: 'employed',
-      employerName: '',
-      jobTitle: '',
-      monthlyIncome: 20000,  // Set to minimum required
       monthlyExpenses: 0,
-      requestedAmount: 100000,  // Set to minimum required
       downPaymentAmount: 0,
-      preferredTenureMonths: 60,
-      purposeOfLoan: '',
-      additionalNotes: ''
+      preferredTenureMonths: 60
     }
   });
 
   // Set default loan amount when vehicle price is available
   useEffect(() => {
-    if (vehicleData && loanProduct && Array.isArray(loanProduct) && loanProduct.length > 0) {
-      // Use the price field from vehicle data
-      const vehiclePrice = parseFloat(vehicleData.price);
+    console.log('Vehicle data check:', { vehicleData, loanProduct });
+    if (vehicleData && loanProduct) {
+      // Check if vehicleData.price exists, else use vehicleData.priceKes
+      const rawPrice = vehicleData.price || vehicleData.priceKes;
+      console.log('Raw price value:', rawPrice, 'Vehicle data keys:', Object.keys(vehicleData));
       
-      // Get the first loan product from the array
-      const selectedProduct = loanProduct[0];
-      const maxFinancing = parseFloat(selectedProduct.maxFinancingPercentage);
-      const minDownPayment = parseFloat(selectedProduct.minDownPaymentPercentage);
+      const vehiclePrice = parseFloat(rawPrice);
+      const maxFinancing = parseFloat(loanProduct.maxFinancingPercentage);
+      const minDownPayment = parseFloat(loanProduct.minDownPaymentPercentage);
       
-      // Calculate loan amounts
+      // The requested amount should be the full vehicle price initially
       const requestedAmount = vehiclePrice;
       const minDownPaymentAmount = vehiclePrice * minDownPayment;
       
-      if (!isNaN(vehiclePrice) && !isNaN(minDownPaymentAmount)) {
-        form.setValue('requestedAmount', Math.round(requestedAmount));
-        form.setValue('downPaymentAmount', Math.round(minDownPaymentAmount));
-      }
+      console.log('Setting loan defaults:', {
+        vehicleData: vehicleData,
+        rawPrice,
+        vehiclePrice,
+        requestedAmount,
+        minDownPaymentAmount,
+        maxFinancing,
+        minDownPayment
+      });
+      
+      form.setValue('requestedAmount', Math.round(requestedAmount));
+      form.setValue('downPaymentAmount', Math.round(minDownPaymentAmount));
     }
   }, [vehicleData, loanProduct, form]);
 
@@ -140,15 +137,12 @@ export default function LoanApplicationPage() {
     mutationFn: async (data: LoanApplicationForm) => {
       return apiRequest('POST', '/api/financial/loan-application', {
         ...data,
-        userId: authStatus?.user?.id,
-        // dateOfBirth: new Date(data.dateOfBirth),
-        monthlyExpenses: data.monthlyExpenses?.toString() || "0",
         loanProductId: parseInt(productId!),
         vehicleListingId: carId ? parseInt(carId) : null,
         vehicleMake: vehicleData?.make,
         vehicleModel: vehicleData?.model,
         vehicleYear: vehicleData?.year,
-        vehiclePrice: vehicleData?.price?.toString()
+        vehiclePrice: vehicleData?.price
       });
     },
     onSuccess: (response) => {
@@ -191,7 +185,9 @@ export default function LoanApplicationPage() {
   };
 
   const nextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
   const prevStep = () => {
@@ -289,7 +285,7 @@ export default function LoanApplicationPage() {
               
               <CardContent>
                 <Form {...form}>
-                  <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     {/* Step 1: Personal Information */}
                     {currentStep === 1 && (
                       <div className="space-y-6">
@@ -353,29 +349,45 @@ export default function LoanApplicationPage() {
                           />
                         </div>
 
-                        <FormField
-                          control={form.control}
-                          name="maritalStatus"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Marital Status</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="dateOfBirth"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Date of Birth</FormLabel>
                                 <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select status" />
-                                  </SelectTrigger>
+                                  <Input type="date" {...field} />
                                 </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="single">Single</SelectItem>
-                                  <SelectItem value="married">Married</SelectItem>
-                                  <SelectItem value="divorced">Divorced</SelectItem>
-                                  <SelectItem value="widowed">Widowed</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="maritalStatus"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Marital Status</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="single">Single</SelectItem>
+                                    <SelectItem value="married">Married</SelectItem>
+                                    <SelectItem value="divorced">Divorced</SelectItem>
+                                    <SelectItem value="widowed">Widowed</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       </div>
                     )}
 
@@ -490,7 +502,7 @@ export default function LoanApplicationPage() {
                                 <span className="font-medium">Financing for:</span> {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
                               </div>
                               <div className="font-bold text-purple-600">
-                                KES {parseFloat(vehicleData?.price || '0').toLocaleString()}
+                                KES {parseFloat(vehicleData?.price || vehicleData?.priceKes || '0').toLocaleString()}
                               </div>
                             </div>
                           </AlertDescription>
@@ -622,8 +634,8 @@ export default function LoanApplicationPage() {
                               <p><span className="font-medium">Year:</span> {vehicleData?.year}</p>
                             </div>
                             <div>
-                              <p><span className="font-medium">Vehicle Price:</span> KES {parseFloat(vehicleData?.price || '0').toLocaleString()}</p>
-                              <p><span className="font-medium">Loan Bank:</span> {loanProduct?.[0]?.bankName}</p>
+                              <p><span className="font-medium">Vehicle Price:</span> KES {parseFloat(vehicleData?.price || vehicleData?.priceKes || '0').toLocaleString()}</p>
+                              <p><span className="font-medium">Loan Bank:</span> {loanProduct?.bankName}</p>
                             </div>
                           </div>
                         </div>
@@ -666,22 +678,12 @@ export default function LoanApplicationPage() {
                       </Button>
                       
                       {currentStep < totalSteps ? (
-                        <Button 
-                          type="button" 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log("Next button clicked, currentStep:", currentStep);
-                            nextStep();
-                          }}
-                          className="bg-purple-600 hover:bg-purple-700"
-                        >
+                        <Button type="button" onClick={nextStep}>
                           Next
                         </Button>
                       ) : (
                         <Button
-                          type="button"
-                          onClick={() => form.handleSubmit(onSubmit)()}
+                          type="submit"
                           disabled={submitApplicationMutation.isPending}
                           className="bg-purple-600 hover:bg-purple-700"
                         >
@@ -698,8 +700,6 @@ export default function LoanApplicationPage() {
                     </div>
                   </form>
                 </Form>
-                
-
               </CardContent>
             </Card>
           </div>

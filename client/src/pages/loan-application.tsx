@@ -23,7 +23,7 @@ const loanApplicationSchema = z.object({
   applicantEmail: z.string().email("Valid email required"),
   applicantPhone: z.string().min(10, "Valid phone number required"),
   nationalId: z.string().min(8, "Valid National ID required"),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  // dateOfBirth: z.string().min(1, "Date of birth is required"),
   maritalStatus: z.enum(['single', 'married', 'divorced', 'widowed']),
   employmentStatus: z.enum(['employed', 'self_employed', 'business_owner', 'unemployed']),
   employerName: z.string().optional(),
@@ -99,7 +99,7 @@ export default function LoanApplicationPage() {
       applicantEmail: '',
       applicantPhone: '',
       nationalId: '',
-      dateOfBirth: '',
+      // dateOfBirth: '',
       maritalStatus: 'single',
       employmentStatus: 'employed',
       employerName: '',
@@ -141,7 +141,7 @@ export default function LoanApplicationPage() {
       return apiRequest('POST', '/api/financial/loan-application', {
         ...data,
         userId: authStatus?.user?.id,
-        dateOfBirth: new Date(data.dateOfBirth),
+        // dateOfBirth: new Date(data.dateOfBirth),
         monthlyExpenses: data.monthlyExpenses?.toString() || "0",
         loanProductId: parseInt(productId!),
         vehicleListingId: carId ? parseInt(carId) : null,
@@ -353,45 +353,29 @@ export default function LoanApplicationPage() {
                           />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="dateOfBirth"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Date of Birth</FormLabel>
+                        <FormField
+                          control={form.control}
+                          name="maritalStatus"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Marital Status</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
-                                  <Input type="date" {...field} />
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                  </SelectTrigger>
                                 </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="maritalStatus"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Marital Status</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select status" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="single">Single</SelectItem>
-                                    <SelectItem value="married">Married</SelectItem>
-                                    <SelectItem value="divorced">Divorced</SelectItem>
-                                    <SelectItem value="widowed">Widowed</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                                <SelectContent>
+                                  <SelectItem value="single">Single</SelectItem>
+                                  <SelectItem value="married">Married</SelectItem>
+                                  <SelectItem value="divorced">Divorced</SelectItem>
+                                  <SelectItem value="widowed">Widowed</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
                     )}
 

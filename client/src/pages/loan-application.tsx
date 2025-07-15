@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthRedirect } from '@/hooks/use-auth-redirect';
 import { ArrowLeft, Car, CreditCard, User, MapPin, FileText, Calculator, Check, Clock, AlertCircle } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -66,6 +67,9 @@ export default function LoanApplicationPage() {
   const [match, params] = useRoute('/loan-application/:carId/:productId');
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Handle authentication redirects
+  useAuthRedirect();
   
   const carId = params?.carId;
   const productId = params?.productId;
@@ -130,6 +134,7 @@ export default function LoanApplicationPage() {
         ...data,
         userId: authStatus?.user?.id,
         dateOfBirth: new Date(data.dateOfBirth).toISOString(),
+        monthlyExpenses: data.monthlyExpenses?.toString() || "0",
         loanProductId: parseInt(productId!),
         vehicleListingId: carId ? parseInt(carId) : null,
         vehicleMake: vehicleData?.make,
@@ -155,9 +160,11 @@ export default function LoanApplicationPage() {
     }
   });
 
-  // Redirect if not authenticated
+  // Redirect to OAuth with return URL if not authenticated
   if (!authLoading && !authStatus?.authenticated) {
-    setLocation('/');
+    const currentUrl = window.location.pathname;
+    localStorage.setItem('returnUrl', currentUrl);
+    window.location.href = `/api/auth/google?returnUrl=${encodeURIComponent(currentUrl)}`;
     return null;
   }
 

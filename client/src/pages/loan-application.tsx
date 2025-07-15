@@ -94,9 +94,16 @@ export default function LoanApplicationPage() {
   const form = useForm<LoanApplicationForm>({
     resolver: zodResolver(loanApplicationSchema),
     defaultValues: {
+      applicantName: '',
+      applicantEmail: '',
+      applicantPhone: '',
+      nationalId: '',
+      dateOfBirth: '',
       maritalStatus: 'single',
       employmentStatus: 'employed',
+      monthlyIncome: 0,
       monthlyExpenses: 0,
+      requestedAmount: 0,
       downPaymentAmount: 0,
       preferredTenureMonths: 60
     }
@@ -129,7 +136,8 @@ export default function LoanApplicationPage() {
       return apiRequest('POST', '/api/financial/loan-application', {
         ...data,
         userId: authStatus?.user?.id,
-        dateOfBirth: new Date(data.dateOfBirth).toISOString(),
+        dateOfBirth: new Date(data.dateOfBirth),
+        monthlyExpenses: data.monthlyExpenses?.toString() || "0",
         loanProductId: parseInt(productId!),
         vehicleListingId: carId ? parseInt(carId) : null,
         vehicleMake: vehicleData?.make,

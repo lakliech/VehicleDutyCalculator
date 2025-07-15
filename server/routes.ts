@@ -1760,7 +1760,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Search vehicle references
   app.get("/api/vehicle-references/search", async (req, res) => {
     try {
-      const { make, model, engineCapacity, limit = "20" } = req.query;
+      const { make, model, engineCapacity, driveConfig, limit = "20" } = req.query;
       
       // Build base query
       let whereConditions = [];
@@ -1775,6 +1775,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (engineCapacity && typeof engineCapacity === 'string') {
         whereConditions.push(sql`${vehicleReferences.engineCapacity} = ${parseInt(engineCapacity)}`);
+      }
+      
+      // Apply drive configuration filtering
+      if (driveConfig && typeof driveConfig === 'string') {
+        // Map normalized values back to database values
+        if (driveConfig === '2WD') {
+          whereConditions.push(sql`(
+            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%2wd%' OR 
+            ${vehicleReferences.driveConfiguration} = '2' OR 
+            LOWER(${vehicleReferences.driveConfiguration}) = '2x4' OR
+            LOWER(${vehicleReferences.driveConfiguration}) = '2*4'
+          )`);
+        } else if (driveConfig === '4WD') {
+          whereConditions.push(sql`(
+            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4wd%' OR 
+            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4x4%' OR 
+            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4*4%' OR
+            LOWER(${vehicleReferences.driveConfiguration}) = '4x2' OR
+            LOWER(${vehicleReferences.driveConfiguration}) = '4*2'
+          )`);
+        } else if (driveConfig === 'AWD') {
+          whereConditions.push(sql`LOWER(${vehicleReferences.driveConfiguration}) LIKE '%awd%'`);
+        } else {
+          // Exact match for other configurations
+          whereConditions.push(sql`${vehicleReferences.driveConfiguration} = ${driveConfig}`);
+        }
       }
 
       // For proration reference vehicles (make only search), ensure vehicles have CRSP values and engine capacity
@@ -1941,11 +1967,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get engine sizes for a specific make and model (with optional category filtering)
-  app.get("/api/vehicle-references/makes/:make/models/:model/engines", async (req, res) => {
+  // Get drive configurations for a specific make and model (with optional category filtering)
+  app.get("/api/vehicle-references/makes/:make/models/:model/drives", async (req, res) => {
     try {
       const { make, model } = req.params;
       const { category } = req.query;
+      
+      let whereConditions = [
+        sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`,
+        sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`,
+        sql`${vehicleReferences.driveConfiguration} IS NOT NULL`
+      ];
+      
+      // Apply category filtering based on engine capacity
+      if (category && typeof category === 'string') {
+        const engineFilter = getEngineCapacityFilter(category);
+        if (engineFilter) {
+          whereConditions.push(engineFilter);
+        }
+      }
+      
+      const results = await db
+        .selectDistinct({ 
+          driveConfiguration: vehicleReferences.driveConfiguration
+        })
+        .from(vehicleReferences)
+        .where(sql.join(whereConditions, sql` AND `))
+        .orderBy(vehicleReferences.driveConfiguration);
+        
+      // Normalize drive configurations to common values
+      const driveConfigsMap = new Map();
+      results.forEach(result => {
+        const driveConfig = result.driveConfiguration?.toLowerCase();
+        if (driveConfig) {
+          if (driveConfig.includes('2wd') || driveConfig === '2' || driveConfig === '2x4' || driveConfig === '2*4') {
+            driveConfigsMap.set('2WD', '2WD');
+          } else if (driveConfig.includes('4wd') || driveConfig.includes('4x4') || driveConfig.includes('4*4') || driveConfig === '4x2' || driveConfig === '4*2') {
+            driveConfigsMap.set('4WD', '4WD');
+          } else if (driveConfig.includes('awd')) {
+            driveConfigsMap.set('AWD', 'AWD');
+          } else if (driveConfig.includes('6x')) {
+            driveConfigsMap.set('6WD', '6WD');
+          } else if (driveConfig.includes('8x')) {
+            driveConfigsMap.set('8WD', '8WD');
+          } else {
+            // Keep original for other configurations
+            driveConfigsMap.set(result.driveConfiguration, result.driveConfiguration);
+          }
+        }
+      });
+      
+      res.json(Array.from(driveConfigsMap.values()).sort());
+    } catch (error) {
+      console.error("Failed to fetch drive configurations:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch drive configurations" 
+      });
+    }
+  });
+
+  // Get engine sizes for a specific make and model (with optional category and drive filtering)
+  app.get("/api/vehicle-references/makes/:make/models/:model/engines", async (req, res) => {
+    try {
+      const { make, model } = req.params;
+      const { category, driveConfig } = req.query;
       
       let whereConditions = [
         sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`,
@@ -1958,6 +2043,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const engineFilter = getEngineCapacityFilter(category);
         if (engineFilter) {
           whereConditions.push(engineFilter);
+        }
+      }
+      
+      // Apply drive configuration filtering
+      if (driveConfig && typeof driveConfig === 'string') {
+        // Map normalized values back to database values
+        if (driveConfig === '2WD') {
+          whereConditions.push(sql`(
+            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%2wd%' OR 
+            ${vehicleReferences.driveConfiguration} = '2' OR 
+            LOWER(${vehicleReferences.driveConfiguration}) = '2x4' OR
+            LOWER(${vehicleReferences.driveConfiguration}) = '2*4'
+          )`);
+        } else if (driveConfig === '4WD') {
+          whereConditions.push(sql`(
+            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4wd%' OR 
+            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4x4%' OR 
+            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4*4%' OR
+            LOWER(${vehicleReferences.driveConfiguration}) = '4x2' OR
+            LOWER(${vehicleReferences.driveConfiguration}) = '4*2'
+          )`);
+        } else if (driveConfig === 'AWD') {
+          whereConditions.push(sql`LOWER(${vehicleReferences.driveConfiguration}) LIKE '%awd%'`);
+        } else {
+          // Exact match for other configurations
+          whereConditions.push(sql`${vehicleReferences.driveConfiguration} = ${driveConfig}`);
         }
       }
       

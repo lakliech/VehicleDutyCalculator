@@ -21,6 +21,7 @@ interface VehicleSelectorProps {
 export function VehicleSelector({ onVehicleSelect, onManualVehicleData, categoryFilter, hideCrsp }: VehicleSelectorProps) {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
+  const [selectedDriveConfig, setSelectedDriveConfig] = useState<string>("");
   const [selectedEngineSize, setSelectedEngineSize] = useState<string>("");
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
   const [manualEngineSize, setManualEngineSize] = useState<string>("");
@@ -66,26 +67,49 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     enabled: !!selectedMake,
   });
 
-  // Fetch engine sizes for selected make and model (filtered by category if provided)
+  // Fetch drive configurations for selected make and model
+  const { data: driveConfigs = [], isLoading: driveConfigsLoading } = useQuery<string[]>({
+    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives`, categoryFilter],
+    queryFn: async () => {
+      let url = `/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives`;
+      if (categoryFilter) {
+        url += `?category=${categoryFilter}`;
+      }
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch drive configurations');
+      return response.json();
+    },
+    enabled: !!selectedMake && !!selectedModel,
+  });
+
+  // Fetch engine sizes for selected make, model, and drive config (filtered by category if provided)
   const { data: engineSizes = [], isLoading: engineSizesLoading } = useQuery<number[]>({
-    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/engines`, categoryFilter],
+    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives/${selectedDriveConfig}/engines`, categoryFilter],
     queryFn: async () => {
       let url = `/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/engines`;
-      if (categoryFilter) {
+      if (selectedDriveConfig) {
+        url += `?driveConfig=${selectedDriveConfig}`;
+        if (categoryFilter) {
+          url += `&category=${categoryFilter}`;
+        }
+      } else if (categoryFilter) {
         url += `?category=${categoryFilter}`;
       }
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch engine sizes');
       return response.json();
     },
-    enabled: !!selectedMake && !!selectedModel,
+    enabled: !!selectedMake && !!selectedModel && !!selectedDriveConfig,
   });
 
   // Search for specific vehicle
   const { data: vehicleDetails = [] } = useQuery<VehicleReference[]>({
-    queryKey: [`/api/vehicle-references/search`, selectedMake, selectedModel, selectedEngineSize, categoryFilter],
+    queryKey: [`/api/vehicle-references/search`, selectedMake, selectedModel, selectedDriveConfig, selectedEngineSize, categoryFilter],
     queryFn: async () => {
       let url = `/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}&engineCapacity=${selectedEngineSize}`;
+      if (selectedDriveConfig) {
+        url += `&driveConfig=${selectedDriveConfig}`;
+      }
       if (categoryFilter) {
         url += `&category=${categoryFilter}`;
       }
@@ -93,7 +117,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
       if (!response.ok) throw new Error('Failed to fetch vehicle details');
       return response.json();
     },
-    enabled: !isManualEntry && !!selectedMake && !!selectedModel && (!!selectedEngineSize || (useManualEngine && !!manualEngineSize)),
+    enabled: !isManualEntry && !!selectedMake && !!selectedModel && !!selectedDriveConfig && (!!selectedEngineSize || (useManualEngine && !!manualEngineSize)),
   });
 
   // Search for reference vehicles for proration (manual entry mode)
@@ -231,12 +255,22 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   const handleMakeChange = (make: string) => {
     setSelectedMake(make);
     setSelectedModel("");
+    setSelectedDriveConfig("");
     setSelectedEngineSize("");
     setSelectedVehicle(null);
   };
 
   const handleModelChange = (value: string) => {
     setSelectedModel(value);
+    setSelectedDriveConfig("");
+    setSelectedEngineSize("");
+    setSelectedVehicle(null);
+    setManualEngineSize("");
+    setUseManualEngine(false);
+  };
+
+  const handleDriveConfigChange = (driveConfig: string) => {
+    setSelectedDriveConfig(driveConfig);
     setSelectedEngineSize("");
     setSelectedVehicle(null);
     setManualEngineSize("");
@@ -440,7 +474,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
 
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
           <Label htmlFor="make" className="flex items-center text-sm font-medium text-gray-700 mb-2">
             <Car className="h-4 w-4 mr-2 text-green-600" />
@@ -481,6 +515,33 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
               {models.map((model: any) => (
                 <SelectItem key={`model-${model.model}`} value={model.model}>
                   <span>{model.model}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="driveConfig" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+            <Settings className="h-4 w-4 mr-2 text-green-600" />
+            Drive Configuration
+          </Label>
+          <Select 
+            value={selectedDriveConfig} 
+            onValueChange={handleDriveConfigChange}
+            disabled={!selectedMake || !selectedModel}
+          >
+            <SelectTrigger id="driveConfig">
+              <SelectValue placeholder={
+                !selectedMake || !selectedModel ? "Select make and model first" : 
+                driveConfigsLoading ? "Loading..." : 
+                "Select drive configuration"
+              } />
+            </SelectTrigger>
+            <SelectContent>
+              {driveConfigs.map((driveConfig: string) => (
+                <SelectItem key={`drive-${driveConfig}`} value={driveConfig}>
+                  <span>{driveConfig}</span>
                 </SelectItem>
               ))}
             </SelectContent>

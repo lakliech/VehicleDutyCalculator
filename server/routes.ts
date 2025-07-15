@@ -54,8 +54,7 @@ import {
   loanProducts,
   loanApplications,
   tradeInEvaluations,
-  loanCalculations,
-  savedSearches
+  loanCalculations
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -2294,7 +2293,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const results = await db
         .select()
         .from(savedSearches)
-        .where(eq(savedSearches.userId, userId))
+        .where(and(
+          eq(savedSearches.userId, userId),
+          eq(savedSearches.isActive, true)
+        ))
         .orderBy(desc(savedSearches.createdAt));
 
       res.json(results);
@@ -7349,8 +7351,6 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       res.status(500).json({ error: 'Failed to fetch financial products' });
     }
   });
-
-
 
   const httpServer = createServer(app);
 

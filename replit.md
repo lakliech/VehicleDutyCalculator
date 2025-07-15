@@ -611,22 +611,6 @@ Changelog:
   - Added proper loading states and error handling for authentication
   - Loan application form now properly captures vehicle details and displays loan terms
   - Only authenticated users can access loan application and tracking features
-- January 15, 2025. Cleaned up and streamlined loan application form:
-  - Removed emergency contact fields (name, phone, relationship) from schema and form
-  - Removed collateral description field from schema and form
-  - Simplified form from 4 steps to 3 steps: Personal Information, Employment & Income, Review & Submit
-  - Auto-populated loan amount from vehicle price using product's maximum financing percentage
-  - Auto-populated down payment from vehicle price using product's minimum down payment percentage
-  - Auto-set preferred tenure to product's maximum tenure months
-  - Cleaned up debugging code and simplified navigation buttons
-  - Updated progress bar and step headers to reflect new 3-step structure
-  - Form now focuses on essential information while automatically calculating loan terms from vehicle and product data
-- January 15, 2025. Removed comprehensive loan calculation system:
-  - Removed `/api/calculate-loan` endpoint that was causing database reference errors
-  - Removed real-time loan calculation display from loan application form
-  - Removed automatic calculation triggers and recalculation functionality
-  - Simplified loan application to focus on data collection without complex calculations
-  - Loan application form now captures essential information for manual processing by loan officers
 
 ## User Preferences
 

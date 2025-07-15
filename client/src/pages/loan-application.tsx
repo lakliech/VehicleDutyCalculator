@@ -15,7 +15,6 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { useAuthRedirect } from '@/hooks/use-auth-redirect';
 import { ArrowLeft, Car, CreditCard, User, MapPin, FileText, Calculator, Check, Clock, AlertCircle } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -27,16 +26,15 @@ const loanApplicationSchema = z.object({
   dateOfBirth: z.string().min(1, "Date of birth is required"),
   maritalStatus: z.enum(['single', 'married', 'divorced', 'widowed']),
   employmentStatus: z.enum(['employed', 'self_employed', 'business_owner', 'unemployed']),
-  employerName: z.string().min(1, "Employer name is required"),
-  monthlyIncome: z.coerce.number().min(20000, "Minimum monthly income is KES 20,000"),
-  monthlyExpenses: z.coerce.number().min(0, "Monthly expenses cannot be negative"),
-  requestedAmount: z.coerce.number().min(100000, "Minimum loan amount is KES 100,000"),
-  downPaymentAmount: z.coerce.number().min(0, "Down payment cannot be negative"),
-  preferredTenureMonths: z.coerce.number().min(12).max(84, "Tenure must be between 12 and 84 months"),
-  collateralDescription: z.string().optional(),
-  emergencyContactName: z.string().min(2, "Emergency contact name is required"),
-  emergencyContactPhone: z.string().min(10, "Emergency contact phone is required"),
-  emergencyContactRelation: z.string().min(1, "Emergency contact relation is required")
+  employerName: z.string().optional(),
+  jobTitle: z.string().optional(),
+  monthlyIncome: z.number().min(20000, "Minimum monthly income is KES 20,000"),
+  monthlyExpenses: z.number().min(0, "Monthly expenses cannot be negative").optional(),
+  requestedAmount: z.number().min(100000, "Minimum loan amount is KES 100,000"),
+  downPaymentAmount: z.number().min(0, "Down payment cannot be negative"),
+  preferredTenureMonths: z.number().min(12).max(84, "Tenure must be between 12 and 84 months"),
+  purposeOfLoan: z.string().optional(),
+  additionalNotes: z.string().optional()
 });
 
 type LoanApplicationForm = z.infer<typeof loanApplicationSchema>;
@@ -69,17 +67,11 @@ export default function LoanApplicationPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  // Handle authentication redirects
-  useAuthRedirect();
-  
   const carId = params?.carId;
   const productId = params?.productId;
   
   const [currentStep, setCurrentStep] = useState(1);
-  const [isValidating, setIsValidating] = useState(false);
   const totalSteps = 4;
-  
-
 
   // Check authentication status
   const { data: authStatus, isLoading: authLoading } = useQuery({
@@ -101,25 +93,12 @@ export default function LoanApplicationPage() {
 
   const form = useForm<LoanApplicationForm>({
     resolver: zodResolver(loanApplicationSchema),
-    mode: 'onChange',
     defaultValues: {
-      applicantName: '',
-      applicantEmail: '',
-      applicantPhone: '',
-      nationalId: '',
-      dateOfBirth: '',
       maritalStatus: 'single',
       employmentStatus: 'employed',
-      employerName: '',
-      monthlyIncome: 20000,
       monthlyExpenses: 0,
-      requestedAmount: 100000,
       downPaymentAmount: 0,
-      preferredTenureMonths: 60,
-      collateralDescription: '',
-      emergencyContactName: '',
-      emergencyContactPhone: '',
-      emergencyContactRelation: ''
+      preferredTenureMonths: 60
     }
   });
 
@@ -151,7 +130,6 @@ export default function LoanApplicationPage() {
         ...data,
         userId: authStatus?.user?.id,
         dateOfBirth: new Date(data.dateOfBirth).toISOString(),
-        monthlyExpenses: data.monthlyExpenses?.toString() || "0",
         loanProductId: parseInt(productId!),
         vehicleListingId: carId ? parseInt(carId) : null,
         vehicleMake: vehicleData?.make,
@@ -177,14 +155,9 @@ export default function LoanApplicationPage() {
     }
   });
 
-  // Handle authentication properly
-  const isAuthenticated = !authLoading && authStatus?.authenticated;
-  
-  // Only redirect if user is definitely not authenticated (not loading)
+  // Redirect if not authenticated
   if (!authLoading && !authStatus?.authenticated) {
-    const currentUrl = window.location.pathname;
-    localStorage.setItem('returnUrl', currentUrl);
-    window.location.href = `/api/auth/google?returnUrl=${encodeURIComponent(currentUrl)}`;
+    setLocation('/');
     return null;
   }
 
@@ -204,46 +177,9 @@ export default function LoanApplicationPage() {
     submitApplicationMutation.mutate(data);
   };
 
-  const nextStep = async () => {
-    setIsValidating(true);
-    
-    try {
-      // Get fields for current step validation
-      const fieldsToValidate = getFieldsForStep(currentStep);
-      
-      // Validate current step fields
-      const isStepValid = await form.trigger(fieldsToValidate);
-      
-      if (isStepValid && currentStep < totalSteps) {
-        setCurrentStep(currentStep + 1);
-      } else if (!isStepValid) {
-        // Show validation errors
-        toast({
-          title: "Please complete all required fields",
-          description: "Fill in all required fields before proceeding to the next step.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Error in nextStep:', error);
-    } finally {
-      setIsValidating(false);
-    }
-  };
-
-  // Define which fields to validate for each step
-  const getFieldsForStep = (step: number): (keyof LoanApplicationForm)[] => {
-    switch (step) {
-      case 1:
-        return ['applicantName', 'applicantEmail', 'applicantPhone', 'nationalId', 'dateOfBirth', 'maritalStatus'];
-      case 2:
-        return ['employmentStatus', 'monthlyIncome', 'monthlyExpenses', 'employerName'];
-      case 3:
-        return ['requestedAmount', 'downPaymentAmount', 'preferredTenureMonths'];
-      case 4:
-        return ['emergencyContactName', 'emergencyContactPhone', 'emergencyContactRelation'];
-      default:
-        return [];
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
     }
   };
 
@@ -342,11 +278,7 @@ export default function LoanApplicationPage() {
               
               <CardContent>
                 <Form {...form}>
-                  <form onSubmit={(e) => {
-                    e.preventDefault();
-                    console.log('Form submitted');
-                    form.handleSubmit(onSubmit)(e);
-                  }} className="space-y-6">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     {/* Step 1: Personal Information */}
                     {currentStep === 1 && (
                       <div className="space-y-6">
@@ -431,7 +363,7 @@ export default function LoanApplicationPage() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Marital Status</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select status" />
@@ -461,7 +393,7 @@ export default function LoanApplicationPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Employment Status</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select employment status" />
@@ -727,56 +659,40 @@ export default function LoanApplicationPage() {
                     </div>
                     )}
 
+                    {/* Navigation Buttons */}
+                    <div className="flex justify-between pt-6">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={prevStep}
+                        disabled={currentStep === 1}
+                      >
+                        Previous
+                      </Button>
+                      
+                      {currentStep < totalSteps ? (
+                        <Button type="button" onClick={nextStep}>
+                          Next
+                        </Button>
+                      ) : (
+                        <Button
+                          type="submit"
+                          disabled={submitApplicationMutation.isPending}
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          {submitApplicationMutation.isPending ? (
+                            <>
+                              <Clock className="h-4 w-4 mr-2 animate-spin" />
+                              Submitting...
+                            </>
+                          ) : (
+                            'Submit Application'
+                          )}
+                        </Button>
+                      )}
+                    </div>
                   </form>
                 </Form>
-                
-                {/* Navigation Buttons - OUTSIDE FORM */}
-                <div className="flex justify-between pt-6">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      console.log('=== PREV BUTTON CLICKED ===');
-                      prevStep();
-                    }}
-                    disabled={currentStep === 1}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
-                  
-                  {currentStep < totalSteps ? (
-                    <button 
-                      type="button"
-                      onClick={nextStep}
-                      disabled={isValidating}
-                      className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
-                    >
-                      {isValidating ? (
-                        <>⏳ Validating...</>
-                      ) : (
-                        'Next'
-                      )}
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        console.log('=== SUBMIT BUTTON CLICKED OUTSIDE FORM ===');
-                        const formData = form.getValues();
-                        console.log('Form data:', formData);
-                        onSubmit(formData);
-                      }}
-                      disabled={submitApplicationMutation.isPending}
-                      className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
-                    >
-                      {submitApplicationMutation.isPending ? (
-                        <>⏳ Submitting...</>
-                      ) : (
-                        'Submit Application'
-                      )}
-                    </button>
-                  )}
-                </div>
               </CardContent>
             </Card>
           </div>

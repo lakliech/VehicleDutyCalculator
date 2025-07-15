@@ -186,15 +186,7 @@ export default function LoanApplicationPage() {
   };
 
   const nextStep = () => {
-    console.log("=== NEXTSTEP FUNCTION CALLED ===");
-    console.log("Next button clicked, current step:", currentStep);
-    console.log("Skipping validation, directly advancing step");
-    console.log("Moving to next step:", currentStep + 1);
-    setCurrentStep(prev => {
-      console.log("setCurrentStep called, prev:", prev, "new:", prev + 1);
-      return Math.min(prev + 1, totalSteps);
-    });
-    console.log("Step update call completed");
+    setCurrentStep(prev => Math.min(prev + 1, totalSteps));
   };
 
   const prevStep = () => {
@@ -685,33 +677,17 @@ export default function LoanApplicationPage() {
                       </Button>
                       
                       {currentStep < totalSteps ? (
-                        <div className="flex items-center gap-2">
-                          <Button 
-                            type="button" 
-                            onClick={() => {
-                              console.log("=== DIRECT NEXT CLICKED ===");
-                              console.log("About to call nextStep()");
-                              nextStep();
-                            }}
-                            className="bg-purple-600 hover:bg-purple-700"
-                          >
-                            Next
-                          </Button>
-                          <button 
-                            type="button"
-                            onClick={() => {
-                              console.log("=== SIMPLE BUTTON CLICKED ===");
-                              setCurrentStep(currentStep + 1);
-                            }}
-                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                          >
-                            Test Next
-                          </button>
-                          <span className="ml-2 text-xs text-gray-500">Step {currentStep} of {totalSteps}</span>
-                        </div>
+                        <Button 
+                          type="button" 
+                          onClick={nextStep}
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          Next
+                        </Button>
                       ) : (
                         <Button
-                          type="submit"
+                          type="button"
+                          onClick={() => form.handleSubmit(onSubmit)()}
                           disabled={submitApplicationMutation.isPending}
                           className="bg-purple-600 hover:bg-purple-700"
                         >

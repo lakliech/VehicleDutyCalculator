@@ -104,8 +104,13 @@ export default function LoanApplicationPage() {
 
   // Set default loan amount when vehicle price is available
   useEffect(() => {
+    console.log('Vehicle data check:', { vehicleData, loanProduct });
     if (vehicleData && loanProduct) {
-      const vehiclePrice = parseFloat(vehicleData.price);
+      // Check if vehicleData.price exists, else use vehicleData.priceKes
+      const rawPrice = vehicleData.price || vehicleData.priceKes;
+      console.log('Raw price value:', rawPrice, 'Vehicle data keys:', Object.keys(vehicleData));
+      
+      const vehiclePrice = parseFloat(rawPrice);
       const maxFinancing = parseFloat(loanProduct.maxFinancingPercentage);
       const minDownPayment = parseFloat(loanProduct.minDownPaymentPercentage);
       
@@ -114,6 +119,8 @@ export default function LoanApplicationPage() {
       const minDownPaymentAmount = vehiclePrice * minDownPayment;
       
       console.log('Setting loan defaults:', {
+        vehicleData: vehicleData,
+        rawPrice,
         vehiclePrice,
         requestedAmount,
         minDownPaymentAmount,
@@ -495,7 +502,7 @@ export default function LoanApplicationPage() {
                                 <span className="font-medium">Financing for:</span> {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
                               </div>
                               <div className="font-bold text-purple-600">
-                                KES {parseFloat(vehicleData?.price || '0').toLocaleString()}
+                                KES {parseFloat(vehicleData?.price || vehicleData?.priceKes || '0').toLocaleString()}
                               </div>
                             </div>
                           </AlertDescription>
@@ -627,7 +634,7 @@ export default function LoanApplicationPage() {
                               <p><span className="font-medium">Year:</span> {vehicleData?.year}</p>
                             </div>
                             <div>
-                              <p><span className="font-medium">Vehicle Price:</span> KES {parseFloat(vehicleData?.price || '0').toLocaleString()}</p>
+                              <p><span className="font-medium">Vehicle Price:</span> KES {parseFloat(vehicleData?.price || vehicleData?.priceKes || '0').toLocaleString()}</p>
                               <p><span className="font-medium">Loan Bank:</span> {loanProduct?.bankName}</p>
                             </div>
                           </div>

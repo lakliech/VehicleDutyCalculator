@@ -2925,12 +2925,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (make) {
         const makes = (make as string).split(',');
-        whereConditions.push(sql`${carListings.make} = ANY(${makes})`);
+        whereConditions.push(eq(carListings.make, makes[0])); // For now, just use the first make
       }
       
       if (model) {
         const models = (model as string).split(',');
-        whereConditions.push(sql`${carListings.model} = ANY(${models})`);
+        whereConditions.push(eq(carListings.model, models[0])); // For now, just use the first model
       }
       
       if (minPrice) {
@@ -2943,17 +2943,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (fuelType) {
         const fuelTypes = (fuelType as string).split(',');
-        whereConditions.push(sql`${carListings.fuelType} = ANY(${fuelTypes})`);
+        whereConditions.push(eq(carListings.fuelType, fuelTypes[0]));
       }
       
       if (transmission) {
         const transmissions = (transmission as string).split(',');
-        whereConditions.push(sql`${carListings.transmission} = ANY(${transmissions})`);
+        whereConditions.push(eq(carListings.transmission, transmissions[0]));
       }
       
       if (bodyType) {
         const bodyTypes = (bodyType as string).split(',');
-        whereConditions.push(sql`${carListings.bodyType} = ANY(${bodyTypes})`);
+        whereConditions.push(eq(carListings.bodyType, bodyTypes[0]));
       }
       
       if (minMileage) {
@@ -2974,7 +2974,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (color) {
         const colors = (color as string).split(',');
-        whereConditions.push(sql`${carListings.exteriorColor} = ANY(${colors})`);
+        if (colors.length === 1) {
+          whereConditions.push(eq(carListings.exteriorColor, colors[0]));
+        } else {
+          whereConditions.push(sql`${carListings.exteriorColor} IN (${colors.map(c => `'${c}'`).join(',')})`);
+        }
       }
 
       // Get total count for pagination

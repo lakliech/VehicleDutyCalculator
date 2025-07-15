@@ -293,7 +293,8 @@ export default function BuyACarEnhanced() {
             </Card>
 
             {/* Search Results */}
-            {Object.values(filters).some(value => value !== '' && value !== 0 && value !== 10000000 && value !== 2000 && value !== new Date().getFullYear() && value !== 5000) ? (
+            {filters.search || filters.make || filters.model || filters.fuelType || filters.location || filters.bodyType || filters.condition || 
+             filters.minPrice > 0 || filters.maxPrice < 10000000 || filters.minYear > 2000 || filters.maxYear < new Date().getFullYear() ? (
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
                   <h2 className="text-xl font-semibold">

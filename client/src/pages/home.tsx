@@ -358,62 +358,37 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Side - Main Content */}
-            <div className="lg:col-span-2 text-center lg:text-left">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                Kenya's Car Marketplace
-              </h1>
-              <p className="text-lg text-gray-600 mb-8 max-w-2xl">
-                Professional automotive tools with official government rates. 
-                Buy, sell, import, and manage vehicles with confidence.
-              </p>
-              
+            {/* Right Side - Popular Tools */}
+            <div className="lg:col-span-2">
               {user && (
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-2 mb-6 inline-block">
                   <span className="text-purple-700 text-sm">Welcome back, {user.firstName || 'User'}!</span>
                 </div>
               )}
               
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                <Link href="/duty-calculator">
-                  <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
-                    Calculate Import Duties
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link href="/buy-a-car">
-                  <Button size="lg" variant="outline">
-                    Browse Cars
-                  </Button>
-                </Link>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">
+                Popular Tools
+              </h2>
+              
+              {/* Core Tools Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {CORE_TOOLS.map((tool) => (
+                  <ToolCard key={tool.href} tool={tool} />
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
-      {/* Main Tools Section */}
+      {/* Additional Tools Section */}
       <section className="max-w-6xl mx-auto px-4 py-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
-          Popular Tools
-        </h2>
-        
-        {/* Core Tools Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {CORE_TOOLS.map((tool) => (
-            <ToolCard key={tool.href} tool={tool} />
+        <h3 className="text-base font-semibold text-gray-700 mb-4 text-center">
+          Additional Services
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {ADDITIONAL_TOOLS.map((tool) => (
+            <ToolCard key={tool.href} tool={tool} size="small" />
           ))}
-        </div>
-
-        {/* Additional Tools */}
-        <div className="border-t pt-8">
-          <h3 className="text-base font-semibold text-gray-700 mb-4 text-center">
-            Additional Services
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {ADDITIONAL_TOOLS.map((tool) => (
-              <ToolCard key={tool.href} tool={tool} size="small" />
-            ))}
-          </div>
         </div>
       </section>
       {/* Simple Contact Section */}

@@ -207,34 +207,22 @@ export default function LoanApplicationPage() {
   const nextStep = async () => {
     console.log('=== NEXTSTEP FUNCTION CALLED ===');
     console.log('Next button clicked, current step:', currentStep);
-    setIsValidating(true);
     
+    // Skip validation entirely for testing
     try {
-      // Add form validation for current step before proceeding
-      const fieldsToValidate = getFieldsForStep(currentStep);
-      console.log('Fields to validate:', fieldsToValidate);
-      
-      const isStepValid = await form.trigger(fieldsToValidate);
-      console.log('Validation result:', isStepValid);
-      
-      if (isStepValid && currentStep < totalSteps) {
+      console.log('Skipping validation, directly advancing step');
+      if (currentStep < totalSteps) {
         console.log('Moving to next step:', currentStep + 1);
-        setCurrentStep(currentStep + 1);
-        console.log('Step updated successfully');
-      } else if (!isStepValid) {
-        console.log('Validation failed, showing error');
-        // Show validation errors
-        toast({
-          title: "Please complete all required fields",
-          description: "Fill in all required fields before proceeding to the next step.",
-          variant: "destructive",
+        setCurrentStep(prev => {
+          console.log('setCurrentStep called, prev:', prev, 'new:', prev + 1);
+          return prev + 1;
         });
+        console.log('Step update call completed');
+      } else {
+        console.log('Already at last step');
       }
     } catch (error) {
       console.error('Error in nextStep:', error);
-    } finally {
-      console.log('Setting isValidating to false');
-      setIsValidating(false);
     }
   };
 
@@ -766,23 +754,42 @@ export default function LoanApplicationPage() {
                   </button>
                   
                   {currentStep < totalSteps ? (
-                    <button 
-                      type="button"
-                      onClick={(e) => {
-                        console.log('=== NEXT BUTTON CLICKED ===');
-                        e.preventDefault();
-                        e.stopPropagation();
-                        nextStep();
-                      }}
-                      disabled={isValidating}
-                      className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
-                    >
-                      {isValidating ? (
-                        <>⏳ Validating...</>
-                      ) : (
-                        'Next'
-                      )}
-                    </button>
+                    <div className="space-y-2">
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          console.log('=== DIRECT NEXT CLICKED ===');
+                          console.log('About to call nextStep()');
+                          nextStep();
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium mr-2"
+                      >
+                        Direct Next
+                      </button>
+                      <button 
+                        type="button"
+                        onMouseDown={() => console.log('Mouse down on Next button')}
+                        onMouseUp={() => console.log('Mouse up on Next button')}
+                        onClick={(e) => {
+                          console.log('=== NEXT BUTTON CLICKED ===');
+                          console.log('Event object:', e);
+                          console.log('Current step:', currentStep);
+                          console.log('Total steps:', totalSteps);
+                          console.log('isValidating:', isValidating);
+                          e.preventDefault();
+                          e.stopPropagation();
+                          nextStep();
+                        }}
+                        disabled={isValidating}
+                        className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
+                      >
+                        {isValidating ? (
+                          <>⏳ Validating...</>
+                        ) : (
+                          `Next (Step ${currentStep})`
+                        )}
+                      </button>
+                    </div>
                   ) : (
                     <button
                       type="button"

@@ -73,16 +73,40 @@ export default function LoanApplicationPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
 
+  // Check authentication status
+  const { data: authStatus, isLoading: authLoading } = useQuery({
+    queryKey: ['/api/auth/status'],
+    refetchOnWindowFocus: true,
+  });
+
+  // Redirect if not authenticated
+  if (!authLoading && !authStatus?.authenticated) {
+    setLocation('/');
+    return null;
+  }
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Fetch vehicle details
   const { data: vehicleData, isLoading: loadingVehicle } = useQuery({
     queryKey: ['/api/car-listings', carId, 'details'],
-    enabled: !!carId
+    enabled: !!carId && !!authStatus?.authenticated,
   });
 
   // Fetch loan product details
   const { data: loanProduct, isLoading: loadingProduct } = useQuery({
     queryKey: ['/api/financial/loan-products/single', productId],
-    enabled: !!productId
+    enabled: !!productId && !!authStatus?.authenticated,
   });
 
   const form = useForm<LoanApplicationForm>({

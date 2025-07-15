@@ -54,10 +54,35 @@ export default function LoanApplicationsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
+  // Check authentication status
+  const { data: authStatus, isLoading: authLoading } = useQuery({
+    queryKey: ['/api/auth/status'],
+    refetchOnWindowFocus: true,
+  });
+
   const { data: applications, isLoading, error } = useQuery({
     queryKey: ['/api/loan-applications'],
+    enabled: !!authStatus?.authenticated,
     retry: 2
   });
+
+  // Redirect if not authenticated
+  if (!authLoading && !authStatus?.authenticated) {
+    setLocation('/');
+    return null;
+  }
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {

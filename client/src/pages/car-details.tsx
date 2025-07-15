@@ -612,7 +612,18 @@ export default function CarDetails() {
                                       <Button 
                                         size="sm" 
                                         className="flex-1 bg-purple-600 hover:bg-purple-700"
-                                        onClick={() => setLocation(`/loan-application/${id}/${product.id}`)}
+                                        onClick={() => {
+                                          // Check if user is authenticated before allowing loan application
+                                          if (!isAuthenticated) {
+                                            toast({
+                                              title: "Authentication Required",
+                                              description: "Please sign in to apply for a loan",
+                                              variant: "destructive",
+                                            });
+                                            return;
+                                          }
+                                          setLocation(`/loan-application/${id}/${product.id}`);
+                                        }}
                                       >
                                         Apply Now
                                       </Button>

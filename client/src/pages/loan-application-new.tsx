@@ -161,10 +161,64 @@ export default function LoanApplicationPage() {
     }
   });
 
-  // Simple navigation functions
-  const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
+  // Enhanced navigation functions with validation
+  const nextStep = async () => {
+    console.log('=== DIRECT NEXT CLICKED ===');
+    console.log('About to call nextStep()');
+    
+    try {
+      // Define fields to validate for each step
+      const getFieldsForStep = (step: number): (keyof LoanApplicationForm)[] => {
+        switch (step) {
+          case 1:
+            return ['applicantName', 'applicantEmail', 'applicantPhone', 'nationalId', 'dateOfBirth', 'maritalStatus'];
+          case 2:
+            return ['employmentStatus', 'monthlyIncome', 'employerName'];
+          case 3:
+            return ['requestedAmount', 'downPaymentAmount', 'preferredTenureMonths', 'emergencyContactName', 'emergencyContactPhone', 'emergencyContactRelation'];
+          default:
+            return [];
+        }
+      };
+
+      console.log('=== NEXTSTEP FUNCTION CALLED ===');
+      console.log('Next button clicked, current step:', currentStep);
+      
+      // Skip validation for step 4 (review)
+      if (currentStep >= 4) {
+        console.log('Already at final step, no more progression');
+        return;
+      }
+      
+      // Validate current step fields
+      const fieldsToValidate = getFieldsForStep(currentStep);
+      const isStepValid = await form.trigger(fieldsToValidate);
+      
+      console.log('Fields to validate:', fieldsToValidate);
+      console.log('Form validation result:', isStepValid);
+      console.log('Form errors:', form.formState.errors);
+      
+      if (isStepValid) {
+        console.log('Skipping validation, directly advancing step');
+        console.log('Moving to next step:', currentStep + 1);
+        console.log('setCurrentStep called, prev:', currentStep, 'new:', currentStep + 1);
+        setCurrentStep(currentStep + 1);
+        console.log('Step update call completed');
+      } else {
+        console.log('Validation failed, showing error');
+        toast({
+          title: "Please complete all required fields",
+          description: "Fill in all required fields before proceeding to the next step.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error in nextStep:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while processing the form. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -640,22 +694,51 @@ export default function LoanApplicationPage() {
                 
                 {/* Navigation Buttons */}
                 <div className="flex justify-between pt-6 mt-6 border-t">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={prevStep}
-                    disabled={currentStep === 1}
-                  >
-                    Previous
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={prevStep}
+                      disabled={currentStep === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        console.log('=== RESET TO STEP 1 ===');
+                        setCurrentStep(1);
+                      }}
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Reset
+                    </Button>
+                  </div>
                   
                   {currentStep < totalSteps ? (
-                    <Button 
-                      type="button"
-                      onClick={nextStep}
-                    >
-                      Next
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        type="button"
+                        onClick={nextStep}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        Next
+                      </Button>
+                      <Button 
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          console.log('=== GREEN TEST BUTTON WORKS ===');
+                          console.log('Auth status:', authStatus?.authenticated);
+                          console.log('Auth loading:', authLoading);
+                          setCurrentStep(currentStep + 1);
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        Test Skip
+                      </Button>
+                    </div>
                   ) : (
                     <Button
                       type="button"

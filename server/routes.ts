@@ -6758,6 +6758,240 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
+  // ==============================
+  // ADMIN FINANCIAL SERVICES MANAGEMENT ROUTES
+  // ==============================
+
+  // Get all banks for admin management
+  app.get('/api/admin/financial/banks', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const banks = await db.select().from(bankPartners).orderBy(bankPartners.bankName);
+      res.json(banks);
+    } catch (error) {
+      console.error('Error fetching banks for admin:', error);
+      res.status(500).json({ error: 'Failed to fetch banks' });
+    }
+  });
+
+  // Create new bank
+  app.post('/api/admin/financial/banks', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const bankData = req.body;
+      const [newBank] = await db.insert(bankPartners).values(bankData).returning();
+      res.json(newBank);
+    } catch (error) {
+      console.error('Error creating bank:', error);
+      res.status(500).json({ error: 'Failed to create bank' });
+    }
+  });
+
+  // Update bank
+  app.put('/api/admin/financial/banks/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const bankData = req.body;
+      const [updatedBank] = await db.update(bankPartners)
+        .set({ ...bankData, updatedAt: new Date() })
+        .where(eq(bankPartners.id, parseInt(id)))
+        .returning();
+      res.json(updatedBank);
+    } catch (error) {
+      console.error('Error updating bank:', error);
+      res.status(500).json({ error: 'Failed to update bank' });
+    }
+  });
+
+  // Delete bank
+  app.delete('/api/admin/financial/banks/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      await db.delete(bankPartners).where(eq(bankPartners.id, parseInt(id)));
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting bank:', error);
+      res.status(500).json({ error: 'Failed to delete bank' });
+    }
+  });
+
+  // Get all loan products for admin management
+  app.get('/api/admin/financial/loan-products', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const products = await db.select({
+        id: loanProducts.id,
+        bankId: loanProducts.bankId,
+        productName: loanProducts.productName,
+        productType: loanProducts.productType,
+        minLoanAmount: loanProducts.minLoanAmount,
+        maxLoanAmount: loanProducts.maxLoanAmount,
+        minInterestRate: loanProducts.minInterestRate,
+        maxInterestRate: loanProducts.maxInterestRate,
+        minTenureMonths: loanProducts.minTenureMonths,
+        maxTenureMonths: loanProducts.maxTenureMonths,
+        maxFinancingPercentage: loanProducts.maxFinancingPercentage,
+        minDownPaymentPercentage: loanProducts.minDownPaymentPercentage,
+        processingFeeRate: loanProducts.processingFeeRate,
+        processingFeeFixed: loanProducts.processingFeeFixed,
+        insuranceRequired: loanProducts.insuranceRequired,
+        guarantorRequired: loanProducts.guarantorRequired,
+        minMonthlyIncome: loanProducts.minMonthlyIncome,
+        maxAge: loanProducts.maxAge,
+        eligibilityCriteria: loanProducts.eligibilityCriteria,
+        requiredDocuments: loanProducts.requiredDocuments,
+        features: loanProducts.features,
+        isActive: loanProducts.isActive,
+        createdAt: loanProducts.createdAt,
+        updatedAt: loanProducts.updatedAt,
+        bankName: bankPartners.bankName,
+      }).from(loanProducts)
+        .leftJoin(bankPartners, eq(loanProducts.bankId, bankPartners.id))
+        .orderBy(bankPartners.bankName, loanProducts.productName);
+      res.json(products);
+    } catch (error) {
+      console.error('Error fetching loan products for admin:', error);
+      res.status(500).json({ error: 'Failed to fetch loan products' });
+    }
+  });
+
+  // Create new loan product
+  app.post('/api/admin/financial/loan-products', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const productData = req.body;
+      const [newProduct] = await db.insert(loanProducts).values(productData).returning();
+      res.json(newProduct);
+    } catch (error) {
+      console.error('Error creating loan product:', error);
+      res.status(500).json({ error: 'Failed to create loan product' });
+    }
+  });
+
+  // Update loan product
+  app.put('/api/admin/financial/loan-products/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const productData = req.body;
+      const [updatedProduct] = await db.update(loanProducts)
+        .set({ ...productData, updatedAt: new Date() })
+        .where(eq(loanProducts.id, parseInt(id)))
+        .returning();
+      res.json(updatedProduct);
+    } catch (error) {
+      console.error('Error updating loan product:', error);
+      res.status(500).json({ error: 'Failed to update loan product' });
+    }
+  });
+
+  // Delete loan product
+  app.delete('/api/admin/financial/loan-products/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      await db.delete(loanProducts).where(eq(loanProducts.id, parseInt(id)));
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting loan product:', error);
+      res.status(500).json({ error: 'Failed to delete loan product' });
+    }
+  });
+
+  // Get all loan applications for admin management
+  app.get('/api/admin/financial/loan-applications', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const applications = await db.select({
+        id: loanApplications.id,
+        applicationNumber: loanApplications.applicationNumber,
+        applicantName: loanApplications.applicantName,
+        applicantEmail: loanApplications.applicantEmail,
+        applicantPhone: loanApplications.applicantPhone,
+        nationalId: loanApplications.nationalId,
+        monthlyIncome: loanApplications.monthlyIncome,
+        requestedAmount: loanApplications.requestedAmount,
+        downPaymentAmount: loanApplications.downPaymentAmount,
+        preferredTenureMonths: loanApplications.preferredTenureMonths,
+        vehicleMake: loanApplications.vehicleMake,
+        vehicleModel: loanApplications.vehicleModel,
+        vehicleYear: loanApplications.vehicleYear,
+        vehiclePrice: loanApplications.vehiclePrice,
+        status: loanApplications.status,
+        preApprovalAmount: loanApplications.preApprovalAmount,
+        approvedInterestRate: loanApplications.approvedInterestRate,
+        approvedTenureMonths: loanApplications.approvedTenureMonths,
+        remarks: loanApplications.remarks,
+        submittedAt: loanApplications.submittedAt,
+        reviewedAt: loanApplications.reviewedAt,
+        reviewedBy: loanApplications.reviewedBy,
+        productName: loanProducts.productName,
+        bankName: bankPartners.bankName,
+      }).from(loanApplications)
+        .leftJoin(loanProducts, eq(loanApplications.loanProductId, loanProducts.id))
+        .leftJoin(bankPartners, eq(loanProducts.bankId, bankPartners.id))
+        .orderBy(desc(loanApplications.submittedAt));
+      res.json(applications);
+    } catch (error) {
+      console.error('Error fetching loan applications for admin:', error);
+      res.status(500).json({ error: 'Failed to fetch loan applications' });
+    }
+  });
+
+  // Update loan application status
+  app.put('/api/admin/financial/loan-applications/:id/status', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { status, remarks, preApprovalAmount, approvedInterestRate, approvedTenureMonths } = req.body;
+      
+      const updateData: any = {
+        status,
+        remarks,
+        reviewedAt: new Date(),
+        reviewedBy: req.user?.id || 'admin',
+      };
+
+      if (preApprovalAmount) updateData.preApprovalAmount = preApprovalAmount;
+      if (approvedInterestRate) updateData.approvedInterestRate = approvedInterestRate;
+      if (approvedTenureMonths) updateData.approvedTenureMonths = approvedTenureMonths;
+
+      const [updatedApplication] = await db.update(loanApplications)
+        .set(updateData)
+        .where(eq(loanApplications.id, parseInt(id)))
+        .returning();
+      res.json(updatedApplication);
+    } catch (error) {
+      console.error('Error updating loan application status:', error);
+      res.status(500).json({ error: 'Failed to update loan application status' });
+    }
+  });
+
+  // Get all trade-in evaluations for admin management
+  app.get('/api/admin/financial/trade-in-evaluations', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const evaluations = await db.select().from(tradeInEvaluations)
+        .orderBy(desc(tradeInEvaluations.createdAt));
+      res.json(evaluations);
+    } catch (error) {
+      console.error('Error fetching trade-in evaluations for admin:', error);
+      res.status(500).json({ error: 'Failed to fetch trade-in evaluations' });
+    }
+  });
+
+  // Update trade-in evaluation status
+  app.put('/api/admin/financial/trade-in-evaluations/:id/status', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { status, remarks } = req.body;
+      
+      const [updatedEvaluation] = await db.update(tradeInEvaluations)
+        .set({
+          status,
+          evaluatedAt: new Date(),
+          evaluatedBy: req.user?.id || 'admin',
+        })
+        .where(eq(tradeInEvaluations.id, parseInt(id)))
+        .returning();
+      res.json(updatedEvaluation);
+    } catch (error) {
+      console.error('Error updating trade-in evaluation status:', error);
+      res.status(500).json({ error: 'Failed to update trade-in evaluation status' });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

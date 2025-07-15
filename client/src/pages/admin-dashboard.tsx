@@ -52,7 +52,11 @@ import {
   Ban,
   Activity,
   RefreshCw,
-  Download
+  Download,
+  Building2,
+  CreditCard,
+  DollarSign,
+  Receipt
 } from "lucide-react";
 import { z } from "zod";
 import type { 
@@ -253,6 +257,51 @@ function AuthenticatedAdminDashboard() {
     queryKey: ["/api/admin/flagging-stats"],
     queryFn: async () => {
       const response = await fetch("/api/admin/flagging-stats", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  // Financial Services Queries
+  const { data: banks = [], isLoading: banksLoading } = useQuery({
+    queryKey: ["/api/admin/financial/banks"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/financial/banks", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: loanProducts = [], isLoading: loanProductsLoading } = useQuery({
+    queryKey: ["/api/admin/financial/loan-products"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/financial/loan-products", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: loanApplications = [], isLoading: loanApplicationsLoading } = useQuery({
+    queryKey: ["/api/admin/financial/loan-applications"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/financial/loan-applications", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: tradeInEvaluations = [], isLoading: tradeInEvaluationsLoading } = useQuery({
+    queryKey: ["/api/admin/financial/trade-in-evaluations"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/financial/trade-in-evaluations", {
         headers: getAuthHeaders(),
       });
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
@@ -533,7 +582,7 @@ function AuthenticatedAdminDashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9">
+          <TabsList className="grid w-full grid-cols-10">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Database className="h-4 w-4" />
               Overview
@@ -569,6 +618,10 @@ function AuthenticatedAdminDashboard() {
             <TabsTrigger value="categories" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               Category Rules
+            </TabsTrigger>
+            <TabsTrigger value="financial" className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              Financial Services
             </TabsTrigger>
           </TabsList>
 
@@ -771,6 +824,20 @@ function AuthenticatedAdminDashboard() {
               categoryRules={categoryRules}
               isLoading={categoryRulesLoading}
               onAdd={addCategoryRuleMutation.mutate}
+            />
+          </TabsContent>
+
+          {/* Financial Services Management Tab */}
+          <TabsContent value="financial">
+            <FinancialServicesTab 
+              banks={banks}
+              banksLoading={banksLoading}
+              loanProducts={loanProducts}
+              loanProductsLoading={loanProductsLoading}
+              loanApplications={loanApplications}
+              loanApplicationsLoading={loanApplicationsLoading}
+              tradeInEvaluations={tradeInEvaluations}
+              tradeInEvaluationsLoading={tradeInEvaluationsLoading}
             />
           </TabsContent>
 
@@ -3929,5 +3996,418 @@ function UserDetailsModal({ userId, onClose }: { userId: string; onClose: () => 
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Financial Services Tab Component
+function FinancialServicesTab({ 
+  banks, 
+  banksLoading,
+  loanProducts,
+  loanProductsLoading,
+  loanApplications,
+  loanApplicationsLoading,
+  tradeInEvaluations,
+  tradeInEvaluationsLoading
+}: {
+  banks: any[];
+  banksLoading: boolean;
+  loanProducts: any[];
+  loanProductsLoading: boolean;
+  loanApplications: any[];
+  loanApplicationsLoading: boolean;
+  tradeInEvaluations: any[];
+  tradeInEvaluationsLoading: boolean;
+}) {
+  const [selectedFinancialTab, setSelectedFinancialTab] = useState("banks");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Bank management mutations
+  const createBankMutation = useMutation({
+    mutationFn: async (bankData: any) => {
+      const response = await fetch("/api/admin/financial/banks", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify(bankData),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/financial/banks"] });
+      toast({ title: "Success", description: "Bank created successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const updateBankMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      const response = await fetch(`/api/admin/financial/banks/${id}`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/financial/banks"] });
+      toast({ title: "Success", description: "Bank updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteBankMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/admin/financial/banks/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/financial/banks"] });
+      toast({ title: "Success", description: "Bank deleted successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Loan application status update
+  const updateLoanApplicationMutation = useMutation({
+    mutationFn: async ({ id, status, remarks, preApprovalAmount, approvedInterestRate, approvedTenureMonths }: any) => {
+      const response = await fetch(`/api/admin/financial/loan-applications/${id}/status`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify({ status, remarks, preApprovalAmount, approvedInterestRate, approvedTenureMonths }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/financial/loan-applications"] });
+      toast({ title: "Success", description: "Loan application updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5" />
+            Financial Services Management
+          </CardTitle>
+          <CardDescription>
+            Manage bank partners, loan products, applications, and trade-in evaluations
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={selectedFinancialTab} onValueChange={setSelectedFinancialTab}>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="banks" className="flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                Bank Partners ({banks.length})
+              </TabsTrigger>
+              <TabsTrigger value="loan-products" className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4" />
+                Loan Products ({loanProducts.length})
+              </TabsTrigger>
+              <TabsTrigger value="applications" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Applications ({loanApplications.length})
+              </TabsTrigger>
+              <TabsTrigger value="trade-ins" className="flex items-center gap-2">
+                <Receipt className="h-4 w-4" />
+                Trade-in Evaluations ({tradeInEvaluations.length})
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Bank Partners Tab */}
+            <TabsContent value="banks" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Bank Partners</h3>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Bank
+                </Button>
+              </div>
+              
+              {banksLoading ? (
+                <div className="text-center py-8">Loading banks...</div>
+              ) : (
+                <div className="border rounded-lg">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Bank Name</TableHead>
+                        <TableHead>Bank Code</TableHead>
+                        <TableHead>Contact Email</TableHead>
+                        <TableHead>Contact Phone</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {banks.map((bank) => (
+                        <TableRow key={bank.id}>
+                          <TableCell className="font-medium">{bank.bankName}</TableCell>
+                          <TableCell>{bank.bankCode}</TableCell>
+                          <TableCell>{bank.contactEmail}</TableCell>
+                          <TableCell>{bank.contactPhone}</TableCell>
+                          <TableCell>
+                            <Badge variant={bank.isActive ? "default" : "secondary"}>
+                              {bank.isActive ? "Active" : "Inactive"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={() => deleteBankMutation.mutate(bank.id)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Loan Products Tab */}
+            <TabsContent value="loan-products" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Loan Products</h3>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Loan Product
+                </Button>
+              </div>
+              
+              {loanProductsLoading ? (
+                <div className="text-center py-8">Loading loan products...</div>
+              ) : (
+                <div className="border rounded-lg">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Bank</TableHead>
+                        <TableHead>Product Name</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Interest Rate</TableHead>
+                        <TableHead>Loan Amount</TableHead>
+                        <TableHead>Tenure</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {loanProducts.map((product) => (
+                        <TableRow key={product.id}>
+                          <TableCell className="font-medium">{product.bankName}</TableCell>
+                          <TableCell>{product.productName}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{product.productType}</Badge>
+                          </TableCell>
+                          <TableCell>{product.minInterestRate}% - {product.maxInterestRate}%</TableCell>
+                          <TableCell>
+                            KES {product.minLoanAmount?.toLocaleString()} - {product.maxLoanAmount?.toLocaleString()}
+                          </TableCell>
+                          <TableCell>{product.minTenureMonths} - {product.maxTenureMonths} months</TableCell>
+                          <TableCell>
+                            <Badge variant={product.isActive ? "default" : "secondary"}>
+                              {product.isActive ? "Active" : "Inactive"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Loan Applications Tab */}
+            <TabsContent value="applications" className="space-y-4">
+              <h3 className="text-lg font-semibold">Loan Applications</h3>
+              
+              {loanApplicationsLoading ? (
+                <div className="text-center py-8">Loading applications...</div>
+              ) : (
+                <div className="border rounded-lg">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Application #</TableHead>
+                        <TableHead>Applicant</TableHead>
+                        <TableHead>Bank/Product</TableHead>
+                        <TableHead>Requested Amount</TableHead>
+                        <TableHead>Vehicle</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Submitted</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {loanApplications.map((application) => (
+                        <TableRow key={application.id}>
+                          <TableCell className="font-medium">{application.applicationNumber}</TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{application.applicantName}</p>
+                              <p className="text-sm text-gray-500">{application.applicantEmail}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{application.bankName}</p>
+                              <p className="text-sm text-gray-500">{application.productName}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>KES {application.requestedAmount?.toLocaleString()}</TableCell>
+                          <TableCell>
+                            {application.vehicleYear} {application.vehicleMake} {application.vehicleModel}
+                          </TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant={
+                                application.status === 'approved' ? 'default' :
+                                application.status === 'rejected' ? 'destructive' :
+                                application.status === 'pending' ? 'secondary' : 'outline'
+                              }
+                            >
+                              {application.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {new Date(application.submittedAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              {application.status === 'pending' && (
+                                <>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => updateLoanApplicationMutation.mutate({
+                                      id: application.id,
+                                      status: 'approved',
+                                      remarks: 'Approved by admin'
+                                    })}
+                                  >
+                                    <CheckCircle className="h-4 w-4" />
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => updateLoanApplicationMutation.mutate({
+                                      id: application.id,
+                                      status: 'rejected',
+                                      remarks: 'Rejected by admin'
+                                    })}
+                                  >
+                                    <XCircle className="h-4 w-4" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Trade-in Evaluations Tab */}
+            <TabsContent value="trade-ins" className="space-y-4">
+              <h3 className="text-lg font-semibold">Trade-in Evaluations</h3>
+              
+              {tradeInEvaluationsLoading ? (
+                <div className="text-center py-8">Loading evaluations...</div>
+              ) : (
+                <div className="border rounded-lg">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Evaluation #</TableHead>
+                        <TableHead>Vehicle</TableHead>
+                        <TableHead>Market Value</TableHead>
+                        <TableHead>Trade-in Value</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {tradeInEvaluations.map((evaluation) => (
+                        <TableRow key={evaluation.id}>
+                          <TableCell className="font-medium">{evaluation.evaluationNumber}</TableCell>
+                          <TableCell>
+                            {evaluation.year} {evaluation.make} {evaluation.model}
+                          </TableCell>
+                          <TableCell>KES {evaluation.marketValue?.toLocaleString()}</TableCell>
+                          <TableCell>KES {evaluation.tradeInValue?.toLocaleString()}</TableCell>
+                          <TableCell>
+                            <Badge variant={evaluation.status === 'completed' ? 'default' : 'secondary'}>
+                              {evaluation.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {new Date(evaluation.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="outline" size="sm">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

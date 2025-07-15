@@ -175,10 +175,10 @@ export default function LoanApplicationPage() {
   }
 
   const onSubmit = (data: LoanApplicationForm) => {
-    // Transform data to match backend schema expectations - the backend schema uses .extend() which expects numbers
+    // Transform data to match backend schema expectations
     const transformedData = {
       ...data,
-      dateOfBirth: data.dateOfBirth, // Keep as string - createInsertSchema expects string for timestamp
+      dateOfBirth: new Date(data.dateOfBirth), // Convert to Date object for timestamp field
       monthlyIncome: data.monthlyIncome, // Keep as number - .extend() overrides to expect number
       monthlyExpenses: data.monthlyExpenses ? data.monthlyExpenses.toString() : undefined, // Convert to string for decimal field
       requestedAmount: data.requestedAmount, // Keep as number - .extend() overrides to expect number

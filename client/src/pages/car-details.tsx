@@ -34,7 +34,13 @@ import {
   Wrench,
   Award,
   Clock,
-  FileText
+  FileText,
+  CreditCard,
+  DollarSign,
+  Calculator,
+  TrendingDown,
+  Building2,
+  Percent
 } from "lucide-react";
 import { ModuleNavigation } from "@/components/module-navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -102,6 +108,10 @@ export default function CarDetails() {
   const [showMessageDialog, setShowMessageDialog] = useState(false);
   const [messageText, setMessageText] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [activeTab, setActiveTab] = useState(() => {
+    // Check for #financial hash in URL to open financial services tab
+    return window.location.hash === '#financial' ? 'financial' : 'overview';
+  });
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
@@ -119,6 +129,16 @@ export default function CarDetails() {
   const { data: messageTemplates = [] } = useQuery({
     queryKey: ['/api/messaging/templates'],
     enabled: isAuthenticated,
+  });
+
+  // Fetch financial products for this listing
+  const { data: financialProducts, isLoading: financialLoading } = useQuery({
+    queryKey: ['/api/listing/financial-products', id],
+    queryFn: async () => {
+      const response = await apiRequest('GET', `/api/listing/${id}/financial-products`);
+      return response.json();
+    },
+    enabled: !!id,
   });
 
   // Send message mutation
@@ -407,10 +427,14 @@ export default function CarDetails() {
             {/* Vehicle Details Tabs */}
             <Card>
               <CardContent className="p-6">
-                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList className="grid w-full grid-cols-4">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="grid w-full grid-cols-5">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="specs">Specifications</TabsTrigger>
+                    <TabsTrigger value="financial" className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      Financial Services
+                    </TabsTrigger>
                     <TabsTrigger value="history">History</TabsTrigger>
                     <TabsTrigger value="features">Features</TabsTrigger>
                   </TabsList>
@@ -504,6 +528,149 @@ export default function CarDetails() {
                         </div>
                       </div>
                     </div>
+                  </TabsContent>
+
+                  {/* Financial Services Tab */}
+                  <TabsContent value="financial" className="mt-6">
+                    {financialLoading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                        <p className="mt-2 text-gray-600">Loading financial products...</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {/* Loan Products Section */}
+                        {financialProducts?.loanProducts?.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-4">
+                              <Building2 className="h-5 w-5 text-purple-600" />
+                              <h3 className="text-lg font-semibold">Available Loan Products</h3>
+                              <Badge variant="secondary">{financialProducts.loanProducts.length} options</Badge>
+                            </div>
+                            <div className="grid gap-4">
+                              {financialProducts.loanProducts.map((product: any, index: number) => (
+                                <Card key={index} className="border-purple-200">
+                                  <CardHeader className="pb-3">
+                                    <div className="flex justify-between items-start">
+                                      <div>
+                                        <CardTitle className="text-lg">{product.bankName}</CardTitle>
+                                        <CardDescription>{product.productName}</CardDescription>
+                                      </div>
+                                      <Badge variant="outline">{product.productType.replace('_', ' ')}</Badge>
+                                    </div>
+                                  </CardHeader>
+                                  <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                      <div className="text-center p-3 bg-purple-50 rounded-lg">
+                                        <DollarSign className="h-5 w-5 mx-auto mb-1 text-purple-600" />
+                                        <div className="text-sm font-medium">{formatCurrency(product.recommendedLoanAmount)}</div>
+                                        <div className="text-xs text-gray-500">Loan Amount</div>
+                                      </div>
+                                      <div className="text-center p-3 bg-purple-50 rounded-lg">
+                                        <Calculator className="h-5 w-5 mx-auto mb-1 text-purple-600" />
+                                        <div className="text-sm font-medium">{formatCurrency(product.estimatedMonthlyPayment)}</div>
+                                        <div className="text-xs text-gray-500">Monthly Payment</div>
+                                      </div>
+                                      <div className="text-center p-3 bg-purple-50 rounded-lg">
+                                        <Percent className="h-5 w-5 mx-auto mb-1 text-purple-600" />
+                                        <div className="text-sm font-medium">{product.minInterestRate}%</div>
+                                        <div className="text-xs text-gray-500">Interest Rate</div>
+                                      </div>
+                                      <div className="text-center p-3 bg-purple-50 rounded-lg">
+                                        <Calendar className="h-5 w-5 mx-auto mb-1 text-purple-600" />
+                                        <div className="text-sm font-medium">{product.maxTenureMonths} months</div>
+                                        <div className="text-xs text-gray-500">Max Tenure</div>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="border-t pt-3">
+                                      <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div className="flex justify-between">
+                                          <span className="text-gray-600">Down Payment:</span>
+                                          <span className="font-medium">{formatCurrency(product.recommendedDownPayment)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-gray-600">Processing Fee:</span>
+                                          <span className="font-medium">{formatCurrency(product.estimatedProcessingFee)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-gray-600">Total Interest:</span>
+                                          <span className="font-medium">{formatCurrency(product.totalInterest)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-gray-600 font-medium">Total Payable:</span>
+                                          <span className="font-semibold text-purple-600">{formatCurrency(product.totalPayable)}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="flex gap-2">
+                                      <Button variant="outline" size="sm" className="flex-1">
+                                        <Phone className="h-4 w-4 mr-1" />
+                                        Contact Bank
+                                      </Button>
+                                      <Button size="sm" className="flex-1">
+                                        Apply Now
+                                      </Button>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Trade-in Estimate Section */}
+                        {financialProducts?.tradeInEstimate && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-4">
+                              <TrendingDown className="h-5 w-5 text-purple-600" />
+                              <h3 className="text-lg font-semibold">Trade-in Value Estimate</h3>
+                            </div>
+                            <Card className="border-purple-200">
+                              <CardContent className="p-4">
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                  <div className="text-center p-3 bg-purple-50 rounded-lg">
+                                    <DollarSign className="h-5 w-5 mx-auto mb-1 text-purple-600" />
+                                    <div className="text-lg font-semibold">{formatCurrency(financialProducts.tradeInEstimate.estimatedValue)}</div>
+                                    <div className="text-xs text-gray-500">Estimated Trade-in Value</div>
+                                  </div>
+                                  <div className="text-center p-3 bg-purple-50 rounded-lg">
+                                    <TrendingDown className="h-5 w-5 mx-auto mb-1 text-purple-600" />
+                                    <div className="text-lg font-semibold">{financialProducts.tradeInEstimate.depreciationRate.toFixed(1)}%</div>
+                                    <div className="text-xs text-gray-500">Depreciation Rate</div>
+                                  </div>
+                                  <div className="text-center p-3 bg-purple-50 rounded-lg">
+                                    <Calendar className="h-5 w-5 mx-auto mb-1 text-purple-600" />
+                                    <div className="text-lg font-semibold">{financialProducts.tradeInEstimate.vehicleAge} years</div>
+                                    <div className="text-xs text-gray-500">Vehicle Age</div>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-600 mt-3 p-3 bg-gray-50 rounded-lg">
+                                  {financialProducts.tradeInEstimate.notes}
+                                </p>
+                                <Button variant="outline" className="w-full mt-3">
+                                  <Calculator className="h-4 w-4 mr-2" />
+                                  Get Professional Appraisal
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        )}
+                        
+                        {/* No Products Available */}
+                        {(!financialProducts?.loanProducts?.length && !financialProducts?.tradeInEstimate) && (
+                          <div className="text-center py-8">
+                            <CreditCard className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                            <p className="text-gray-600 mb-2">No financial products available for this vehicle</p>
+                            <p className="text-sm text-gray-500">Contact our financial services team for personalized options</p>
+                            <Button variant="outline" className="mt-4">
+                              Contact Financial Advisor
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </TabsContent>
                   
                   <TabsContent value="history" className="mt-6">

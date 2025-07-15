@@ -6992,6 +6992,120 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
+  // Get financial products for a specific listing
+  app.get('/api/listing/:id/financial-products', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      // Get listing details first
+      const listing = await db.select().from(carListings)
+        .where(eq(carListings.id, parseInt(id)))
+        .limit(1);
+      
+      if (listing.length === 0) {
+        return res.status(404).json({ error: 'Listing not found' });
+      }
+      
+      const vehicle = listing[0];
+      
+      // Get all active loan products
+      const loanProducts = await db.select({
+        id: loanProductsTable.id,
+        bankName: banksTable.bankName,
+        bankCode: banksTable.bankCode,
+        productName: loanProductsTable.productName,
+        productType: loanProductsTable.productType,
+        minInterestRate: loanProductsTable.minInterestRate,
+        maxInterestRate: loanProductsTable.maxInterestRate,
+        minLoanAmount: loanProductsTable.minLoanAmount,
+        maxLoanAmount: loanProductsTable.maxLoanAmount,
+        minTenureMonths: loanProductsTable.minTenureMonths,
+        maxTenureMonths: loanProductsTable.maxTenureMonths,
+        processingFeePercentage: loanProductsTable.processingFeePercentage,
+        requiresDownPayment: loanProductsTable.requiresDownPayment,
+        minDownPaymentPercentage: loanProductsTable.minDownPaymentPercentage,
+        maxLtvRatio: loanProductsTable.maxLtvRatio,
+        eligibilityRequirements: loanProductsTable.eligibilityRequirements,
+        features: loanProductsTable.features,
+        contactInfo: banksTable.contactEmail,
+        contactPhone: banksTable.contactPhone
+      })
+      .from(loanProductsTable)
+      .innerJoin(banksTable, eq(loanProductsTable.bankId, banksTable.id))
+      .where(and(
+        eq(loanProductsTable.isActive, true),
+        eq(banksTable.isActive, true),
+        or(
+          eq(loanProductsTable.productType, 'auto_loan'),
+          eq(loanProductsTable.productType, 'asset_finance')
+        ),
+        gte(loanProductsTable.maxLoanAmount, vehicle.price * 0.5) // Show products that can finance at least 50% of vehicle price
+      ));
+      
+      // Calculate personalized loan options for each product
+      const personalizedProducts = loanProducts.map(product => {
+        const loanAmount = Math.min(vehicle.price * (product.maxLtvRatio / 100), product.maxLoanAmount);
+        const downPayment = vehicle.price - loanAmount;
+        const processingFee = (loanAmount * (product.processingFeePercentage || 2)) / 100;
+        
+        // Calculate monthly payment (approximate)
+        const monthlyRate = (product.minInterestRate / 100) / 12;
+        const months = product.maxTenureMonths;
+        const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
+                              (Math.pow(1 + monthlyRate, months) - 1);
+        
+        return {
+          ...product,
+          vehiclePrice: vehicle.price,
+          recommendedLoanAmount: Math.round(loanAmount),
+          recommendedDownPayment: Math.round(downPayment),
+          estimatedProcessingFee: Math.round(processingFee),
+          estimatedMonthlyPayment: Math.round(monthlyPayment),
+          totalInterest: Math.round((monthlyPayment * months) - loanAmount),
+          totalPayable: Math.round(monthlyPayment * months + downPayment + processingFee)
+        };
+      });
+      
+      // Get trade-in value estimate based on similar vehicles
+      let tradeInEstimate = null;
+      try {
+        // Simple trade-in estimation based on depreciation
+        const currentYear = new Date().getFullYear();
+        const vehicleAge = currentYear - vehicle.year;
+        const depreciationRate = Math.min(0.15 * vehicleAge, 0.65); // 15% per year, max 65%
+        const baseTradeInValue = vehicle.price * (1 - depreciationRate);
+        
+        tradeInEstimate = {
+          estimatedValue: Math.round(baseTradeInValue),
+          marketValue: vehicle.price,
+          depreciationRate: depreciationRate * 100,
+          vehicleAge,
+          notes: `Estimated based on ${depreciationRate * 100}% depreciation for ${vehicleAge}-year-old vehicle`
+        };
+      } catch (error) {
+        console.error('Error calculating trade-in estimate:', error);
+      }
+      
+      res.json({
+        vehicleDetails: {
+          id: vehicle.id,
+          make: vehicle.make,
+          model: vehicle.model,
+          year: vehicle.year,
+          price: vehicle.price,
+          mileage: vehicle.mileage
+        },
+        loanProducts: personalizedProducts,
+        tradeInEstimate,
+        totalProducts: personalizedProducts.length
+      });
+      
+    } catch (error) {
+      console.error('Error fetching financial products for listing:', error);
+      res.status(500).json({ error: 'Failed to fetch financial products' });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

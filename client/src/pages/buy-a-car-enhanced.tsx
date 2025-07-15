@@ -18,7 +18,8 @@ import {
   Smartphone,
   MapPin,
   Eye,
-  Heart
+  Heart,
+  CreditCard
 } from "lucide-react";
 import { ModuleNavigation } from "@/components/module-navigation";
 import { AdvancedSearch } from "@/components/advanced-search";
@@ -226,28 +227,36 @@ export default function BuyACarEnhanced() {
             </p>
           )}
 
-          <div className="flex gap-2 pt-2">
-            <Link href={`/car-details/${car.id}`} className="flex-1">
-              <Button className="w-full" variant="outline">
-                View Details
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <Link href={`/car-details/${car.id}`} className="flex-1">
+                <Button className="w-full" variant="outline">
+                  View Details
+                </Button>
+              </Link>
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={() => favoriteMutation.mutate(car.id)}
+                className="hover:text-red-500"
+              >
+                <Heart className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={() => window.open(`tel:${car.contactPhone}`, '_self')}
+                className="hover:text-green-500"
+              >
+                <Phone className="h-4 w-4" />
+              </Button>
+            </div>
+            <Link href={`/car-details/${car.id}#financial`} className="block">
+              <Button variant="secondary" size="sm" className="w-full text-xs">
+                <CreditCard className="h-3 w-3 mr-1" />
+                Financial Options
               </Button>
             </Link>
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={() => favoriteMutation.mutate(car.id)}
-              className="hover:text-red-500"
-            >
-              <Heart className="h-4 w-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={() => window.open(`tel:${car.contactPhone}`, '_self')}
-              className="hover:text-green-500"
-            >
-              <Phone className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       </CardContent>

@@ -79,8 +79,7 @@ export default function LoanApplicationPage() {
   const [isValidating, setIsValidating] = useState(false);
   const totalSteps = 4;
   
-  // Debug the state
-  console.log('Current step state:', currentStep, 'Total steps:', totalSteps, 'Is validating:', isValidating);
+
 
   // Check authentication status
   const { data: authStatus, isLoading: authLoading } = useQuery({
@@ -207,12 +206,20 @@ export default function LoanApplicationPage() {
     setIsValidating(true);
     
     try {
-      // For now, let's skip validation to test if it's working
-      if (currentStep < totalSteps) {
+      // Add form validation for current step before proceeding
+      const fieldsToValidate = getFieldsForStep(currentStep);
+      const isStepValid = await form.trigger(fieldsToValidate);
+      
+      if (isStepValid && currentStep < totalSteps) {
         console.log('Moving to next step:', currentStep + 1);
         setCurrentStep(currentStep + 1);
-      } else {
-        console.log('Already at last step');
+      } else if (!isStepValid) {
+        // Show validation errors
+        toast({
+          title: "Please complete all required fields",
+          description: "Fill in all required fields before proceeding to the next step.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Error in nextStep:', error);
@@ -331,19 +338,7 @@ export default function LoanApplicationPage() {
               </CardHeader>
               
               <CardContent>
-                {/* TEST BUTTON - Outside form */}
-                <div className="mb-4 p-4 bg-yellow-100 border border-yellow-300 rounded">
-                  <p className="text-sm text-yellow-800 mb-2">Debug Test:</p>
-                  <button 
-                    onClick={() => {
-                      console.log('=== TEST BUTTON CLICKED - RESETTING ===');
-                      setCurrentStep(1);
-                    }}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
-                  >
-                    Reset to Step 1
-                  </button>
-                </div>
+
                 
                 <Form {...form}>
                   <form onSubmit={(e) => {
@@ -733,56 +728,45 @@ export default function LoanApplicationPage() {
 
                     {/* Navigation Buttons */}
                     <div className="flex justify-between pt-6">
-                      <Button
+                      <button
                         type="button"
-                        variant="outline"
                         onClick={prevStep}
                         disabled={currentStep === 1}
+                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Previous
-                      </Button>
+                      </button>
                       
                       {currentStep < totalSteps ? (
-                        <div>
-                          <button 
-                            type="button"
-                            onClick={(e) => {
-                              console.log('=== SIMPLE BUTTON CLICKED ===');
-                              console.log('Event:', e);
-                              console.log('Current step before:', currentStep);
-                              console.log('Is validating before:', isValidating);
-                              e.preventDefault();
-                              e.stopPropagation();
-                              nextStep();
-                            }}
-                            onMouseDown={() => console.log('Mouse down on Simple button')}
-                            onMouseUp={() => console.log('Mouse up on Simple button')}
-                            disabled={isValidating}
-                            className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-4 py-2 rounded relative z-10"
-                            style={{ pointerEvents: 'auto' }}
-                          >
-                            {isValidating ? (
-                              <>⏳ Validating...</>
-                            ) : (
-                              `Simple Next (Step ${currentStep}/${totalSteps})`
-                            )}
-                          </button>
-                        </div>
+                        <button 
+                          type="button"
+                          onClick={(e) => {
+                            console.log('=== NEXT BUTTON CLICKED ===');
+                            e.preventDefault();
+                            e.stopPropagation();
+                            nextStep();
+                          }}
+                          disabled={isValidating}
+                          className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
+                        >
+                          {isValidating ? (
+                            <>⏳ Validating...</>
+                          ) : (
+                            'Next'
+                          )}
+                        </button>
                       ) : (
-                        <Button
+                        <button
                           type="submit"
                           disabled={submitApplicationMutation.isPending}
-                          className="bg-purple-600 hover:bg-purple-700"
+                          className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
                         >
                           {submitApplicationMutation.isPending ? (
-                            <>
-                              <Clock className="h-4 w-4 mr-2 animate-spin" />
-                              Submitting...
-                            </>
+                            <>⏳ Submitting...</>
                           ) : (
                             'Submit Application'
                           )}
-                        </Button>
+                        </button>
                       )}
                     </div>
                   </form>

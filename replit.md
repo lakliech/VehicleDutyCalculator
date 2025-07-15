@@ -621,6 +621,12 @@ Changelog:
   - Cleaned up debugging code and simplified navigation buttons
   - Updated progress bar and step headers to reflect new 3-step structure
   - Form now focuses on essential information while automatically calculating loan terms from vehicle and product data
+- January 15, 2025. Removed comprehensive loan calculation system:
+  - Removed `/api/calculate-loan` endpoint that was causing database reference errors
+  - Removed real-time loan calculation display from loan application form
+  - Removed automatic calculation triggers and recalculation functionality
+  - Simplified loan application to focus on data collection without complex calculations
+  - Loan application form now captures essential information for manual processing by loan officers
 
 ## User Preferences
 

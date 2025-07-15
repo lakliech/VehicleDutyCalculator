@@ -244,344 +244,218 @@ export default function LoanApplicationPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  {currentStep === 1 && <User className="h-5 w-5 mr-2" />}
-                  {currentStep === 2 && <CreditCard className="h-5 w-5 mr-2" />}
-                  {currentStep === 3 && <MapPin className="h-5 w-5 mr-2" />}
-                  {currentStep === 4 && <FileText className="h-5 w-5 mr-2" />}
-                  
-                  {currentStep === 1 && "Personal Information"}
-                  {currentStep === 2 && "Financial Details"}
-                  {currentStep === 3 && "Loan Details"}
-                  {currentStep === 4 && "Review & Submit"}
+                  <FileText className="h-5 w-5 mr-2" />
+                  Loan Application Form
                 </CardTitle>
                 <CardDescription>
-                  {currentStep === 1 && "Please provide your personal information"}
-                  {currentStep === 2 && "Tell us about your financial situation"}
-                  {currentStep === 3 && "Configure your loan preferences"}
-                  {currentStep === 4 && "Review your application before submitting"}
+                  Please fill out all required fields to apply for vehicle financing
                 </CardDescription>
               </CardHeader>
               
               <CardContent>
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    {/* Step 1: Personal Information */}
-                    {currentStep === 1 && (
-                      <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="applicantName"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Full Name</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="John Doe" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="nationalId"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>National ID</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="12345678" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="applicantEmail"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Email Address</FormLabel>
-                                <FormControl>
-                                  <Input type="email" placeholder="john@example.com" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="applicantPhone"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Phone Number</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="+254700000000" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="dateOfBirth"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Date of Birth</FormLabel>
-                                <FormControl>
-                                  <Input type="date" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="maritalStatus"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Marital Status</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select status" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="single">Single</SelectItem>
-                                    <SelectItem value="married">Married</SelectItem>
-                                    <SelectItem value="divorced">Divorced</SelectItem>
-                                    <SelectItem value="widowed">Widowed</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                    {/* Personal Information Section */}
+                    <div className="space-y-6">
+                      <div className="flex items-center mb-4">
+                        <User className="h-5 w-5 mr-2 text-purple-600" />
+                        <h3 className="text-lg font-semibold">Personal Information</h3>
                       </div>
-                    )}
-
-                    {/* Step 2: Financial Details */}
-                    {currentStep === 2 && (
-                      <div className="space-y-6">
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
-                          name="employmentStatus"
+                          name="applicantName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Employment Status</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select employment status" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="employed">Employed</SelectItem>
-                                  <SelectItem value="self_employed">Self Employed</SelectItem>
-                                  <SelectItem value="business_owner">Business Owner</SelectItem>
-                                  <SelectItem value="unemployed">Unemployed</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="employerName"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Employer/Company Name</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Company XYZ Ltd" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="jobTitle"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Job Title</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Software Engineer" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="monthlyIncome"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Monthly Income (KES)</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    placeholder="100000"
-                                    {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="monthlyExpenses"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Monthly Expenses (KES)</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    placeholder="30000"
-                                    {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Step 3: Loan Details */}
-                    {currentStep === 3 && (
-                      <div className="space-y-6">
-                        {/* Vehicle Summary */}
-                        <Alert className="border-purple-200 bg-purple-50">
-                          <Car className="h-4 w-4" />
-                          <AlertDescription>
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <span className="font-medium">Financing for:</span> {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
-                              </div>
-                              <div className="font-bold text-purple-600">
-                                KES {parseFloat(vehicleData?.price || '0').toLocaleString()}
-                              </div>
-                            </div>
-                          </AlertDescription>
-                        </Alert>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="requestedAmount"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Requested Loan Amount (KES)</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    placeholder="500000"
-                                    {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                  />
-                                </FormControl>
-                                <FormDescription>
-                                  Default amount set to vehicle price. You can adjust based on your down payment.
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="downPaymentAmount"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Down Payment (KES)</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    placeholder="100000"
-                                    {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <FormField
-                          control={form.control}
-                          name="preferredTenureMonths"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Preferred Loan Tenure (Months)</FormLabel>
-                              <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={field.value.toString()}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select tenure" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="12">12 months</SelectItem>
-                                  <SelectItem value="24">24 months</SelectItem>
-                                  <SelectItem value="36">36 months</SelectItem>
-                                  <SelectItem value="48">48 months</SelectItem>
-                                  <SelectItem value="60">60 months</SelectItem>
-                                  <SelectItem value="72">72 months</SelectItem>
-                                  <SelectItem value="84">84 months</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="purposeOfLoan"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Purpose of Loan</FormLabel>
+                              <FormLabel>Full Name</FormLabel>
                               <FormControl>
-                                <Input placeholder="Vehicle purchase for personal use" {...field} />
+                                <Input placeholder="John Doe" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-
+                        
                         <FormField
                           control={form.control}
-                          name="additionalNotes"
+                          name="nationalId"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Additional Notes (Optional)</FormLabel>
+                              <FormLabel>National ID</FormLabel>
                               <FormControl>
-                                <Textarea 
-                                  placeholder="Any additional information you'd like to share..."
-                                  className="min-h-[100px]"
+                                <Input placeholder="12345678" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="applicantEmail"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email Address</FormLabel>
+                              <FormControl>
+                                <Input type="email" placeholder="john@example.com" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="applicantPhone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Phone Number</FormLabel>
+                              <FormControl>
+                                <Input placeholder="+254700000000" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="dateOfBirth"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Date of Birth</FormLabel>
+                              <FormControl>
+                                <Input type="date" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="maritalStatus"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Marital Status</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="single">Single</SelectItem>
+                                  <SelectItem value="married">Married</SelectItem>
+                                  <SelectItem value="divorced">Divorced</SelectItem>
+                                  <SelectItem value="widowed">Widowed</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Financial Details Section */}
+                    <div className="space-y-6">
+                      <div className="flex items-center mb-4">
+                        <CreditCard className="h-5 w-5 mr-2 text-purple-600" />
+                        <h3 className="text-lg font-semibold">Employment & Financial Information</h3>
+                      </div>
+                      
+                      <FormField
+                        control={form.control}
+                        name="employmentStatus"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Employment Status</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select employment status" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="employed">Employed</SelectItem>
+                                <SelectItem value="self_employed">Self Employed</SelectItem>
+                                <SelectItem value="business_owner">Business Owner</SelectItem>
+                                <SelectItem value="unemployed">Unemployed</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="employerName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Employer/Company Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Company XYZ Ltd" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="jobTitle"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Job Title</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Software Engineer" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="monthlyIncome"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Monthly Income (KES)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="100000"
                                   {...field}
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="monthlyExpenses"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Monthly Expenses (KES)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="30000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -589,100 +463,134 @@ export default function LoanApplicationPage() {
                           )}
                         />
                       </div>
-                    )}
-
-                    {/* Step 4: Review & Submit */}
-                    {currentStep === 4 && (
-                      <div className="space-y-6">
-                        <Alert>
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertDescription>
-                            Please review all information carefully before submitting your application.
-                          </AlertDescription>
-                        </Alert>
-
-                        {/* Vehicle Summary */}
-                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
-                          <h4 className="font-semibold mb-3 flex items-center">
-                            <Car className="h-4 w-4 mr-2" />
-                            Vehicle Being Financed
-                          </h4>
-                          <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <p><span className="font-medium">Make & Model:</span> {vehicleData?.make} {vehicleData?.model}</p>
-                              <p><span className="font-medium">Year:</span> {vehicleData?.year}</p>
-                            </div>
-                            <div>
-                              <p><span className="font-medium">Vehicle Price:</span> KES {parseFloat(vehicleData?.price || '0').toLocaleString()}</p>
-                              <p><span className="font-medium">Loan Bank:</span> {loanProduct?.[0]?.bankName}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Application Summary */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="space-y-3">
-                            <h4 className="font-semibold">Personal Information</h4>
-                            <div className="text-sm space-y-1">
-                              <p><span className="font-medium">Name:</span> {form.watch('applicantName')}</p>
-                              <p><span className="font-medium">Email:</span> {form.watch('applicantEmail')}</p>
-                              <p><span className="font-medium">Phone:</span> {form.watch('applicantPhone')}</p>
-                              <p><span className="font-medium">National ID:</span> {form.watch('nationalId')}</p>
-                            </div>
-                          </div>
-
-                          <div className="space-y-3">
-                            <h4 className="font-semibold">Loan Details</h4>
-                            <div className="text-sm space-y-1">
-                              <p><span className="font-medium">Employment:</span> {form.watch('employmentStatus')}</p>
-                              <p><span className="font-medium">Monthly Income:</span> KES {form.watch('monthlyIncome')?.toLocaleString()}</p>
-                              <p><span className="font-medium">Loan Amount:</span> KES {form.watch('requestedAmount')?.toLocaleString()}</p>
-                              <p><span className="font-medium">Down Payment:</span> KES {form.watch('downPaymentAmount')?.toLocaleString()}</p>
-                              <p><span className="font-medium">Tenure:</span> {form.watch('preferredTenureMonths')} months</p>
-                            </div>
-                          </div>
-                        </div>
                     </div>
-                    )}
 
-                    {/* Navigation Buttons */}
-                    <div className="flex justify-between pt-6">
+                    {/* Loan Details Section */}
+                    <div className="space-y-6">
+                      <div className="flex items-center mb-4">
+                        <MapPin className="h-5 w-5 mr-2 text-purple-600" />
+                        <h3 className="text-lg font-semibold">Loan Requirements</h3>
+                      </div>
+                        
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="requestedAmount"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Requested Loan Amount (KES)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="500000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Default amount set to vehicle price. You can adjust based on your down payment.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="downPaymentAmount"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Down Payment (KES)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="100000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="preferredTenureMonths"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Preferred Loan Tenure (Months)</FormLabel>
+                            <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={field.value.toString()}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select tenure" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="12">12 months</SelectItem>
+                                <SelectItem value="24">24 months</SelectItem>
+                                <SelectItem value="36">36 months</SelectItem>
+                                <SelectItem value="48">48 months</SelectItem>
+                                <SelectItem value="60">60 months</SelectItem>
+                                <SelectItem value="72">72 months</SelectItem>
+                                <SelectItem value="84">84 months</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="purposeOfLoan"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Purpose of Loan</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Vehicle purchase for personal use" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="additionalNotes"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Additional Notes (Optional)</FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                placeholder="Any additional information you'd like to share..."
+                                className="min-h-[100px]"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="pt-6">
                       <Button
-                        type="button"
-                        variant="outline"
-                        onClick={prevStep}
-                        disabled={currentStep === 1}
+                        type="submit"
+                        disabled={submitApplicationMutation.isPending}
+                        className="w-full bg-purple-600 hover:bg-purple-700"
                       >
-                        Previous
+                        {submitApplicationMutation.isPending ? (
+                          <>
+                            <Clock className="h-4 w-4 mr-2 animate-spin" />
+                            Submitting Application...
+                          </>
+                        ) : (
+                          'Submit Loan Application'
+                        )}
                       </Button>
-                      
-                      {currentStep < totalSteps ? (
-                        <Button type="button" onClick={nextStep} disabled={isValidating}>
-                          {isValidating ? (
-                            <>
-                              <Clock className="h-4 w-4 mr-2 animate-spin" />
-                              Validating...
-                            </>
-                          ) : (
-                            'Next'
-                          )}
-                        </Button>
-                      ) : (
-                        <Button
-                          type="submit"
-                          disabled={submitApplicationMutation.isPending}
-                          className="bg-purple-600 hover:bg-purple-700"
-                        >
-                          {submitApplicationMutation.isPending ? (
-                            <>
-                              <Clock className="h-4 w-4 mr-2 animate-spin" />
-                              Submitting...
-                            </>
-                          ) : (
-                            'Submit Application'
-                          )}
-                        </Button>
-                      )}
                     </div>
                   </form>
                 </Form>

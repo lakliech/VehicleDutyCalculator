@@ -331,6 +331,21 @@ export default function LoanApplicationPage() {
               </CardHeader>
               
               <CardContent>
+                {/* TEST BUTTON - Outside form */}
+                <div className="mb-4 p-4 bg-yellow-100 border border-yellow-300 rounded">
+                  <p className="text-sm text-yellow-800 mb-2">Debug Test:</p>
+                  <button 
+                    onClick={() => {
+                      console.log('=== TEST BUTTON CLICKED ===');
+                      console.log('Current step:', currentStep);
+                      setCurrentStep(prev => prev + 1);
+                    }}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
+                  >
+                    Test Button (Outside Form)
+                  </button>
+                </div>
+                
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     {/* Step 1: Personal Information */}
@@ -728,13 +743,19 @@ export default function LoanApplicationPage() {
                         <Button 
                           type="button" 
                           onClick={(e) => {
+                            console.log('=== BUTTON CLICKED ===');
+                            console.log('Event:', e);
+                            console.log('Current step before:', currentStep);
+                            console.log('Is validating before:', isValidating);
                             e.preventDefault();
                             e.stopPropagation();
-                            console.log('Button clicked event:', e);
                             nextStep();
                           }}
+                          onMouseDown={() => console.log('Mouse down on Next button')}
+                          onMouseUp={() => console.log('Mouse up on Next button')}
                           disabled={isValidating}
-                          className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+                          className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 relative z-10"
+                          style={{ pointerEvents: 'auto' }}
                         >
                           {isValidating ? (
                             <>
@@ -742,7 +763,7 @@ export default function LoanApplicationPage() {
                               Validating...
                             </>
                           ) : (
-                            `Next (Step ${currentStep}/${totalSteps})`
+                            `Next (Step ${currentStep}/${totalSteps}) - Click Me!`
                           )}
                         </Button>
                       ) : (

@@ -27,15 +27,16 @@ const loanApplicationSchema = z.object({
   dateOfBirth: z.string().min(1, "Date of birth is required"),
   maritalStatus: z.enum(['single', 'married', 'divorced', 'widowed']),
   employmentStatus: z.enum(['employed', 'self_employed', 'business_owner', 'unemployed']),
-  employerName: z.string().optional(),
-  jobTitle: z.string().optional(),
-  monthlyIncome: z.number().min(20000, "Minimum monthly income is KES 20,000"),
-  monthlyExpenses: z.number().min(0, "Monthly expenses cannot be negative").optional(),
-  requestedAmount: z.number().min(100000, "Minimum loan amount is KES 100,000"),
-  downPaymentAmount: z.number().min(0, "Down payment cannot be negative"),
-  preferredTenureMonths: z.number().min(12).max(84, "Tenure must be between 12 and 84 months"),
-  purposeOfLoan: z.string().optional(),
-  additionalNotes: z.string().optional()
+  employerName: z.string().min(1, "Employer name is required"),
+  monthlyIncome: z.coerce.number().min(20000, "Minimum monthly income is KES 20,000"),
+  monthlyExpenses: z.coerce.number().min(0, "Monthly expenses cannot be negative"),
+  requestedAmount: z.coerce.number().min(100000, "Minimum loan amount is KES 100,000"),
+  downPaymentAmount: z.coerce.number().min(0, "Down payment cannot be negative"),
+  preferredTenureMonths: z.coerce.number().min(12).max(84, "Tenure must be between 12 and 84 months"),
+  collateralDescription: z.string().optional(),
+  emergencyContactName: z.string().min(2, "Emergency contact name is required"),
+  emergencyContactPhone: z.string().min(10, "Emergency contact phone is required"),
+  emergencyContactRelation: z.string().min(1, "Emergency contact relation is required")
 });
 
 type LoanApplicationForm = z.infer<typeof loanApplicationSchema>;
@@ -98,18 +99,19 @@ export default function LoanApplicationPage() {
 
   const form = useForm<LoanApplicationForm>({
     resolver: zodResolver(loanApplicationSchema),
+    mode: 'onChange',
     defaultValues: {
-      fullName: '',
-      email: '',
-      phone: '',
+      applicantName: '',
+      applicantEmail: '',
+      applicantPhone: '',
       nationalId: '',
       dateOfBirth: '',
       maritalStatus: 'single',
       employmentStatus: 'employed',
-      monthlyIncome: 0,
-      monthlyExpenses: 0,
       employerName: '',
-      requestedAmount: 0,
+      monthlyIncome: 20000,
+      monthlyExpenses: 0,
+      requestedAmount: 100000,
       downPaymentAmount: 0,
       preferredTenureMonths: 60,
       collateralDescription: '',
@@ -224,7 +226,7 @@ export default function LoanApplicationPage() {
   const getFieldsForStep = (step: number): (keyof LoanApplicationForm)[] => {
     switch (step) {
       case 1:
-        return ['fullName', 'email', 'phone', 'nationalId', 'dateOfBirth', 'maritalStatus'];
+        return ['applicantName', 'applicantEmail', 'applicantPhone', 'nationalId', 'dateOfBirth', 'maritalStatus'];
       case 2:
         return ['employmentStatus', 'monthlyIncome', 'monthlyExpenses', 'employerName'];
       case 3:
@@ -416,7 +418,7 @@ export default function LoanApplicationPage() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Marital Status</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select status" />
@@ -446,7 +448,7 @@ export default function LoanApplicationPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Employment Status</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select employment status" />
@@ -691,9 +693,9 @@ export default function LoanApplicationPage() {
                           <div className="space-y-3">
                             <h4 className="font-semibold">Personal Information</h4>
                             <div className="text-sm space-y-1">
-                              <p><span className="font-medium">Name:</span> {form.watch('fullName')}</p>
-                              <p><span className="font-medium">Email:</span> {form.watch('email')}</p>
-                              <p><span className="font-medium">Phone:</span> {form.watch('phone')}</p>
+                              <p><span className="font-medium">Name:</span> {form.watch('applicantName')}</p>
+                              <p><span className="font-medium">Email:</span> {form.watch('applicantEmail')}</p>
+                              <p><span className="font-medium">Phone:</span> {form.watch('applicantPhone')}</p>
                               <p><span className="font-medium">National ID:</span> {form.watch('nationalId')}</p>
                             </div>
                           </div>

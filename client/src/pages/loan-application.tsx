@@ -129,8 +129,11 @@ export default function LoanApplicationPage() {
       return apiRequest('POST', '/api/financial/loan-application', {
         ...data,
         userId: authStatus?.user?.id,
-        dateOfBirth: new Date(data.dateOfBirth),
+        dateOfBirth: data.dateOfBirth,
+        monthlyIncome: data.monthlyIncome.toString(),
         monthlyExpenses: data.monthlyExpenses?.toString(),
+        requestedAmount: data.requestedAmount.toString(),
+        downPaymentAmount: data.downPaymentAmount.toString(),
         loanProductId: parseInt(productId!),
         vehicleListingId: carId ? parseInt(carId) : null,
         vehicleMake: vehicleData?.make,

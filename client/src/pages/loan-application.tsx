@@ -93,11 +93,22 @@ export default function LoanApplicationPage() {
   const form = useForm<LoanApplicationForm>({
     resolver: zodResolver(loanApplicationSchema),
     defaultValues: {
+      applicantName: '',
+      applicantEmail: '',
+      applicantPhone: '',
+      nationalId: '',
+      dateOfBirth: '',
       maritalStatus: 'single',
       employmentStatus: 'employed',
+      employerName: '',
+      jobTitle: '',
+      monthlyIncome: 0,
       monthlyExpenses: 0,
+      requestedAmount: 0,
       downPaymentAmount: 0,
-      preferredTenureMonths: 60
+      preferredTenureMonths: 60,
+      purposeOfLoan: '',
+      additionalNotes: ''
     }
   });
 
@@ -124,22 +135,8 @@ export default function LoanApplicationPage() {
   }, [vehicleData, loanProduct, form]);
 
   const submitApplicationMutation = useMutation({
-    mutationFn: async (data: LoanApplicationForm) => {
-      return apiRequest('POST', '/api/financial/loan-application', {
-        ...data,
-        userId: authStatus?.user?.id,
-        dateOfBirth: data.dateOfBirth,
-        monthlyIncome: data.monthlyIncome.toString(),
-        monthlyExpenses: data.monthlyExpenses?.toString(),
-        requestedAmount: data.requestedAmount.toString(),
-        downPaymentAmount: data.downPaymentAmount.toString(),
-        loanProductId: parseInt(productId!),
-        vehicleListingId: carId ? parseInt(carId) : null,
-        vehicleMake: vehicleData?.make,
-        vehicleModel: vehicleData?.model,
-        vehicleYear: vehicleData?.year,
-        vehiclePrice: vehicleData?.price?.toString()
-      });
+    mutationFn: async (data: any) => {
+      return apiRequest('POST', '/api/financial/loan-application', data);
     },
     onSuccess: (response) => {
       toast({
@@ -177,7 +174,20 @@ export default function LoanApplicationPage() {
   }
 
   const onSubmit = (data: LoanApplicationForm) => {
-    submitApplicationMutation.mutate(data);
+    // Transform data to match backend expectations
+    const transformedData = {
+      ...data,
+      dateOfBirth: new Date(data.dateOfBirth),
+      monthlyIncome: data.monthlyIncome.toString(),
+      monthlyExpenses: data.monthlyExpenses ? data.monthlyExpenses.toString() : "0",
+      requestedAmount: data.requestedAmount.toString(),
+      downPaymentAmount: data.downPaymentAmount.toString(),
+      userId: authStatus?.user?.id,
+      vehicleListingId: parseInt(carId!),
+      loanProductId: parseInt(productId!)
+    };
+    
+    submitApplicationMutation.mutate(transformedData);
   };
 
   // Removed step navigation functions

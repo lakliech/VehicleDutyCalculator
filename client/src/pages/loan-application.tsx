@@ -71,6 +71,7 @@ export default function LoanApplicationPage() {
   const productId = params?.productId;
   
   const [currentStep, setCurrentStep] = useState(1);
+  const [isValidating, setIsValidating] = useState(false);
   const totalSteps = 4;
 
   // Check authentication status
@@ -181,9 +182,35 @@ export default function LoanApplicationPage() {
     submitApplicationMutation.mutate(data);
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
+      setIsValidating(true);
+      
+      // Validate current step before proceeding
+      let fieldsToValidate: string[] = [];
+      
+      if (currentStep === 1) {
+        fieldsToValidate = ['applicantName', 'applicantEmail', 'applicantPhone', 'nationalId', 'dateOfBirth', 'maritalStatus'];
+      } else if (currentStep === 2) {
+        fieldsToValidate = ['employmentStatus', 'monthlyIncome'];
+      } else if (currentStep === 3) {
+        fieldsToValidate = ['requestedAmount', 'downPaymentAmount', 'preferredTenureMonths'];
+      }
+      
+      const isValid = await form.trigger(fieldsToValidate);
+      
+      if (isValid) {
+        setCurrentStep(currentStep + 1);
+      } else {
+        // Focus on the first invalid field
+        const errors = form.formState.errors;
+        const firstErrorField = fieldsToValidate.find(field => errors[field as keyof typeof errors]);
+        if (firstErrorField) {
+          form.setFocus(firstErrorField as any);
+        }
+      }
+      
+      setIsValidating(false);
     }
   };
 
@@ -675,8 +702,15 @@ export default function LoanApplicationPage() {
                       </Button>
                       
                       {currentStep < totalSteps ? (
-                        <Button type="button" onClick={nextStep}>
-                          Next
+                        <Button type="button" onClick={nextStep} disabled={isValidating}>
+                          {isValidating ? (
+                            <>
+                              <Clock className="h-4 w-4 mr-2 animate-spin" />
+                              Validating...
+                            </>
+                          ) : (
+                            'Next'
+                          )}
                         </Button>
                       ) : (
                         <Button

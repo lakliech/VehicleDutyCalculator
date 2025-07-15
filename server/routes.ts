@@ -2274,6 +2274,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user's saved searches
+  app.get("/api/saved-searches", authenticateUser, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const results = await db
+        .select()
+        .from(savedSearches)
+        .where(and(
+          eq(savedSearches.userId, userId),
+          eq(savedSearches.isActive, true)
+        ))
+        .orderBy(desc(savedSearches.createdAt));
+
+      res.json(results);
+    } catch (error) {
+      console.error("Failed to fetch saved searches:", error);
+      res.status(500).json({ error: "Failed to fetch saved searches" });
+    }
+  });
+
+  // Save a new search
+  app.post("/api/saved-searches", authenticateUser, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const validation = z.object({
+        name: z.string().min(1, "Search name is required"),
+        filters: z.object({}).passthrough(), // Accept any filter object
+        alertsEnabled: z.boolean().default(false),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+
+      const [result] = await db
+        .insert(savedSearches)
+        .values({
+          userId,
+          searchName: validation.data.name,
+          filters: JSON.stringify(validation.data.filters),
+          alertEnabled: validation.data.alertsEnabled,
+        })
+        .returning();
+
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to save search:", error);
+      res.status(500).json({ error: "Failed to save search" });
+    }
+  });
+
+  // Delete a saved search
+  app.delete("/api/saved-searches/:id", authenticateUser, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id;
+      const searchId = parseInt(req.params.id);
+
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const [result] = await db
+        .delete(savedSearches)
+        .where(and(
+          eq(savedSearches.id, searchId),
+          eq(savedSearches.userId, userId)
+        ))
+        .returning();
+
+      if (!result) {
+        return res.status(404).json({ error: "Saved search not found" });
+      }
+
+      res.json({ message: "Search deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete saved search:", error);
+      res.status(500).json({ error: "Failed to delete saved search" });
+    }
+  });
+
   // Update tax rate
   app.put("/api/admin/tax-rates/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
     try {

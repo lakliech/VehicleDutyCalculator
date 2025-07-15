@@ -17,6 +17,7 @@ import ServiceEstimator from "@/pages/service-estimator";
 import TransferCost from "@/pages/transfer-cost";
 import MyCarsWorth from "@/pages/mycars-worth";
 import BuyACar from "@/pages/buy-a-car";
+import BuyACarEnhanced from "@/pages/buy-a-car-enhanced";
 import CarDetails from "@/pages/car-details";
 import SellMyCar from "@/pages/sell-my-car";
 import VehicleLoans from "@/pages/vehicle-loans";
@@ -50,7 +51,7 @@ function Router() {
           <Route path="/service-estimator" component={ServiceEstimator} />
           <Route path="/transfer-cost" component={TransferCost} />
           <Route path="/mycars-worth" component={MyCarsWorth} />
-          <Route path="/buy-a-car" component={BuyACar} />
+          <Route path="/buy-a-car" component={BuyACarEnhanced} />
           <Route path="/car-details/:id" component={CarDetails} />
           <Route path="/sell-my-car" component={SellMyCar} />
           <Route path="/vehicle-loans" component={VehicleLoans} />

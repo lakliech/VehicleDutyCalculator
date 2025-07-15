@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { 
@@ -28,12 +29,17 @@ import {
   Fuel,
   Gauge,
   Settings,
-  Car
+  Car,
+  RotateCcw,
+  Smartphone
 } from "lucide-react";
 import { ModuleNavigation } from "@/components/module-navigation";
+import { AdvancedSearch } from "@/components/advanced-search";
+import { SwipeInterface } from "@/components/swipe-interface";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 
 interface CarFilters {
   search: string;

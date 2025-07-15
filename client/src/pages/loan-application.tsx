@@ -175,14 +175,14 @@ export default function LoanApplicationPage() {
   }
 
   const onSubmit = (data: LoanApplicationForm) => {
-    // Transform data to match backend expectations
+    // Transform data to match backend schema expectations
     const transformedData = {
       ...data,
       dateOfBirth: new Date(data.dateOfBirth),
-      monthlyIncome: data.monthlyIncome, // Keep as number
-      monthlyExpenses: data.monthlyExpenses || 0, // Keep as number
-      requestedAmount: data.requestedAmount, // Keep as number
-      downPaymentAmount: data.downPaymentAmount, // Keep as number
+      monthlyIncome: data.monthlyIncome.toString(), // Convert to string for decimal field
+      monthlyExpenses: data.monthlyExpenses ? data.monthlyExpenses.toString() : undefined, // Convert to string for decimal field
+      requestedAmount: data.requestedAmount.toString(), // Convert to string for decimal field
+      downPaymentAmount: data.downPaymentAmount.toString(), // Convert to string for decimal field
       userId: authStatus?.user?.id,
       vehicleListingId: parseInt(carId!),
       loanProductId: parseInt(productId!)

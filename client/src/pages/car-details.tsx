@@ -609,7 +609,11 @@ export default function CarDetails() {
                                         <Phone className="h-4 w-4 mr-1" />
                                         Contact Bank
                                       </Button>
-                                      <Button size="sm" className="flex-1">
+                                      <Button 
+                                        size="sm" 
+                                        className="flex-1 bg-purple-600 hover:bg-purple-700"
+                                        onClick={() => setLocation(`/loan-application/${id}/${product.id}`)}
+                                      >
                                         Apply Now
                                       </Button>
                                     </div>

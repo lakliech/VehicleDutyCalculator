@@ -6510,6 +6510,51 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
+  // Get single loan product details (must come before the bankId route)
+  app.get('/api/financial/loan-products/single/:id', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      const products = await db.select({
+        id: loanProducts.id,
+        bankName: bankPartners.bankName,
+        bankCode: bankPartners.bankCode,
+        productName: loanProducts.productName,
+        productType: loanProducts.productType,
+        minInterestRate: loanProducts.minInterestRate,
+        maxInterestRate: loanProducts.maxInterestRate,
+        minLoanAmount: loanProducts.minLoanAmount,
+        maxLoanAmount: loanProducts.maxLoanAmount,
+        minTenureMonths: loanProducts.minTenureMonths,
+        maxTenureMonths: loanProducts.maxTenureMonths,
+        processingFeeRate: loanProducts.processingFeeRate,
+        minDownPaymentPercentage: loanProducts.minDownPaymentPercentage,
+        maxFinancingPercentage: loanProducts.maxFinancingPercentage,
+        eligibilityCriteria: loanProducts.eligibilityCriteria,
+        features: loanProducts.features,
+        contactInfo: bankPartners.contactEmail,
+        contactPhone: bankPartners.contactPhone
+      })
+      .from(loanProducts)
+      .innerJoin(bankPartners, eq(loanProducts.bankId, bankPartners.id))
+      .where(and(
+        eq(loanProducts.id, parseInt(id)),
+        eq(loanProducts.isActive, true),
+        eq(bankPartners.isActive, true)
+      ));
+      
+      if (products.length === 0) {
+        return res.status(404).json({ error: 'Loan product not found' });
+      }
+      
+      res.json(products[0]);
+      
+    } catch (error) {
+      console.error('Error fetching loan product:', error);
+      res.status(500).json({ error: 'Failed to fetch loan product details' });
+    }
+  });
+
   // Get loan products by bank
   app.get('/api/financial/loan-products/:bankId?', async (req: Request, res: Response) => {
     try {
@@ -7053,6 +7098,137 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       res.status(500).json({ error: 'Failed to update trade-in evaluation status' });
     }
   });
+
+  // Submit loan application
+  app.post('/api/financial/loan-application', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      // Validate request body against schema
+      const validatedData = loanApplicationSchema.parse(req.body);
+      
+      // Generate unique application number
+      const applicationNumber = `LA${Date.now().toString().slice(-8)}${Math.random().toString(36).slice(-3).toUpperCase()}`;
+      
+      // Get loan product to validate compatibility
+      const loanProduct = await db.select().from(loanProducts)
+        .where(eq(loanProducts.id, req.body.loanProductId))
+        .limit(1);
+        
+      if (loanProduct.length === 0) {
+        return res.status(400).json({ error: 'Invalid loan product selected' });
+      }
+      
+      const product = loanProduct[0];
+      
+      // Validate loan amount against product limits
+      const minLoanAmount = parseFloat(product.minLoanAmount.toString());
+      const maxLoanAmount = parseFloat(product.maxLoanAmount.toString());
+      
+      if (validatedData.requestedAmount < minLoanAmount || validatedData.requestedAmount > maxLoanAmount) {
+        return res.status(400).json({ 
+          error: `Loan amount must be between KES ${minLoanAmount.toLocaleString()} and KES ${maxLoanAmount.toLocaleString()}` 
+        });
+      }
+      
+      // Create loan application
+      const [newApplication] = await db.insert(loanApplications).values({
+        applicationNumber,
+        userId: user.id,
+        loanProductId: req.body.loanProductId,
+        vehicleListingId: req.body.vehicleListingId || null,
+        applicantName: validatedData.applicantName,
+        applicantEmail: validatedData.applicantEmail,
+        applicantPhone: validatedData.applicantPhone,
+        nationalId: validatedData.nationalId,
+        dateOfBirth: new Date(validatedData.dateOfBirth),
+        maritalStatus: validatedData.maritalStatus,
+        employmentStatus: validatedData.employmentStatus,
+        employerName: validatedData.employerName || null,
+        jobTitle: validatedData.jobTitle || null,
+        monthlyIncome: validatedData.monthlyIncome.toString(),
+        monthlyExpenses: (validatedData.monthlyExpenses || 0).toString(),
+        requestedAmount: validatedData.requestedAmount.toString(),
+        downPaymentAmount: validatedData.downPaymentAmount.toString(),
+        preferredTenureMonths: validatedData.preferredTenureMonths,
+        purposeOfLoan: validatedData.purposeOfLoan || 'Vehicle purchase',
+        vehicleMake: req.body.vehicleMake || null,
+        vehicleModel: req.body.vehicleModel || null,
+        vehicleYear: req.body.vehicleYear || null,
+        vehiclePrice: req.body.vehiclePrice || null,
+        additionalNotes: validatedData.additionalNotes || null,
+        status: 'pending',
+        submittedAt: new Date(),
+      }).returning();
+      
+      res.status(201).json({
+        message: 'Loan application submitted successfully',
+        applicationNumber: newApplication.applicationNumber,
+        applicationId: newApplication.id,
+        status: newApplication.status
+      });
+      
+    } catch (error) {
+      console.error('Error submitting loan application:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: 'Validation failed', 
+          details: error.errors 
+        });
+      }
+      res.status(500).json({ error: 'Failed to submit loan application' });
+    }
+  });
+
+  // Get user's loan applications
+  app.get('/api/loan-applications', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const applications = await db.select({
+        id: loanApplications.id,
+        applicationNumber: loanApplications.applicationNumber,
+        status: loanApplications.status,
+        submittedAt: loanApplications.submittedAt,
+        reviewedAt: loanApplications.reviewedAt,
+        preApprovalAmount: loanApplications.preApprovalAmount,
+        approvedInterestRate: loanApplications.approvedInterestRate,
+        approvedTenureMonths: loanApplications.approvedTenureMonths,
+        remarks: loanApplications.remarks,
+        vehicleMake: loanApplications.vehicleMake,
+        vehicleModel: loanApplications.vehicleModel,
+        vehicleYear: loanApplications.vehicleYear,
+        vehiclePrice: loanApplications.vehiclePrice,
+        requestedAmount: loanApplications.requestedAmount,
+        downPaymentAmount: loanApplications.downPaymentAmount,
+        preferredTenureMonths: loanApplications.preferredTenureMonths,
+        applicantName: loanApplications.applicantName,
+        applicantEmail: loanApplications.applicantEmail,
+        applicantPhone: loanApplications.applicantPhone,
+        productName: loanProducts.productName,
+        bankName: bankPartners.bankName,
+      })
+      .from(loanApplications)
+      .leftJoin(loanProducts, eq(loanApplications.loanProductId, loanProducts.id))
+      .leftJoin(bankPartners, eq(loanProducts.bankId, bankPartners.id))
+      .where(eq(loanApplications.userId, user.id))
+      .orderBy(desc(loanApplications.submittedAt));
+
+      res.json(applications);
+      
+    } catch (error) {
+      console.error('Error fetching loan applications:', error);
+      res.status(500).json({ error: 'Failed to fetch loan applications' });
+    }
+  });
+
+
 
   // Get financial products for a specific listing
   app.get('/api/listing/:id/financial-products', async (req: Request, res: Response) => {

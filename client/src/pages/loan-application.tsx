@@ -1,0 +1,728 @@
+import { useState, useEffect } from 'react';
+import { useLocation, useRoute } from 'wouter';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, Car, CreditCard, User, MapPin, FileText, Calculator, Check, Clock, AlertCircle } from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient';
+
+const loanApplicationSchema = z.object({
+  applicantName: z.string().min(2, "Name must be at least 2 characters"),
+  applicantEmail: z.string().email("Valid email required"),
+  applicantPhone: z.string().min(10, "Valid phone number required"),
+  nationalId: z.string().min(8, "Valid National ID required"),
+  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  maritalStatus: z.enum(['single', 'married', 'divorced', 'widowed']),
+  employmentStatus: z.enum(['employed', 'self_employed', 'business_owner', 'unemployed']),
+  employerName: z.string().optional(),
+  jobTitle: z.string().optional(),
+  monthlyIncome: z.number().min(20000, "Minimum monthly income is KES 20,000"),
+  monthlyExpenses: z.number().min(0, "Monthly expenses cannot be negative").optional(),
+  requestedAmount: z.number().min(100000, "Minimum loan amount is KES 100,000"),
+  downPaymentAmount: z.number().min(0, "Down payment cannot be negative"),
+  preferredTenureMonths: z.number().min(12).max(84, "Tenure must be between 12 and 84 months"),
+  purposeOfLoan: z.string().optional(),
+  additionalNotes: z.string().optional()
+});
+
+type LoanApplicationForm = z.infer<typeof loanApplicationSchema>;
+
+interface LoanProduct {
+  id: number;
+  bankName: string;
+  productName: string;
+  minInterestRate: string;
+  maxInterestRate: string;
+  maxFinancingPercentage: string;
+  minDownPaymentPercentage: string;
+  minTenureMonths: number;
+  maxTenureMonths: number;
+  features: string[];
+  eligibilityCriteria: string[];
+}
+
+interface VehicleDetails {
+  id: number;
+  make: string;
+  model: string;
+  year: number;
+  price: string;
+}
+
+export default function LoanApplicationPage() {
+  const [, setLocation] = useLocation();
+  const [match, params] = useRoute('/loan-application/:carId/:productId');
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const carId = params?.carId;
+  const productId = params?.productId;
+  
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 4;
+
+  // Fetch vehicle details
+  const { data: vehicleData, isLoading: loadingVehicle } = useQuery({
+    queryKey: ['/api/car-listings', carId, 'details'],
+    enabled: !!carId
+  });
+
+  // Fetch loan product details
+  const { data: loanProduct, isLoading: loadingProduct } = useQuery({
+    queryKey: ['/api/financial/loan-products/single', productId],
+    enabled: !!productId
+  });
+
+  const form = useForm<LoanApplicationForm>({
+    resolver: zodResolver(loanApplicationSchema),
+    defaultValues: {
+      maritalStatus: 'single',
+      employmentStatus: 'employed',
+      monthlyExpenses: 0,
+      downPaymentAmount: 0,
+      preferredTenureMonths: 60
+    }
+  });
+
+  // Set default loan amount when vehicle price is available
+  useEffect(() => {
+    if (vehicleData && loanProduct) {
+      const vehiclePrice = parseFloat(vehicleData.price);
+      const maxFinancing = parseFloat(loanProduct.maxFinancingPercentage);
+      const minDownPayment = parseFloat(loanProduct.minDownPaymentPercentage);
+      
+      const maxLoanAmount = vehiclePrice * maxFinancing;
+      const minDownPaymentAmount = vehiclePrice * minDownPayment;
+      
+      form.setValue('requestedAmount', Math.round(maxLoanAmount));
+      form.setValue('downPaymentAmount', Math.round(minDownPaymentAmount));
+    }
+  }, [vehicleData, loanProduct, form]);
+
+  const submitApplicationMutation = useMutation({
+    mutationFn: async (data: LoanApplicationForm) => {
+      return apiRequest('POST', '/api/financial/loan-application', {
+        ...data,
+        loanProductId: parseInt(productId!),
+        vehicleListingId: carId ? parseInt(carId) : null,
+        vehicleMake: vehicleData?.make,
+        vehicleModel: vehicleData?.model,
+        vehicleYear: vehicleData?.year,
+        vehiclePrice: vehicleData?.price
+      });
+    },
+    onSuccess: (response) => {
+      toast({
+        title: "Application Submitted Successfully!",
+        description: `Your application number is ${response.applicationNumber}. We'll review it within 2-3 business days.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/loan-applications'] });
+      setLocation('/loan-applications');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Application Failed",
+        description: error.message || "Failed to submit loan application. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const onSubmit = (data: LoanApplicationForm) => {
+    submitApplicationMutation.mutate(data);
+  };
+
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  if (!match) {
+    return <div>Invalid loan application URL</div>;
+  }
+
+  if (loadingVehicle || loadingProduct) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading application details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <Button
+            variant="ghost"
+            onClick={() => setLocation(`/car/${carId}`)}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Vehicle Details
+          </Button>
+          
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              Vehicle Loan Application
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Apply for financing through {loanProduct?.bankName}
+            </p>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            {[1, 2, 3, 4].map((step) => (
+              <div
+                key={step}
+                className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                  step <= currentStep
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
+                }`}
+              >
+                {step < currentStep ? <Check className="h-5 w-5" /> : step}
+              </div>
+            ))}
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div
+              className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Application Form */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  {currentStep === 1 && <User className="h-5 w-5 mr-2" />}
+                  {currentStep === 2 && <CreditCard className="h-5 w-5 mr-2" />}
+                  {currentStep === 3 && <MapPin className="h-5 w-5 mr-2" />}
+                  {currentStep === 4 && <FileText className="h-5 w-5 mr-2" />}
+                  
+                  {currentStep === 1 && "Personal Information"}
+                  {currentStep === 2 && "Financial Details"}
+                  {currentStep === 3 && "Loan Details"}
+                  {currentStep === 4 && "Review & Submit"}
+                </CardTitle>
+                <CardDescription>
+                  {currentStep === 1 && "Please provide your personal information"}
+                  {currentStep === 2 && "Tell us about your financial situation"}
+                  {currentStep === 3 && "Configure your loan preferences"}
+                  {currentStep === 4 && "Review your application before submitting"}
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    {/* Step 1: Personal Information */}
+                    {currentStep === 1 && (
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="applicantName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Full Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="John Doe" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="nationalId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>National ID</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="12345678" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="applicantEmail"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Email Address</FormLabel>
+                                <FormControl>
+                                  <Input type="email" placeholder="john@example.com" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="applicantPhone"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Phone Number</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="+254700000000" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="dateOfBirth"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Date of Birth</FormLabel>
+                                <FormControl>
+                                  <Input type="date" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="maritalStatus"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Marital Status</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="single">Single</SelectItem>
+                                    <SelectItem value="married">Married</SelectItem>
+                                    <SelectItem value="divorced">Divorced</SelectItem>
+                                    <SelectItem value="widowed">Widowed</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 2: Financial Details */}
+                    {currentStep === 2 && (
+                      <div className="space-y-6">
+                        <FormField
+                          control={form.control}
+                          name="employmentStatus"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Employment Status</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select employment status" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="employed">Employed</SelectItem>
+                                  <SelectItem value="self_employed">Self Employed</SelectItem>
+                                  <SelectItem value="business_owner">Business Owner</SelectItem>
+                                  <SelectItem value="unemployed">Unemployed</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="employerName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Employer/Company Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Company XYZ Ltd" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="jobTitle"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Job Title</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Software Engineer" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="monthlyIncome"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Monthly Income (KES)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="100000"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="monthlyExpenses"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Monthly Expenses (KES)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="30000"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 3: Loan Details */}
+                    {currentStep === 3 && (
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="requestedAmount"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Requested Loan Amount (KES)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="500000"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="downPaymentAmount"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Down Payment (KES)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="100000"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <FormField
+                          control={form.control}
+                          name="preferredTenureMonths"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Preferred Loan Tenure (Months)</FormLabel>
+                              <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={field.value.toString()}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select tenure" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="12">12 months</SelectItem>
+                                  <SelectItem value="24">24 months</SelectItem>
+                                  <SelectItem value="36">36 months</SelectItem>
+                                  <SelectItem value="48">48 months</SelectItem>
+                                  <SelectItem value="60">60 months</SelectItem>
+                                  <SelectItem value="72">72 months</SelectItem>
+                                  <SelectItem value="84">84 months</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="purposeOfLoan"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Purpose of Loan</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Vehicle purchase for personal use" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="additionalNotes"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Additional Notes (Optional)</FormLabel>
+                              <FormControl>
+                                <Textarea 
+                                  placeholder="Any additional information you'd like to share..."
+                                  className="min-h-[100px]"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
+
+                    {/* Step 4: Review & Submit */}
+                    {currentStep === 4 && (
+                      <div className="space-y-6">
+                        <Alert>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>
+                            Please review all information carefully before submitting your application.
+                          </AlertDescription>
+                        </Alert>
+
+                        {/* Application Summary */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <h4 className="font-semibold">Personal Information</h4>
+                            <div className="text-sm space-y-1">
+                              <p><span className="font-medium">Name:</span> {form.watch('applicantName')}</p>
+                              <p><span className="font-medium">Email:</span> {form.watch('applicantEmail')}</p>
+                              <p><span className="font-medium">Phone:</span> {form.watch('applicantPhone')}</p>
+                              <p><span className="font-medium">National ID:</span> {form.watch('nationalId')}</p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3">
+                            <h4 className="font-semibold">Financial Details</h4>
+                            <div className="text-sm space-y-1">
+                              <p><span className="font-medium">Employment:</span> {form.watch('employmentStatus')}</p>
+                              <p><span className="font-medium">Monthly Income:</span> KES {form.watch('monthlyIncome')?.toLocaleString()}</p>
+                              <p><span className="font-medium">Loan Amount:</span> KES {form.watch('requestedAmount')?.toLocaleString()}</p>
+                              <p><span className="font-medium">Down Payment:</span> KES {form.watch('downPaymentAmount')?.toLocaleString()}</p>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                    )}
+
+                    {/* Navigation Buttons */}
+                    <div className="flex justify-between pt-6">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={prevStep}
+                        disabled={currentStep === 1}
+                      >
+                        Previous
+                      </Button>
+                      
+                      {currentStep < totalSteps ? (
+                        <Button type="button" onClick={nextStep}>
+                          Next
+                        </Button>
+                      ) : (
+                        <Button
+                          type="submit"
+                          disabled={submitApplicationMutation.isPending}
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          {submitApplicationMutation.isPending ? (
+                            <>
+                              <Clock className="h-4 w-4 mr-2 animate-spin" />
+                              Submitting...
+                            </>
+                          ) : (
+                            'Submit Application'
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Vehicle Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Car className="h-5 w-5 mr-2" />
+                  Vehicle Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold">{vehicleData?.make} {vehicleData?.model}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Year: {vehicleData?.year}</p>
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-lg font-bold text-purple-600">
+                      KES {parseFloat(vehicleData?.price || '0').toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Loan Product Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Calculator className="h-5 w-5 mr-2" />
+                  Loan Product
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold">{loanProduct?.productName}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{loanProduct?.bankName}</p>
+                  </div>
+                  <Separator />
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Interest Rate:</span>
+                      <span>{loanProduct?.minInterestRate}% - {loanProduct?.maxInterestRate}%</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Max Financing:</span>
+                      <span>{(parseFloat(loanProduct?.maxFinancingPercentage || '0') * 100).toFixed(0)}%</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Min Down Payment:</span>
+                      <span>{(parseFloat(loanProduct?.minDownPaymentPercentage || '0') * 100).toFixed(0)}%</span>
+                    </div>
+                  </div>
+                  
+                  {loanProduct?.features && loanProduct.features.length > 0 && (
+                    <>
+                      <Separator />
+                      <div>
+                        <h5 className="font-medium mb-2">Features:</h5>
+                        <div className="space-y-1">
+                          {loanProduct.features.map((feature, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {feature}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Contact Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Need Help?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 text-sm">
+                  <p>Contact our loan specialists for assistance with your application.</p>
+                  <div>
+                    <p className="font-medium">Phone: +254-700-000-000</p>
+                    <p className="font-medium">Email: loans@gariyangu.com</p>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Available Monday - Friday, 8:00 AM - 6:00 PM EAT
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

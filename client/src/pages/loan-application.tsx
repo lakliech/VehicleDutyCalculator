@@ -210,14 +210,25 @@ export default function LoanApplicationPage() {
     setIsValidating(true);
     
     try {
-      // Skip validation for now to test if this is the issue
-      console.log('Skipping validation, moving to next step');
-      if (currentStep < totalSteps) {
+      // Add form validation for current step before proceeding
+      const fieldsToValidate = getFieldsForStep(currentStep);
+      console.log('Fields to validate:', fieldsToValidate);
+      
+      const isStepValid = await form.trigger(fieldsToValidate);
+      console.log('Validation result:', isStepValid);
+      
+      if (isStepValid && currentStep < totalSteps) {
         console.log('Moving to next step:', currentStep + 1);
         setCurrentStep(currentStep + 1);
         console.log('Step updated successfully');
-      } else {
-        console.log('Already at last step');
+      } else if (!isStepValid) {
+        console.log('Validation failed, showing error');
+        // Show validation errors
+        toast({
+          title: "Please complete all required fields",
+          description: "Fill in all required fields before proceeding to the next step.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Error in nextStep:', error);
@@ -337,20 +348,18 @@ export default function LoanApplicationPage() {
               </CardHeader>
               
               <CardContent>
-                {/* Quick Test - Check if ANY button works */}
-                <div className="mb-4 p-3 bg-green-100 border border-green-300 rounded">
+                {/* Reset to Step 1 for testing */}
+                <div className="mb-4 p-3 bg-blue-100 border border-blue-300 rounded">
                   <button 
                     onClick={() => {
-                      console.log('=== GREEN TEST BUTTON WORKS ===');
-                      console.log('Auth status:', authStatus?.authenticated);
-                      console.log('Auth loading:', authLoading);
-                      alert(`Green button clicked! Auth: ${authStatus?.authenticated}, Loading: ${authLoading}`);
+                      console.log('=== RESET TO STEP 1 ===');
+                      setCurrentStep(1);
                     }}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-2"
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mr-2"
                   >
-                    Test Auth Status
+                    Reset to Step 1
                   </button>
-                  <span className="text-sm text-green-800">Step {currentStep} of {totalSteps}</span>
+                  <span className="text-sm text-blue-800">Current: Step {currentStep} of {totalSteps}</span>
                 </div>
                 
                 <Form {...form}>
@@ -757,41 +766,23 @@ export default function LoanApplicationPage() {
                   </button>
                   
                   {currentStep < totalSteps ? (
-                    <div className="space-y-2">
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          console.log('=== SIMPLE NEXT CLICKED ===');
-                          console.log('Current step before:', currentStep);
-                          setCurrentStep(currentStep + 1);
-                          console.log('Current step after:', currentStep + 1);
-                        }}
-                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md font-medium mr-2"
-                      >
-                        Simple Next (No validation)
-                      </button>
-                      <button 
-                        type="button"
-                        onClick={(e) => {
-                          console.log('=== NEXT BUTTON CLICKED OUTSIDE FORM ===');
-                          console.log('Current step:', currentStep);
-                          console.log('Is authenticated:', isAuthenticated);
-                          console.log('Is validating:', isValidating);
-                          console.log('Disabled state:', isValidating);
-                          e.preventDefault();
-                          e.stopPropagation();
-                          nextStep();
-                        }}
-                        disabled={isValidating}
-                        className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
-                      >
-                        {isValidating ? (
-                          <>⏳ Validating...</>
-                        ) : (
-                          `Next Step ${currentStep + 1} (With validation)`
-                        )}
-                      </button>
-                    </div>
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        console.log('=== NEXT BUTTON CLICKED ===');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        nextStep();
+                      }}
+                      disabled={isValidating}
+                      className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-6 py-2 rounded-md font-medium transition-colors"
+                    >
+                      {isValidating ? (
+                        <>⏳ Validating...</>
+                      ) : (
+                        'Next'
+                      )}
+                    </button>
                   ) : (
                     <button
                       type="button"

@@ -75,6 +75,7 @@ export default function LoanApplicationPage() {
   const productId = params?.productId;
   
   const [currentStep, setCurrentStep] = useState(1);
+  const [isValidating, setIsValidating] = useState(false);
   const totalSteps = 4;
 
   // Check authentication status
@@ -98,11 +99,23 @@ export default function LoanApplicationPage() {
   const form = useForm<LoanApplicationForm>({
     resolver: zodResolver(loanApplicationSchema),
     defaultValues: {
+      fullName: '',
+      email: '',
+      phone: '',
+      nationalId: '',
+      dateOfBirth: '',
       maritalStatus: 'single',
       employmentStatus: 'employed',
+      monthlyIncome: 0,
       monthlyExpenses: 0,
+      employerName: '',
+      requestedAmount: 0,
       downPaymentAmount: 0,
-      preferredTenureMonths: 60
+      preferredTenureMonths: 60,
+      collateralDescription: '',
+      emergencyContactName: '',
+      emergencyContactPhone: '',
+      emergencyContactRelation: ''
     }
   });
 
@@ -184,9 +197,42 @@ export default function LoanApplicationPage() {
     submitApplicationMutation.mutate(data);
   };
 
-  const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
+  const nextStep = async () => {
+    setIsValidating(true);
+    
+    try {
+      // Add form validation for current step before proceeding
+      const fieldsToValidate = getFieldsForStep(currentStep);
+      const isStepValid = await form.trigger(fieldsToValidate);
+      
+      if (isStepValid && currentStep < totalSteps) {
+        setCurrentStep(currentStep + 1);
+      } else if (!isStepValid) {
+        // Show validation errors
+        toast({
+          title: "Please complete all required fields",
+          description: "Fill in all required fields before proceeding to the next step.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  // Define which fields to validate for each step
+  const getFieldsForStep = (step: number): (keyof LoanApplicationForm)[] => {
+    switch (step) {
+      case 1:
+        return ['fullName', 'email', 'phone', 'nationalId', 'dateOfBirth', 'maritalStatus'];
+      case 2:
+        return ['employmentStatus', 'monthlyIncome', 'monthlyExpenses', 'employerName'];
+      case 3:
+        return ['requestedAmount', 'downPaymentAmount', 'preferredTenureMonths'];
+      case 4:
+        return ['emergencyContactName', 'emergencyContactPhone', 'emergencyContactRelation'];
+      default:
+        return [];
     }
   };
 
@@ -645,9 +691,9 @@ export default function LoanApplicationPage() {
                           <div className="space-y-3">
                             <h4 className="font-semibold">Personal Information</h4>
                             <div className="text-sm space-y-1">
-                              <p><span className="font-medium">Name:</span> {form.watch('applicantName')}</p>
-                              <p><span className="font-medium">Email:</span> {form.watch('applicantEmail')}</p>
-                              <p><span className="font-medium">Phone:</span> {form.watch('applicantPhone')}</p>
+                              <p><span className="font-medium">Name:</span> {form.watch('fullName')}</p>
+                              <p><span className="font-medium">Email:</span> {form.watch('email')}</p>
+                              <p><span className="font-medium">Phone:</span> {form.watch('phone')}</p>
                               <p><span className="font-medium">National ID:</span> {form.watch('nationalId')}</p>
                             </div>
                           </div>
@@ -678,8 +724,20 @@ export default function LoanApplicationPage() {
                       </Button>
                       
                       {currentStep < totalSteps ? (
-                        <Button type="button" onClick={nextStep}>
-                          Next
+                        <Button 
+                          type="button" 
+                          onClick={nextStep}
+                          disabled={isValidating}
+                          className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+                        >
+                          {isValidating ? (
+                            <>
+                              <Clock className="h-4 w-4 mr-2 animate-spin" />
+                              Validating...
+                            </>
+                          ) : (
+                            'Next'
+                          )}
                         </Button>
                       ) : (
                         <Button

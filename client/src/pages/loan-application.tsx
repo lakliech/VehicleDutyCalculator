@@ -81,7 +81,7 @@ export default function LoanApplicationPage() {
 
   // Fetch vehicle details
   const { data: vehicleData, isLoading: loadingVehicle } = useQuery({
-    queryKey: ['/api/car-listings', carId, 'details'],
+    queryKey: [`/api/car-listings/${carId}/details`],
     enabled: !!carId && !!authStatus?.authenticated,
   });
 
@@ -104,32 +104,23 @@ export default function LoanApplicationPage() {
 
   // Set default loan amount when vehicle price is available
   useEffect(() => {
-    console.log('Vehicle data check:', { vehicleData, loanProduct });
-    if (vehicleData && loanProduct) {
-      // Check if vehicleData.price exists, else use vehicleData.priceKes
-      const rawPrice = vehicleData.price || vehicleData.priceKes;
-      console.log('Raw price value:', rawPrice, 'Vehicle data keys:', Object.keys(vehicleData));
+    if (vehicleData && loanProduct && Array.isArray(loanProduct) && loanProduct.length > 0) {
+      // Use the price field from vehicle data
+      const vehiclePrice = parseFloat(vehicleData.price);
       
-      const vehiclePrice = parseFloat(rawPrice);
-      const maxFinancing = parseFloat(loanProduct.maxFinancingPercentage);
-      const minDownPayment = parseFloat(loanProduct.minDownPaymentPercentage);
+      // Get the first loan product from the array
+      const selectedProduct = loanProduct[0];
+      const maxFinancing = parseFloat(selectedProduct.maxFinancingPercentage);
+      const minDownPayment = parseFloat(selectedProduct.minDownPaymentPercentage);
       
-      // The requested amount should be the full vehicle price initially
+      // Calculate loan amounts
       const requestedAmount = vehiclePrice;
       const minDownPaymentAmount = vehiclePrice * minDownPayment;
       
-      console.log('Setting loan defaults:', {
-        vehicleData: vehicleData,
-        rawPrice,
-        vehiclePrice,
-        requestedAmount,
-        minDownPaymentAmount,
-        maxFinancing,
-        minDownPayment
-      });
-      
-      form.setValue('requestedAmount', Math.round(requestedAmount));
-      form.setValue('downPaymentAmount', Math.round(minDownPaymentAmount));
+      if (!isNaN(vehiclePrice) && !isNaN(minDownPaymentAmount)) {
+        form.setValue('requestedAmount', Math.round(requestedAmount));
+        form.setValue('downPaymentAmount', Math.round(minDownPaymentAmount));
+      }
     }
   }, [vehicleData, loanProduct, form]);
 
@@ -137,12 +128,14 @@ export default function LoanApplicationPage() {
     mutationFn: async (data: LoanApplicationForm) => {
       return apiRequest('POST', '/api/financial/loan-application', {
         ...data,
+        userId: authStatus?.user?.id,
+        dateOfBirth: new Date(data.dateOfBirth).toISOString(),
         loanProductId: parseInt(productId!),
         vehicleListingId: carId ? parseInt(carId) : null,
         vehicleMake: vehicleData?.make,
         vehicleModel: vehicleData?.model,
         vehicleYear: vehicleData?.year,
-        vehiclePrice: vehicleData?.price
+        vehiclePrice: vehicleData?.price?.toString()
       });
     },
     onSuccess: (response) => {
@@ -502,7 +495,7 @@ export default function LoanApplicationPage() {
                                 <span className="font-medium">Financing for:</span> {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
                               </div>
                               <div className="font-bold text-purple-600">
-                                KES {parseFloat(vehicleData?.price || vehicleData?.priceKes || '0').toLocaleString()}
+                                KES {parseFloat(vehicleData?.price || '0').toLocaleString()}
                               </div>
                             </div>
                           </AlertDescription>
@@ -634,8 +627,8 @@ export default function LoanApplicationPage() {
                               <p><span className="font-medium">Year:</span> {vehicleData?.year}</p>
                             </div>
                             <div>
-                              <p><span className="font-medium">Vehicle Price:</span> KES {parseFloat(vehicleData?.price || vehicleData?.priceKes || '0').toLocaleString()}</p>
-                              <p><span className="font-medium">Loan Bank:</span> {loanProduct?.bankName}</p>
+                              <p><span className="font-medium">Vehicle Price:</span> KES {parseFloat(vehicleData?.price || '0').toLocaleString()}</p>
+                              <p><span className="font-medium">Loan Bank:</span> {loanProduct?.[0]?.bankName}</p>
                             </div>
                           </div>
                         </div>

@@ -70,9 +70,7 @@ export default function LoanApplicationPage() {
   const carId = params?.carId;
   const productId = params?.productId;
   
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isValidating, setIsValidating] = useState(false);
-  const totalSteps = 4;
+  // Removed step-based form structure
 
   // Check authentication status
   const { data: authStatus, isLoading: authLoading } = useQuery({
@@ -182,43 +180,7 @@ export default function LoanApplicationPage() {
     submitApplicationMutation.mutate(data);
   };
 
-  const nextStep = async () => {
-    if (currentStep < totalSteps) {
-      setIsValidating(true);
-      
-      // Validate current step before proceeding
-      let fieldsToValidate: string[] = [];
-      
-      if (currentStep === 1) {
-        fieldsToValidate = ['applicantName', 'applicantEmail', 'applicantPhone', 'nationalId', 'dateOfBirth', 'maritalStatus'];
-      } else if (currentStep === 2) {
-        fieldsToValidate = ['employmentStatus', 'monthlyIncome'];
-      } else if (currentStep === 3) {
-        fieldsToValidate = ['requestedAmount', 'downPaymentAmount', 'preferredTenureMonths'];
-      }
-      
-      const isValid = await form.trigger(fieldsToValidate);
-      
-      if (isValid) {
-        setCurrentStep(currentStep + 1);
-      } else {
-        // Focus on the first invalid field
-        const errors = form.formState.errors;
-        const firstErrorField = fieldsToValidate.find(field => errors[field as keyof typeof errors]);
-        if (firstErrorField) {
-          form.setFocus(firstErrorField as any);
-        }
-      }
-      
-      setIsValidating(false);
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
+  // Removed step navigation functions
 
   if (!match) {
     return <div>Invalid loan application URL</div>;
@@ -259,28 +221,21 @@ export default function LoanApplicationPage() {
           </div>
         </div>
 
-        {/* Progress Bar */}
+        {/* Vehicle Summary */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            {[1, 2, 3, 4].map((step) => (
-              <div
-                key={step}
-                className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                  step <= currentStep
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
-                }`}
-              >
-                {step < currentStep ? <Check className="h-5 w-5" /> : step}
+          <Alert className="border-purple-200 bg-purple-50 dark:bg-purple-900/20">
+            <Car className="h-4 w-4" />
+            <AlertDescription>
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="font-medium">Financing for:</span> {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
+                </div>
+                <div className="font-bold text-purple-600 dark:text-purple-400">
+                  KES {parseFloat(vehicleData?.price || '0').toLocaleString()}
+                </div>
               </div>
-            ))}
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div
-              className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-            ></div>
-          </div>
+            </AlertDescription>
+          </Alert>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -693,8 +693,13 @@ export default function LoanApplicationPage() {
                 </Form>
                 
                 {/* Navigation Buttons */}
-                <div className="flex justify-between pt-6 mt-6 border-t">
-                  <div className="flex gap-2">
+                <div className="pt-6 mt-6 border-t">
+                  {/* DEBUG: Show current step */}
+                  <div className="text-xs text-gray-500 mb-2 text-center">
+                    DEBUG: Current Step: {currentStep} / {totalSteps}
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="flex gap-2">
                     <Button
                       type="button"
                       variant="outline"
@@ -720,7 +725,11 @@ export default function LoanApplicationPage() {
                     <div className="flex gap-2">
                       <Button 
                         type="button"
-                        onClick={nextStep}
+                        onClick={() => {
+                          console.log('=== NEXT BUTTON CLICKED ===');
+                          console.log('Current step before:', currentStep);
+                          nextStep();
+                        }}
                         className="bg-purple-600 hover:bg-purple-700"
                       >
                         Next
@@ -729,10 +738,12 @@ export default function LoanApplicationPage() {
                         type="button"
                         variant="outline"
                         onClick={() => {
-                          console.log('=== GREEN TEST BUTTON WORKS ===');
+                          console.log('=== TEST SKIP BUTTON CLICKED ===');
+                          console.log('Current step before:', currentStep);
                           console.log('Auth status:', authStatus?.authenticated);
                           console.log('Auth loading:', authLoading);
                           setCurrentStep(currentStep + 1);
+                          console.log('Current step after:', currentStep + 1);
                         }}
                         className="bg-green-600 hover:bg-green-700 text-white"
                       >
@@ -748,6 +759,7 @@ export default function LoanApplicationPage() {
                       {submitApplicationMutation.isPending ? 'Submitting...' : 'Submit Application'}
                     </Button>
                   )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

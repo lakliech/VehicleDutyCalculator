@@ -29,6 +29,7 @@ import {
   Save,
   Database,
   TrendingUp,
+  TrendingDown,
   Shield,
   Calculator,
   LogOut,
@@ -582,48 +583,76 @@ function AuthenticatedAdminDashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-10">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <Database className="h-4 w-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="listings" className="flex items-center gap-2">
-              <Car className="h-4 w-4" />
-              Listings
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger value="flagging" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Auto-Flagging
-            </TabsTrigger>
-            <TabsTrigger value="vehicles" className="flex items-center gap-2">
-              <Car className="h-4 w-4" />
-              Vehicle Refs
-            </TabsTrigger>
-            <TabsTrigger value="csv-upload" className="flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              CSV Upload
-            </TabsTrigger>
-            <TabsTrigger value="tax-rates" className="flex items-center gap-2">
-              <Percent className="h-4 w-4" />
-              Tax Rates
-            </TabsTrigger>
-            <TabsTrigger value="processing-fees" className="flex items-center gap-2">
-              <Calculator className="h-4 w-4" />
-              Processing Fees
-            </TabsTrigger>
-            <TabsTrigger value="categories" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Category Rules
-            </TabsTrigger>
-            <TabsTrigger value="financial" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Financial Services
-            </TabsTrigger>
-          </TabsList>
+          {/* Organized Navigation with Groups */}
+          <div className="space-y-4">
+            {/* Main Navigation */}
+            <TabsList className="grid w-full grid-cols-4 mb-4">
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <Database className="h-4 w-4" />
+                Dashboard Overview
+              </TabsTrigger>
+              <TabsTrigger value="marketplace" className="flex items-center gap-2">
+                <Car className="h-4 w-4" />
+                Marketplace Management
+              </TabsTrigger>
+              <TabsTrigger value="financial" className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                Financial Services
+              </TabsTrigger>
+              <TabsTrigger value="system" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                System Configuration
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Secondary Navigation for System Configuration */}
+            {activeTab === "system" && (
+              <TabsList className="grid w-full grid-cols-6">
+                <TabsTrigger value="vehicles" className="flex items-center gap-2">
+                  <Car className="h-4 w-4" />
+                  Vehicle Database
+                </TabsTrigger>
+                <TabsTrigger value="csv-upload" className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Data Import
+                </TabsTrigger>
+                <TabsTrigger value="tax-rates" className="flex items-center gap-2">
+                  <Percent className="h-4 w-4" />
+                  Tax Configuration
+                </TabsTrigger>
+                <TabsTrigger value="processing-fees" className="flex items-center gap-2">
+                  <Calculator className="h-4 w-4" />
+                  Fee Structure
+                </TabsTrigger>
+                <TabsTrigger value="categories" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Category Rules
+                </TabsTrigger>
+                <TabsTrigger value="depreciation" className="flex items-center gap-2">
+                  <TrendingDown className="h-4 w-4" />
+                  Depreciation
+                </TabsTrigger>
+              </TabsList>
+            )}
+
+            {/* Secondary Navigation for Marketplace Management */}
+            {activeTab === "marketplace" && (
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="listings" className="flex items-center gap-2">
+                  <Car className="h-4 w-4" />
+                  Car Listings
+                </TabsTrigger>
+                <TabsTrigger value="users" className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  User Management
+                </TabsTrigger>
+                <TabsTrigger value="flagging" className="flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  Auto-Flagging System
+                </TabsTrigger>
+              </TabsList>
+            )}
+          </div>
 
           {/* Overview Tab */}
           <TabsContent value="overview">

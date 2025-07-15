@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
 import { ProtectedRoute } from "@/components/protected-route";
+import { QuickActionMenu } from "@/components/quick-action-menu";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import About from "@/pages/about";
@@ -113,6 +114,7 @@ function Router() {
         </Switch>
       </main>
       <Footer />
+      <QuickActionMenu />
     </div>
   );
 }

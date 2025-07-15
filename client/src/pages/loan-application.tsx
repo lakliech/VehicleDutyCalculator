@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Car, CreditCard, User, MapPin, FileText, Calculator, Check, Clock, AlertCircle } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
@@ -109,10 +109,19 @@ export default function LoanApplicationPage() {
       const maxFinancing = parseFloat(loanProduct.maxFinancingPercentage);
       const minDownPayment = parseFloat(loanProduct.minDownPaymentPercentage);
       
-      const maxLoanAmount = vehiclePrice * maxFinancing;
+      // The requested amount should be the full vehicle price initially
+      const requestedAmount = vehiclePrice;
       const minDownPaymentAmount = vehiclePrice * minDownPayment;
       
-      form.setValue('requestedAmount', Math.round(maxLoanAmount));
+      console.log('Setting loan defaults:', {
+        vehiclePrice,
+        requestedAmount,
+        minDownPaymentAmount,
+        maxFinancing,
+        minDownPayment
+      });
+      
+      form.setValue('requestedAmount', Math.round(requestedAmount));
       form.setValue('downPaymentAmount', Math.round(minDownPaymentAmount));
     }
   }, [vehicleData, loanProduct, form]);
@@ -477,6 +486,21 @@ export default function LoanApplicationPage() {
                     {/* Step 3: Loan Details */}
                     {currentStep === 3 && (
                       <div className="space-y-6">
+                        {/* Vehicle Summary */}
+                        <Alert className="border-purple-200 bg-purple-50">
+                          <Car className="h-4 w-4" />
+                          <AlertDescription>
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <span className="font-medium">Financing for:</span> {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
+                              </div>
+                              <div className="font-bold text-purple-600">
+                                KES {parseFloat(vehicleData?.price || '0').toLocaleString()}
+                              </div>
+                            </div>
+                          </AlertDescription>
+                        </Alert>
+                        
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
@@ -492,6 +516,9 @@ export default function LoanApplicationPage() {
                                     onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                                   />
                                 </FormControl>
+                                <FormDescription>
+                                  Default amount set to vehicle price. You can adjust based on your down payment.
+                                </FormDescription>
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -588,6 +615,24 @@ export default function LoanApplicationPage() {
                           </AlertDescription>
                         </Alert>
 
+                        {/* Vehicle Summary */}
+                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+                          <h4 className="font-semibold mb-3 flex items-center">
+                            <Car className="h-4 w-4 mr-2" />
+                            Vehicle Being Financed
+                          </h4>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p><span className="font-medium">Make & Model:</span> {vehicleData?.make} {vehicleData?.model}</p>
+                              <p><span className="font-medium">Year:</span> {vehicleData?.year}</p>
+                            </div>
+                            <div>
+                              <p><span className="font-medium">Vehicle Price:</span> KES {parseFloat(vehicleData?.price || '0').toLocaleString()}</p>
+                              <p><span className="font-medium">Loan Bank:</span> {loanProduct?.bankName}</p>
+                            </div>
+                          </div>
+                        </div>
+
                         {/* Application Summary */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-3">
@@ -601,12 +646,13 @@ export default function LoanApplicationPage() {
                           </div>
 
                           <div className="space-y-3">
-                            <h4 className="font-semibold">Financial Details</h4>
+                            <h4 className="font-semibold">Loan Details</h4>
                             <div className="text-sm space-y-1">
                               <p><span className="font-medium">Employment:</span> {form.watch('employmentStatus')}</p>
                               <p><span className="font-medium">Monthly Income:</span> KES {form.watch('monthlyIncome')?.toLocaleString()}</p>
                               <p><span className="font-medium">Loan Amount:</span> KES {form.watch('requestedAmount')?.toLocaleString()}</p>
                               <p><span className="font-medium">Down Payment:</span> KES {form.watch('downPaymentAmount')?.toLocaleString()}</p>
+                              <p><span className="font-medium">Tenure:</span> {form.watch('preferredTenureMonths')} months</p>
                             </div>
                           </div>
                         </div>

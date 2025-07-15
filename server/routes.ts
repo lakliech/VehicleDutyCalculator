@@ -6602,7 +6602,13 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   // Submit loan application
   app.post('/api/financial/loan-application', async (req: Request, res: Response) => {
     try {
-      const data = loanApplicationSchema.parse(req.body);
+      // Transform dateOfBirth to Date object before validation
+      const requestData = {
+        ...req.body,
+        dateOfBirth: new Date(req.body.dateOfBirth)
+      };
+      
+      const data = loanApplicationSchema.parse(requestData);
       const loanProductId = req.body.loanProductId;
 
       if (!loanProductId) {

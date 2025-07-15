@@ -178,7 +178,7 @@ export default function LoanApplicationPage() {
     // Transform data to match backend schema expectations
     const transformedData = {
       ...data,
-      dateOfBirth: new Date(data.dateOfBirth), // Convert to Date object for timestamp field
+      dateOfBirth: data.dateOfBirth, // Keep as string - backend will convert to Date
       monthlyIncome: data.monthlyIncome, // Keep as number - .extend() overrides to expect number
       monthlyExpenses: data.monthlyExpenses ? data.monthlyExpenses.toString() : undefined, // Convert to string for decimal field
       requestedAmount: data.requestedAmount, // Keep as number - .extend() overrides to expect number

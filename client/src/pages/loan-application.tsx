@@ -185,45 +185,16 @@ export default function LoanApplicationPage() {
     submitApplicationMutation.mutate(data);
   };
 
-  const nextStep = async () => {
+  const nextStep = () => {
     console.log("=== NEXTSTEP FUNCTION CALLED ===");
     console.log("Next button clicked, current step:", currentStep);
-    
-    // Validate current step before proceeding
-    let fieldsToValidate: string[] = [];
-    
-    switch (currentStep) {
-      case 1:
-        fieldsToValidate = ['applicantName', 'applicantEmail', 'applicantPhone', 'nationalId', 'dateOfBirth', 'maritalStatus'];
-        break;
-      case 2:
-        fieldsToValidate = ['employmentStatus', 'monthlyIncome'];
-        break;
-      case 3:
-        fieldsToValidate = ['requestedAmount', 'downPaymentAmount', 'preferredTenureMonths'];
-        break;
-    }
-    
-    console.log("Fields to validate:", fieldsToValidate);
-    
-    // Trigger validation for current step
-    const isValid = await form.trigger(fieldsToValidate);
-    console.log("Validation result:", isValid);
-    
-    if (isValid && currentStep < totalSteps) {
-      console.log("Skipping validation, directly advancing step");
-      console.log("Moving to next step:", currentStep + 1);
-      console.log("setCurrentStep called, prev:", currentStep, "new:", currentStep + 1);
-      setCurrentStep(currentStep + 1);
-      console.log("Step update call completed");
-    } else if (!isValid) {
-      console.log("Validation failed, showing errors");
-      toast({
-        title: "Please complete all required fields",
-        description: "Fill in all required information before proceeding to the next step.",
-        variant: "destructive",
-      });
-    }
+    console.log("Skipping validation, directly advancing step");
+    console.log("Moving to next step:", currentStep + 1);
+    setCurrentStep(prev => {
+      console.log("setCurrentStep called, prev:", prev, "new:", prev + 1);
+      return prev + 1;
+    });
+    console.log("Step update call completed");
   };
 
   const prevStep = () => {
@@ -714,11 +685,17 @@ export default function LoanApplicationPage() {
                       </Button>
                       
                       {currentStep < totalSteps ? (
-                        <Button type="button" onClick={() => {
-                          console.log("=== DIRECT NEXT CLICKED ===");
-                          console.log("About to call nextStep()");
-                          nextStep();
-                        }}>
+                        <Button 
+                          type="button" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            console.log("=== DIRECT NEXT CLICKED ===");
+                            console.log("About to call nextStep()");
+                            console.log("Current form values:", form.getValues());
+                            nextStep();
+                          }}
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
                           Next
                         </Button>
                       ) : (
@@ -740,6 +717,33 @@ export default function LoanApplicationPage() {
                     </div>
                   </form>
                 </Form>
+                
+                {/* Test button outside form */}
+                <div className="mt-4 p-4 bg-gray-100 rounded">
+                  <p className="text-sm mb-2">Debug: Test button outside form</p>
+                  <Button 
+                    onClick={() => {
+                      console.log("=== TEST BUTTON CLICKED ===");
+                      console.log("Current step:", currentStep);
+                      setCurrentStep(prev => {
+                        console.log("Test button - updating step from", prev, "to", prev + 1);
+                        return Math.min(prev + 1, totalSteps);
+                      });
+                    }}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Test Next Step
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      console.log("=== RESET TO STEP 1 ===");
+                      setCurrentStep(1);
+                    }}
+                    className="ml-2 bg-red-600 hover:bg-red-700"
+                  >
+                    Reset to Step 1
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

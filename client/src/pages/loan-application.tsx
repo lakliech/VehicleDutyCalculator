@@ -93,6 +93,7 @@ export default function LoanApplicationPage() {
 
   const form = useForm<LoanApplicationForm>({
     resolver: zodResolver(loanApplicationSchema),
+    mode: 'onChange',
     defaultValues: {
       applicantName: '',
       applicantEmail: '',
@@ -101,11 +102,15 @@ export default function LoanApplicationPage() {
       dateOfBirth: '',
       maritalStatus: 'single',
       employmentStatus: 'employed',
-      monthlyIncome: 0,
+      employerName: '',
+      jobTitle: '',
+      monthlyIncome: 20000,  // Set to minimum required
       monthlyExpenses: 0,
-      requestedAmount: 0,
+      requestedAmount: 100000,  // Set to minimum required
       downPaymentAmount: 0,
-      preferredTenureMonths: 60
+      preferredTenureMonths: 60,
+      purposeOfLoan: '',
+      additionalNotes: ''
     }
   });
 

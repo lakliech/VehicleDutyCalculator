@@ -679,7 +679,12 @@ export default function LoanApplicationPage() {
                       {currentStep < totalSteps ? (
                         <Button 
                           type="button" 
-                          onClick={nextStep}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log("Next button clicked, currentStep:", currentStep);
+                            nextStep();
+                          }}
                           className="bg-purple-600 hover:bg-purple-700"
                         >
                           Next

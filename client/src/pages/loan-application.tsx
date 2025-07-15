@@ -78,6 +78,9 @@ export default function LoanApplicationPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isValidating, setIsValidating] = useState(false);
   const totalSteps = 4;
+  
+  // Debug the state
+  console.log('Current step state:', currentStep, 'Total steps:', totalSteps, 'Is validating:', isValidating);
 
   // Check authentication status
   const { data: authStatus, isLoading: authLoading } = useQuery({
@@ -200,23 +203,19 @@ export default function LoanApplicationPage() {
   };
 
   const nextStep = async () => {
+    console.log('Next button clicked, current step:', currentStep);
     setIsValidating(true);
     
     try {
-      // Add form validation for current step before proceeding
-      const fieldsToValidate = getFieldsForStep(currentStep);
-      const isStepValid = await form.trigger(fieldsToValidate);
-      
-      if (isStepValid && currentStep < totalSteps) {
+      // For now, let's skip validation to test if it's working
+      if (currentStep < totalSteps) {
+        console.log('Moving to next step:', currentStep + 1);
         setCurrentStep(currentStep + 1);
-      } else if (!isStepValid) {
-        // Show validation errors
-        toast({
-          title: "Please complete all required fields",
-          description: "Fill in all required fields before proceeding to the next step.",
-          variant: "destructive",
-        });
+      } else {
+        console.log('Already at last step');
       }
+    } catch (error) {
+      console.error('Error in nextStep:', error);
     } finally {
       setIsValidating(false);
     }
@@ -728,7 +727,12 @@ export default function LoanApplicationPage() {
                       {currentStep < totalSteps ? (
                         <Button 
                           type="button" 
-                          onClick={nextStep}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('Button clicked event:', e);
+                            nextStep();
+                          }}
                           disabled={isValidating}
                           className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
                         >
@@ -738,7 +742,7 @@ export default function LoanApplicationPage() {
                               Validating...
                             </>
                           ) : (
-                            'Next'
+                            `Next (Step ${currentStep}/${totalSteps})`
                           )}
                         </Button>
                       ) : (

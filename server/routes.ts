@@ -7750,6 +7750,138 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
+  // Get seller appointments for a specific listing
+  app.get('/api/listing/:listingId/appointments', async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const { listingId } = req.params;
+      const listingIdInt = parseInt(listingId);
+
+      if (isNaN(listingIdInt)) {
+        return res.status(400).json({ error: 'Invalid listing ID' });
+      }
+
+      // Verify user owns the listing
+      const listing = await db
+        .select()
+        .from(carListings)
+        .where(and(
+          eq(carListings.id, listingIdInt),
+          eq(carListings.sellerId, req.user.id)
+        ))
+        .limit(1);
+
+      if (listing.length === 0) {
+        return res.status(404).json({ error: 'Listing not found or access denied' });
+      }
+
+      // Get video call appointments for this listing
+      const videoCallAppointments = await db
+        .select({
+          appointment: videoCallAppointments,
+          buyer: {
+            id: appUsers.id,
+            firstName: appUsers.firstName,
+            lastName: appUsers.lastName,
+            email: appUsers.email,
+            phoneNumber: appUsers.phoneNumber
+          }
+        })
+        .from(videoCallAppointments)
+        .leftJoin(appUsers, eq(videoCallAppointments.buyerId, appUsers.id))
+        .where(eq(videoCallAppointments.listingId, listingIdInt))
+        .orderBy(desc(videoCallAppointments.appointmentDate));
+
+      // Get test drive appointments for this listing
+      const testDriveAppointments = await db
+        .select({
+          appointment: testDriveAppointments,
+          buyer: {
+            id: appUsers.id,
+            firstName: appUsers.firstName,
+            lastName: appUsers.lastName,
+            email: appUsers.email,
+            phoneNumber: appUsers.phoneNumber
+          }
+        })
+        .from(testDriveAppointments)
+        .leftJoin(appUsers, eq(testDriveAppointments.buyerId, appUsers.id))
+        .where(eq(testDriveAppointments.listingId, listingIdInt))
+        .orderBy(desc(testDriveAppointments.appointmentDate));
+
+      // Transform and combine appointments
+      const videoCallsFormatted = videoCallAppointments.map(item => ({
+        id: item.appointment.id,
+        type: 'video_call',
+        listingId: item.appointment.listingId,
+        buyerId: item.appointment.buyerId,
+        buyerName: item.buyer ? `${item.buyer.firstName} ${item.buyer.lastName}` : 'Unknown',
+        buyerEmail: item.buyer?.email || '',
+        buyerPhone: item.buyer?.phoneNumber || '',
+        appointmentDate: item.appointment.appointmentDate,
+        duration: item.appointment.duration,
+        status: item.appointment.status,
+        notes: item.appointment.notes,
+        sellerNotes: item.appointment.sellerNotes,
+        meetingLink: item.appointment.meetingLink,
+        createdAt: item.appointment.createdAt,
+        updatedAt: item.appointment.updatedAt
+      }));
+
+      const testDrivesFormatted = testDriveAppointments.map(item => ({
+        id: item.appointment.id,
+        type: 'test_drive',
+        listingId: item.appointment.listingId,
+        buyerId: item.appointment.buyerId,
+        buyerName: item.buyer ? `${item.buyer.firstName} ${item.buyer.lastName}` : 'Unknown',
+        buyerEmail: item.buyer?.email || '',
+        buyerPhone: item.buyer?.phoneNumber || '',
+        appointmentDate: item.appointment.appointmentDate,
+        duration: item.appointment.duration,
+        status: item.appointment.status,
+        buyerNotes: item.appointment.buyerNotes,
+        sellerNotes: item.appointment.sellerNotes,
+        meetingLocation: item.appointment.meetingLocation,
+        documentsRequired: item.appointment.documentsRequired,
+        additionalRequirements: item.appointment.additionalRequirements,
+        completionNotes: item.appointment.completionNotes,
+        rating: item.appointment.rating,
+        createdAt: item.appointment.createdAt,
+        updatedAt: item.appointment.updatedAt
+      }));
+
+      // Combine and sort all appointments by date
+      const allAppointments = [...videoCallsFormatted, ...testDrivesFormatted]
+        .sort((a, b) => new Date(b.appointmentDate).getTime() - new Date(a.appointmentDate).getTime());
+
+      // Calculate statistics
+      const totalAppointments = allAppointments.length;
+      const completedAppointments = allAppointments.filter(app => app.status === 'completed').length;
+      const pendingAppointments = allAppointments.filter(app => app.status === 'pending').length;
+      const cancelledAppointments = allAppointments.filter(app => app.status === 'cancelled').length;
+      const upcomingAppointments = allAppointments.filter(app => 
+        new Date(app.appointmentDate) > new Date() && app.status !== 'cancelled'
+      ).length;
+
+      res.json({
+        appointments: allAppointments,
+        statistics: {
+          total: totalAppointments,
+          completed: completedAppointments,
+          pending: pendingAppointments,
+          cancelled: cancelledAppointments,
+          upcoming: upcomingAppointments
+        }
+      });
+    } catch (error) {
+      console.error('Failed to fetch seller appointments:', error);
+      res.status(500).json({ error: 'Failed to fetch appointments' });
+    }
+  });
+
   // Image optimization endpoints
   app.get('/api/images/optimize/*', async (req: Request, res: Response) => {
     try {

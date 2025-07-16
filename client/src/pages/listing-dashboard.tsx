@@ -366,7 +366,7 @@ export default function ListingDashboard() {
                   {/* Quick Actions */}
                   <div>
                     <Label className="text-base font-semibold">Quick Actions</Label>
-                    <div className="grid grid-cols-2 gap-3 mt-2">
+                    <div className="mt-2">
                       <Button 
                         variant="outline" 
                         onClick={() => setEditingListing(true)}
@@ -374,15 +374,6 @@ export default function ListingDashboard() {
                       >
                         <Edit className="h-4 w-4 mr-2" />
                         Edit Listing
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setLocation('/messages')}
-                        className="w-full"
-                      >
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        View Messages
                       </Button>
                     </div>
                   </div>
@@ -1135,37 +1126,211 @@ export default function ListingDashboard() {
 
         {/* Edit Listing Dialog */}
         <Dialog open={editingListing} onOpenChange={setEditingListing}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Edit Listing</DialogTitle>
+              <DialogTitle>Edit Listing - {listing.title}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Price (KES)</Label>
-                  <Input 
-                    type="number" 
-                    defaultValue={listing.price}
-                    onChange={(e) => updateListingMutation.mutate({ price: parseInt(e.target.value) })}
-                  />
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-purple-700">Basic Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Listing Title</Label>
+                    <Input 
+                      defaultValue={listing.title}
+                      onChange={(e) => updateListingMutation.mutate({ title: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Price (KES)</Label>
+                    <Input 
+                      type="number" 
+                      defaultValue={listing.price}
+                      onChange={(e) => updateListingMutation.mutate({ price: parseInt(e.target.value) })}
+                    />
+                  </div>
                 </div>
                 <div>
-                  <Label>Mileage (km)</Label>
-                  <Input 
-                    type="number" 
-                    defaultValue={listing.mileage}
-                    onChange={(e) => updateListingMutation.mutate({ mileage: parseInt(e.target.value) })}
+                  <Label>Description</Label>
+                  <Textarea 
+                    defaultValue={listing.description}
+                    rows={4}
+                    onChange={(e) => updateListingMutation.mutate({ description: e.target.value })}
                   />
                 </div>
               </div>
-              <div>
-                <Label>Description</Label>
-                <Textarea 
-                  defaultValue={listing.description}
-                  onChange={(e) => updateListingMutation.mutate({ description: e.target.value })}
-                />
+
+              {/* Vehicle Details */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-purple-700">Vehicle Details</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Make</Label>
+                    <Input 
+                      defaultValue={listing.make}
+                      onChange={(e) => updateListingMutation.mutate({ make: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Model</Label>
+                    <Input 
+                      defaultValue={listing.model}
+                      onChange={(e) => updateListingMutation.mutate({ model: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Year</Label>
+                    <Input 
+                      type="number"
+                      defaultValue={listing.year}
+                      onChange={(e) => updateListingMutation.mutate({ year: parseInt(e.target.value) })}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Mileage (km)</Label>
+                    <Input 
+                      type="number" 
+                      defaultValue={listing.mileage}
+                      onChange={(e) => updateListingMutation.mutate({ mileage: parseInt(e.target.value) })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Fuel Type</Label>
+                    <Select 
+                      defaultValue={listing.fuel_type}
+                      onValueChange={(value) => updateListingMutation.mutate({ fuel_type: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="petrol">Petrol</SelectItem>
+                        <SelectItem value="diesel">Diesel</SelectItem>
+                        <SelectItem value="hybrid">Hybrid</SelectItem>
+                        <SelectItem value="electric">Electric</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Transmission</Label>
+                    <Select 
+                      defaultValue={listing.transmission}
+                      onValueChange={(value) => updateListingMutation.mutate({ transmission: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="manual">Manual</SelectItem>
+                        <SelectItem value="automatic">Automatic</SelectItem>
+                        <SelectItem value="cvt">CVT</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Body Type</Label>
+                    <Input 
+                      defaultValue={listing.body_type}
+                      onChange={(e) => updateListingMutation.mutate({ body_type: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Engine Capacity (cc)</Label>
+                    <Input 
+                      type="number"
+                      defaultValue={listing.engine_capacity}
+                      onChange={(e) => updateListingMutation.mutate({ engine_capacity: parseInt(e.target.value) })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Drive Configuration</Label>
+                    <Select 
+                      defaultValue={listing.drive_configuration}
+                      onValueChange={(value) => updateListingMutation.mutate({ drive_configuration: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2WD">2WD</SelectItem>
+                        <SelectItem value="4WD">4WD</SelectItem>
+                        <SelectItem value="AWD">AWD</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-end space-x-3">
+
+              {/* Colors */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-purple-700">Colors</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Exterior Color</Label>
+                    <Input 
+                      defaultValue={listing.exterior_color}
+                      onChange={(e) => updateListingMutation.mutate({ exterior_color: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Interior Color</Label>
+                    <Input 
+                      defaultValue={listing.interior_color}
+                      onChange={(e) => updateListingMutation.mutate({ interior_color: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Location */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-purple-700">Location</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>County</Label>
+                    <Input 
+                      defaultValue={listing.county}
+                      onChange={(e) => updateListingMutation.mutate({ county: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Town</Label>
+                    <Input 
+                      defaultValue={listing.town}
+                      onChange={(e) => updateListingMutation.mutate({ town: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-purple-700">Contact Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Contact Name</Label>
+                    <Input 
+                      defaultValue={listing.contact_name}
+                      onChange={(e) => updateListingMutation.mutate({ contact_name: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Phone Number</Label>
+                    <Input 
+                      defaultValue={listing.phone_number}
+                      onChange={(e) => updateListingMutation.mutate({ phone_number: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end space-x-3 pt-4 border-t">
                 <Button variant="outline" onClick={() => setEditingListing(false)}>
                   Cancel
                 </Button>

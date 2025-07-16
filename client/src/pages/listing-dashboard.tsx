@@ -99,8 +99,8 @@ export default function ListingDashboard() {
     totalViews: analytics?.totalViews || 0,
     phoneClicks: analytics?.phoneClicks || 0,
     favorites: analytics?.favorites || 0,
-    inquiries: conversations?.length || 0,
-    unreadMessages: conversations?.reduce((sum: number, conv: any) => sum + (conv.unreadCount || 0), 0) || 0
+    inquiries: Array.isArray(conversations) ? conversations.length : 0,
+    unreadMessages: Array.isArray(conversations) ? conversations.reduce((sum: number, conv: any) => sum + (conv.unreadCount || 0), 0) : 0
   };
 
   return (
@@ -254,7 +254,7 @@ export default function ListingDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {conversations?.slice(0, 3).map((conv: any, idx: number) => (
+                    {Array.isArray(conversations) && conversations.slice(0, 3).map((conv: any, idx: number) => (
                       <div key={idx} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                         <MessageSquare className="h-4 w-4 text-blue-600" />
                         <div className="flex-1">
@@ -269,7 +269,7 @@ export default function ListingDashboard() {
                       </div>
                     ))}
                     
-                    {(!conversations || conversations.length === 0) && (
+                    {(!Array.isArray(conversations) || conversations.length === 0) && (
                       <p className="text-gray-500 text-center py-4">No recent activity</p>
                     )}
                   </div>
@@ -286,7 +286,7 @@ export default function ListingDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {conversations?.map((conv: any, idx: number) => (
+                  {Array.isArray(conversations) && conversations.map((conv: any, idx: number) => (
                     <div key={idx} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
@@ -315,7 +315,7 @@ export default function ListingDashboard() {
                     </div>
                   ))}
                   
-                  {(!conversations || conversations.length === 0) && (
+                  {(!Array.isArray(conversations) || conversations.length === 0) && (
                     <div className="text-center py-8">
                       <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                       <p className="text-gray-500">No inquiries yet</p>

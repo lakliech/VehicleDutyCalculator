@@ -1053,7 +1053,7 @@ export const pricingRecommendations = pgTable("pricing_recommendations", {
   reasoning: text("reasoning").notNull(),
   factors: json("factors"), // Array of factors affecting price
   seasonalAdjustment: decimal("seasonal_adjustment", { precision: 5, scale: 2 }),
-  deprecationForecast: json("deprecation_forecast"), // 3, 6, 12 month projections
+  depreciationForecast: json("depreciation_forecast"), // 3, 6, 12 month projections
   alertType: varchar("alert_type", { length: 30 }), // 'overpriced', 'underpriced', 'optimal', 'seasonal_opportunity'
   isActive: boolean("is_active").default(true).notNull(),
   acknowledgedBy: varchar("acknowledged_by", { length: 255 }),

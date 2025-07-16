@@ -487,7 +487,7 @@ Respond ONLY with valid JSON in this format:
         reasoning: recommendation.reasoning,
         factors: JSON.stringify(recommendation.factors),
         seasonalAdjustment: recommendation.seasonalAdjustment?.toString(),
-        deprecationForecast: JSON.stringify(recommendation.depreciationForecast),
+        depreciationForecast: JSON.stringify(recommendation.depreciationForecast),
         alertType: recommendation.alertType,
         isActive: true
       });

@@ -884,6 +884,13 @@ Changelog:
   - Fixed critical appointment API error "Cannot access 'videoCallAppointments2' before initialization" 
   - Resolved variable naming conflicts in appointment endpoint by renaming result variables to avoid schema conflicts
   - Fixed appointment data retrieval for seller dashboards - Chris Otieno can now see his 3 appointments for listing 8
+- January 17, 2025. Fixed critical database schema mismatches after schema migration:
+  - Migrated from broken full schema to minimal schema architecture to reduce TypeScript errors
+  - Fixed car details API endpoint by removing non-existent columns from queries (isActive, isEmailVerified)
+  - Updated test_drive_appointments schema to match database (notes → buyerNotes)
+  - Removed non-existent columns from car_listings schema (seating, phone_click_count, share_count, inquiry_count, verification_status)
+  - Added missing columns to schema that exist in database (color, condition, videos, phone_number, whatsapp_number, is_verified, featured, etc.)
+  - Car details page now loads successfully with all data properly mapped from database
 
 ## User Preferences
 

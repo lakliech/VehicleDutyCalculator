@@ -47,28 +47,37 @@ export const carListings = pgTable("car_listings", {
   driveConfiguration: text("drive_configuration"), // 2WD, 4WD, AWD
   exteriorColor: text("exterior_color"),
   interiorColor: text("interior_color"),
-  seating: text("seating"), // e.g., "5 seats"
+  color: text("color"), // legacy color field
+  condition: text("condition"),
   price: decimal("price", { precision: 12, scale: 2 }).notNull(),
   negotiable: boolean("negotiable").default(true),
   location: text("location").notNull(),
-  county: text("county"),
   description: text("description"),
-  features: json("features"), // array of feature strings
+  features: json("features").$type<string[]>(), // array of feature strings
   documents: json("documents"), // array of document objects
-  images: json("images"), // array of image URLs
+  images: json("images").$type<string[]>(), // array of image URLs
+  videos: json("videos").$type<string[]>(),
   viewCount: integer("view_count").default(0),
   favoriteCount: integer("favorite_count").default(0),
-  phoneClickCount: integer("phone_click_count").default(0),
-  shareCount: integer("share_count").default(0),
-  inquiryCount: integer("inquiry_count").default(0),
   status: text("status").default("pending"), // pending, active, inactive, sold, rejected, archived
-  isPromoted: boolean("is_promoted").default(false),
-  promotedUntil: timestamp("promoted_until"),
-  isFeatured: boolean("is_featured").default(false),
-  verificationStatus: text("verification_status").default("unverified"), // unverified, pending, verified, rejected
-  flaggedReason: text("flagged_reason"),
+  phoneNumber: varchar("phone_number", { length: 50 }),
+  whatsappNumber: varchar("whatsapp_number", { length: 50 }),
+  isVerified: boolean("is_verified").default(false),
+  featured: boolean("featured").default(false),
+  isFlagged: boolean("is_flagged").default(false),
+  flagReason: text("flag_reason"),
   flaggedAt: timestamp("flagged_at"),
+  flaggedBy: varchar("flagged_by", { length: 255 }),
+  soldAt: timestamp("sold_at"),
+  soldBy: varchar("sold_by", { length: 255 }),
+  archivedAt: timestamp("archived_at"),
+  archivedBy: varchar("archived_by", { length: 255 }),
+  expirationDate: timestamp("expiration_date"),
+  listingSource: text("listing_source"),
+  verifiedBadgeType: text("verified_badge_type"),
   adminNotes: text("admin_notes"),
+  vinNumber: text("vin_number"),
+  registrationNumber: text("registration_number"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -142,10 +151,13 @@ export const testDriveAppointments = pgTable("test_drive_appointments", {
   duration: integer("duration").notNull().default(60), // in minutes
   status: text("status").notNull().default("pending"), // pending, confirmed, cancelled, completed, no_show
   meetingLocation: text("meeting_location"),
-  notes: text("notes"),
+  buyerNotes: text("buyer_notes"),
   sellerNotes: text("seller_notes"),
   cancellationReason: text("cancellation_reason"),
   completionNotes: text("completion_notes"),
+  documentsRequired: json("documents_required").$type<string[]>(),
+  additionalRequirements: text("additional_requirements"),
+  rating: integer("rating"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

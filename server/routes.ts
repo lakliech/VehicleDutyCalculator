@@ -3265,9 +3265,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             createdAt: appUsers.createdAt,
             updatedAt: appUsers.updatedAt,
             roleId: appUsers.roleId,
-            isActive: appUsers.isActive,
-            lastLoginAt: appUsers.lastLoginAt,
-            isEmailVerified: appUsers.isEmailVerified
+            lastLoginAt: appUsers.lastLoginAt
           }
         })
         .from(carListings)
@@ -3315,32 +3313,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         seats: 5, // Default value
         exteriorColor: listing.exteriorColor || "Unknown",
         interiorColor: listing.interiorColor || "Unknown",
-        condition: listing.condition || "Unknown",
+        condition: "Used", // Default value since not in minimal schema
         location: listing.location,
         images: listing.images || [],
-        videos: listing.videos || [],
+        videos: [], // Not in minimal schema
         documents: listing.documents || [],
         features: listing.features || [],
-        isVerified: listing.isVerified,
+        isVerified: listing.verificationStatus === 'verified',
         hasWarranty: false, // Default value
         hasFreeDelivery: false, // Default value
         warrantyDetails: "Contact seller for warranty information",
         deliveryInfo: "Contact seller for delivery information",
-        viewCount: listing.viewCount,
-        favoriteCount: listing.favoriteCount,
+        viewCount: listing.viewCount || 0,
+        favoriteCount: listing.favoriteCount || 0,
         createdAt: listing.createdAt.toISOString(),
         description: listing.description || "No description available",
-        registrationNumber: listing.registrationNumber,
-        vinNumber: listing.vinNumber,
-        negotiable: listing.negotiable,
+        registrationNumber: "Not provided", // Not in minimal schema
+        vinNumber: "Not provided", // Not in minimal schema
+        negotiable: listing.negotiable || true,
         sellerInfo: {
-          name: seller ? `${seller.firstName} ${seller.lastName}` : "Unknown Seller",
+          name: seller ? `${seller.firstName || ''} ${seller.lastName || ''}`.trim() || "Unknown Seller" : "Unknown Seller",
           type: "individual" as const,
           rating: 4.5, // Default rating
           reviewCount: 0, // Default review count
           location: listing.location,
-          phone: listing.phoneNumber,
-          whatsapp: listing.whatsappNumber
+          phone: seller?.phoneNumber || "Not provided",
+          whatsapp: seller?.phoneNumber || "Not provided"
         },
         vehicleHistory: {
           previousOwners: 1, // Default value

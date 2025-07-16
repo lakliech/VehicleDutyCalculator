@@ -790,6 +790,9 @@ Changelog:
   - Created necessary database tables manually when schema push operations timeout
   - Fixed authentication middleware issues preventing proper appointment data retrieval
   - Corrected data ownership relationships to ensure appointments display for correct listing owners
+  - Fixed admin dashboard authentication by ensuring admin user jaredkoyier@gmail.com logged in through Google OAuth
+  - Resolved admin listing visibility issues - all 8 car listings now properly display on admin dashboard
+  - Fixed admin user data validation errors preventing proper user dropdown population in admin interface
 
 ## User Preferences
 

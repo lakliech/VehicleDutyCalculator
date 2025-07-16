@@ -963,7 +963,11 @@ export default function ListingDashboard() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">Market Average</span>
-                      <span className="font-semibold">KES {analytics?.marketBenchmark?.averagePrice?.toLocaleString() || 'N/A'}</span>
+                      <span className="font-semibold">
+                        {analytics?.marketBenchmark?.averagePrice 
+                          ? `KES ${Number(analytics.marketBenchmark.averagePrice).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          : 'N/A'}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">Price Position</span>

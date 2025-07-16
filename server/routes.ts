@@ -7782,7 +7782,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       }
 
       // Get video call appointments for this listing
-      const videoCallAppointments = await db
+      const videoCallAppointmentsData = await db
         .select({
           appointment: videoCallAppointments,
           buyer: {
@@ -7799,7 +7799,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         .orderBy(desc(videoCallAppointments.appointmentDate));
 
       // Get test drive appointments for this listing
-      const testDriveAppointments = await db
+      const testDriveAppointmentsData = await db
         .select({
           appointment: testDriveAppointments,
           buyer: {
@@ -7816,7 +7816,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         .orderBy(desc(testDriveAppointments.appointmentDate));
 
       // Transform and combine appointments
-      const videoCallsFormatted = videoCallAppointments.map(item => ({
+      const videoCallsFormatted = videoCallAppointmentsData.map(item => ({
         id: item.appointment.id,
         type: 'video_call',
         listingId: item.appointment.listingId,
@@ -7834,7 +7834,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         updatedAt: item.appointment.updatedAt
       }));
 
-      const testDrivesFormatted = testDriveAppointments.map(item => ({
+      const testDrivesFormatted = testDriveAppointmentsData.map(item => ({
         id: item.appointment.id,
         type: 'test_drive',
         listingId: item.appointment.listingId,

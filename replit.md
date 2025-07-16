@@ -793,6 +793,9 @@ Changelog:
   - Fixed admin dashboard authentication by ensuring admin user jaredkoyier@gmail.com logged in through Google OAuth
   - Resolved admin listing visibility issues - all 8 car listings now properly display on admin dashboard
   - Fixed admin user data validation errors preventing proper user dropdown population in admin interface
+  - Fixed critical appointment API error "Cannot access 'videoCallAppointments2' before initialization" 
+  - Resolved variable naming conflicts in appointment endpoint by renaming result variables to avoid schema conflicts
+  - Fixed appointment data retrieval for seller dashboards - Chris Otieno can now see his 3 appointments for listing 8
 
 ## User Preferences
 

@@ -891,6 +891,13 @@ Changelog:
   - Removed non-existent columns from car_listings schema (seating, phone_click_count, share_count, inquiry_count, verification_status)
   - Added missing columns to schema that exist in database (color, condition, videos, phone_number, whatsapp_number, is_verified, featured, etc.)
   - Car details page now loads successfully with all data properly mapped from database
+- January 17, 2025. Fixed Smart Pricing and integrated financial services:
+  - Added missing PUT /api/listings/:id endpoint for updating listing prices
+  - Fixed "Apply Recommended Price" button functionality in Smart Pricing Intelligence
+  - Formatted market average to display with 2 decimal places (KES 1,234,567.89 format)
+  - Created new API endpoint /api/listing/:listingId/loan-applications for sellers to view loan applications
+  - Integrated loan applications display in seller dashboard showing client name, phone, bank, product, and status
+  - Added comprehensive loan applications table in Overview & Pricing tab with status badges and formatting
 
 ## User Preferences
 

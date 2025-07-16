@@ -7385,6 +7385,58 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
+  // Get loan applications for a specific listing (for sellers)
+  app.get('/api/listing/:listingId/loan-applications', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const listingId = parseInt(req.params.listingId);
+      
+      // First verify the user owns this listing
+      const listing = await db.select()
+        .from(carListings)
+        .where(eq(carListings.id, listingId))
+        .limit(1);
+        
+      if (listing.length === 0) {
+        return res.status(404).json({ error: 'Listing not found' });
+      }
+      
+      if (listing[0].sellerId !== user.id) {
+        return res.status(403).json({ error: 'You can only view loan applications for your own listings' });
+      }
+
+      // Get loan applications for this listing
+      const applications = await db.select({
+        id: loanApplications.id,
+        applicationNumber: loanApplications.applicationNumber,
+        status: loanApplications.status,
+        submittedAt: loanApplications.submittedAt,
+        applicantName: loanApplications.applicantName,
+        applicantPhone: loanApplications.applicantPhone,
+        requestedAmount: loanApplications.requestedAmount,
+        downPaymentAmount: loanApplications.downPaymentAmount,
+        preferredTenureMonths: loanApplications.preferredTenureMonths,
+        productName: loanProducts.productName,
+        bankName: bankPartners.bankName,
+        interestRate: loanProducts.interestRate,
+      })
+      .from(loanApplications)
+      .leftJoin(loanProducts, eq(loanApplications.loanProductId, loanProducts.id))
+      .leftJoin(bankPartners, eq(loanProducts.bankId, bankPartners.id))
+      .where(eq(loanApplications.vehicleListingId, listingId))
+      .orderBy(desc(loanApplications.submittedAt));
+
+      res.json(applications);
+    } catch (error) {
+      console.error('Error fetching listing loan applications:', error);
+      res.status(500).json({ error: 'Failed to fetch loan applications' });
+    }
+  });
+
   // Get user's loan applications
   app.get('/api/loan-applications', authenticateUser, async (req: Request, res: Response) => {
     try {

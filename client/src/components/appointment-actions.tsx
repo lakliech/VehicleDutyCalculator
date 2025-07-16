@@ -51,10 +51,8 @@ export function AppointmentActions({ appointment, userRole, onUpdate }: Appointm
   // Update appointment mutation
   const updateMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest(`${baseUrl}/${appointment.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest('PATCH', `${baseUrl}/${appointment.id}`, data);
+      return response.json();
     },
     onSuccess: (data) => {
       toast({
@@ -79,10 +77,8 @@ export function AppointmentActions({ appointment, userRole, onUpdate }: Appointm
   // Quick action mutations
   const cancelMutation = useMutation({
     mutationFn: async (reason: string) => {
-      return apiRequest(`${baseUrl}/${appointment.id}/cancel`, {
-        method: 'POST',
-        body: JSON.stringify({ reason }),
-      });
+      const response = await apiRequest('POST', `${baseUrl}/${appointment.id}/cancel`, { reason });
+      return response.json();
     },
     onSuccess: (data) => {
       toast({
@@ -104,10 +100,8 @@ export function AppointmentActions({ appointment, userRole, onUpdate }: Appointm
 
   const completeMutation = useMutation({
     mutationFn: async (data: { notes?: string; rating?: number }) => {
-      return apiRequest(`${baseUrl}/${appointment.id}/complete`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest('POST', `${baseUrl}/${appointment.id}/complete`, data);
+      return response.json();
     },
     onSuccess: (data) => {
       toast({

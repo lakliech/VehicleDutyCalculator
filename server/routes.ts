@@ -5869,6 +5869,8 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       const { listingId } = req.params;
       const user = (req as any).user;
       
+      console.log('[Recent Activity] Start - ListingID:', listingId, 'UserID:', user?.id);
+      
       if (!user) {
         return res.status(401).json({ error: 'Authentication required' });
       }
@@ -5884,6 +5886,8 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           )
         )
         .limit(1);
+      
+      console.log('[Recent Activity] Listing check result:', listing.length > 0 ? 'Found' : 'Not found');
       
       if (!listing.length) {
         return res.status(404).json({ error: "Listing not found or access denied" });
@@ -5908,7 +5912,22 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         LIMIT 7
       `);
 
-      const recentViews = Array.isArray(recentViewsResult) ? recentViewsResult : [];
+      console.log('[Recent Activity] Raw SQL result type:', typeof recentViewsResult);
+      console.log('[Recent Activity] Raw SQL result length:', Array.isArray(recentViewsResult) ? recentViewsResult.length : 'Not array');
+      console.log('[Recent Activity] Raw SQL result structure:', recentViewsResult);
+
+      // Handle Neon database result structure - check for .rows property
+      let recentViews = [];
+      if (Array.isArray(recentViewsResult)) {
+        recentViews = recentViewsResult;
+      } else if (recentViewsResult && recentViewsResult.rows) {
+        recentViews = recentViewsResult.rows;
+      } else if (recentViewsResult && Array.isArray(recentViewsResult.rows)) {
+        recentViews = recentViewsResult.rows;
+      }
+      
+      console.log('[Recent Activity] Processed views array length:', recentViews.length);
+      console.log('[Recent Activity] Processed views data:', recentViews);
       
       const activities = [];
 

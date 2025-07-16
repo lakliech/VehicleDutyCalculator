@@ -8290,7 +8290,10 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       if (availability && availability.length > 0) {
         await db.insert(sellerAvailability).values(
           availability.map((slot: any) => ({
-            ...slot,
+            dayOfWeek: slot.dayOfWeek,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            isActive: slot.isActive,
             userId: req.user.id
           }))
         );
@@ -8307,7 +8310,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         if (existingPreferences.length > 0) {
           await db
             .update(sellerAppointmentPreferences)
-            .set({ ...preferences, updatedAt: new Date() })
+            .set({ ...preferences })
             .where(eq(sellerAppointmentPreferences.userId, req.user.id));
         } else {
           await db.insert(sellerAppointmentPreferences).values({

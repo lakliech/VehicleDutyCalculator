@@ -1592,10 +1592,13 @@ export default function ListingDashboard() {
                                 const newAvailability = availabilityData.availability.map((a: any) => 
                                   a.dayOfWeek === index ? { ...a, startTime: e.target.value } : a
                                 );
-                                updateAvailabilityMutation.mutate({
-                                  availability: newAvailability,
-                                  preferences: availabilityData?.preferences
-                                });
+                                // Debounce the mutation to avoid rapid-fire calls
+                                setTimeout(() => {
+                                  updateAvailabilityMutation.mutate({
+                                    availability: newAvailability,
+                                    preferences: availabilityData?.preferences
+                                  });
+                                }, 500);
                               }}
                             />
                             <span>to</span>
@@ -1607,10 +1610,13 @@ export default function ListingDashboard() {
                                 const newAvailability = availabilityData.availability.map((a: any) => 
                                   a.dayOfWeek === index ? { ...a, endTime: e.target.value } : a
                                 );
-                                updateAvailabilityMutation.mutate({
-                                  availability: newAvailability,
-                                  preferences: availabilityData?.preferences
-                                });
+                                // Debounce the mutation to avoid rapid-fire calls
+                                setTimeout(() => {
+                                  updateAvailabilityMutation.mutate({
+                                    availability: newAvailability,
+                                    preferences: availabilityData?.preferences
+                                  });
+                                }, 500);
                               }}
                             />
                           </div>
@@ -1661,13 +1667,15 @@ export default function ListingDashboard() {
                       type="number"
                       value={availabilityData?.preferences?.minimumAdvanceNoticeHours || 2}
                       onChange={(e) => {
-                        updateAvailabilityMutation.mutate({
-                          availability: availabilityData?.availability || [],
-                          preferences: {
-                            ...availabilityData?.preferences,
-                            minimumAdvanceNoticeHours: parseInt(e.target.value)
-                          }
-                        });
+                        setTimeout(() => {
+                          updateAvailabilityMutation.mutate({
+                            availability: availabilityData?.availability || [],
+                            preferences: {
+                              ...availabilityData?.preferences,
+                              minimumAdvanceNoticeHours: parseInt(e.target.value)
+                            }
+                          });
+                        }, 1000);
                       }}
                     />
                   </div>
@@ -1677,13 +1685,15 @@ export default function ListingDashboard() {
                       type="number"
                       value={availabilityData?.preferences?.maxAppointmentsPerDay || 10}
                       onChange={(e) => {
-                        updateAvailabilityMutation.mutate({
-                          availability: availabilityData?.availability || [],
-                          preferences: {
-                            ...availabilityData?.preferences,
-                            maxAppointmentsPerDay: parseInt(e.target.value)
-                          }
-                        });
+                        setTimeout(() => {
+                          updateAvailabilityMutation.mutate({
+                            availability: availabilityData?.availability || [],
+                            preferences: {
+                              ...availabilityData?.preferences,
+                              maxAppointmentsPerDay: parseInt(e.target.value)
+                            }
+                          });
+                        }, 1000);
                       }}
                     />
                   </div>

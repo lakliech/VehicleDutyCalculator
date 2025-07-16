@@ -699,6 +699,18 @@ Changelog:
   - Added Keywords tab with top search keywords and click-through analytics
   - Integrated all analytics data with proper fallback handling for missing data
   - Enhanced visual design with proper card layouts and consistent purple-cyan branding
+- January 16, 2025. Fixed data structure mismatch between dashboard and full analytics:
+  - Updated dashboard analytics to use correct data structure matching full analytics page
+  - Fixed Total Views to use analytics.performanceMetrics.totalViews instead of analytics.totalViews
+  - Fixed Unique Visitors to use analytics.performanceMetrics.uniqueVisitors instead of analytics.uniqueVisitors
+  - Fixed Inquiries to use analytics.engagementMetrics.inquiries instead of analytics.inquiries
+  - Fixed Favorites to use analytics.engagementMetrics.favorites instead of analytics.favorites
+  - Fixed Click-Through Rate to use analytics.performanceMetrics.clickThroughRate with proper formatting
+  - Fixed Phone Clicks and Shares to use analytics.engagementMetrics data structure
+  - Fixed Device Usage to use analytics.audienceInsights.deviceBreakdown structure
+  - Fixed Market Analysis to use analytics.marketBenchmark and analytics.listingInfo structure
+  - Fixed Quality Score to use analytics.qualityIndicators structure with proper field names
+  - Dashboard summary stats now correctly match and sync with full analytics data
 
 ## User Preferences
 

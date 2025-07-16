@@ -459,7 +459,7 @@ export default function ListingDashboard() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Total Views</p>
-                      <p className="text-2xl font-bold">{analytics?.totalViews?.toLocaleString() || 0}</p>
+                      <p className="text-2xl font-bold">{analytics?.performanceMetrics?.totalViews?.toLocaleString() || 0}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -473,7 +473,7 @@ export default function ListingDashboard() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Unique Visitors</p>
-                      <p className="text-2xl font-bold">{analytics?.uniqueVisitors?.toLocaleString() || 0}</p>
+                      <p className="text-2xl font-bold">{analytics?.performanceMetrics?.uniqueVisitors?.toLocaleString() || 0}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -487,7 +487,7 @@ export default function ListingDashboard() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Inquiries</p>
-                      <p className="text-2xl font-bold">{analytics?.inquiries || 0}</p>
+                      <p className="text-2xl font-bold">{analytics?.engagementMetrics?.inquiries || 0}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -501,7 +501,7 @@ export default function ListingDashboard() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Favorites</p>
-                      <p className="text-2xl font-bold">{analytics?.favorites || 0}</p>
+                      <p className="text-2xl font-bold">{analytics?.engagementMetrics?.favorites || 0}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -547,19 +547,19 @@ export default function ListingDashboard() {
                     <CardContent className="space-y-4">
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Click-Through Rate</span>
-                        <span className="font-semibold">{analytics?.clickThroughRate || 0}%</span>
+                        <span className="font-semibold">{analytics?.performanceMetrics?.clickThroughRate?.toFixed(2) || 0}%</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Phone Clicks</span>
-                        <span className="font-semibold">{analytics?.phoneClicks || 0}</span>
+                        <span className="font-semibold">{analytics?.engagementMetrics?.phoneClicks || 0}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Shares</span>
-                        <span className="font-semibold">{analytics?.shares || 0}</span>
+                        <span className="font-semibold">{analytics?.engagementMetrics?.shares || 0}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Avg. Time Spent</span>
-                        <span className="font-semibold">{analytics?.avgTimeSpent || '0'}s</span>
+                        <span className="font-semibold">{analytics?.engagementMetrics?.averageTimeSpent ? `${analytics.engagementMetrics.averageTimeSpent}s` : '0s'}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -581,15 +581,15 @@ export default function ListingDashboard() {
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Mobile</span>
-                          <span className="font-semibold">{analytics?.deviceBreakdown?.mobile || 0}%</span>
+                          <span className="font-semibold">{analytics?.audienceInsights?.deviceBreakdown?.mobile || 0}%</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Desktop</span>
-                          <span className="font-semibold">{analytics?.deviceBreakdown?.desktop || 0}%</span>
+                          <span className="font-semibold">{analytics?.audienceInsights?.deviceBreakdown?.desktop || 0}%</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Tablet</span>
-                          <span className="font-semibold">{analytics?.deviceBreakdown?.tablet || 0}%</span>
+                          <span className="font-semibold">{analytics?.audienceInsights?.deviceBreakdown?.tablet || 0}%</span>
                         </div>
                       </div>
                     </CardContent>
@@ -667,16 +667,16 @@ export default function ListingDashboard() {
                     <CardContent className="space-y-4">
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Your Price</span>
-                        <span className="font-semibold">KES {listing?.price?.toLocaleString()}</span>
+                        <span className="font-semibold">KES {analytics?.listingInfo?.price?.toLocaleString() || listing?.price?.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Market Average</span>
-                        <span className="font-semibold">KES {analytics?.marketAverage?.toLocaleString() || 'N/A'}</span>
+                        <span className="font-semibold">KES {analytics?.marketBenchmark?.averagePrice?.toLocaleString() || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Price Position</span>
-                        <Badge variant={analytics?.pricePosition === 'above' ? 'destructive' : 'default'}>
-                          {analytics?.pricePosition || 'Market'} Market
+                        <Badge variant={analytics?.marketBenchmark?.pricePosition === 'above' ? 'destructive' : 'default'}>
+                          {analytics?.marketBenchmark?.pricePosition || 'Market'} Market
                         </Badge>
                       </div>
                     </CardContent>
@@ -693,15 +693,15 @@ export default function ListingDashboard() {
                     <CardContent className="space-y-4">
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Similar Listings</span>
-                        <span className="font-semibold">{analytics?.similarListings || 0}</span>
+                        <span className="font-semibold">{analytics?.marketBenchmark?.similarListings || 0}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Avg. Days on Market</span>
-                        <span className="font-semibold">{analytics?.avgDaysOnMarket || 0} days</span>
+                        <span className="font-semibold">{analytics?.marketBenchmark?.averageDaysOnMarket || 0} days</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Market Demand</span>
-                        <Badge variant="secondary">{analytics?.marketDemand || 'Moderate'}</Badge>
+                        <Badge variant="secondary">Moderate</Badge>
                       </div>
                     </CardContent>
                   </Card>
@@ -722,22 +722,22 @@ export default function ListingDashboard() {
                     <CardContent className="space-y-4">
                       <div className="text-center">
                         <div className="text-4xl font-bold text-green-600 mb-2">
-                          {analytics?.qualityScore || 85}
+                          {analytics?.qualityIndicators?.overall_score || 85}
                         </div>
                         <p className="text-sm text-gray-600">Overall Quality Score</p>
                       </div>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Photo Quality</span>
-                          <span className="font-semibold">{analytics?.photoScore || 90}/100</span>
+                          <span className="font-semibold">{analytics?.qualityIndicators?.photo_score || 90}/100</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Description</span>
-                          <span className="font-semibold">{analytics?.descriptionScore || 85}/100</span>
+                          <span className="font-semibold">{analytics?.qualityIndicators?.description_score || 85}/100</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Completeness</span>
-                          <span className="font-semibold">{analytics?.completenessScore || 80}/100</span>
+                          <span className="font-semibold">{analytics?.qualityIndicators?.completeness_score || 80}/100</span>
                         </div>
                       </div>
                     </CardContent>

@@ -724,6 +724,12 @@ Changelog:
   - Each seller can only access appointments for their own listings through authentication middleware
   - Database contains correct appointment data: Listing 7 (Jared) has 3 appointments, Listing 8 (Chris) has 3 appointments
   - Authentication required for all appointment endpoints ensures proper data isolation between sellers
+- January 16, 2025. Fixed appointment data integrity issues:
+  - Removed 3 invalid appointments where sellers were booking with themselves (buyer_id = seller_id)
+  - Cleaned appointment data to ensure each listing only shows legitimate buyer interest
+  - Listing 7 (Jared's listing): 1 appointment with Chris as buyer
+  - Listing 8 (Chris's listing): 2 appointments with Jared as buyer
+  - Appointments now properly represent buyer-seller relationships with correct business logic
 - January 16, 2025. Fixed dashboard overview statistics data source inconsistency:
   - Updated overview section to use same structured analytics data as Analytics & Insights section
   - Fixed totalViews to use analytics.performanceMetrics.totalViews instead of analytics.totalViews

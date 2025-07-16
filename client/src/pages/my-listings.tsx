@@ -1,15 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useAuth } from '@/components/auth-provider';
 import { Navigation } from '@/components/navigation';
 import { Link, useLocation } from 'wouter';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Car, 
   MapPin, 
@@ -25,7 +32,12 @@ import {
   RefreshCw,
   AlertCircle,
   MessageCircle,
-  User
+  User,
+  Video,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Phone
 } from 'lucide-react';
 
 interface CarListing {
@@ -73,11 +85,71 @@ interface ListingConversation {
   } | null;
 }
 
+interface VideoCallAppointment {
+  id: number;
+  listingId: number;
+  buyerId: string;
+  sellerId: string;
+  appointmentDate: string;
+  duration: number;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  meetingLink?: string;
+  notes?: string;
+  sellerNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+  listing?: {
+    id: number;
+    title: string;
+    make: string;
+    model: string;
+    year: number;
+    price: number;
+    images: string[];
+  };
+}
+
+interface TestDriveAppointment {
+  id: number;
+  listingId: number;
+  buyerId: string;
+  sellerId: string;
+  appointmentDate: string;
+  duration: number;
+  meetingLocation: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  buyerNotes?: string;
+  sellerNotes?: string;
+  completionNotes?: string;
+  rating?: number;
+  documentsRequired: string[];
+  additionalRequirements?: string;
+  createdAt: string;
+  updatedAt: string;
+  listing?: {
+    id: number;
+    title: string;
+    make: string;
+    model: string;
+    year: number;
+    price: number;
+    location: string;
+    images: string[];
+  };
+}
+
 export default function MyListings() {
   const { user, isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
   const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
   const [showInquiriesDialog, setShowInquiriesDialog] = useState(false);
+  const [showAppointmentsDialog, setShowAppointmentsDialog] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<VideoCallAppointment | TestDriveAppointment | null>(null);
+  const [appointmentAction, setAppointmentAction] = useState<'confirm' | 'cancel' | 'complete'>('confirm');
+  const [meetingLink, setMeetingLink] = useState('');
+  const [sellerNotes, setSellerNotes] = useState('');
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const { data: listings, isLoading, error, refetch } = useQuery<CarListing[]>({
     queryKey: ['/api/user/listings'],
@@ -95,6 +167,65 @@ export default function MyListings() {
     queryKey: ['/api/user/listings/conversation-counts'],
     enabled: isAuthenticated && !!listings,
     refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  // Get video call appointments for seller
+  const { data: videoCallAppointments = [] } = useQuery<VideoCallAppointment[]>({
+    queryKey: ['/api/video-calls'],
+    enabled: isAuthenticated,
+  });
+
+  // Get test drive appointments for seller
+  const { data: testDriveAppointments = [] } = useQuery<TestDriveAppointment[]>({
+    queryKey: ['/api/test-drives'],
+    enabled: isAuthenticated,
+  });
+
+  // Mutation for updating video call appointments
+  const updateVideoCallMutation = useMutation({
+    mutationFn: async ({ appointmentId, data }: { appointmentId: number; data: any }) => {
+      return apiRequest('PATCH', `/api/video-calls/${appointmentId}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/video-calls'] });
+      toast({
+        title: "Success",
+        description: "Video call appointment updated successfully",
+      });
+      setSelectedAppointment(null);
+      setMeetingLink('');
+      setSellerNotes('');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update appointment",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation for updating test drive appointments
+  const updateTestDriveMutation = useMutation({
+    mutationFn: async ({ appointmentId, data }: { appointmentId: number; data: any }) => {
+      return apiRequest('PATCH', `/api/test-drives/${appointmentId}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/test-drives'] });
+      toast({
+        title: "Success",
+        description: "Test drive appointment updated successfully",
+      });
+      setSelectedAppointment(null);
+      setSellerNotes('');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update appointment",
+        variant: "destructive",
+      });
+    },
   });
 
   const formatCurrency = (amount: number) => {
@@ -141,6 +272,73 @@ export default function MyListings() {
 
   const handleShowAnalytics = (listingId: number) => {
     navigate(`/listing/${listingId}/analytics`);
+  };
+
+  const handleShowAppointments = (listingId: number) => {
+    setSelectedListingId(listingId);
+    setShowAppointmentsDialog(true);
+  };
+
+  const handleAppointmentAction = (appointment: VideoCallAppointment | TestDriveAppointment, action: 'confirm' | 'cancel' | 'complete') => {
+    setSelectedAppointment(appointment);
+    setAppointmentAction(action);
+    
+    // Pre-fill seller notes if they exist
+    if ('sellerNotes' in appointment && appointment.sellerNotes) {
+      setSellerNotes(appointment.sellerNotes);
+    }
+    
+    // Pre-fill meeting link for video calls
+    if ('meetingLink' in appointment && appointment.meetingLink) {
+      setMeetingLink(appointment.meetingLink);
+    }
+  };
+
+  const handleUpdateAppointment = () => {
+    if (!selectedAppointment) return;
+
+    const isVideoCall = 'meetingLink' in selectedAppointment;
+    const updateData: any = {
+      status: appointmentAction === 'confirm' ? 'confirmed' : appointmentAction === 'cancel' ? 'cancelled' : 'completed',
+      sellerNotes: sellerNotes || undefined,
+    };
+
+    if (isVideoCall && meetingLink) {
+      updateData.meetingLink = meetingLink;
+    }
+
+    if (isVideoCall) {
+      updateVideoCallMutation.mutate({
+        appointmentId: selectedAppointment.id,
+        data: updateData,
+      });
+    } else {
+      updateTestDriveMutation.mutate({
+        appointmentId: selectedAppointment.id,
+        data: updateData,
+      });
+    }
+  };
+
+  const getAppointmentStatusColor = (status: string) => {
+    switch (status) {
+      case 'confirmed': return 'bg-green-100 text-green-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'completed': return 'bg-blue-100 text-blue-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString('en-KE', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
   };
 
   const formatTime = (dateString: string) => {
@@ -390,6 +588,28 @@ export default function MyListings() {
                           <Button 
                             size="sm" 
                             variant="outline"
+                            onClick={() => handleShowAppointments(listing.id)}
+                            className="relative"
+                          >
+                            <Calendar className="h-4 w-4 mr-2" />
+                            Appointments
+                            {(() => {
+                              const videoCallCount = videoCallAppointments.filter(app => app.listingId === listing.id && app.status === 'pending').length;
+                              const testDriveCount = testDriveAppointments.filter(app => app.listingId === listing.id && app.status === 'pending').length;
+                              const totalPending = videoCallCount + testDriveCount;
+                              return totalPending > 0 ? (
+                                <Badge 
+                                  variant="destructive" 
+                                  className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                                >
+                                  {totalPending}
+                                </Badge>
+                              ) : null;
+                            })()}
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
                             onClick={() => handleShowAnalytics(listing.id)}
                           >
                             <Eye className="h-4 w-4 mr-2" />
@@ -408,6 +628,344 @@ export default function MyListings() {
             ))}
           </div>
         )}
+
+        {/* Appointments Dialog */}
+        <Dialog open={showAppointmentsDialog} onOpenChange={setShowAppointmentsDialog}>
+          <DialogContent className="max-w-6xl max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Appointment Management
+                {selectedListingId && listings && (
+                  <span className="text-sm font-normal text-gray-600">
+                    - {listings.find(l => l.id === selectedListingId)?.title}
+                  </span>
+                )}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <Tabs defaultValue="video-calls" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="video-calls" className="flex items-center gap-2">
+                  <Video className="h-4 w-4" />
+                  Video Calls ({videoCallAppointments.filter(app => app.listingId === selectedListingId).length})
+                </TabsTrigger>
+                <TabsTrigger value="test-drives" className="flex items-center gap-2">
+                  <Car className="h-4 w-4" />
+                  Test Drives ({testDriveAppointments.filter(app => app.listingId === selectedListingId).length})
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="video-calls" className="mt-4">
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-4">
+                    {videoCallAppointments
+                      .filter(app => app.listingId === selectedListingId)
+                      .length === 0 ? (
+                      <div className="text-center py-8">
+                        <Video className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-600 mb-2">No Video Call Requests</h3>
+                        <p className="text-gray-500">
+                          When buyers request video calls for this listing, they will appear here.
+                        </p>
+                      </div>
+                    ) : (
+                      videoCallAppointments
+                        .filter(app => app.listingId === selectedListingId)
+                        .map((appointment) => (
+                          <Card key={appointment.id} className="hover:shadow-md transition-shadow">
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <div className="flex items-center gap-2">
+                                      <Video className="h-4 w-4 text-purple-600" />
+                                      <span className="font-medium">Video Call Request</span>
+                                    </div>
+                                    <Badge className={getAppointmentStatusColor(appointment.status)}>
+                                      {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                                    </Badge>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
+                                    <div>
+                                      <p className="text-gray-500">Date & Time</p>
+                                      <p className="font-medium">{formatDateTime(appointment.appointmentDate)}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-gray-500">Duration</p>
+                                      <p className="font-medium">{appointment.duration} minutes</p>
+                                    </div>
+                                  </div>
+                                  
+                                  {appointment.notes && (
+                                    <div className="mb-3">
+                                      <p className="text-gray-500 text-sm">Buyer Notes:</p>
+                                      <p className="text-sm bg-gray-50 p-2 rounded">{appointment.notes}</p>
+                                    </div>
+                                  )}
+                                  
+                                  {appointment.meetingLink && (
+                                    <div className="mb-3">
+                                      <p className="text-gray-500 text-sm">Meeting Link:</p>
+                                      <a 
+                                        href={appointment.meetingLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-purple-600 hover:underline text-sm"
+                                      >
+                                        {appointment.meetingLink}
+                                      </a>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <div className="flex flex-col gap-2 ml-4">
+                                  {appointment.status === 'pending' && (
+                                    <>
+                                      <Button 
+                                        size="sm" 
+                                        onClick={() => handleAppointmentAction(appointment, 'confirm')}
+                                        className="bg-green-600 hover:bg-green-700"
+                                      >
+                                        <CheckCircle className="h-4 w-4 mr-1" />
+                                        Confirm
+                                      </Button>
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={() => handleAppointmentAction(appointment, 'cancel')}
+                                      >
+                                        <XCircle className="h-4 w-4 mr-1" />
+                                        Decline
+                                      </Button>
+                                    </>
+                                  )}
+                                  
+                                  {appointment.status === 'confirmed' && (
+                                    <Button 
+                                      size="sm" 
+                                      onClick={() => handleAppointmentAction(appointment, 'complete')}
+                                      className="bg-blue-600 hover:bg-blue-700"
+                                    >
+                                      <CheckCircle className="h-4 w-4 mr-1" />
+                                      Complete
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                    )}
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+              
+              <TabsContent value="test-drives" className="mt-4">
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-4">
+                    {testDriveAppointments
+                      .filter(app => app.listingId === selectedListingId)
+                      .length === 0 ? (
+                      <div className="text-center py-8">
+                        <Car className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-600 mb-2">No Test Drive Requests</h3>
+                        <p className="text-gray-500">
+                          When buyers request test drives for this listing, they will appear here.
+                        </p>
+                      </div>
+                    ) : (
+                      testDriveAppointments
+                        .filter(app => app.listingId === selectedListingId)
+                        .map((appointment) => (
+                          <Card key={appointment.id} className="hover:shadow-md transition-shadow">
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <div className="flex items-center gap-2">
+                                      <Car className="h-4 w-4 text-cyan-600" />
+                                      <span className="font-medium">Test Drive Request</span>
+                                    </div>
+                                    <Badge className={getAppointmentStatusColor(appointment.status)}>
+                                      {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                                    </Badge>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
+                                    <div>
+                                      <p className="text-gray-500">Date & Time</p>
+                                      <p className="font-medium">{formatDateTime(appointment.appointmentDate)}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-gray-500">Duration</p>
+                                      <p className="font-medium">{appointment.duration} minutes</p>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="mb-3">
+                                    <p className="text-gray-500 text-sm">Meeting Location:</p>
+                                    <p className="font-medium flex items-center gap-1">
+                                      <MapPin className="h-3 w-3" />
+                                      {appointment.meetingLocation}
+                                    </p>
+                                  </div>
+                                  
+                                  {appointment.buyerNotes && (
+                                    <div className="mb-3">
+                                      <p className="text-gray-500 text-sm">Buyer Notes:</p>
+                                      <p className="text-sm bg-gray-50 p-2 rounded">{appointment.buyerNotes}</p>
+                                    </div>
+                                  )}
+                                  
+                                  {appointment.documentsRequired && appointment.documentsRequired.length > 0 && (
+                                    <div className="mb-3">
+                                      <p className="text-gray-500 text-sm">Required Documents:</p>
+                                      <div className="flex flex-wrap gap-1">
+                                        {appointment.documentsRequired.map((doc, index) => (
+                                          <Badge key={index} variant="outline" className="text-xs">
+                                            {doc}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <div className="flex flex-col gap-2 ml-4">
+                                  {appointment.status === 'pending' && (
+                                    <>
+                                      <Button 
+                                        size="sm" 
+                                        onClick={() => handleAppointmentAction(appointment, 'confirm')}
+                                        className="bg-green-600 hover:bg-green-700"
+                                      >
+                                        <CheckCircle className="h-4 w-4 mr-1" />
+                                        Confirm
+                                      </Button>
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={() => handleAppointmentAction(appointment, 'cancel')}
+                                      >
+                                        <XCircle className="h-4 w-4 mr-1" />
+                                        Decline
+                                      </Button>
+                                    </>
+                                  )}
+                                  
+                                  {appointment.status === 'confirmed' && (
+                                    <Button 
+                                      size="sm" 
+                                      onClick={() => handleAppointmentAction(appointment, 'complete')}
+                                      className="bg-blue-600 hover:bg-blue-700"
+                                    >
+                                      <CheckCircle className="h-4 w-4 mr-1" />
+                                      Complete
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                    )}
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+            </Tabs>
+          </DialogContent>
+        </Dialog>
+
+        {/* Appointment Action Dialog */}
+        <Dialog open={!!selectedAppointment} onOpenChange={() => setSelectedAppointment(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                {selectedAppointment && 'meetingLink' in selectedAppointment ? (
+                  <Video className="h-5 w-5 text-purple-600" />
+                ) : (
+                  <Car className="h-5 w-5 text-cyan-600" />
+                )}
+                {appointmentAction === 'confirm' ? 'Confirm' : 
+                 appointmentAction === 'cancel' ? 'Decline' : 'Complete'} Appointment
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {appointmentAction === 'confirm' && selectedAppointment && 'meetingLink' in selectedAppointment && (
+                <div>
+                  <Label htmlFor="meeting-link">Meeting Link (Optional)</Label>
+                  <Input
+                    id="meeting-link"
+                    type="url"
+                    placeholder="https://zoom.us/j/... or https://meet.google.com/..."
+                    value={meetingLink}
+                    onChange={(e) => setMeetingLink(e.target.value)}
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Add a video call link for the buyer to join the meeting.
+                  </p>
+                </div>
+              )}
+              
+              <div>
+                <Label htmlFor="seller-notes">
+                  {appointmentAction === 'complete' ? 'Completion Notes' : 'Notes (Optional)'}
+                </Label>
+                <Textarea
+                  id="seller-notes"
+                  placeholder={
+                    appointmentAction === 'confirm' ? "Any additional instructions or information for the buyer..." :
+                    appointmentAction === 'cancel' ? "Reason for declining (optional)..." :
+                    "How did the appointment go? Any feedback or next steps..."
+                  }
+                  value={sellerNotes}
+                  onChange={(e) => setSellerNotes(e.target.value)}
+                  rows={3}
+                />
+              </div>
+              
+              <div className="flex gap-2 justify-end">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedAppointment(null)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleUpdateAppointment}
+                  disabled={updateVideoCallMutation.isPending || updateTestDriveMutation.isPending}
+                  className={
+                    appointmentAction === 'confirm' ? "bg-green-600 hover:bg-green-700" :
+                    appointmentAction === 'cancel' ? "bg-red-600 hover:bg-red-700" :
+                    "bg-blue-600 hover:bg-blue-700"
+                  }
+                >
+                  {updateVideoCallMutation.isPending || updateTestDriveMutation.isPending ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      {appointmentAction === 'confirm' ? (
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                      ) : appointmentAction === 'cancel' ? (
+                        <XCircle className="h-4 w-4 mr-2" />
+                      ) : (
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                      )}
+                      {appointmentAction === 'confirm' ? 'Confirm' : 
+                       appointmentAction === 'cancel' ? 'Decline' : 'Complete'}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Inquiries Dialog */}
         <Dialog open={showInquiriesDialog} onOpenChange={setShowInquiriesDialog}>

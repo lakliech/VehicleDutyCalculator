@@ -55,6 +55,9 @@ export default function ListingDashboard() {
   const [manageAvailabilityOpen, setManageAvailabilityOpen] = useState(false);
   const [viewCalendarOpen, setViewCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
+  const [blockSlotStartTime, setBlockSlotStartTime] = useState('');
+  const [blockSlotEndTime, setBlockSlotEndTime] = useState('');
+  const [blockSlotReason, setBlockSlotReason] = useState('');
 
   // Fetch listing details
   const { data: listing, isLoading: listingLoading } = useQuery({
@@ -1791,10 +1794,50 @@ export default function ListingDashboard() {
                   <div className="p-3 border rounded-lg border-dashed">
                     <h4 className="font-medium mb-2">Block New Time Slot</h4>
                     <div className="grid grid-cols-2 gap-2">
-                      <Input type="datetime-local" placeholder="Start time" />
-                      <Input type="datetime-local" placeholder="End time" />
-                      <Input placeholder="Reason" className="col-span-2" />
-                      <Button size="sm" className="col-span-2">Add Blocked Slot</Button>
+                      <Input 
+                        type="datetime-local" 
+                        placeholder="Start time"
+                        value={blockSlotStartTime}
+                        onChange={(e) => setBlockSlotStartTime(e.target.value)}
+                      />
+                      <Input 
+                        type="datetime-local" 
+                        placeholder="End time"
+                        value={blockSlotEndTime}
+                        onChange={(e) => setBlockSlotEndTime(e.target.value)}
+                      />
+                      <Input 
+                        placeholder="Reason" 
+                        className="col-span-2"
+                        value={blockSlotReason}
+                        onChange={(e) => setBlockSlotReason(e.target.value)}
+                      />
+                      <Button 
+                        size="sm" 
+                        className="col-span-2"
+                        onClick={() => {
+                          if (blockSlotStartTime && blockSlotEndTime) {
+                            addBlockedSlotMutation.mutate({
+                              startDateTime: blockSlotStartTime,
+                              endDateTime: blockSlotEndTime,
+                              reason: blockSlotReason || 'No reason provided'
+                            });
+                            // Clear form after submission
+                            setBlockSlotStartTime('');
+                            setBlockSlotEndTime('');
+                            setBlockSlotReason('');
+                          } else {
+                            toast({
+                              title: "Missing Information",
+                              description: "Please select start and end times for the blocked slot.",
+                              variant: "destructive"
+                            });
+                          }
+                        }}
+                        disabled={!blockSlotStartTime || !blockSlotEndTime}
+                      >
+                        Add Blocked Slot
+                      </Button>
                     </div>
                   </div>
                 </div>

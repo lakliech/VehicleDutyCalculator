@@ -8307,14 +8307,24 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           .where(eq(sellerAppointmentPreferences.userId, req.user.id))
           .limit(1);
 
+        const allowedPreferences = {
+          autoApprove: preferences.autoApprove,
+          minimumAdvanceNoticeHours: preferences.minimumAdvanceNoticeHours,
+          maxAppointmentsPerDay: preferences.maxAppointmentsPerDay,
+          allowWeekends: preferences.allowWeekends,
+          defaultTestDriveLocation: preferences.defaultTestDriveLocation,
+          defaultMeetingDuration: preferences.defaultMeetingDuration,
+          bufferTimeBetweenAppointments: preferences.bufferTimeBetweenAppointments
+        };
+
         if (existingPreferences.length > 0) {
           await db
             .update(sellerAppointmentPreferences)
-            .set({ ...preferences })
+            .set(allowedPreferences)
             .where(eq(sellerAppointmentPreferences.userId, req.user.id));
         } else {
           await db.insert(sellerAppointmentPreferences).values({
-            ...preferences,
+            ...allowedPreferences,
             userId: req.user.id
           });
         }

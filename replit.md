@@ -915,6 +915,14 @@ Changelog:
   - Reduced dashboard from 4 tabs to 3 tabs: Overview & Pricing, Messages & Appointments, Analytics & Insights
   - Streamlined seller workflow by consolidating related communication and scheduling functionality in single unified interface
   - Enhanced efficiency for high-volume sellers managing multiple customer interactions and appointment scheduling
+- January 17, 2025. Enhanced tab prominence in seller dashboard:
+  - Increased tab height from default to 16 (64px) for better visibility
+  - Added purple gradient backgrounds for active tabs with white text
+  - Implemented larger text size (text-lg) and font-semibold for better readability
+  - Added relevant icons: Car for Overview, MessageSquare for Messages, BarChart3 for Analytics
+  - Enhanced hover effects with purple background transitions
+  - Added border styling and shadow effects for more prominent visual separation
+  - Improved spacing and padding for better touch/click targets
 
 ## User Preferences
 

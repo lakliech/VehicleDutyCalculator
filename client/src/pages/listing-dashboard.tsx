@@ -341,18 +341,34 @@ export default function ListingDashboard() {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Overview & Pricing</TabsTrigger>
-            <TabsTrigger value="messages-appointments">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <TabsList className="grid w-full grid-cols-3 h-16 p-2 bg-white border-2 border-purple-200 rounded-xl shadow-lg">
+            <TabsTrigger 
+              value="overview" 
+              className="text-lg font-semibold py-3 px-6 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-purple-50 transition-all duration-200 flex items-center gap-2"
+            >
+              <Car className="h-5 w-5" />
+              Overview & Pricing
+            </TabsTrigger>
+            <TabsTrigger 
+              value="messages-appointments"
+              className="text-lg font-semibold py-3 px-6 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-purple-50 transition-all duration-200 flex items-center gap-2"
+            >
+              <MessageSquare className="h-5 w-5" />
               Messages & Appointments
               {overviewData.unreadMessages > 0 && (
-                <Badge variant="destructive" className="ml-2 text-xs">
+                <Badge variant="destructive" className="ml-2 text-xs animate-pulse">
                   {overviewData.unreadMessages}
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="analytics">Analytics & Insights</TabsTrigger>
+            <TabsTrigger 
+              value="analytics"
+              className="text-lg font-semibold py-3 px-6 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-purple-50 transition-all duration-200 flex items-center gap-2"
+            >
+              <BarChart3 className="h-5 w-5" />
+              Analytics & Insights
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}

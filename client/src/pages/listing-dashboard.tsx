@@ -56,33 +56,6 @@ export default function ListingDashboard() {
   const [viewCalendarOpen, setViewCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
 
-
-  // Authentication protection
-  if (authLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-96">
-          <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4">You need to be logged in to access your listing dashboard.</p>
-            <Button 
-              onClick={() => window.location.href = '/api/auth/google'}
-              className="w-full"
-            >
-              Sign in with Google
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   // Fetch listing details
   const { data: listing, isLoading: listingLoading } = useQuery({
     queryKey: ['listing', id],
@@ -204,6 +177,32 @@ export default function ListingDashboard() {
       toast({ title: 'Time slot unblocked successfully' });
     }
   });
+
+  // Authentication protection
+  if (authLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-96">
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4">You need to be logged in to access your listing dashboard.</p>
+            <Button 
+              onClick={() => window.location.href = '/api/auth/google'}
+              className="w-full"
+            >
+              Sign in with Google
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (listingLoading) {
     return <div className="p-6">Loading...</div>;

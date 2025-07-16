@@ -730,6 +730,14 @@ Changelog:
   - Listing 7 (Jared's listing): 1 appointment with Chris as buyer
   - Listing 8 (Chris's listing): 2 appointments with Jared as buyer
   - Appointments now properly represent buyer-seller relationships with correct business logic
+- January 16, 2025. Fixed React Hooks order violation in ListingDashboard component:
+  - Restructured component to ensure all hooks (useState, useQuery, useMutation) are called consistently
+  - Moved authentication protection logic after all hooks are defined to comply with Rules of Hooks
+  - Added proper authentication guards requiring Google OAuth login for listing dashboard access
+  - Fixed database schema issues with seller_blocked_slots table by adding missing columns (is_recurring, recurrence_pattern)
+  - Implemented debounced input handling for availability management to prevent excessive database calls
+  - Unified reschedule/modify appointment functionality with consistent terminology across buyer and seller interfaces
+  - Manage Availability feature now fully functional with weekly schedule management, preferences, and blocked time slots
 - January 16, 2025. Enhanced appointment management with comprehensive modification capabilities:
   - Fixed database schema issues by adding missing cancellation_reason and completion_notes columns
   - Implemented comprehensive AppointmentActions component with modify, cancel, complete, and reschedule functionality

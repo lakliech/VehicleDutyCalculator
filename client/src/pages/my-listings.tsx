@@ -38,7 +38,11 @@ import {
   CheckCircle,
   XCircle,
   Phone,
-  Brain
+  Brain,
+  TrendingUp,
+  DollarSign,
+  Target,
+  Loader2
 } from 'lucide-react';
 
 interface CarListing {
@@ -145,6 +149,7 @@ export default function MyListings() {
   const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
   const [showInquiriesDialog, setShowInquiriesDialog] = useState(false);
   const [showAppointmentsDialog, setShowAppointmentsDialog] = useState(false);
+  const [showSmartPricingDialog, setShowSmartPricingDialog] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<VideoCallAppointment | TestDriveAppointment | null>(null);
   const [appointmentAction, setAppointmentAction] = useState<'confirm' | 'cancel' | 'complete'>('confirm');
   const [meetingLink, setMeetingLink] = useState('');
@@ -180,6 +185,12 @@ export default function MyListings() {
   const { data: testDriveAppointments = [] } = useQuery<TestDriveAppointment[]>({
     queryKey: ['/api/test-drives'],
     enabled: isAuthenticated,
+  });
+
+  // Get pricing recommendation for selected listing
+  const { data: pricingRecommendation, isLoading: pricingLoading } = useQuery({
+    queryKey: ['/api/listings', selectedListingId, 'pricing-recommendation'],
+    enabled: !!selectedListingId && showSmartPricingDialog && isAuthenticated,
   });
 
   // Mutation for updating video call appointments
@@ -278,6 +289,11 @@ export default function MyListings() {
   const handleShowAppointments = (listingId: number) => {
     setSelectedListingId(listingId);
     setShowAppointmentsDialog(true);
+  };
+
+  const handleShowSmartPricing = (listingId: number) => {
+    setSelectedListingId(listingId);
+    setShowSmartPricingDialog(true);
   };
 
   const handleAppointmentAction = (appointment: VideoCallAppointment | TestDriveAppointment, action: 'confirm' | 'cancel' | 'complete') => {
@@ -619,12 +635,10 @@ export default function MyListings() {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            asChild
+                            onClick={() => handleShowSmartPricing(listing.id)}
                           >
-                            <Link href="/smart-pricing">
-                              <Brain className="h-4 w-4 mr-2" />
-                              Smart Pricing
-                            </Link>
+                            <Brain className="h-4 w-4 mr-2" />
+                            Smart Pricing
                           </Button>
                           <Button size="sm" variant="outline">
                             <Share2 className="h-4 w-4 mr-2" />
@@ -1075,6 +1089,177 @@ export default function MyListings() {
                 </div>
               )}
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Smart Pricing Dialog */}
+        <Dialog open={showSmartPricingDialog} onOpenChange={setShowSmartPricingDialog}>
+          <DialogContent className="max-w-4xl max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5 text-purple-600" />
+                Smart Pricing Intelligence
+                {selectedListingId && listings && (
+                  <span className="text-sm font-normal text-gray-600">
+                    - {listings.find(l => l.id === selectedListingId)?.title}
+                  </span>
+                )}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <ScrollArea className="h-[500px]">
+              {pricingLoading ? (
+                <div className="flex items-center justify-center h-64">
+                  <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                  <span className="ml-3 text-gray-600">Analyzing market data...</span>
+                </div>
+              ) : pricingRecommendation ? (
+                <div className="space-y-6">
+                  {/* Current Price Analysis */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <DollarSign className="h-5 w-5 text-green-600" />
+                        Current Price Analysis
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Current Price</p>
+                          <p className="text-2xl font-bold text-gray-900">
+                            {formatCurrency(pricingRecommendation.currentPrice)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Market Position</p>
+                          <Badge className={
+                            pricingRecommendation.pricePositioning === 'competitive' ? 'bg-green-100 text-green-800' :
+                            pricingRecommendation.pricePositioning === 'above_market' ? 'bg-red-100 text-red-800' :
+                            'bg-blue-100 text-blue-800'
+                          }>
+                            {pricingRecommendation.pricePositioning?.replace('_', ' ').toUpperCase()}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      {pricingRecommendation.reasoning && (
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <p className="text-sm text-gray-700">{pricingRecommendation.reasoning}</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Price Recommendations */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Target className="h-5 w-5 text-purple-600" />
+                        Pricing Recommendations
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="text-center p-4 bg-green-50 rounded-lg">
+                          <p className="text-sm text-gray-500 mb-1">Quick Sale</p>
+                          <p className="text-lg font-bold text-green-600">
+                            {formatCurrency(pricingRecommendation.recommendedPrice - (pricingRecommendation.priceAdjustment || 0) - 200000)}
+                          </p>
+                          <p className="text-xs text-gray-500">Sell within 2 weeks</p>
+                        </div>
+                        <div className="text-center p-4 bg-purple-50 rounded-lg">
+                          <p className="text-sm text-gray-500 mb-1">Recommended</p>
+                          <p className="text-lg font-bold text-purple-600">
+                            {formatCurrency(pricingRecommendation.recommendedPrice)}
+                          </p>
+                          <p className="text-xs text-gray-500">Balanced approach</p>
+                        </div>
+                        <div className="text-center p-4 bg-blue-50 rounded-lg">
+                          <p className="text-sm text-gray-500 mb-1">Premium</p>
+                          <p className="text-lg font-bold text-blue-600">
+                            {formatCurrency(pricingRecommendation.recommendedPrice + 300000)}
+                          </p>
+                          <p className="text-xs text-gray-500">Patient seller</p>
+                        </div>
+                      </div>
+                      
+                      {pricingRecommendation.priceAdjustment && (
+                        <div className={`p-3 rounded-lg ${
+                          pricingRecommendation.priceAdjustment > 0 ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+                        }`}>
+                          <p className="text-sm font-medium">
+                            Suggested adjustment: {pricingRecommendation.priceAdjustment > 0 ? '+' : ''}
+                            {formatCurrency(pricingRecommendation.priceAdjustment)}
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Market Insights */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-blue-600" />
+                        Market Insights
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {pricingRecommendation.marketInsights?.map((insight: string, index: number) => (
+                        <div key={index} className="flex items-start gap-3">
+                          <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0" />
+                          <p className="text-sm text-gray-700">{insight}</p>
+                        </div>
+                      ))}
+                      
+                      {pricingRecommendation.similarVehicles && (
+                        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                          <p className="text-sm font-medium text-blue-900 mb-2">Similar Vehicles Analysis</p>
+                          <p className="text-sm text-blue-700">
+                            Average market price: {formatCurrency(pricingRecommendation.similarVehicles.averagePrice)} 
+                            (based on {pricingRecommendation.similarVehicles.sampleSize} listings)
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3">
+                    <Button 
+                      className="flex-1" 
+                      onClick={() => {
+                        // Navigate to edit listing with recommended price
+                        setShowSmartPricingDialog(false);
+                        toast({
+                          title: "Price recommendation applied",
+                          description: "You can now update your listing with the recommended price.",
+                        });
+                      }}
+                    >
+                      Apply Recommended Price
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      asChild
+                    >
+                      <Link href="/smart-pricing">
+                        View Full Dashboard
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-600 mb-2">No Pricing Data Available</h3>
+                  <p className="text-gray-500">
+                    Unable to generate pricing recommendation for this listing at the moment.
+                  </p>
+                </div>
+              )}
+            </ScrollArea>
           </DialogContent>
         </Dialog>
       </div>

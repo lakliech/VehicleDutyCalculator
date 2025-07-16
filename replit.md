@@ -622,6 +622,16 @@ Changelog:
   - Performance stack: Redis → Memory fallback, Sharp image processing, automatic WebP conversion
   - Cache headers implemented: 1-year cache for images, 5-minute for API responses
   - Lazy loading with intersection observer for images below the fold
+- January 16, 2025. Integrated Smart Pricing Intelligence with My Listings functionality:
+  - Updated Smart Pricing button in My Listings to open listing-specific pricing dialog instead of general dashboard
+  - Created comprehensive Smart Pricing dialog component with real-time market analysis for individual listings
+  - Added pricing recommendation API endpoint (/api/listings/:listingId/pricing-recommendation) for per-listing intelligence
+  - Fixed database schema column mismatches in Smart Pricing queries (vehicle_category → category)
+  - Enhanced pricing dialog with current price analysis, three-tier pricing recommendations (quick sale/recommended/premium)
+  - Added market insights display with similar vehicles analysis and seasonal trends
+  - Integrated "Apply Recommended Price" functionality for seamless listing price updates
+  - Populated Smart Pricing database with seasonal trends, market insights, depreciation forecasts, and market analysis data
+  - Smart Pricing now provides actionable, listing-specific recommendations directly from seller's listing management interface
 
 ## User Preferences
 

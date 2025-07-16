@@ -222,7 +222,7 @@ export class SmartPricingAI {
       .from(seasonalPricingTrends)
       .where(
         and(
-          eq(seasonalPricingTrends.make, vehicle.make),
+          eq(seasonalPricingTrends.category, vehicle.category || 'passenger_cars'),
           eq(seasonalPricingTrends.month, currentMonth)
         )
       )

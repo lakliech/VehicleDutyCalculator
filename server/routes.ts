@@ -2,6 +2,19 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
+  appUsers,
+  carListings,
+  conversations,
+  conversationParticipants,
+  messages,
+  videoCallAppointments,
+  testDriveAppointments,
+  sellerAvailability,
+  sellerBlockedSlots,
+  userActivities
+} from "@shared/schema-minimal";
+
+import { 
   dutyCalculationSchema, 
   vehicleReferences, 
   taxRates, 
@@ -17,7 +30,6 @@ import {
   carListingSchema,
   listingApprovalSchema,
   userRoleSchema,
-  appUsers,
   userRoles,
   adminCredentials,
   adminLoginSchema,
@@ -27,9 +39,6 @@ import {
   exchangeRates,
   importEstimateSchema,
   phoneClickTracking,
-  messages,
-  conversations,
-  conversationParticipants,
   dailyListingAnalytics,
   listingQualityScores,
   searchKeywords,
@@ -39,7 +48,6 @@ import {
   messageSchema,
   conversationSchema,
   dailyListingAnalyticsSchema,
-  carListings,
   adminUpdateListingSchema,
   mediaManagementSchema,
   adminMetaUpdateSchema,
@@ -55,13 +63,9 @@ import {
   loanApplications,
   tradeInEvaluations,
   loanCalculations,
-  videoCallAppointments,
-  testDriveAppointments,
   updateVideoCallAppointmentSchema,
   updateTestDriveAppointmentSchema,
-  sellerAvailability,
   sellerAppointmentPreferences,
-  sellerBlockedSlots,
   marketPriceAnalysis,
   pricingRecommendations,
   seasonalPricingTrends,
@@ -5830,7 +5834,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         .select({
           activityType: userActivities.activityType,
           description: userActivities.description,
-          timestamp: userActivities.timestamp,
+          timestamp: userActivities.createdAt,
           ipAddress: userActivities.ipAddress,
           metadata: userActivities.metadata
         })
@@ -5839,10 +5843,10 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           and(
             eq(userActivities.userId, user.id),
             eq(userActivities.entityType, 'listing'),
-            eq(userActivities.entityId, parseInt(listingId))
+            eq(userActivities.entityId, listingId.toString())
           )
         )
-        .orderBy(desc(userActivities.timestamp))
+        .orderBy(desc(userActivities.createdAt))
         .limit(10);
 
       console.log('[Seller Audit Trail] Found activities:', auditTrailResult.length);

@@ -7754,7 +7754,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Get seller appointments for a specific listing
-  app.get('/api/listing/:listingId/appointments', async (req: Request, res: Response) => {
+  app.get('/api/listing/:listingId/appointments', authenticateUser, async (req: Request, res: Response) => {
     try {
       if (!req.user) {
         return res.status(401).json({ error: 'Authentication required' });

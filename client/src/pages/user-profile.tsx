@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { User, Car, Search, Settings, Activity, Plus, Lock, Mail, Ban, Shield, RefreshCw, Download, Heart, MessageCircle, Database } from "lucide-react";
+import { User, Car, Search, Settings, Activity, Plus, Lock, Mail, Ban, Shield, RefreshCw, Download, Heart, MessageCircle, Database, Calendar, Clock, MapPin, Phone, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +29,11 @@ export function UserProfile() {
 
   const { data: userMessages, isLoading: loadingMessages } = useQuery({
     queryKey: [`/api/user/messages`],
+    enabled: !!user?.id,
+  });
+
+  const { data: buyerAppointments, isLoading: loadingBuyerAppointments } = useQuery({
+    queryKey: [`/api/user/buyer-appointments`],
     enabled: !!user?.id,
   });
 
@@ -91,6 +96,7 @@ export function UserProfile() {
             {[
               { id: "profile", label: "Profile Overview", icon: User },
               { id: "my-listings", label: "My Listings", icon: Car },
+              { id: "appointments", label: "My Appointments", icon: Calendar },
               { id: "favorites", label: "My Favorites", icon: Heart },
               { id: "saved-searches", label: "Saved Searches", icon: Search },
               { id: "messages", label: "Messages", icon: MessageCircle },
@@ -134,6 +140,20 @@ export function UserProfile() {
                   </CardContent>
                 </Card>
                 
+                <Card className="bg-white shadow-sm">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-lg">My Appointments</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <div className="text-3xl font-bold text-blue-500 mb-2">{buyerAppointments?.statistics?.total || 0}</div>
+                    <div className="text-sm text-gray-600">
+                      {buyerAppointments?.statistics?.upcoming || 0} upcoming, {' '}
+                      {buyerAppointments?.statistics?.completed || 0} completed
+                    </div>
+                    <Button size="sm" className="mt-3 w-full" variant="outline" onClick={() => setActiveTab('appointments')}>View Appointments</Button>
+                  </CardContent>
+                </Card>
+
                 <Card className="bg-white shadow-sm">
                   <CardHeader className="text-center">
                     <CardTitle className="text-lg">Favorite Cars</CardTitle>
@@ -247,6 +267,161 @@ export function UserProfile() {
                       <Button className="bg-purple-600 hover:bg-purple-700">
                         <Plus className="h-4 w-4 mr-2" />
                         Create First Listing
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {activeTab === "appointments" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">My Appointments</h2>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-blue-50 text-blue-600">
+                    {buyerAppointments?.statistics?.total || 0} Total
+                  </Badge>
+                  <Badge variant="outline" className="bg-green-50 text-green-600">
+                    {buyerAppointments?.statistics?.upcoming || 0} Upcoming
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Appointment Statistics */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-blue-600">{buyerAppointments?.statistics?.total || 0}</div>
+                    <div className="text-sm text-gray-600">Total Appointments</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-green-600">{buyerAppointments?.statistics?.upcoming || 0}</div>
+                    <div className="text-sm text-gray-600">Upcoming</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-orange-600">{buyerAppointments?.statistics?.pending || 0}</div>
+                    <div className="text-sm text-gray-600">Pending</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-purple-600">{buyerAppointments?.statistics?.completed || 0}</div>
+                    <div className="text-sm text-gray-600">Completed</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Appointments List */}
+              {loadingBuyerAppointments ? (
+                <div className="text-center py-8">Loading appointments...</div>
+              ) : buyerAppointments && buyerAppointments.appointments && buyerAppointments.appointments.length > 0 ? (
+                <div className="space-y-4">
+                  {buyerAppointments.appointments.map((appointment: any) => (
+                    <Card key={`${appointment.type}-${appointment.id}`} className="bg-white shadow-sm hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-full bg-purple-100">
+                              {appointment.type === 'test_drive' ? (
+                                <Car className="h-5 w-5 text-purple-600" />
+                              ) : (
+                                <Video className="h-5 w-5 text-purple-600" />
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-lg">
+                                {appointment.type === 'test_drive' ? 'Test Drive' : 'Video Call'}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                {appointment.listing?.make} {appointment.listing?.model} {appointment.listing?.year}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className={
+                            appointment.status === 'completed' ? 'bg-green-500' :
+                            appointment.status === 'pending' ? 'bg-yellow-500' :
+                            appointment.status === 'confirmed' ? 'bg-blue-500' :
+                            'bg-red-500'
+                          }>
+                            {appointment.status}
+                          </Badge>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4 text-gray-500" />
+                              <span className="text-sm">
+                                {new Date(appointment.appointmentDate).toLocaleString()}
+                              </span>
+                            </div>
+                            {appointment.type === 'test_drive' && appointment.meetingLocation && (
+                              <div className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4 text-gray-500" />
+                                <span className="text-sm">{appointment.meetingLocation}</span>
+                              </div>
+                            )}
+                            {appointment.type === 'video_call' && appointment.meetingLink && (
+                              <div className="flex items-center gap-2">
+                                <Video className="h-4 w-4 text-gray-500" />
+                                <span className="text-sm">Video call scheduled</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <User className="h-4 w-4 text-gray-500" />
+                              <span className="text-sm">Seller: {appointment.sellerName}</span>
+                            </div>
+                            {appointment.sellerPhone && (
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-gray-500" />
+                                <span className="text-sm">{appointment.sellerPhone}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="border-t pt-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm font-medium">{appointment.listing?.title}</p>
+                              <p className="text-sm text-gray-600">
+                                KES {appointment.listing?.price?.toLocaleString()} • {appointment.listing?.location}
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Link href={`/car-details/${appointment.listing?.id}`}>
+                                <Button size="sm" variant="outline">View Listing</Button>
+                              </Link>
+                              {appointment.type === 'video_call' && appointment.meetingLink && appointment.status !== 'cancelled' && (
+                                <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                                  Join Call
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="text-center py-12">
+                    <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-600 mb-2">No appointments yet</h3>
+                    <p className="text-gray-500 mb-4">Schedule appointments with sellers to view cars</p>
+                    <Link href="/buy-a-car">
+                      <Button className="bg-purple-600 hover:bg-purple-700">
+                        <Search className="h-4 w-4 mr-2" />
+                        Browse Cars
                       </Button>
                     </Link>
                   </CardContent>

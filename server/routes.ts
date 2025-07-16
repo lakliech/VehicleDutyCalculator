@@ -8019,6 +8019,139 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
+  // Get buyer appointments (appointments the user has made as a buyer)
+  app.get('/api/user/buyer-appointments', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      // Get test drive appointments where user is the buyer
+      const testDriveAppointmentsData = await db
+        .select({
+          appointment: testDriveAppointments,
+          listing: {
+            id: carListings.id,
+            title: carListings.title,
+            price: carListings.price,
+            location: carListings.location,
+            make: carListings.make,
+            model: carListings.model,
+            year: carListings.year,
+            mileage: carListings.mileage,
+            images: carListings.images
+          },
+          seller: {
+            id: appUsers.id,
+            firstName: appUsers.firstName,
+            lastName: appUsers.lastName,
+            email: appUsers.email,
+            phoneNumber: appUsers.phoneNumber
+          }
+        })
+        .from(testDriveAppointments)
+        .leftJoin(carListings, eq(testDriveAppointments.listingId, carListings.id))
+        .leftJoin(appUsers, eq(testDriveAppointments.sellerId, appUsers.id))
+        .where(eq(testDriveAppointments.buyerId, req.user.id))
+        .orderBy(desc(testDriveAppointments.appointmentDate));
+
+      // Get video call appointments where user is the buyer
+      const videoCallAppointmentsData = await db
+        .select({
+          appointment: videoCallAppointments,
+          listing: {
+            id: carListings.id,
+            title: carListings.title,
+            price: carListings.price,
+            location: carListings.location,
+            make: carListings.make,
+            model: carListings.model,
+            year: carListings.year,
+            mileage: carListings.mileage,
+            images: carListings.images
+          },
+          seller: {
+            id: appUsers.id,
+            firstName: appUsers.firstName,
+            lastName: appUsers.lastName,
+            email: appUsers.email,
+            phoneNumber: appUsers.phoneNumber
+          }
+        })
+        .from(videoCallAppointments)
+        .leftJoin(carListings, eq(videoCallAppointments.listingId, carListings.id))
+        .leftJoin(appUsers, eq(videoCallAppointments.sellerId, appUsers.id))
+        .where(eq(videoCallAppointments.buyerId, req.user.id))
+        .orderBy(desc(videoCallAppointments.appointmentDate));
+
+      // Transform and combine appointments
+      const testDrivesFormatted = testDriveAppointmentsData.map(item => ({
+        id: item.appointment.id,
+        type: 'test_drive',
+        listingId: item.appointment.listingId,
+        sellerId: item.appointment.sellerId,
+        sellerName: item.seller ? `${item.seller.firstName} ${item.seller.lastName}` : 'Unknown',
+        sellerEmail: item.seller?.email || '',
+        sellerPhone: item.seller?.phoneNumber || '',
+        appointmentDate: item.appointment.appointmentDate,
+        duration: item.appointment.duration,
+        status: item.appointment.status,
+        buyerNotes: item.appointment.buyerNotes,
+        sellerNotes: item.appointment.sellerNotes,
+        meetingLocation: item.appointment.meetingLocation,
+        listing: item.listing,
+        createdAt: item.appointment.createdAt,
+        updatedAt: item.appointment.updatedAt
+      }));
+
+      const videoCallsFormatted = videoCallAppointmentsData.map(item => ({
+        id: item.appointment.id,
+        type: 'video_call',
+        listingId: item.appointment.listingId,
+        sellerId: item.appointment.sellerId,
+        sellerName: item.seller ? `${item.seller.firstName} ${item.seller.lastName}` : 'Unknown',
+        sellerEmail: item.seller?.email || '',
+        sellerPhone: item.seller?.phoneNumber || '',
+        appointmentDate: item.appointment.appointmentDate,
+        duration: item.appointment.duration,
+        status: item.appointment.status,
+        notes: item.appointment.notes,
+        sellerNotes: item.appointment.sellerNotes,
+        meetingLink: item.appointment.meetingLink,
+        listing: item.listing,
+        createdAt: item.appointment.createdAt,
+        updatedAt: item.appointment.updatedAt
+      }));
+
+      // Combine and sort all appointments by date
+      const allAppointments = [...testDrivesFormatted, ...videoCallsFormatted]
+        .sort((a, b) => new Date(b.appointmentDate).getTime() - new Date(a.appointmentDate).getTime());
+
+      // Calculate statistics
+      const totalAppointments = allAppointments.length;
+      const completedAppointments = allAppointments.filter(app => app.status === 'completed').length;
+      const pendingAppointments = allAppointments.filter(app => app.status === 'pending').length;
+      const cancelledAppointments = allAppointments.filter(app => app.status === 'cancelled').length;
+      const upcomingAppointments = allAppointments.filter(app => 
+        new Date(app.appointmentDate) > new Date() && app.status !== 'cancelled'
+      ).length;
+
+      res.json({
+        appointments: allAppointments,
+        statistics: {
+          total: totalAppointments,
+          completed: completedAppointments,
+          pending: pendingAppointments,
+          cancelled: cancelledAppointments,
+          upcoming: upcomingAppointments
+        }
+      });
+    } catch (error) {
+      console.error('Failed to fetch buyer appointments:', error);
+      res.status(500).json({ error: 'Failed to fetch buyer appointments' });
+    }
+  });
+
   // Get available time slots for a specific date
   app.get('/api/seller/available-slots/:date', authenticateUser, async (req: Request, res: Response) => {
     try {

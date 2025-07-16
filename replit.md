@@ -730,6 +730,15 @@ Changelog:
   - Listing 7 (Jared's listing): 1 appointment with Chris as buyer
   - Listing 8 (Chris's listing): 2 appointments with Jared as buyer
   - Appointments now properly represent buyer-seller relationships with correct business logic
+- January 16, 2025. Implemented comprehensive buyer appointments system:
+  - Added "/api/user/buyer-appointments" endpoint to fetch appointments where user is the buyer
+  - Created "My Appointments" tab on user profile showing buyer appointments with listing details
+  - Added appointment statistics (total, upcoming, pending, completed) to user profile overview
+  - Implemented dual-role system: users can be both buyers and sellers
+  - Buyer appointments appear on user profile, seller appointments remain on listing dashboards
+  - Added comprehensive appointment cards with listing details, seller information, and action buttons
+  - Integrated with existing test drive and video call appointment systems
+  - API includes appointment statistics, listing details, and seller information for buyer view
 - January 16, 2025. Fixed dashboard overview statistics data source inconsistency:
   - Updated overview section to use same structured analytics data as Analytics & Insights section
   - Fixed totalViews to use analytics.performanceMetrics.totalViews instead of analytics.totalViews

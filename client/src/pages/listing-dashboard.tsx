@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useLocation } from 'wouter';
+import { useParams, useLocation, Link } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -219,6 +219,13 @@ export default function ListingDashboard() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
+            <div className="flex items-center justify-between mb-4">
+              <Link href="/my-listings">
+                <Button variant="ghost" className="text-purple-600 hover:text-purple-700">
+                  ← Back to Listings
+                </Button>
+              </Link>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Listing Preview */}
               <Card>
@@ -413,6 +420,13 @@ export default function ListingDashboard() {
 
           {/* Messages & Inquiries Tab */}
           <TabsContent value="messages" className="space-y-6">
+            <div className="flex items-center justify-between mb-4">
+              <Link href="/my-listings">
+                <Button variant="ghost" className="text-purple-600 hover:text-purple-700">
+                  ← Back to Listings
+                </Button>
+              </Link>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Conversation List with Messages */}
               <Card>
@@ -580,6 +594,13 @@ export default function ListingDashboard() {
 
           {/* Analytics & Insights Tab */}
           <TabsContent value="analytics" className="space-y-6">
+            <div className="flex items-center justify-between mb-4">
+              <Link href="/my-listings">
+                <Button variant="ghost" className="text-purple-600 hover:text-purple-700">
+                  ← Back to Listings
+                </Button>
+              </Link>
+            </div>
             {/* Key Performance Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
@@ -943,6 +964,13 @@ export default function ListingDashboard() {
 
           {/* Appointments Tab */}
           <TabsContent value="appointments" className="space-y-6">
+            <div className="flex items-center justify-between mb-4">
+              <Link href="/my-listings">
+                <Button variant="ghost" className="text-purple-600 hover:text-purple-700">
+                  ← Back to Listings
+                </Button>
+              </Link>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Scheduled Appointments */}
               <Card>

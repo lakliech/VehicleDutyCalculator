@@ -758,6 +758,12 @@ Changelog:
   - Added Cancel button for users to exit without saving changes
   - Enhanced user experience by eliminating unexpected dialog closures during configuration
   - Maintained all validation logic requiring complete setup before saving
+- January 16, 2025. Fixed blocked time slots database schema and loading issues:
+  - Removed conflicting `seller_id` column from database table (kept `user_id` as per schema)
+  - Fixed database constraint error preventing blocked slot creation
+  - Blocked slots now load and save properly with correct user association
+  - Enhanced blocked slot form with proper validation and state management
+  - All appointment availability features now fully functional
 - January 16, 2025. Enhanced appointment management with comprehensive modification capabilities:
   - Fixed database schema issues by adding missing cancellation_reason and completion_notes columns
   - Implemented comprehensive AppointmentActions component with modify, cancel, complete, and reschedule functionality

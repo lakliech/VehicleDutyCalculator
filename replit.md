@@ -670,6 +670,15 @@ Changelog:
   - Added quick action buttons for appointment management, scheduling, and calendar integration
   - Enhanced error handling in Smart Pricing service to prevent SQL syntax errors from breaking functionality
   - Dashboard now supports 5 comprehensive tabs: Overview, Messages & Inquiries, Analytics & Insights, Manage & Pricing, Appointments
+- January 16, 2025. Enhanced Messages & Inquiries with inline messaging functionality:
+  - Removed "View Messages" button and integrated messages directly into customer inquiries section
+  - Added inline message display showing recent conversation history for each customer
+  - Implemented quick reply functionality with input field and send button for each conversation
+  - Added conversation threading with buyer messages on left, seller responses on right
+  - Enhanced message display with user avatars, timestamps, and message bubbles
+  - Added "View Full Chat" button for accessing complete conversation history
+  - Improved quick actions with "Open Full Messages", "Mark All as Read", and "Set Auto-Reply" options
+  - Streamlined messaging workflow eliminates need to navigate away from dashboard for basic message management
 
 ## User Preferences
 

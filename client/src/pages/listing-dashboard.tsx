@@ -279,48 +279,86 @@ export default function ListingDashboard() {
           {/* Messages & Inquiries Tab */}
           <TabsContent value="messages" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Conversation List */}
+              {/* Conversation List with Messages */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Customer Inquiries
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setLocation('/messages')}
-                    >
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      View All Messages
-                    </Button>
-                  </CardTitle>
+                  <CardTitle>Customer Inquiries</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {Array.isArray(conversations) && conversations.map((conv: any, idx: number) => (
-                      <div key={idx} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                        <div className="flex items-center space-x-3">
-                          <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
-                            <Users className="h-5 w-5 text-purple-600" />
+                      <div key={idx} className="border rounded-lg p-4">
+                        {/* Conversation Header */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
+                              <Users className="h-5 w-5 text-purple-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium">{conv.participantName}</p>
+                              <p className="text-xs text-gray-500">{conv.lastMessageTime}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium">{conv.participantName}</p>
-                            <p className="text-sm text-gray-600 truncate max-w-xs">{conv.lastMessage}</p>
-                            <p className="text-xs text-gray-500">{conv.lastMessageTime}</p>
+                          <div className="flex items-center space-x-3">
+                            {conv.unreadCount > 0 && (
+                              <Badge variant="destructive">
+                                {conv.unreadCount} unread
+                              </Badge>
+                            )}
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setLocation(`/messages?conversation=${conv.id}`)}
+                            >
+                              View Full Chat
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-3">
-                          {conv.unreadCount > 0 && (
-                            <Badge variant="destructive">
-                              {conv.unreadCount} unread
-                            </Badge>
-                          )}
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => setLocation(`/messages?conversation=${conv.id}`)}
-                          >
-                            View Chat
-                          </Button>
+                        
+                        {/* Recent Messages */}
+                        <div className="space-y-3">
+                          {/* Sample messages - replace with real conversation data */}
+                          <div className="space-y-2">
+                            <div className="flex items-start space-x-2">
+                              <div className="h-6 w-6 bg-gray-100 rounded-full flex items-center justify-center">
+                                <Users className="h-3 w-3 text-gray-500" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="bg-gray-100 rounded-lg p-3 max-w-md">
+                                  <p className="text-sm">{conv.lastMessage}</p>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  {conv.participantName} • {conv.lastMessageTime}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            {/* Seller Response */}
+                            <div className="flex items-start space-x-2 justify-end">
+                              <div className="flex-1 flex justify-end">
+                                <div className="bg-purple-100 rounded-lg p-3 max-w-md">
+                                  <p className="text-sm">Thanks for your interest! The vehicle is in excellent condition. Would you like to schedule a test drive?</p>
+                                </div>
+                              </div>
+                              <div className="h-6 w-6 bg-purple-100 rounded-full flex items-center justify-center">
+                                <MessageSquare className="h-3 w-3 text-purple-600" />
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Quick Reply */}
+                          <div className="pt-2 border-t">
+                            <div className="flex space-x-2">
+                              <input
+                                type="text"
+                                placeholder="Type a quick reply..."
+                                className="flex-1 px-3 py-2 border rounded-lg text-sm"
+                              />
+                              <Button size="sm">
+                                <MessageSquare className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -379,7 +417,7 @@ export default function ListingDashboard() {
                           onClick={() => setLocation('/messages')}
                         >
                           <MessageSquare className="h-4 w-4 mr-2" />
-                          Reply to All Unread
+                          Open Full Messages
                         </Button>
                         <Button 
                           variant="outline" 
@@ -388,6 +426,14 @@ export default function ListingDashboard() {
                         >
                           <Users className="h-4 w-4 mr-2" />
                           Mark All as Read
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full justify-start"
+                        >
+                          <Clock className="h-4 w-4 mr-2" />
+                          Set Auto-Reply
                         </Button>
                       </div>
                     </div>

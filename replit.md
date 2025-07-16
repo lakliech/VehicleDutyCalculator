@@ -739,6 +739,8 @@ Changelog:
   - Integrated appointment actions into both listing dashboard (sellers) and user profile (buyers)
   - Both buyers and sellers can now modify, cancel, reschedule, and complete appointments with comprehensive validation
   - Real-time appointment updates with proper cache invalidation across all appointment views
+  - Unified reschedule functionality: both "Modify" and "Reschedule" buttons now use the same dialog for consistent UX
+  - Renamed modify button to "Reschedule" for clearer user understanding and consistent terminology
 - January 16, 2025. Implemented comprehensive buyer appointments system:
   - Added "/api/user/buyer-appointments" endpoint to fetch appointments where user is the buyer
   - Created "My Appointments" tab on user profile showing buyer appointments with listing details

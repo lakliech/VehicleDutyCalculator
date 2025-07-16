@@ -213,8 +213,8 @@ export function AppointmentActions({ appointment, userRole, onUpdate }: Appointm
           size="sm"
           onClick={() => setActionDialog('modify')}
         >
-          <Edit className="h-4 w-4" />
-          Modify
+          <Calendar className="h-4 w-4" />
+          Reschedule
         </Button>
       )}
 
@@ -225,7 +225,7 @@ export function AppointmentActions({ appointment, userRole, onUpdate }: Appointm
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 {isVideoCall ? <Video className="h-5 w-5" /> : <Car className="h-5 w-5" />}
-                Modify {isVideoCall ? 'Video Call' : 'Test Drive'} Appointment
+                Reschedule {isVideoCall ? 'Video Call' : 'Test Drive'} Appointment
               </DialogTitle>
             </DialogHeader>
             

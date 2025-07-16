@@ -5912,7 +5912,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       
       const activities = [];
 
-      // Add activity entries for each day with activity
+      // Add activity entries for each day with activity  
       recentViews.forEach((view: any) => {
         const views = view.total_views || 0;
         const uniqueVisitors = view.unique_visitors || 0;
@@ -5921,6 +5921,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         const shares = view.shares || 0;
         const inquiries = view.inquiries || 0;
         
+        // Always show views if there are any
         if (views > 0) {
           let location = null;
           if (view.location_nairobi > 0) location = 'Nairobi';
@@ -5929,11 +5930,13 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           
           activities.push({
             type: 'view',
-            description: `${views} views (${uniqueVisitors} unique visitors)`,
+            description: `${views} views${uniqueVisitors > 0 ? ` (${uniqueVisitors} unique visitors)` : ''}`,
             timestamp: view.date,
             location: location
           });
         }
+        
+        // Add other activities only if they exist
         if (phoneClicks > 0) {
           activities.push({
             type: 'phone_click',

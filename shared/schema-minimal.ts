@@ -239,6 +239,79 @@ export const userActivities = pgTable("user_activities", {
 });
 
 // ==============================
+// FINANCIAL SERVICES
+// ==============================
+
+export const bankPartners = pgTable("bank_partners", {
+  id: serial("id").primaryKey(),
+  bankName: text("bank_name").notNull(),
+  bankLogo: text("bank_logo"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const loanProducts = pgTable("loan_products", {
+  id: serial("id").primaryKey(),
+  bankId: integer("bank_id").references(() => bankPartners.id).notNull(),
+  productName: text("product_name").notNull(),
+  productType: text("product_type").notNull(),
+  minLoanAmount: numeric("min_loan_amount", { precision: 12, scale: 2 }),
+  maxLoanAmount: numeric("max_loan_amount", { precision: 12, scale: 2 }),
+  minInterestRate: numeric("min_interest_rate", { precision: 5, scale: 2 }),
+  maxInterestRate: numeric("max_interest_rate", { precision: 5, scale: 2 }),
+  minTenureMonths: integer("min_tenure_months"),
+  maxTenureMonths: integer("max_tenure_months"),
+  processingFee: numeric("processing_fee", { precision: 5, scale: 2 }),
+  insuranceRequired: boolean("insurance_required").default(false),
+  downPaymentPercentage: numeric("down_payment_percentage", { precision: 5, scale: 2 }),
+  eligibilityCriteria: text("eligibility_criteria"),
+  requiredDocuments: text("required_documents"),
+  features: text("features"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const loanApplications = pgTable("loan_applications", {
+  id: serial("id").primaryKey(),
+  applicationNumber: text("application_number").notNull().unique(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  loanProductId: integer("loan_product_id").references(() => loanProducts.id),
+  vehicleListingId: integer("vehicle_listing_id").references(() => carListings.id),
+  applicantName: text("applicant_name").notNull(),
+  applicantEmail: text("applicant_email").notNull(),
+  applicantPhone: text("applicant_phone").notNull(),
+  nationalId: text("national_id").notNull(),
+  dateOfBirth: timestamp("date_of_birth").notNull(),
+  maritalStatus: text("marital_status"),
+  employmentStatus: text("employment_status").notNull(),
+  employerName: text("employer_name"),
+  jobTitle: text("job_title"),
+  monthlyIncome: numeric("monthly_income", { precision: 12, scale: 2 }).notNull(),
+  monthlyExpenses: numeric("monthly_expenses", { precision: 12, scale: 2 }),
+  requestedAmount: numeric("requested_amount", { precision: 12, scale: 2 }).notNull(),
+  downPaymentAmount: numeric("down_payment_amount", { precision: 12, scale: 2 }),
+  preferredTenureMonths: integer("preferred_tenure_months").notNull(),
+  purposeOfLoan: text("purpose_of_loan"),
+  vehicleMake: text("vehicle_make"),
+  vehicleModel: text("vehicle_model"),
+  vehicleYear: integer("vehicle_year"),
+  vehiclePrice: numeric("vehicle_price", { precision: 12, scale: 2 }),
+  additionalNotes: text("additional_notes"),
+  status: text("status").default("pending"),
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: varchar("reviewed_by", { length: 255 }),
+  preApprovalAmount: numeric("pre_approval_amount", { precision: 12, scale: 2 }),
+  approvedInterestRate: numeric("approved_interest_rate", { precision: 5, scale: 2 }),
+  approvedTenureMonths: integer("approved_tenure_months"),
+  remarks: text("remarks"),
+});
+
+// ==============================
 // TYPES & SCHEMAS
 // ==============================
 

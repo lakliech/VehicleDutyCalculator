@@ -898,6 +898,13 @@ Changelog:
   - Created new API endpoint /api/listing/:listingId/loan-applications for sellers to view loan applications
   - Integrated loan applications display in seller dashboard showing client name, phone, bank, product, and status
   - Added comprehensive loan applications table in Overview & Pricing tab with status badges and formatting
+- January 17, 2025. Fixed loan applications loading in seller dashboard:
+  - Added missing loanApplications, bankPartners, and loanProducts tables to minimal schema
+  - Fixed database column mismatch: updated interest_rate to min_interest_rate/max_interest_rate
+  - Reorganized dashboard UI: moved loan applications above recent activity for better visibility
+  - Integrated edit listing and status controls into listing preview card for consolidated layout
+  - Loan applications now display properly with bank name, product name, and client details
+  - Created test loan application for listing 7 to verify both listings show applications correctly
 
 ## User Preferences
 

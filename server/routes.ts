@@ -13,7 +13,10 @@ import {
   sellerBlockedSlots,
   sellerAppointmentPreferences,
   seasonalPricingTrends,
-  userActivities
+  userActivities,
+  bankPartners,
+  loanProducts,
+  loanApplications
 } from "@shared/schema-minimal";
 
 import { 
@@ -60,9 +63,6 @@ import {
   loanApplicationSchema,
   tradeInEvaluationSchema,
   loanCalculationSchema,
-  bankPartners,
-  loanProducts,
-  loanApplications,
   tradeInEvaluations,
   loanCalculations,
   updateVideoCallAppointmentSchema,
@@ -7422,7 +7422,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         preferredTenureMonths: loanApplications.preferredTenureMonths,
         productName: loanProducts.productName,
         bankName: bankPartners.bankName,
-        interestRate: loanProducts.interestRate,
+        interestRate: loanProducts.minInterestRate,
       })
       .from(loanApplications)
       .leftJoin(loanProducts, eq(loanApplications.loanProductId, loanProducts.id))

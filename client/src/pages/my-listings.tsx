@@ -37,7 +37,8 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Phone
+  Phone,
+  Brain
 } from 'lucide-react';
 
 interface CarListing {
@@ -614,6 +615,16 @@ export default function MyListings() {
                           >
                             <Eye className="h-4 w-4 mr-2" />
                             Analytics
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            asChild
+                          >
+                            <Link href="/smart-pricing">
+                              <Brain className="h-4 w-4 mr-2" />
+                              Smart Pricing
+                            </Link>
                           </Button>
                           <Button size="sm" variant="outline">
                             <Share2 className="h-4 w-4 mr-2" />

@@ -56,7 +56,13 @@ import {
   tradeInEvaluations,
   loanCalculations,
   videoCallAppointments,
-  testDriveAppointments
+  testDriveAppointments,
+  marketPriceAnalysis,
+  pricingRecommendations,
+  seasonalPricingTrends,
+  priceAlerts,
+  depreciationForecasts,
+  marketInsights
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -7705,6 +7711,185 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     } catch (error) {
       console.error('Image serving error:', error);
       res.status(404).json({ error: 'Image not found' });
+    }
+  });
+
+  // ===============================
+  // SMART PRICING INTELLIGENCE ENDPOINTS
+  // ===============================
+
+  // Get pricing recommendation for a specific listing
+  app.get('/api/listings/:listingId/pricing-recommendation', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const { listingId } = req.params;
+      const { SmartPricingAI } = await import('./services/smart-pricing-ai');
+      
+      const recommendation = await SmartPricingAI.generatePricingRecommendation(parseInt(listingId));
+      res.json(recommendation);
+    } catch (error) {
+      console.error('Error generating pricing recommendation:', error);
+      res.status(500).json({ error: 'Failed to generate pricing recommendation' });
+    }
+  });
+
+  // Get market alerts for user
+  app.get('/api/pricing/alerts', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const userId = req.user.id;
+      
+      const alerts = await db
+        .select()
+        .from(priceAlerts)
+        .where(and(
+          eq(priceAlerts.userId, userId),
+          eq(priceAlerts.isActive, true)
+        ))
+        .orderBy(desc(priceAlerts.createdAt));
+      
+      res.json(alerts);
+    } catch (error) {
+      console.error('Error fetching price alerts:', error);
+      res.status(500).json({ error: 'Failed to fetch price alerts' });
+    }
+  });
+
+  // Generate market alerts for user's listings
+  app.post('/api/pricing/generate-alerts', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const { SmartPricingAI } = await import('./services/smart-pricing-ai');
+      
+      await SmartPricingAI.generateMarketAlerts(userId);
+      res.json({ message: 'Market alerts generated successfully' });
+    } catch (error) {
+      console.error('Error generating market alerts:', error);
+      res.status(500).json({ error: 'Failed to generate market alerts' });
+    }
+  });
+
+  // Get seasonal pricing trends
+  app.get('/api/pricing/seasonal-trends', async (req: Request, res: Response) => {
+    try {
+      const { SmartPricingAI } = await import('./services/smart-pricing-ai');
+      
+      const trends = await SmartPricingAI.getSeasonalRecommendations();
+      res.json(trends);
+    } catch (error) {
+      console.error('Error fetching seasonal trends:', error);
+      res.status(500).json({ error: 'Failed to fetch seasonal trends' });
+    }
+  });
+
+  // Get depreciation forecast for a vehicle
+  app.get('/api/pricing/depreciation-forecast', async (req: Request, res: Response) => {
+    try {
+      const { make, model, year, engineCapacity } = req.query;
+      
+      const forecasts = await db
+        .select()
+        .from(depreciationForecasts)
+        .where(and(
+          eq(depreciationForecasts.make, make as string),
+          eq(depreciationForecasts.model, model as string),
+          eq(depreciationForecasts.year, parseInt(year as string))
+        ))
+        .limit(1);
+
+      if (forecasts.length === 0) {
+        return res.status(404).json({ error: 'No depreciation forecast available for this vehicle' });
+      }
+
+      res.json(forecasts[0]);
+    } catch (error) {
+      console.error('Error fetching depreciation forecast:', error);
+      res.status(500).json({ error: 'Failed to fetch depreciation forecast' });
+    }
+  });
+
+  // Get market insights
+  app.get('/api/pricing/market-insights', async (req: Request, res: Response) => {
+    try {
+      const { category, limit = '10' } = req.query;
+      
+      let query = db
+        .select()
+        .from(marketInsights)
+        .where(eq(marketInsights.isPublic, true))
+        .orderBy(desc(marketInsights.createdAt))
+        .limit(parseInt(limit as string));
+
+      if (category) {
+        query = query.where(eq(marketInsights.category, category as string));
+      }
+
+      const insights = await query;
+      res.json(insights);
+    } catch (error) {
+      console.error('Error fetching market insights:', error);
+      res.status(500).json({ error: 'Failed to fetch market insights' });
+    }
+  });
+
+  // Generate market insights (Admin only)
+  app.post('/api/pricing/generate-insights', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+    try {
+      const { SmartPricingAI } = await import('./services/smart-pricing-ai');
+      
+      await SmartPricingAI.generateMarketInsights();
+      res.json({ message: 'Market insights generated successfully' });
+    } catch (error) {
+      console.error('Error generating market insights:', error);
+      res.status(500).json({ error: 'Failed to generate market insights' });
+    }
+  });
+
+  // Get price analysis for similar vehicles
+  app.get('/api/pricing/market-analysis', async (req: Request, res: Response) => {
+    try {
+      const { make, model, year, engineCapacity } = req.query;
+      
+      const analysis = await db
+        .select()
+        .from(marketPriceAnalysis)
+        .where(and(
+          eq(marketPriceAnalysis.make, make as string),
+          eq(marketPriceAnalysis.model, model as string),
+          eq(marketPriceAnalysis.year, parseInt(year as string))
+        ))
+        .limit(1);
+
+      if (analysis.length === 0) {
+        return res.status(404).json({ error: 'No market analysis available for this vehicle' });
+      }
+
+      res.json(analysis[0]);
+    } catch (error) {
+      console.error('Error fetching market analysis:', error);
+      res.status(500).json({ error: 'Failed to fetch market analysis' });
+    }
+  });
+
+  // Acknowledge pricing recommendation
+  app.post('/api/listings/:listingId/acknowledge-pricing', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const { listingId } = req.params;
+      const userId = req.user.id;
+      
+      await db
+        .update(pricingRecommendations)
+        .set({
+          acknowledgedBy: userId,
+          acknowledgedAt: new Date().toISOString()
+        })
+        .where(and(
+          eq(pricingRecommendations.listingId, parseInt(listingId)),
+          eq(pricingRecommendations.isActive, true)
+        ));
+
+      res.json({ message: 'Pricing recommendation acknowledged' });
+    } catch (error) {
+      console.error('Error acknowledging pricing recommendation:', error);
+      res.status(500).json({ error: 'Failed to acknowledge pricing recommendation' });
     }
   });
 

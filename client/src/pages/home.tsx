@@ -17,7 +17,8 @@ import {
   ArrowRight,
   Search,
   TrendingUp,
-  MessageCircle
+  MessageCircle,
+  Brain
 } from "lucide-react";
 
 // Core automotive tools - streamlined for simplicity
@@ -68,6 +69,11 @@ const ADDITIONAL_TOOLS = [
     href: "/price-trends",
     title: "Price Trends",
     icon: TrendingUp
+  },
+  {
+    href: "/smart-pricing",
+    title: "Smart Pricing",
+    icon: Brain
   },
   {
     href: "/vehicle-loans",

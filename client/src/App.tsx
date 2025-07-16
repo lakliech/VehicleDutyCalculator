@@ -27,6 +27,7 @@ import LoanApplication from "@/pages/loan-application";
 import LoanApplications from "@/pages/loan-applications";
 import AIAdvisor from "@/pages/ai-advisor";
 import PriceTrends from "@/pages/price-trends";
+import SmartPricing from "@/pages/smart-pricing";
 import AdminDashboard from "@/pages/admin-dashboard";
 
 import AdminListingDetails from "@/pages/admin-listing-details";
@@ -72,6 +73,7 @@ function Router() {
           <Route path="/ai-advisor" component={AIAdvisor} />
           <Route path="/price-trends" component={PriceTrends} />
           <Route path="/price-heatmap" component={PriceTrends} />
+          <Route path="/smart-pricing" component={SmartPricing} />
           <Route path="/dashboard">
             <ProtectedRoute>
               <Dashboard />

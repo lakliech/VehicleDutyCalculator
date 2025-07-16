@@ -1024,6 +1024,146 @@ export const insertAdminTemplateSchema = createInsertSchema(adminTemplates);
 export type InsertAdminTemplate = typeof adminTemplates.$inferInsert;
 export type AdminTemplate = typeof adminTemplates.$inferSelect;
 
+// Smart Pricing Intelligence Tables
+// Market price analysis data
+export const marketPriceAnalysis = pgTable("market_price_analysis", {
+  id: serial("id").primaryKey(),
+  make: varchar("make", { length: 100 }).notNull(),
+  model: varchar("model", { length: 100 }).notNull(),
+  year: integer("year").notNull(),
+  engineCapacity: integer("engine_capacity"),
+  bodyType: varchar("body_type", { length: 50 }),
+  averagePrice: decimal("average_price", { precision: 12, scale: 2 }).notNull(),
+  medianPrice: decimal("median_price", { precision: 12, scale: 2 }).notNull(),
+  priceRange: json("price_range"), // {min: number, max: number, percentile_25: number, percentile_75: number}
+  sampleSize: integer("sample_size").notNull(),
+  lastUpdated: text("last_updated").default("now()").notNull(),
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
+// AI pricing recommendations
+export const pricingRecommendations = pgTable("pricing_recommendations", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").references(() => carListings.id).notNull(),
+  currentPrice: decimal("current_price", { precision: 12, scale: 2 }).notNull(),
+  recommendedPrice: decimal("recommended_price", { precision: 12, scale: 2 }).notNull(),
+  priceAdjustment: decimal("price_adjustment", { precision: 8, scale: 2 }).notNull(), // percentage change
+  marketPosition: varchar("market_position", { length: 20 }).notNull(), // 'above', 'below', 'competitive'
+  confidence: decimal("confidence", { precision: 3, scale: 2 }).notNull(), // 0.00 to 1.00
+  reasoning: text("reasoning").notNull(),
+  factors: json("factors"), // Array of factors affecting price
+  seasonalAdjustment: decimal("seasonal_adjustment", { precision: 5, scale: 2 }),
+  deprecationForecast: json("deprecation_forecast"), // 3, 6, 12 month projections
+  alertType: varchar("alert_type", { length: 30 }), // 'overpriced', 'underpriced', 'optimal', 'seasonal_opportunity'
+  isActive: boolean("is_active").default(true).notNull(),
+  acknowledgedBy: varchar("acknowledged_by", { length: 255 }),
+  acknowledgedAt: text("acknowledged_at"),
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
+// Seasonal pricing trends
+export const seasonalPricingTrends = pgTable("seasonal_pricing_trends", {
+  id: serial("id").primaryKey(),
+  vehicleCategory: varchar("vehicle_category", { length: 100 }).notNull(),
+  make: varchar("make", { length: 100 }),
+  bodyType: varchar("body_type", { length: 50 }),
+  month: integer("month").notNull(), // 1-12
+  seasonality: varchar("seasonality", { length: 20 }).notNull(), // 'peak', 'low', 'moderate'
+  avgPriceMultiplier: decimal("avg_price_multiplier", { precision: 4, scale: 3 }).notNull(), // 1.000 = baseline
+  demandLevel: varchar("demand_level", { length: 20 }).notNull(), // 'very_high', 'high', 'moderate', 'low', 'very_low'
+  supplyLevel: varchar("supply_level", { length: 20 }).notNull(),
+  recommendations: text("recommendations").notNull(),
+  bestBuyingOpportunity: boolean("best_buying_opportunity").default(false).notNull(),
+  bestSellingOpportunity: boolean("best_selling_opportunity").default(false).notNull(),
+  historicalData: json("historical_data"), // Array of year-over-year data
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
+// Price alerts and notifications
+export const priceAlerts = pgTable("price_alerts", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  listingId: integer("listing_id").references(() => carListings.id),
+  alertType: varchar("alert_type", { length: 30 }).notNull(), // 'price_drop', 'overpriced', 'underpriced', 'market_shift', 'seasonal_opportunity'
+  vehicleFilters: json("vehicle_filters"), // For general market alerts
+  currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
+  targetPrice: decimal("target_price", { precision: 12, scale: 2 }),
+  priceDeviation: decimal("price_deviation", { precision: 5, scale: 2 }), // percentage from market average
+  alertMessage: text("alert_message").notNull(),
+  priority: varchar("priority", { length: 10 }).default("medium").notNull(), // 'low', 'medium', 'high', 'urgent'
+  isActive: boolean("is_active").default(true).notNull(),
+  triggered: boolean("triggered").default(false).notNull(),
+  triggeredAt: text("triggered_at"),
+  acknowledgedAt: text("acknowledged_at"),
+  expiresAt: text("expires_at"),
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
+// Depreciation forecasts
+export const depreciationForecasts = pgTable("depreciation_forecasts", {
+  id: serial("id").primaryKey(),
+  make: varchar("make", { length: 100 }).notNull(),
+  model: varchar("model", { length: 100 }).notNull(),
+  year: integer("year").notNull(),
+  engineCapacity: integer("engine_capacity"),
+  currentValue: decimal("current_value", { precision: 12, scale: 2 }).notNull(),
+  forecast3Months: decimal("forecast_3_months", { precision: 12, scale: 2 }).notNull(),
+  forecast6Months: decimal("forecast_6_months", { precision: 12, scale: 2 }).notNull(),
+  forecast12Months: decimal("forecast_12_months", { precision: 12, scale: 2 }).notNull(),
+  forecast24Months: decimal("forecast_24_months", { precision: 12, scale: 2 }).notNull(),
+  depreciationRate: decimal("depreciation_rate", { precision: 5, scale: 4 }).notNull(), // annual rate
+  factorsConsidered: json("factors_considered"), // Array of factors affecting depreciation
+  confidence: decimal("confidence", { precision: 3, scale: 2 }).notNull(),
+  lastUpdated: text("last_updated").default("now()").notNull(),
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
+// Market insights generated by AI
+export const marketInsights = pgTable("market_insights", {
+  id: serial("id").primaryKey(),
+  insightType: varchar("insight_type", { length: 50 }).notNull(), // 'trend', 'opportunity', 'warning', 'forecast'
+  category: varchar("category", { length: 100 }), // vehicle category or 'general'
+  title: varchar("title", { length: 200 }).notNull(),
+  summary: text("summary").notNull(),
+  detailedAnalysis: text("detailed_analysis").notNull(),
+  actionableRecommendations: json("actionable_recommendations"), // Array of recommendations
+  affectedVehicles: json("affected_vehicles"), // Array of make/model/year combinations
+  confidenceLevel: decimal("confidence_level", { precision: 3, scale: 2 }).notNull(),
+  priority: varchar("priority", { length: 10 }).default("medium").notNull(),
+  validUntil: text("valid_until"),
+  isPublic: boolean("is_public").default(false).notNull(),
+  viewCount: integer("view_count").default(0).notNull(),
+  createdAt: text("created_at").default("now()").notNull(),
+  updatedAt: text("updated_at").default("now()").notNull(),
+});
+
+// Insert and select types for Smart Pricing Intelligence tables
+export const insertMarketPriceAnalysisSchema = createInsertSchema(marketPriceAnalysis);
+export type InsertMarketPriceAnalysis = typeof marketPriceAnalysis.$inferInsert;
+export type MarketPriceAnalysis = typeof marketPriceAnalysis.$inferSelect;
+
+export const insertPricingRecommendationSchema = createInsertSchema(pricingRecommendations);
+export type InsertPricingRecommendation = typeof pricingRecommendations.$inferInsert;
+export type PricingRecommendation = typeof pricingRecommendations.$inferSelect;
+
+export const insertSeasonalPricingTrendSchema = createInsertSchema(seasonalPricingTrends);
+export type InsertSeasonalPricingTrend = typeof seasonalPricingTrends.$inferInsert;
+export type SeasonalPricingTrend = typeof seasonalPricingTrends.$inferSelect;
+
+export const insertPriceAlertSchema = createInsertSchema(priceAlerts);
+export type InsertPriceAlert = typeof priceAlerts.$inferInsert;
+export type PriceAlert = typeof priceAlerts.$inferSelect;
+
+export const insertDepreciationForecastSchema = createInsertSchema(depreciationForecasts);
+export type InsertDepreciationForecast = typeof depreciationForecasts.$inferInsert;
+export type DepreciationForecast = typeof depreciationForecasts.$inferSelect;
+
+export const insertMarketInsightSchema = createInsertSchema(marketInsights);
+export type InsertMarketInsight = typeof marketInsights.$inferInsert;
+export type MarketInsight = typeof marketInsights.$inferSelect;
+
 // Automated flagging schema types
 export const insertAutoFlagRuleSchema = createInsertSchema(autoFlagRules);
 export type InsertAutoFlagRule = typeof autoFlagRules.$inferInsert;

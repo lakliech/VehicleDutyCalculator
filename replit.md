@@ -711,6 +711,12 @@ Changelog:
   - Fixed Market Analysis to use analytics.marketBenchmark and analytics.listingInfo structure
   - Fixed Quality Score to use analytics.qualityIndicators structure with proper field names
   - Dashboard summary stats now correctly match and sync with full analytics data
+- January 16, 2025. Fixed authentication state refresh after OAuth success:
+  - Added checkAuthStatus method to AuthProvider for manual auth state refresh
+  - Updated useAuthRedirect hook to call checkAuthStatus after OAuth success
+  - Fixed issue where user was successfully logged in but page didn't reload to authenticated view
+  - Authentication state now properly updates on frontend after Google OAuth callback
+  - Enhanced session management with forced auth status check after OAuth redirect
 
 ## User Preferences
 

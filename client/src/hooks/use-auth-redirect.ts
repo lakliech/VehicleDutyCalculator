@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/components/auth-provider';
 
 export const useAuthRedirect = () => {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { checkAuthStatus } = useAuth();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -13,6 +15,9 @@ export const useAuthRedirect = () => {
     const error = urlParams.get('error');
 
     if (social === 'google' && success === 'true') {
+      // Force refresh of auth status after OAuth success
+      checkAuthStatus();
+      
       // Check if there's a stored return URL
       const returnUrl = localStorage.getItem('returnUrl');
       
@@ -49,5 +54,5 @@ export const useAuthRedirect = () => {
       // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [setLocation, toast]);
+  }, [setLocation, toast, checkAuthStatus]);
 };

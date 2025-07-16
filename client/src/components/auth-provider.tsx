@@ -10,6 +10,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   register: (userData: any) => Promise<boolean>;
+  checkAuthStatus: () => Promise<void>;
   
   // Admin authentication (legacy)
   adminToken: string | null;
@@ -92,6 +93,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initializeAuth();
   }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      const response = await fetch("/api/auth/status", {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.authenticated && data.user) {
+          setUser(data.user);
+          localStorage.setItem("user", JSON.stringify(data.user));
+        } else {
+          localStorage.removeItem("user");
+          setUser(null);
+        }
+      }
+    } catch (error) {
+      console.error('Auth status check failed:', error);
+    }
+  };
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -195,6 +217,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       register,
+      checkAuthStatus,
       adminToken,
       isAdminAuthenticated: !!adminToken,
       adminLogin,

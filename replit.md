@@ -741,6 +741,14 @@ Changelog:
   - Renamed "Manage & Pricing" tab to "Manage Listing" to reflect removal of pricing content
   - Updated "Overview" tab to "Overview & Pricing" to indicate integrated pricing intelligence
   - Streamlined user experience with pricing insights prominently displayed alongside listing preview
+- January 16, 2025. Consolidated listing management into overview section and removed manage listing tab:
+  - Moved listing status management (active/inactive/pending/sold) from separate tab to overview section
+  - Moved edit listing and quick actions from manage tab to overview for immediate access
+  - Completely removed "Manage Listing" tab to reduce navigation complexity
+  - Updated tab layout from 5 tabs to 4 tabs: Overview & Pricing, Messages & Inquiries, Analytics & Insights, Appointments
+  - Enhanced overview section with comprehensive listing management including status control and quick actions
+  - Consolidated all core listing management functions into single overview tab for streamlined workflow
+  - Improved user experience with immediate access to status changes and editing without tab navigation
 
 ## User Preferences
 

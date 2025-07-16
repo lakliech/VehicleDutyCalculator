@@ -203,7 +203,7 @@ export default function ListingDashboard() {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview & Pricing</TabsTrigger>
             <TabsTrigger value="messages">
               Messages & Inquiries
@@ -214,7 +214,6 @@ export default function ListingDashboard() {
               )}
             </TabsTrigger>
             <TabsTrigger value="analytics">Analytics & Insights</TabsTrigger>
-            <TabsTrigger value="manage">Manage Listing</TabsTrigger>
             <TabsTrigger value="appointments">Appointments</TabsTrigger>
           </TabsList>
 
@@ -332,6 +331,64 @@ export default function ListingDashboard() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Listing Management - Full Width */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Listing Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Status Management */}
+                  <div>
+                    <Label className="text-base font-semibold">Listing Status</Label>
+                    <div className="flex items-center space-x-4 mt-2">
+                      <Badge variant={listing.status === 'active' ? 'default' : 'secondary'}>
+                        {listing.status}
+                      </Badge>
+                      <Select 
+                        value={listing.status} 
+                        onValueChange={(status) => updateListingMutation.mutate({ status })}
+                      >
+                        <SelectTrigger className="w-48">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="sold">Sold</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div>
+                    <Label className="text-base font-semibold">Quick Actions</Label>
+                    <div className="grid grid-cols-2 gap-3 mt-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setEditingListing(true)}
+                        className="w-full"
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Listing
+                      </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setLocation('/messages')}
+                        className="w-full"
+                      >
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        View Messages
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Recent Activity - Full Width */}
             <Card>
@@ -910,89 +967,6 @@ export default function ListingDashboard() {
                 </Card>
               </TabsContent>
             </Tabs>
-          </TabsContent>
-
-          {/* Manage & Pricing Tab */}
-          <TabsContent value="manage" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Listing Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {/* Status Management */}
-                  <div>
-                    <Label className="text-base font-semibold">Listing Status</Label>
-                    <div className="flex items-center space-x-4 mt-2">
-                      <Badge variant={listing.status === 'active' ? 'default' : 'secondary'}>
-                        {listing.status}
-                      </Badge>
-                      <Select 
-                        value={listing.status} 
-                        onValueChange={(status) => updateListingMutation.mutate({ status })}
-                      >
-                        <SelectTrigger className="w-48">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="sold">Sold</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  {/* Quick Actions */}
-                  <div>
-                    <Label className="text-base font-semibold">Quick Actions</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setEditingListing(true)}
-                        className="w-full"
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Listing
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setLocation('/messages')}
-                        className="w-full"
-                      >
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        View Messages
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Performance Summary */}
-                  <div>
-                    <Label className="text-base font-semibold">Performance Summary</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-                      <div className="p-3 bg-blue-50 rounded-lg">
-                        <p className="text-sm text-blue-600">Total Views</p>
-                        <p className="text-xl font-bold text-blue-800">{overviewData.totalViews}</p>
-                      </div>
-                      <div className="p-3 bg-green-50 rounded-lg">
-                        <p className="text-sm text-green-600">Inquiries</p>
-                        <p className="text-xl font-bold text-green-800">{overviewData.inquiries}</p>
-                      </div>
-                      <div className="p-3 bg-orange-50 rounded-lg">
-                        <p className="text-sm text-orange-600">Phone Clicks</p>
-                        <p className="text-xl font-bold text-orange-800">{overviewData.phoneClicks}</p>
-                      </div>
-                      <div className="p-3 bg-purple-50 rounded-lg">
-                        <p className="text-sm text-purple-600">Favorites</p>
-                        <p className="text-xl font-bold text-purple-800">{overviewData.favorites}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           {/* Appointments Tab */}

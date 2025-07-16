@@ -57,6 +57,9 @@ import {
   loanCalculations,
   videoCallAppointments,
   testDriveAppointments,
+  sellerAvailability,
+  sellerAppointmentPreferences,
+  sellerBlockedSlots,
   marketPriceAnalysis,
   pricingRecommendations,
   seasonalPricingTrends,
@@ -66,7 +69,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
-import { sql, eq, desc, and, or, gte } from "drizzle-orm";
+import { sql, eq, desc, and, or, gte, lte, ne } from "drizzle-orm";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 import ListingQualityAssessment, { triggerQualityAssessment } from './quality-assessment';
@@ -7879,6 +7882,307 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     } catch (error) {
       console.error('Failed to fetch seller appointments:', error);
       res.status(500).json({ error: 'Failed to fetch appointments' });
+    }
+  });
+
+  // ==============================
+  // SELLER AVAILABILITY MANAGEMENT
+  // ==============================
+
+  // Get seller availability settings
+  app.get('/api/seller/availability', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const availability = await db
+        .select()
+        .from(sellerAvailability)
+        .where(eq(sellerAvailability.userId, req.user.id))
+        .orderBy(sellerAvailability.dayOfWeek);
+
+      const preferences = await db
+        .select()
+        .from(sellerAppointmentPreferences)
+        .where(eq(sellerAppointmentPreferences.userId, req.user.id))
+        .limit(1);
+
+      res.json({
+        availability,
+        preferences: preferences[0] || null
+      });
+    } catch (error) {
+      console.error('Failed to fetch seller availability:', error);
+      res.status(500).json({ error: 'Failed to fetch availability' });
+    }
+  });
+
+  // Update seller availability
+  app.post('/api/seller/availability', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const { availability, preferences } = req.body;
+
+      // Clear existing availability
+      await db.delete(sellerAvailability).where(eq(sellerAvailability.userId, req.user.id));
+
+      // Insert new availability
+      if (availability && availability.length > 0) {
+        await db.insert(sellerAvailability).values(
+          availability.map((slot: any) => ({
+            ...slot,
+            userId: req.user.id
+          }))
+        );
+      }
+
+      // Update or create preferences
+      if (preferences) {
+        const existingPreferences = await db
+          .select()
+          .from(sellerAppointmentPreferences)
+          .where(eq(sellerAppointmentPreferences.userId, req.user.id))
+          .limit(1);
+
+        if (existingPreferences.length > 0) {
+          await db
+            .update(sellerAppointmentPreferences)
+            .set({ ...preferences, updatedAt: new Date() })
+            .where(eq(sellerAppointmentPreferences.userId, req.user.id));
+        } else {
+          await db.insert(sellerAppointmentPreferences).values({
+            ...preferences,
+            userId: req.user.id
+          });
+        }
+      }
+
+      res.json({ success: true, message: 'Availability updated successfully' });
+    } catch (error) {
+      console.error('Failed to update seller availability:', error);
+      res.status(500).json({ error: 'Failed to update availability' });
+    }
+  });
+
+  // Get seller blocked slots
+  app.get('/api/seller/blocked-slots', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const blockedSlots = await db
+        .select()
+        .from(sellerBlockedSlots)
+        .where(eq(sellerBlockedSlots.userId, req.user.id))
+        .orderBy(sellerBlockedSlots.startDateTime);
+
+      res.json(blockedSlots);
+    } catch (error) {
+      console.error('Failed to fetch blocked slots:', error);
+      res.status(500).json({ error: 'Failed to fetch blocked slots' });
+    }
+  });
+
+  // Add blocked slot
+  app.post('/api/seller/blocked-slots', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const { startDateTime, endDateTime, reason, isRecurring, recurrencePattern } = req.body;
+
+      const [blockedSlot] = await db
+        .insert(sellerBlockedSlots)
+        .values({
+          userId: req.user.id,
+          startDateTime: new Date(startDateTime),
+          endDateTime: new Date(endDateTime),
+          reason,
+          isRecurring: isRecurring || false,
+          recurrencePattern: recurrencePattern || null
+        })
+        .returning();
+
+      res.json({ success: true, blockedSlot });
+    } catch (error) {
+      console.error('Failed to add blocked slot:', error);
+      res.status(500).json({ error: 'Failed to add blocked slot' });
+    }
+  });
+
+  // Remove blocked slot
+  app.delete('/api/seller/blocked-slots/:id', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+
+      await db
+        .delete(sellerBlockedSlots)
+        .where(and(
+          eq(sellerBlockedSlots.id, parseInt(id)),
+          eq(sellerBlockedSlots.userId, req.user.id)
+        ));
+
+      res.json({ success: true, message: 'Blocked slot removed successfully' });
+    } catch (error) {
+      console.error('Failed to remove blocked slot:', error);
+      res.status(500).json({ error: 'Failed to remove blocked slot' });
+    }
+  });
+
+  // Get available time slots for a specific date
+  app.get('/api/seller/available-slots/:date', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const { date } = req.params;
+      const requestedDate = new Date(date);
+      const dayOfWeek = requestedDate.getDay();
+
+      // Get seller's availability for this day
+      const availability = await db
+        .select()
+        .from(sellerAvailability)
+        .where(and(
+          eq(sellerAvailability.userId, req.user.id),
+          eq(sellerAvailability.dayOfWeek, dayOfWeek),
+          eq(sellerAvailability.isActive, true)
+        ));
+
+      if (availability.length === 0) {
+        return res.json({ availableSlots: [] });
+      }
+
+      // Get existing appointments for this date
+      const startOfDay = new Date(requestedDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(requestedDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const existingAppointments = await db
+        .select()
+        .from(videoCallAppointments)
+        .where(and(
+          eq(videoCallAppointments.sellerId, req.user.id),
+          gte(videoCallAppointments.appointmentDate, startOfDay),
+          lte(videoCallAppointments.appointmentDate, endOfDay),
+          ne(videoCallAppointments.status, 'cancelled')
+        ))
+        .union(
+          db.select({
+            id: testDriveAppointments.id,
+            appointmentDate: testDriveAppointments.appointmentDate,
+            duration: testDriveAppointments.duration,
+            status: testDriveAppointments.status
+          })
+          .from(testDriveAppointments)
+          .where(and(
+            eq(testDriveAppointments.sellerId, req.user.id),
+            gte(testDriveAppointments.appointmentDate, startOfDay),
+            lte(testDriveAppointments.appointmentDate, endOfDay),
+            ne(testDriveAppointments.status, 'cancelled')
+          ))
+        );
+
+      // Get blocked slots for this date
+      const blockedSlots = await db
+        .select()
+        .from(sellerBlockedSlots)
+        .where(and(
+          eq(sellerBlockedSlots.userId, req.user.id),
+          gte(sellerBlockedSlots.startDateTime, startOfDay),
+          lte(sellerBlockedSlots.endDateTime, endOfDay)
+        ));
+
+      // Generate available time slots
+      const availableSlots = [];
+      const slotDuration = 30; // 30-minute slots
+
+      for (const slot of availability) {
+        const [startHour, startMinute] = slot.startTime.split(':').map(Number);
+        const [endHour, endMinute] = slot.endTime.split(':').map(Number);
+
+        let currentTime = new Date(requestedDate);
+        currentTime.setHours(startHour, startMinute, 0, 0);
+
+        const endTime = new Date(requestedDate);
+        endTime.setHours(endHour, endMinute, 0, 0);
+
+        while (currentTime < endTime) {
+          const slotEnd = new Date(currentTime.getTime() + slotDuration * 60000);
+          
+          // Check if slot conflicts with existing appointments or blocked slots
+          const isConflict = existingAppointments.some(apt => {
+            const aptStart = new Date(apt.appointmentDate);
+            const aptEnd = new Date(aptStart.getTime() + apt.duration * 60000);
+            return (currentTime < aptEnd && slotEnd > aptStart);
+          }) || blockedSlots.some(blocked => {
+            const blockedStart = new Date(blocked.startDateTime);
+            const blockedEnd = new Date(blocked.endDateTime);
+            return (currentTime < blockedEnd && slotEnd > blockedStart);
+          });
+
+          if (!isConflict) {
+            availableSlots.push({
+              startTime: currentTime.toISOString(),
+              endTime: slotEnd.toISOString(),
+              duration: slotDuration
+            });
+          }
+
+          currentTime = new Date(currentTime.getTime() + slotDuration * 60000);
+        }
+      }
+
+      res.json({ availableSlots });
+    } catch (error) {
+      console.error('Failed to fetch available slots:', error);
+      res.status(500).json({ error: 'Failed to fetch available slots' });
+    }
+  });
+
+  // Create new appointment (for sellers)
+  app.post('/api/seller/appointments', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const { 
+        listingId, 
+        appointmentType, 
+        appointmentDate, 
+        duration, 
+        buyerName, 
+        buyerEmail, 
+        buyerPhone, 
+        meetingLocation, 
+        notes 
+      } = req.body;
+
+      let appointment;
+
+      if (appointmentType === 'video_call') {
+        [appointment] = await db
+          .insert(videoCallAppointments)
+          .values({
+            listingId: parseInt(listingId),
+            buyerId: 'seller-created', // Temporary ID for seller-created appointments
+            sellerId: req.user.id,
+            appointmentDate: new Date(appointmentDate),
+            duration: duration || 30,
+            status: 'pending',
+            notes: notes || null
+          })
+          .returning();
+      } else {
+        [appointment] = await db
+          .insert(testDriveAppointments)
+          .values({
+            listingId: parseInt(listingId),
+            buyerId: 'seller-created', // Temporary ID for seller-created appointments
+            sellerId: req.user.id,
+            appointmentDate: new Date(appointmentDate),
+            duration: duration || 60,
+            meetingLocation: meetingLocation || 'To be determined',
+            status: 'pending',
+            buyerNotes: notes || null,
+            documentsRequired: ['Valid Driver\'s License']
+          })
+          .returning();
+      }
+
+      res.json({ 
+        success: true, 
+        appointment,
+        message: 'Appointment created successfully' 
+      });
+    } catch (error) {
+      console.error('Failed to create appointment:', error);
+      res.status(500).json({ error: 'Failed to create appointment' });
     }
   });
 

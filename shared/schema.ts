@@ -181,11 +181,74 @@ export const insertTestDriveAppointmentSchema = createInsertSchema(testDriveAppo
   updatedAt: true,
 });
 
+// Seller availability settings
+export const sellerAvailability = pgTable("seller_availability", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  dayOfWeek: integer("day_of_week").notNull(), // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  startTime: text("start_time").notNull(), // HH:MM format (24-hour)
+  endTime: text("end_time").notNull(), // HH:MM format (24-hour)
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Seller appointment preferences
+export const sellerAppointmentPreferences = pgTable("seller_appointment_preferences", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  autoApprove: boolean("auto_approve").default(false),
+  minimumAdvanceNoticeHours: integer("minimum_advance_notice_hours").default(2),
+  maxAppointmentsPerDay: integer("max_appointments_per_day").default(10),
+  allowWeekends: boolean("allow_weekends").default(true),
+  defaultTestDriveLocation: text("default_test_drive_location"),
+  defaultMeetingDuration: integer("default_meeting_duration").default(30), // in minutes
+  bufferTimeBetweenAppointments: integer("buffer_time_between_appointments").default(15), // in minutes
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Blocked time slots for sellers
+export const sellerBlockedSlots = pgTable("seller_blocked_slots", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  startDateTime: timestamp("start_date_time").notNull(),
+  endDateTime: timestamp("end_date_time").notNull(),
+  reason: text("reason"),
+  isRecurring: boolean("is_recurring").default(false),
+  recurrencePattern: text("recurrence_pattern"), // 'daily', 'weekly', 'monthly'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Insert schemas for availability management
+export const insertSellerAvailabilitySchema = createInsertSchema(sellerAvailability).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSellerAppointmentPreferencesSchema = createInsertSchema(sellerAppointmentPreferences).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSellerBlockedSlotsSchema = createInsertSchema(sellerBlockedSlots).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Type definitions
 export type VideoCallAppointment = typeof videoCallAppointments.$inferSelect;
 export type InsertVideoCallAppointment = typeof insertVideoCallAppointmentSchema._type;
 export type TestDriveAppointment = typeof testDriveAppointments.$inferSelect;
 export type InsertTestDriveAppointment = typeof insertTestDriveAppointmentSchema._type;
+export type SellerAvailability = typeof sellerAvailability.$inferSelect;
+export type InsertSellerAvailability = z.infer<typeof insertSellerAvailabilitySchema>;
+export type SellerAppointmentPreferences = typeof sellerAppointmentPreferences.$inferSelect;
+export type InsertSellerAppointmentPreferences = z.infer<typeof insertSellerAppointmentPreferencesSchema>;
+export type SellerBlockedSlots = typeof sellerBlockedSlots.$inferSelect;
+export type InsertSellerBlockedSlots = z.infer<typeof insertSellerBlockedSlotsSchema>;
 
 export const dutyCalculationSchema = z.object({
   vehicleCategory: z.enum([

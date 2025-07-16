@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -45,6 +46,10 @@ export default function ListingDashboard() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [editingListing, setEditingListing] = useState(false);
+  const [scheduleAppointmentOpen, setScheduleAppointmentOpen] = useState(false);
+  const [manageAvailabilityOpen, setManageAvailabilityOpen] = useState(false);
+  const [viewCalendarOpen, setViewCalendarOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('');
 
 
   // Fetch listing details
@@ -83,6 +88,25 @@ export default function ListingDashboard() {
     queryFn: () => fetch(`/api/listing/${id}/appointments`).then(res => res.json())
   });
 
+  // Fetch seller availability
+  const { data: availabilityData } = useQuery({
+    queryKey: ['seller-availability'],
+    queryFn: () => fetch('/api/seller/availability').then(res => res.json())
+  });
+
+  // Fetch blocked slots
+  const { data: blockedSlots } = useQuery({
+    queryKey: ['seller-blocked-slots'],
+    queryFn: () => fetch('/api/seller/blocked-slots').then(res => res.json())
+  });
+
+  // Fetch available slots for selected date
+  const { data: availableSlots } = useQuery({
+    queryKey: ['available-slots', selectedDate],
+    queryFn: () => fetch(`/api/seller/available-slots/${selectedDate}`).then(res => res.json()),
+    enabled: !!selectedDate
+  });
+
   // Update listing mutation
   const updateListingMutation = useMutation({
     mutationFn: (data: any) => apiRequest('PUT', `/api/listings/${id}`, data),
@@ -99,6 +123,46 @@ export default function ListingDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listing', id] });
       toast({ title: 'Price updated successfully' });
+    }
+  });
+
+  // Schedule appointment mutation
+  const scheduleAppointmentMutation = useMutation({
+    mutationFn: (appointmentData: any) => apiRequest('POST', '/api/seller/appointments', appointmentData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['listing-appointments', id] });
+      toast({ title: 'Appointment scheduled successfully' });
+      setScheduleAppointmentOpen(false);
+    }
+  });
+
+  // Update availability mutation
+  const updateAvailabilityMutation = useMutation({
+    mutationFn: (availabilityData: any) => apiRequest('POST', '/api/seller/availability', availabilityData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seller-availability'] });
+      toast({ title: 'Availability updated successfully' });
+      setManageAvailabilityOpen(false);
+    }
+  });
+
+  // Add blocked slot mutation
+  const addBlockedSlotMutation = useMutation({
+    mutationFn: (slotData: any) => apiRequest('POST', '/api/seller/blocked-slots', slotData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seller-blocked-slots'] });
+      queryClient.invalidateQueries({ queryKey: ['available-slots', selectedDate] });
+      toast({ title: 'Time slot blocked successfully' });
+    }
+  });
+
+  // Remove blocked slot mutation
+  const removeBlockedSlotMutation = useMutation({
+    mutationFn: (slotId: number) => apiRequest('DELETE', `/api/seller/blocked-slots/${slotId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seller-blocked-slots'] });
+      queryClient.invalidateQueries({ queryKey: ['available-slots', selectedDate] });
+      toast({ title: 'Time slot unblocked successfully' });
     }
   });
 
@@ -1115,18 +1179,30 @@ export default function ListingDashboard() {
                     <div className="pt-4 border-t">
                       <h4 className="font-medium mb-3">Quick Actions</h4>
                       <div className="space-y-2">
-                        <Button variant="outline" size="sm" className="w-full justify-start">
-                          <Calendar className="h-4 w-4 mr-2" />
-                          Schedule New Appointment
-                        </Button>
-                        <Button variant="outline" size="sm" className="w-full justify-start">
-                          <Settings className="h-4 w-4 mr-2" />
-                          Manage Availability
-                        </Button>
-                        <Button variant="outline" size="sm" className="w-full justify-start">
-                          <Clock className="h-4 w-4 mr-2" />
-                          View Calendar
-                        </Button>
+                        <Dialog open={scheduleAppointmentOpen} onOpenChange={setScheduleAppointmentOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="w-full justify-start">
+                              <Calendar className="h-4 w-4 mr-2" />
+                              Schedule New Appointment
+                            </Button>
+                          </DialogTrigger>
+                        </Dialog>
+                        <Dialog open={manageAvailabilityOpen} onOpenChange={setManageAvailabilityOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="w-full justify-start">
+                              <Settings className="h-4 w-4 mr-2" />
+                              Manage Availability
+                            </Button>
+                          </DialogTrigger>
+                        </Dialog>
+                        <Dialog open={viewCalendarOpen} onOpenChange={setViewCalendarOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="w-full justify-start">
+                              <Clock className="h-4 w-4 mr-2" />
+                              View Calendar
+                            </Button>
+                          </DialogTrigger>
+                        </Dialog>
                       </div>
                     </div>
                   </div>
@@ -1354,6 +1430,365 @@ export default function ListingDashboard() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Schedule New Appointment Dialog */}
+        <Dialog open={scheduleAppointmentOpen} onOpenChange={setScheduleAppointmentOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Schedule New Appointment</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Appointment Type</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="video_call">Video Call</SelectItem>
+                      <SelectItem value="test_drive">Test Drive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Date</Label>
+                  <Input 
+                    type="date" 
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              {selectedDate && availableSlots?.availableSlots?.length > 0 && (
+                <div>
+                  <Label>Available Time Slots</Label>
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {availableSlots.availableSlots.map((slot: any, index: number) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => {
+                          const appointmentData = {
+                            listingId: id,
+                            appointmentType: 'video_call',
+                            appointmentDate: slot.startTime,
+                            duration: slot.duration,
+                            buyerName: 'Seller Created',
+                            buyerEmail: 'seller@example.com',
+                            buyerPhone: '+254700000000',
+                            notes: 'Appointment created by seller'
+                          };
+                          scheduleAppointmentMutation.mutate(appointmentData);
+                        }}
+                      >
+                        {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Buyer Name</Label>
+                  <Input placeholder="Enter buyer name" />
+                </div>
+                <div>
+                  <Label>Buyer Phone</Label>
+                  <Input placeholder="Enter buyer phone" />
+                </div>
+              </div>
+              
+              <div>
+                <Label>Meeting Location (for test drives)</Label>
+                <Input placeholder="Enter meeting location" />
+              </div>
+              
+              <div>
+                <Label>Notes</Label>
+                <Textarea placeholder="Additional notes" rows={3} />
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Manage Availability Dialog */}
+        <Dialog open={manageAvailabilityOpen} onOpenChange={setManageAvailabilityOpen}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Manage Availability</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6">
+              {/* Weekly Availability */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Weekly Availability</h3>
+                <div className="space-y-3">
+                  {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, index) => {
+                    const dayAvailability = availabilityData?.availability?.find((a: any) => a.dayOfWeek === index);
+                    return (
+                      <div key={day} className="flex items-center space-x-4 p-3 border rounded-lg">
+                        <div className="w-20 font-medium">{day}</div>
+                        <Switch 
+                          checked={!!dayAvailability?.isActive}
+                          onCheckedChange={(checked) => {
+                            const newAvailability = availabilityData?.availability?.filter((a: any) => a.dayOfWeek !== index) || [];
+                            if (checked) {
+                              newAvailability.push({
+                                dayOfWeek: index,
+                                startTime: '09:00',
+                                endTime: '17:00',
+                                isActive: true
+                              });
+                            }
+                            updateAvailabilityMutation.mutate({
+                              availability: newAvailability,
+                              preferences: availabilityData?.preferences
+                            });
+                          }}
+                        />
+                        {dayAvailability?.isActive && (
+                          <div className="flex items-center space-x-2">
+                            <Input
+                              type="time"
+                              value={dayAvailability.startTime}
+                              className="w-24"
+                              onChange={(e) => {
+                                const newAvailability = availabilityData.availability.map((a: any) => 
+                                  a.dayOfWeek === index ? { ...a, startTime: e.target.value } : a
+                                );
+                                updateAvailabilityMutation.mutate({
+                                  availability: newAvailability,
+                                  preferences: availabilityData?.preferences
+                                });
+                              }}
+                            />
+                            <span>to</span>
+                            <Input
+                              type="time"
+                              value={dayAvailability.endTime}
+                              className="w-24"
+                              onChange={(e) => {
+                                const newAvailability = availabilityData.availability.map((a: any) => 
+                                  a.dayOfWeek === index ? { ...a, endTime: e.target.value } : a
+                                );
+                                updateAvailabilityMutation.mutate({
+                                  availability: newAvailability,
+                                  preferences: availabilityData?.preferences
+                                });
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Preferences */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Preferences</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <Label>Auto-approve appointments</Label>
+                    <Switch 
+                      checked={availabilityData?.preferences?.autoApprove || false}
+                      onCheckedChange={(checked) => {
+                        updateAvailabilityMutation.mutate({
+                          availability: availabilityData?.availability || [],
+                          preferences: {
+                            ...availabilityData?.preferences,
+                            autoApprove: checked
+                          }
+                        });
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <Label>Allow weekends</Label>
+                    <Switch 
+                      checked={availabilityData?.preferences?.allowWeekends || false}
+                      onCheckedChange={(checked) => {
+                        updateAvailabilityMutation.mutate({
+                          availability: availabilityData?.availability || [],
+                          preferences: {
+                            ...availabilityData?.preferences,
+                            allowWeekends: checked
+                          }
+                        });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <Label>Minimum advance notice (hours)</Label>
+                    <Input
+                      type="number"
+                      value={availabilityData?.preferences?.minimumAdvanceNoticeHours || 2}
+                      onChange={(e) => {
+                        updateAvailabilityMutation.mutate({
+                          availability: availabilityData?.availability || [],
+                          preferences: {
+                            ...availabilityData?.preferences,
+                            minimumAdvanceNoticeHours: parseInt(e.target.value)
+                          }
+                        });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <Label>Max appointments per day</Label>
+                    <Input
+                      type="number"
+                      value={availabilityData?.preferences?.maxAppointmentsPerDay || 10}
+                      onChange={(e) => {
+                        updateAvailabilityMutation.mutate({
+                          availability: availabilityData?.availability || [],
+                          preferences: {
+                            ...availabilityData?.preferences,
+                            maxAppointmentsPerDay: parseInt(e.target.value)
+                          }
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Blocked Time Slots */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Blocked Time Slots</h3>
+                <div className="space-y-3">
+                  {blockedSlots?.map((slot: any) => (
+                    <div key={slot.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">
+                          {new Date(slot.startDateTime).toLocaleDateString()} at {new Date(slot.startDateTime).toLocaleTimeString()}
+                        </p>
+                        <p className="text-sm text-gray-600">{slot.reason || 'No reason provided'}</p>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => removeBlockedSlotMutation.mutate(slot.id)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                  
+                  {/* Add new blocked slot */}
+                  <div className="p-3 border rounded-lg border-dashed">
+                    <h4 className="font-medium mb-2">Block New Time Slot</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input type="datetime-local" placeholder="Start time" />
+                      <Input type="datetime-local" placeholder="End time" />
+                      <Input placeholder="Reason" className="col-span-2" />
+                      <Button size="sm" className="col-span-2">Add Blocked Slot</Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* View Calendar Dialog */}
+        <Dialog open={viewCalendarOpen} onOpenChange={setViewCalendarOpen}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Appointment Calendar</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Select Date</Label>
+                  <Input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-600">
+                    {selectedDate ? new Date(selectedDate).toLocaleDateString() : 'Select a date'}
+                  </p>
+                </div>
+              </div>
+
+              {selectedDate && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Available Slots */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Available Time Slots</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {availableSlots?.availableSlots?.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-2">
+                          {availableSlots.availableSlots.map((slot: any, index: number) => (
+                            <div key={index} className="p-2 bg-green-50 border border-green-200 rounded text-center">
+                              <div className="text-sm font-medium">
+                                {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                              <div className="text-xs text-gray-600">{slot.duration} mins</div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-4">
+                          <p className="text-gray-500">No available slots for this date</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Scheduled Appointments */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Scheduled Appointments</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {appointmentData?.appointments?.filter((apt: any) => 
+                        new Date(apt.appointmentDate).toDateString() === new Date(selectedDate).toDateString()
+                      ).length > 0 ? (
+                        <div className="space-y-2">
+                          {appointmentData.appointments
+                            .filter((apt: any) => new Date(apt.appointmentDate).toDateString() === new Date(selectedDate).toDateString())
+                            .map((appointment: any) => (
+                            <div key={appointment.id} className="p-3 bg-blue-50 border border-blue-200 rounded">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="font-medium">{appointment.buyerName}</p>
+                                  <p className="text-sm text-gray-600">
+                                    {new Date(appointment.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </p>
+                                  <p className="text-xs text-gray-500">{appointment.type}</p>
+                                </div>
+                                <Badge variant={appointment.status === 'confirmed' ? 'default' : 'secondary'}>
+                                  {appointment.status}
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-4">
+                          <p className="text-gray-500">No appointments scheduled for this date</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
       </div>
     </div>
   );

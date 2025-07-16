@@ -775,6 +775,16 @@ Changelog:
   - Enhanced dashboard overview section with real-time activity feed showing user interactions
   - Activities are sorted by timestamp (most recent first) and include location data when available
   - Improved user experience with visual activity indicators using appropriate icons for each activity type
+- January 16, 2025. Implemented comprehensive appointment management system:
+  - Added three core appointment features: Schedule New Appointment, Manage Availability, and View Calendar
+  - Created interactive dialogs for all appointment management functions in listing dashboard
+  - Built seller availability management with weekly schedule, time slots, and preferences
+  - Implemented blocked time slot functionality for sellers to manage unavailable periods
+  - Added appointment scheduling with real-time availability checking and time slot selection
+  - Enhanced calendar view showing scheduled appointments and available slots for selected dates
+  - Integrated with existing video call and test drive appointment systems for unified management
+  - Added comprehensive API queries and mutations for availability, appointments, and blocked slots
+  - Authentication-protected features requiring Google OAuth login for all appointment functionality
 
 ## User Preferences
 

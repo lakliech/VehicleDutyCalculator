@@ -1587,27 +1587,8 @@ export default function ListingDashboard() {
         </Dialog>
 
         {/* Manage Availability Dialog */}
-        <Dialog open={manageAvailabilityOpen} onOpenChange={(open) => {
-          // Only allow closing if user has configured at least one day and preferences
-          if (!open) {
-            const hasConfiguredDays = availabilityData?.availability?.some((a: any) => a.isActive) || false;
-            const hasConfiguredPreferences = availabilityData?.preferences && (
-              typeof availabilityData.preferences.autoApprove === 'boolean' ||
-              typeof availabilityData.preferences.allowWeekends === 'boolean' ||
-              availabilityData.preferences.minimumAdvanceNoticeHours > 0 ||
-              availabilityData.preferences.maxAppointmentsPerDay > 0
-            );
-            
-            if (!hasConfiguredDays || !hasConfiguredPreferences) {
-              toast({
-                title: "Configuration Required",
-                description: "Please set at least one available day and configure your preferences before closing.",
-                variant: "destructive"
-              });
-              return;
-            }
-          }
-          setManageAvailabilityOpen(open);
+        <Dialog open={manageAvailabilityOpen} onOpenChange={() => {
+          // Prevent automatic closing - only close via Save & Close button
         }}>
           <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
@@ -1899,43 +1880,51 @@ export default function ListingDashboard() {
                       )}
                     </div>
                     
-                    <Button 
-                      onClick={() => {
-                        const hasConfiguredDays = availabilityData?.availability?.some((a: any) => a.isActive) || false;
-                        const hasConfiguredPreferences = availabilityData?.preferences && (
-                          typeof availabilityData.preferences.autoApprove === 'boolean' ||
-                          typeof availabilityData.preferences.allowWeekends === 'boolean' ||
-                          availabilityData.preferences.minimumAdvanceNoticeHours > 0 ||
-                          availabilityData.preferences.maxAppointmentsPerDay > 0
-                        );
-                        
-                        if (hasConfiguredDays && hasConfiguredPreferences) {
-                          toast({
-                            title: "Availability Saved",
-                            description: "Your availability settings have been saved successfully.",
-                          });
-                          setManageAvailabilityOpen(false);
-                        } else {
-                          toast({
-                            title: "Configuration Required",
-                            description: "Please complete all configurations before saving.",
-                            variant: "destructive"
-                          });
-                        }
-                      }}
-                      disabled={!(
-                        availabilityData?.availability?.some((a: any) => a.isActive) && 
-                        availabilityData?.preferences && (
-                          typeof availabilityData.preferences.autoApprove === 'boolean' ||
-                          typeof availabilityData.preferences.allowWeekends === 'boolean' ||
-                          availabilityData.preferences.minimumAdvanceNoticeHours > 0 ||
-                          availabilityData.preferences.maxAppointmentsPerDay > 0
-                        )
-                      )}
-                      className="bg-purple-600 hover:bg-purple-700"
-                    >
-                      Save & Close
-                    </Button>
+                    <div className="flex space-x-3">
+                      <Button 
+                        variant="outline"
+                        onClick={() => setManageAvailabilityOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          const hasConfiguredDays = availabilityData?.availability?.some((a: any) => a.isActive) || false;
+                          const hasConfiguredPreferences = availabilityData?.preferences && (
+                            typeof availabilityData.preferences.autoApprove === 'boolean' ||
+                            typeof availabilityData.preferences.allowWeekends === 'boolean' ||
+                            availabilityData.preferences.minimumAdvanceNoticeHours > 0 ||
+                            availabilityData.preferences.maxAppointmentsPerDay > 0
+                          );
+                          
+                          if (hasConfiguredDays && hasConfiguredPreferences) {
+                            toast({
+                              title: "Availability Saved",
+                              description: "Your availability settings have been saved successfully.",
+                            });
+                            setManageAvailabilityOpen(false);
+                          } else {
+                            toast({
+                              title: "Configuration Required",
+                              description: "Please complete all configurations before saving.",
+                              variant: "destructive"
+                            });
+                          }
+                        }}
+                        disabled={!(
+                          availabilityData?.availability?.some((a: any) => a.isActive) && 
+                          availabilityData?.preferences && (
+                            typeof availabilityData.preferences.autoApprove === 'boolean' ||
+                            typeof availabilityData.preferences.allowWeekends === 'boolean' ||
+                            availabilityData.preferences.minimumAdvanceNoticeHours > 0 ||
+                            availabilityData.preferences.maxAppointmentsPerDay > 0
+                          )
+                        )}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        Save & Close
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

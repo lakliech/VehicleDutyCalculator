@@ -752,6 +752,12 @@ Changelog:
   - Added validation to require both start and end times before allowing slot creation
   - Enhanced blocked slots display with proper datetime formatting and remove functionality
   - Blocked slots now properly integrate with availability management system
+- January 16, 2025. Fixed Manage Availability dialog auto-closing issue:
+  - Prevented dialog from closing automatically during form interactions and mutations
+  - Dialog now only closes when user explicitly clicks "Save & Close" or "Cancel" buttons
+  - Added Cancel button for users to exit without saving changes
+  - Enhanced user experience by eliminating unexpected dialog closures during configuration
+  - Maintained all validation logic requiring complete setup before saving
 - January 16, 2025. Enhanced appointment management with comprehensive modification capabilities:
   - Fixed database schema issues by adding missing cancellation_reason and completion_notes columns
   - Implemented comprehensive AppointmentActions component with modify, cancel, complete, and reschedule functionality

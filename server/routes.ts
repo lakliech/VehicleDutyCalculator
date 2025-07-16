@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
@@ -10,7 +10,7 @@ import {
   depreciationRates,
   trailers,
   heavyMachinery,
-  insertVehicleReferenceSchema,
+  insertVehicleSchema,
   vehicleTransferRates,
   userRegistrationSchema,
   userLoginSchema,
@@ -71,7 +71,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
-import { sql, eq, desc, and, or, gte, lte, ne } from "drizzle-orm";
+import { sql, eq, desc, and, or, gte, lte, ne, asc, count } from "drizzle-orm";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 import ListingQualityAssessment, { triggerQualityAssessment } from './quality-assessment';
@@ -3248,15 +3248,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Invalid listing ID' });
       }
 
-      // Extract tracking parameters from query
-      const viewerId = req.query.viewerId as string || `anonymous_${Date.now()}`;
-      const sessionId = req.query.sessionId as string || `session_${Date.now()}`;
-      const searchQuery = req.query.searchQuery as string;
-      const deviceType = req.query.deviceType as string || 'desktop';
-      const userAgent = req.headers['user-agent'] || 'unknown';
-      const ipAddress = req.ip || 'unknown';
-      
-      // Fetch real listing from database with seller info
+      // Fetch real listing from database with seller info (removed expensive analytics tracking)
       const results = await db
         .select({
           listing: carListings,
@@ -3286,20 +3278,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const listing = result.listing;
       const seller = result.seller;
 
-      // REAL-TIME VIEW TRACKING - Execute immediately
+      // Simple view count increment (removed complex analytics for performance)
       try {
-        // 1. Track listing view in listing_views table
-        await db.execute(sql`
-          INSERT INTO listing_views (
-            listing_id, viewer_id, session_id, search_query, 
-            device_type, location, user_agent, created_at
-          ) VALUES (
-            ${listingId}, ${viewerId}, ${sessionId}, ${searchQuery || null},
-            ${deviceType}, ${ipAddress}, ${userAgent}, NOW()
-          )
-        `);
-
-        // 2. Increment view count in car_listings table (immediate update)
         await db
           .update(carListings)
           .set({ 
@@ -3307,59 +3287,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             updatedAt: new Date()
           })
           .where(eq(carListings.id, listingId));
-
-        // 3. Update daily analytics (immediate update with location detection)
-        const today = new Date().toISOString().split('T')[0];
-        const isNairobi = ipAddress.includes('nairobi') || ipAddress.includes('196.201') || ipAddress.includes('102.0');
-        const isMombasa = ipAddress.includes('mombasa') || ipAddress.includes('196.207');
-        const isMobile = deviceType === 'mobile' || userAgent.toLowerCase().includes('mobile');
-        const isTablet = deviceType === 'tablet' || userAgent.toLowerCase().includes('tablet');
-        const isDesktop = !isMobile && !isTablet;
-
-        await db.execute(sql`
-          INSERT INTO daily_listing_analytics (
-            listing_id, date, total_views, unique_visitors, impressions,
-            device_mobile, device_desktop, device_tablet,
-            location_nairobi, location_mombasa, location_kisumu, location_other,
-            created_at, updated_at
-          ) VALUES (
-            ${listingId}, ${today}, 1, 1, 1,
-            ${isMobile ? 1 : 0}, ${isDesktop ? 1 : 0}, ${isTablet ? 1 : 0},
-            ${isNairobi ? 1 : 0}, ${isMombasa ? 1 : 0}, 0,
-            ${!isNairobi && !isMombasa ? 1 : 0},
-            NOW(), NOW()
-          )
-          ON CONFLICT (listing_id, date) DO UPDATE SET
-            total_views = daily_listing_analytics.total_views + 1,
-            unique_visitors = daily_listing_analytics.unique_visitors + 1,
-            impressions = daily_listing_analytics.impressions + 1,
-            device_mobile = daily_listing_analytics.device_mobile + ${isMobile ? 1 : 0},
-            device_desktop = daily_listing_analytics.device_desktop + ${isDesktop ? 1 : 0},
-            device_tablet = daily_listing_analytics.device_tablet + ${isTablet ? 1 : 0},
-            location_nairobi = daily_listing_analytics.location_nairobi + ${isNairobi ? 1 : 0},
-            location_mombasa = daily_listing_analytics.location_mombasa + ${isMombasa ? 1 : 0},
-            location_other = daily_listing_analytics.location_other + ${!isNairobi && !isMombasa ? 1 : 0},
-            updated_at = NOW()
-        `);
-
-        // 4. Track search click if this came from search results (keyword analytics)
-        if (searchQuery && viewerId) {
-          await KeywordAnalytics.trackSearchClick({
-            listingId,
-            keyword: searchQuery,
-            searchQuery,
-            wasClicked: true,
-            viewerId,
-            sessionId,
-            deviceType,
-            location: ipAddress
-          });
-        }
-
-        console.log(`✓ Real-time view tracked: Listing ${listingId}, Viewer ${viewerId}, Device ${deviceType}`);
+        
+        console.log(`✓ Simple view tracked for listing ${listingId}`);
       } catch (trackingError) {
-        console.error('Error in real-time view tracking:', trackingError);
-        // Don't fail the request if analytics tracking fails
+        console.error('Error in view tracking:', trackingError);
+        // Don't fail the request if tracking fails
       }
 
       // Transform database listing to car details format

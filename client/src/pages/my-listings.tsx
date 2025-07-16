@@ -635,10 +635,12 @@ export default function MyListings() {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            onClick={() => handleShowSmartPricing(listing.id)}
+                            asChild
                           >
-                            <Brain className="h-4 w-4 mr-2" />
-                            Smart Pricing
+                            <Link href={`/listing/${listing.id}/manage`}>
+                              <Settings className="h-4 w-4 mr-2" />
+                              Manage
+                            </Link>
                           </Button>
                           <Button size="sm" variant="outline">
                             <Share2 className="h-4 w-4 mr-2" />

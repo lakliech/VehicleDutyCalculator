@@ -222,6 +222,13 @@ export interface IStorage {
     unreadCount: number;
     avgResponseTime: number;
   }>;
+
+  // Smart Pricing Intelligence methods
+  getPriceAlerts(listingId: number, userId: string): Promise<any[]>;
+  createPriceAlert(alert: any): Promise<any>;
+  getSmartRecommendations(listingId: number): Promise<any[]>;
+  createSmartRecommendation(recommendation: any): Promise<any>;
+  getCarListingById(id: number): Promise<CarListing | null>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -3039,6 +3046,59 @@ export class DatabaseStorage implements IStorage {
       unreadCount: parseInt(result.unread_count) || 0,
       avgResponseTime: parseFloat(result.avg_response_time_minutes) || 0
     };
+  }
+
+  // Smart Pricing Intelligence implementations
+  async getPriceAlerts(listingId: number, userId: string): Promise<any[]> {
+    const alerts = await db.execute(sql`
+      SELECT * FROM price_alerts 
+      WHERE listing_id = ${listingId} AND user_id = ${userId}
+      ORDER BY created_at DESC
+    `);
+    return alerts.rows || [];
+  }
+
+  async createPriceAlert(alert: any): Promise<any> {
+    const result = await db.execute(sql`
+      INSERT INTO price_alerts (listing_id, user_id, alert_type, threshold, is_active, message)
+      VALUES (${alert.listingId}, ${alert.userId}, ${alert.alertType}, ${alert.threshold}, ${alert.isActive}, ${alert.message})
+      RETURNING *
+    `);
+    return result.rows[0];
+  }
+
+  async getSmartRecommendations(listingId: number): Promise<any[]> {
+    const recommendations = await db.execute(sql`
+      SELECT * FROM smart_recommendations 
+      WHERE listing_id = ${listingId}
+      ORDER BY priority DESC, created_at DESC
+    `);
+    return recommendations.rows || [];
+  }
+
+  async createSmartRecommendation(recommendation: any): Promise<any> {
+    const result = await db.execute(sql`
+      INSERT INTO smart_recommendations (
+        listing_id, type, title, description, priority, estimated_impact, action_required
+      )
+      VALUES (
+        ${recommendation.listingId}, ${recommendation.type}, ${recommendation.title}, 
+        ${recommendation.description}, ${recommendation.priority}, 
+        ${recommendation.estimatedImpact}, ${recommendation.actionRequired}
+      )
+      RETURNING *
+    `);
+    return result.rows[0];
+  }
+
+  async getCarListingById(id: number): Promise<CarListing | null> {
+    const [listing] = await db
+      .select()
+      .from(carListings)
+      .where(eq(carListings.id, id))
+      .limit(1);
+    
+    return listing || null;
   }
 }
 

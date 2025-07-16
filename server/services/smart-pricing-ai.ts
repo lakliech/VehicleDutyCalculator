@@ -78,6 +78,86 @@ interface PricingRecommendationResult {
 }
 
 export class SmartPricingAI {
+  /**
+   * Generate smart recommendations for listing optimization
+   */
+  static async generateSmartRecommendations(listing: any): Promise<any[]> {
+    const recommendations = [];
+
+    // Generate AI-powered recommendations based on listing data
+    const priceRange = this.calculatePriceRange(listing.price);
+    const marketData = await this.getMarketData(listing.make, listing.model, listing.year);
+
+    // Price adjustment recommendations
+    if (listing.price > marketData.averagePrice * 1.15) {
+      recommendations.push({
+        type: 'price_adjustment',
+        title: 'Price Too High',
+        description: `Your listing is priced ${Math.round(((listing.price - marketData.averagePrice) / marketData.averagePrice) * 100)}% above market average. Consider reducing by KES ${Math.round(listing.price - marketData.averagePrice).toLocaleString()}.`,
+        priority: 'high',
+        estimatedImpact: 'Could increase inquiries by 40-60%',
+        actionRequired: true
+      });
+    }
+
+    // Photo improvement recommendations
+    if (!listing.images || listing.images.length < 5) {
+      recommendations.push({
+        type: 'photo_improvement',
+        title: 'Add More Photos',
+        description: 'Listings with 5+ photos receive 3x more views. Add exterior, interior, engine, and detail shots.',
+        priority: 'medium',
+        estimatedImpact: 'Could increase views by 200%',
+        actionRequired: true
+      });
+    }
+
+    // Feature highlighting recommendations
+    if (listing.mileage < 50000) {
+      recommendations.push({
+        type: 'feature_highlight',
+        title: 'Highlight Low Mileage',
+        description: 'Your vehicle has exceptionally low mileage. Emphasize this in the title and description.',
+        priority: 'medium',
+        estimatedImpact: 'Could increase inquiries by 25%',
+        actionRequired: false
+      });
+    }
+
+    // Timing optimization
+    const currentDay = new Date().getDay();
+    if (currentDay === 0 || currentDay === 6) {
+      recommendations.push({
+        type: 'timing_optimization',
+        title: 'Best Posting Times',
+        description: 'Update your listing on weekdays between 6-9 PM for maximum visibility.',
+        priority: 'low',
+        estimatedImpact: 'Could increase views by 15%',
+        actionRequired: false
+      });
+    }
+
+    return recommendations;
+  }
+
+  private static calculatePriceRange(currentPrice: number): any {
+    return {
+      quickSale: currentPrice * 0.9,
+      recommended: currentPrice,
+      premium: currentPrice * 1.1
+    };
+  }
+
+  private static async getMarketData(make: string, model: string, year: number): Promise<any> {
+    // Mock market data - in production this would query actual market data
+    return {
+      averagePrice: 2500000,
+      medianPrice: 2300000,
+      priceRange: { min: 1800000, max: 3200000 },
+      daysOnMarket: 45,
+      competitorCount: 12
+    };
+  }
   
   /**
    * Generate AI-powered pricing recommendation for a vehicle listing

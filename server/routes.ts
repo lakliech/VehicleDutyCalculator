@@ -7933,6 +7933,103 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
+  // ===============================
+  // SMART PRICING INTELLIGENCE API
+  // ===============================
+
+  // Get listing pricing recommendation
+  app.get('/api/listings/:listingId/pricing-recommendation', authenticateUser, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      const pricingData = await SmartPricingAI.generatePricingRecommendation(listingId);
+      res.json(pricingData);
+    } catch (error: any) {
+      console.error('Error getting pricing recommendation:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Price Alerts API
+  app.get('/api/listings/:listingId/price-alerts', authenticateUser, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      const userId = req.user!.id;
+      
+      const alerts = await storage.getPriceAlerts(listingId, userId);
+      res.json(alerts);
+    } catch (error: any) {
+      console.error('Error getting price alerts:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/listings/:listingId/price-alerts', authenticateUser, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      const userId = req.user!.id;
+      const { alertType, threshold, isActive } = req.body;
+      
+      const alert = await storage.createPriceAlert({
+        listingId,
+        userId,
+        alertType,
+        threshold,
+        isActive,
+        message: `Alert for ${alertType.replace('_', ' ')} at ${threshold} KES`
+      });
+      
+      res.json(alert);
+    } catch (error: any) {
+      console.error('Error creating price alert:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Smart Recommendations API
+  app.get('/api/listings/:listingId/smart-recommendations', authenticateUser, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      const recommendations = await storage.getSmartRecommendations(listingId);
+      res.json(recommendations);
+    } catch (error: any) {
+      console.error('Error getting smart recommendations:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Generate AI-powered recommendations for listing
+  app.post('/api/listings/:listingId/generate-recommendations', authenticateUser, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.listingId);
+      const listing = await storage.getCarListingById(listingId);
+      
+      if (!listing) {
+        return res.status(404).json({ error: 'Listing not found' });
+      }
+
+      // Generate smart recommendations based on listing performance
+      const recommendations = await SmartPricingAI.generateSmartRecommendations(listing);
+      
+      // Store recommendations in database
+      for (const rec of recommendations) {
+        await storage.createSmartRecommendation({
+          listingId,
+          type: rec.type,
+          title: rec.title,
+          description: rec.description,
+          priority: rec.priority,
+          estimatedImpact: rec.estimatedImpact,
+          actionRequired: rec.actionRequired
+        });
+      }
+      
+      res.json(recommendations);
+    } catch (error: any) {
+      console.error('Error generating recommendations:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

@@ -342,10 +342,10 @@ export default function ListingDashboard() {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Overview & Pricing</TabsTrigger>
-            <TabsTrigger value="messages">
-              Messages & Inquiries
+            <TabsTrigger value="messages-appointments">
+              Messages & Appointments
               {overviewData.unreadMessages > 0 && (
                 <Badge variant="destructive" className="ml-2 text-xs">
                   {overviewData.unreadMessages}
@@ -353,7 +353,6 @@ export default function ListingDashboard() {
               )}
             </TabsTrigger>
             <TabsTrigger value="analytics">Analytics & Insights</TabsTrigger>
-            <TabsTrigger value="appointments">Appointments</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -567,8 +566,8 @@ export default function ListingDashboard() {
             </Card>
           </TabsContent>
 
-          {/* Messages & Inquiries Tab */}
-          <TabsContent value="messages" className="space-y-6">
+          {/* Messages & Appointments Tab */}
+          <TabsContent value="messages-appointments" className="space-y-6">
             <div className="flex items-center justify-between mb-4">
               <Link href="/my-listings">
                 <Button variant="ghost" className="text-purple-600 hover:text-purple-700">
@@ -807,6 +806,163 @@ export default function ListingDashboard() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Appointments Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Scheduled Appointments */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center">
+                      <CalendarIcon className="h-5 w-5 mr-2" />
+                      Scheduled Appointments
+                    </span>
+                    <Badge variant="outline">
+                      {appointmentData?.statistics?.upcoming || 0} upcoming
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {!appointmentData?.appointments?.length ? (
+                      <div className="text-center py-8">
+                        <CalendarIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-600 mb-2">No Appointments Yet</h3>
+                        <p className="text-sm text-gray-400">Test drive requests will appear here</p>
+                      </div>
+                    ) : (
+                      appointmentData.appointments.map((appointment: any) => (
+                        <div key={appointment.id} className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center space-x-3">
+                              <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <CalendarIcon className="h-5 w-5 text-blue-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium">{appointment.buyerName}</p>
+                                <p className="text-sm text-gray-600">
+                                  {appointment.type === 'test_drive' ? 'Test Drive' : 'Video Call'}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge 
+                                variant={
+                                  appointment.status === 'confirmed' ? 'default' :
+                                  appointment.status === 'pending' ? 'secondary' :
+                                  appointment.status === 'completed' ? 'outline' :
+                                  'destructive'
+                                }
+                              >
+                                {appointment.status}
+                              </Badge>
+                              <AppointmentActions appointment={appointment} />
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-center text-gray-600">
+                              <CalendarIcon className="h-4 w-4 mr-2" />
+                              {new Date(appointment.scheduledDate).toLocaleDateString()} at {appointment.scheduledTime}
+                            </div>
+                            <div className="flex items-center text-gray-600">
+                              <Phone className="h-4 w-4 mr-2" />
+                              {appointment.buyerPhone}
+                            </div>
+                            {appointment.notes && (
+                              <p className="text-gray-600 bg-gray-50 p-2 rounded">
+                                <MessageSquare className="h-4 w-4 inline mr-1" />
+                                {appointment.notes}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Appointment Management */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Appointment Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* Statistics */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 bg-blue-50 rounded-lg">
+                        <p className="text-sm text-blue-600">Total Appointments</p>
+                        <p className="text-2xl font-bold text-blue-800">{appointmentData?.statistics?.total || 0}</p>
+                      </div>
+                      <div className="p-3 bg-green-50 rounded-lg">
+                        <p className="text-sm text-green-600">Completed</p>
+                        <p className="text-2xl font-bold text-green-800">{appointmentData?.statistics?.completed || 0}</p>
+                      </div>
+                      <div className="p-3 bg-orange-50 rounded-lg">
+                        <p className="text-sm text-orange-600">Pending</p>
+                        <p className="text-2xl font-bold text-orange-800">{appointmentData?.statistics?.pending || 0}</p>
+                      </div>
+                      <div className="p-3 bg-purple-50 rounded-lg">
+                        <p className="text-sm text-purple-600">Cancelled</p>
+                        <p className="text-2xl font-bold text-purple-800">{appointmentData?.statistics?.cancelled || 0}</p>
+                      </div>
+                    </div>
+
+                    {/* Settings */}
+                    <div className="pt-4 border-t">
+                      <h4 className="font-medium mb-3">Appointment Settings</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Auto-approve appointments</span>
+                          <Badge variant="outline">ON</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Minimum advance notice</span>
+                          <Badge variant="outline">2 hours</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Available days</span>
+                          <Badge variant="outline">Mon-Sat</Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="pt-4 border-t">
+                      <h4 className="font-medium mb-3">Quick Actions</h4>
+                      <div className="space-y-2">
+                        <Dialog open={scheduleAppointmentOpen} onOpenChange={setScheduleAppointmentOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="w-full justify-start">
+                              <CalendarIcon className="h-4 w-4 mr-2" />
+                              Schedule New Appointment
+                            </Button>
+                          </DialogTrigger>
+                        </Dialog>
+                        <Dialog open={manageAvailabilityOpen} onOpenChange={setManageAvailabilityOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="w-full justify-start">
+                              <Settings className="h-4 w-4 mr-2" />
+                              Manage Availability
+                            </Button>
+                          </DialogTrigger>
+                        </Dialog>
+                        <Dialog open={viewCalendarOpen} onOpenChange={setViewCalendarOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="w-full justify-start">
+                              <Clock className="h-4 w-4 mr-2" />
+                              View Calendar
+                            </Button>
+                          </DialogTrigger>
+                        </Dialog>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Analytics & Insights Tab */}
@@ -1177,190 +1333,6 @@ export default function ListingDashboard() {
                         </div>
                       </div>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Appointments Tab */}
-          <TabsContent value="appointments" className="space-y-6">
-            <div className="flex items-center justify-between mb-4">
-              <Link href="/my-listings">
-                <Button variant="ghost" className="text-purple-600 hover:text-purple-700">
-                  ← Back to Listings
-                </Button>
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Scheduled Appointments */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="flex items-center">
-                      <CalendarIcon className="h-5 w-5 mr-2" />
-                      Scheduled Appointments
-                    </span>
-                    <Badge variant="outline">
-                      {appointmentData?.statistics?.upcoming || 0} upcoming
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {!appointmentData?.appointments?.length ? (
-                      <div className="text-center py-8">
-                        <CalendarIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-600 mb-2">No Appointments Yet</h3>
-                        <p className="text-gray-500">
-                          When buyers schedule test drives or video calls, they will appear here.
-                        </p>
-                      </div>
-                    ) : (
-                      appointmentData.appointments.map((appointment: any) => (
-                        <div key={appointment.id} className="p-4 border rounded-lg">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center space-x-3">
-                              <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
-                                {appointment.type === 'video_call' ? (
-                                  <Video className="h-5 w-5 text-purple-600" />
-                                ) : (
-                                  <Car className="h-5 w-5 text-purple-600" />
-                                )}
-                              </div>
-                              <div>
-                                <p className="font-medium">{appointment.buyerName}</p>
-                                <p className="text-sm text-gray-600">
-                                  {appointment.type === 'video_call' ? 'Video Call' : 'Test Drive'}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {new Date(appointment.appointmentDate).toLocaleDateString()} at {new Date(appointment.appointmentDate).toLocaleTimeString()}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                              <Badge className={
-                                appointment.status === 'completed' ? 'bg-green-500 text-white' :
-                                appointment.status === 'pending' ? 'bg-yellow-500 text-white' :
-                                appointment.status === 'confirmed' ? 'bg-blue-500 text-white' :
-                                appointment.status === 'cancelled' ? 'bg-red-500 text-white' :
-                                'bg-gray-500 text-white'
-                              }>
-                                {appointment.status === 'cancelled' ? 'Cancelled' : 
-                                 appointment.status === 'completed' ? 'Completed' :
-                                 appointment.status === 'confirmed' ? 'Confirmed' :
-                                 appointment.status === 'pending' ? 'Pending' : 
-                                 appointment.status}
-                              </Badge>
-                              <AppointmentActions 
-                                appointment={appointment} 
-                                userRole="seller"
-                                onUpdate={(updatedAppointment) => {
-                                  // Refresh appointment data
-                                  queryClient.invalidateQueries({ queryKey: ['listing-appointments', id] });
-                                }}
-                              />
-                            </div>
-                          </div>
-                          <div className="mt-3 pl-13 space-y-1">
-                            <p className="text-sm text-gray-600">
-                              <MapPin className="h-4 w-4 inline mr-1" />
-                              {appointment.meetingLocation || 'Virtual'}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              <Phone className="h-4 w-4 inline mr-1" />
-                              {appointment.buyerPhone || 'N/A'}
-                            </p>
-                            {appointment.notes && (
-                              <p className="text-sm text-gray-600">
-                                <MessageSquare className="h-4 w-4 inline mr-1" />
-                                {appointment.notes}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Appointment Statistics & Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Appointment Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Statistics */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-3 bg-blue-50 rounded-lg">
-                        <p className="text-sm text-blue-600">Total Appointments</p>
-                        <p className="text-2xl font-bold text-blue-800">{appointmentData?.statistics?.total || 0}</p>
-                      </div>
-                      <div className="p-3 bg-green-50 rounded-lg">
-                        <p className="text-sm text-green-600">Completed</p>
-                        <p className="text-2xl font-bold text-green-800">{appointmentData?.statistics?.completed || 0}</p>
-                      </div>
-                      <div className="p-3 bg-orange-50 rounded-lg">
-                        <p className="text-sm text-orange-600">Pending</p>
-                        <p className="text-2xl font-bold text-orange-800">{appointmentData?.statistics?.pending || 0}</p>
-                      </div>
-                      <div className="p-3 bg-purple-50 rounded-lg">
-                        <p className="text-sm text-purple-600">Cancelled</p>
-                        <p className="text-2xl font-bold text-purple-800">{appointmentData?.statistics?.cancelled || 0}</p>
-                      </div>
-                    </div>
-
-                    {/* Settings */}
-                    <div className="pt-4 border-t">
-                      <h4 className="font-medium mb-3">Appointment Settings</h4>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Auto-approve appointments</span>
-                          <Badge variant="outline">ON</Badge>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Minimum advance notice</span>
-                          <Badge variant="outline">2 hours</Badge>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Available days</span>
-                          <Badge variant="outline">Mon-Sat</Badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="pt-4 border-t">
-                      <h4 className="font-medium mb-3">Quick Actions</h4>
-                      <div className="space-y-2">
-                        <Dialog open={scheduleAppointmentOpen} onOpenChange={setScheduleAppointmentOpen}>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm" className="w-full justify-start">
-                              <CalendarIcon className="h-4 w-4 mr-2" />
-                              Schedule New Appointment
-                            </Button>
-                          </DialogTrigger>
-                        </Dialog>
-                        <Dialog open={manageAvailabilityOpen} onOpenChange={setManageAvailabilityOpen}>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm" className="w-full justify-start">
-                              <Settings className="h-4 w-4 mr-2" />
-                              Manage Availability
-                            </Button>
-                          </DialogTrigger>
-                        </Dialog>
-                        <Dialog open={viewCalendarOpen} onOpenChange={setViewCalendarOpen}>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm" className="w-full justify-start">
-                              <Clock className="h-4 w-4 mr-2" />
-                              View Calendar
-                            </Button>
-                          </DialogTrigger>
-                        </Dialog>
-                      </div>
-                    </div>
                   </div>
                 </CardContent>
               </Card>

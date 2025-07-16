@@ -909,6 +909,12 @@ Changelog:
   - Moved Loan Applications section from Overview & Pricing tab to Messages & Inquiries tab
   - Logical grouping: customer communications and financial inquiries now in same section
   - Improved tab organization with related features grouped together
+- January 17, 2025. Consolidated Messages & Appointments into unified tab:
+  - Merged Messages & Inquiries tab with Appointments tab to create "Messages & Appointments" tab
+  - Combined all communication features: customer messages, loan applications, appointment scheduling, and appointment management
+  - Reduced dashboard from 4 tabs to 3 tabs: Overview & Pricing, Messages & Appointments, Analytics & Insights
+  - Streamlined seller workflow by consolidating related communication and scheduling functionality in single unified interface
+  - Enhanced efficiency for high-volume sellers managing multiple customer interactions and appointment scheduling
 
 ## User Preferences
 

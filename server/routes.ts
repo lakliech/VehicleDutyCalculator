@@ -5869,6 +5869,8 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       const { listingId } = req.params;
       const user = (req as any).user;
       
+      console.log('Recent activity request for listing:', listingId, 'user:', user?.id);
+      
       if (!user) {
         return res.status(401).json({ error: 'Authentication required' });
       }
@@ -5885,34 +5887,50 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         )
         .limit(1);
       
+      console.log('Listing ownership check:', listing.length > 0);
+      
       if (!listing.length) {
         return res.status(404).json({ error: "Listing not found or access denied" });
       }
 
+      // Use raw SQL to handle the data type mismatch between schema (text) and database (date)
+      console.log('Querying daily_listing_analytics for listing:', listingId);
+      const recentViews = await db.execute(sql`
+        SELECT 
+          date::text as date,
+          total_views,
+          unique_visitors,
+          phone_clicks,
+          inquiries,
+          favorites,
+          shares,
+          location_nairobi,
+          location_mombasa,
+          location_other
+        FROM daily_listing_analytics 
+        WHERE listing_id = ${parseInt(listingId)}
+        ORDER BY date DESC 
+        LIMIT 7
+      `);
+
+      console.log('Found analytics records:', recentViews.length);
+      
       const activities = [];
 
-      // Get recent views from daily_listing_analytics with safe field access
-      const recentViews = await db
-        .select()
-        .from(dailyListingAnalytics)
-        .where(eq(dailyListingAnalytics.listingId, parseInt(listingId)))
-        .orderBy(desc(dailyListingAnalytics.date))
-        .limit(7);
-
       // Add activity entries for each day with activity
-      recentViews.forEach(view => {
-        const views = view.totalViews || 0;
-        const uniqueVisitors = view.uniqueVisitors || 0;
-        const phoneClicks = view.phoneClicks || 0;
+      recentViews.forEach((view: any) => {
+        const views = view.total_views || 0;
+        const uniqueVisitors = view.unique_visitors || 0;
+        const phoneClicks = view.phone_clicks || 0;
         const favorites = view.favorites || 0;
         const shares = view.shares || 0;
         const inquiries = view.inquiries || 0;
         
         if (views > 0) {
           let location = null;
-          if (view.locationNairobi > 0) location = 'Nairobi';
-          else if (view.locationMombasa > 0) location = 'Mombasa';
-          else if (view.locationOther > 0) location = 'Other';
+          if (view.location_nairobi > 0) location = 'Nairobi';
+          else if (view.location_mombasa > 0) location = 'Mombasa';
+          else if (view.location_other > 0) location = 'Other';
           
           activities.push({
             type: 'view',

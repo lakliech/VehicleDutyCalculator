@@ -66,7 +66,7 @@ export default function ListingDashboard() {
   });
 
   // Fetch smart pricing
-  const { data: smartPricing } = useQuery({
+  const { data: smartPricing, isLoading: smartPricingLoading, error: smartPricingError } = useQuery({
     queryKey: ['smart-pricing', id],
     queryFn: () => fetch(`/api/listings/${id}/pricing-recommendation`).then(res => res.json())
   });
@@ -204,7 +204,7 @@ export default function ListingDashboard() {
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="overview">Overview & Pricing</TabsTrigger>
             <TabsTrigger value="messages">
               Messages & Inquiries
               {overviewData.unreadMessages > 0 && (
@@ -214,7 +214,7 @@ export default function ListingDashboard() {
               )}
             </TabsTrigger>
             <TabsTrigger value="analytics">Analytics & Insights</TabsTrigger>
-            <TabsTrigger value="manage">Manage & Pricing</TabsTrigger>
+            <TabsTrigger value="manage">Manage Listing</TabsTrigger>
             <TabsTrigger value="appointments">Appointments</TabsTrigger>
           </TabsList>
 
@@ -250,35 +250,117 @@ export default function ListingDashboard() {
                 </CardContent>
               </Card>
 
-              {/* Recent Activity */}
+              {/* Smart Pricing Intelligence */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
+                  <CardTitle className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5 text-purple-600" />
+                    <span>Smart Pricing Intelligence</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {Array.isArray(conversations) && conversations.slice(0, 3).map((conv: any, idx: number) => (
-                      <div key={idx} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <MessageSquare className="h-4 w-4 text-blue-600" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{conv.participantName}</p>
-                          <p className="text-xs text-gray-600">{conv.lastMessage}</p>
-                        </div>
-                        {conv.unreadCount > 0 && (
-                          <Badge variant="destructive" className="text-xs">
-                            {conv.unreadCount}
-                          </Badge>
-                        )}
+                  {smartPricingLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                    </div>
+                  ) : smartPricingError ? (
+                    <div className="text-center py-8">
+                      <p className="text-red-600">Error loading pricing data</p>
+                    </div>
+                  ) : smartPricing ? (
+                    <div className="space-y-4">
+                      {/* Current Price Analysis */}
+                      <div className="text-center p-4 bg-gray-50 rounded-lg">
+                        <p className="text-sm text-gray-600">Current Price</p>
+                        <p className="text-2xl font-bold text-purple-600">
+                          KES {smartPricing.currentPrice?.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {smartPricing.marketPosition || 'Market Analysis'}
+                        </p>
                       </div>
-                    ))}
-                    
-                    {(!Array.isArray(conversations) || conversations.length === 0) && (
-                      <p className="text-gray-500 text-center py-4">No recent activity</p>
-                    )}
-                  </div>
+
+                      {/* Price Recommendations */}
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        <div className="p-3 bg-orange-50 rounded-lg">
+                          <p className="text-xs text-gray-600">Quick Sale</p>
+                          <p className="font-semibold text-orange-600">
+                            KES {smartPricing.quickSalePrice?.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-green-50 rounded-lg">
+                          <p className="text-xs text-gray-600">Recommended</p>
+                          <p className="font-semibold text-green-600">
+                            KES {smartPricing.recommendedPrice?.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="p-3 bg-blue-50 rounded-lg">
+                          <p className="text-xs text-gray-600">Premium</p>
+                          <p className="font-semibold text-blue-600">
+                            KES {smartPricing.premiumPrice?.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Market Insights */}
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-gray-900">Market Insights</h4>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          {smartPricing.marketInsights?.slice(0, 3).map((insight: string, idx: number) => (
+                            <div key={idx} className="flex items-center space-x-2">
+                              <div className="w-1 h-1 bg-purple-600 rounded-full"></div>
+                              <span>{insight}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Apply Recommended Price Button */}
+                      <Button 
+                        onClick={() => applyPricingMutation.mutate(smartPricing.recommendedPrice)}
+                        disabled={applyPricingMutation.isPending}
+                        className="w-full"
+                      >
+                        {applyPricingMutation.isPending ? 'Applying...' : 'Apply Recommended Price'}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No pricing data available</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
+
+            {/* Recent Activity - Full Width */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  {Array.isArray(conversations) && conversations.slice(0, 3).map((conv: any, idx: number) => (
+                    <div key={idx} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                      <MessageSquare className="h-4 w-4 text-blue-600" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{conv.participantName}</p>
+                        <p className="text-xs text-gray-600">{conv.lastMessage}</p>
+                      </div>
+                      {conv.unreadCount > 0 && (
+                        <Badge variant="destructive" className="text-xs">
+                          {conv.unreadCount}
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                  
+                  {(!Array.isArray(conversations) || conversations.length === 0) && (
+                    <p className="text-gray-500 text-center py-4 col-span-3">No recent activity</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Messages & Inquiries Tab */}
@@ -884,92 +966,6 @@ export default function ListingDashboard() {
                         View Messages
                       </Button>
                     </div>
-                  </div>
-
-                  {/* Smart Pricing Section */}
-                  <div>
-                    <Label className="text-base font-semibold">Smart Pricing Intelligence</Label>
-                    {smartPricing ? (
-                      <div className="space-y-4 mt-4">
-                        {/* Current Price Analysis */}
-                        <div className="p-4 bg-blue-50 rounded-lg">
-                          <h4 className="font-semibold text-blue-900 mb-2">Current Price Analysis</h4>
-                          <p className="text-blue-800">
-                            Your current price of KES {listing.price?.toLocaleString()} is{' '}
-                            {smartPricing.pricePosition === 'above' ? 'above' : 
-                             smartPricing.pricePosition === 'below' ? 'below' : 'competitive with'} market average
-                          </p>
-                        </div>
-
-                        {/* Pricing Recommendations */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <Card className="border-orange-200">
-                            <CardContent className="p-4">
-                              <h4 className="font-semibold text-orange-800 mb-2">Quick Sale</h4>
-                              <p className="text-xl font-bold text-orange-600">
-                                KES {smartPricing.quickSalePrice?.toLocaleString()}
-                              </p>
-                              <p className="text-sm text-orange-700 mt-1">
-                                Sell within 2-4 weeks
-                              </p>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="w-full mt-2"
-                                onClick={() => applyPricingMutation.mutate(smartPricing.quickSalePrice)}
-                              >
-                                Apply Price
-                              </Button>
-                            </CardContent>
-                          </Card>
-
-                          <Card className="border-green-200">
-                            <CardContent className="p-4">
-                              <h4 className="font-semibold text-green-800 mb-2">Recommended</h4>
-                              <p className="text-xl font-bold text-green-600">
-                                KES {smartPricing.recommendedPrice?.toLocaleString()}
-                              </p>
-                              <p className="text-sm text-green-700 mt-1">
-                                Best balance of price and time
-                              </p>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="w-full mt-2"
-                                onClick={() => applyPricingMutation.mutate(smartPricing.recommendedPrice)}
-                              >
-                                Apply Price
-                              </Button>
-                            </CardContent>
-                          </Card>
-
-                          <Card className="border-purple-200">
-                            <CardContent className="p-4">
-                              <h4 className="font-semibold text-purple-800 mb-2">Premium</h4>
-                              <p className="text-xl font-bold text-purple-600">
-                                KES {smartPricing.premiumPrice?.toLocaleString()}
-                              </p>
-                              <p className="text-sm text-purple-700 mt-1">
-                                Maximum value, longer wait
-                              </p>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="w-full mt-2"
-                                onClick={() => applyPricingMutation.mutate(smartPricing.premiumPrice)}
-                              >
-                                Apply Price
-                              </Button>
-                            </CardContent>
-                          </Card>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-6 mt-4">
-                        <BarChart3 className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                        <p className="text-gray-500">Loading pricing intelligence...</p>
-                      </div>
-                    )}
                   </div>
 
                   {/* Performance Summary */}

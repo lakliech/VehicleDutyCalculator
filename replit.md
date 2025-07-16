@@ -733,6 +733,14 @@ Changelog:
   - Fixed authentication persistence issues where OAuth succeeded server-side but client state wasn't updating
   - Improved session management with forced session saves and proper cookie configuration
   - Authentication now reliably persists across page reloads and navigation after Google OAuth success
+- January 16, 2025. Moved Smart Pricing Intelligence to listing overview for immediate pricing insights:
+  - Relocated Smart Pricing Intelligence from separate "Manage & Pricing" tab to main "Overview & Pricing" section
+  - Provides immediate pricing insights directly in the overview without requiring tab navigation
+  - Enhanced overview section with comprehensive pricing analysis including current price, quick sale, recommended, and premium pricing tiers
+  - Added market insights display with key recommendations and "Apply Recommended Price" functionality
+  - Renamed "Manage & Pricing" tab to "Manage Listing" to reflect removal of pricing content
+  - Updated "Overview" tab to "Overview & Pricing" to indicate integrated pricing intelligence
+  - Streamlined user experience with pricing insights prominently displayed alongside listing preview
 
 ## User Preferences
 

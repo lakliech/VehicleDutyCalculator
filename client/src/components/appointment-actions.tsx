@@ -141,14 +141,6 @@ export function AppointmentActions({ appointment, userRole, onUpdate }: Appointm
     updateMutation.mutate(formData);
   };
 
-  const handleReschedule = () => {
-    setActionDialog('modify');
-    setFormData({
-      appointmentDate: new Date(appointment.appointmentDate).toISOString().slice(0, 16),
-      duration: appointment.duration,
-    });
-  };
-
   // Check if appointment is in the future
   const appointmentDate = new Date(appointment.appointmentDate);
   const now = new Date();
@@ -183,8 +175,15 @@ export function AppointmentActions({ appointment, userRole, onUpdate }: Appointm
         <Button
           variant="outline"
           size="sm"
-          onClick={handleReschedule}
           className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+          onClick={() => {
+            setFormData({
+              appointmentDate: new Date(appointment.appointmentDate).toISOString().slice(0, 16),
+              duration: appointment.duration,
+              status: 'pending', // Change status back to pending when rescheduling
+            });
+            setActionDialog('modify');
+          }}
         >
           <Calendar className="h-4 w-4" />
           Reschedule
@@ -208,15 +207,20 @@ export function AppointmentActions({ appointment, userRole, onUpdate }: Appointm
         </Button>
       )}
 
-      {/* Modify Dialog */}
       {canModify && (
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => setActionDialog('modify')}
+        >
+          <Edit className="h-4 w-4" />
+          Modify
+        </Button>
+      )}
+
+      {/* Shared Modify/Reschedule Dialog */}
+      {(canModify || canReschedule) && (
         <Dialog open={actionDialog === 'modify'} onOpenChange={(open) => setActionDialog(open ? 'modify' : null)}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Edit className="h-4 w-4" />
-              Modify
-            </Button>
-          </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">

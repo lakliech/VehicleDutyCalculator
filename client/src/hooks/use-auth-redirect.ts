@@ -15,33 +15,49 @@ export const useAuthRedirect = () => {
     const error = urlParams.get('error');
 
     if (social === 'google' && success === 'true') {
-      // Force refresh of auth status after OAuth success with delay and retries
+      // Force refresh of auth status after OAuth success with improved retry logic
       const retryAuthCheck = async (attempts = 0) => {
-        if (attempts >= 3) {
-          console.error('Auth check failed after 3 attempts');
+        if (attempts >= 5) {
+          console.error('Auth check failed after 5 attempts');
+          // Force page reload as last resort
+          window.location.reload();
           return;
         }
         
         try {
           await checkAuthStatus();
-          // Wait a bit and check if the auth actually worked
-          setTimeout(() => {
-            const response = fetch('/api/auth/status', { credentials: 'include' })
-              .then(res => res.json())
-              .then(data => {
-                if (!data.authenticated) {
-                  // If still not authenticated, try again
-                  setTimeout(() => retryAuthCheck(attempts + 1), 1000);
-                }
-              });
-          }, 500);
+          
+          // Verify authentication was successful
+          const response = await fetch('/api/auth/status', { 
+            credentials: 'include',
+            cache: 'no-cache'
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.authenticated) {
+              // Authentication successful, clean up URL
+              const url = new URL(window.location.href);
+              url.searchParams.delete('social');
+              url.searchParams.delete('success');
+              window.history.replaceState({}, '', url.toString());
+              return;
+            }
+          }
+          
+          // If still not authenticated, retry with exponential backoff
+          const delay = Math.min(1000 * Math.pow(2, attempts), 5000);
+          setTimeout(() => retryAuthCheck(attempts + 1), delay);
+          
         } catch (error) {
           console.error('Auth check error:', error);
-          setTimeout(() => retryAuthCheck(attempts + 1), 1000);
+          const delay = Math.min(1000 * Math.pow(2, attempts), 5000);
+          setTimeout(() => retryAuthCheck(attempts + 1), delay);
         }
       };
       
-      setTimeout(() => retryAuthCheck(), 500);
+      // Start retry process with initial delay
+      setTimeout(() => retryAuthCheck(), 300);
       
       // Check if there's a stored return URL
       const returnUrl = localStorage.getItem('returnUrl');

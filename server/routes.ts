@@ -357,13 +357,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/?error=auth_failed' }),
-    (req: Request, res: Response) => {
-      // Force session save before redirecting
-      req.session.save((err) => {
-        if (err) {
-          console.error('Session save error:', err);
-          return res.redirect('/?error=session_failed');
-        }
+    async (req: Request, res: Response) => {
+      try {
+        // Ensure session is properly saved with Promise-based approach
+        await new Promise<void>((resolve, reject) => {
+          req.session.save((err) => {
+            if (err) {
+              console.error('Session save error:', err);
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
+        });
+        
+        // Add slight delay to ensure session is fully persisted
+        await new Promise(resolve => setTimeout(resolve, 200));
         
         // Get returnUrl from state parameter
         const state = req.query.state as string;
@@ -381,7 +390,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Successful authentication, redirect to original page
         console.log('Redirecting to:', `${returnUrl}?social=google&success=true`);
         res.redirect(`${returnUrl}?social=google&success=true`);
-      });
+      } catch (error) {
+        console.error('OAuth callback error:', error);
+        res.redirect('/?error=session_failed');
+      }
     }
   );
 

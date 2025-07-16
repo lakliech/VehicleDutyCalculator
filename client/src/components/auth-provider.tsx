@@ -96,12 +96,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuthStatus = async () => {
     let retryCount = 0;
-    const maxRetries = 3;
+    const maxRetries = 5; // Increased retry count for OAuth flow
     
     while (retryCount < maxRetries) {
       try {
         const response = await fetch("/api/auth/status", {
-          credentials: 'include'
+          credentials: 'include',
+          cache: 'no-cache' // Prevent caching during auth checks
         });
         
         if (response.ok) {
@@ -117,10 +118,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
         
-        // If response not ok, retry
+        // If response not ok, retry with exponential backoff
         retryCount++;
         if (retryCount < maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+          const delay = Math.min(1000 * Math.pow(2, retryCount - 1), 5000); // Exponential backoff, max 5s
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
         
       } catch (error) {
@@ -128,7 +130,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         retryCount++;
         
         if (retryCount < maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+          const delay = Math.min(1000 * Math.pow(2, retryCount - 1), 5000);
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
     }

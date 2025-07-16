@@ -114,7 +114,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Session middleware with MemoryStore
   const MemoryStoreSession = MemoryStore(session);
   app.use(session({
-    secret: process.env.SESSION_SECRET || 'fallback-secret-key',
+    secret: process.env.SESSION_SECRET || 'fallback-secret-key-gariyangu-2025',
+    name: 'gariyangu.sid', // Custom session name
     resave: true, // Force session save even if not modified
     saveUninitialized: true, // Save uninitialized sessions
     rolling: true, // Reset expiry on each request
@@ -123,9 +124,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }),
     cookie: { 
       secure: false, // Set to true in production with HTTPS
-      httpOnly: true,
+      httpOnly: false, // Allow JavaScript access for debugging
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax'
+      sameSite: 'lax',
+      path: '/' // Ensure cookie works for all paths
     }
   }));
 

@@ -13,6 +13,14 @@ app.use(compression({
   level: 6, // Good balance between compression and speed
   threshold: 1024, // Only compress responses larger than 1KB
   filter: (req, res) => {
+    // Don't compress authentication routes or session-related responses
+    if (req.path.startsWith('/api/auth/') || 
+        req.path.startsWith('/api/user/') ||
+        req.path.includes('login') ||
+        req.path.includes('logout') ||
+        req.path.includes('session')) {
+      return false;
+    }
     // Don't compress if the request has a no-transform directive
     if (req.headers['cache-control'] && req.headers['cache-control'].includes('no-transform')) {
       return false;
@@ -57,8 +65,18 @@ app.use((req, res, next) => {
 
 // Cache control middleware
 app.use((req, res, next) => {
-  // Set cache headers based on route
-  if (req.path.startsWith('/api/images/')) {
+  // Exclude authentication routes from caching
+  if (req.path.startsWith('/api/auth/') || 
+      req.path.startsWith('/api/messaging/') ||
+      req.path.startsWith('/api/user/') ||
+      req.path.includes('login') ||
+      req.path.includes('logout') ||
+      req.path.includes('session')) {
+    // No caching for authentication and user-specific routes
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  } else if (req.path.startsWith('/api/images/')) {
     // Cache images for 1 year
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   } else if (req.path.startsWith('/api/car-listings') || 
@@ -67,7 +85,7 @@ app.use((req, res, next) => {
     // Cache API responses for 5 minutes
     res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
   } else if (req.path.startsWith('/api/')) {
-    // Default API cache for 1 minute
+    // Default API cache for 1 minute (but not auth routes)
     res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
   }
   next();

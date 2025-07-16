@@ -5863,13 +5863,13 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
-  // Get recent activity for a specific listing
+  // Get seller audit trail for a specific listing
   app.get('/api/listing/:listingId/recent-activity', authenticateUser, async (req: Request, res: Response) => {
     try {
       const { listingId } = req.params;
       const user = (req as any).user;
       
-      console.log('[Recent Activity] Start - ListingID:', listingId, 'UserID:', user?.id);
+      console.log('[Seller Audit Trail] Start - ListingID:', listingId, 'UserID:', user?.id);
       
       if (!user) {
         return res.status(401).json({ error: 'Authentication required' });
@@ -5887,116 +5887,86 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         )
         .limit(1);
       
-      console.log('[Recent Activity] Listing check result:', listing.length > 0 ? 'Found' : 'Not found');
+      console.log('[Seller Audit Trail] Listing check result:', listing.length > 0 ? 'Found' : 'Not found');
       
       if (!listing.length) {
         return res.status(404).json({ error: "Listing not found or access denied" });
       }
 
-      // Use raw SQL to handle the data type mismatch between schema (text) and database (date)
-      const recentViewsResult = await db.execute(sql`
-        SELECT 
-          date::text as date,
-          total_views,
-          unique_visitors,
-          phone_clicks,
-          inquiries,
-          favorites,
-          shares,
-          location_nairobi,
-          location_mombasa,
-          location_other
-        FROM daily_listing_analytics 
-        WHERE listing_id = ${parseInt(listingId)}
-        ORDER BY date DESC 
-        LIMIT 7
-      `);
+      // Get seller audit trail activities for this listing
+      const auditTrailResult = await db
+        .select({
+          activityType: userActivities.activityType,
+          description: userActivities.description,
+          timestamp: userActivities.timestamp,
+          ipAddress: userActivities.ipAddress,
+          metadata: userActivities.metadata
+        })
+        .from(userActivities)
+        .where(
+          and(
+            eq(userActivities.userId, user.id),
+            eq(userActivities.entityType, 'listing'),
+            eq(userActivities.entityId, parseInt(listingId))
+          )
+        )
+        .orderBy(desc(userActivities.timestamp))
+        .limit(10);
 
-      console.log('[Recent Activity] Raw SQL result type:', typeof recentViewsResult);
-      console.log('[Recent Activity] Raw SQL result length:', Array.isArray(recentViewsResult) ? recentViewsResult.length : 'Not array');
-      console.log('[Recent Activity] Raw SQL result structure:', recentViewsResult);
+      console.log('[Seller Audit Trail] Found activities:', auditTrailResult.length);
 
-      // Handle Neon database result structure - check for .rows property
-      let recentViews = [];
-      if (Array.isArray(recentViewsResult)) {
-        recentViews = recentViewsResult;
-      } else if (recentViewsResult && recentViewsResult.rows) {
-        recentViews = recentViewsResult.rows;
-      } else if (recentViewsResult && Array.isArray(recentViewsResult.rows)) {
-        recentViews = recentViewsResult.rows;
-      }
-      
-      console.log('[Recent Activity] Processed views array length:', recentViews.length);
-      console.log('[Recent Activity] Processed views data:', recentViews);
-      
-      const activities = [];
+      // Transform audit trail data to match frontend expectations
+      const activities = auditTrailResult.map((activity: any) => {
+        let type = 'update'; // Default type
+        let location = null;
 
-      // Add activity entries for each day with activity  
-      recentViews.forEach((view: any) => {
-        const views = view.total_views || 0;
-        const uniqueVisitors = view.unique_visitors || 0;
-        const phoneClicks = view.phone_clicks || 0;
-        const favorites = view.favorites || 0;
-        const shares = view.shares || 0;
-        const inquiries = view.inquiries || 0;
-        
-        // Always show views if there are any
-        if (views > 0) {
-          let location = null;
-          if (view.location_nairobi > 0) location = 'Nairobi';
-          else if (view.location_mombasa > 0) location = 'Mombasa';
-          else if (view.location_other > 0) location = 'Other';
-          
-          activities.push({
-            type: 'view',
-            description: `${views} views${uniqueVisitors > 0 ? ` (${uniqueVisitors} unique visitors)` : ''}`,
-            timestamp: view.date,
-            location: location
-          });
+        // Extract location from IP if available
+        if (activity.ipAddress) {
+          // Simple location detection based on common Kenyan IP patterns
+          if (activity.ipAddress.startsWith('196.') || activity.ipAddress.startsWith('105.')) {
+            location = 'Kenya';
+          }
         }
-        
-        // Add other activities only if they exist
-        if (phoneClicks > 0) {
-          activities.push({
-            type: 'phone_click',
-            description: `${phoneClicks} phone clicks`,
-            timestamp: view.date,
-            location: null
-          });
+
+        // Map activity types to display types
+        switch (activity.activityType) {
+          case 'listing_created':
+            type = 'creation';
+            break;
+          case 'listing_updated':
+            type = 'update';
+            break;
+          case 'price_changed':
+            type = 'price_change';
+            break;
+          case 'status_changed':
+            type = 'status_change';
+            break;
+          case 'photos_updated':
+            type = 'photo_update';
+            break;
+          case 'description_updated':
+            type = 'description_update';
+            break;
+          case 'featured_updated':
+            type = 'feature_update';
+            break;
+          default:
+            type = 'update';
         }
-        if (favorites > 0) {
-          activities.push({
-            type: 'favorite',
-            description: `${favorites} favorites`,
-            timestamp: view.date,
-            location: null
-          });
-        }
-        if (shares > 0) {
-          activities.push({
-            type: 'share',
-            description: `${shares} shares`,
-            timestamp: view.date,
-            location: null
-          });
-        }
-        if (inquiries > 0) {
-          activities.push({
-            type: 'inquiry',
-            description: `${inquiries} inquiries`,
-            timestamp: view.date,
-            location: null
-          });
-        }
+
+        return {
+          type: type,
+          description: activity.description,
+          timestamp: activity.timestamp,
+          location: location
+        };
       });
 
-      // Sort all activities by timestamp (most recent first)
-      activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-      res.json(activities.slice(0, 10));
+      res.json(activities);
     } catch (error) {
-      console.error('Error fetching recent activity:', error);
-      res.status(500).json({ error: 'Failed to fetch recent activity' });
+      console.error('Error fetching seller audit trail:', error);
+      res.status(500).json({ error: 'Failed to fetch seller audit trail' });
     }
   });
 

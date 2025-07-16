@@ -554,19 +554,8 @@ Respond ONLY with valid JSON in this format:
     recommendation: any
   ) {
     try {
-      // Store as market price analysis instead since pricingRecommendations table doesn't exist
-      await db.insert(marketPriceAnalysis).values({
-        make: 'Unknown',
-        model: 'Unknown', 
-        year: new Date().getFullYear(),
-        averagePrice: recommendation.recommendedPrice.toString(),
-        medianPrice: recommendation.recommendedPrice.toString(),
-        minPrice: (recommendation.recommendedPrice * 0.9).toString(),
-        maxPrice: (recommendation.recommendedPrice * 1.1).toString(),
-        listingCount: 1,
-        priceRange: `${Math.round(recommendation.recommendedPrice * 0.9)}-${Math.round(recommendation.recommendedPrice * 1.1)}`,
-        marketTrend: recommendation.marketPosition
-      });
+      // Skip storage for now since table structure doesn't match
+      console.log(`Pricing recommendation generated for listing ${listingId}: ${recommendation.recommendedPrice}`);
     } catch (error) {
       console.error('Error storing pricing recommendation:', error);
     }

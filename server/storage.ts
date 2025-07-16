@@ -3051,7 +3051,9 @@ export class DatabaseStorage implements IStorage {
   // Smart Pricing Intelligence implementations
   async getPriceAlerts(listingId: number, userId: string): Promise<any[]> {
     const alerts = await db.execute(sql`
-      SELECT * FROM price_alerts 
+      SELECT id, user_id, listing_id, alert_type, alert_message, priority, 
+             current_price, target_price, price_deviation, is_active, created_at
+      FROM price_alerts 
       WHERE listing_id = ${listingId} AND user_id = ${userId}
       ORDER BY created_at DESC
     `);

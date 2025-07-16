@@ -8877,7 +8877,19 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       const userId = req.user.id;
       
       const alerts = await db
-        .select()
+        .select({
+          id: priceAlerts.id,
+          userId: priceAlerts.userId,
+          listingId: priceAlerts.listingId,
+          alertType: priceAlerts.alertType,
+          alertMessage: priceAlerts.alertMessage,
+          priority: priceAlerts.priority,
+          currentPrice: priceAlerts.currentPrice,
+          targetPrice: priceAlerts.targetPrice,
+          priceDeviation: priceAlerts.priceDeviation,
+          isActive: priceAlerts.isActive,
+          createdAt: priceAlerts.createdAt
+        })
         .from(priceAlerts)
         .where(and(
           eq(priceAlerts.userId, userId),

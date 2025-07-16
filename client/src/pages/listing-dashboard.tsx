@@ -1109,10 +1109,18 @@ export default function ListingDashboard() {
                               </div>
                             </div>
                             <div className="flex items-center space-x-3">
-                              <Badge 
-                                variant={appointment.status === 'confirmed' ? 'default' : 'secondary'}
-                              >
-                                {appointment.status}
+                              <Badge className={
+                                appointment.status === 'completed' ? 'bg-green-500 text-white' :
+                                appointment.status === 'pending' ? 'bg-yellow-500 text-white' :
+                                appointment.status === 'confirmed' ? 'bg-blue-500 text-white' :
+                                appointment.status === 'cancelled' ? 'bg-red-500 text-white' :
+                                'bg-gray-500 text-white'
+                              }>
+                                {appointment.status === 'cancelled' ? 'Cancelled' : 
+                                 appointment.status === 'completed' ? 'Completed' :
+                                 appointment.status === 'confirmed' ? 'Confirmed' :
+                                 appointment.status === 'pending' ? 'Pending' : 
+                                 appointment.status}
                               </Badge>
                               <AppointmentActions 
                                 appointment={appointment} 

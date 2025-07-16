@@ -730,6 +730,15 @@ Changelog:
   - Listing 7 (Jared's listing): 1 appointment with Chris as buyer
   - Listing 8 (Chris's listing): 2 appointments with Jared as buyer
   - Appointments now properly represent buyer-seller relationships with correct business logic
+- January 16, 2025. Enhanced appointment management with comprehensive modification capabilities:
+  - Fixed database schema issues by adding missing cancellation_reason and completion_notes columns
+  - Implemented comprehensive AppointmentActions component with modify, cancel, complete, and reschedule functionality
+  - Fixed "Method is not a valid HTTP token" error by correcting apiRequest function calls throughout AppointmentActions
+  - Added reschedule button for cancelled appointments that are scheduled in the future
+  - Enhanced status display with proper color-coded badges (Cancelled=red, Completed=green, Confirmed=blue, Pending=yellow)
+  - Integrated appointment actions into both listing dashboard (sellers) and user profile (buyers)
+  - Both buyers and sellers can now modify, cancel, reschedule, and complete appointments with comprehensive validation
+  - Real-time appointment updates with proper cache invalidation across all appointment views
 - January 16, 2025. Implemented comprehensive buyer appointments system:
   - Added "/api/user/buyer-appointments" endpoint to fetch appointments where user is the buyer
   - Created "My Appointments" tab on user profile showing buyer appointments with listing details

@@ -141,9 +141,23 @@ export function AppointmentActions({ appointment, userRole, onUpdate }: Appointm
     updateMutation.mutate(formData);
   };
 
+  const handleReschedule = () => {
+    setActionDialog('modify');
+    setFormData({
+      appointmentDate: new Date(appointment.appointmentDate).toISOString().slice(0, 16),
+      duration: appointment.duration,
+    });
+  };
+
+  // Check if appointment is in the future
+  const appointmentDate = new Date(appointment.appointmentDate);
+  const now = new Date();
+  const isFutureAppointment = appointmentDate > now;
+
   const canModify = appointment.status === 'pending' || appointment.status === 'confirmed';
   const canCancel = appointment.status !== 'cancelled' && appointment.status !== 'completed';
   const canComplete = appointment.status === 'confirmed' || appointment.status === 'pending';
+  const canReschedule = appointment.status === 'cancelled' && isFutureAppointment;
 
   return (
     <div className="flex gap-2">
@@ -162,6 +176,18 @@ export function AppointmentActions({ appointment, userRole, onUpdate }: Appointm
             <X className="h-4 w-4" />
           )}
           Cancel
+        </Button>
+      )}
+
+      {canReschedule && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleReschedule}
+          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+        >
+          <Calendar className="h-4 w-4" />
+          Reschedule
         </Button>
       )}
 

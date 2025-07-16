@@ -346,12 +346,17 @@ export function UserProfile() {
                             </div>
                           </div>
                           <Badge className={
-                            appointment.status === 'completed' ? 'bg-green-500' :
-                            appointment.status === 'pending' ? 'bg-yellow-500' :
-                            appointment.status === 'confirmed' ? 'bg-blue-500' :
-                            'bg-red-500'
+                            appointment.status === 'completed' ? 'bg-green-500 text-white' :
+                            appointment.status === 'pending' ? 'bg-yellow-500 text-white' :
+                            appointment.status === 'confirmed' ? 'bg-blue-500 text-white' :
+                            appointment.status === 'cancelled' ? 'bg-red-500 text-white' :
+                            'bg-gray-500 text-white'
                           }>
-                            {appointment.status}
+                            {appointment.status === 'cancelled' ? 'Cancelled' : 
+                             appointment.status === 'completed' ? 'Completed' :
+                             appointment.status === 'confirmed' ? 'Confirmed' :
+                             appointment.status === 'pending' ? 'Pending' : 
+                             appointment.status}
                           </Badge>
                         </div>
 

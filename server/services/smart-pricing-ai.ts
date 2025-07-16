@@ -564,7 +564,7 @@ Respond ONLY with valid JSON in this format:
         marketPosition: recommendation.marketPosition,
         confidence: recommendation.confidence.toString(),
         reasoning: recommendation.reasoning,
-        factors: recommendation.factors || [],
+        factors: Array.isArray(recommendation.factors) ? recommendation.factors : [],
         seasonalAdjustment: recommendation.seasonalAdjustment?.toString(),
         depreciationForecast: recommendation.depreciationForecast || {},
         alertType: recommendation.alertType,

@@ -5891,18 +5891,9 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
 
       const activities = [];
 
-      // Get recent views from daily_listing_analytics
+      // Get recent views from daily_listing_analytics with safe field access
       const recentViews = await db
-        .select({
-          date: dailyListingAnalytics.date,
-          views: dailyListingAnalytics.views,
-          uniqueVisitors: dailyListingAnalytics.uniqueVisitors,
-          phoneClicks: dailyListingAnalytics.phoneClicks,
-          favorites: dailyListingAnalytics.favorites,
-          shares: dailyListingAnalytics.shares,
-          inquiries: dailyListingAnalytics.inquiries,
-          locationBreakdown: dailyListingAnalytics.locationBreakdown
-        })
+        .select()
         .from(dailyListingAnalytics)
         .where(eq(dailyListingAnalytics.listingId, parseInt(listingId)))
         .orderBy(desc(dailyListingAnalytics.date))
@@ -5910,42 +5901,54 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
 
       // Add activity entries for each day with activity
       recentViews.forEach(view => {
-        if (view.views > 0) {
+        const views = view.totalViews || 0;
+        const uniqueVisitors = view.uniqueVisitors || 0;
+        const phoneClicks = view.phoneClicks || 0;
+        const favorites = view.favorites || 0;
+        const shares = view.shares || 0;
+        const inquiries = view.inquiries || 0;
+        
+        if (views > 0) {
+          let location = null;
+          if (view.locationNairobi > 0) location = 'Nairobi';
+          else if (view.locationMombasa > 0) location = 'Mombasa';
+          else if (view.locationOther > 0) location = 'Other';
+          
           activities.push({
             type: 'view',
-            description: `${view.views} views (${view.uniqueVisitors} unique visitors)`,
+            description: `${views} views (${uniqueVisitors} unique visitors)`,
             timestamp: view.date,
-            location: view.locationBreakdown ? Object.keys(view.locationBreakdown)[0] : null
+            location: location
           });
         }
-        if (view.phoneClicks > 0) {
+        if (phoneClicks > 0) {
           activities.push({
             type: 'phone_click',
-            description: `${view.phoneClicks} phone clicks`,
+            description: `${phoneClicks} phone clicks`,
             timestamp: view.date,
             location: null
           });
         }
-        if (view.favorites > 0) {
+        if (favorites > 0) {
           activities.push({
             type: 'favorite',
-            description: `${view.favorites} favorites`,
+            description: `${favorites} favorites`,
             timestamp: view.date,
             location: null
           });
         }
-        if (view.shares > 0) {
+        if (shares > 0) {
           activities.push({
             type: 'share',
-            description: `${view.shares} shares`,
+            description: `${shares} shares`,
             timestamp: view.date,
             location: null
           });
         }
-        if (view.inquiries > 0) {
+        if (inquiries > 0) {
           activities.push({
             type: 'inquiry',
-            description: `${view.inquiries} inquiries`,
+            description: `${inquiries} inquiries`,
             timestamp: view.date,
             location: null
           });

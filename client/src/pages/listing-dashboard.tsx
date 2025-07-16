@@ -1461,33 +1461,39 @@ export default function ListingDashboard() {
                 </div>
               </div>
               
-              {selectedDate && availableSlots?.availableSlots?.length > 0 && (
+              {selectedDate && (
                 <div>
                   <Label>Available Time Slots</Label>
                   <div className="grid grid-cols-3 gap-2 mt-2">
-                    {availableSlots.availableSlots.map((slot: any, index: number) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        size="sm"
-                        className="text-xs"
-                        onClick={() => {
-                          const appointmentData = {
-                            listingId: id,
-                            appointmentType: 'video_call',
-                            appointmentDate: slot.startTime,
-                            duration: slot.duration,
-                            buyerName: 'Seller Created',
-                            buyerEmail: 'seller@example.com',
-                            buyerPhone: '+254700000000',
-                            notes: 'Appointment created by seller'
-                          };
-                          scheduleAppointmentMutation.mutate(appointmentData);
-                        }}
-                      >
-                        {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </Button>
-                    ))}
+                    {availableSlots?.availableSlots && Array.isArray(availableSlots.availableSlots) && availableSlots.availableSlots.length > 0 ? (
+                      availableSlots.availableSlots.map((slot: any, index: number) => (
+                        <Button
+                          key={index}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs"
+                          onClick={() => {
+                            const appointmentData = {
+                              listingId: id,
+                              appointmentType: 'video_call',
+                              appointmentDate: slot.startTime,
+                              duration: slot.duration,
+                              buyerName: 'Seller Created',
+                              buyerEmail: 'seller@example.com',
+                              buyerPhone: '+254700000000',
+                              notes: 'Appointment created by seller'
+                            };
+                            scheduleAppointmentMutation.mutate(appointmentData);
+                          }}
+                        >
+                          {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </Button>
+                      ))
+                    ) : (
+                      <div className="col-span-3 text-center py-4">
+                        <p className="text-gray-500">No available time slots for selected date</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -1662,23 +1668,29 @@ export default function ListingDashboard() {
               <div>
                 <h3 className="text-lg font-semibold mb-4">Blocked Time Slots</h3>
                 <div className="space-y-3">
-                  {blockedSlots?.map((slot: any) => (
-                    <div key={slot.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <p className="font-medium">
-                          {new Date(slot.startDateTime).toLocaleDateString()} at {new Date(slot.startDateTime).toLocaleTimeString()}
-                        </p>
-                        <p className="text-sm text-gray-600">{slot.reason || 'No reason provided'}</p>
+                  {Array.isArray(blockedSlots) && blockedSlots.length > 0 ? (
+                    blockedSlots.map((slot: any) => (
+                      <div key={slot.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <p className="font-medium">
+                            {new Date(slot.startDateTime).toLocaleDateString()} at {new Date(slot.startDateTime).toLocaleTimeString()}
+                          </p>
+                          <p className="text-sm text-gray-600">{slot.reason || 'No reason provided'}</p>
+                        </div>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeBlockedSlotMutation.mutate(slot.id)}
+                        >
+                          Remove
+                        </Button>
                       </div>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => removeBlockedSlotMutation.mutate(slot.id)}
-                      >
-                        Remove
-                      </Button>
+                    ))
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-gray-500">No blocked time slots</p>
                     </div>
-                  ))}
+                  )}
                   
                   {/* Add new blocked slot */}
                   <div className="p-3 border rounded-lg border-dashed">
@@ -1728,7 +1740,7 @@ export default function ListingDashboard() {
                       <CardTitle>Available Time Slots</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {availableSlots?.availableSlots?.length > 0 ? (
+                      {availableSlots?.availableSlots && Array.isArray(availableSlots.availableSlots) && availableSlots.availableSlots.length > 0 ? (
                         <div className="grid grid-cols-2 gap-2">
                           {availableSlots.availableSlots.map((slot: any, index: number) => (
                             <div key={index} className="p-2 bg-green-50 border border-green-200 rounded text-center">

@@ -366,10 +366,25 @@ export default function ListingDashboard() {
               </Link>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Listing Preview */}
+              {/* Listing Preview with Management Controls */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Listing Preview</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Listing Preview</CardTitle>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant={listing.status === 'active' ? 'default' : 'secondary'}>
+                        {listing.status}
+                      </Badge>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setEditingListing(true)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Edit Listing
+                      </Button>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -390,6 +405,25 @@ export default function ListingDashboard() {
                       <p className="text-2xl font-bold text-purple-600 mt-2">
                         KES {listing.price?.toLocaleString()}
                       </p>
+                    </div>
+                    
+                    {/* Status Management */}
+                    <div className="pt-4 border-t">
+                      <Label className="text-sm font-medium text-gray-600">Update Status</Label>
+                      <Select 
+                        value={listing.status} 
+                        onValueChange={(status) => updateListingMutation.mutate({ status })}
+                      >
+                        <SelectTrigger className="w-full mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="sold">Sold</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </CardContent>
@@ -489,96 +523,6 @@ export default function ListingDashboard() {
               </Card>
             </div>
 
-            {/* Listing Management - Full Width */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Listing Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Status Management */}
-                  <div>
-                    <Label className="text-base font-semibold">Listing Status</Label>
-                    <div className="flex items-center space-x-4 mt-2">
-                      <Badge variant={listing.status === 'active' ? 'default' : 'secondary'}>
-                        {listing.status}
-                      </Badge>
-                      <Select 
-                        value={listing.status} 
-                        onValueChange={(status) => updateListingMutation.mutate({ status })}
-                      >
-                        <SelectTrigger className="w-48">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="sold">Sold</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  {/* Quick Actions */}
-                  <div>
-                    <Label className="text-base font-semibold">Quick Actions</Label>
-                    <div className="mt-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setEditingListing(true)}
-                        className="w-full"
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Listing
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recent Activity - Full Width */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {recentActivity && recentActivity.length > 0 ? (
-                    recentActivity.slice(0, 5).map((activity: any, idx: number) => (
-                      <div key={idx} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        {activity.type === 'view' && <Eye className="h-4 w-4 text-blue-600" />}
-                        {activity.type === 'inquiry' && <MessageSquare className="h-4 w-4 text-green-600" />}
-                        {activity.type === 'phone_click' && <Phone className="h-4 w-4 text-purple-600" />}
-                        {activity.type === 'favorite' && <Heart className="h-4 w-4 text-red-600" />}
-                        {activity.type === 'share' && <Share className="h-4 w-4 text-orange-600" />}
-                        
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{activity.description}</p>
-                          <p className="text-xs text-gray-600">
-                            {activity.timestamp && new Date(activity.timestamp).toLocaleString()}
-                          </p>
-                        </div>
-                        
-                        {activity.location && (
-                          <Badge variant="outline" className="text-xs">
-                            {activity.location}
-                          </Badge>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8">
-                      <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">No recent activity</p>
-                      <p className="text-sm text-gray-400 mt-2">Viewer interactions will appear here</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Loan Applications - Full Width */}
             <Card>
               <CardHeader>
@@ -644,6 +588,47 @@ export default function ListingDashboard() {
                     <p className="text-sm text-gray-400 mt-2">When buyers apply for financing, applications will appear here</p>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Recent Activity - Full Width */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {recentActivity && recentActivity.length > 0 ? (
+                    recentActivity.slice(0, 5).map((activity: any, idx: number) => (
+                      <div key={idx} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        {activity.type === 'view' && <Eye className="h-4 w-4 text-blue-600" />}
+                        {activity.type === 'inquiry' && <MessageSquare className="h-4 w-4 text-green-600" />}
+                        {activity.type === 'phone_click' && <Phone className="h-4 w-4 text-purple-600" />}
+                        {activity.type === 'favorite' && <Heart className="h-4 w-4 text-red-600" />}
+                        {activity.type === 'share' && <Share className="h-4 w-4 text-orange-600" />}
+                        
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{activity.description}</p>
+                          <p className="text-xs text-gray-600">
+                            {activity.timestamp && new Date(activity.timestamp).toLocaleString()}
+                          </p>
+                        </div>
+                        
+                        {activity.location && (
+                          <Badge variant="outline" className="text-xs">
+                            {activity.location}
+                          </Badge>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">No recent activity</p>
+                      <p className="text-sm text-gray-400 mt-2">Viewer interactions will appear here</p>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

@@ -41,7 +41,7 @@ export default function ListingDashboard() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [editingListing, setEditingListing] = useState(false);
-  const [smartPricingOpen, setSmartPricingOpen] = useState(false);
+
 
   // Fetch listing details
   const { data: listing, isLoading: listingLoading } = useQuery({
@@ -83,7 +83,6 @@ export default function ListingDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listing', id] });
       toast({ title: 'Price updated successfully' });
-      setSmartPricingOpen(false);
     }
   });
 
@@ -199,20 +198,18 @@ export default function ListingDashboard() {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="inquiries">
-              Inquiries
+            <TabsTrigger value="messages">
+              Messages & Inquiries
               {overviewData.unreadMessages > 0 && (
                 <Badge variant="destructive" className="ml-2 text-xs">
                   {overviewData.unreadMessages}
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="pricing">Smart Pricing</TabsTrigger>
-            <TabsTrigger value="manage">Manage</TabsTrigger>
-            <TabsTrigger value="appointments">Appointments</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics & Insights</TabsTrigger>
+            <TabsTrigger value="manage">Manage & Pricing</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -278,8 +275,8 @@ export default function ListingDashboard() {
             </div>
           </TabsContent>
 
-          {/* Inquiries Tab */}
-          <TabsContent value="inquiries" className="space-y-6">
+          {/* Messages & Inquiries Tab */}
+          <TabsContent value="messages" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Customer Inquiries</CardTitle>
@@ -326,7 +323,7 @@ export default function ListingDashboard() {
             </Card>
           </TabsContent>
 
-          {/* Analytics Tab */}
+          {/* Analytics & Insights Tab */}
           <TabsContent value="analytics" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card>
@@ -403,116 +400,7 @@ export default function ListingDashboard() {
             </Card>
           </TabsContent>
 
-          {/* Smart Pricing Tab */}
-          <TabsContent value="pricing" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Smart Pricing Intelligence</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {smartPricing ? (
-                  <div className="space-y-6">
-                    {/* Current Price Analysis */}
-                    <div className="p-4 bg-blue-50 rounded-lg">
-                      <h3 className="font-semibold text-blue-900 mb-2">Current Price Analysis</h3>
-                      <p className="text-blue-800">
-                        Your current price of KES {listing.price?.toLocaleString()} is{' '}
-                        {smartPricing.pricePosition === 'above' ? 'above' : 
-                         smartPricing.pricePosition === 'below' ? 'below' : 'competitive with'} market average
-                      </p>
-                    </div>
-
-                    {/* Pricing Recommendations */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Card className="border-orange-200">
-                        <CardContent className="p-4">
-                          <h4 className="font-semibold text-orange-800 mb-2">Quick Sale</h4>
-                          <p className="text-2xl font-bold text-orange-600">
-                            KES {smartPricing.quickSalePrice?.toLocaleString()}
-                          </p>
-                          <p className="text-sm text-orange-700 mt-2">
-                            Sell within 2-4 weeks
-                          </p>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="w-full mt-3"
-                            onClick={() => applyPricingMutation.mutate(smartPricing.quickSalePrice)}
-                          >
-                            Apply Price
-                          </Button>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="border-green-200">
-                        <CardContent className="p-4">
-                          <h4 className="font-semibold text-green-800 mb-2">Recommended</h4>
-                          <p className="text-2xl font-bold text-green-600">
-                            KES {smartPricing.recommendedPrice?.toLocaleString()}
-                          </p>
-                          <p className="text-sm text-green-700 mt-2">
-                            Best balance of price and time
-                          </p>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="w-full mt-3"
-                            onClick={() => applyPricingMutation.mutate(smartPricing.recommendedPrice)}
-                          >
-                            Apply Price
-                          </Button>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="border-purple-200">
-                        <CardContent className="p-4">
-                          <h4 className="font-semibold text-purple-800 mb-2">Premium</h4>
-                          <p className="text-2xl font-bold text-purple-600">
-                            KES {smartPricing.premiumPrice?.toLocaleString()}
-                          </p>
-                          <p className="text-sm text-purple-700 mt-2">
-                            Maximum value, longer wait
-                          </p>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="w-full mt-3"
-                            onClick={() => applyPricingMutation.mutate(smartPricing.premiumPrice)}
-                          >
-                            Apply Price
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    {/* Market Insights */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Market Insights</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          {smartPricing.insights?.map((insight: string, idx: number) => (
-                            <div key={idx} className="flex items-start space-x-2">
-                              <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                              <p className="text-sm text-gray-700">{insight}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Loading pricing intelligence...</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Manage Tab */}
+          {/* Manage & Pricing Tab */}
           <TabsContent value="manage" className="space-y-6">
             <Card>
               <CardHeader>
@@ -559,24 +447,6 @@ export default function ListingDashboard() {
                       
                       <Button 
                         variant="outline" 
-                        onClick={() => setSmartPricingOpen(true)}
-                        className="w-full"
-                      >
-                        <DollarSign className="h-4 w-4 mr-2" />
-                        Smart Pricing
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setLocation(`/listing/${id}/analytics`)}
-                        className="w-full"
-                      >
-                        <BarChart3 className="h-4 w-4 mr-2" />
-                        Full Analytics
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
                         onClick={() => setLocation('/messages')}
                         className="w-full"
                       >
@@ -584,6 +454,92 @@ export default function ListingDashboard() {
                         View Messages
                       </Button>
                     </div>
+                  </div>
+
+                  {/* Smart Pricing Section */}
+                  <div>
+                    <Label className="text-base font-semibold">Smart Pricing Intelligence</Label>
+                    {smartPricing ? (
+                      <div className="space-y-4 mt-4">
+                        {/* Current Price Analysis */}
+                        <div className="p-4 bg-blue-50 rounded-lg">
+                          <h4 className="font-semibold text-blue-900 mb-2">Current Price Analysis</h4>
+                          <p className="text-blue-800">
+                            Your current price of KES {listing.price?.toLocaleString()} is{' '}
+                            {smartPricing.pricePosition === 'above' ? 'above' : 
+                             smartPricing.pricePosition === 'below' ? 'below' : 'competitive with'} market average
+                          </p>
+                        </div>
+
+                        {/* Pricing Recommendations */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <Card className="border-orange-200">
+                            <CardContent className="p-4">
+                              <h4 className="font-semibold text-orange-800 mb-2">Quick Sale</h4>
+                              <p className="text-xl font-bold text-orange-600">
+                                KES {smartPricing.quickSalePrice?.toLocaleString()}
+                              </p>
+                              <p className="text-sm text-orange-700 mt-1">
+                                Sell within 2-4 weeks
+                              </p>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full mt-2"
+                                onClick={() => applyPricingMutation.mutate(smartPricing.quickSalePrice)}
+                              >
+                                Apply Price
+                              </Button>
+                            </CardContent>
+                          </Card>
+
+                          <Card className="border-green-200">
+                            <CardContent className="p-4">
+                              <h4 className="font-semibold text-green-800 mb-2">Recommended</h4>
+                              <p className="text-xl font-bold text-green-600">
+                                KES {smartPricing.recommendedPrice?.toLocaleString()}
+                              </p>
+                              <p className="text-sm text-green-700 mt-1">
+                                Best balance of price and time
+                              </p>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full mt-2"
+                                onClick={() => applyPricingMutation.mutate(smartPricing.recommendedPrice)}
+                              >
+                                Apply Price
+                              </Button>
+                            </CardContent>
+                          </Card>
+
+                          <Card className="border-purple-200">
+                            <CardContent className="p-4">
+                              <h4 className="font-semibold text-purple-800 mb-2">Premium</h4>
+                              <p className="text-xl font-bold text-purple-600">
+                                KES {smartPricing.premiumPrice?.toLocaleString()}
+                              </p>
+                              <p className="text-sm text-purple-700 mt-1">
+                                Maximum value, longer wait
+                              </p>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full mt-2"
+                                onClick={() => applyPricingMutation.mutate(smartPricing.premiumPrice)}
+                              >
+                                Apply Price
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-6 mt-4">
+                        <BarChart3 className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-500">Loading pricing intelligence...</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Performance Summary */}
@@ -613,23 +569,7 @@ export default function ListingDashboard() {
             </Card>
           </TabsContent>
 
-          {/* Appointments Tab */}
-          <TabsContent value="appointments" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Test Drive Appointments</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Appointment scheduling coming soon</p>
-                  <p className="text-sm text-gray-400 mt-2">
-                    Buyers will be able to schedule test drives directly through your listing
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+
         </Tabs>
 
         {/* Edit Listing Dialog */}

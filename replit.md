@@ -652,6 +652,15 @@ Changelog:
   - Scalable design provides intuitive experience for sellers with large listing volumes
   - Fixed Smart Pricing SQL syntax error by correcting deprecationForecast to depreciationForecast in schema
   - Enhanced user experience prioritizes simplicity and quick access to comprehensive management tools
+- January 16, 2025. Reorganized listing dashboard to eliminate redundancy and improve workflow:
+  - Consolidated 6 tabs into 4 streamlined tabs for better organization
+  - Merged "Inquiries" into "Messages & Inquiries" tab for unified communication management
+  - Combined "Analytics" and insights into single "Analytics & Insights" tab
+  - Integrated Smart Pricing functionality directly into "Manage & Pricing" tab
+  - Removed redundant "Full Analytics" and separate "Smart Pricing" tabs
+  - Removed "Appointments" tab placeholder for future implementation
+  - New structure: Overview, Messages & Inquiries, Analytics & Insights, Manage & Pricing
+  - Streamlined interface reduces cognitive load and improves seller workflow efficiency
 
 ## User Preferences
 

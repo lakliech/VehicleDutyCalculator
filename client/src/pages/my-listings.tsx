@@ -516,8 +516,9 @@ export default function MyListings() {
         ) : (
           <div className="space-y-4">
             {listings.map((listing) => (
-              <Card key={listing.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
+              <Card key={listing.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                <Link href={`/listing/${listing.id}/dashboard`}>
+                  <CardContent className="p-6">
                   <div className="flex items-start gap-6">
                     {/* Vehicle Image */}
                     <div className="w-32 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -545,12 +546,6 @@ export default function MyListings() {
                           <Badge className={getStatusColor(listing.status)}>
                             {getStatusText(listing.status)}
                           </Badge>
-                          <Button size="sm" variant="outline">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
                         </div>
                       </div>
                       
@@ -585,69 +580,36 @@ export default function MyListings() {
                           </div>
                         </div>
                         
-                        <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            className="bg-purple-600 hover:bg-purple-700 text-white"
-                            asChild
-                          >
-                            <Link href={`/listing/${listing.id}/dashboard`}>
-                              <BarChart3 className="h-4 w-4 mr-2" />
-                              Dashboard
-                            </Link>
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleShowInquiries(listing.id)}
-                            className="relative"
-                          >
-                            <MessageCircle className="h-4 w-4 mr-2" />
-                            Inquiries
-                            {listingConversationCounts[listing.id]?.unread > 0 && (
+                        <div className="flex items-center gap-2">
+                          {/* Show notification badges */}
+                          {listingConversationCounts[listing.id]?.unread > 0 && (
+                            <Badge 
+                              variant="destructive" 
+                              className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                            >
+                              {listingConversationCounts[listing.id].unread}
+                            </Badge>
+                          )}
+                          {(() => {
+                            const videoCallCount = videoCallAppointments.filter(app => app.listingId === listing.id && app.status === 'pending').length;
+                            const testDriveCount = testDriveAppointments.filter(app => app.listingId === listing.id && app.status === 'pending').length;
+                            const totalPending = videoCallCount + testDriveCount;
+                            return totalPending > 0 ? (
                               <Badge 
-                                variant="destructive" 
-                                className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                                variant="outline" 
+                                className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs border-orange-500 text-orange-600"
                               >
-                                {listingConversationCounts[listing.id].unread}
+                                {totalPending}
                               </Badge>
-                            )}
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleShowAppointments(listing.id)}
-                            className="relative"
-                          >
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Appointments
-                            {(() => {
-                              const videoCallCount = videoCallAppointments.filter(app => app.listingId === listing.id && app.status === 'pending').length;
-                              const testDriveCount = testDriveAppointments.filter(app => app.listingId === listing.id && app.status === 'pending').length;
-                              const totalPending = videoCallCount + testDriveCount;
-                              return totalPending > 0 ? (
-                                <Badge 
-                                  variant="destructive" 
-                                  className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-                                >
-                                  {totalPending}
-                                </Badge>
-                              ) : null;
-                            })()}
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleShowSmartPricing(listing.id)}
-                          >
-                            <DollarSign className="h-4 w-4 mr-2" />
-                            Smart Pricing
-                          </Button>
+                            ) : null;
+                          })()}
+                          <span className="text-purple-600 text-sm font-medium">Click to manage →</span>
                         </div>
                       </div>
                     </div>
                   </div>
-                </CardContent>
+                  </CardContent>
+                </Link>
               </Card>
             ))}
           </div>

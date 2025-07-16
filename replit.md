@@ -632,6 +632,17 @@ Changelog:
   - Integrated "Apply Recommended Price" functionality for seamless listing price updates
   - Populated Smart Pricing database with seasonal trends, market insights, depreciation forecasts, and market analysis data
   - Smart Pricing now provides actionable, listing-specific recommendations directly from seller's listing management interface
+- January 16, 2025. Created comprehensive unified Listing Dashboard for each vehicle listing:
+  - Built single-page listing dashboard at `/listing/:id/dashboard` combining all seller management functions
+  - Dashboard includes 6 main tabs: Overview, Inquiries, Analytics, Smart Pricing, Manage, and Appointments
+  - Overview tab displays listing preview, recent activity, and quick stats (views, inquiries, phone clicks, favorites)
+  - Inquiries tab shows all customer conversations with unread counts and direct message navigation
+  - Analytics tab provides comprehensive performance metrics, keyword analysis, and engagement breakdown
+  - Smart Pricing tab integrates full pricing intelligence with market analysis and price recommendations
+  - Manage tab consolidates listing status control, quick actions, and performance summaries
+  - Appointments tab prepared for future test drive and video call scheduling features
+  - Added prominent purple "Dashboard" button to My Listings page for easy access to comprehensive listing management
+  - Unified interface eliminates need to navigate between multiple separate pages for listing management tasks
 
 ## User Preferences
 

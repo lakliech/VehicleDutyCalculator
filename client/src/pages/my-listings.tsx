@@ -587,6 +587,16 @@ export default function MyListings() {
                         <div className="flex gap-2">
                           <Button 
                             size="sm" 
+                            className="bg-purple-600 hover:bg-purple-700 text-white"
+                            asChild
+                          >
+                            <Link href={`/listing/${listing.id}/dashboard`}>
+                              <BarChart3 className="h-4 w-4 mr-2" />
+                              Dashboard
+                            </Link>
+                          </Button>
+                          <Button 
+                            size="sm" 
                             variant="outline"
                             onClick={() => handleShowInquiries(listing.id)}
                             className="relative"
@@ -627,24 +637,10 @@ export default function MyListings() {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            onClick={() => handleShowAnalytics(listing.id)}
+                            onClick={() => handleShowSmartPricing(listing.id)}
                           >
-                            <Eye className="h-4 w-4 mr-2" />
-                            Analytics
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            asChild
-                          >
-                            <Link href={`/listing/${listing.id}/manage`}>
-                              <Settings className="h-4 w-4 mr-2" />
-                              Manage
-                            </Link>
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Share2 className="h-4 w-4 mr-2" />
-                            Share
+                            <DollarSign className="h-4 w-4 mr-2" />
+                            Smart Pricing
                           </Button>
                         </div>
                       </div>

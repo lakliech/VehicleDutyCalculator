@@ -126,8 +126,8 @@ export const heavyMachinery = pgTable("heavy_machinery", {
 export const videoCallAppointments = pgTable("video_call_appointments", {
   id: serial("id").primaryKey(),
   listingId: integer("listing_id").notNull(),
-  buyerId: integer("buyer_id").notNull(), // User requesting the call
-  sellerId: integer("seller_id").notNull(), // Listing owner
+  buyerId: text("buyer_id").notNull(), // User requesting the call
+  sellerId: text("seller_id").notNull(), // Listing owner
   appointmentDate: timestamp("appointment_date").notNull(),
   duration: integer("duration").notNull().default(30), // Duration in minutes
   status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled
@@ -142,8 +142,8 @@ export const videoCallAppointments = pgTable("video_call_appointments", {
 export const testDriveAppointments = pgTable("test_drive_appointments", {
   id: serial("id").primaryKey(),
   listingId: integer("listing_id").notNull(),
-  buyerId: integer("buyer_id").notNull(),
-  sellerId: integer("seller_id").notNull(),
+  buyerId: text("buyer_id").notNull(),
+  sellerId: text("seller_id").notNull(),
   appointmentDate: timestamp("appointment_date").notNull(),
   duration: integer("duration").notNull().default(60), // Duration in minutes
   meetingLocation: text("meeting_location").notNull(), // Where to meet

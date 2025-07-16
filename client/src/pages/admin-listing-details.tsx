@@ -115,7 +115,7 @@ export default function AdminListingDetails() {
     },
   });
 
-  const availableUsers = usersData?.users?.map((item: any) => item.user) || [];
+  const availableUsers = usersData?.users?.map((item: any) => item.user).filter(user => user?.id) || [];
 
   // Initialize form data when listing loads
   useEffect(() => {
@@ -1034,7 +1034,7 @@ export default function AdminListingDetails() {
                     <option value={listingData?.sellerId || ""}>
                       {listingData?.seller?.firstName} {listingData?.seller?.lastName} (Current)
                     </option>
-                    {availableUsers.filter((user: any) => user.id !== listingData?.sellerId).map((user: any) => (
+                    {availableUsers?.filter((user: any) => user?.id && user.id !== listingData?.sellerId).map((user: any) => (
                       <option key={user.id} value={user.id}>
                         {user.firstName} {user.lastName}
                       </option>

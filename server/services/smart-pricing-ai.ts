@@ -297,19 +297,24 @@ export class SmartPricingAI {
   private static async getSeasonalTrends(vehicle: any) {
     const currentMonth = new Date().getMonth() + 1;
     
-    const trends = await db
-      .select()
-      .from(seasonalPricingTrends)
-      .where(
-        and(
-          eq(seasonalPricingTrends.category, vehicle.category || 'passenger_cars'),
-          eq(seasonalPricingTrends.month, currentMonth)
+    try {
+      const trends = await db
+        .select()
+        .from(seasonalPricingTrends)
+        .where(
+          and(
+            eq(seasonalPricingTrends.category, vehicle.category || 'passenger_cars'),
+            eq(seasonalPricingTrends.month, currentMonth)
+          )
         )
-      )
-      .limit(1);
+        .limit(1);
 
-    if (trends.length > 0) {
-      return trends[0];
+      if (trends.length > 0) {
+        return trends[0];
+      }
+    } catch (error) {
+      console.error('Error fetching seasonal trends:', error);
+      // Continue with fallback data
     }
 
     // Fallback: general seasonal patterns for Kenya

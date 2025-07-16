@@ -198,7 +198,7 @@ export default function ListingDashboard() {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="messages">
               Messages & Inquiries
@@ -210,6 +210,7 @@ export default function ListingDashboard() {
             </TabsTrigger>
             <TabsTrigger value="analytics">Analytics & Insights</TabsTrigger>
             <TabsTrigger value="manage">Manage & Pricing</TabsTrigger>
+            <TabsTrigger value="appointments">Appointments</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -277,50 +278,123 @@ export default function ListingDashboard() {
 
           {/* Messages & Inquiries Tab */}
           <TabsContent value="messages" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Customer Inquiries</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {Array.isArray(conversations) && conversations.map((conv: any, idx: number) => (
-                    <div key={idx} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
-                          <Users className="h-5 w-5 text-purple-600" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Conversation List */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    Customer Inquiries
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setLocation('/messages')}
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      View All Messages
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {Array.isArray(conversations) && conversations.map((conv: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <div className="flex items-center space-x-3">
+                          <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
+                            <Users className="h-5 w-5 text-purple-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{conv.participantName}</p>
+                            <p className="text-sm text-gray-600 truncate max-w-xs">{conv.lastMessage}</p>
+                            <p className="text-xs text-gray-500">{conv.lastMessageTime}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium">{conv.participantName}</p>
-                          <p className="text-sm text-gray-600">{conv.lastMessage}</p>
-                          <p className="text-xs text-gray-500">{conv.lastMessageTime}</p>
+                        <div className="flex items-center space-x-3">
+                          {conv.unreadCount > 0 && (
+                            <Badge variant="destructive">
+                              {conv.unreadCount} unread
+                            </Badge>
+                          )}
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setLocation(`/messages?conversation=${conv.id}`)}
+                          >
+                            View Chat
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        {conv.unreadCount > 0 && (
-                          <Badge variant="destructive">
-                            {conv.unreadCount} unread
-                          </Badge>
-                        )}
+                    ))}
+                    
+                    {(!Array.isArray(conversations) || conversations.length === 0) && (
+                      <div className="text-center py-8">
+                        <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500">No inquiries yet</p>
+                        <p className="text-sm text-gray-400 mt-2">Customer inquiries will appear here</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Message Statistics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Message Statistics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 bg-blue-50 rounded-lg">
+                        <p className="text-sm text-blue-600">Total Conversations</p>
+                        <p className="text-2xl font-bold text-blue-800">
+                          {Array.isArray(conversations) ? conversations.length : 0}
+                        </p>
+                      </div>
+                      <div className="p-3 bg-red-50 rounded-lg">
+                        <p className="text-sm text-red-600">Unread Messages</p>
+                        <p className="text-2xl font-bold text-red-800">{overviewData.unreadMessages}</p>
+                      </div>
+                      <div className="p-3 bg-green-50 rounded-lg">
+                        <p className="text-sm text-green-600">Response Rate</p>
+                        <p className="text-2xl font-bold text-green-800">
+                          {conversations && conversations.length > 0 ? 
+                            Math.round((conversations.filter((c: any) => c.hasResponse).length / conversations.length) * 100) 
+                            : 0}%
+                        </p>
+                      </div>
+                      <div className="p-3 bg-purple-50 rounded-lg">
+                        <p className="text-sm text-purple-600">Avg Response Time</p>
+                        <p className="text-2xl font-bold text-purple-800">2.5h</p>
+                      </div>
+                    </div>
+                    
+                    {/* Quick Actions */}
+                    <div className="pt-4 border-t">
+                      <h4 className="font-medium mb-3">Quick Actions</h4>
+                      <div className="space-y-2">
                         <Button 
                           variant="outline" 
-                          size="sm"
+                          size="sm" 
+                          className="w-full justify-start"
                           onClick={() => setLocation('/messages')}
                         >
-                          View Chat
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          Reply to All Unread
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full justify-start"
+                        >
+                          <Users className="h-4 w-4 mr-2" />
+                          Mark All as Read
                         </Button>
                       </div>
                     </div>
-                  ))}
-                  
-                  {(!Array.isArray(conversations) || conversations.length === 0) && (
-                    <div className="text-center py-8">
-                      <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">No inquiries yet</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Analytics & Insights Tab */}
@@ -380,7 +454,17 @@ export default function ListingDashboard() {
             {/* Top Keywords */}
             <Card>
               <CardHeader>
-                <CardTitle>Top Search Keywords</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  Top Search Keywords
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setLocation(`/listing/${id}/analytics`)}
+                  >
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Full Analytics
+                  </Button>
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -569,6 +653,167 @@ export default function ListingDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Appointments Tab */}
+          <TabsContent value="appointments" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Scheduled Appointments */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center">
+                      <Calendar className="h-5 w-5 mr-2" />
+                      Scheduled Appointments
+                    </span>
+                    <Badge variant="outline">
+                      3 upcoming
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* Sample appointment data - replace with real data */}
+                    {[
+                      {
+                        id: 1,
+                        buyerName: "John Doe",
+                        type: "Test Drive",
+                        date: "2025-01-17",
+                        time: "10:00 AM",
+                        status: "confirmed",
+                        location: "Your Location",
+                        phone: "+254 712 345 678"
+                      },
+                      {
+                        id: 2,
+                        buyerName: "Jane Smith",
+                        type: "Inspection",
+                        date: "2025-01-18",
+                        time: "2:00 PM",
+                        status: "pending",
+                        location: "Buyer's Location",
+                        phone: "+254 723 456 789"
+                      },
+                      {
+                        id: 3,
+                        buyerName: "Mike Johnson",
+                        type: "Video Call",
+                        date: "2025-01-19",
+                        time: "11:30 AM",
+                        status: "confirmed",
+                        location: "Virtual",
+                        phone: "+254 734 567 890"
+                      }
+                    ].map((appointment) => (
+                      <div key={appointment.id} className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                              <Calendar className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium">{appointment.buyerName}</p>
+                              <p className="text-sm text-gray-600">{appointment.type}</p>
+                              <p className="text-xs text-gray-500">
+                                {appointment.date} at {appointment.time}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <Badge 
+                              variant={appointment.status === 'confirmed' ? 'default' : 'secondary'}
+                            >
+                              {appointment.status}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              View Details
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="mt-3 pl-13 space-y-1">
+                          <p className="text-sm text-gray-600">
+                            <MapPin className="h-4 w-4 inline mr-1" />
+                            {appointment.location}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <Phone className="h-4 w-4 inline mr-1" />
+                            {appointment.phone}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Appointment Statistics & Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Appointment Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* Statistics */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 bg-blue-50 rounded-lg">
+                        <p className="text-sm text-blue-600">Total Appointments</p>
+                        <p className="text-2xl font-bold text-blue-800">15</p>
+                      </div>
+                      <div className="p-3 bg-green-50 rounded-lg">
+                        <p className="text-sm text-green-600">Completed</p>
+                        <p className="text-2xl font-bold text-green-800">12</p>
+                      </div>
+                      <div className="p-3 bg-orange-50 rounded-lg">
+                        <p className="text-sm text-orange-600">Pending</p>
+                        <p className="text-2xl font-bold text-orange-800">2</p>
+                      </div>
+                      <div className="p-3 bg-purple-50 rounded-lg">
+                        <p className="text-sm text-purple-600">Cancelled</p>
+                        <p className="text-2xl font-bold text-purple-800">1</p>
+                      </div>
+                    </div>
+
+                    {/* Settings */}
+                    <div className="pt-4 border-t">
+                      <h4 className="font-medium mb-3">Appointment Settings</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Auto-approve appointments</span>
+                          <Badge variant="outline">ON</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Minimum advance notice</span>
+                          <Badge variant="outline">2 hours</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Available days</span>
+                          <Badge variant="outline">Mon-Sat</Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="pt-4 border-t">
+                      <h4 className="font-medium mb-3">Quick Actions</h4>
+                      <div className="space-y-2">
+                        <Button variant="outline" size="sm" className="w-full justify-start">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          Schedule New Appointment
+                        </Button>
+                        <Button variant="outline" size="sm" className="w-full justify-start">
+                          <Settings className="h-4 w-4 mr-2" />
+                          Manage Availability
+                        </Button>
+                        <Button variant="outline" size="sm" className="w-full justify-start">
+                          <Clock className="h-4 w-4 mr-2" />
+                          View Calendar
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
         </Tabs>
 

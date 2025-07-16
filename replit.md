@@ -661,6 +661,15 @@ Changelog:
   - Removed "Appointments" tab placeholder for future implementation
   - New structure: Overview, Messages & Inquiries, Analytics & Insights, Manage & Pricing
   - Streamlined interface reduces cognitive load and improves seller workflow efficiency
+- January 16, 2025. Enhanced dashboard with restored functionality and improved data loading:
+  - Restored Full Analytics functionality with "Full Analytics" button linking to dedicated analytics page
+  - Added comprehensive Appointments tab with appointment scheduling, management, and statistics
+  - Enhanced Messages & Inquiries tab with nested conversation data, message statistics, and quick actions
+  - Added appointment data loading with sample appointments for test drives, inspections, and video calls
+  - Improved message statistics showing total conversations, unread messages, response rates, and response times
+  - Added quick action buttons for appointment management, scheduling, and calendar integration
+  - Enhanced error handling in Smart Pricing service to prevent SQL syntax errors from breaking functionality
+  - Dashboard now supports 5 comprehensive tabs: Overview, Messages & Inquiries, Analytics & Insights, Manage & Pricing, Appointments
 
 ## User Preferences
 

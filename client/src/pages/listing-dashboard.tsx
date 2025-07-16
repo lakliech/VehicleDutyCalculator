@@ -156,8 +156,8 @@ export default function ListingDashboard() {
     mutationFn: (availabilityData: any) => apiRequest('POST', '/api/seller/availability', availabilityData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seller-availability'] });
-      toast({ title: 'Availability updated successfully' });
-      setManageAvailabilityOpen(false);
+      // Don't show toast or close dialog for intermediate updates
+      // Only close dialog when user explicitly clicks "Save & Close"
     }
   });
 

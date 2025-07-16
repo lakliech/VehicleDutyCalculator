@@ -136,10 +136,22 @@ export default function ListingDashboard() {
 
   // Apply smart pricing mutation
   const applyPricingMutation = useMutation({
-    mutationFn: (price: number) => apiRequest('PUT', `/api/listings/${id}`, { price }),
+    mutationFn: (price: number) => {
+      console.log('Applying price:', price, 'to listing:', id);
+      return apiRequest('PUT', `/api/listings/${id}`, { price });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listing', id] });
+      queryClient.invalidateQueries({ queryKey: ['smart-pricing', id] });
       toast({ title: 'Price updated successfully' });
+    },
+    onError: (error: any) => {
+      console.error('Error applying price:', error);
+      toast({ 
+        title: 'Error updating price', 
+        description: error.message || 'Failed to update price',
+        variant: 'destructive'
+      });
     }
   });
 
@@ -442,8 +454,19 @@ export default function ListingDashboard() {
 
                       {/* Apply Recommended Price Button */}
                       <Button 
-                        onClick={() => applyPricingMutation.mutate(smartPricing.recommendedPrice)}
-                        disabled={applyPricingMutation.isPending}
+                        onClick={() => {
+                          console.log('Apply price clicked, recommendedPrice:', smartPricing.recommendedPrice);
+                          if (smartPricing.recommendedPrice) {
+                            applyPricingMutation.mutate(smartPricing.recommendedPrice);
+                          } else {
+                            toast({ 
+                              title: 'Error', 
+                              description: 'No recommended price available',
+                              variant: 'destructive'
+                            });
+                          }
+                        }}
+                        disabled={applyPricingMutation.isPending || !smartPricing.recommendedPrice}
                         className="w-full"
                       >
                         {applyPricingMutation.isPending ? 'Applying...' : 'Apply Recommended Price'}

@@ -1781,6 +1781,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to create listing" });
     }
   });
+
+  // Update listing (for sellers to update their own listings)
+  app.put("/api/listings/:id", authenticateUser, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // First, verify the user owns this listing
+      const existingListing = await db
+        .select()
+        .from(carListings)
+        .where(eq(carListings.id, listingId))
+        .limit(1);
+      
+      if (existingListing.length === 0) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
+      
+      if (existingListing[0].sellerId !== userId) {
+        return res.status(403).json({ error: "You can only update your own listings" });
+      }
+      
+      // If only price is being updated, handle it directly
+      if (Object.keys(req.body).length === 1 && req.body.price !== undefined) {
+        const updatedListing = await storage.updateListing(listingId, { price: req.body.price });
+        return res.json(updatedListing);
+      }
+      
+      // Otherwise, validate the full update
+      const validation = carListingSchema.partial().safeParse(req.body);
+      
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid input data", 
+          details: validation.error.issues 
+        });
+      }
+      
+      const updatedListing = await storage.updateListing(listingId, validation.data);
+      res.json(updatedListing);
+    } catch (error) {
+      console.error("Failed to update listing:", error);
+      res.status(500).json({ error: "Failed to update listing" });
+    }
+  });
+
   // Calculate duty
   app.post("/api/calculate-duty", async (req, res) => {
     try {

@@ -12,6 +12,14 @@ export class CacheService {
   private static readonly CONNECTION_TIMEOUT = 5000; // 5 seconds
 
   static async initialize(): Promise<void> {
+    // Skip Redis connection if REDIS_URL is not provided or if in development mode without Redis
+    if (!process.env.REDIS_URL && process.env.NODE_ENV === 'development') {
+      console.log('Redis not configured, using memory cache only');
+      this.client = null;
+      this.isConnected = false;
+      return;
+    }
+
     try {
       // Try to connect to Redis if available
       this.client = Redis.createClient({
@@ -19,15 +27,21 @@ export class CacheService {
         socket: {
           connectTimeout: this.CONNECTION_TIMEOUT,
           commandTimeout: this.CONNECTION_TIMEOUT,
+          reconnectStrategy: false, // Disable reconnection attempts
         },
         retryDelayOnFailover: 100,
         retryDelayOnClusterDown: 100,
-        maxRetriesPerRequest: 3,
+        maxRetriesPerRequest: 1, // Reduce retries
       });
 
       this.client.on('error', (err) => {
         console.warn('Redis connection error:', err.message);
         this.isConnected = false;
+        // Close client on persistent errors
+        if (this.client) {
+          this.client.disconnect().catch(() => {});
+          this.client = null;
+        }
       });
 
       this.client.on('connect', () => {
@@ -40,16 +54,23 @@ export class CacheService {
         this.isConnected = true;
       });
 
-      // Try to connect with timeout
+      // Try to connect with shorter timeout
       await Promise.race([
         this.client.connect(),
         new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Redis connection timeout')), this.CONNECTION_TIMEOUT)
+          setTimeout(() => reject(new Error('Redis connection timeout')), 2000) // Reduced timeout
         )
       ]);
 
     } catch (error) {
-      console.warn('Redis not available, falling back to memory cache:', error);
+      console.warn('Redis not available, falling back to memory cache');
+      if (this.client) {
+        try {
+          await this.client.disconnect();
+        } catch (disconnectError) {
+          // Ignore disconnect errors
+        }
+      }
       this.client = null;
       this.isConnected = false;
     }

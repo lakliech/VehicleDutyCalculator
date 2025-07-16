@@ -74,11 +74,22 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Initialize performance services
-  await Promise.allSettled([
+  // Initialize performance services in the background (non-blocking)
+  Promise.allSettled([
     CacheService.initialize(),
     ImageOptimizer.initialize()
-  ]);
+  ]).then((results) => {
+    results.forEach((result, index) => {
+      const serviceName = index === 0 ? 'CacheService' : 'ImageOptimizer';
+      if (result.status === 'rejected') {
+        console.warn(`${serviceName} initialization failed:`, result.reason);
+      } else {
+        console.log(`${serviceName} initialized successfully`);
+      }
+    });
+  }).catch(error => {
+    console.warn('Service initialization error:', error);
+  });
 
   const server = await registerRoutes(app);
 

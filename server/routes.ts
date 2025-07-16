@@ -428,18 +428,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       sessionCookie: req.headers.cookie?.includes('connect.sid') ? 'session cookie found' : 'no session cookie'
     });
     
-    if (req.isAuthenticated?.() && req.user) {
-      // Include user role information
+    // Check for session-based authentication (both Google OAuth and username/password)
+    if (req.user && req.user.id) {
+      // Session authentication is working properly
       try {
         const userWithRole = await storage.getUserWithRole(req.user.id);
-        res.json({ authenticated: true, user: userWithRole || req.user });
+        return res.json({ authenticated: true, user: userWithRole || req.user });
       } catch (error) {
         console.error('Error fetching user role:', error);
-        res.json({ authenticated: true, user: req.user });
+        return res.json({ authenticated: true, user: req.user });
       }
-    } else {
-      res.json({ authenticated: false });
     }
+    
+    // Check if Passport authentication exists but user object is incomplete
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      // Session exists but user object might be incomplete, try to load user
+      if (req.session && req.session.passport && req.session.passport.user) {
+        try {
+          const user = await storage.getUserById(req.session.passport.user);
+          if (user) {
+            const userWithRole = await storage.getUserWithRole(user.id);
+            return res.json({ authenticated: true, user: userWithRole || user });
+          }
+        } catch (error) {
+          console.error('Failed to load user from session in auth status:', error);
+        }
+      }
+    }
+    
+    res.json({ authenticated: false });
   });
 
   // Logout route

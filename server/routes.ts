@@ -5809,6 +5809,105 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
+  // Get recent activity for a specific listing
+  app.get('/api/listing/:listingId/recent-activity', authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const { listingId } = req.params;
+      const user = (req as any).user;
+      
+      if (!user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      // Verify user owns this listing
+      const listing = await db
+        .select()
+        .from(carListings)
+        .where(
+          and(
+            eq(carListings.id, parseInt(listingId)),
+            eq(carListings.sellerId, user.id)
+          )
+        )
+        .limit(1);
+      
+      if (!listing.length) {
+        return res.status(404).json({ error: "Listing not found or access denied" });
+      }
+
+      const activities = [];
+
+      // Get recent views from daily_listing_analytics
+      const recentViews = await db
+        .select({
+          date: dailyListingAnalytics.date,
+          views: dailyListingAnalytics.views,
+          uniqueVisitors: dailyListingAnalytics.uniqueVisitors,
+          phoneClicks: dailyListingAnalytics.phoneClicks,
+          favorites: dailyListingAnalytics.favorites,
+          shares: dailyListingAnalytics.shares,
+          inquiries: dailyListingAnalytics.inquiries,
+          locationBreakdown: dailyListingAnalytics.locationBreakdown
+        })
+        .from(dailyListingAnalytics)
+        .where(eq(dailyListingAnalytics.listingId, parseInt(listingId)))
+        .orderBy(desc(dailyListingAnalytics.date))
+        .limit(7);
+
+      // Add activity entries for each day with activity
+      recentViews.forEach(view => {
+        if (view.views > 0) {
+          activities.push({
+            type: 'view',
+            description: `${view.views} views (${view.uniqueVisitors} unique visitors)`,
+            timestamp: view.date,
+            location: view.locationBreakdown ? Object.keys(view.locationBreakdown)[0] : null
+          });
+        }
+        if (view.phoneClicks > 0) {
+          activities.push({
+            type: 'phone_click',
+            description: `${view.phoneClicks} phone clicks`,
+            timestamp: view.date,
+            location: null
+          });
+        }
+        if (view.favorites > 0) {
+          activities.push({
+            type: 'favorite',
+            description: `${view.favorites} favorites`,
+            timestamp: view.date,
+            location: null
+          });
+        }
+        if (view.shares > 0) {
+          activities.push({
+            type: 'share',
+            description: `${view.shares} shares`,
+            timestamp: view.date,
+            location: null
+          });
+        }
+        if (view.inquiries > 0) {
+          activities.push({
+            type: 'inquiry',
+            description: `${view.inquiries} inquiries`,
+            timestamp: view.date,
+            location: null
+          });
+        }
+      });
+
+      // Sort all activities by timestamp (most recent first)
+      activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+      res.json(activities.slice(0, 10));
+    } catch (error) {
+      console.error('Error fetching recent activity:', error);
+      res.status(500).json({ error: 'Failed to fetch recent activity' });
+    }
+  });
+
   // Get listing conversations/inquiries
   app.get('/api/listing/:listingId/conversations', authenticateUser, async (req, res) => {
     try {

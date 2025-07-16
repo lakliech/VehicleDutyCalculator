@@ -768,6 +768,13 @@ Changelog:
   - Improved error handling for database array storage issues
   - Smart Pricing Intelligence now provides reliable pricing recommendations with market analysis
   - System gracefully handles AI service failures with market-based fallbacks
+- January 16, 2025. Fixed recent activity data loading in listing dashboard:
+  - Created dedicated recent activity API endpoint `/api/listing/:listingId/recent-activity`
+  - Added comprehensive activity tracking from daily_listing_analytics table
+  - Recent activity now displays views, phone clicks, favorites, shares, and inquiries with timestamps
+  - Enhanced dashboard overview section with real-time activity feed showing user interactions
+  - Activities are sorted by timestamp (most recent first) and include location data when available
+  - Improved user experience with visual activity indicators using appropriate icons for each activity type
 
 ## User Preferences
 

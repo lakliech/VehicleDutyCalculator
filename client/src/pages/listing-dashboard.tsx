@@ -65,6 +65,12 @@ export default function ListingDashboard() {
     queryFn: () => fetch(`/api/listing/${id}/conversations`).then(res => res.json())
   });
 
+  // Fetch recent activity data
+  const { data: recentActivity } = useQuery({
+    queryKey: ['listing-recent-activity', id],
+    queryFn: () => fetch(`/api/listing/${id}/recent-activity`).then(res => res.json())
+  });
+
   // Fetch smart pricing
   const { data: smartPricing, isLoading: smartPricingLoading, error: smartPricingError } = useQuery({
     queryKey: ['smart-pricing', id],
@@ -394,24 +400,36 @@ export default function ListingDashboard() {
                 <CardTitle>Recent Activity</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  {Array.isArray(conversations) && conversations.slice(0, 3).map((conv: any, idx: number) => (
-                    <div key={idx} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <MessageSquare className="h-4 w-4 text-blue-600" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{conv.participantName}</p>
-                        <p className="text-xs text-gray-600">{conv.lastMessage}</p>
+                <div className="space-y-3">
+                  {recentActivity && recentActivity.length > 0 ? (
+                    recentActivity.slice(0, 5).map((activity: any, idx: number) => (
+                      <div key={idx} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        {activity.type === 'view' && <Eye className="h-4 w-4 text-blue-600" />}
+                        {activity.type === 'inquiry' && <MessageSquare className="h-4 w-4 text-green-600" />}
+                        {activity.type === 'phone_click' && <Phone className="h-4 w-4 text-purple-600" />}
+                        {activity.type === 'favorite' && <Heart className="h-4 w-4 text-red-600" />}
+                        {activity.type === 'share' && <Share className="h-4 w-4 text-orange-600" />}
+                        
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{activity.description}</p>
+                          <p className="text-xs text-gray-600">
+                            {activity.timestamp && new Date(activity.timestamp).toLocaleString()}
+                          </p>
+                        </div>
+                        
+                        {activity.location && (
+                          <Badge variant="outline" className="text-xs">
+                            {activity.location}
+                          </Badge>
+                        )}
                       </div>
-                      {conv.unreadCount > 0 && (
-                        <Badge variant="destructive" className="text-xs">
-                          {conv.unreadCount}
-                        </Badge>
-                      )}
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">No recent activity</p>
+                      <p className="text-sm text-gray-400 mt-2">Viewer interactions will appear here</p>
                     </div>
-                  ))}
-                  
-                  {(!Array.isArray(conversations) || conversations.length === 0) && (
-                    <p className="text-gray-500 text-center py-4 col-span-3">No recent activity</p>
                   )}
                 </div>
               </CardContent>

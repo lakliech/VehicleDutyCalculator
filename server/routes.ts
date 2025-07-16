@@ -11,6 +11,8 @@ import {
   testDriveAppointments,
   sellerAvailability,
   sellerBlockedSlots,
+  sellerAppointmentPreferences,
+  seasonalPricingTrends,
   userActivities
 } from "@shared/schema-minimal";
 
@@ -65,10 +67,8 @@ import {
   loanCalculations,
   updateVideoCallAppointmentSchema,
   updateTestDriveAppointmentSchema,
-  sellerAppointmentPreferences,
   marketPriceAnalysis,
   pricingRecommendations,
-  seasonalPricingTrends,
   priceAlerts,
   depreciationForecasts,
   marketInsights

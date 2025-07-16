@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, decimal, boolean, timestamp, varchar, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, decimal, boolean, timestamp, varchar, json, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -180,10 +180,45 @@ export const sellerAvailability = pgTable("seller_availability", {
 export const sellerBlockedSlots = pgTable("seller_blocked_slots", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
-  startTime: timestamp("start_time").notNull(),
-  endTime: timestamp("end_time").notNull(),
+  startDateTime: timestamp("start_date_time").notNull(),
+  endDateTime: timestamp("end_date_time").notNull(),
   reason: text("reason"),
+  isRecurring: boolean("is_recurring").default(false),
+  recurrencePattern: text("recurrence_pattern"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const sellerAppointmentPreferences = pgTable("seller_appointment_preferences", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  autoApprove: boolean("auto_approve").default(false),
+  minimumAdvanceNoticeHours: integer("minimum_advance_notice_hours").default(24),
+  maxAppointmentsPerDay: integer("max_appointments_per_day").default(5),
+  allowWeekends: boolean("allow_weekends").default(true),
+  defaultTestDriveLocation: text("default_test_drive_location"),
+  defaultMeetingDuration: integer("default_meeting_duration").default(60),
+  bufferTimeBetweenAppointments: integer("buffer_time_between_appointments").default(30),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// ==============================
+// PRICING TABLES
+// ==============================
+
+export const seasonalPricingTrends = pgTable("seasonal_pricing_trends", {
+  id: serial("id").primaryKey(),
+  month: integer("month").notNull(),
+  seasonality: varchar("seasonality", { length: 50 }).notNull(),
+  avgPriceMultiplier: numeric("avg_price_multiplier").notNull(),
+  demandLevel: varchar("demand_level", { length: 50 }).notNull(),
+  supplyLevel: varchar("supply_level", { length: 50 }).notNull(),
+  recommendations: text("recommendations").notNull(),
+  bestBuyingOpportunity: boolean("best_buying_opportunity"),
+  bestSellingOpportunity: boolean("best_selling_opportunity"),
+  category: varchar("category", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // ==============================

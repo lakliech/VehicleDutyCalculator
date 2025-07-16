@@ -523,73 +523,7 @@ export default function ListingDashboard() {
               </Card>
             </div>
 
-            {/* Loan Applications - Full Width */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span className="flex items-center">
-                    <FileText className="h-5 w-5 mr-2" />
-                    Loan Applications
-                  </span>
-                  <Badge variant="outline">
-                    {loanApplications?.length || 0} applications
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loanApplications && loanApplications.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left p-2 text-sm font-medium text-gray-600">Client Name</th>
-                          <th className="text-left p-2 text-sm font-medium text-gray-600">Phone Number</th>
-                          <th className="text-left p-2 text-sm font-medium text-gray-600">Bank</th>
-                          <th className="text-left p-2 text-sm font-medium text-gray-600">Product</th>
-                          <th className="text-left p-2 text-sm font-medium text-gray-600">Amount</th>
-                          <th className="text-left p-2 text-sm font-medium text-gray-600">Status</th>
-                          <th className="text-left p-2 text-sm font-medium text-gray-600">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {loanApplications.map((application: any) => (
-                          <tr key={application.id} className="border-b hover:bg-gray-50">
-                            <td className="p-2 text-sm">{application.applicantName}</td>
-                            <td className="p-2 text-sm">{application.applicantPhone}</td>
-                            <td className="p-2 text-sm">{application.bankName || 'N/A'}</td>
-                            <td className="p-2 text-sm">{application.productName || 'N/A'}</td>
-                            <td className="p-2 text-sm">
-                              KES {Number(application.requestedAmount).toLocaleString()}
-                            </td>
-                            <td className="p-2">
-                              <Badge 
-                                variant={
-                                  application.status === 'approved' ? 'default' :
-                                  application.status === 'pending' ? 'secondary' :
-                                  application.status === 'rejected' ? 'destructive' :
-                                  'outline'
-                                }
-                              >
-                                {application.status}
-                              </Badge>
-                            </td>
-                            <td className="p-2 text-sm text-gray-600">
-                              {new Date(application.submittedAt).toLocaleDateString()}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">No loan applications yet</p>
-                    <p className="text-sm text-gray-400 mt-2">When buyers apply for financing, applications will appear here</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+
 
             {/* Recent Activity - Full Width */}
             <Card>
@@ -805,6 +739,74 @@ export default function ListingDashboard() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Loan Applications - Full Width */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center">
+                    <FileText className="h-5 w-5 mr-2" />
+                    Loan Applications
+                  </span>
+                  <Badge variant="outline">
+                    {loanApplications?.length || 0} applications
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loanApplications && loanApplications.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-2 text-sm font-medium text-gray-600">Client Name</th>
+                          <th className="text-left p-2 text-sm font-medium text-gray-600">Phone Number</th>
+                          <th className="text-left p-2 text-sm font-medium text-gray-600">Bank</th>
+                          <th className="text-left p-2 text-sm font-medium text-gray-600">Product</th>
+                          <th className="text-left p-2 text-sm font-medium text-gray-600">Amount</th>
+                          <th className="text-left p-2 text-sm font-medium text-gray-600">Status</th>
+                          <th className="text-left p-2 text-sm font-medium text-gray-600">Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {loanApplications.map((application: any) => (
+                          <tr key={application.id} className="border-b hover:bg-gray-50">
+                            <td className="p-2 text-sm">{application.applicantName}</td>
+                            <td className="p-2 text-sm">{application.applicantPhone}</td>
+                            <td className="p-2 text-sm">{application.bankName || 'N/A'}</td>
+                            <td className="p-2 text-sm">{application.productName || 'N/A'}</td>
+                            <td className="p-2 text-sm">
+                              KES {Number(application.requestedAmount).toLocaleString()}
+                            </td>
+                            <td className="p-2">
+                              <Badge 
+                                variant={
+                                  application.status === 'approved' ? 'default' :
+                                  application.status === 'pending' ? 'secondary' :
+                                  application.status === 'rejected' ? 'destructive' :
+                                  'outline'
+                                }
+                              >
+                                {application.status}
+                              </Badge>
+                            </td>
+                            <td className="p-2 text-sm text-gray-600">
+                              {new Date(application.submittedAt).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">No loan applications yet</p>
+                    <p className="text-sm text-gray-400 mt-2">When buyers apply for financing, applications will appear here</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Analytics & Insights Tab */}

@@ -905,6 +905,10 @@ Changelog:
   - Integrated edit listing and status controls into listing preview card for consolidated layout
   - Loan applications now display properly with bank name, product name, and client details
   - Created test loan application for listing 7 to verify both listings show applications correctly
+- January 17, 2025. Reorganized dashboard UI layout for better user experience:
+  - Moved Loan Applications section from Overview & Pricing tab to Messages & Inquiries tab
+  - Logical grouping: customer communications and financial inquiries now in same section
+  - Improved tab organization with related features grouped together
 
 ## User Preferences
 

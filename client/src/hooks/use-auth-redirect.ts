@@ -15,12 +15,21 @@ export const useAuthRedirect = () => {
     const error = urlParams.get('error');
 
     if (social === 'google' && success === 'true') {
-      // Force refresh of auth status after OAuth success with improved retry logic
+      // Clean up URL parameters immediately
+      const url = new URL(window.location.href);
+      url.searchParams.delete('social');
+      url.searchParams.delete('success');
+      window.history.replaceState({}, '', url.toString());
+      
+      // Force refresh of auth status after OAuth success
       const retryAuthCheck = async (attempts = 0) => {
-        if (attempts >= 5) {
-          console.error('Auth check failed after 5 attempts');
-          // Force page reload as last resort
-          window.location.reload();
+        if (attempts >= 3) {
+          console.error('Auth check failed after 3 attempts');
+          toast({
+            title: "Authentication Error",
+            description: "Please refresh the page and try again.",
+            variant: "destructive",
+          });
           return;
         }
         
@@ -36,60 +45,35 @@ export const useAuthRedirect = () => {
           if (response.ok) {
             const data = await response.json();
             if (data.authenticated) {
-              // Authentication successful, clean up URL
-              const url = new URL(window.location.href);
-              url.searchParams.delete('social');
-              url.searchParams.delete('success');
-              window.history.replaceState({}, '', url.toString());
+              // Authentication successful, show success message
+              toast({
+                title: "Login Successful",
+                description: "You have been logged in with Google successfully!",
+              });
+              
+              // Check if there's a stored return URL
+              const returnUrl = localStorage.getItem('returnUrl');
+              if (returnUrl) {
+                localStorage.removeItem('returnUrl');
+                setLocation(returnUrl);
+              }
               return;
             }
           }
           
-          // If still not authenticated, retry with exponential backoff
-          const delay = Math.min(1000 * Math.pow(2, attempts), 5000);
+          // If still not authenticated, retry with delay
+          const delay = 500 + (attempts * 300);
           setTimeout(() => retryAuthCheck(attempts + 1), delay);
           
         } catch (error) {
           console.error('Auth check error:', error);
-          const delay = Math.min(1000 * Math.pow(2, attempts), 5000);
+          const delay = 500 + (attempts * 300);
           setTimeout(() => retryAuthCheck(attempts + 1), delay);
         }
       };
       
       // Start retry process with initial delay
-      setTimeout(() => retryAuthCheck(), 300);
-      
-      // Check if there's a stored return URL
-      const returnUrl = localStorage.getItem('returnUrl');
-      
-      if (returnUrl) {
-        // Clear the stored return URL
-        localStorage.removeItem('returnUrl');
-        
-        // Show success toast
-        toast({
-          title: "Login Successful",
-          description: "You have been logged in with Google successfully!",
-        });
-        
-        // Redirect to the original page
-        setLocation(returnUrl);
-        return;
-      }
-      
-      // Default success behavior if no return URL
-      toast({
-        title: "Login Successful",
-        description: "You have been logged in with Google successfully!",
-      });
-      
-      // Clean up URL parameters and force page refresh to ensure auth state is updated
-      window.history.replaceState({}, document.title, window.location.pathname);
-      
-      // Force complete page refresh after a short delay to ensure authentication state is properly loaded
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      setTimeout(() => retryAuthCheck(), 200);
     } else if (error === 'auth_failed') {
       toast({
         title: "Authentication Failed",

@@ -42,7 +42,8 @@ import {
   TrendingUp,
   DollarSign,
   Target,
-  Loader2
+  Loader2,
+  BarChart3
 } from 'lucide-react';
 
 interface CarListing {

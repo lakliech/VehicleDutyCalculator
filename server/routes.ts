@@ -57,6 +57,8 @@ import {
   loanCalculations,
   videoCallAppointments,
   testDriveAppointments,
+  updateVideoCallAppointmentSchema,
+  updateTestDriveAppointmentSchema,
   sellerAvailability,
   sellerAppointmentPreferences,
   sellerBlockedSlots,
@@ -7612,7 +7614,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
-  // Update video call appointment status
+  // Update/modify video call appointment (comprehensive)
   app.patch('/api/video-calls/:appointmentId', async (req: Request, res: Response) => {
     try {
       if (!req.user) {
@@ -7620,22 +7622,91 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       }
 
       const { appointmentId } = req.params;
-      const { status, meetingLink, sellerNotes } = req.body;
+      
+      // Validate input with our schema
+      const validatedData = updateVideoCallAppointmentSchema.parse(req.body);
 
-      const [appointment] = await db
+      // First, check if the user has permission to modify this appointment
+      const existingAppointment = await db
+        .select()
+        .from(videoCallAppointments)
+        .where(eq(videoCallAppointments.id, parseInt(appointmentId)))
+        .limit(1);
+
+      if (existingAppointment.length === 0) {
+        return res.status(404).json({ error: 'Appointment not found' });
+      }
+
+      const appointment = existingAppointment[0];
+      const isBuyer = appointment.buyerId === req.user.id;
+      const isSeller = appointment.sellerId === req.user.id;
+
+      if (!isBuyer && !isSeller) {
+        return res.status(403).json({ error: 'You do not have permission to modify this appointment' });
+      }
+
+      // Prepare update object
+      const updateData: any = {
+        updatedAt: new Date()
+      };
+
+      // Handle different types of modifications based on user role
+      if (validatedData.appointmentDate) {
+        updateData.appointmentDate = new Date(validatedData.appointmentDate);
+        updateData.status = 'rescheduled'; // Auto-mark as rescheduled
+      }
+
+      if (validatedData.duration !== undefined) {
+        updateData.duration = validatedData.duration;
+      }
+
+      if (validatedData.status !== undefined) {
+        updateData.status = validatedData.status;
+      }
+
+      if (validatedData.meetingLink !== undefined) {
+        updateData.meetingLink = validatedData.meetingLink || null;
+      }
+
+      // Notes handling based on user role
+      if (isBuyer && validatedData.notes !== undefined) {
+        updateData.notes = validatedData.notes;
+      }
+
+      if (isSeller && validatedData.sellerNotes !== undefined) {
+        updateData.sellerNotes = validatedData.sellerNotes;
+      }
+
+      if (validatedData.cancellationReason !== undefined) {
+        updateData.cancellationReason = validatedData.cancellationReason;
+        if (validatedData.status === 'cancelled') {
+          updateData.status = 'cancelled';
+        }
+      }
+
+      if (validatedData.completionNotes !== undefined) {
+        updateData.completionNotes = validatedData.completionNotes;
+        if (validatedData.status === 'completed') {
+          updateData.status = 'completed';
+        }
+      }
+
+      const [updatedAppointment] = await db
         .update(videoCallAppointments)
-        .set({
-          status,
-          meetingLink: meetingLink || undefined,
-          sellerNotes: sellerNotes || undefined,
-          updatedAt: new Date()
-        })
+        .set(updateData)
         .where(eq(videoCallAppointments.id, parseInt(appointmentId)))
         .returning();
 
-      res.json({ success: true, appointment });
+      res.json({ 
+        success: true, 
+        appointment: updatedAppointment,
+        message: 'Appointment updated successfully'
+      });
     } catch (error) {
       console.error('Failed to update video call appointment:', error);
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ error: 'Invalid appointment data', details: error.errors });
+      }
       res.status(500).json({ error: 'Failed to update appointment' });
     }
   });
@@ -7736,7 +7807,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
-  // Update test drive appointment status
+  // Update/modify test drive appointment (comprehensive)
   app.patch('/api/test-drives/:appointmentId', async (req: Request, res: Response) => {
     try {
       if (!req.user) {
@@ -7744,24 +7815,305 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       }
 
       const { appointmentId } = req.params;
-      const { status, sellerNotes, completionNotes, rating } = req.body;
+      
+      // Validate input with our schema
+      const validatedData = updateTestDriveAppointmentSchema.parse(req.body);
 
-      const [appointment] = await db
+      // First, check if the user has permission to modify this appointment
+      const existingAppointment = await db
+        .select()
+        .from(testDriveAppointments)
+        .where(eq(testDriveAppointments.id, parseInt(appointmentId)))
+        .limit(1);
+
+      if (existingAppointment.length === 0) {
+        return res.status(404).json({ error: 'Appointment not found' });
+      }
+
+      const appointment = existingAppointment[0];
+      const isBuyer = appointment.buyerId === req.user.id;
+      const isSeller = appointment.sellerId === req.user.id;
+
+      if (!isBuyer && !isSeller) {
+        return res.status(403).json({ error: 'You do not have permission to modify this appointment' });
+      }
+
+      // Prepare update object
+      const updateData: any = {
+        updatedAt: new Date()
+      };
+
+      // Handle different types of modifications
+      if (validatedData.appointmentDate) {
+        updateData.appointmentDate = new Date(validatedData.appointmentDate);
+        updateData.status = 'rescheduled'; // Auto-mark as rescheduled
+      }
+
+      if (validatedData.duration !== undefined) {
+        updateData.duration = validatedData.duration;
+      }
+
+      if (validatedData.meetingLocation !== undefined) {
+        updateData.meetingLocation = validatedData.meetingLocation;
+      }
+
+      if (validatedData.status !== undefined) {
+        updateData.status = validatedData.status;
+      }
+
+      if (validatedData.documentsRequired !== undefined) {
+        updateData.documentsRequired = validatedData.documentsRequired;
+      }
+
+      if (validatedData.additionalRequirements !== undefined) {
+        updateData.additionalRequirements = validatedData.additionalRequirements;
+      }
+
+      // Notes handling based on user role
+      if (isBuyer && validatedData.buyerNotes !== undefined) {
+        updateData.buyerNotes = validatedData.buyerNotes;
+      }
+
+      if (isSeller && validatedData.sellerNotes !== undefined) {
+        updateData.sellerNotes = validatedData.sellerNotes;
+      }
+
+      if (validatedData.completionNotes !== undefined) {
+        updateData.completionNotes = validatedData.completionNotes;
+        if (validatedData.status === 'completed') {
+          updateData.status = 'completed';
+        }
+      }
+
+      if (validatedData.rating !== undefined && isBuyer) {
+        updateData.rating = validatedData.rating;
+      }
+
+      if (validatedData.cancellationReason !== undefined) {
+        updateData.cancellationReason = validatedData.cancellationReason;
+        if (validatedData.status === 'cancelled') {
+          updateData.status = 'cancelled';
+        }
+      }
+
+      const [updatedAppointment] = await db
+        .update(testDriveAppointments)
+        .set(updateData)
+        .where(eq(testDriveAppointments.id, parseInt(appointmentId)))
+        .returning();
+
+      res.json({ 
+        success: true, 
+        appointment: updatedAppointment,
+        message: 'Test drive appointment updated successfully'
+      });
+    } catch (error) {
+      console.error('Failed to update test drive appointment:', error);
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ error: 'Invalid appointment data', details: error.errors });
+      }
+      res.status(500).json({ error: 'Failed to update appointment' });
+    }
+  });
+
+  // ===============================
+  // QUICK ACTION ENDPOINTS
+  // ===============================
+
+  // Cancel video call appointment
+  app.post('/api/video-calls/:appointmentId/cancel', async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const { appointmentId } = req.params;
+      const { reason } = req.body;
+
+      // Check permissions
+      const existingAppointment = await db
+        .select()
+        .from(videoCallAppointments)
+        .where(eq(videoCallAppointments.id, parseInt(appointmentId)))
+        .limit(1);
+
+      if (existingAppointment.length === 0) {
+        return res.status(404).json({ error: 'Appointment not found' });
+      }
+
+      const appointment = existingAppointment[0];
+      const canCancel = appointment.buyerId === req.user.id || appointment.sellerId === req.user.id;
+
+      if (!canCancel) {
+        return res.status(403).json({ error: 'Permission denied' });
+      }
+
+      const [cancelledAppointment] = await db
+        .update(videoCallAppointments)
+        .set({
+          status: 'cancelled',
+          cancellationReason: reason || 'Cancelled by user',
+          updatedAt: new Date()
+        })
+        .where(eq(videoCallAppointments.id, parseInt(appointmentId)))
+        .returning();
+
+      res.json({ 
+        success: true, 
+        appointment: cancelledAppointment,
+        message: 'Video call appointment cancelled successfully'
+      });
+    } catch (error) {
+      console.error('Failed to cancel video call appointment:', error);
+      res.status(500).json({ error: 'Failed to cancel appointment' });
+    }
+  });
+
+  // Complete video call appointment
+  app.post('/api/video-calls/:appointmentId/complete', async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const { appointmentId } = req.params;
+      const { notes } = req.body;
+
+      // Check permissions
+      const existingAppointment = await db
+        .select()
+        .from(videoCallAppointments)
+        .where(eq(videoCallAppointments.id, parseInt(appointmentId)))
+        .limit(1);
+
+      if (existingAppointment.length === 0) {
+        return res.status(404).json({ error: 'Appointment not found' });
+      }
+
+      const appointment = existingAppointment[0];
+      const canComplete = appointment.buyerId === req.user.id || appointment.sellerId === req.user.id;
+
+      if (!canComplete) {
+        return res.status(403).json({ error: 'Permission denied' });
+      }
+
+      const [completedAppointment] = await db
+        .update(videoCallAppointments)
+        .set({
+          status: 'completed',
+          completionNotes: notes || null,
+          updatedAt: new Date()
+        })
+        .where(eq(videoCallAppointments.id, parseInt(appointmentId)))
+        .returning();
+
+      res.json({ 
+        success: true, 
+        appointment: completedAppointment,
+        message: 'Video call appointment marked as completed'
+      });
+    } catch (error) {
+      console.error('Failed to complete video call appointment:', error);
+      res.status(500).json({ error: 'Failed to complete appointment' });
+    }
+  });
+
+  // Cancel test drive appointment
+  app.post('/api/test-drives/:appointmentId/cancel', async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const { appointmentId } = req.params;
+      const { reason } = req.body;
+
+      // Check permissions
+      const existingAppointment = await db
+        .select()
+        .from(testDriveAppointments)
+        .where(eq(testDriveAppointments.id, parseInt(appointmentId)))
+        .limit(1);
+
+      if (existingAppointment.length === 0) {
+        return res.status(404).json({ error: 'Appointment not found' });
+      }
+
+      const appointment = existingAppointment[0];
+      const canCancel = appointment.buyerId === req.user.id || appointment.sellerId === req.user.id;
+
+      if (!canCancel) {
+        return res.status(403).json({ error: 'Permission denied' });
+      }
+
+      const [cancelledAppointment] = await db
         .update(testDriveAppointments)
         .set({
-          status,
-          sellerNotes: sellerNotes || undefined,
-          completionNotes: completionNotes || undefined,
-          rating: rating || undefined,
+          status: 'cancelled',
+          cancellationReason: reason || 'Cancelled by user',
           updatedAt: new Date()
         })
         .where(eq(testDriveAppointments.id, parseInt(appointmentId)))
         .returning();
 
-      res.json({ success: true, appointment });
+      res.json({ 
+        success: true, 
+        appointment: cancelledAppointment,
+        message: 'Test drive appointment cancelled successfully'
+      });
     } catch (error) {
-      console.error('Failed to update test drive appointment:', error);
-      res.status(500).json({ error: 'Failed to update appointment' });
+      console.error('Failed to cancel test drive appointment:', error);
+      res.status(500).json({ error: 'Failed to cancel appointment' });
+    }
+  });
+
+  // Complete test drive appointment
+  app.post('/api/test-drives/:appointmentId/complete', async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const { appointmentId } = req.params;
+      const { notes, rating } = req.body;
+
+      // Check permissions
+      const existingAppointment = await db
+        .select()
+        .from(testDriveAppointments)
+        .where(eq(testDriveAppointments.id, parseInt(appointmentId)))
+        .limit(1);
+
+      if (existingAppointment.length === 0) {
+        return res.status(404).json({ error: 'Appointment not found' });
+      }
+
+      const appointment = existingAppointment[0];
+      const canComplete = appointment.buyerId === req.user.id || appointment.sellerId === req.user.id;
+
+      if (!canComplete) {
+        return res.status(403).json({ error: 'Permission denied' });
+      }
+
+      const [completedAppointment] = await db
+        .update(testDriveAppointments)
+        .set({
+          status: 'completed',
+          completionNotes: notes || null,
+          rating: rating || null,
+          updatedAt: new Date()
+        })
+        .where(eq(testDriveAppointments.id, parseInt(appointmentId)))
+        .returning();
+
+      res.json({ 
+        success: true, 
+        appointment: completedAppointment,
+        message: 'Test drive appointment marked as completed'
+      });
+    } catch (error) {
+      console.error('Failed to complete test drive appointment:', error);
+      res.status(500).json({ error: 'Failed to complete appointment' });
     }
   });
 

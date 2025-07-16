@@ -6,10 +6,12 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/components/auth-provider";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { AppointmentActions } from "@/components/appointment-actions";
 export function UserProfile() {
   const [activeTab, setActiveTab] = useState("profile");
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   
   // Get user's profile data
   const { data: userListings, isLoading: loadingListings } = useQuery({
@@ -396,7 +398,7 @@ export function UserProfile() {
                                 KES {appointment.listing?.price?.toLocaleString()} • {appointment.listing?.location}
                               </p>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 items-center">
                               <Link href={`/car-details/${appointment.listing?.id}`}>
                                 <Button size="sm" variant="outline">View Listing</Button>
                               </Link>
@@ -405,6 +407,14 @@ export function UserProfile() {
                                   Join Call
                                 </Button>
                               )}
+                              <AppointmentActions 
+                                appointment={appointment} 
+                                userRole="buyer"
+                                onUpdate={(updatedAppointment) => {
+                                  // Refresh buyer appointments data
+                                  queryClient.invalidateQueries({ queryKey: ['/api/user/buyer-appointments'] });
+                                }}
+                              />
                             </div>
                           </div>
                         </div>

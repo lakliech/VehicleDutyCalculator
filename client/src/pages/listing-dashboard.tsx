@@ -37,8 +37,11 @@ import {
   Smartphone,
   Star,
   Lightbulb,
-  Search
+  Search,
+  Video,
+  Car
 } from 'lucide-react';
+import { AppointmentActions } from '@/components/appointment-actions';
 
 export default function ListingDashboard() {
   const { id } = useParams();
@@ -1086,10 +1089,14 @@ export default function ListingDashboard() {
                     ) : (
                       appointmentData.appointments.map((appointment: any) => (
                         <div key={appointment.id} className="p-4 border rounded-lg">
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-start justify-between">
                             <div className="flex items-center space-x-3">
-                              <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                <Calendar className="h-5 w-5 text-blue-600" />
+                              <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                {appointment.type === 'video_call' ? (
+                                  <Video className="h-5 w-5 text-purple-600" />
+                                ) : (
+                                  <Car className="h-5 w-5 text-purple-600" />
+                                )}
                               </div>
                               <div>
                                 <p className="font-medium">{appointment.buyerName}</p>
@@ -1107,9 +1114,14 @@ export default function ListingDashboard() {
                               >
                                 {appointment.status}
                               </Badge>
-                              <Button variant="outline" size="sm">
-                                View Details
-                              </Button>
+                              <AppointmentActions 
+                                appointment={appointment} 
+                                userRole="seller"
+                                onUpdate={(updatedAppointment) => {
+                                  // Refresh appointment data
+                                  queryClient.invalidateQueries({ queryKey: ['listing-appointments', id] });
+                                }}
+                              />
                             </div>
                           </div>
                           <div className="mt-3 pl-13 space-y-1">
@@ -1121,6 +1133,12 @@ export default function ListingDashboard() {
                               <Phone className="h-4 w-4 inline mr-1" />
                               {appointment.buyerPhone || 'N/A'}
                             </p>
+                            {appointment.notes && (
+                              <p className="text-sm text-gray-600">
+                                <MessageSquare className="h-4 w-4 inline mr-1" />
+                                {appointment.notes}
+                              </p>
+                            )}
                           </div>
                         </div>
                       ))

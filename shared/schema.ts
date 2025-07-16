@@ -130,10 +130,12 @@ export const videoCallAppointments = pgTable("video_call_appointments", {
   sellerId: text("seller_id").notNull(), // Listing owner
   appointmentDate: timestamp("appointment_date").notNull(),
   duration: integer("duration").notNull().default(30), // Duration in minutes
-  status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled
+  status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled, rescheduled
   meetingLink: text("meeting_link"), // Video call link (Zoom/Meet/etc)
   notes: text("notes"), // Additional notes from buyer
   sellerNotes: text("seller_notes"), // Notes from seller
+  cancellationReason: text("cancellation_reason"), // Reason for cancellation
+  completionNotes: text("completion_notes"), // Post-call notes
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -147,13 +149,14 @@ export const testDriveAppointments = pgTable("test_drive_appointments", {
   appointmentDate: timestamp("appointment_date").notNull(),
   duration: integer("duration").notNull().default(60), // Duration in minutes
   meetingLocation: text("meeting_location").notNull(), // Where to meet
-  status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled, no_show
+  status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled, no_show, rescheduled
   documentsRequired: text("documents_required").array(), // Required documents (license, etc)
   additionalRequirements: text("additional_requirements"), // Insurance, deposit, etc
   buyerNotes: text("buyer_notes"), // Notes from buyer
   sellerNotes: text("seller_notes"), // Notes from seller
   completionNotes: text("completion_notes"), // Post-test drive notes
   rating: integer("rating"), // Buyer rating of experience (1-5)
+  cancellationReason: text("cancellation_reason"), // Reason for cancellation
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -179,6 +182,32 @@ export const insertTestDriveAppointmentSchema = createInsertSchema(testDriveAppo
   id: true,
   createdAt: true,
   updatedAt: true,
+});
+
+// Update schemas for appointment modifications
+export const updateVideoCallAppointmentSchema = z.object({
+  appointmentDate: z.string().datetime().optional(),
+  duration: z.number().min(15).max(180).optional(),
+  status: z.enum(['pending', 'confirmed', 'completed', 'cancelled', 'rescheduled']).optional(),
+  meetingLink: z.string().url().optional().or(z.literal('')),
+  notes: z.string().optional(),
+  sellerNotes: z.string().optional(),
+  cancellationReason: z.string().optional(),
+  completionNotes: z.string().optional(),
+});
+
+export const updateTestDriveAppointmentSchema = z.object({
+  appointmentDate: z.string().datetime().optional(),
+  duration: z.number().min(30).max(240).optional(),
+  meetingLocation: z.string().optional(),
+  status: z.enum(['pending', 'confirmed', 'completed', 'cancelled', 'no_show', 'rescheduled']).optional(),
+  documentsRequired: z.array(z.string()).optional(),
+  additionalRequirements: z.string().optional(),
+  buyerNotes: z.string().optional(),
+  sellerNotes: z.string().optional(),
+  completionNotes: z.string().optional(),
+  rating: z.number().min(1).max(5).optional(),
+  cancellationReason: z.string().optional(),
 });
 
 // Seller availability settings

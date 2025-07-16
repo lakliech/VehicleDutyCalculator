@@ -221,6 +221,68 @@ export const seasonalPricingTrends = pgTable("seasonal_pricing_trends", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const priceAlerts = pgTable("price_alerts", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  listingId: integer("listing_id").references(() => carListings.id),
+  alertType: varchar("alert_type", { length: 50 }).notNull(),
+  alertMessage: text("alert_message").notNull(),
+  priority: varchar("priority", { length: 20 }).default("medium"),
+  currentPrice: numeric("current_price", { precision: 12, scale: 2 }),
+  targetPrice: numeric("target_price", { precision: 12, scale: 2 }),
+  priceDeviation: numeric("price_deviation", { precision: 5, scale: 2 }),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const marketInsights = pgTable("market_insights", {
+  id: serial("id").primaryKey(),
+  insightType: varchar("insight_type", { length: 50 }).notNull(),
+  title: text("title").notNull(),
+  summary: text("summary").notNull(),
+  detailedAnalysis: text("detailed_analysis"),
+  actionableRecommendations: json("actionable_recommendations").$type<string[]>(),
+  priority: varchar("priority", { length: 20 }).default("medium"),
+  confidenceLevel: numeric("confidence_level", { precision: 3, scale: 2 }),
+  category: varchar("category", { length: 100 }),
+  isPublic: boolean("is_public").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const depreciationForecasts = pgTable("depreciation_forecasts", {
+  id: serial("id").primaryKey(),
+  make: varchar("make", { length: 100 }).notNull(),
+  model: varchar("model", { length: 100 }).notNull(),
+  year: integer("year").notNull(),
+  engineCapacity: integer("engine_capacity"),
+  currentValue: numeric("current_value", { precision: 12, scale: 2 }),
+  threeMonthForecast: numeric("three_month_forecast", { precision: 12, scale: 2 }),
+  sixMonthForecast: numeric("six_month_forecast", { precision: 12, scale: 2 }),
+  twelveMonthForecast: numeric("twelve_month_forecast", { precision: 12, scale: 2 }),
+  confidenceLevel: numeric("confidence_level", { precision: 3, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const marketPriceAnalysis = pgTable("market_price_analysis", {
+  id: serial("id").primaryKey(),
+  make: varchar("make", { length: 100 }).notNull(),
+  model: varchar("model", { length: 100 }).notNull(),
+  year: integer("year").notNull(),
+  engineCapacity: integer("engine_capacity"),
+  averagePrice: numeric("average_price", { precision: 12, scale: 2 }),
+  medianPrice: numeric("median_price", { precision: 12, scale: 2 }),
+  minPrice: numeric("min_price", { precision: 12, scale: 2 }),
+  maxPrice: numeric("max_price", { precision: 12, scale: 2 }),
+  listingCount: integer("listing_count"),
+  priceRange: varchar("price_range", { length: 50 }),
+  marketTrend: varchar("market_trend", { length: 20 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // ==============================
 // USER ACTIVITIES (SIMPLIFIED)
 // ==============================

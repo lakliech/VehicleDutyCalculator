@@ -78,7 +78,7 @@ interface SeasonalTrend {
   bestSellingOpportunity: boolean;
 }
 
-export default function SmartPricing() {
+export default function MarketIntelligenceDashboard() {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -153,11 +153,11 @@ export default function SmartPricing() {
           <CardContent className="pt-6">
             <div className="text-center">
               <Brain className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-              <h2 className="text-xl font-semibold mb-2">Smart Pricing Intelligence</h2>
+              <h2 className="text-xl font-semibold mb-2">Market Intelligence Dashboard</h2>
               <p className="text-gray-600 mb-4">
-                Get AI-powered pricing recommendations and market insights for your vehicle listings.
+                Get AI-powered pricing recommendations and comprehensive market insights for your vehicle listings.
               </p>
-              <Button>Sign In to Access Smart Pricing</Button>
+              <Button>Sign In to Access Market Intelligence</Button>
             </div>
           </CardContent>
         </Card>
@@ -226,9 +226,9 @@ export default function SmartPricing() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Smart Pricing Intelligence</h1>
+        <h1 className="text-3xl font-bold mb-2">Market Intelligence Dashboard</h1>
         <p className="text-gray-600">
-          AI-powered pricing recommendations and market insights for your vehicle listings
+          Comprehensive AI-powered pricing recommendations, market analysis, and actionable insights for your vehicle listings
         </p>
       </div>
 

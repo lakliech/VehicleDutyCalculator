@@ -122,7 +122,7 @@ export function Navigation() {
                       </Link>
                       <Link href="/smart-pricing" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
                         <Brain className="mr-2 h-4 w-4" />
-                        <span>Smart Pricing</span>
+                        <span>Market Intelligence</span>
                       </Link>
 
                       {/* Admin Dashboard for users with admin role */}

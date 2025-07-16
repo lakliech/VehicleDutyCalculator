@@ -929,6 +929,14 @@ Changelog:
   - Smart Pricing now requires user authentication and appears in user menu between Messages and Admin Dashboard
   - Added Brain icon to Smart Pricing menu item for visual consistency
   - Enhanced security by restricting Smart Pricing access to authenticated users only
+- January 17, 2025. Activated Market Intelligence Dashboard features and resolved naming conflicts:
+  - Renamed standalone module from "Smart Pricing Intelligence" to "Market Intelligence Dashboard" to distinguish from listing dashboard's Smart Pricing feature
+  - Updated navigation menu to display "Market Intelligence" for clarity
+  - Fixed critical database schema issues by adding missing tables: price_alerts, market_insights, depreciation_forecasts, market_price_analysis
+  - Created comprehensive sample data including market insights, price alerts, and seasonal trends for full feature demonstration
+  - Enhanced database schema to support text arrays for actionable recommendations
+  - Populated system with real market data covering Toyota Corolla trends, SUV opportunities, and diesel depreciation warnings
+  - All Market Intelligence Dashboard features now fully functional with live data visualization and AI-powered insights
 
 ## User Preferences
 

@@ -18,7 +18,7 @@ import {
   AlertCircle,
   Eye,
   Calendar,
-  DollarSign,
+  Banknote,
   Car,
   Building,
   Phone,
@@ -304,7 +304,7 @@ export default function LoanApplicationsPage() {
                     {/* Loan Information */}
                     <div>
                       <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                        <DollarSign className="h-4 w-4 mr-1" />
+                        <Banknote className="h-4 w-4 mr-1" />
                         Loan Details
                       </h4>
                       <div className="space-y-2 text-sm">

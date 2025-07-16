@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { DollarSign, Clock, TrendingUp, BarChart3, Calculator, Car, MapPin, Gauge, Calendar, Zap, Camera, AlertTriangle } from "lucide-react";
+import { Banknote, Clock, TrendingUp, BarChart3, Calculator, Car, MapPin, Gauge, Calendar, Zap, Camera, AlertTriangle } from "lucide-react";
 import { ModuleNavigation } from "@/components/module-navigation";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { ImageUpload } from "@/components/image-upload";
@@ -405,7 +405,7 @@ export default function MyCarsWorth() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <DollarSign className="h-5 w-5 text-green-600" />
+                      <Banknote className="h-5 w-5 text-green-600" />
                       <span>Valuation Results</span>
                     </CardTitle>
                     <CardDescription>
@@ -661,7 +661,7 @@ export default function MyCarsWorth() {
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <DollarSign className="h-5 w-5 text-purple-600" />
+                  <Banknote className="h-5 w-5 text-purple-600" />
                   <span>Market Valuation</span>
                 </CardTitle>
                 <CardDescription>

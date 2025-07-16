@@ -10,7 +10,7 @@ import {
   Coffee, 
   MapPin, 
   Clock,
-  DollarSign,
+  Banknote,
   Zap
 } from "lucide-react";
 
@@ -94,7 +94,7 @@ const benefits = [
     description: "Hybrid work model with flexible hours and remote options"
   },
   {
-    icon: DollarSign,
+    icon: Banknote,
     title: "Competitive Salary",
     description: "Market-leading compensation with performance bonuses"
   },
@@ -214,7 +214,7 @@ export default function Careers() {
                           {job.type}
                         </div>
                         <div className="flex items-center">
-                          <DollarSign className="h-4 w-4 mr-1" />
+                          <Banknote className="h-4 w-4 mr-1" />
                           {job.salary}
                         </div>
                       </div>

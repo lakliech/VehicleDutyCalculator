@@ -37,7 +37,7 @@ import {
   Clock,
   FileText,
   CreditCard,
-  DollarSign,
+  Banknote,
   Calculator,
   TrendingDown,
   Building2,
@@ -685,7 +685,7 @@ export default function CarDetails() {
                                   <CardContent className="space-y-4">
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                       <div className="text-center p-3 bg-purple-50 rounded-lg">
-                                        <DollarSign className="h-5 w-5 mx-auto mb-1 text-purple-600" />
+                                        <Banknote className="h-5 w-5 mx-auto mb-1 text-purple-600" />
                                         <div className="text-sm font-medium">{formatCurrency(product.recommendedLoanAmount)}</div>
                                         <div className="text-xs text-gray-500">Loan Amount</div>
                                       </div>
@@ -770,7 +770,7 @@ export default function CarDetails() {
                               <CardContent className="p-4">
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                   <div className="text-center p-3 bg-purple-50 rounded-lg">
-                                    <DollarSign className="h-5 w-5 mx-auto mb-1 text-purple-600" />
+                                    <Banknote className="h-5 w-5 mx-auto mb-1 text-purple-600" />
                                     <div className="text-lg font-semibold">{formatCurrency(financialProducts.tradeInEstimate.estimatedValue)}</div>
                                     <div className="text-xs text-gray-500">Estimated Trade-in Value</div>
                                   </div>

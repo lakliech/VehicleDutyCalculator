@@ -16,7 +16,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { loanApplicationSchema, type InsertLoanApplication } from '@shared/schema';
 import { 
   CreditCard, 
-  DollarSign, 
+  Banknote, 
   FileText, 
   TrendingUp, 
   Shield, 
@@ -783,7 +783,7 @@ export default function LoanPreApproval() {
                       </div>
                       {selectedProductData.minMonthlyIncome && (
                         <div className="flex items-center gap-2 text-sm">
-                          <DollarSign className="h-3 w-3 text-purple-500" />
+                          <Banknote className="h-3 w-3 text-purple-500" />
                           <span className="text-purple-600">
                             Min Income: KES {parseInt(selectedProductData.minMonthlyIncome).toLocaleString()}
                           </span>
@@ -813,7 +813,7 @@ export default function LoanPreApproval() {
                     </div>
                   </li>
                   <li className="flex items-start gap-2">
-                    <DollarSign className="h-4 w-4 text-blue-500 mt-0.5" />
+                    <Banknote className="h-4 w-4 text-blue-500 mt-0.5" />
                     <div>
                       <p className="font-semibold text-sm">Competitive Rates</p>
                       <p className="text-xs text-gray-600">Access to best market rates</p>

@@ -21,7 +21,7 @@ import {
   TrendingUp, 
   AlertCircle,
   CheckCircle,
-  DollarSign,
+  Banknote,
   Camera,
   FileText,
   MapPin,

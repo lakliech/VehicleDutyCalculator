@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Calculator, DollarSign, FileText, Truck, Ship } from "lucide-react";
+import { AlertCircle, Calculator, Banknote, FileText, Truck, Ship } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { ModuleNavigation } from "@/components/module-navigation";
@@ -435,7 +435,7 @@ export default function ImportationEstimator() {
                     {/* Cost Breakdown */}
                     <div className="space-y-4">
                       <h4 className="font-semibold flex items-center gap-2">
-                        <DollarSign className="h-4 w-4" />
+                        <Banknote className="h-4 w-4" />
                         Cost Breakdown
                       </h4>
                       

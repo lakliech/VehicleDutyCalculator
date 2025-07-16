@@ -56,7 +56,7 @@ import {
   Download,
   Building2,
   CreditCard,
-  DollarSign,
+  Banknote,
   Receipt
 } from "lucide-react";
 import { z } from "zod";
@@ -4259,7 +4259,7 @@ function FinancialServicesTab({
                 Bank Partners ({banks.length})
               </TabsTrigger>
               <TabsTrigger value="loan-products" className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4" />
+                <Banknote className="h-4 w-4" />
                 Loan Products ({loanProducts.length})
               </TabsTrigger>
               <TabsTrigger value="applications" className="flex items-center gap-2">

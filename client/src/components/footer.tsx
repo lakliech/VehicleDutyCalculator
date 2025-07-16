@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Car, DollarSign, Calculator, FileText, Wrench, Search, ShoppingCart, CreditCard, Mail, Phone, MapPin } from "lucide-react";
+import { Car, Coins, Calculator, FileText, Wrench, Search, ShoppingCart, CreditCard, Mail, Phone, MapPin } from "lucide-react";
 
 export function Footer() {
   const footerSections = [
@@ -8,7 +8,7 @@ export function Footer() {
       links: [
         { href: "/duty-calculator", label: "Duty Calculator", icon: <Calculator className="h-3 w-3" /> },
         { href: "/importation-estimator", label: "Import Calculator", icon: <Car className="h-3 w-3" /> },
-        { href: "/mycars-worth", label: "MyCar's Worth", icon: <DollarSign className="h-3 w-3" /> },
+        { href: "/mycars-worth", label: "MyCar's Worth", icon: <Coins className="h-3 w-3" /> },
         { href: "/transfer-cost", label: "Transfer Cost", icon: <FileText className="h-3 w-3" /> }
       ]
     },

@@ -18,7 +18,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { 
   Car, ArrowLeft, ArrowRight, MapPin, Camera, Upload, 
-  DollarSign, Phone, CheckCircle, X, Plus, Eye, Save 
+  Coins, Phone, CheckCircle, X, Plus, Eye, Save 
 } from "lucide-react";
 
 // Form schema for each step
@@ -934,7 +934,7 @@ function PricingStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, 
                 <FormLabel>Asking Price (KES) *</FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Coins className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input 
                       type="number" 
                       placeholder="1500000" 

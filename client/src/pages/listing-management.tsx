@@ -17,7 +17,7 @@ import { Link } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  Car, DollarSign, Eye, TrendingUp, Target, Brain, Bell, Lightbulb, Settings,
+  Car, Banknote, Eye, TrendingUp, Target, Brain, Bell, Lightbulb, Settings,
   ArrowLeft, Plus, RefreshCw, Edit, Star, MessageCircle, Loader2
 } from 'lucide-react';
 

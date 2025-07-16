@@ -40,7 +40,7 @@ import {
   Phone,
   Brain,
   TrendingUp,
-  DollarSign,
+  Banknote,
   Target,
   Loader2,
   BarChart3
@@ -1080,7 +1080,7 @@ export default function MyListings() {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <DollarSign className="h-5 w-5 text-green-600" />
+                        <Banknote className="h-5 w-5 text-green-600" />
                         Current Price Analysis
                       </CardTitle>
                     </CardHeader>

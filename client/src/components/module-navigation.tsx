@@ -6,7 +6,7 @@ import {
   Calculator, 
   Car, 
   Wrench, 
-  DollarSign, 
+  Coins, 
   FileText, 
   ShoppingCart, 
   CreditCard,
@@ -41,7 +41,7 @@ const moduleItems: ModuleItem[] = [
   {
     href: "/mycars-worth",
     label: "MyCar's Worth",
-    icon: <DollarSign className="h-4 w-4" />
+    icon: <Coins className="h-4 w-4" />
   },
   {
     href: "/service-estimator",

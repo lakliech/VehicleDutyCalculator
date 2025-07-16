@@ -962,7 +962,7 @@ export class DatabaseStorage implements IStorage {
           title: 'Get Vehicle Valuation',
           description: 'Check current market value of any vehicle in Kenya',
           href: '/mycars-worth',
-          icon: 'DollarSign',
+          icon: 'Banknote',
           color: 'bg-green-500',
           priority: 'medium' as const,
           reason: 'Great for understanding vehicle depreciation and market trends'

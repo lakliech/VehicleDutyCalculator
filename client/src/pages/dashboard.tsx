@@ -4,7 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/components/auth-provider";
-import { CalendarDays, Calculator, FileText, DollarSign, Car, ShoppingCart, TrendingUp, Activity } from "lucide-react";
+import { CalendarDays, Calculator, FileText, Banknote, Car, ShoppingCart, TrendingUp, Activity } from "lucide-react";
 
 interface DashboardData {
   stats: {
@@ -48,7 +48,7 @@ interface DashboardData {
 const iconMap: { [key: string]: any } = {
   Calculator,
   FileText,
-  DollarSign,
+  Banknote,
   Car,
   ShoppingCart,
   TrendingUp,
@@ -185,7 +185,7 @@ export default function Dashboard() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <DollarSign className="h-8 w-8 text-green-600" />
+                <Banknote className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Vehicle Valuations</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.totalValuations}</p>

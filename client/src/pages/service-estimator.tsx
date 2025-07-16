@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Wrench, Clock, Settings, DollarSign } from "lucide-react";
+import { Wrench, Clock, Settings, Banknote } from "lucide-react";
 import { ModuleNavigation } from "@/components/module-navigation";
 
 export default function ServiceEstimator() {
@@ -66,7 +66,7 @@ export default function ServiceEstimator() {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <DollarSign className="h-5 w-5 text-purple-600" />
+                <Banknote className="h-5 w-5 text-purple-600" />
                 <span>Parts & Labor</span>
               </CardTitle>
               <CardDescription>

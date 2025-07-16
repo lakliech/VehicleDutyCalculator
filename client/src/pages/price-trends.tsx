@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TrendingUp, TrendingDown, BarChart3, Filter, Eye, DollarSign, Info } from "lucide-react";
+import { TrendingUp, TrendingDown, BarChart3, Filter, Eye, Coins, Info } from "lucide-react";
 import { ResponsiveContainer, Cell, Tooltip, XAxis, YAxis, CartesianGrid, ScatterChart, Scatter, Legend } from "recharts";
 
 interface VehicleData {
@@ -202,7 +202,7 @@ export default function PriceTrends() {
                       : '0'}
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-green-600" />
+                <Coins className="h-8 w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
@@ -399,7 +399,7 @@ export default function PriceTrends() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
+                  <Coins className="h-5 w-5" />
                   Market Insights
                 </CardTitle>
               </CardHeader>

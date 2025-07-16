@@ -10,7 +10,7 @@ import {
   Calculator, 
   Car, 
   Wrench, 
-  DollarSign, 
+  Banknote, 
   FileText, 
   ShoppingCart, 
   CreditCard,
@@ -58,7 +58,7 @@ const ADDITIONAL_TOOLS = [
   {
     href: "/mycars-worth", 
     title: "Car Valuation",
-    icon: DollarSign
+    icon: Banknote
   },
   {
     href: "/transfer-cost",

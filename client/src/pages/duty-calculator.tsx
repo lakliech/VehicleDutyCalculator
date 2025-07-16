@@ -31,7 +31,7 @@ import {
   Truck, 
   Bike, 
   Shield, 
-  DollarSign, 
+  Calculator as CalculatorIcon, 
   Calendar, 
   Receipt,
   Info,
@@ -778,7 +778,7 @@ export default function DutyCalculator() {
                       {selectedVehicle && (selectedVehicle.crspKes || selectedVehicle.crsp2020) && (
                         <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
                           <div className="flex items-start space-x-2">
-                            <DollarSign className="h-5 w-5 text-purple-600 mt-0.5" />
+                            <CalculatorIcon className="h-5 w-5 text-purple-600 mt-0.5" />
                             <div className="w-full">
                               <p className="text-sm font-medium text-purple-900">
                                 Current Retail Selling Price (CRSP)

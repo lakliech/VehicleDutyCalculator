@@ -21,7 +21,7 @@ import {
   Settings, 
   Edit, 
   Activity, 
-  DollarSign, 
+  Banknote, 
   Eye, 
   Phone, 
   Heart, 

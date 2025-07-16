@@ -1215,7 +1215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             {
               title: "Check Car Value",
               href: "/mycars-worth",
-              icon: "DollarSign", 
+              icon: "Banknote", 
               color: "bg-green-500"
             },
             {
@@ -1276,7 +1276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         {
           title: "Check Car Value",
           href: "/mycars-worth",
-          icon: "DollarSign", 
+          icon: "Banknote", 
           color: "bg-green-500"
         },
         {

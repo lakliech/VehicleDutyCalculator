@@ -1,9 +1,27 @@
 import express, { type Request, Response, NextFunction } from "express";
+import compression from 'compression';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { CacheService } from './services/cache-service';
+import { ImageOptimizer } from './services/image-optimizer';
 
 const app = express();
 app.set('trust proxy', 1); // Trust the proxy for secure cookies
+
+// Enable compression for all responses
+app.use(compression({
+  level: 6, // Good balance between compression and speed
+  threshold: 1024, // Only compress responses larger than 1KB
+  filter: (req, res) => {
+    // Don't compress if the request has a no-transform directive
+    if (req.headers['cache-control'] && req.headers['cache-control'].includes('no-transform')) {
+      return false;
+    }
+    // Use compression for all other responses
+    return compression.filter(req, res);
+  }
+}));
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: false }));
 
@@ -37,7 +55,31 @@ app.use((req, res, next) => {
   next();
 });
 
+// Cache control middleware
+app.use((req, res, next) => {
+  // Set cache headers based on route
+  if (req.path.startsWith('/api/images/')) {
+    // Cache images for 1 year
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  } else if (req.path.startsWith('/api/car-listings') || 
+             req.path.startsWith('/api/vehicle-references') ||
+             req.path.startsWith('/api/car-listing-filters')) {
+    // Cache API responses for 5 minutes
+    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+  } else if (req.path.startsWith('/api/')) {
+    // Default API cache for 1 minute
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
+  }
+  next();
+});
+
 (async () => {
+  // Initialize performance services
+  await Promise.allSettled([
+    CacheService.initialize(),
+    ImageOptimizer.initialize()
+  ]);
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

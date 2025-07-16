@@ -73,6 +73,10 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import session from "express-session";
 import MemoryStore from "memorystore";
 import OpenAI from "openai";
+import { ImageOptimizer, imageUtils } from './services/image-optimizer';
+import { CacheService, CacheKeys } from './services/cache-service';
+import fs from 'fs/promises';
+import path from 'path';
 
 // Initialize OpenAI
 const openai = new OpenAI({ 
@@ -2911,6 +2915,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sortBy = 'recommended'
       } = req.query;
 
+      // Build cache key from query parameters
+      const queryParams = { 
+        page, limit, search, make, model, minPrice, maxPrice, 
+        fuelType, transmission, bodyType, minMileage, maxMileage, 
+        minYear, maxYear, doors, color, features, sortBy 
+      };
+      const cacheKey = CacheKeys.carListings(JSON.stringify(queryParams));
+      
+      // Check cache first
+      const cached = await CacheService.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+
       const pageNum = parseInt(page as string);
       const limitNum = parseInt(limit as string);
       const offset = (pageNum - 1) * limitNum;
@@ -3066,13 +3084,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const totalPages = Math.ceil(totalCount.count / limitNum);
 
-      res.json({
+      const response = {
         cars: transformedListings,
         total: totalCount.count,
         totalPages,
         currentPage: pageNum,
         hasMore: pageNum < totalPages
-      });
+      };
+
+      // Cache the response for 5 minutes
+      await CacheService.set(cacheKey, response, { ttl: 300 });
+
+      res.json(response);
     } catch (error) {
       console.error('Failed to fetch car listings:', error);
       res.status(500).json({ error: 'Failed to fetch car listings' });
@@ -3082,6 +3105,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get filter options for car listings
   app.get('/api/car-listing-filters', async (req: Request, res: Response) => {
     try {
+      const cacheKey = CacheKeys.carFilters('all');
+      
+      // Check cache first
+      const cached = await CacheService.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+
       const filterOptions = {
         makes: ['Toyota', 'Nissan', 'Subaru', 'Honda', 'Mazda', 'Mitsubishi', 'Hyundai', 'Kia', 'BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen'],
         models: ['Harrier', 'X-Trail', 'Forester', 'CR-V', 'CX-5', 'Outlander', 'Tucson', 'Sportage', 'X3', 'GLC', 'Q5', 'Tiguan'],
@@ -3091,6 +3122,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         colors: ['Black', 'White', 'Grey', 'Silver', 'Red', 'Blue', 'Green', 'Yellow', 'Brown', 'Other'],
         features: ['Navigation', 'Bluetooth', 'Cruise Control', 'Parking Sensors', 'Sunroof', 'Leather Seats', 'Alloy Wheels', 'Reverse Camera', '4WD', 'AWD']
       };
+
+      // Cache filter options for 1 hour (they don't change often)
+      await CacheService.set(cacheKey, filterOptions, { ttl: 3600 });
 
       res.json(filterOptions);
     } catch (error) {
@@ -7595,6 +7629,122 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     } catch (error) {
       console.error('Failed to update test drive appointment:', error);
       res.status(500).json({ error: 'Failed to update appointment' });
+    }
+  });
+
+  // Image optimization endpoints
+  app.get('/api/images/optimize/*', async (req: Request, res: Response) => {
+    try {
+      const imagePath = req.params[0];
+      const { w: width, h: height, q: quality = 85, f: format = 'webp' } = req.query;
+
+      if (!imagePath) {
+        return res.status(400).json({ error: 'Image path required' });
+      }
+
+      // Build cache key
+      const cacheKey = `image:${imagePath}:${width || 'auto'}x${height || 'auto'}:${quality}:${format}`;
+      
+      // Check cache first
+      const cached = await CacheService.get<Buffer>(cacheKey);
+      if (cached) {
+        res.setHeader('Content-Type', `image/${format}`);
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        return res.send(Buffer.from(cached));
+      }
+
+      // Optimize image
+      const optimized = await ImageOptimizer.optimizeImage(imagePath, {
+        width: width ? parseInt(width as string) : undefined,
+        height: height ? parseInt(height as string) : undefined,
+        quality: parseInt(quality as string),
+        format: format as 'webp' | 'jpeg'
+      });
+
+      // Read optimized file
+      const optimizedPath = format === 'webp' ? optimized.webpPath : optimized.optimizedPath;
+      const imageBuffer = await fs.readFile(optimizedPath);
+
+      // Cache the result
+      await CacheService.set(cacheKey, imageBuffer, { ttl: 86400 }); // Cache for 24 hours
+
+      res.setHeader('Content-Type', `image/${format}`);
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      res.setHeader('X-Image-Optimized', 'true');
+      res.setHeader('X-Original-Size', optimized.originalSize.toString());
+      res.setHeader('X-Optimized-Size', (format === 'webp' ? optimized.webpSize : optimized.optimizedSize).toString());
+      res.setHeader('X-Compression-Ratio', optimized.compressionRatio.toFixed(2));
+
+      res.send(imageBuffer);
+    } catch (error) {
+      console.error('Image optimization error:', error);
+      res.status(500).json({ error: 'Failed to optimize image' });
+    }
+  });
+
+  // Serve original images with fallback
+  app.get('/api/images/original/*', async (req: Request, res: Response) => {
+    try {
+      const imagePath = req.params[0];
+      
+      if (!imagePath) {
+        return res.status(400).json({ error: 'Image path required' });
+      }
+
+      const imageBuffer = await fs.readFile(imagePath);
+      const ext = path.extname(imagePath).toLowerCase();
+      
+      let contentType = 'image/jpeg';
+      if (ext === '.png') contentType = 'image/png';
+      else if (ext === '.webp') contentType = 'image/webp';
+      else if (ext === '.gif') contentType = 'image/gif';
+
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      res.send(imageBuffer);
+    } catch (error) {
+      console.error('Image serving error:', error);
+      res.status(404).json({ error: 'Image not found' });
+    }
+  });
+
+  // Cache management endpoints
+  app.get('/api/cache/stats', async (req: Request, res: Response) => {
+    try {
+      const stats = CacheService.getStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Cache stats error:', error);
+      res.status(500).json({ error: 'Failed to get cache stats' });
+    }
+  });
+
+  app.post('/api/cache/clear', async (req: Request, res: Response) => {
+    try {
+      const { pattern } = req.body;
+      
+      if (pattern) {
+        await CacheService.invalidatePattern(pattern);
+        res.json({ message: `Cache cleared for pattern: ${pattern}` });
+      } else {
+        // Clear common cache patterns
+        const patterns = [
+          'car-listings*',
+          'vehicle-references*',
+          'car-filters*',
+          'search*',
+          'image*'
+        ];
+        
+        for (const pat of patterns) {
+          await CacheService.invalidatePattern(pat);
+        }
+        
+        res.json({ message: 'Common caches cleared' });
+      }
+    } catch (error) {
+      console.error('Cache clear error:', error);
+      res.status(500).json({ error: 'Failed to clear cache' });
     }
   });
 

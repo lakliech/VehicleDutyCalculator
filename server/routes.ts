@@ -54,7 +54,9 @@ import {
   loanProducts,
   loanApplications,
   tradeInEvaluations,
-  loanCalculations
+  loanCalculations,
+  videoCallAppointments,
+  testDriveAppointments
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -7355,6 +7357,244 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     } catch (error) {
       console.error('Error fetching financial products for listing:', error);
       res.status(500).json({ error: 'Failed to fetch financial products' });
+    }
+  });
+
+  // ===============================
+  // VIDEO CALL APPOINTMENTS API
+  // ===============================
+  
+  // Schedule video call appointment
+  app.post('/api/listings/:listingId/video-call', async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const { listingId } = req.params;
+      const { appointmentDate, duration, notes } = req.body;
+
+      // Get listing details to find seller
+      const listing = await db
+        .select()
+        .from(carListings)
+        .where(eq(carListings.id, parseInt(listingId)))
+        .limit(1);
+
+      if (listing.length === 0) {
+        return res.status(404).json({ error: 'Listing not found' });
+      }
+
+      // Create video call appointment
+      const [appointment] = await db
+        .insert(videoCallAppointments)
+        .values({
+          listingId: parseInt(listingId),
+          buyerId: req.user.id,
+          sellerId: listing[0].sellerId,
+          appointmentDate: new Date(appointmentDate),
+          duration: duration || 30,
+          notes: notes || null,
+          status: 'pending'
+        })
+        .returning();
+
+      res.json({ 
+        success: true, 
+        appointment,
+        message: 'Video call appointment requested successfully' 
+      });
+    } catch (error) {
+      console.error('Video call scheduling error:', error);
+      res.status(500).json({ error: 'Failed to schedule video call' });
+    }
+  });
+
+  // Get video call appointments for a user
+  app.get('/api/video-calls', async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const appointments = await db
+        .select({
+          appointment: videoCallAppointments,
+          listing: {
+            id: carListings.id,
+            title: carListings.title,
+            make: carListings.make,
+            model: carListings.model,
+            year: carListings.year,
+            price: carListings.price,
+            images: carListings.images
+          }
+        })
+        .from(videoCallAppointments)
+        .leftJoin(carListings, eq(videoCallAppointments.listingId, carListings.id))
+        .where(or(
+          eq(videoCallAppointments.buyerId, req.user.id),
+          eq(videoCallAppointments.sellerId, req.user.id)
+        ))
+        .orderBy(desc(videoCallAppointments.appointmentDate));
+
+      res.json(appointments);
+    } catch (error) {
+      console.error('Failed to fetch video call appointments:', error);
+      res.status(500).json({ error: 'Failed to fetch appointments' });
+    }
+  });
+
+  // Update video call appointment status
+  app.patch('/api/video-calls/:appointmentId', async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const { appointmentId } = req.params;
+      const { status, meetingLink, sellerNotes } = req.body;
+
+      const [appointment] = await db
+        .update(videoCallAppointments)
+        .set({
+          status,
+          meetingLink: meetingLink || undefined,
+          sellerNotes: sellerNotes || undefined,
+          updatedAt: new Date()
+        })
+        .where(eq(videoCallAppointments.id, parseInt(appointmentId)))
+        .returning();
+
+      res.json({ success: true, appointment });
+    } catch (error) {
+      console.error('Failed to update video call appointment:', error);
+      res.status(500).json({ error: 'Failed to update appointment' });
+    }
+  });
+
+  // ===============================
+  // TEST DRIVE APPOINTMENTS API
+  // ===============================
+  
+  // Schedule test drive appointment
+  app.post('/api/listings/:listingId/test-drive', async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const { listingId } = req.params;
+      const { 
+        appointmentDate, 
+        duration, 
+        meetingLocation, 
+        buyerNotes,
+        documentsRequired,
+        additionalRequirements 
+      } = req.body;
+
+      // Get listing details to find seller
+      const listing = await db
+        .select()
+        .from(carListings)
+        .where(eq(carListings.id, parseInt(listingId)))
+        .limit(1);
+
+      if (listing.length === 0) {
+        return res.status(404).json({ error: 'Listing not found' });
+      }
+
+      // Create test drive appointment
+      const [appointment] = await db
+        .insert(testDriveAppointments)
+        .values({
+          listingId: parseInt(listingId),
+          buyerId: req.user.id,
+          sellerId: listing[0].sellerId,
+          appointmentDate: new Date(appointmentDate),
+          duration: duration || 60,
+          meetingLocation,
+          buyerNotes: buyerNotes || null,
+          documentsRequired: documentsRequired || ['Valid Driver\'s License'],
+          additionalRequirements: additionalRequirements || null,
+          status: 'pending'
+        })
+        .returning();
+
+      res.json({ 
+        success: true, 
+        appointment,
+        message: 'Test drive appointment requested successfully' 
+      });
+    } catch (error) {
+      console.error('Test drive scheduling error:', error);
+      res.status(500).json({ error: 'Failed to schedule test drive' });
+    }
+  });
+
+  // Get test drive appointments for a user
+  app.get('/api/test-drives', async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const appointments = await db
+        .select({
+          appointment: testDriveAppointments,
+          listing: {
+            id: carListings.id,
+            title: carListings.title,
+            make: carListings.make,
+            model: carListings.model,
+            year: carListings.year,
+            price: carListings.price,
+            location: carListings.location,
+            images: carListings.images
+          }
+        })
+        .from(testDriveAppointments)
+        .leftJoin(carListings, eq(testDriveAppointments.listingId, carListings.id))
+        .where(or(
+          eq(testDriveAppointments.buyerId, req.user.id),
+          eq(testDriveAppointments.sellerId, req.user.id)
+        ))
+        .orderBy(desc(testDriveAppointments.appointmentDate));
+
+      res.json(appointments);
+    } catch (error) {
+      console.error('Failed to fetch test drive appointments:', error);
+      res.status(500).json({ error: 'Failed to fetch appointments' });
+    }
+  });
+
+  // Update test drive appointment status
+  app.patch('/api/test-drives/:appointmentId', async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const { appointmentId } = req.params;
+      const { status, sellerNotes, completionNotes, rating } = req.body;
+
+      const [appointment] = await db
+        .update(testDriveAppointments)
+        .set({
+          status,
+          sellerNotes: sellerNotes || undefined,
+          completionNotes: completionNotes || undefined,
+          rating: rating || undefined,
+          updatedAt: new Date()
+        })
+        .where(eq(testDriveAppointments.id, parseInt(appointmentId)))
+        .returning();
+
+      res.json({ success: true, appointment });
+    } catch (error) {
+      console.error('Failed to update test drive appointment:', error);
+      res.status(500).json({ error: 'Failed to update appointment' });
     }
   });
 

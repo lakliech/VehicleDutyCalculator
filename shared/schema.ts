@@ -122,6 +122,42 @@ export const heavyMachinery = pgTable("heavy_machinery", {
   createdAt: text("created_at").default("now()").notNull(),
 });
 
+// Video Call Appointments for virtual vehicle viewings
+export const videoCallAppointments = pgTable("video_call_appointments", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").notNull(),
+  buyerId: integer("buyer_id").notNull(), // User requesting the call
+  sellerId: integer("seller_id").notNull(), // Listing owner
+  appointmentDate: timestamp("appointment_date").notNull(),
+  duration: integer("duration").notNull().default(30), // Duration in minutes
+  status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled
+  meetingLink: text("meeting_link"), // Video call link (Zoom/Meet/etc)
+  notes: text("notes"), // Additional notes from buyer
+  sellerNotes: text("seller_notes"), // Notes from seller
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Test Drive Appointments for physical vehicle inspection
+export const testDriveAppointments = pgTable("test_drive_appointments", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id").notNull(),
+  buyerId: integer("buyer_id").notNull(),
+  sellerId: integer("seller_id").notNull(),
+  appointmentDate: timestamp("appointment_date").notNull(),
+  duration: integer("duration").notNull().default(60), // Duration in minutes
+  meetingLocation: text("meeting_location").notNull(), // Where to meet
+  status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled, no_show
+  documentsRequired: text("documents_required").array(), // Required documents (license, etc)
+  additionalRequirements: text("additional_requirements"), // Insurance, deposit, etc
+  buyerNotes: text("buyer_notes"), // Notes from buyer
+  sellerNotes: text("seller_notes"), // Notes from seller
+  completionNotes: text("completion_notes"), // Post-test drive notes
+  rating: integer("rating"), // Buyer rating of experience (1-5)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const insertVehicleSchema = createInsertSchema(vehicles).omit({
   id: true,
   createdAt: true,
@@ -131,6 +167,25 @@ export const insertCalculationSchema = createInsertSchema(calculations).omit({
   id: true,
   createdAt: true,
 });
+
+// Insert schemas for appointments
+export const insertVideoCallAppointmentSchema = createInsertSchema(videoCallAppointments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTestDriveAppointmentSchema = createInsertSchema(testDriveAppointments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Type definitions
+export type VideoCallAppointment = typeof videoCallAppointments.$inferSelect;
+export type InsertVideoCallAppointment = typeof insertVideoCallAppointmentSchema._type;
+export type TestDriveAppointment = typeof testDriveAppointments.$inferSelect;
+export type InsertTestDriveAppointment = typeof insertTestDriveAppointmentSchema._type;
 
 export const dutyCalculationSchema = z.object({
   vehicleCategory: z.enum([

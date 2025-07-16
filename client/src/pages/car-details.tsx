@@ -40,7 +40,9 @@ import {
   Calculator,
   TrendingDown,
   Building2,
-  Percent
+  Percent,
+  Video,
+  CarIcon
 } from "lucide-react";
 import { ModuleNavigation } from "@/components/module-navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -108,6 +110,15 @@ export default function CarDetails() {
   const [showMessageDialog, setShowMessageDialog] = useState(false);
   const [messageText, setMessageText] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [showVideoCallDialog, setShowVideoCallDialog] = useState(false);
+  const [showTestDriveDialog, setShowTestDriveDialog] = useState(false);
+  const [videoCallDate, setVideoCallDate] = useState("");
+  const [videoCallTime, setVideoCallTime] = useState("");
+  const [videoCallNotes, setVideoCallNotes] = useState("");
+  const [testDriveDate, setTestDriveDate] = useState("");
+  const [testDriveTime, setTestDriveTime] = useState("");
+  const [testDriveLocation, setTestDriveLocation] = useState("");
+  const [testDriveNotes, setTestDriveNotes] = useState("");
   const [activeTab, setActiveTab] = useState(() => {
     // Check for #financial hash in URL to open financial services tab
     return window.location.hash === '#financial' ? 'financial' : 'overview';
@@ -139,6 +150,62 @@ export default function CarDetails() {
       return response.json();
     },
     enabled: !!id,
+  });
+
+  // Video call scheduling mutation
+  const scheduleVideoCallMutation = useMutation({
+    mutationFn: async (data: { appointmentDate: string; duration?: number; notes?: string }) => {
+      const response = await apiRequest('POST', `/api/listings/${id}/video-call`, data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Video Call Scheduled!",
+        description: data.message,
+      });
+      setShowVideoCallDialog(false);
+      setVideoCallDate("");
+      setVideoCallTime("");
+      setVideoCallNotes("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Scheduling Failed",
+        description: error.message || "Failed to schedule video call",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Test drive scheduling mutation
+  const scheduleTestDriveMutation = useMutation({
+    mutationFn: async (data: { 
+      appointmentDate: string; 
+      duration?: number; 
+      meetingLocation: string;
+      buyerNotes?: string;
+    }) => {
+      const response = await apiRequest('POST', `/api/listings/${id}/test-drive`, data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Test Drive Scheduled!",
+        description: data.message,
+      });
+      setShowTestDriveDialog(false);
+      setTestDriveDate("");
+      setTestDriveTime("");
+      setTestDriveLocation("");
+      setTestDriveNotes("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Scheduling Failed",
+        description: error.message || "Failed to schedule test drive",
+        variant: "destructive",
+      });
+    },
   });
 
   // Send message mutation
@@ -275,6 +342,61 @@ export default function CarDetails() {
         description: "Vehicle link copied to clipboard",
       });
     }
+  };
+
+  const handleScheduleVideoCall = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to schedule a video call.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!videoCallDate || !videoCallTime) {
+      toast({
+        title: "Missing Information",
+        description: "Please select both date and time for the video call.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const appointmentDateTime = `${videoCallDate}T${videoCallTime}:00`;
+    scheduleVideoCallMutation.mutate({
+      appointmentDate: appointmentDateTime,
+      duration: 30,
+      notes: videoCallNotes || undefined
+    });
+  };
+
+  const handleScheduleTestDrive = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to schedule a test drive.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!testDriveDate || !testDriveTime || !testDriveLocation.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields for the test drive.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const appointmentDateTime = `${testDriveDate}T${testDriveTime}:00`;
+    scheduleTestDriveMutation.mutate({
+      appointmentDate: appointmentDateTime,
+      duration: 60,
+      meetingLocation: testDriveLocation,
+      buyerNotes: testDriveNotes || undefined
+    });
   };
 
   if (isLoading) {
@@ -808,6 +930,28 @@ export default function CarDetails() {
                     <MessageCircle className="h-4 w-4 mr-2" />
                     WhatsApp
                   </Button>
+                  
+                  <Separator className="my-3" />
+                  
+                  <Button 
+                    variant="outline" 
+                    className="w-full bg-gradient-to-r from-purple-50 to-cyan-50 hover:from-purple-100 hover:to-cyan-100 border-purple-200" 
+                    size="lg"
+                    onClick={() => setShowVideoCallDialog(true)}
+                  >
+                    <Video className="h-4 w-4 mr-2" />
+                    Schedule Video Call
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="w-full bg-gradient-to-r from-cyan-50 to-purple-50 hover:from-cyan-100 hover:to-purple-100 border-cyan-200" 
+                    size="lg"
+                    onClick={() => setShowTestDriveDialog(true)}
+                  >
+                    <CarIcon className="h-4 w-4 mr-2" />
+                    Schedule Test Drive
+                  </Button>
                 </div>
                 
                 <div className="text-xs text-gray-500 text-center">
@@ -951,6 +1095,165 @@ export default function CarDetails() {
                 className="bg-purple-600 hover:bg-purple-700"
               >
                 {sendMessageMutation.isPending ? "Sending..." : "Send Message"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Video Call Scheduling Dialog */}
+      <Dialog open={showVideoCallDialog} onOpenChange={setShowVideoCallDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Video className="h-5 w-5 text-purple-600" />
+              Schedule Video Call
+            </DialogTitle>
+            <DialogDescription>
+              Schedule a virtual viewing with the seller to see the vehicle remotely.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Date Selection */}
+            <div>
+              <Label htmlFor="video-date">Preferred Date</Label>
+              <Input
+                id="video-date"
+                type="date"
+                value={videoCallDate}
+                onChange={(e) => setVideoCallDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+            
+            {/* Time Selection */}
+            <div>
+              <Label htmlFor="video-time">Preferred Time</Label>
+              <Input
+                id="video-time"
+                type="time"
+                value={videoCallTime}
+                onChange={(e) => setVideoCallTime(e.target.value)}
+              />
+            </div>
+            
+            {/* Notes */}
+            <div>
+              <Label htmlFor="video-notes">Additional Notes (Optional)</Label>
+              <Textarea
+                id="video-notes"
+                placeholder="Any specific questions about the vehicle or preferences for the call..."
+                value={videoCallNotes}
+                onChange={(e) => setVideoCallNotes(e.target.value)}
+                rows={3}
+                className="resize-none"
+              />
+            </div>
+            
+            {/* Actions */}
+            <div className="flex gap-2 justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowVideoCallDialog(false)}
+                disabled={scheduleVideoCallMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleScheduleVideoCall}
+                disabled={scheduleVideoCallMutation.isPending || !videoCallDate || !videoCallTime}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                {scheduleVideoCallMutation.isPending ? "Scheduling..." : "Schedule Call"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Test Drive Scheduling Dialog */}
+      <Dialog open={showTestDriveDialog} onOpenChange={setShowTestDriveDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CarIcon className="h-5 w-5 text-cyan-600" />
+              Schedule Test Drive
+            </DialogTitle>
+            <DialogDescription>
+              Book a test drive appointment to experience the vehicle in person.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Date Selection */}
+            <div>
+              <Label htmlFor="test-date">Preferred Date</Label>
+              <Input
+                id="test-date"
+                type="date"
+                value={testDriveDate}
+                onChange={(e) => setTestDriveDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+            
+            {/* Time Selection */}
+            <div>
+              <Label htmlFor="test-time">Preferred Time</Label>
+              <Input
+                id="test-time"
+                type="time"
+                value={testDriveTime}
+                onChange={(e) => setTestDriveTime(e.target.value)}
+              />
+            </div>
+            
+            {/* Meeting Location */}
+            <div>
+              <Label htmlFor="meeting-location">Meeting Location</Label>
+              <Input
+                id="meeting-location"
+                placeholder="e.g., Westlands Shopping Mall, Your preferred location..."
+                value={testDriveLocation}
+                onChange={(e) => setTestDriveLocation(e.target.value)}
+              />
+            </div>
+            
+            {/* Notes */}
+            <div>
+              <Label htmlFor="test-notes">Additional Notes (Optional)</Label>
+              <Textarea
+                id="test-notes"
+                placeholder="Any specific requirements or questions about the test drive..."
+                value={testDriveNotes}
+                onChange={(e) => setTestDriveNotes(e.target.value)}
+                rows={3}
+                className="resize-none"
+              />
+            </div>
+            
+            <div className="p-3 bg-amber-50 rounded-lg">
+              <p className="text-sm text-amber-800">
+                <strong>Requirements:</strong> Valid driver's license required for test drive.
+              </p>
+            </div>
+            
+            {/* Actions */}
+            <div className="flex gap-2 justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowTestDriveDialog(false)}
+                disabled={scheduleTestDriveMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleScheduleTestDrive}
+                disabled={scheduleTestDriveMutation.isPending || !testDriveDate || !testDriveTime || !testDriveLocation.trim()}
+                className="bg-cyan-600 hover:bg-cyan-700"
+              >
+                {scheduleTestDriveMutation.isPending ? "Scheduling..." : "Schedule Drive"}
               </Button>
             </div>
           </div>

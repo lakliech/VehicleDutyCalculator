@@ -99,10 +99,10 @@ export default function ListingDashboard() {
   }
 
   const overviewData = {
-    totalViews: analytics?.totalViews || 0,
-    phoneClicks: analytics?.phoneClicks || 0,
-    favorites: analytics?.favorites || 0,
-    inquiries: Array.isArray(conversations) ? conversations.length : 0,
+    totalViews: analytics?.performanceMetrics?.totalViews || 0,
+    phoneClicks: analytics?.engagementMetrics?.phoneClicks || 0,
+    favorites: analytics?.engagementMetrics?.favorites || 0,
+    inquiries: analytics?.engagementMetrics?.inquiries || 0,
     unreadMessages: Array.isArray(conversations) ? conversations.reduce((sum: number, conv: any) => sum + (conv.unreadCount || 0), 0) : 0
   };
 
@@ -191,8 +191,9 @@ export default function ListingDashboard() {
                 <div>
                   <p className="text-sm text-gray-600">Engagement</p>
                   <p className="text-xl font-bold">
-                    {overviewData.totalViews > 0 ? 
-                      Math.round(((overviewData.phoneClicks + overviewData.inquiries) / overviewData.totalViews) * 100) : 0}%
+                    {analytics?.performanceMetrics?.clickThroughRate?.toFixed(1) || 
+                     (overviewData.totalViews > 0 ? 
+                      Math.round(((overviewData.phoneClicks + overviewData.inquiries) / overviewData.totalViews) * 100) : 0)}%
                   </p>
                 </div>
               </div>

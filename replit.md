@@ -717,6 +717,14 @@ Changelog:
   - Fixed issue where user was successfully logged in but page didn't reload to authenticated view
   - Authentication state now properly updates on frontend after Google OAuth callback
   - Enhanced session management with forced auth status check after OAuth redirect
+- January 16, 2025. Fixed dashboard overview statistics data source inconsistency:
+  - Updated overview section to use same structured analytics data as Analytics & Insights section
+  - Fixed totalViews to use analytics.performanceMetrics.totalViews instead of analytics.totalViews
+  - Fixed phoneClicks to use analytics.engagementMetrics.phoneClicks instead of analytics.phoneClicks
+  - Fixed favorites to use analytics.engagementMetrics.favorites instead of analytics.favorites
+  - Fixed inquiries to use analytics.engagementMetrics.inquiries instead of conversation count
+  - Fixed engagement calculation to use analytics.performanceMetrics.clickThroughRate with fallback
+  - Dashboard overview statistics now match Analytics & Insights section data exactly
 
 ## User Preferences
 

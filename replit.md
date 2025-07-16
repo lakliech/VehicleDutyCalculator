@@ -679,6 +679,15 @@ Changelog:
   - Added "View Full Chat" button for accessing complete conversation history
   - Improved quick actions with "Open Full Messages", "Mark All as Read", and "Set Auto-Reply" options
   - Streamlined messaging workflow eliminates need to navigate away from dashboard for basic message management
+- January 16, 2025. Fixed authentication multiple attempt issues:
+  - Enhanced session management with forced session save in Google OAuth callback
+  - Improved session configuration with resave: true and saveUninitialized: true for better reliability
+  - Added rolling session expiry reset on each request to maintain active sessions
+  - Enhanced authentication middleware with better session validation and error handling
+  - Improved client-side authentication with retry logic and progressive backoff
+  - Added credentials: 'include' to all auth status checks for proper session handling
+  - Enhanced logout functionality to properly clear server sessions with API calls
+  - Authentication now works reliably on first attempt without requiring multiple login attempts
 
 ## User Preferences
 

@@ -36,20 +36,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAdminToken(savedAdminToken);
       }
 
-      // Check for OAuth authentication status
-      try {
-        const response = await fetch("/api/auth/status");
-        if (response.ok) {
-          const data = await response.json();
-          if (data.authenticated && data.user) {
-            setUser(data.user);
-            localStorage.setItem("user", JSON.stringify(data.user));
+      // Check for OAuth authentication status with retry logic
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount < maxRetries) {
+        try {
+          const response = await fetch("/api/auth/status", {
+            credentials: 'include' // Important for session-based auth
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.authenticated && data.user) {
+              setUser(data.user);
+              localStorage.setItem("user", JSON.stringify(data.user));
+              break; // Success, exit retry loop
+            }
+          }
+          
+          // If not authenticated, clear any stored user data
+          if (response.ok) {
+            localStorage.removeItem("user");
+            setUser(null);
+            break;
+          }
+          
+        } catch (error) {
+          console.error(`Auth check attempt ${retryCount + 1} failed:`, error);
+          retryCount++;
+          
+          if (retryCount < maxRetries) {
+            // Wait before retry (progressive backoff)
+            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
           }
         }
-      } catch (error) {
-        console.error("Failed to check auth status:", error);
-        
-        // Fallback to localStorage
+      }
+      
+      // If all retries failed, fallback to localStorage
+      if (retryCount >= maxRetries) {
         const savedUser = localStorage.getItem("user");
         if (savedUser) {
           try {

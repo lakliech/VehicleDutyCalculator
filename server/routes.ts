@@ -110,8 +110,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const MemoryStoreSession = MemoryStore(session);
   app.use(session({
     secret: process.env.SESSION_SECRET || 'fallback-secret-key',
-    resave: false,
-    saveUninitialized: false,
+    resave: true, // Force session save even if not modified
+    saveUninitialized: true, // Save uninitialized sessions
+    rolling: true, // Reset expiry on each request
     store: new MemoryStoreSession({
       checkPeriod: 86400000 // prune expired entries every 24h
     }),
@@ -194,7 +195,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const authenticateUser = async (req: any, res: any, next: any) => {
     // Check for session-based authentication first (Google OAuth)
     if (req.isAuthenticated && req.isAuthenticated() && req.user) {
-      req.user = req.user; // User is already available from session
+      // Ensure user object is properly set
+      if (!req.user.id) {
+        console.error('Invalid user object in session:', req.user);
+        return res.status(401).json({ error: "Invalid session" });
+      }
       return next();
     }
     
@@ -350,22 +355,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/?error=auth_failed' }),
     (req: Request, res: Response) => {
-      // Get returnUrl from state parameter
-      const state = req.query.state as string;
-      let returnUrl = '/';
-      
-      if (state) {
-        try {
-          returnUrl = Buffer.from(state, 'base64').toString('utf-8');
-          console.log('Google OAuth callback, returnUrl from state:', returnUrl);
-        } catch (error) {
-          console.error('Error decoding state parameter:', error);
+      // Force session save before redirecting
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.redirect('/?error=session_failed');
         }
-      }
-      
-      // Successful authentication, redirect to original page
-      console.log('Redirecting to:', `${returnUrl}?social=google&success=true`);
-      res.redirect(`${returnUrl}?social=google&success=true`);
+        
+        // Get returnUrl from state parameter
+        const state = req.query.state as string;
+        let returnUrl = '/';
+        
+        if (state) {
+          try {
+            returnUrl = Buffer.from(state, 'base64').toString('utf-8');
+            console.log('Google OAuth callback, returnUrl from state:', returnUrl);
+          } catch (error) {
+            console.error('Error decoding state parameter:', error);
+          }
+        }
+        
+        // Successful authentication, redirect to original page
+        console.log('Redirecting to:', `${returnUrl}?social=google&success=true`);
+        res.redirect(`${returnUrl}?social=google&success=true`);
+      });
     }
   );
 

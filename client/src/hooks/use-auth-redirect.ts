@@ -15,8 +15,33 @@ export const useAuthRedirect = () => {
     const error = urlParams.get('error');
 
     if (social === 'google' && success === 'true') {
-      // Force refresh of auth status after OAuth success
-      checkAuthStatus();
+      // Force refresh of auth status after OAuth success with delay and retries
+      const retryAuthCheck = async (attempts = 0) => {
+        if (attempts >= 3) {
+          console.error('Auth check failed after 3 attempts');
+          return;
+        }
+        
+        try {
+          await checkAuthStatus();
+          // Wait a bit and check if the auth actually worked
+          setTimeout(() => {
+            const response = fetch('/api/auth/status', { credentials: 'include' })
+              .then(res => res.json())
+              .then(data => {
+                if (!data.authenticated) {
+                  // If still not authenticated, try again
+                  setTimeout(() => retryAuthCheck(attempts + 1), 1000);
+                }
+              });
+          }, 500);
+        } catch (error) {
+          console.error('Auth check error:', error);
+          setTimeout(() => retryAuthCheck(attempts + 1), 1000);
+        }
+      };
+      
+      setTimeout(() => retryAuthCheck(), 500);
       
       // Check if there's a stored return URL
       const returnUrl = localStorage.getItem('returnUrl');
@@ -42,8 +67,13 @@ export const useAuthRedirect = () => {
         description: "You have been logged in with Google successfully!",
       });
       
-      // Clean up URL parameters
+      // Clean up URL parameters and force page refresh to ensure auth state is updated
       window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // Force complete page refresh after a short delay to ensure authentication state is properly loaded
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } else if (error === 'auth_failed') {
       toast({
         title: "Authentication Failed",

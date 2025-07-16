@@ -95,24 +95,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const checkAuthStatus = async () => {
-    try {
-      const response = await fetch("/api/auth/status", {
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.authenticated && data.user) {
-          setUser(data.user);
-          localStorage.setItem("user", JSON.stringify(data.user));
-        } else {
-          localStorage.removeItem("user");
-          setUser(null);
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+      try {
+        const response = await fetch("/api/auth/status", {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.authenticated && data.user) {
+            setUser(data.user);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            return; // Success, exit retry loop
+          } else {
+            localStorage.removeItem("user");
+            setUser(null);
+            return; // Clear state, exit retry loop
+          }
+        }
+        
+        // If response not ok, retry
+        retryCount++;
+        if (retryCount < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        }
+        
+      } catch (error) {
+        console.error(`Auth status check attempt ${retryCount + 1} failed:`, error);
+        retryCount++;
+        
+        if (retryCount < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
         }
       }
-    } catch (error) {
-      console.error('Auth status check failed:', error);
     }
+    
+    console.error('Auth status check failed after all retries');
   };
 
   const login = async (email: string, password: string): Promise<boolean> => {

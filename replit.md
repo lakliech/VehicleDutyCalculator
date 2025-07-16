@@ -725,6 +725,14 @@ Changelog:
   - Fixed inquiries to use analytics.engagementMetrics.inquiries instead of conversation count
   - Fixed engagement calculation to use analytics.performanceMetrics.clickThroughRate with fallback
   - Dashboard overview statistics now match Analytics & Insights section data exactly
+- January 16, 2025. Enhanced Google OAuth authentication reliability and session persistence:
+  - Added robust retry mechanism for auth status checks after OAuth success with progressive delays
+  - Implemented verification polling to ensure authentication state is properly synchronized
+  - Added automatic page refresh after successful authentication to guarantee state consistency
+  - Enhanced checkAuthStatus function with retry logic and exponential backoff for reliability
+  - Fixed authentication persistence issues where OAuth succeeded server-side but client state wasn't updating
+  - Improved session management with forced session saves and proper cookie configuration
+  - Authentication now reliably persists across page reloads and navigation after Google OAuth success
 
 ## User Preferences
 

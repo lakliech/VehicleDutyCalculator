@@ -733,6 +733,12 @@ Changelog:
   - Fixed authentication persistence issues where OAuth succeeded server-side but client state wasn't updating
   - Improved session management with forced session saves and proper cookie configuration
   - Authentication now reliably persists across page reloads and navigation after Google OAuth success
+- January 16, 2025. Consolidated Analytics & Insights tab into unified single-page view:
+  - Removed nested sub-tabs (Performance, Audience, Market, Quality, Keywords) for streamlined experience
+  - Consolidated all analytics content into single scrollable page with sectioned analytics display
+  - Created unified analytics layout with Performance, Audience, Market, Quality, and Keywords sections
+  - Enhanced user experience by eliminating tab navigation complexity in favor of comprehensive single-page view
+  - Maintained all analytical insights while reducing cognitive load for high-volume sellers managing multiple listings
 - January 16, 2025. Moved Smart Pricing Intelligence to listing overview for immediate pricing insights:
   - Relocated Smart Pricing Intelligence from separate "Manage & Pricing" tab to main "Overview & Pricing" section
   - Provides immediate pricing insights directly in the overview without requiring tab navigation

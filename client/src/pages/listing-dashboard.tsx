@@ -639,325 +639,306 @@ export default function ListingDashboard() {
               </Card>
             </div>
 
-            {/* Analytics Tabs */}
-            <Tabs defaultValue="performance" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="performance">Performance</TabsTrigger>
-                <TabsTrigger value="audience">Audience</TabsTrigger>
-                <TabsTrigger value="market">Market</TabsTrigger>
-                <TabsTrigger value="quality">Quality</TabsTrigger>
-                <TabsTrigger value="keywords">Keywords</TabsTrigger>
-              </TabsList>
-
-              {/* Performance Tab */}
-              <TabsContent value="performance" className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Views Trend */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5" />
-                        Views Trend (Last 30 Days)
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="h-64 flex items-center justify-center text-gray-500">
-                        <p>Views trend chart would display here</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Engagement Metrics */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Target className="h-5 w-5" />
-                        Engagement Breakdown
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Click-Through Rate</span>
-                        <span className="font-semibold">{analytics?.performanceMetrics?.clickThroughRate?.toFixed(2) || 0}%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Phone Clicks</span>
-                        <span className="font-semibold">{analytics?.engagementMetrics?.phoneClicks || 0}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Shares</span>
-                        <span className="font-semibold">{analytics?.engagementMetrics?.shares || 0}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Avg. Time Spent</span>
-                        <span className="font-semibold">{analytics?.engagementMetrics?.averageTimeSpent ? `${analytics.engagementMetrics.averageTimeSpent}s` : '0s'}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-
-              {/* Audience Tab */}
-              <TabsContent value="audience" className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Device Breakdown */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Smartphone className="h-5 w-5" />
-                        Device Usage
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Mobile</span>
-                          <span className="font-semibold">{analytics?.audienceInsights?.deviceBreakdown?.mobile || 0}%</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Desktop</span>
-                          <span className="font-semibold">{analytics?.audienceInsights?.deviceBreakdown?.desktop || 0}%</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Tablet</span>
-                          <span className="font-semibold">{analytics?.audienceInsights?.deviceBreakdown?.tablet || 0}%</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Location Breakdown */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <MapPin className="h-5 w-5" />
-                        Top Locations
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Nairobi</span>
-                        <span className="font-semibold">45%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Mombasa</span>
-                        <span className="font-semibold">20%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Kisumu</span>
-                        <span className="font-semibold">15%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Nakuru</span>
-                        <span className="font-semibold">10%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Other</span>
-                        <span className="font-semibold">10%</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Peak Hours */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Clock className="h-5 w-5" />
-                        Peak Hours
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">9:00 AM - 12:00 PM</span>
-                        <span className="font-semibold">35%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">1:00 PM - 5:00 PM</span>
-                        <span className="font-semibold">40%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">6:00 PM - 9:00 PM</span>
-                        <span className="font-semibold">25%</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-
-              {/* Market Tab */}
-              <TabsContent value="market" className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Price Analysis */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5" />
-                        Price Analysis
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Your Price</span>
-                        <span className="font-semibold">KES {analytics?.listingInfo?.price?.toLocaleString() || listing?.price?.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Market Average</span>
-                        <span className="font-semibold">KES {analytics?.marketBenchmark?.averagePrice?.toLocaleString() || 'N/A'}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Price Position</span>
-                        <Badge variant={analytics?.marketBenchmark?.pricePosition === 'above' ? 'destructive' : 'default'}>
-                          {analytics?.marketBenchmark?.pricePosition || 'Market'} Market
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Market Insights */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <BarChart3 className="h-5 w-5" />
-                        Market Insights
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Similar Listings</span>
-                        <span className="font-semibold">{analytics?.marketBenchmark?.similarListings || 0}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Avg. Days on Market</span>
-                        <span className="font-semibold">{analytics?.marketBenchmark?.averageDaysOnMarket || 0} days</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Market Demand</span>
-                        <Badge variant="secondary">Moderate</Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-
-              {/* Quality Tab */}
-              <TabsContent value="quality" className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Quality Score */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Star className="h-5 w-5" />
-                        Quality Score
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="text-center">
-                        <div className="text-4xl font-bold text-green-600 mb-2">
-                          {analytics?.qualityIndicators?.overall_score || 85}
-                        </div>
-                        <p className="text-sm text-gray-600">Overall Quality Score</p>
-                      </div>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Photo Quality</span>
-                          <span className="font-semibold">{analytics?.qualityIndicators?.photo_score || 90}/100</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Description</span>
-                          <span className="font-semibold">{analytics?.qualityIndicators?.description_score || 85}/100</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Completeness</span>
-                          <span className="font-semibold">{analytics?.qualityIndicators?.completeness_score || 80}/100</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Improvement Suggestions */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Lightbulb className="h-5 w-5" />
-                        Improvement Suggestions
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <div>
-                          <p className="font-medium text-sm">Add more photos</p>
-                          <p className="text-xs text-gray-600">Include interior and engine photos</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <div>
-                          <p className="font-medium text-sm">Competitive pricing</p>
-                          <p className="text-xs text-gray-600">Your price is within market range</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <div>
-                          <p className="font-medium text-sm">Update service history</p>
-                          <p className="text-xs text-gray-600">Add recent maintenance records</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-
-              {/* Keywords Tab */}
-              <TabsContent value="keywords" className="space-y-6">
+            {/* Performance Analytics */}
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Views Trend */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Search className="h-5 w-5" />
-                      Top Search Keywords
+                      <TrendingUp className="h-5 w-5" />
+                      Views Trend (Last 30 Days)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64 flex items-center justify-center text-gray-500">
+                      <p>Views trend chart would display here</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Engagement Metrics */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5" />
+                      Engagement Breakdown
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Click-Through Rate</span>
+                      <span className="font-semibold">{analytics?.performanceMetrics?.clickThroughRate?.toFixed(2) || 0}%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Phone Clicks</span>
+                      <span className="font-semibold">{analytics?.engagementMetrics?.phoneClicks || 0}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Shares</span>
+                      <span className="font-semibold">{analytics?.engagementMetrics?.shares || 0}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Avg. Time Spent</span>
+                      <span className="font-semibold">{analytics?.engagementMetrics?.averageTimeSpent ? `${analytics.engagementMetrics.averageTimeSpent}s` : '0s'}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Audience Analytics */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Device Breakdown */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Smartphone className="h-5 w-5" />
+                      Device Usage
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {analytics?.topKeywords?.map((keyword: any, idx: number) => (
-                        <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                          <span className="font-medium">{keyword.keyword}</span>
-                          <div className="flex space-x-4 text-sm text-gray-600">
-                            <span>{keyword.search_count} searches</span>
-                            <span>{keyword.click_count} clicks</span>
-                          </div>
-                        </div>
-                      )) || (
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                            <span className="font-medium">Honda Fit</span>
-                            <div className="flex space-x-4 text-sm text-gray-600">
-                              <span>245 searches</span>
-                              <span>67 clicks</span>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                            <span className="font-medium">2019 Honda</span>
-                            <div className="flex space-x-4 text-sm text-gray-600">
-                              <span>189 searches</span>
-                              <span>45 clicks</span>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                            <span className="font-medium">Automatic transmission</span>
-                            <div className="flex space-x-4 text-sm text-gray-600">
-                              <span>156 searches</span>
-                              <span>38 clicks</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Mobile</span>
+                        <span className="font-semibold">{analytics?.audienceInsights?.deviceBreakdown?.mobile || 0}%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Desktop</span>
+                        <span className="font-semibold">{analytics?.audienceInsights?.deviceBreakdown?.desktop || 0}%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Tablet</span>
+                        <span className="font-semibold">{analytics?.audienceInsights?.deviceBreakdown?.tablet || 0}%</span>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
-            </Tabs>
+
+                {/* Location Breakdown */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MapPin className="h-5 w-5" />
+                      Top Locations
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Nairobi</span>
+                      <span className="font-semibold">45%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Mombasa</span>
+                      <span className="font-semibold">20%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Kisumu</span>
+                      <span className="font-semibold">15%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Nakuru</span>
+                      <span className="font-semibold">10%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Other</span>
+                      <span className="font-semibold">10%</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Peak Hours */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Peak Hours
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">9:00 AM - 12:00 PM</span>
+                      <span className="font-semibold">35%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">1:00 PM - 5:00 PM</span>
+                      <span className="font-semibold">40%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">6:00 PM - 9:00 PM</span>
+                      <span className="font-semibold">25%</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Market Analytics */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Price Analysis */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5" />
+                      Price Analysis
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Your Price</span>
+                      <span className="font-semibold">KES {analytics?.listingInfo?.price?.toLocaleString() || listing?.price?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Market Average</span>
+                      <span className="font-semibold">KES {analytics?.marketBenchmark?.averagePrice?.toLocaleString() || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Price Position</span>
+                      <Badge variant={analytics?.marketBenchmark?.pricePosition === 'above' ? 'destructive' : 'default'}>
+                        {analytics?.marketBenchmark?.pricePosition || 'Market'} Market
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Market Insights */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5" />
+                      Market Insights
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Similar Listings</span>
+                      <span className="font-semibold">{analytics?.marketBenchmark?.similarListings || 0}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Avg. Days on Market</span>
+                      <span className="font-semibold">{analytics?.marketBenchmark?.averageDaysOnMarket || 0} days</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Market Demand</span>
+                      <Badge variant="secondary">Moderate</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Quality Analytics */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Quality Score */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Star className="h-5 w-5" />
+                      Quality Score
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-green-600 mb-2">
+                        {analytics?.qualityIndicators?.overall_score || 85}
+                      </div>
+                      <p className="text-sm text-gray-600">Overall Quality Score</p>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Photo Quality</span>
+                        <span className="font-semibold">{analytics?.qualityIndicators?.photo_score || 90}/100</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Description</span>
+                        <span className="font-semibold">{analytics?.qualityIndicators?.description_score || 85}/100</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Completeness</span>
+                        <span className="font-semibold">{analytics?.qualityIndicators?.completeness_score || 80}/100</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Improvement Suggestions */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Lightbulb className="h-5 w-5" />
+                      Improvement Suggestions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <p className="font-medium text-sm">Add more photos</p>
+                        <p className="text-xs text-gray-600">Include interior and engine photos</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <p className="font-medium text-sm">Competitive pricing</p>
+                        <p className="text-xs text-gray-600">Your price is within market range</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <p className="font-medium text-sm">Update service history</p>
+                        <p className="text-xs text-gray-600">Add recent maintenance records</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Keywords Analytics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Search className="h-5 w-5" />
+                    Top Search Keywords
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {analytics?.topKeywords?.map((keyword: any, idx: number) => (
+                      <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="font-medium">{keyword.keyword}</span>
+                        <div className="flex space-x-4 text-sm text-gray-600">
+                          <span>{keyword.search_count} searches</span>
+                          <span>{keyword.click_count} clicks</span>
+                        </div>
+                      </div>
+                    )) || (
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <span className="font-medium">Honda Fit</span>
+                          <div className="flex space-x-4 text-sm text-gray-600">
+                            <span>245 searches</span>
+                            <span>67 clicks</span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <span className="font-medium">2019 Honda</span>
+                          <div className="flex space-x-4 text-sm text-gray-600">
+                            <span>189 searches</span>
+                            <span>45 clicks</span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <span className="font-medium">Automatic transmission</span>
+                          <div className="flex space-x-4 text-sm text-gray-600">
+                            <span>156 searches</span>
+                            <span>38 clicks</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Appointments Tab */}

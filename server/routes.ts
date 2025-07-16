@@ -198,20 +198,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth middleware - supports both session and token authentication
   const authenticateUser = async (req: any, res: any, next: any) => {
-    // Check for session-based authentication first (Google OAuth)
-    if (req.isAuthenticated && req.isAuthenticated() && req.user) {
-      // Ensure user object is properly set
-      if (!req.user.id) {
-        console.error('Invalid user object in session:', req.user);
-        return res.status(401).json({ error: "Invalid session" });
-      }
+    // Check for session-based authentication first (both Google OAuth and username/password)
+    if (req.user && req.user.id) {
+      // Session authentication is working properly
       return next();
+    }
+    
+    // Check if Passport authentication exists but user object is incomplete
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      // Session exists but user object might be incomplete, try to load user
+      if (req.session && req.session.passport && req.session.passport.user) {
+        try {
+          const user = await storage.getUserById(req.session.passport.user);
+          if (user) {
+            req.user = user;
+            return next();
+          }
+        } catch (error) {
+          console.error('Failed to load user from session:', error);
+        }
+      }
     }
     
     // Fallback to token-based authentication
     const auth = req.headers.authorization;
     
     if (!auth || !auth.startsWith('Bearer ')) {
+      console.log('Authentication failed:', {
+        hasUser: !!req.user,
+        isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : false,
+        sessionPassport: req.session?.passport,
+        hasAuthHeader: !!auth
+      });
       return res.status(401).json({ error: "Authentication required" });
     }
     

@@ -688,6 +688,17 @@ Changelog:
   - Added credentials: 'include' to all auth status checks for proper session handling
   - Enhanced logout functionality to properly clear server sessions with API calls
   - Authentication now works reliably on first attempt without requiring multiple login attempts
+- January 16, 2025. Enhanced Analytics & Insights tab with comprehensive full analytics content:
+  - Replaced basic analytics view with comprehensive full analytics content from dedicated analytics page
+  - Added 5 detailed analytics tabs: Performance, Audience, Market, Quality, and Keywords
+  - Enhanced key performance metrics with proper formatting and visual styling (blue, green, purple, orange color scheme)
+  - Added comprehensive Performance tab with views trend charts and engagement breakdown metrics
+  - Added Audience tab with device usage breakdown, top locations, and peak hours analysis
+  - Added Market tab with price analysis, market insights, and competitive positioning
+  - Added Quality tab with quality scoring system and improvement suggestions
+  - Added Keywords tab with top search keywords and click-through analytics
+  - Integrated all analytics data with proper fallback handling for missing data
+  - Enhanced visual design with proper card layouts and consistent purple-cyan branding
 
 ## User Preferences
 

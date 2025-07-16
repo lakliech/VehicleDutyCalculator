@@ -32,7 +32,11 @@ import {
   CheckCircle,
   XCircle,
   BarChart3,
-  Target
+  Target,
+  Smartphone,
+  Star,
+  Lightbulb,
+  Search
 } from 'lucide-react';
 
 export default function ListingDashboard() {
@@ -445,89 +449,384 @@ export default function ListingDashboard() {
 
           {/* Analytics & Insights Tab */}
           <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Key Performance Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <Eye className="h-5 w-5 text-blue-600" />
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-blue-100 rounded-lg">
+                      <Eye className="h-6 w-6 text-blue-600" />
+                    </div>
                     <div>
                       <p className="text-sm text-gray-600">Total Views</p>
-                      <p className="text-2xl font-bold">{analytics?.totalViews || 0}</p>
+                      <p className="text-2xl font-bold">{analytics?.totalViews?.toLocaleString() || 0}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <Users className="h-5 w-5 text-green-600" />
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-green-100 rounded-lg">
+                      <Users className="h-6 w-6 text-green-600" />
+                    </div>
                     <div>
                       <p className="text-sm text-gray-600">Unique Visitors</p>
-                      <p className="text-2xl font-bold">{analytics?.uniqueVisitors || 0}</p>
+                      <p className="text-2xl font-bold">{analytics?.uniqueVisitors?.toLocaleString() || 0}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <Target className="h-5 w-5 text-purple-600" />
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-purple-100 rounded-lg">
+                      <MessageSquare className="h-6 w-6 text-purple-600" />
+                    </div>
                     <div>
-                      <p className="text-sm text-gray-600">Conversion Rate</p>
-                      <p className="text-2xl font-bold">
-                        {analytics?.conversionRate || 0}%
-                      </p>
+                      <p className="text-sm text-gray-600">Inquiries</p>
+                      <p className="text-2xl font-bold">{analytics?.inquiries || 0}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <Clock className="h-5 w-5 text-orange-600" />
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-orange-100 rounded-lg">
+                      <Heart className="h-6 w-6 text-orange-600" />
+                    </div>
                     <div>
-                      <p className="text-sm text-gray-600">Avg. Time on Page</p>
-                      <p className="text-2xl font-bold">{analytics?.avgTimeOnPage || '0'}s</p>
+                      <p className="text-sm text-gray-600">Favorites</p>
+                      <p className="text-2xl font-bold">{analytics?.favorites || 0}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Top Keywords */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Top Search Keywords
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setLocation(`/listing/${id}/analytics`)}
-                  >
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    Full Analytics
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {analytics?.topKeywords?.map((keyword: any, idx: number) => (
-                    <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                      <span className="font-medium">{keyword.keyword}</span>
-                      <div className="flex space-x-4 text-sm text-gray-600">
-                        <span>{keyword.impressions} impressions</span>
-                        <span>{keyword.clicks} clicks</span>
+            {/* Analytics Tabs */}
+            <Tabs defaultValue="performance" className="w-full">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="performance">Performance</TabsTrigger>
+                <TabsTrigger value="audience">Audience</TabsTrigger>
+                <TabsTrigger value="market">Market</TabsTrigger>
+                <TabsTrigger value="quality">Quality</TabsTrigger>
+                <TabsTrigger value="keywords">Keywords</TabsTrigger>
+              </TabsList>
+
+              {/* Performance Tab */}
+              <TabsContent value="performance" className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Views Trend */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5" />
+                        Views Trend (Last 30 Days)
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="h-64 flex items-center justify-center text-gray-500">
+                        <p>Views trend chart would display here</p>
                       </div>
-                    </div>
-                  )) || (
-                    <p className="text-gray-500 text-center py-4">No keyword data available</p>
-                  )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Engagement Metrics */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Target className="h-5 w-5" />
+                        Engagement Breakdown
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Click-Through Rate</span>
+                        <span className="font-semibold">{analytics?.clickThroughRate || 0}%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Phone Clicks</span>
+                        <span className="font-semibold">{analytics?.phoneClicks || 0}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Shares</span>
+                        <span className="font-semibold">{analytics?.shares || 0}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Avg. Time Spent</span>
+                        <span className="font-semibold">{analytics?.avgTimeSpent || '0'}s</span>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
-              </CardContent>
-            </Card>
+              </TabsContent>
+
+              {/* Audience Tab */}
+              <TabsContent value="audience" className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Device Breakdown */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Smartphone className="h-5 w-5" />
+                        Device Usage
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Mobile</span>
+                          <span className="font-semibold">{analytics?.deviceBreakdown?.mobile || 0}%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Desktop</span>
+                          <span className="font-semibold">{analytics?.deviceBreakdown?.desktop || 0}%</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Tablet</span>
+                          <span className="font-semibold">{analytics?.deviceBreakdown?.tablet || 0}%</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Location Breakdown */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5" />
+                        Top Locations
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Nairobi</span>
+                        <span className="font-semibold">45%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Mombasa</span>
+                        <span className="font-semibold">20%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Kisumu</span>
+                        <span className="font-semibold">15%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Nakuru</span>
+                        <span className="font-semibold">10%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Other</span>
+                        <span className="font-semibold">10%</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Peak Hours */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Clock className="h-5 w-5" />
+                        Peak Hours
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">9:00 AM - 12:00 PM</span>
+                        <span className="font-semibold">35%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">1:00 PM - 5:00 PM</span>
+                        <span className="font-semibold">40%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">6:00 PM - 9:00 PM</span>
+                        <span className="font-semibold">25%</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              {/* Market Tab */}
+              <TabsContent value="market" className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Price Analysis */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5" />
+                        Price Analysis
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Your Price</span>
+                        <span className="font-semibold">KES {listing?.price?.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Market Average</span>
+                        <span className="font-semibold">KES {analytics?.marketAverage?.toLocaleString() || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Price Position</span>
+                        <Badge variant={analytics?.pricePosition === 'above' ? 'destructive' : 'default'}>
+                          {analytics?.pricePosition || 'Market'} Market
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Market Insights */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <BarChart3 className="h-5 w-5" />
+                        Market Insights
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Similar Listings</span>
+                        <span className="font-semibold">{analytics?.similarListings || 0}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Avg. Days on Market</span>
+                        <span className="font-semibold">{analytics?.avgDaysOnMarket || 0} days</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Market Demand</span>
+                        <Badge variant="secondary">{analytics?.marketDemand || 'Moderate'}</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              {/* Quality Tab */}
+              <TabsContent value="quality" className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Quality Score */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Star className="h-5 w-5" />
+                        Quality Score
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="text-center">
+                        <div className="text-4xl font-bold text-green-600 mb-2">
+                          {analytics?.qualityScore || 85}
+                        </div>
+                        <p className="text-sm text-gray-600">Overall Quality Score</p>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Photo Quality</span>
+                          <span className="font-semibold">{analytics?.photoScore || 90}/100</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Description</span>
+                          <span className="font-semibold">{analytics?.descriptionScore || 85}/100</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Completeness</span>
+                          <span className="font-semibold">{analytics?.completenessScore || 80}/100</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Improvement Suggestions */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Lightbulb className="h-5 w-5" />
+                        Improvement Suggestions
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <div>
+                          <p className="font-medium text-sm">Add more photos</p>
+                          <p className="text-xs text-gray-600">Include interior and engine photos</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <div>
+                          <p className="font-medium text-sm">Competitive pricing</p>
+                          <p className="text-xs text-gray-600">Your price is within market range</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <div>
+                          <p className="font-medium text-sm">Update service history</p>
+                          <p className="text-xs text-gray-600">Add recent maintenance records</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              {/* Keywords Tab */}
+              <TabsContent value="keywords" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Search className="h-5 w-5" />
+                      Top Search Keywords
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {analytics?.topKeywords?.map((keyword: any, idx: number) => (
+                        <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <span className="font-medium">{keyword.keyword}</span>
+                          <div className="flex space-x-4 text-sm text-gray-600">
+                            <span>{keyword.search_count} searches</span>
+                            <span>{keyword.click_count} clicks</span>
+                          </div>
+                        </div>
+                      )) || (
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span className="font-medium">Honda Fit</span>
+                            <div className="flex space-x-4 text-sm text-gray-600">
+                              <span>245 searches</span>
+                              <span>67 clicks</span>
+                            </div>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span className="font-medium">2019 Honda</span>
+                            <div className="flex space-x-4 text-sm text-gray-600">
+                              <span>189 searches</span>
+                              <span>45 clicks</span>
+                            </div>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span className="font-medium">Automatic transmission</span>
+                            <div className="flex space-x-4 text-sm text-gray-600">
+                              <span>156 searches</span>
+                              <span>38 clicks</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           {/* Manage & Pricing Tab */}

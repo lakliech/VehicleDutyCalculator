@@ -8,14 +8,12 @@ import Anthropic from '@anthropic-ai/sdk';
 import { db } from '../db';
 import { 
   carListings, 
-  vehicleReferences, 
-  marketPriceAnalysis, 
-  pricingRecommendations, 
   seasonalPricingTrends, 
   priceAlerts, 
   depreciationForecasts,
-  marketInsights
-} from '../../shared/schema';
+  marketInsights,
+  marketPriceAnalysis
+} from '../../shared/schema-minimal';
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 
 /*
@@ -695,12 +693,10 @@ Respond in JSON format as an array of insights.`;
             title: insight.title,
             summary: insight.summary,
             detailedAnalysis: insight.detailed_analysis || insight.analysis,
-            actionableRecommendations: JSON.stringify(insight.recommendations || []),
-            affectedVehicles: JSON.stringify(insight.affected_vehicles || []),
+            actionableRecommendations: insight.recommendations || [],
             confidenceLevel: (insight.confidence || 0.8).toString(),
             priority: 'medium',
-            isPublic: true,
-            viewCount: 0
+            isPublic: true
           });
         }
       }

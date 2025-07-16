@@ -13,6 +13,10 @@ import {
   sellerBlockedSlots,
   sellerAppointmentPreferences,
   seasonalPricingTrends,
+  priceAlerts,
+  marketInsights,
+  depreciationForecasts,
+  marketPriceAnalysis,
   userActivities,
   bankPartners,
   loanProducts,
@@ -8946,18 +8950,29 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     try {
       const { category, limit = '10' } = req.query;
       
-      let query = db
-        .select()
+      let baseQuery = db
+        .select({
+          id: marketInsights.id,
+          insightType: marketInsights.insightType,
+          title: marketInsights.title,
+          summary: marketInsights.summary,
+          detailedAnalysis: marketInsights.detailedAnalysis,
+          actionableRecommendations: marketInsights.actionableRecommendations,
+          priority: marketInsights.priority,
+          confidenceLevel: marketInsights.confidenceLevel,
+          category: marketInsights.category,
+          createdAt: marketInsights.createdAt
+        })
         .from(marketInsights)
         .where(eq(marketInsights.isPublic, true))
         .orderBy(desc(marketInsights.createdAt))
         .limit(parseInt(limit as string));
 
       if (category) {
-        query = query.where(eq(marketInsights.category, category as string));
+        baseQuery = baseQuery.where(eq(marketInsights.category, category as string));
       }
 
-      const insights = await query;
+      const insights = await baseQuery;
       res.json(insights);
     } catch (error) {
       console.error('Error fetching market insights:', error);

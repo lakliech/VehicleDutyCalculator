@@ -17,7 +17,7 @@ import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { 
   MessageSquare, 
-  Calendar, 
+  Calendar as CalendarIcon, 
   Settings, 
   Edit, 
   Activity, 
@@ -43,6 +43,8 @@ import {
   Car
 } from 'lucide-react';
 import { AppointmentActions } from '@/components/appointment-actions';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
 export default function ListingDashboard() {
   const { id } = useParams();
@@ -1106,7 +1108,7 @@ export default function ListingDashboard() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span className="flex items-center">
-                      <Calendar className="h-5 w-5 mr-2" />
+                      <CalendarIcon className="h-5 w-5 mr-2" />
                       Scheduled Appointments
                     </span>
                     <Badge variant="outline">
@@ -1118,7 +1120,7 @@ export default function ListingDashboard() {
                   <div className="space-y-4">
                     {!appointmentData?.appointments?.length ? (
                       <div className="text-center py-8">
-                        <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <CalendarIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-gray-600 mb-2">No Appointments Yet</h3>
                         <p className="text-gray-500">
                           When buyers schedule test drives or video calls, they will appear here.
@@ -1246,7 +1248,7 @@ export default function ListingDashboard() {
                         <Dialog open={scheduleAppointmentOpen} onOpenChange={setScheduleAppointmentOpen}>
                           <DialogTrigger asChild>
                             <Button variant="outline" size="sm" className="w-full justify-start">
-                              <Calendar className="h-4 w-4 mr-2" />
+                              <CalendarIcon className="h-4 w-4 mr-2" />
                               Schedule New Appointment
                             </Button>
                           </DialogTrigger>
@@ -1934,93 +1936,185 @@ export default function ListingDashboard() {
 
         {/* View Calendar Dialog */}
         <Dialog open={viewCalendarOpen} onOpenChange={setViewCalendarOpen}>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Appointment Calendar</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Select Date</Label>
-                  <Input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="mt-1"
-                  />
+            <div className="space-y-6">
+              {/* Calendar Legend */}
+              <div className="flex flex-wrap items-center gap-6 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                  <span className="text-sm">Booked Appointments</span>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">
-                    {selectedDate ? new Date(selectedDate).toLocaleDateString() : 'Select a date'}
-                  </p>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-red-500 rounded"></div>
+                  <span className="text-sm">Blocked Dates</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-green-500 rounded"></div>
+                  <span className="text-sm">Available</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-purple-500 rounded"></div>
+                  <span className="text-sm">Selected Date</span>
                 </div>
               </div>
 
-              {selectedDate && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Available Slots */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Full Calendar */}
+                <div className="lg:col-span-2">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Available Time Slots</CardTitle>
+                      <CardTitle>Calendar View</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {availableSlots?.availableSlots && Array.isArray(availableSlots.availableSlots) && availableSlots.availableSlots.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-2">
-                          {availableSlots.availableSlots.map((slot: any, index: number) => (
-                            <div key={index} className="p-2 bg-green-50 border border-green-200 rounded text-center">
-                              <div className="text-sm font-medium">
-                                {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </div>
-                              <div className="text-xs text-gray-600">{slot.duration} mins</div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-4">
-                          <p className="text-gray-500">No available slots for this date</p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Scheduled Appointments */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Scheduled Appointments</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {appointmentData?.appointments?.filter((apt: any) => 
-                        new Date(apt.appointmentDate).toDateString() === new Date(selectedDate).toDateString()
-                      ).length > 0 ? (
-                        <div className="space-y-2">
-                          {appointmentData.appointments
-                            .filter((apt: any) => new Date(apt.appointmentDate).toDateString() === new Date(selectedDate).toDateString())
-                            .map((appointment: any) => (
-                            <div key={appointment.id} className="p-3 bg-blue-50 border border-blue-200 rounded">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <p className="font-medium">{appointment.buyerName}</p>
-                                  <p className="text-sm text-gray-600">
-                                    {new Date(appointment.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  </p>
-                                  <p className="text-xs text-gray-500">{appointment.type}</p>
-                                </div>
-                                <Badge variant={appointment.status === 'confirmed' ? 'default' : 'secondary'}>
-                                  {appointment.status}
-                                </Badge>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-4">
-                          <p className="text-gray-500">No appointments scheduled for this date</p>
-                        </div>
-                      )}
+                      <Calendar
+                        onChange={(value: any) => {
+                          const date = value instanceof Date ? value : new Date();
+                          setSelectedDate(date.toISOString().split('T')[0]);
+                        }}
+                        value={selectedDate ? new Date(selectedDate) : new Date()}
+                        tileClassName={({ date, view }: any) => {
+                          if (view === 'month') {
+                            const dateStr = date.toISOString().split('T')[0];
+                            
+                            // Check if date has appointments
+                            const hasAppointments = appointmentData?.appointments?.some((apt: any) => 
+                              new Date(apt.appointmentDate).toDateString() === date.toDateString()
+                            );
+                            
+                            // Check if date is blocked
+                            const isBlocked = blockedSlots?.some((slot: any) => {
+                              const slotDate = new Date(slot.startDateTime).toDateString();
+                              return slotDate === date.toDateString();
+                            });
+                            
+                            // Check if date is selected
+                            const isSelected = selectedDate && dateStr === selectedDate;
+                            
+                            if (isSelected) return 'calendar-selected';
+                            if (hasAppointments) return 'calendar-booked';
+                            if (isBlocked) return 'calendar-blocked';
+                            if (date >= new Date(new Date().setHours(0, 0, 0, 0))) return 'calendar-available';
+                            return '';
+                          }
+                          return '';
+                        }}
+                        className="w-full"
+                      />
                     </CardContent>
                   </Card>
                 </div>
-              )}
+
+                {/* Day Details */}
+                <div className="space-y-4">
+                  {selectedDate && (
+                    <>
+                      {/* Selected Date Info */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg">
+                            {new Date(selectedDate).toLocaleDateString('en-US', { 
+                              weekday: 'long', 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Appointments</span>
+                              <Badge variant="outline">
+                                {appointmentData?.appointments?.filter((apt: any) => 
+                                  new Date(apt.appointmentDate).toDateString() === new Date(selectedDate).toDateString()
+                                ).length || 0}
+                              </Badge>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-600">Available Slots</span>
+                              <Badge variant="outline">
+                                {availableSlots?.availableSlots?.length || 0}
+                              </Badge>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Appointments for Selected Date */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">Appointments</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {appointmentData?.appointments?.filter((apt: any) => 
+                            new Date(apt.appointmentDate).toDateString() === new Date(selectedDate).toDateString()
+                          ).length > 0 ? (
+                            <div className="space-y-2">
+                              {appointmentData.appointments
+                                .filter((apt: any) => new Date(apt.appointmentDate).toDateString() === new Date(selectedDate).toDateString())
+                                .map((appointment: any) => (
+                                <div key={appointment.id} className="p-3 bg-blue-50 border border-blue-200 rounded">
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-sm">{appointment.buyerName}</p>
+                                    <p className="text-xs text-gray-600">
+                                      {new Date(appointment.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-xs text-gray-500">{appointment.type}</span>
+                                      <Badge size="sm" variant={appointment.status === 'confirmed' ? 'default' : 'secondary'}>
+                                        {appointment.status}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-4">
+                              <p className="text-sm text-gray-500">No appointments</p>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      {/* Blocked Slots for Selected Date */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">Blocked Times</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {blockedSlots?.filter((slot: any) => 
+                            new Date(slot.startDateTime).toDateString() === new Date(selectedDate).toDateString()
+                          ).length > 0 ? (
+                            <div className="space-y-2">
+                              {blockedSlots
+                                .filter((slot: any) => new Date(slot.startDateTime).toDateString() === new Date(selectedDate).toDateString())
+                                .map((slot: any) => (
+                                <div key={slot.id} className="p-3 bg-red-50 border border-red-200 rounded">
+                                  <div className="space-y-1">
+                                    <p className="text-xs text-gray-600">
+                                      {new Date(slot.startDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
+                                      {new Date(slot.endDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                    <p className="text-sm font-medium">{slot.reason}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-4">
+                              <p className="text-sm text-gray-500">No blocked times</p>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           </DialogContent>
         </Dialog>

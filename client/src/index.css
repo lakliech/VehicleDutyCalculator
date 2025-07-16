@@ -61,3 +61,43 @@
     font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 }
+
+/* Calendar tile styling */
+.calendar-selected {
+  background-color: #9333ea !important;
+  color: white !important;
+  font-weight: 600;
+}
+
+.calendar-booked {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  font-weight: 500;
+}
+
+.calendar-blocked {
+  background-color: #ef4444 !important;
+  color: white !important;
+  font-weight: 500;
+}
+
+.calendar-available {
+  background-color: #10b981 !important;
+  color: white !important;
+  opacity: 0.7;
+}
+
+.react-calendar__tile {
+  position: relative;
+}
+
+.react-calendar__tile:enabled:hover {
+  background-color: #f3f4f6;
+}
+
+.calendar-selected:hover,
+.calendar-booked:hover,
+.calendar-blocked:hover,
+.calendar-available:hover {
+  opacity: 0.9 !important;
+}

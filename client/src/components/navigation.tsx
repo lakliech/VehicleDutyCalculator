@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Database, LogOut, List, Heart, MessageCircle, User } from "lucide-react";
+import { Database, LogOut, List, Heart, MessageCircle, User, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -119,6 +119,10 @@ export function Navigation() {
                             {messagingStats.unreadCount > 99 ? '99+' : messagingStats.unreadCount}
                           </Badge>
                         )}
+                      </Link>
+                      <Link href="/smart-pricing" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                        <Brain className="mr-2 h-4 w-4" />
+                        <span>Smart Pricing</span>
                       </Link>
 
                       {/* Admin Dashboard for users with admin role */}

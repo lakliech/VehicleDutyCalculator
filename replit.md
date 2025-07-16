@@ -923,6 +923,12 @@ Changelog:
   - Enhanced hover effects with purple background transitions
   - Added border styling and shadow effects for more prominent visual separation
   - Improved spacing and padding for better touch/click targets
+- January 17, 2025. Moved Smart Pricing Intelligence to authenticated user menu:
+  - Removed Smart Pricing module from home page ADDITIONAL_TOOLS array
+  - Added Smart Pricing Intelligence to authenticated user dropdown menu in navigation
+  - Smart Pricing now requires user authentication and appears in user menu between Messages and Admin Dashboard
+  - Added Brain icon to Smart Pricing menu item for visual consistency
+  - Enhanced security by restricting Smart Pricing access to authenticated users only
 
 ## User Preferences
 

@@ -71,11 +71,6 @@ const ADDITIONAL_TOOLS = [
     icon: TrendingUp
   },
   {
-    href: "/smart-pricing",
-    title: "Smart Pricing",
-    icon: Brain
-  },
-  {
     href: "/vehicle-loans",
     title: "Vehicle Loans",
     icon: CreditCard

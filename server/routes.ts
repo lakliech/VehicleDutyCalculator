@@ -5869,8 +5869,6 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       const { listingId } = req.params;
       const user = (req as any).user;
       
-      console.log('Recent activity request for listing:', listingId, 'user:', user?.id);
-      
       if (!user) {
         return res.status(401).json({ error: 'Authentication required' });
       }
@@ -5887,15 +5885,12 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         )
         .limit(1);
       
-      console.log('Listing ownership check:', listing.length > 0);
-      
       if (!listing.length) {
         return res.status(404).json({ error: "Listing not found or access denied" });
       }
 
       // Use raw SQL to handle the data type mismatch between schema (text) and database (date)
-      console.log('Querying daily_listing_analytics for listing:', listingId);
-      const recentViews = await db.execute(sql`
+      const recentViewsResult = await db.execute(sql`
         SELECT 
           date::text as date,
           total_views,
@@ -5913,7 +5908,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         LIMIT 7
       `);
 
-      console.log('Found analytics records:', recentViews.length);
+      const recentViews = Array.isArray(recentViewsResult) ? recentViewsResult : [];
       
       const activities = [];
 

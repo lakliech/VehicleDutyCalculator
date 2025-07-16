@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useLocation, Link } from 'wouter';
+import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,6 +48,7 @@ export default function ListingDashboard() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [editingListing, setEditingListing] = useState(false);
   const [scheduleAppointmentOpen, setScheduleAppointmentOpen] = useState(false);
@@ -55,59 +57,93 @@ export default function ListingDashboard() {
   const [selectedDate, setSelectedDate] = useState('');
 
 
+  // Authentication protection
+  if (authLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-96">
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4">You need to be logged in to access your listing dashboard.</p>
+            <Button 
+              onClick={() => window.location.href = '/api/auth/google'}
+              className="w-full"
+            >
+              Sign in with Google
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   // Fetch listing details
   const { data: listing, isLoading: listingLoading } = useQuery({
     queryKey: ['listing', id],
-    queryFn: () => fetch(`/api/car-listings/${id}/details`).then(res => res.json())
+    queryFn: () => fetch(`/api/car-listings/${id}/details`).then(res => res.json()),
+    enabled: isAuthenticated
   });
 
   // Fetch analytics
   const { data: analytics, isLoading: analyticsLoading } = useQuery({
     queryKey: ['listing-analytics', id],
-    queryFn: () => fetch(`/api/listing/${id}/analytics`).then(res => res.json())
+    queryFn: () => fetch(`/api/listing/${id}/analytics`).then(res => res.json()),
+    enabled: isAuthenticated
   });
 
   // Fetch conversations
   const { data: conversations } = useQuery({
     queryKey: ['listing-conversations', id],
-    queryFn: () => fetch(`/api/listing/${id}/conversations`).then(res => res.json())
+    queryFn: () => fetch(`/api/listing/${id}/conversations`).then(res => res.json()),
+    enabled: isAuthenticated
   });
 
   // Fetch recent activity data
   const { data: recentActivity } = useQuery({
     queryKey: ['listing-recent-activity', id],
-    queryFn: () => fetch(`/api/listing/${id}/recent-activity`).then(res => res.json())
+    queryFn: () => fetch(`/api/listing/${id}/recent-activity`).then(res => res.json()),
+    enabled: isAuthenticated
   });
 
   // Fetch smart pricing
   const { data: smartPricing, isLoading: smartPricingLoading, error: smartPricingError } = useQuery({
     queryKey: ['smart-pricing', id],
-    queryFn: () => fetch(`/api/listings/${id}/pricing-recommendation`).then(res => res.json())
+    queryFn: () => fetch(`/api/listings/${id}/pricing-recommendation`).then(res => res.json()),
+    enabled: isAuthenticated
   });
 
   // Fetch appointment data
   const { data: appointmentData } = useQuery({
     queryKey: ['listing-appointments', id],
-    queryFn: () => fetch(`/api/listing/${id}/appointments`).then(res => res.json())
+    queryFn: () => fetch(`/api/listing/${id}/appointments`).then(res => res.json()),
+    enabled: isAuthenticated
   });
 
   // Fetch seller availability
   const { data: availabilityData } = useQuery({
     queryKey: ['seller-availability'],
-    queryFn: () => fetch('/api/seller/availability').then(res => res.json())
+    queryFn: () => fetch('/api/seller/availability').then(res => res.json()),
+    enabled: isAuthenticated
   });
 
   // Fetch blocked slots
   const { data: blockedSlots } = useQuery({
     queryKey: ['seller-blocked-slots'],
-    queryFn: () => fetch('/api/seller/blocked-slots').then(res => res.json())
+    queryFn: () => fetch('/api/seller/blocked-slots').then(res => res.json()),
+    enabled: isAuthenticated
   });
 
   // Fetch available slots for selected date
   const { data: availableSlots } = useQuery({
     queryKey: ['available-slots', selectedDate],
     queryFn: () => fetch(`/api/seller/available-slots/${selectedDate}`).then(res => res.json()),
-    enabled: !!selectedDate
+    enabled: !!selectedDate && isAuthenticated
   });
 
   // Update listing mutation

@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Car, 
@@ -25,7 +26,11 @@ import {
   Eye,
   Search,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Heart,
+  Phone,
+  Mail,
+  MapPin
 } from "lucide-react";
 import type { 
   VehicleReference, 
@@ -402,6 +407,8 @@ export function EnhancedListingsManagementTab({
   const { toast } = useToast();
   const [selectedListings, setSelectedListings] = useState<number[]>([]);
   const [bulkAction, setBulkAction] = useState<string>("");
+  const [selectedListing, setSelectedListing] = useState<any>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   
   // Enhanced filtering and sorting state
   const [filters, setFilters] = useState({
@@ -449,6 +456,25 @@ export function EnhancedListingsManagementTab({
   const listings = listingsResponse?.listings || carListings;
   const paginationInfo = listingsResponse?.pagination;
   const filterOptions = listingsResponse?.filters;
+
+  // Function to view listing details
+  const viewListingDetails = async (listingId: number) => {
+    try {
+      const response = await fetch(`/api/car-listings/${listingId}/details`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      const listingDetails = await response.json();
+      setSelectedListing(listingDetails);
+      setIsViewDialogOpen(true);
+    } catch (error) {
+      toast({ 
+        title: "Error", 
+        description: "Failed to load listing details",
+        variant: "destructive"
+      });
+    }
+  };
 
   const approveListingMutation = useMutation({
     mutationFn: async ({ listingId, notes }: { listingId: number; notes?: string }) => {
@@ -667,11 +693,10 @@ export function EnhancedListingsManagementTab({
                       }}
                     />
                   </TableHead>
-                  <TableHead>Vehicle</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Seller</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Views</TableHead>
+                  <TableHead>Vehicle Details</TableHead>
+                  <TableHead>Price & Date</TableHead>
+                  <TableHead>Seller Information</TableHead>
+                  <TableHead>Status & Views</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -691,16 +716,44 @@ export function EnhancedListingsManagementTab({
                       />
                     </TableCell>
                     <TableCell className="font-medium">
-                      <div>
-                        <div>{listing.make} {listing.model}</div>
-                        <div className="text-sm text-gray-500">{listing.year} • {listing.engineCapacity}cc</div>
+                      <div className="flex items-center gap-3">
+                        {listing.images && listing.images.length > 0 && (
+                          <img 
+                            src={listing.images[0]} 
+                            alt={`${listing.make} ${listing.model}`}
+                            className="w-12 h-12 rounded-lg object-cover"
+                          />
+                        )}
+                        <div>
+                          <div className="font-semibold">{listing.year} {listing.make} {listing.model}</div>
+                          <div className="text-sm text-gray-500">
+                            {listing.engineCapacity}cc • {listing.mileage} km • {listing.fuelType}
+                          </div>
+                          <div className="text-xs text-gray-400">ID: {listing.id}</div>
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell>{formatCurrency(listing.price)}</TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        <div>{listing.sellerName || 'Unknown'}</div>
-                        <div className="text-gray-500">{listing.sellerId}</div>
+                      <div className="font-semibold text-green-600">
+                        {formatCurrency(listing.price)}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Listed: {new Date(listing.createdAt).toLocaleDateString()}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={listing.sellerPhotoUrl} />
+                          <AvatarFallback>
+                            {listing.sellerName ? listing.sellerName.split(' ').map((n: string) => n[0]).join('') : 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium text-sm">{listing.sellerName || 'Unknown Seller'}</div>
+                          <div className="text-xs text-gray-500">{listing.sellerEmail}</div>
+                          <div className="text-xs text-gray-400">ID: {listing.sellerId}</div>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -711,29 +764,45 @@ export function EnhancedListingsManagementTab({
                       }>
                         {listing.status}
                       </Badge>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Views: {listing.viewCount || 0}
+                      </div>
                     </TableCell>
-                    <TableCell>{listing.viewCount || 0}</TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
+                      <div className="flex gap-1">
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => approveListingMutation.mutate({ listingId: listing.id })}
-                          disabled={listing.status === 'active'}
+                          onClick={() => viewListingDetails(listing.id)}
+                          className="h-8 w-8 p-0"
+                          title="View Details"
                         >
-                          <CheckCircle className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => rejectListingMutation.mutate({ listingId: listing.id, reason: 'Admin rejection' })}
-                          disabled={listing.status === 'rejected'}
-                        >
-                          <XCircle className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="outline">
                           <Eye className="h-4 w-4" />
                         </Button>
+                        {listing.status === 'pending' && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => approveListingMutation.mutate({ listingId: listing.id })}
+                              disabled={approveListingMutation.isPending}
+                              className="h-8 w-8 p-0"
+                              title="Approve"
+                            >
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => rejectListingMutation.mutate({ listingId: listing.id, reason: 'Admin rejection' })}
+                              disabled={rejectListingMutation.isPending}
+                              className="h-8 w-8 p-0"
+                              title="Reject"
+                            >
+                              <XCircle className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -775,6 +844,198 @@ export function EnhancedListingsManagementTab({
           )}
         </CardContent>
       </Card>
+
+      {/* Listing Details Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Car className="h-5 w-5" />
+              Listing Details
+            </DialogTitle>
+            <DialogDescription>
+              Complete information for listing #{selectedListing?.id}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedListing && (
+            <div className="space-y-6">
+              {/* Vehicle Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Vehicle Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="font-medium">Make & Model:</span>
+                      <span>{selectedListing.year} {selectedListing.make} {selectedListing.model}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Engine:</span>
+                      <span>{selectedListing.engineCapacity}cc {selectedListing.fuelType}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Mileage:</span>
+                      <span>{selectedListing.mileage?.toLocaleString()} km</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Condition:</span>
+                      <span className="capitalize">{selectedListing.condition}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Transmission:</span>
+                      <span className="capitalize">{selectedListing.transmission}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Body Type:</span>
+                      <span className="capitalize">{selectedListing.bodyType}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Seller Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={selectedListing.sellerPhotoUrl} />
+                        <AvatarFallback>
+                          {selectedListing.sellerName ? selectedListing.sellerName.split(' ').map((n: string) => n[0]).join('') : 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-semibold">{selectedListing.sellerName}</div>
+                        <div className="text-sm text-gray-500">{selectedListing.sellerEmail}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gray-500" />
+                      <span>{selectedListing.phoneNumber || 'Not provided'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span>{selectedListing.location || 'Not specified'}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Pricing & Status */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">
+                        {formatCurrency(selectedListing.price)}
+                      </div>
+                      <div className="text-sm text-gray-500">Asking Price</div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <Badge variant={
+                        selectedListing.status === 'active' ? 'default' :
+                        selectedListing.status === 'pending' ? 'secondary' :
+                        selectedListing.status === 'rejected' ? 'destructive' : 'outline'
+                      } className="text-lg px-4 py-2">
+                        {selectedListing.status}
+                      </Badge>
+                      <div className="text-sm text-gray-500 mt-2">Current Status</div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {selectedListing.viewCount || 0}
+                      </div>
+                      <div className="text-sm text-gray-500">Total Views</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Images */}
+              {selectedListing.images && selectedListing.images.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Images ({selectedListing.images.length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {selectedListing.images.map((image: string, index: number) => (
+                        <img
+                          key={index}
+                          src={image}
+                          alt={`${selectedListing.make} ${selectedListing.model} - Image ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border"
+                        />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Description */}
+              {selectedListing.description && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Description</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 whitespace-pre-wrap">{selectedListing.description}</p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Features */}
+              {selectedListing.features && selectedListing.features.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Features</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedListing.features.map((feature: string, index: number) => (
+                        <Badge key={index} variant="outline" className="text-sm">
+                          {feature}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Listing Meta */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Listing Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Listing ID:</span>
+                    <span>{selectedListing.id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Created:</span>
+                    <span>{new Date(selectedListing.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Last Updated:</span>
+                    <span>{new Date(selectedListing.updatedAt).toLocaleString()}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

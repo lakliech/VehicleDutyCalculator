@@ -1,21 +1,77 @@
 import express from 'express';
 import { MonetizationService } from '../services/monetization-service';
 import { z } from 'zod';
+import { storage } from '../storage';
 
 const router = express.Router();
 
-// Import proper authentication middleware
-const authenticateUser = (req: any, res: any, next: any) => {
-  if (!req.isAuthenticated || !req.isAuthenticated()) {
-    return res.status(401).json({ error: 'Authentication required' });
+// Proper authentication middleware matching the main routes file
+const authenticateUser = async (req: any, res: any, next: any) => {
+  console.log('Monetization auth check:', {
+    hasUser: !!req.user,
+    isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : false,
+    sessionPassport: req.session?.passport,
+    userId: req.user?.id
+  });
+  
+  // Check for session-based authentication first (both Google OAuth and username/password)
+  if (req.user && req.user.id) {
+    // Session authentication is working properly
+    console.log('Monetization auth success:', req.user.id);
+    return next();
   }
-  next();
+  
+  // Check if Passport authentication exists but user object is incomplete
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    // Session exists but user object might be incomplete, try to load user
+    if (req.session && req.session.passport && req.session.passport.user) {
+      try {
+        const user = await storage.getUserById(req.session.passport.user);
+        if (user) {
+          req.user = user;
+          console.log('Monetization auth success via session:', user.id);
+          return next();
+        }
+      } catch (error) {
+        console.error('Failed to load user from session:', error);
+      }
+    }
+  }
+  
+  // Fallback to token-based authentication
+  const auth = req.headers.authorization;
+  
+  if (!auth || !auth.startsWith('Bearer ')) {
+    console.log('Monetization authentication failed:', {
+      hasUser: !!req.user,
+      isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : false,
+      sessionPassport: req.session?.passport,
+      hasAuthHeader: !!auth
+    });
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  
+  const token = auth.substring(7);
+  
+  // For now, using simple token validation
+  // In production, implement proper JWT validation
+  try {
+    const user = await storage.getUserById(token);
+    if (!user) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+    req.user = user;
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
 };
 
 const requireRole = (roles: string[]) => {
-  return (req: any, res: any, next: any) => {
-    if (!req.user || !req.user.userRole || !roles.includes(req.user.userRole.name)) {
-      return res.status(403).json({ error: 'Insufficient permissions' });
+  return async (req: any, res: any, next: any) => {
+    const userRole = await storage.getUserRole(req.user.id);
+    if (!userRole || !roles.includes(userRole.name)) {
+      return res.status(403).json({ error: "Insufficient permissions" });
     }
     next();
   };

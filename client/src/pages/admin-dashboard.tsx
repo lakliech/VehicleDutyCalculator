@@ -4780,18 +4780,9 @@ function MonetizationStrategyTab() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button className="flex flex-col h-20">
-                  <Plus className="h-5 w-5 mb-1" />
-                  <span className="text-xs">New Strategy</span>
-                </Button>
-                <Button variant="outline" className="flex flex-col h-20">
-                  <Edit className="h-5 w-5 mb-1" />
-                  <span className="text-xs">Edit Plans</span>
-                </Button>
-                <Button variant="outline" className="flex flex-col h-20">
-                  <Calculator className="h-5 w-5 mb-1" />
-                  <span className="text-xs">Pricing Rules</span>
-                </Button>
+                <CreateStrategyDialog />
+                <EditPlansDialog />
+                <PricingRulesDialog />
                 <Button variant="outline" className="flex flex-col h-20">
                   <BarChart3 className="h-5 w-5 mb-1" />
                   <span className="text-xs">Full Analytics</span>
@@ -5732,5 +5723,415 @@ function EditLoanProductDialog({ product, banks, onSubmit, isLoading }: { produc
         </form>
       </Form>
     </DialogContent>
+  );
+}
+
+// Create Strategy Dialog Component
+function CreateStrategyDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    strategyName: '',
+    targetRevenue: '',
+    timeframe: '',
+    description: '',
+    tactics: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Create new strategy logic here
+    toast({
+      title: "Strategy Created",
+      description: `New strategy "${formData.strategyName}" has been created successfully.`
+    });
+    
+    setIsOpen(false);
+    setFormData({
+      strategyName: '',
+      targetRevenue: '',
+      timeframe: '',
+      description: '',
+      tactics: ''
+    });
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button className="flex flex-col h-20">
+          <Plus className="h-5 w-5 mb-1" />
+          <span className="text-xs">New Strategy</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Plus className="h-5 w-5" />
+            Create New Monetization Strategy
+          </DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="strategyName">Strategy Name</Label>
+              <Input
+                id="strategyName"
+                value={formData.strategyName}
+                onChange={(e) => setFormData(prev => ({ ...prev, strategyName: e.target.value }))}
+                placeholder="e.g., Q2 Growth Strategy"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="targetRevenue">Target Revenue (KES)</Label>
+              <Input
+                id="targetRevenue"
+                type="number"
+                value={formData.targetRevenue}
+                onChange={(e) => setFormData(prev => ({ ...prev, targetRevenue: e.target.value }))}
+                placeholder="e.g., 5000000"
+                required
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="timeframe">Timeframe</Label>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, timeframe: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select timeframe" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="3-months">3 Months</SelectItem>
+                <SelectItem value="6-months">6 Months</SelectItem>
+                <SelectItem value="12-months">12 Months</SelectItem>
+                <SelectItem value="18-months">18 Months</SelectItem>
+                <SelectItem value="24-months">24 Months</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Describe the strategy objectives and approach..."
+              rows={3}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="tactics">Key Tactics (comma-separated)</Label>
+            <Textarea
+              id="tactics"
+              value={formData.tactics}
+              onChange={(e) => setFormData(prev => ({ ...prev, tactics: e.target.value }))}
+              placeholder="e.g., Premium features, Enterprise partnerships, Freemium conversion"
+              rows={2}
+            />
+          </div>
+          
+          <div className="flex justify-end gap-3 pt-4">
+            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">
+              Create Strategy
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Edit Plans Dialog Component
+function EditPlansDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const [selectedPlan, setSelectedPlan] = useState('');
+  const [planData, setPlanData] = useState({
+    name: '',
+    description: '',
+    priceKes: '',
+    billingCycle: '',
+    features: '',
+    isActive: true
+  });
+
+  const plans = [
+    { id: 'basic', name: 'Basic Plan', price: '2500', description: 'Essential tools for individual users' },
+    { id: 'professional', name: 'Professional Plan', price: '8000', description: 'Advanced features for professionals' },
+    { id: 'enterprise', name: 'Enterprise Plan', price: '20000', description: 'Full-featured solution for businesses' }
+  ];
+
+  const handlePlanSelect = (planId: string) => {
+    const plan = plans.find(p => p.id === planId);
+    if (plan) {
+      setPlanData({
+        name: plan.name,
+        description: plan.description,
+        priceKes: plan.price,
+        billingCycle: 'monthly',
+        features: 'Feature 1, Feature 2, Feature 3',
+        isActive: true
+      });
+    }
+    setSelectedPlan(planId);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Update plan logic here
+    toast({
+      title: "Plan Updated",
+      description: `${planData.name} has been updated successfully.`
+    });
+    
+    setIsOpen(false);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="flex flex-col h-20">
+          <Edit className="h-5 w-5 mb-1" />
+          <span className="text-xs">Edit Plans</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Edit className="h-5 w-5" />
+            Edit Subscription Plans
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Select Plan to Edit</Label>
+            <Select onValueChange={handlePlanSelect}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose a plan to edit" />
+              </SelectTrigger>
+              <SelectContent>
+                {plans.map(plan => (
+                  <SelectItem key={plan.id} value={plan.id}>
+                    {plan.name} - KES {plan.price}/month
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {selectedPlan && (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="planName">Plan Name</Label>
+                  <Input
+                    id="planName"
+                    value={planData.name}
+                    onChange={(e) => setPlanData(prev => ({ ...prev, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="priceKes">Price (KES)</Label>
+                  <Input
+                    id="priceKes"
+                    type="number"
+                    value={planData.priceKes}
+                    onChange={(e) => setPlanData(prev => ({ ...prev, priceKes: e.target.value }))}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="planDescription">Description</Label>
+                <Textarea
+                  id="planDescription"
+                  value={planData.description}
+                  onChange={(e) => setPlanData(prev => ({ ...prev, description: e.target.value }))}
+                  rows={2}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="billingCycle">Billing Cycle</Label>
+                <Select onValueChange={(value) => setPlanData(prev => ({ ...prev, billingCycle: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select billing cycle" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                    <SelectItem value="annually">Annually</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="features">Features (comma-separated)</Label>
+                <Textarea
+                  id="features"
+                  value={planData.features}
+                  onChange={(e) => setPlanData(prev => ({ ...prev, features: e.target.value }))}
+                  placeholder="e.g., Feature 1, Feature 2, Feature 3"
+                  rows={3}
+                />
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isActive"
+                  checked={planData.isActive}
+                  onCheckedChange={(checked) => setPlanData(prev => ({ ...prev, isActive: checked }))}
+                />
+                <Label htmlFor="isActive">Plan is active</Label>
+              </div>
+              
+              <div className="flex justify-end gap-3 pt-4">
+                <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Update Plan
+                </Button>
+              </div>
+            </form>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Pricing Rules Dialog Component  
+function PricingRulesDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const [ruleData, setRuleData] = useState({
+    feature: '',
+    basePrice: '',
+    tierMultiplier: '',
+    usageBased: false,
+    overage: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Create pricing rule logic here
+    toast({
+      title: "Pricing Rule Created",
+      description: `New pricing rule for "${ruleData.feature}" has been created.`
+    });
+    
+    setIsOpen(false);
+    setRuleData({
+      feature: '',
+      basePrice: '',
+      tierMultiplier: '',
+      usageBased: false,
+      overage: ''
+    });
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="flex flex-col h-20">
+          <Calculator className="h-5 w-5 mb-1" />
+          <span className="text-xs">Pricing Rules</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Calculator className="h-5 w-5" />
+            Configure Pricing Rules
+          </DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="feature">Feature/Service</Label>
+            <Select onValueChange={(value) => setRuleData(prev => ({ ...prev, feature: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select feature" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="listing_slots">Listing Slots</SelectItem>
+                <SelectItem value="premium_analytics">Premium Analytics</SelectItem>
+                <SelectItem value="lead_generation">Lead Generation</SelectItem>
+                <SelectItem value="white_label">White Label</SelectItem>
+                <SelectItem value="api_access">API Access</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="basePrice">Base Price (KES)</Label>
+              <Input
+                id="basePrice"
+                type="number"
+                value={ruleData.basePrice}
+                onChange={(e) => setRuleData(prev => ({ ...prev, basePrice: e.target.value }))}
+                placeholder="e.g., 1000"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tierMultiplier">Tier Multiplier</Label>
+              <Input
+                id="tierMultiplier"
+                type="number"
+                step="0.1"
+                value={ruleData.tierMultiplier}
+                onChange={(e) => setRuleData(prev => ({ ...prev, tierMultiplier: e.target.value }))}
+                placeholder="e.g., 1.5"
+              />
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="usageBased"
+              checked={ruleData.usageBased}
+              onCheckedChange={(checked) => setRuleData(prev => ({ ...prev, usageBased: checked }))}
+            />
+            <Label htmlFor="usageBased">Usage-based pricing</Label>
+          </div>
+          
+          {ruleData.usageBased && (
+            <div className="space-y-2">
+              <Label htmlFor="overage">Overage Rate (KES per unit)</Label>
+              <Input
+                id="overage"
+                type="number"
+                value={ruleData.overage}
+                onChange={(e) => setRuleData(prev => ({ ...prev, overage: e.target.value }))}
+                placeholder="e.g., 50"
+              />
+            </div>
+          )}
+          
+          <div className="flex justify-end gap-3 pt-4">
+            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">
+              Create Rule
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -169,12 +169,19 @@ export default function ProductFeatureManager() {
 
   // Remove feature from product mutation
   const removeFeatureMutation = useMutation({
-    mutationFn: (id: number) => apiRequest('DELETE', `/api/products/${selectedProduct}/features/${id}`),
-    onSuccess: () => {
-      toast({ title: "Success", description: "Feature removed from product successfully" });
-      queryClient.invalidateQueries({ queryKey: ['/api/products', selectedProduct, 'features'] });
+    mutationFn: (id: number) => {
+      console.log('Sending DELETE request for association ID:', id);
+      return apiRequest('DELETE', `/api/products/${selectedProduct}/features/${id}`);
     },
-    onError: (error: any) => {
+    onSuccess: (data, variables) => {
+      console.log('Delete successful for association ID:', variables);
+      toast({ title: "Success", description: "Feature removed from product successfully" });
+      // Invalidate and refetch immediately
+      queryClient.invalidateQueries({ queryKey: ['/api/products', selectedProduct, 'features'] });
+      queryClient.refetchQueries({ queryKey: ['/api/products', selectedProduct, 'features'] });
+    },
+    onError: (error: any, variables) => {
+      console.error('Delete failed for association ID:', variables, 'Error:', error);
       toast({ 
         title: "Error", 
         description: error.message || "Failed to remove feature from product",
@@ -601,10 +608,17 @@ export default function ProductFeatureManager() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => removeFeatureMutation.mutate(association.id)}
-                            disabled={removeFeatureMutation.isPending}
+                            onClick={() => {
+                              console.log('Deleting feature association:', association.id);
+                              removeFeatureMutation.mutate(association.id);
+                            }}
+                            disabled={removeFeatureMutation.isPending || addFeatureMutation.isPending || updateAssociationMutation.isPending}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            {removeFeatureMutation.isPending ? (
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
                           </Button>
                         </div>
                       </TableCell>

@@ -330,6 +330,23 @@ router.post('/admin/products/:productId/features', requireAuth, requireAdmin, as
   }
 });
 
+// Create feature for specific product (admin only) - frontend endpoint
+router.post('/products/:productId/features', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const productId = parseInt(req.params.productId);
+    const featureData = insertProductFeatureSchema.parse({ ...req.body, productId });
+    
+    const [feature] = await db.insert(productFeatures).values(featureData).returning();
+    res.status(201).json(feature);
+  } catch (error) {
+    console.error('Error creating product feature:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to create product feature' });
+  }
+});
+
 // Update feature (admin only)
 router.put('/admin/features/:id', requireAuth, requireAdmin, async (req, res) => {
   try {

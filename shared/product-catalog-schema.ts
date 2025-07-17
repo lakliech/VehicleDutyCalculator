@@ -144,7 +144,19 @@ export const insertProductSchema = createInsertSchema(products)
     categoryId: z.string().transform((val) => val === '' ? null : parseInt(val)).optional(),
     sortOrder: z.number().optional().default(0)
   });
-export const insertProductFeatureSchema = createInsertSchema(productFeatures).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertProductFeatureSchema = createInsertSchema(productFeatures)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    additionalCost: z.number().optional().default(0),
+    sortOrder: z.number().optional().default(0),
+    limitValue: z.number().optional().nullable(),
+    limitDuration: z.number().optional().nullable(),
+    limitSize: z.number().optional().nullable(),
+    limitFrequency: z.number().optional().nullable(),
+    frequencyPeriod: z.number().optional().nullable(),
+    constraintConfig: z.record(z.any()).optional().nullable(),
+    isIncluded: z.boolean().optional().default(true)
+  });
 export const insertProductPricingSchema = createInsertSchema(productPricing).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserProductSubscriptionSchema = createInsertSchema(userProductSubscriptions).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertProductBundleSchema = createInsertSchema(productBundles).omit({ id: true, createdAt: true, updatedAt: true });

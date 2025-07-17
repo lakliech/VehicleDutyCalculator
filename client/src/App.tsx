@@ -29,6 +29,7 @@ import AIAdvisor from "@/pages/ai-advisor";
 import PriceTrends from "@/pages/price-trends";
 import SmartPricing from "@/pages/smart-pricing";
 import AdminDashboard from "@/pages/admin-dashboard";
+import AdminMonetization from "@/pages/admin-monetization";
 
 import AdminListingDetails from "@/pages/admin-listing-details";
 import AdminUsers from "@/pages/admin-users";
@@ -134,6 +135,11 @@ function Router() {
           <Route path="/admin">
             <ProtectedRoute requireAdmin={true}>
               <AdminDashboard />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/admin-monetization">
+            <ProtectedRoute requireAdmin={true}>
+              <AdminMonetization />
             </ProtectedRoute>
           </Route>
 

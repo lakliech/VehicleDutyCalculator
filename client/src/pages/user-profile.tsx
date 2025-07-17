@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { User, Car, Search, Settings, Activity, Plus, Lock, Mail, Ban, Shield, RefreshCw, Download, Heart, MessageCircle, Database, Calendar, Clock, MapPin, Phone, Video } from "lucide-react";
+import { User, Car, Search, Settings, Activity, Plus, Lock, Mail, Ban, Shield, RefreshCw, Download, Heart, MessageCircle, Database, Calendar, Clock, MapPin, Phone, Video, Receipt, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +36,11 @@ export function UserProfile() {
 
   const { data: buyerAppointments, isLoading: loadingBuyerAppointments } = useQuery({
     queryKey: [`/api/user/buyer-appointments`],
+    enabled: !!user?.id,
+  });
+
+  const { data: userTransactions, isLoading: loadingTransactions } = useQuery({
+    queryKey: [`/api/user/transactions`],
     enabled: !!user?.id,
   });
 
@@ -99,6 +104,7 @@ export function UserProfile() {
               { id: "profile", label: "Profile Overview", icon: User },
               { id: "my-listings", label: "My Listings", icon: Car },
               { id: "appointments", label: "My Appointments", icon: Calendar },
+              { id: "transactions", label: "My Transactions", icon: Receipt },
               { id: "favorites", label: "My Favorites", icon: Heart },
               { id: "saved-searches", label: "Saved Searches", icon: Search },
               { id: "messages", label: "Messages", icon: MessageCircle },
@@ -505,6 +511,197 @@ export function UserProfile() {
                     <p className="text-gray-500 mb-4">Your conversations with buyers and sellers will appear here</p>
                     <Link href="/buy-a-car">
                       <Button variant="outline">Browse Cars to Connect</Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {activeTab === "transactions" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">My Transactions</h2>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-blue-50 text-blue-600">
+                    {userTransactions?.length || 0} Total
+                  </Badge>
+                  <Badge variant="outline" className="bg-green-50 text-green-600">
+                    {userTransactions?.filter((t: any) => t.status === 'completed').length || 0} Completed
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Transaction Statistics */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-blue-600">{userTransactions?.length || 0}</div>
+                    <div className="text-sm text-gray-600">Total Transactions</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {userTransactions?.filter((t: any) => t.status === 'completed').length || 0}
+                    </div>
+                    <div className="text-sm text-gray-600">Completed</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {userTransactions?.filter((t: any) => t.status === 'pending').length || 0}
+                    </div>
+                    <div className="text-sm text-gray-600">Pending</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-purple-600">
+                      KES {userTransactions?.reduce((total: number, t: any) => total + (t.status === 'completed' ? parseFloat(t.amount || 0) : 0), 0)?.toLocaleString() || 0}
+                    </div>
+                    <div className="text-sm text-gray-600">Total Spent</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Transaction History */}
+              {loadingTransactions ? (
+                <div className="text-center py-8">Loading transactions...</div>
+              ) : userTransactions && userTransactions.length > 0 ? (
+                <div className="space-y-4">
+                  {userTransactions.map((transaction: any) => (
+                    <Card key={transaction.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="p-2 bg-purple-100 rounded-full">
+                                <Receipt className="h-5 w-5 text-purple-600" />
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-lg">{transaction.description}</h3>
+                                <p className="text-sm text-gray-600">
+                                  {new Date(transaction.createdAt).toLocaleDateString()} • {new Date(transaction.createdAt).toLocaleTimeString()}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                              <div className="space-y-2">
+                                <div className="flex justify-between">
+                                  <span className="text-sm font-medium text-gray-600">Transaction ID:</span>
+                                  <span className="text-sm font-mono">{transaction.reference}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-sm font-medium text-gray-600">Payment Method:</span>
+                                  <span className="text-sm capitalize">{transaction.method}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-sm font-medium text-gray-600">Transaction Type:</span>
+                                  <span className="text-sm capitalize">{transaction.type}</span>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <div className="flex justify-between">
+                                  <span className="text-sm font-medium text-gray-600">Amount:</span>
+                                  <span className="text-sm font-bold">KES {parseFloat(transaction.amount || 0).toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-sm font-medium text-gray-600">Currency:</span>
+                                  <span className="text-sm">{transaction.currency}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-sm font-medium text-gray-600">Status:</span>
+                                  <Badge className={
+                                    transaction.status === 'completed' ? 'bg-green-500' :
+                                    transaction.status === 'pending' ? 'bg-yellow-500' :
+                                    transaction.status === 'failed' ? 'bg-red-500' :
+                                    'bg-gray-500'
+                                  }>
+                                    {transaction.status}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Product Details */}
+                            {transaction.product && (
+                              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                                <h4 className="font-medium text-gray-800 mb-2">Product Details</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">Product Name:</span>
+                                    <span className="text-sm font-medium">{transaction.product.name}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">Category:</span>
+                                    <span className="text-sm">{transaction.product.category}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">Billing Type:</span>
+                                    <span className="text-sm capitalize">{transaction.product.billingType}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">Base Price:</span>
+                                    <span className="text-sm">KES {parseFloat(transaction.product.basePrice || 0).toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Listing Details */}
+                            {transaction.listing && (
+                              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                                <h4 className="font-medium text-gray-800 mb-2">Listing Details</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">Listing Title:</span>
+                                    <span className="text-sm font-medium">{transaction.listing.title}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">Vehicle:</span>
+                                    <span className="text-sm">{transaction.listing.make} {transaction.listing.model}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">Year:</span>
+                                    <span className="text-sm">{transaction.listing.year}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">Listing Price:</span>
+                                    <span className="text-sm">KES {parseFloat(transaction.listing.price || 0).toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-purple-600">
+                              KES {parseFloat(transaction.amount || 0).toLocaleString()}
+                            </div>
+                            <div className="text-sm text-gray-500 mt-1">
+                              {transaction.paidAt ? `Paid on ${new Date(transaction.paidAt).toLocaleDateString()}` : 'Payment pending'}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="text-center py-12">
+                    <Receipt className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-600 mb-2">No transactions yet</h3>
+                    <p className="text-gray-500 mb-4">Your payment history and purchases will appear here</p>
+                    <Link href="/sell-my-car">
+                      <Button className="bg-purple-600 hover:bg-purple-700">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create First Listing
+                      </Button>
                     </Link>
                   </CardContent>
                 </Card>

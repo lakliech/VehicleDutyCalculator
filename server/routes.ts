@@ -21,8 +21,13 @@ import {
   userActivities,
   bankPartners,
   loanProducts,
-  loanApplications
+  loanApplications,
+  paymentTransactions
 } from "@shared/schema-minimal";
+
+import { 
+  products, productCategories 
+} from "@shared/product-catalog-schema";
 
 import { 
   dutyCalculationSchema, 
@@ -5789,6 +5794,103 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     } catch (error) {
       console.error("Error fetching listing analytics:", error);
       res.status(500).json({ error: "Failed to fetch listing analytics" });
+    }
+  });
+
+  // Get user transaction history with complete details
+  app.get('/api/user/transactions', authenticateUser, async (req, res) => {
+    try {
+      const user = req.user as any;
+      
+      // Get all payment transactions for the user
+      const transactions = await db
+        .select()
+        .from(paymentTransactions)
+        .where(eq(paymentTransactions.userId, user.id))
+        .orderBy(desc(paymentTransactions.createdAt));
+      
+      // Enrich transactions with product and listing details
+      const enrichedTransactions = await Promise.all(
+        transactions.map(async (transaction) => {
+          let product = null;
+          let listing = null;
+          
+          // Get product details if productId exists
+          if (transaction.productId) {
+            try {
+              const productResult = await db
+                .select()
+                .from(products)
+                .leftJoin(productCategories, eq(products.categoryId, productCategories.id))
+                .where(eq(products.id, transaction.productId))
+                .limit(1);
+              
+              if (productResult.length > 0) {
+                product = {
+                  id: productResult[0].products.id,
+                  name: productResult[0].products.name,
+                  description: productResult[0].products.description,
+                  basePrice: productResult[0].products.basePrice,
+                  billingType: productResult[0].products.billingType,
+                  category: productResult[0].product_categories?.name || 'Unknown',
+                  targetUsers: productResult[0].products.targetUsers
+                };
+              }
+            } catch (error) {
+              console.error('Error fetching product details:', error);
+            }
+          }
+          
+          // Get listing details if entityType is 'listing' and entityId exists
+          if (transaction.entityType === 'listing' && transaction.entityId) {
+            try {
+              const listingResult = await db
+                .select()
+                .from(carListings)
+                .where(eq(carListings.id, parseInt(transaction.entityId)))
+                .limit(1);
+              
+              if (listingResult.length > 0) {
+                listing = {
+                  id: listingResult[0].id,
+                  title: listingResult[0].title,
+                  make: listingResult[0].make,
+                  model: listingResult[0].model,
+                  year: listingResult[0].year,
+                  price: listingResult[0].price,
+                  location: listingResult[0].location,
+                  status: listingResult[0].status
+                };
+              }
+            } catch (error) {
+              console.error('Error fetching listing details:', error);
+            }
+          }
+          
+          return {
+            id: transaction.id,
+            reference: transaction.reference,
+            type: transaction.type,
+            method: transaction.method,
+            amount: transaction.amount,
+            currency: transaction.currency,
+            status: transaction.status,
+            description: transaction.description,
+            entityType: transaction.entityType,
+            entityId: transaction.entityId,
+            createdAt: transaction.createdAt,
+            updatedAt: transaction.updatedAt,
+            paidAt: transaction.paidAt,
+            product: product,
+            listing: listing
+          };
+        })
+      );
+      
+      res.json(enrichedTransactions);
+    } catch (error) {
+      console.error("Error fetching user transactions:", error);
+      res.status(500).json({ error: "Failed to fetch user transactions" });
     }
   });
 

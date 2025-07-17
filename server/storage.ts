@@ -3230,6 +3230,11 @@ export class DatabaseStorage implements IStorage {
     return transaction;
   }
 
+  async getPaymentTransactionByReference(reference: string): Promise<any> {
+    const [transaction] = await db.select().from(paymentTransactions).where(eq(paymentTransactions.reference, reference));
+    return transaction;
+  }
+
   async getPaymentTransactions(userId: string, limit?: number): Promise<any[]> {
     const query = db.select().from(paymentTransactions).where(eq(paymentTransactions.userId, userId));
     if (limit) {

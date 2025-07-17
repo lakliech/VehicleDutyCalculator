@@ -64,7 +64,7 @@ export class PaystackService {
       // Create payment transaction record
       const transactionData: InsertPaymentTransaction = {
         userId: params.userId,
-        transactionRef: reference,
+        reference: reference,
         amount: params.amount.toString(),
         currency: params.currency || 'KES',
         status: 'pending',

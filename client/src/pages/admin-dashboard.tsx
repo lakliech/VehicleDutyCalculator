@@ -68,6 +68,14 @@ import {
 } from "lucide-react";
 import { z } from "zod";
 import ProductCatalogManagement from "@/components/ProductCatalogManagement";
+import { 
+  VehiclesManagementTab,
+  CSVUploadTab,
+  TaxRatesTab,
+  ProcessingFeesTab,
+  CategoryRulesTab,
+  DepreciationRatesTab
+} from "@/components/admin-components";
 import type { 
   VehicleReference, 
   TaxRate, 
@@ -82,6 +90,57 @@ import type {
 import { useAuth } from "@/components/auth-provider";
 import gariyangu from "@assets/gylogo_1752064168868.png";
 
+// Form schemas for validation
+const vehicleReferenceSchema = z.object({
+  make: z.string().min(1, "Make is required"),
+  model: z.string().min(1, "Model is required"),
+  engineCapacity: z.number().optional(),
+  bodyType: z.string().optional(),
+  driveConfiguration: z.string().optional(),
+  seating: z.string().optional(),
+  fuelType: z.string().optional(),
+  gvw: z.string().optional(),
+  crspKes: z.number().optional(),
+  crsp2020: z.number().optional(),
+  discontinuationYear: z.number().optional(),
+});
+
+const taxRateSchema = z.object({
+  vehicleCategory: z.string().min(1, "Vehicle category is required"),
+  importDutyRate: z.string().min(1, "Import duty rate is required"),
+  exciseDutyRate: z.string().min(1, "Excise duty rate is required"),
+  vatRate: z.string().min(1, "VAT rate is required"),
+});
+
+const processingFeeSchema = z.object({
+  feeType: z.string().min(1, "Fee type is required"),
+  feeName: z.string().min(1, "Fee name is required"),
+  rate: z.string().min(1, "Rate is required"),
+  applicableToImportType: z.enum(["direct", "previouslyRegistered", "both"]),
+  calculationBase: z.string().min(1, "Calculation base is required"),
+  description: z.string().optional(),
+  isActive: z.boolean().default(true),
+});
+
+const categoryRuleSchema = z.object({
+  vehicleCategory: z.string().min(1, "Vehicle category is required"),
+  minEngineSize: z.number().optional(),
+  maxEngineSize: z.number().optional(),
+  fuelType: z.string().optional(),
+  bodyType: z.string().optional(),
+});
+
+type VehicleReferenceForm = z.infer<typeof vehicleReferenceSchema>;
+type TaxRateForm = z.infer<typeof taxRateSchema>;
+type ProcessingFeeForm = z.infer<typeof processingFeeSchema>;
+type CategoryRuleForm = z.infer<typeof categoryRuleSchema>;
+type DepreciationRateForm = {
+  importType: string;
+  minAge: number;
+  maxAge: number;
+  depreciationRate: string;
+};
+
 export default function AdminDashboard() {
   return <AuthenticatedAdminDashboard />;
 }
@@ -93,6 +152,101 @@ function AuthenticatedAdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [openSubmenus, setOpenSubmenus] = useState<string[]>(["marketplace", "financial"]);
+
+  // Fetch data for all admin sections
+  const { data: vehicleReferences, isLoading: isLoadingVehicles } = useQuery({
+    queryKey: ["/api/admin/vehicle-references"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/vehicle-references", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: taxRates, isLoading: isLoadingTaxRates } = useQuery({
+    queryKey: ["/api/admin/tax-rates"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/tax-rates", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: processingFees, isLoading: isLoadingProcessingFees } = useQuery({
+    queryKey: ["/api/admin/processing-fees"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/processing-fees", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: categoryRules, isLoading: isLoadingCategoryRules } = useQuery({
+    queryKey: ["/api/admin/category-rules"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/category-rules", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: depreciationRates, isLoading: isLoadingDepreciationRates } = useQuery({
+    queryKey: ["/api/admin/depreciation-rates"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/depreciation-rates", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: carListings, isLoading: isLoadingListings } = useQuery({
+    queryKey: ["/api/admin/listings"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/listings", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: users, isLoading: isLoadingUsers } = useQuery({
+    queryKey: ["/api/admin/users"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/users", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  const { data: userRoles, isLoading: isLoadingUserRoles } = useQuery({
+    queryKey: ["/api/admin/user-roles"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/user-roles", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+  });
+
+  // Utility functions
+  const formatCurrency = (amount: string | number) => {
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return `KES ${num.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   const toggleSubmenu = (submenuId: string) => {
     setOpenSubmenus(prev => 
@@ -165,9 +319,23 @@ function AuthenticatedAdminDashboard() {
       case "product-catalog":
         return <ProductCatalogManagement />;
       case "listings":
-        return <div className="p-4"><h2>Listing Management - Coming Soon</h2></div>;
+        return (
+          <EnhancedListingsManagementTab 
+            carListings={carListings || []}
+            isLoading={isLoadingListings}
+            formatCurrency={formatCurrency}
+            getAuthHeaders={getAuthHeaders}
+          />
+        );
       case "users":
-        return <div className="p-4"><h2>User Management - Coming Soon</h2></div>;
+        return (
+          <UsersManagementTab 
+            users={users || []}
+            userRoles={userRoles || []}
+            isLoading={isLoadingUsers}
+            getAuthHeaders={getAuthHeaders}
+          />
+        );
       case "banks":
         return <div className="p-4"><h2>Bank Partners - Coming Soon</h2></div>;
       case "loan-products":
@@ -177,17 +345,48 @@ function AuthenticatedAdminDashboard() {
       case "monetization":
         return <div className="p-4"><h2>Monetization Strategy - Coming Soon</h2></div>;
       case "vehicles":
-        return <div className="p-4"><h2>Vehicle Database - Coming Soon</h2></div>;
+        return (
+          <VehiclesManagementTab 
+            vehicleReferences={vehicleReferences || []}
+            isLoading={isLoadingVehicles}
+            formatCurrency={formatCurrency}
+            getAuthHeaders={getAuthHeaders}
+          />
+        );
       case "csv-upload":
-        return <div className="p-4"><h2>Data Import - Coming Soon</h2></div>;
+        return <CSVUploadTab getAuthHeaders={getAuthHeaders} />;
       case "tax-rates":
-        return <div className="p-4"><h2>Tax Configuration - Coming Soon</h2></div>;
+        return (
+          <TaxRatesTab 
+            taxRates={taxRates || []}
+            isLoading={isLoadingTaxRates}
+            getAuthHeaders={getAuthHeaders}
+          />
+        );
       case "processing-fees":
-        return <div className="p-4"><h2>Processing Fees - Coming Soon</h2></div>;
+        return (
+          <ProcessingFeesTab 
+            processingFees={processingFees || []}
+            isLoading={isLoadingProcessingFees}
+            getAuthHeaders={getAuthHeaders}
+          />
+        );
       case "category-rules":
-        return <div className="p-4"><h2>Category Rules - Coming Soon</h2></div>;
+        return (
+          <CategoryRulesTab 
+            categoryRules={categoryRules || []}
+            isLoading={isLoadingCategoryRules}
+            getAuthHeaders={getAuthHeaders}
+          />
+        );
       case "depreciation-rates":
-        return <div className="p-4"><h2>Depreciation Rates - Coming Soon</h2></div>;
+        return (
+          <DepreciationRatesTab 
+            depreciationRates={depreciationRates || []}
+            isLoading={isLoadingDepreciationRates}
+            getAuthHeaders={getAuthHeaders}
+          />
+        );
       default:
         return <div className="p-4"><h2>Content not found</h2></div>;
     }
@@ -384,6 +583,319 @@ function OverviewTab() {
               </div>
               <div className="text-2xl font-bold text-orange-600">98.5%</div>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Enhanced Listings Management Tab Component
+function EnhancedListingsManagementTab({ 
+  carListings,
+  isLoading,
+  formatCurrency,
+  getAuthHeaders 
+}: {
+  carListings: CarListing[];
+  isLoading: boolean;
+  formatCurrency: (amount: string | number) => string;
+  getAuthHeaders: () => Record<string, string>;
+}) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [selectedListings, setSelectedListings] = useState<number[]>([]);
+  const [bulkAction, setBulkAction] = useState<string>("");
+
+  const approveListingMutation = useMutation({
+    mutationFn: async ({ listingId, notes }: { listingId: number; notes?: string }) => {
+      const response = await fetch(`/api/admin/listings/${listingId}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify({ notes }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      toast({ title: "Success", description: "Listing approved successfully" });
+    },
+  });
+
+  const rejectListingMutation = useMutation({
+    mutationFn: async ({ listingId, reason }: { listingId: number; reason: string }) => {
+      const response = await fetch(`/api/admin/listings/${listingId}/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify({ reason }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/listings"] });
+      toast({ title: "Success", description: "Listing rejected" });
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Loading listings...</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="animate-pulse space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Car className="h-5 w-5" />
+            Car Listings Management
+          </CardTitle>
+          <CardDescription>
+            Review and manage vehicle listings from sellers
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>
+                    <Checkbox
+                      checked={selectedListings.length === carListings.length}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedListings(carListings.map(l => l.id));
+                        } else {
+                          setSelectedListings([]);
+                        }
+                      }}
+                    />
+                  </TableHead>
+                  <TableHead>Vehicle</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Seller</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {carListings.map((listing) => (
+                  <TableRow key={listing.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedListings.includes(listing.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedListings(prev => [...prev, listing.id]);
+                          } else {
+                            setSelectedListings(prev => prev.filter(id => id !== listing.id));
+                          }
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {listing.year} {listing.make} {listing.model}
+                      <div className="text-sm text-gray-500">
+                        {listing.engineCapacity}cc • {listing.mileage} km
+                      </div>
+                    </TableCell>
+                    <TableCell>{formatCurrency(listing.price)}</TableCell>
+                    <TableCell>{listing.sellerId}</TableCell>
+                    <TableCell>
+                      <Badge variant={
+                        listing.status === 'active' ? 'default' :
+                        listing.status === 'pending' ? 'secondary' :
+                        listing.status === 'rejected' ? 'destructive' : 'outline'
+                      }>
+                        {listing.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        {listing.status === 'pending' && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => approveListingMutation.mutate({ listingId: listing.id })}
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => rejectListingMutation.mutate({ 
+                                listingId: listing.id, 
+                                reason: "Does not meet platform standards" 
+                              })}
+                            >
+                              <XCircle className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                        <Button size="sm" variant="outline">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Users Management Tab Component
+function UsersManagementTab({ 
+  users, 
+  userRoles, 
+  isLoading,
+  getAuthHeaders 
+}: {
+  users: AppUser[];
+  userRoles: UserRole[];
+  isLoading: boolean;
+  getAuthHeaders: () => Record<string, string>;
+}) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const updateUserRoleMutation = useMutation({
+    mutationFn: async ({ userId, roleId }: { userId: string; roleId: number }) => {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify({ roleId }),
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "Success", description: "User role updated successfully" });
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Loading users...</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="animate-pulse space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            User Management
+          </CardTitle>
+          <CardDescription>
+            Manage user accounts and roles
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={user.photoUrl} />
+                          <AvatarFallback>
+                            {user.name ? user.name.split(' ').map(n => n[0]).join('') : 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{user.name || 'Unnamed User'}</div>
+                          <div className="text-sm text-gray-500">ID: {user.id}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Select
+                        value={user.roleId?.toString()}
+                        onValueChange={(value) => {
+                          updateUserRoleMutation.mutate({
+                            userId: user.id,
+                            roleId: parseInt(value)
+                          });
+                        }}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {userRoles.map((role) => (
+                            <SelectItem key={role.id} value={role.id.toString()}>
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="default">Active</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="outline">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </CardContent>
       </Card>

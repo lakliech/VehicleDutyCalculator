@@ -4253,7 +4253,7 @@ function FinancialServicesTab({
         </CardHeader>
         <CardContent>
           <Tabs value={selectedFinancialTab} onValueChange={setSelectedFinancialTab}>
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="banks" className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
                 Bank Partners ({banks.length})
@@ -4269,6 +4269,10 @@ function FinancialServicesTab({
               <TabsTrigger value="trade-ins" className="flex items-center gap-2">
                 <Receipt className="h-4 w-4" />
                 Trade-in Evaluations ({tradeInEvaluations.length})
+              </TabsTrigger>
+              <TabsTrigger value="monetization" className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Monetization Strategy
               </TabsTrigger>
             </TabsList>
 
@@ -4570,6 +4574,210 @@ function FinancialServicesTab({
                   </Table>
                 </div>
               )}
+            </TabsContent>
+
+            {/* Monetization Strategy Tab */}
+            <TabsContent value="monetization" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Monetization Strategy Management</h3>
+              </div>
+              
+              {/* Revenue Overview Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-green-600">KES 847,500</div>
+                    <p className="text-xs text-muted-foreground">
+                      +12.3% from last month
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Active Subscribers</CardTitle>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">1,247</div>
+                    <p className="text-xs text-muted-foreground">
+                      +8.7% from last month
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+                    <Calculator className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">24.8%</div>
+                    <p className="text-xs text-muted-foreground">
+                      +2.1% from last month
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Annual Target</CardTitle>
+                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">56.7%</div>
+                    <p className="text-xs text-muted-foreground">
+                      KES 8.5M of KES 15M target
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Subscription Plans Overview */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5" />
+                    Subscription Plans Performance
+                  </CardTitle>
+                  <CardDescription>
+                    Monitor subscription plan performance and revenue distribution
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium text-sm">Basic Plan</h4>
+                          <Badge variant="secondary">789 users</Badge>
+                        </div>
+                        <div className="text-2xl font-bold text-blue-600">KES 197,250</div>
+                        <p className="text-xs text-muted-foreground">Monthly Revenue</p>
+                      </div>
+                      
+                      <div className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium text-sm">Professional Plan</h4>
+                          <Badge variant="default">367 users</Badge>
+                        </div>
+                        <div className="text-2xl font-bold text-purple-600">KES 293,600</div>
+                        <p className="text-xs text-muted-foreground">Monthly Revenue</p>
+                      </div>
+                      
+                      <div className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium text-sm">Enterprise Plan</h4>
+                          <Badge variant="outline">91 users</Badge>
+                        </div>
+                        <div className="text-2xl font-bold text-cyan-600">KES 182,000</div>
+                        <p className="text-xs text-muted-foreground">Monthly Revenue</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Revenue Strategies */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Active Revenue Strategies
+                  </CardTitle>
+                  <CardDescription>
+                    Current monetization strategies and their performance
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-medium">Market Penetration 2025</h4>
+                        <p className="text-sm text-muted-foreground">Aggressive growth targeting 15M KES in Year 1</p>
+                        <div className="flex gap-2 mt-2">
+                          <Badge variant="outline" className="text-xs">Freemium conversion</Badge>
+                          <Badge variant="outline" className="text-xs">Enterprise partnerships</Badge>
+                          <Badge variant="outline" className="text-xs">Premium features</Badge>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-green-600">KES 8.5M</div>
+                        <p className="text-xs text-muted-foreground">56.7% of target</p>
+                        <Badge variant="default" className="mt-1">Active</Badge>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-medium">Premium Services Expansion</h4>
+                        <p className="text-sm text-muted-foreground">Expand high-value services for professional dealers</p>
+                        <div className="flex gap-2 mt-2">
+                          <Badge variant="outline" className="text-xs">White-label solutions</Badge>
+                          <Badge variant="outline" className="text-xs">Advanced analytics</Badge>
+                          <Badge variant="outline" className="text-xs">Lead generation</Badge>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-blue-600">KES 25M</div>
+                        <p className="text-xs text-muted-foreground">18-month target</p>
+                        <Badge variant="secondary" className="mt-1">Planning</Badge>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-medium">B2B Enterprise Focus</h4>
+                        <p className="text-sm text-muted-foreground">Target large automotive businesses and institutions</p>
+                        <div className="flex gap-2 mt-2">
+                          <Badge variant="outline" className="text-xs">Custom integrations</Badge>
+                          <Badge variant="outline" className="text-xs">Volume discounts</Badge>
+                          <Badge variant="outline" className="text-xs">SLA guarantees</Badge>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-purple-600">KES 40M</div>
+                        <p className="text-xs text-muted-foreground">24-month target</p>
+                        <Badge variant="outline" className="mt-1">Draft</Badge>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Quick Actions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <Button className="flex flex-col h-20">
+                      <Plus className="h-5 w-5 mb-1" />
+                      <span className="text-xs">New Strategy</span>
+                    </Button>
+                    <Button variant="outline" className="flex flex-col h-20">
+                      <Edit className="h-5 w-5 mb-1" />
+                      <span className="text-xs">Edit Plans</span>
+                    </Button>
+                    <Button variant="outline" className="flex flex-col h-20">
+                      <Calculator className="h-5 w-5 mb-1" />
+                      <span className="text-xs">Pricing Rules</span>
+                    </Button>
+                    <Button variant="outline" className="flex flex-col h-20">
+                      <BarChart3 className="h-5 w-5 mb-1" />
+                      <span className="text-xs">Full Analytics</span>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </CardContent>

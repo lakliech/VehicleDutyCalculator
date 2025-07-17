@@ -172,7 +172,7 @@ export const insertSystemFeatureSchema = createInsertSchema(systemFeatures)
 export const insertProductFeatureAssociationSchema = createInsertSchema(productFeatureAssociations)
   .omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
-    additionalCost: z.number().optional().default(0),
+    additionalCost: z.string().transform((val) => val === '' ? 0 : parseFloat(val)).optional().default(0),
     sortOrder: z.number().optional().default(0),
     limitValue: z.number().optional().nullable(),
     limitDuration: z.number().optional().nullable(),

@@ -997,6 +997,12 @@ Changelog:
   - Made Category and Product Name fields read-only in edit product form to prevent accidental changes to core identifiers
   - Added backend protection to ignore categoryId and name fields during product updates for data integrity
   - Enhanced UI with visual indicators (disabled state, muted background, explanatory text) showing fields cannot be edited
+- January 17, 2025. Normalized similar features differentiated by limits:
+  - Consolidated duplicate "Photo Upload" features (IDs 1, 38, 40) into single normalized feature
+  - Consolidated duplicate "Listing Duration" features (IDs 2, 39, 42) into single normalized feature  
+  - Consolidated duplicate "Featured Placement" features (IDs 41, 43) into single normalized feature
+  - Marked duplicate features with [DUPLICATE] prefix for easy identification and removal
+  - Standardized feature names and descriptions for consistency across product catalog
 - January 17, 2025. Moved monetization strategy to main navigation tab for enhanced prominence:
   - Restructured admin dashboard navigation from 4 to 5 main tabs for better organization
   - Moved Monetization Strategy from Financial Services sub-tab to standalone main navigation tab

@@ -105,9 +105,23 @@ export default function ProductFeatureManager() {
     queryKey: ['/api/products', selectedProduct, 'features'],
     queryFn: async () => {
       if (!selectedProduct) return [];
-      const response = await fetch(`/api/products/${selectedProduct}/features`);
-      if (!response.ok) throw new Error('Failed to fetch product features');
-      return response.json();
+      console.log(`Fetching features for product ${selectedProduct}`);
+      const response = await fetch(`/api/products/${selectedProduct}/features`, {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        console.error('Failed to fetch product features:', response.status, response.statusText);
+        if (response.status === 401) {
+          throw new Error('Authentication required. Please log in.');
+        }
+        if (response.status === 403) {
+          throw new Error('Admin access required.');
+        }
+        throw new Error('Failed to fetch product features');
+      }
+      const data = await response.json();
+      console.log('Received product features data:', data);
+      return data;
     },
     enabled: !!selectedProduct
   });
@@ -115,6 +129,7 @@ export default function ProductFeatureManager() {
   // Add feature to product mutation
   const addFeatureMutation = useMutation({
     mutationFn: (data: any) => {
+      console.log('Adding feature with data:', data);
       return apiRequest('POST', `/api/products/${selectedProduct}/features`, data);
     },
     onSuccess: () => {

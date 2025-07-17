@@ -311,13 +311,16 @@ router.delete('/admin/products/:id', requireAuth, requireAdmin, async (req, res)
 // ==============================
 
 // Get product feature associations with full feature details
-router.get('/products/:productId/features', async (req, res) => {
+router.get('/products/:productId/features', requireAuth, requireAdmin, async (req, res) => {
   try {
     const productId = parseInt(req.params.productId);
+    
+    console.log('Fetching features for product:', productId);
     
     const associations = await db
       .select({
         id: productFeatureAssociations.id,
+        productId: productFeatureAssociations.productId,
         featureId: productFeatureAssociations.featureId,
         limitValue: productFeatureAssociations.limitValue,
         limitDuration: productFeatureAssociations.limitDuration,
@@ -333,13 +336,17 @@ router.get('/products/:productId/features', async (req, res) => {
           name: systemFeatures.name,
           description: systemFeatures.description,
           capability: systemFeatures.capability,
-          limitType: systemFeatures.limitType
+          limitType: systemFeatures.limitType,
+          isActive: systemFeatures.isActive
         }
       })
       .from(productFeatureAssociations)
       .innerJoin(systemFeatures, eq(productFeatureAssociations.featureId, systemFeatures.id))
       .where(eq(productFeatureAssociations.productId, productId))
       .orderBy(asc(productFeatureAssociations.sortOrder), asc(systemFeatures.name));
+    
+    console.log('Found associations:', associations.length);
+    console.log('Associations data:', JSON.stringify(associations, null, 2));
     
     res.json(associations);
   } catch (error) {
@@ -431,12 +438,20 @@ router.post('/admin/products/:productId/features', requireAuth, requireAdmin, as
 router.post('/products/:productId/features', requireAuth, requireAdmin, async (req, res) => {
   try {
     const productId = parseInt(req.params.productId);
+    
+    console.log('Creating feature association for product:', productId);
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    
     const associationData = insertProductFeatureAssociationSchema.parse({ 
       ...req.body, 
       productId 
     });
     
+    console.log('Parsed association data:', JSON.stringify(associationData, null, 2));
+    
     const [association] = await db.insert(productFeatureAssociations).values(associationData).returning();
+    
+    console.log('Created association:', JSON.stringify(association, null, 2));
     
     // Fetch the full association with feature details
     const fullAssociation = await db
@@ -465,10 +480,13 @@ router.post('/products/:productId/features', requireAuth, requireAdmin, async (r
       .where(eq(productFeatureAssociations.id, association.id))
       .limit(1);
     
+    console.log('Full association with feature:', JSON.stringify(fullAssociation[0], null, 2));
+    
     res.status(201).json(fullAssociation[0]);
   } catch (error) {
     console.error('Error creating product feature association:', error);
     if (error instanceof z.ZodError) {
+      console.error('Validation errors:', error.errors);
       return res.status(400).json({ error: 'Invalid data', details: error.errors });
     }
     res.status(500).json({ error: 'Failed to create product feature association' });

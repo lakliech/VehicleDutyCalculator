@@ -108,6 +108,7 @@ export function UserProfile() {
               { id: "favorites", label: "My Favorites", icon: Heart },
               { id: "saved-searches", label: "Saved Searches", icon: Search },
               { id: "messages", label: "Messages", icon: MessageCircle },
+              { id: "billing", label: "Billing & Plans", icon: CreditCard },
               { id: "account-settings", label: "Account Settings", icon: Settings }
             ].map((tab) => (
               <button

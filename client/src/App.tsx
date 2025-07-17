@@ -45,6 +45,7 @@ import Messages from "@/pages/messages";
 import SubscriptionManagement from "@/pages/subscription-management";
 import UsageDashboard from "@/pages/usage-dashboard";
 import BillingDashboard from "@/pages/billing-dashboard";
+import UnifiedBillingDashboard from "@/pages/unified-billing-dashboard";
 import AdminBillingDashboard from "@/pages/admin-billing-dashboard";
 import { ResetPassword } from "@/pages/reset-password";
 import PaymentSuccess from "@/pages/payment-success-simple";
@@ -135,6 +136,11 @@ function Router() {
             </ProtectedRoute>
           </Route>
           <Route path="/billing">
+            <ProtectedRoute>
+              <UnifiedBillingDashboard />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/billing-legacy">
             <ProtectedRoute>
               <BillingDashboard />
             </ProtectedRoute>

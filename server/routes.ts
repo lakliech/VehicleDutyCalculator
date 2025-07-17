@@ -9371,9 +9371,13 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   const billingRoutes = await import('./routes/billing-routes');
   app.use('/api/billing', billingRoutes.default);
 
-  // Use subscription-product routes
+  // Use subscription-product routes (deprecated - replaced by unified billing)
   const subscriptionProductRoutes = await import('./routes/subscription-product-routes');
   app.use('/api/subscription-products', subscriptionProductRoutes.default);
+
+  // Use unified billing routes (consolidates monetization, billing, and subscription-product functionality)
+  const unifiedBillingRoutes = await import('./routes/unified-billing-routes');
+  app.use('/api/unified-billing', unifiedBillingRoutes.default);
   console.log('Payment routes registered successfully');
 
   const httpServer = createServer(app);

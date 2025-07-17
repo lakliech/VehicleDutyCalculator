@@ -612,14 +612,7 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
       ? (data.images || [])
       : uploadedImages.filter(img => img !== null).map(img => img.url);
 
-    if (images.length === 0) {
-      console.log("No images uploaded");
-      toast({
-        title: "No photos uploaded",
-        description: "You can proceed without photos, but adding photos improves listing visibility",
-        variant: "default",
-      });
-    }
+    console.log("Final images array:", images, "Length:", images.length);
 
     try {
       setUploading(true);
@@ -627,16 +620,16 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
       onNext({ ...data, images }, "photos");
       
       toast({
-        title: "Photos processed",
+        title: "Step completed",
         description: images.length > 0 
           ? `${images.length} photos ready for your listing`
-          : "Listing ready without photos",
+          : "Proceeding to next step (photos can be added later)",
       });
     } catch (error) {
       console.error("Error in photo processing:", error);
       toast({
-        title: "Upload failed",
-        description: "Failed to process photos. Please try again.",
+        title: "Step failed",
+        description: "Failed to proceed to next step. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -781,11 +774,9 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
           {/* Photo count status */}
           <div className="flex items-center justify-between mt-4">
             <p className="text-sm text-gray-600">
-              Photos uploaded: {currentPhotoCount}/10
+              Photos uploaded: {uploadMode === 'bulk' ? (form.watch('images')?.length || 0) : currentPhotoCount}
             </p>
-            {currentPhotoCount < 3 && (
-              <p className="text-red-600 text-sm">At least 3 photos required</p>
-            )}
+            <p className="text-green-600 text-sm">Photos are optional - add for better visibility</p>
           </div>
         </div>
 
@@ -817,10 +808,12 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
           <Button 
             type="submit" 
             className="bg-purple-600 hover:bg-purple-700"
-            disabled={currentPhotoCount < 3 || uploading}
+            disabled={uploading}
             onClick={(e) => {
-              console.log("Next button clicked, uploaded images:", currentPhotoCount);
-              console.log("Button disabled state:", currentPhotoCount < 3 || uploading);
+              const imageCount = uploadMode === 'bulk' ? (form.watch('images')?.length || 0) : currentPhotoCount;
+              console.log("Next button clicked, upload mode:", uploadMode);
+              console.log("Image count:", imageCount);
+              console.log("Button disabled state:", uploading);
               console.log("Form errors:", form.formState.errors);
             }}
           >

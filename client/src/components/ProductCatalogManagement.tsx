@@ -86,20 +86,16 @@ export default function ProductCatalogManagement() {
   const queryClient = useQueryClient();
 
   // Fetch categories
-  const { data: categoriesResponse, isLoading: categoriesLoading } = useQuery({
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ['/api/products/categories'],
     queryFn: () => fetch('/api/products/categories').then(res => res.json())
   });
 
   // Fetch all products (admin)
-  const { data: productsResponse, isLoading: productsLoading } = useQuery({
+  const { data: products = [], isLoading: productsLoading } = useQuery({
     queryKey: ['/api/products/admin/products'],
     queryFn: () => fetch('/api/products/admin/products').then(res => res.json())
   });
-
-  // Ensure categories and products are arrays
-  const categories = Array.isArray(categoriesResponse) ? categoriesResponse : [];
-  const products = Array.isArray(productsResponse) ? productsResponse : [];
 
   // State for forms
   const [categoryForm, setCategoryForm] = useState({

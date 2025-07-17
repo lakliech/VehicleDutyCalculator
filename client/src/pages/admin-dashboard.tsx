@@ -4608,9 +4608,9 @@ function MonetizationStrategyTab() {
   const queryClient = useQueryClient();
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [transactionFilters, setTransactionFilters] = useState({
-    status: '',
-    method: '',
-    type: '',
+    status: 'all',
+    method: 'all',
+    type: 'all',
     startDate: '',
     endDate: ''
   });
@@ -4637,7 +4637,7 @@ function MonetizationStrategyTab() {
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '25',
-        ...Object.fromEntries(Object.entries(transactionFilters).filter(([_, value]) => value))
+        ...Object.fromEntries(Object.entries(transactionFilters).filter(([_, value]) => value && value !== 'all'))
       });
       return fetch(`/api/monetization/transactions?${params}`, { credentials: 'include' }).then(r => r.json());
     },
@@ -4923,7 +4923,7 @@ function MonetizationStrategyTab() {
                           <SelectValue placeholder="All statuses" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All statuses</SelectItem>
+                          <SelectItem value="all">All statuses</SelectItem>
                           <SelectItem value="completed">Completed</SelectItem>
                           <SelectItem value="processing">Processing</SelectItem>
                           <SelectItem value="pending">Pending</SelectItem>
@@ -4943,7 +4943,7 @@ function MonetizationStrategyTab() {
                           <SelectValue placeholder="All methods" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All methods</SelectItem>
+                          <SelectItem value="all">All methods</SelectItem>
                           <SelectItem value="card">Card</SelectItem>
                           <SelectItem value="mpesa">M-Pesa</SelectItem>
                           <SelectItem value="airtel">Airtel Money</SelectItem>
@@ -4962,7 +4962,7 @@ function MonetizationStrategyTab() {
                           <SelectValue placeholder="All types" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All types</SelectItem>
+                          <SelectItem value="all">All types</SelectItem>
                           <SelectItem value="purchase">Purchase</SelectItem>
                           <SelectItem value="subscription">Subscription</SelectItem>
                           <SelectItem value="topup">Top-up</SelectItem>
@@ -4993,7 +4993,7 @@ function MonetizationStrategyTab() {
                   <div className="flex gap-2 mt-4">
                     <Button
                       variant="outline"
-                      onClick={() => setTransactionFilters({ status: '', method: '', type: '', startDate: '', endDate: '' })}
+                      onClick={() => setTransactionFilters({ status: 'all', method: 'all', type: 'all', startDate: '', endDate: '' })}
                     >
                       Clear Filters
                     </Button>

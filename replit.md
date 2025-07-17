@@ -187,6 +187,13 @@ The platform implements a comprehensive payment and billing system using Paystac
 ## Changelog
 
 Changelog:
+- January 17, 2025. Successfully consolidated admin monetization system into unified dashboard:
+  - Replaced MonetizationStrategyTab component with comprehensive revenue analytics functionality
+  - Added three-tab revenue analytics system (Analytics, Product Revenue, Transactions) directly integrated into admin dashboard
+  - Removed separate /admin-monetization route and page for consolidated management experience
+  - Fixed transaction filtering issues by updating backend to handle "all" filter values properly
+  - Updated frontend SelectItem components to use "all" instead of empty string values to comply with Radix UI requirements
+  - Monetization functionality now completely unified in admin dashboard with working API endpoints
 - January 17, 2025. Restructured admin monetization system from plan management to revenue analytics:
   - Replaced subscription plan creation/management tools with revenue analytics focused interface
   - Created new API endpoints for product revenue analysis and filtered transaction data

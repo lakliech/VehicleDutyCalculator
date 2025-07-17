@@ -709,13 +709,13 @@ export class MonetizationService {
     // Build where conditions
     const whereConditions: any[] = [];
     
-    if (filters.status) {
+    if (filters.status && filters.status !== 'all') {
       whereConditions.push(eq(paymentTransactions.status, filters.status));
     }
-    if (filters.method) {
+    if (filters.method && filters.method !== 'all') {
       whereConditions.push(eq(paymentTransactions.method, filters.method));
     }
-    if (filters.type) {
+    if (filters.type && filters.type !== 'all') {
       whereConditions.push(eq(paymentTransactions.type, filters.type));
     }
     if (filters.startDate) {

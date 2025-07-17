@@ -14,6 +14,7 @@ import {
   updateProductSchema,
   insertSystemFeatureSchema,
   insertProductFeatureAssociationSchema,
+  updateProductFeatureAssociationSchema,
   insertProductPricingSchema,
   ProductCategory,
   Product,
@@ -611,7 +612,11 @@ router.put('/:productId/features/:id', requireAuth, requireAdmin, async (req, re
   try {
     const id = parseInt(req.params.id);
     const productId = parseInt(req.params.productId);
-    const associationData = insertProductFeatureAssociationSchema.parse({ ...req.body, productId });
+    
+    console.log('Update feature association request body:', JSON.stringify(req.body, null, 2));
+    
+    // Use update schema that excludes productId and featureId (they're in URL path)
+    const associationData = updateProductFeatureAssociationSchema.parse(req.body);
     
     const [association] = await db
       .update(productFeatureAssociations)

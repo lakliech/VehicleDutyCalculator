@@ -182,6 +182,21 @@ export const insertProductFeatureAssociationSchema = createInsertSchema(productF
     constraintConfig: z.record(z.any()).optional().nullable(),
     isIncluded: z.boolean().optional().default(true)
   });
+
+export const updateProductFeatureAssociationSchema = createInsertSchema(productFeatureAssociations)
+  .omit({ id: true, createdAt: true, updatedAt: true, productId: true, featureId: true })
+  .extend({
+    additionalCost: z.string().transform((val) => val === '' ? 0 : parseFloat(val)).optional().default(0),
+    sortOrder: z.number().optional().default(0),
+    limitValue: z.number().optional().nullable(),
+    limitDuration: z.number().optional().nullable(),
+    limitSize: z.number().optional().nullable(),
+    limitFrequency: z.number().optional().nullable(),
+    frequencyPeriod: z.number().optional().nullable(),
+    constraintConfig: z.record(z.any()).optional().nullable(),
+    isIncluded: z.boolean().optional().default(true)
+  })
+  .partial();
 export const insertProductPricingSchema = createInsertSchema(productPricing).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserProductSubscriptionSchema = createInsertSchema(userProductSubscriptions).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertProductBundleSchema = createInsertSchema(productBundles).omit({ id: true, createdAt: true, updatedAt: true });
@@ -201,6 +216,7 @@ export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type UpdateProduct = z.infer<typeof updateProductSchema>;
 export type InsertSystemFeature = z.infer<typeof insertSystemFeatureSchema>;
 export type InsertProductFeatureAssociation = z.infer<typeof insertProductFeatureAssociationSchema>;
+export type UpdateProductFeatureAssociation = z.infer<typeof updateProductFeatureAssociationSchema>;
 export type InsertProductPricing = z.infer<typeof insertProductPricingSchema>;
 export type InsertUserProductSubscription = z.infer<typeof insertUserProductSubscriptionSchema>;
 export type InsertProductBundle = z.infer<typeof insertProductBundleSchema>;

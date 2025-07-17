@@ -1239,25 +1239,19 @@ function FeatureForm({ defaultValues, onSubmit, isLoading = false }: FeatureForm
 function FeaturesAndPricingManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedProduct, setSelectedProduct] = useState<string>('');
   const [isCreateFeatureOpen, setIsCreateFeatureOpen] = useState(false);
   const [editingFeature, setEditingFeature] = useState<any>(null);
-
-  // Fetch categories
-  const { data: categories = [] } = useQuery({
-    queryKey: ['/api/products/categories'],
-    queryFn: () => fetch('/api/products/categories').then(res => res.json())
+  const [featureForm, setFeatureForm] = useState({
+    name: '',
+    description: '',
+    capability: '',
+    limitType: 'count',
+    isActive: true,
+    sortOrder: 0
   });
 
-  // Fetch products for selected category
-  const { data: products = [] } = useQuery({
-    queryKey: ['/api/products/admin/products'],
-    queryFn: () => fetch('/api/products/admin/products').then(res => res.json())
-  });
-
-  // Fetch ALL features from database
-  const { data: allFeatures = [], isLoading: featuresLoading } = useQuery({
+  // Fetch system features
+  const { data: systemFeatures = [], isLoading: featuresLoading } = useQuery({
     queryKey: ['/api/products/features'],
     queryFn: async () => {
       const response = await fetch('/api/products/features');
@@ -1266,24 +1260,23 @@ function FeaturesAndPricingManagement() {
     }
   });
 
-  // Filter features by selected product if needed
-  const productFeatures = selectedProduct 
-    ? allFeatures.filter((feature: any) => feature.productId.toString() === selectedProduct)
-    : allFeatures;
-
   // Create feature mutation
   const createFeatureMutation = useMutation({
     mutationFn: (data: any) => {
-      const productId = selectedProduct || data.productId;
-      if (!productId) {
-        throw new Error('Product must be selected to create feature');
-      }
-      return apiRequest('POST', `/api/products/${productId}/features`, data);
+      return apiRequest('POST', `/api/products/admin/features`, data);
     },
     onSuccess: () => {
-      toast({ title: "Success", description: "Feature created successfully" });
+      toast({ title: "Success", description: "System feature created successfully" });
       queryClient.invalidateQueries({ queryKey: ['/api/products/features'] });
       setIsCreateFeatureOpen(false);
+      setFeatureForm({
+        name: '',
+        description: '',
+        capability: '',
+        limitType: 'count',
+        isActive: true,
+        sortOrder: 0
+      });
     },
     onError: (error: any) => {
       toast({ 
@@ -1299,7 +1292,7 @@ function FeaturesAndPricingManagement() {
     mutationFn: ({ id, data }: { id: number; data: any }) => 
       apiRequest('PUT', `/api/products/features/${id}`, data),
     onSuccess: () => {
-      toast({ title: "Success", description: "Feature updated successfully" });
+      toast({ title: "Success", description: "System feature updated successfully" });
       queryClient.invalidateQueries({ queryKey: ['/api/products/features'] });
       setEditingFeature(null);
     },
@@ -1328,261 +1321,230 @@ function FeaturesAndPricingManagement() {
     }
   });
 
-  // Toggle feature activation
-  const toggleFeatureMutation = useMutation({
-    mutationFn: async ({ featureId, isActive }: { featureId: number; isActive: boolean }) => {
-      return apiRequest('PUT', `/api/products/features/${featureId}`, { isIncluded: isActive });
-    },
-    onSuccess: () => {
-      toast({ title: "Success", description: "Feature updated successfully" });
-      queryClient.invalidateQueries({ queryKey: ['/api/products/features'] });
-    },
-    onError: (error: any) => {
+  const handleCreateFeature = () => {
+    if (!featureForm.name.trim()) {
       toast({ 
         title: "Error", 
-        description: error.message || "Failed to update feature",
+        description: "Feature name is required",
         variant: "destructive" 
       });
+      return;
     }
-  });
+    createFeatureMutation.mutate(featureForm);
+  };
 
-  // Filter products by selected category
-  const filteredProducts = products.filter((productWrapper: any) => {
-    const product = productWrapper.product || productWrapper;
-    const category = productWrapper.category;
-    return selectedCategory && selectedCategory !== 'all' ? category?.id.toString() === selectedCategory : true;
-  });
+  const handleEditFeature = (feature: any) => {
+    setEditingFeature(feature);
+    setFeatureForm({
+      name: feature.name,
+      description: feature.description || '',
+      capability: feature.capability || '',
+      limitType: feature.limitType || 'count',
+      isActive: feature.isActive ?? true,
+      sortOrder: feature.sortOrder || 0
+    });
+  };
 
-  // Get selected product details
-  const selectedProductDetails = products.find((p: any) => {
-    const product = p.product || p;
-    return product.id.toString() === selectedProduct;
-  });
-
-  const handleFeatureToggle = (featureId: number, currentStatus: boolean) => {
-    toggleFeatureMutation.mutate({
-      featureId,
-      isActive: !currentStatus
+  const handleUpdateFeature = () => {
+    if (!featureForm.name.trim()) {
+      toast({ 
+        title: "Error", 
+        description: "Feature name is required",
+        variant: "destructive" 
+      });
+      return;
+    }
+    updateFeatureMutation.mutate({ 
+      id: editingFeature.id, 
+      data: featureForm 
     });
   };
 
   return (
     <div className="space-y-6">
-      {/* Category and Product Selection */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Features & Pricing Management
-          </CardTitle>
-          <CardDescription>
-            Select a category and product to manage features and pricing
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                System Features
+              </CardTitle>
+              <CardDescription>
+                Manage system capabilities that can be monetized. Features represent what the system can do and can be assigned to products with specific configurations.
+              </CardDescription>
+            </div>
+            <Button
+              onClick={() => setIsCreateFeatureOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Create Feature
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Category Selection */}
-            <div>
-              <Label htmlFor="category-select">Select Category</Label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((category: any) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.name}
-                    </SelectItem>
+          {featuresLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading system features...</p>
+            </div>
+          ) : systemFeatures.length > 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Feature Name</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Capability</TableHead>
+                    <TableHead>Limit Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {systemFeatures.map((feature: any) => (
+                    <TableRow key={feature.id}>
+                      <TableCell className="font-medium">{feature.name}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground max-w-xs">
+                        {feature.description || 'No description'}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{feature.capability || 'General'}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{feature.limitType}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={feature.isActive ? "default" : "secondary"}>
+                          {feature.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditFeature(feature)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deleteFeatureMutation.mutate(feature.id)}
+                            disabled={deleteFeatureMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </SelectContent>
-              </Select>
+                </TableBody>
+              </Table>
             </div>
-
-            {/* Product Selection */}
-            <div>
-              <Label htmlFor="product-select">Select Product</Label>
-              <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a product" />
-                </SelectTrigger>
-                <SelectContent>
-                  {filteredProducts.map((productWrapper: any) => {
-                    const product = productWrapper.product || productWrapper;
-                    const category = productWrapper.category;
-                    return (
-                      <SelectItem key={product.id} value={product.id.toString()}>
-                        {product.name} ({category?.name || 'No Category'})
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+          ) : (
+            <div className="text-center py-8">
+              <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No System Features</h3>
+              <p className="text-muted-foreground mb-4">Create your first system feature to get started.</p>
+              <Button onClick={() => setIsCreateFeatureOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create First Feature
+              </Button>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
-
-      {/* Product Details and Pricing */}
-      {selectedProductDetails && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              Product Details & Pricing
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <Label className="text-sm font-medium">Product Name</Label>
-                <p className="text-sm text-muted-foreground">{selectedProductDetails.product?.name || selectedProductDetails.name}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">Category</Label>
-                <p className="text-sm text-muted-foreground">{selectedProductDetails.category?.name || 'N/A'}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">Base Price</Label>
-                <p className="text-sm text-muted-foreground font-semibold">
-                  KES {parseFloat(selectedProductDetails.product?.basePrice || selectedProductDetails.basePrice || '0').toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">Billing Type</Label>
-                <Badge variant="outline">
-                  {(selectedProductDetails.product?.billingType || selectedProductDetails.billingType || 'per_period').replace('_', ' ')}
-                </Badge>
-              </div>
-            </div>
-            {selectedProductDetails.product?.description || selectedProductDetails.description && (
-              <div className="mt-4">
-                <Label className="text-sm font-medium">Description</Label>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {selectedProductDetails.product?.description || selectedProductDetails.description}
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Product Features */}
-      {selectedProduct && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Product Features
-              </div>
-              <Button onClick={() => setIsCreateFeatureOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Feature
-              </Button>
-            </CardTitle>
-            <CardDescription>
-              Manage features for {selectedProductDetails?.product?.name || selectedProductDetails?.name}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {featuresLoading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-muted-foreground">Loading features...</p>
-              </div>
-            ) : productFeatures.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {productFeatures.map((feature: any) => (
-                  <div key={feature.id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        {feature.isIncluded ? (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <XCircle className="h-4 w-4 text-red-500" />
-                        )}
-                        <span className="font-medium text-sm">{feature.name}</span>
-                      </div>
-                      <Switch
-                        checked={feature.isIncluded}
-                        onCheckedChange={() => handleFeatureToggle(feature.id, feature.isIncluded)}
-                        disabled={toggleFeatureMutation.isPending}
-                      />
-                    </div>
-                    
-                    {feature.description && (
-                      <p className="text-xs text-muted-foreground mb-2">{feature.description}</p>
-                    )}
-                    
-                    <div className="space-y-1">
-                      <div className="text-xs text-muted-foreground">
-                        {feature.limitType === 'unlimited' && 'Unlimited usage'}
-                        {feature.limitType === 'count' && `Limit: ${feature.limitValue} items`}
-                        {feature.limitType === 'duration' && `Duration: ${feature.limitDuration} days`}
-                        {feature.limitType === 'size' && `Size: ${feature.limitSize} MB`}
-                        {feature.limitType === 'frequency' && `${feature.limitFrequency} times per ${feature.frequencyPeriod || 24} hours`}
-                        {feature.limitType === 'concurrent' && `${feature.limitValue} concurrent`}
-                        {feature.limitType === 'boolean' && 'Yes/No feature'}
-                      </div>
-                      
-                      {feature.additionalCost && parseFloat(feature.additionalCost) > 0 && (
-                        <div className="text-xs font-medium text-green-600">
-                          Additional Cost: +KES {parseFloat(feature.additionalCost).toLocaleString()}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex gap-2 mt-3">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setEditingFeature(feature)}
-                        className="flex-1"
-                      >
-                        <Edit className="h-3 w-3 mr-1" />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => deleteFeatureMutation.mutate(feature.id)}
-                        disabled={deleteFeatureMutation.isPending}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No features found for this product</p>
-                <p className="text-sm">Create features to manage them here</p>
-                <Button 
-                  onClick={() => setIsCreateFeatureOpen(true)}
-                  className="mt-4"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create First Feature
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
 
       {/* Create Feature Dialog */}
       <Dialog open={isCreateFeatureOpen} onOpenChange={setIsCreateFeatureOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Create New Feature</DialogTitle>
+            <DialogTitle>Create System Feature</DialogTitle>
+            <DialogDescription>
+              Add a new system capability that can be monetized and assigned to products.
+            </DialogDescription>
           </DialogHeader>
-          <FeatureForm
-            onSubmit={(data) => createFeatureMutation.mutate(data)}
-            isLoading={createFeatureMutation.isPending}
-          />
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="feature-name">Feature Name *</Label>
+              <Input
+                id="feature-name"
+                value={featureForm.name}
+                onChange={(e) => setFeatureForm({ ...featureForm, name: e.target.value })}
+                placeholder="e.g., Photo Upload, Premium Support"
+              />
+            </div>
+            <div>
+              <Label htmlFor="feature-description">Description</Label>
+              <Textarea
+                id="feature-description"
+                value={featureForm.description}
+                onChange={(e) => setFeatureForm({ ...featureForm, description: e.target.value })}
+                placeholder="Brief description of this feature"
+              />
+            </div>
+            <div>
+              <Label htmlFor="feature-capability">Capability</Label>
+              <Input
+                id="feature-capability"
+                value={featureForm.capability}
+                onChange={(e) => setFeatureForm({ ...featureForm, capability: e.target.value })}
+                placeholder="e.g., Media, Support, Analytics"
+              />
+            </div>
+            <div>
+              <Label htmlFor="feature-limit-type">Limit Type</Label>
+              <Select
+                value={featureForm.limitType}
+                onValueChange={(value) => setFeatureForm({ ...featureForm, limitType: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select limit type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="count">Count</SelectItem>
+                  <SelectItem value="duration">Duration</SelectItem>
+                  <SelectItem value="size">Size</SelectItem>
+                  <SelectItem value="frequency">Frequency</SelectItem>
+                  <SelectItem value="concurrent">Concurrent</SelectItem>
+                  <SelectItem value="boolean">Boolean</SelectItem>
+                  <SelectItem value="unlimited">Unlimited</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="feature-active"
+                checked={featureForm.isActive}
+                onCheckedChange={(checked) => setFeatureForm({ ...featureForm, isActive: checked })}
+              />
+              <Label htmlFor="feature-active">Active</Label>
+            </div>
+            <div>
+              <Label htmlFor="feature-sort">Sort Order</Label>
+              <Input
+                id="feature-sort"
+                type="number"
+                value={featureForm.sortOrder}
+                onChange={(e) => setFeatureForm({ ...featureForm, sortOrder: parseInt(e.target.value) || 0 })}
+                placeholder="0"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateFeatureOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateFeature}
+              disabled={createFeatureMutation.isPending}
+            >
+              {createFeatureMutation.isPending ? "Creating..." : "Create Feature"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -1590,280 +1552,91 @@ function FeaturesAndPricingManagement() {
       <Dialog open={!!editingFeature} onOpenChange={() => setEditingFeature(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Edit Feature</DialogTitle>
+            <DialogTitle>Edit System Feature</DialogTitle>
+            <DialogDescription>
+              Update the system feature configuration.
+            </DialogDescription>
           </DialogHeader>
-          {editingFeature && (
-            <FeatureForm
-              defaultValues={editingFeature}
-              onSubmit={(data) => updateFeatureMutation.mutate({ id: editingFeature.id, data })}
-              isLoading={updateFeatureMutation.isPending}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* All Features Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              All Features Database
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">
-                {allFeatures.length} Total Features
-              </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  fetch('/api/products/features/cleanup', { method: 'POST' })
-                    .then(res => res.json())
-                    .then(data => {
-                      toast({ title: "Success", description: data.message });
-                      queryClient.invalidateQueries({ queryKey: ['/api/products/features'] });
-                    })
-                    .catch(err => {
-                      toast({ title: "Error", description: "Failed to clean up features", variant: "destructive" });
-                    });
-                }}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Clean Data
-              </Button>
-            </div>
-          </CardTitle>
-          <CardDescription>
-            View and edit all features from the database
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {featuresLoading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading all features...</p>
-            </div>
-          ) : allFeatures.length > 0 ? (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Feature Name</TableHead>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Limit</TableHead>
-                    <TableHead>Cost</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {allFeatures.map((feature: any) => {
-                    const product = products.find((p: any) => 
-                      (p.product?.id || p.id) === feature.productId
-                    );
-                    const productName = product?.product?.name || product?.name || 'Unknown Product';
-                    
-                    // Clean up feature name by removing quotes
-                    const cleanName = typeof feature.name === 'string' ? feature.name.replace(/^"|"$/g, '') : feature.name || 'Unnamed Feature';
-                    
-                    return (
-                      <TableRow key={feature.id}>
-                        <TableCell className="font-medium">{cleanName}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{productName}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">
-                            {feature.limitType}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {feature.limitType === 'unlimited' && 'Unlimited'}
-                          {feature.limitType === 'count' && `${feature.limitValue} items`}
-                          {feature.limitType === 'duration' && `${feature.limitDuration} days`}
-                          {feature.limitType === 'size' && `${feature.limitSize} MB`}
-                          {feature.limitType === 'frequency' && `${feature.limitFrequency}/${feature.frequencyPeriod || 24}h`}
-                          {feature.limitType === 'concurrent' && `${feature.limitValue} concurrent`}
-                          {feature.limitType === 'boolean' && 'Yes/No'}
-                        </TableCell>
-                        <TableCell>
-                          {feature.additionalCost && parseFloat(feature.additionalCost) > 0 ? (
-                            <span className="text-green-600 font-medium">
-                              +KES {parseFloat(feature.additionalCost).toLocaleString()}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">Free</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Switch
-                              checked={feature.isIncluded}
-                              onCheckedChange={() => handleFeatureToggle(feature.id, feature.isIncluded)}
-                              disabled={toggleFeatureMutation.isPending}
-                            />
-                            <Badge variant={feature.isIncluded ? "default" : "secondary"}>
-                              {feature.isIncluded ? "Included" : "Optional"}
-                            </Badge>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setEditingFeature(feature)}
-                              disabled={updateFeatureMutation.isPending}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => deleteFeatureMutation.mutate(feature.id)}
-                              disabled={deleteFeatureMutation.isPending}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No features found in the database</p>
-              <p className="text-sm">Create features to manage them here</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Empty State */}
-      {!selectedProduct && (
-        <Card>
-          <CardContent className="text-center py-12">
-            <Package className="h-12 w-12 mx-auto mb-4 opacity-50 text-muted-foreground" />
-            <p className="text-muted-foreground">Select a product to manage its features and pricing</p>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  );
-}
-
-// Feature Management Wrapper Component
-function FeatureManagementWrapper() {
-  const [selectedProduct, setSelectedProduct] = useState<string>('');
-  
-  // Fetch all products for the dropdown
-  const { data: products = [], isLoading: productsLoading } = useQuery({
-    queryKey: ['/api/products'],
-    queryFn: () => fetch('/api/products').then(res => res.json())
-  });
-
-  const selectedProductDetails = products.find((p: any) => {
-    const product = p.product || p;
-    return product.id.toString() === selectedProduct;
-  });
-
-  return (
-    <div className="space-y-6">
-      {/* Product Selection */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Select Product</CardTitle>
-          <CardDescription>Choose a product to manage its features with comprehensive constraints</CardDescription>
-        </CardHeader>
-        <CardContent>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="product-select">Product</Label>
-              <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+              <Label htmlFor="edit-feature-name">Feature Name *</Label>
+              <Input
+                id="edit-feature-name"
+                value={featureForm.name}
+                onChange={(e) => setFeatureForm({ ...featureForm, name: e.target.value })}
+                placeholder="e.g., Photo Upload, Premium Support"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-feature-description">Description</Label>
+              <Textarea
+                id="edit-feature-description"
+                value={featureForm.description}
+                onChange={(e) => setFeatureForm({ ...featureForm, description: e.target.value })}
+                placeholder="Brief description of this feature"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-feature-capability">Capability</Label>
+              <Input
+                id="edit-feature-capability"
+                value={featureForm.capability}
+                onChange={(e) => setFeatureForm({ ...featureForm, capability: e.target.value })}
+                placeholder="e.g., Media, Support, Analytics"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-feature-limit-type">Limit Type</Label>
+              <Select
+                value={featureForm.limitType}
+                onValueChange={(value) => setFeatureForm({ ...featureForm, limitType: value })}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a product" />
+                  <SelectValue placeholder="Select limit type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {products.map((item: any) => {
-                    const product = item.product || item;
-                    const category = item.category || null;
-                    return (
-                      <SelectItem key={product.id} value={product.id.toString()}>
-                        {product.name} {category && `(${category.name})`}
-                      </SelectItem>
-                    );
-                  })}
+                  <SelectItem value="count">Count</SelectItem>
+                  <SelectItem value="duration">Duration</SelectItem>
+                  <SelectItem value="size">Size</SelectItem>
+                  <SelectItem value="frequency">Frequency</SelectItem>
+                  <SelectItem value="concurrent">Concurrent</SelectItem>
+                  <SelectItem value="boolean">Boolean</SelectItem>
+                  <SelectItem value="unlimited">Unlimited</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Product Details */}
-      {selectedProductDetails && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Product Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <Label className="text-sm font-medium">Name</Label>
-                <p className="text-sm text-muted-foreground">{selectedProductDetails.product?.name || selectedProductDetails.name}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">Category</Label>
-                <p className="text-sm text-muted-foreground">{selectedProductDetails.category?.name || 'N/A'}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">Base Price</Label>
-                <p className="text-sm text-muted-foreground">
-                  KES {parseFloat(selectedProductDetails.product?.basePrice || selectedProductDetails.basePrice || '0').toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">Billing Type</Label>
-                <p className="text-sm text-muted-foreground capitalize">
-                  {(selectedProductDetails.product?.billingType || selectedProductDetails.billingType || 'per_period').replace('_', ' ')}
-                </p>
-              </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit-feature-active"
+                checked={featureForm.isActive}
+                onCheckedChange={(checked) => setFeatureForm({ ...featureForm, isActive: checked })}
+              />
+              <Label htmlFor="edit-feature-active">Active</Label>
             </div>
-            {selectedProductDetails.product?.description || selectedProductDetails.description && (
-              <div className="mt-4">
-                <Label className="text-sm font-medium">Description</Label>
-                <p className="text-sm text-muted-foreground">
-                  {selectedProductDetails.product?.description || selectedProductDetails.description}
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Feature Management */}
-      {selectedProduct && (
-        <FeatureManagement productId={parseInt(selectedProduct)} />
-      )}
-
-      {/* No Product Selected */}
-      {!selectedProduct && (
-        <Card>
-          <CardContent className="text-center py-8">
-            <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground mb-2">Select a product to manage its features</p>
-            <p className="text-sm text-muted-foreground">
-              Create and define features with various constraint types including count, duration, size, frequency, concurrent, and boolean limits.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+            <div>
+              <Label htmlFor="edit-feature-sort">Sort Order</Label>
+              <Input
+                id="edit-feature-sort"
+                type="number"
+                value={featureForm.sortOrder}
+                onChange={(e) => setFeatureForm({ ...featureForm, sortOrder: parseInt(e.target.value) || 0 })}
+                placeholder="0"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingFeature(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdateFeature}
+              disabled={updateFeatureMutation.isPending}
+            >
+              {updateFeatureMutation.isPending ? "Updating..." : "Update Feature"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

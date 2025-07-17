@@ -5881,10 +5881,10 @@ function CreatePlanDialog() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!planData.name || !planData.priceKes) {
+    if (!planData.name || !planData.priceKes || parseFloat(planData.priceKes) <= 0) {
       toast({
         title: "Error",
-        description: "Plan name and price are required.",
+        description: "Plan name and a valid price greater than 0 are required.",
         variant: "destructive"
       });
       return;
@@ -5897,7 +5897,7 @@ function CreatePlanDialog() {
       if (planData.maxListings) limits.maxListings = parseInt(planData.maxListings);
       if (planData.calculationsPerMonth) limits.calculationsPerMonth = parseInt(planData.calculationsPerMonth);
       
-      const response = await apiRequest('POST', '/api/monetization/admin/create-plan', {
+      const payload = {
         name: planData.name,
         description: planData.description,
         priceKes: parseFloat(planData.priceKes),
@@ -5905,7 +5905,11 @@ function CreatePlanDialog() {
         features: featuresArray,
         limits,
         isActive: planData.isActive
-      });
+      };
+      
+      console.log('Creating plan with payload:', payload);
+      
+      const response = await apiRequest('POST', '/api/monetization/admin/create-plan', payload);
 
       toast({
         title: "Plan Created",
@@ -5975,6 +5979,8 @@ function CreatePlanDialog() {
             <Input
               id="price"
               type="number"
+              min="1"
+              step="1"
               value={planData.priceKes}
               onChange={(e) => setPlanData({ ...planData, priceKes: e.target.value })}
               placeholder="2500"

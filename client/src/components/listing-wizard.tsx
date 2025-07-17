@@ -276,18 +276,54 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
       return;
     }
 
-    const allData = {
-      ...savedData.vehicleDetails,
-      ...savedData.locationCondition,
-      ...savedData.photos,
-      ...savedData.pricing,
-      ...savedData.contact,
-      title: `${savedData.vehicleDetails?.year} ${savedData.vehicleDetails?.make} ${savedData.vehicleDetails?.model}`,
-      selectedProductId: paymentData.selectedProduct.id,
-    };
+    try {
+      // Initialize Paystack payment
+      const paymentResponse = await fetch('/api/payments/initialize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          amount: parseFloat(paymentData.selectedProduct.price),
+          currency: 'KES',
+          productId: paymentData.selectedProduct.id,
+          entityType: 'listing',
+          entityId: null, // Will be set after listing creation
+          transactionType: paymentData.selectedProduct.billingType === 'one-time' ? 'purchase' : 'subscription',
+          description: `Payment for ${paymentData.selectedProduct.name}`,
+          callbackUrl: `${window.location.origin}/payment-success`,
+          metadata: {
+            listingData: {
+              ...savedData.vehicleDetails,
+              ...savedData.locationCondition,
+              ...savedData.photos,
+              ...savedData.pricing,
+              ...savedData.contact,
+              title: `${savedData.vehicleDetails?.year} ${savedData.vehicleDetails?.make} ${savedData.vehicleDetails?.model}`,
+              selectedProductId: paymentData.selectedProduct.id,
+            }
+          }
+        }),
+      });
 
-    console.log("Final listing data:", allData);
-    submitListingMutation.mutate(allData);
+      if (!paymentResponse.ok) {
+        throw new Error('Payment initialization failed');
+      }
+
+      const paymentData = await paymentResponse.json();
+      
+      // Redirect to Paystack payment page
+      window.location.href = paymentData.authorization_url;
+      
+    } catch (error) {
+      console.error('Payment initialization error:', error);
+      toast({
+        title: "Payment Error",
+        description: "Failed to initialize payment. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const progressPercentage = (currentStep / STEPS.length) * 100;
@@ -1217,12 +1253,12 @@ function PaymentStep({ form, onSubmit, onPrev, isSubmitting }: {
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Creating Listing...
+                Initializing Payment...
               </>
             ) : (
               <>
                 <CheckCircle className="mr-2 h-4 w-4" />
-                Create Listing & Pay
+                Proceed to Payment
               </>
             )}
           </Button>

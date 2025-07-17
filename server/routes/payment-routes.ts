@@ -40,6 +40,7 @@ router.post('/initialize', authenticateUser, async (req, res) => {
       entityId: data.entityId,
       transactionType: data.productId ? 'subscription' : 'purchase',
       description: `Payment for ${data.entityType || 'service'}`,
+      callbackUrl: data.callbackUrl || `${req.protocol}://${req.get('host')}/payment-success`,
       metadata: data.metadata
     });
 
@@ -87,7 +88,66 @@ router.post('/verify', authenticateUser, async (req, res) => {
     
     const result = await paystackService.verifyPayment(data.paystackReference);
     
-    res.json(result);
+    // If payment is successful and there's listing data, create the listing
+    if (result.success && result.transaction && result.transaction.metadata && result.transaction.metadata.listingData) {
+      const listingData = result.transaction.metadata.listingData;
+      
+      try {
+        // Create the listing
+        const createdListing = await storage.createListing({
+          sellerId: req.user.id,
+          make: listingData.make,
+          model: listingData.model,
+          year: listingData.year,
+          price: listingData.price.toString(),
+          mileage: listingData.mileage.toString(),
+          fuelType: listingData.fuelType,
+          transmission: listingData.transmission,
+          engineCapacity: listingData.engineCapacity.toString(),
+          bodyType: listingData.bodyType,
+          driveConfiguration: listingData.driveConfiguration,
+          exteriorColor: listingData.exteriorColor,
+          interiorColor: listingData.interiorColor,
+          condition: listingData.condition,
+          description: listingData.description,
+          features: listingData.features,
+          photos: listingData.photos,
+          videos: listingData.videos,
+          documents: listingData.documents,
+          location: listingData.location,
+          phoneNumber: listingData.phoneNumber,
+          whatsappNumber: listingData.whatsappNumber,
+          title: listingData.title,
+          status: 'pending',
+          isVerified: false,
+          viewCount: 0,
+          favoriteCount: 0,
+          featured: false,
+          isFlagged: false,
+          listingSource: 'user-submitted'
+        });
+
+        // Update the payment transaction with the listing ID
+        await paystackService.updatePaymentTransaction(result.transaction.id, {
+          entityId: createdListing.id.toString()
+        });
+
+        // Return success with listing data
+        res.json({
+          ...result,
+          listing: createdListing
+        });
+      } catch (listingError) {
+        console.error('Listing creation error:', listingError);
+        // Payment was successful but listing creation failed
+        res.json({
+          ...result,
+          listingError: 'Listing creation failed, please contact support'
+        });
+      }
+    } else {
+      res.json(result);
+    }
   } catch (error) {
     console.error('Payment verification error:', error);
     res.status(500).json({ error: 'Payment verification failed' });

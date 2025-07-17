@@ -32,6 +32,7 @@ export class PaystackService {
     entityId?: string;
     transactionType: 'purchase' | 'subscription' | 'credit_purchase';
     description?: string;
+    callbackUrl?: string;
     metadata?: Record<string, any>;
     channels?: string[];
   }) {
@@ -44,6 +45,7 @@ export class PaystackService {
         amount: params.amount * 100, // Convert to kobo
         email: params.email,
         currency: params.currency || 'KES',
+        callback_url: params.callbackUrl,
         channels: params.channels || ['card', 'mobile_money', 'ussd', 'bank_transfer'],
         metadata: {
           ...params.metadata,

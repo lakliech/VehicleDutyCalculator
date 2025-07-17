@@ -211,6 +211,7 @@ export const createPaymentIntentSchema = z.object({
   productId: z.number().optional(),
   entityType: z.string().optional(),
   entityId: z.string().optional(),
+  callbackUrl: z.string().optional(),
   paymentMethod: z.enum(['card', 'mobile_money', 'bank_transfer', 'ussd', 'bank', 'mpesa', 'airtel_money']).optional(),
   metadata: z.object({}).optional()
 });

@@ -5030,9 +5030,9 @@ function MonetizationStrategyTab() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Reference</TableHead>
+                            <TableHead>Transaction</TableHead>
                             <TableHead>User</TableHead>
-                            <TableHead>Product</TableHead>
+                            <TableHead>Product/Listing</TableHead>
                             <TableHead>Amount</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Method</TableHead>
@@ -5043,14 +5043,33 @@ function MonetizationStrategyTab() {
                         <TableBody>
                           {transactions?.transactions?.map((transaction: any) => (
                             <TableRow key={transaction.id}>
-                              <TableCell className="font-mono text-sm">
-                                {transaction.reference}
-                              </TableCell>
-                              <TableCell>{transaction.userId}</TableCell>
                               <TableCell>
                                 <div>
-                                  <div className="font-medium">{transaction.productName || 'N/A'}</div>
-                                  <div className="text-sm text-gray-500">{transaction.categoryName || 'N/A'}</div>
+                                  <div className="font-medium text-sm">#{transaction.id}</div>
+                                  <div className="text-xs text-gray-500 font-mono">
+                                    {transaction.reference.substring(0, 12)}...
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium">{transaction.userName}</div>
+                                  <div className="text-sm text-gray-500">{transaction.userEmail}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                  {transaction.listingTitle ? (
+                                    <>
+                                      <div className="font-medium">{transaction.listingTitle}</div>
+                                      <div className="text-sm text-gray-500">Vehicle Listing</div>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <div className="font-medium">{transaction.productName || 'N/A'}</div>
+                                      <div className="text-sm text-gray-500">{transaction.categoryName || 'N/A'}</div>
+                                    </>
+                                  )}
                                 </div>
                               </TableCell>
                               <TableCell className="font-semibold">

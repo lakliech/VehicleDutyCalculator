@@ -187,6 +187,14 @@ The platform implements a comprehensive payment and billing system using Paystac
 ## Changelog
 
 Changelog:
+- January 17, 2025. Enhanced transaction display in admin dashboard for better user experience:
+  - Added "provider" field to payment_transactions table to capture Paystack provider information (visa, mastercard, mpesa, etc.)
+  - Updated PaystackService to store provider data from payment verification responses
+  - Modified monetization service to join with users and listings tables for comprehensive transaction data
+  - Replaced user IDs with actual user names and emails in transaction display
+  - Added listing titles to transaction table when payments are for vehicle listings
+  - Changed reference numbers to display transaction ID with truncated reference for better identification
+  - Enhanced admin dashboard table with more meaningful column headers and data organization
 - January 17, 2025. Successfully consolidated admin monetization system into unified dashboard:
   - Replaced MonetizationStrategyTab component with comprehensive revenue analytics functionality
   - Added three-tab revenue analytics system (Analytics, Product Revenue, Transactions) directly integrated into admin dashboard

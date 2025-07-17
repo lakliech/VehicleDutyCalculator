@@ -688,6 +688,8 @@ export class MonetizationService {
     transactions: Array<{
       id: number;
       userId: string;
+      userName: string;
+      userEmail: string;
       reference: string;
       amount: number;
       currency: string;
@@ -698,6 +700,8 @@ export class MonetizationService {
       description: string;
       productName?: string;
       categoryName?: string;
+      listingTitle?: string;
+      listingId?: number;
       createdAt: Date;
       paidAt?: Date;
     }>;
@@ -706,6 +710,7 @@ export class MonetizationService {
   }> {
     const { paymentTransactions } = await import('../../shared/payment-billing-schema');
     const { products, productCategories } = await import('../../shared/product-catalog-schema');
+    const { appUsers, carListings } = await import('../../shared/schema-minimal');
     
     // Build where conditions
     const whereConditions: any[] = [];
@@ -730,10 +735,12 @@ export class MonetizationService {
     const limit = filters.limit || 50;
     const offset = (page - 1) * limit;
 
-    // Get transactions with product info
+    // Get transactions with product info, user info, and listing info
     const transactions = await db.select({
       id: paymentTransactions.id,
       userId: paymentTransactions.userId,
+      userName: appUsers.name,
+      userEmail: appUsers.email,
       reference: paymentTransactions.reference,
       amount: paymentTransactions.amount,
       currency: paymentTransactions.currency,
@@ -744,12 +751,16 @@ export class MonetizationService {
       description: paymentTransactions.description,
       productName: products.name,
       categoryName: productCategories.name,
+      listingTitle: carListings.title,
+      listingId: paymentTransactions.listingId,
       createdAt: paymentTransactions.createdAt,
       paidAt: paymentTransactions.paidAt,
     })
     .from(paymentTransactions)
+    .leftJoin(appUsers, eq(paymentTransactions.userId, appUsers.id))
     .leftJoin(products, eq(paymentTransactions.productId, products.id))
     .leftJoin(productCategories, eq(products.categoryId, productCategories.id))
+    .leftJoin(carListings, eq(paymentTransactions.listingId, carListings.id))
     .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
     .orderBy(desc(paymentTransactions.createdAt))
     .limit(limit)
@@ -767,6 +778,8 @@ export class MonetizationService {
       transactions: transactions.map(t => ({
         id: t.id,
         userId: t.userId,
+        userName: t.userName || 'Unknown User',
+        userEmail: t.userEmail || '',
         reference: t.reference,
         amount: parseFloat(t.amount),
         currency: t.currency,
@@ -777,6 +790,8 @@ export class MonetizationService {
         description: t.description,
         productName: t.productName,
         categoryName: t.categoryName,
+        listingTitle: t.listingTitle,
+        listingId: t.listingId,
         createdAt: t.createdAt,
         paidAt: t.paidAt,
       })),

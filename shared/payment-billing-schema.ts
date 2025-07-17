@@ -60,6 +60,7 @@ export const paymentTransactions = pgTable('payment_transactions', {
   status: paymentStatusEnum('status').default('pending'),
   method: paymentMethodEnum('method'), // payment method
   type: transactionTypeEnum('type').notNull(), // transaction type
+  provider: text('provider'), // Payment provider from Paystack (e.g., 'visa', 'mastercard', 'mpesa')
   description: text('description'),
   metadata: jsonb('metadata'),
   

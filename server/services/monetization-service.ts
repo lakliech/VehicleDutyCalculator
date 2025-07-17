@@ -694,6 +694,7 @@ export class MonetizationService {
       status: string;
       method: string;
       type: string;
+      provider?: string;
       description: string;
       productName?: string;
       categoryName?: string;
@@ -739,6 +740,7 @@ export class MonetizationService {
       status: paymentTransactions.status,
       method: paymentTransactions.method,
       type: paymentTransactions.type,
+      provider: paymentTransactions.provider,
       description: paymentTransactions.description,
       productName: products.name,
       categoryName: productCategories.name,
@@ -771,6 +773,7 @@ export class MonetizationService {
         status: t.status,
         method: t.method,
         type: t.type,
+        provider: t.provider,
         description: t.description,
         productName: t.productName,
         categoryName: t.categoryName,

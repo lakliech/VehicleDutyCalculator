@@ -72,6 +72,7 @@ async function migratePaymentTables() {
         status payment_status DEFAULT 'pending',
         method payment_method DEFAULT 'card',
         type transaction_type DEFAULT 'purchase',
+        provider TEXT,
         description TEXT,
         metadata JSON,
         product_id INTEGER,

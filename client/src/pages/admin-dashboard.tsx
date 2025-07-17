@@ -5036,6 +5036,7 @@ function MonetizationStrategyTab() {
                             <TableHead>Amount</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Method</TableHead>
+                            <TableHead>Provider</TableHead>
                             <TableHead>Date</TableHead>
                           </TableRow>
                         </TableHeader>
@@ -5059,6 +5060,7 @@ function MonetizationStrategyTab() {
                                 {getStatusBadge(transaction.status)}
                               </TableCell>
                               <TableCell className="capitalize">{transaction.method}</TableCell>
+                              <TableCell className="capitalize">{transaction.provider || 'N/A'}</TableCell>
                               <TableCell>{formatDateTime(transaction.createdAt)}</TableCell>
                             </TableRow>
                           ))}

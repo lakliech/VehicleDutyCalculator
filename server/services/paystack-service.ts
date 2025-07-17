@@ -111,6 +111,7 @@ export class PaystackService {
       const updatedTransaction = await storage.updatePaymentTransaction(transaction.id, {
         status: paymentData.status === 'success' ? 'completed' : 'failed',
         method: this.mapPaystackChannelToMethod(paymentData.channel),
+        provider: paymentData.authorization?.brand || paymentData.authorization?.bank || paymentData.channel,
         paystackFeePaid: paymentData.fees ? (paymentData.fees / 100).toString() : null,
         paidAt: paymentData.paid_at ? new Date(paymentData.paid_at) : null,
         processedAt: new Date()

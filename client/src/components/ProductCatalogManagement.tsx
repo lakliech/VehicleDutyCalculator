@@ -620,7 +620,7 @@ function FeaturesAndPricingManagement() {
   const filteredProducts = products.filter((productWrapper: any) => {
     const product = productWrapper.product || productWrapper;
     const category = productWrapper.category;
-    return selectedCategory ? category?.id.toString() === selectedCategory : true;
+    return selectedCategory && selectedCategory !== 'all' ? category?.id.toString() === selectedCategory : true;
   });
 
   // Get selected product details
@@ -659,7 +659,7 @@ function FeaturesAndPricingManagement() {
                   <SelectValue placeholder="Choose a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   {categories.map((category: any) => (
                     <SelectItem key={category.id} value={category.id.toString()}>
                       {category.name}
@@ -677,7 +677,6 @@ function FeaturesAndPricingManagement() {
                   <SelectValue placeholder="Choose a product" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No Product Selected</SelectItem>
                   {filteredProducts.map((productWrapper: any) => {
                     const product = productWrapper.product || productWrapper;
                     const category = productWrapper.category;

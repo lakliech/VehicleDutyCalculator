@@ -21,6 +21,7 @@ import {
   Coins, Phone, CheckCircle, X, Plus, Eye, Save 
 } from "lucide-react";
 import { ImageUpload } from "./image-upload";
+import { BulkImageUpload } from "./bulk-image-upload";
 
 // Form schema for each step
 const vehicleDetailsSchema = z.object({
@@ -598,36 +599,38 @@ function LocationConditionStep({ form, onNext, onPrev }: { form: any; onNext: (d
 
 // Step 3: Photos & Video
 function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, stepName: string) => void; onPrev: () => void }) {
+  const [uploadMode, setUploadMode] = useState<'bulk' | 'individual'>('bulk');
   const [uploadedImages, setUploadedImages] = useState<Array<{url: string, file: File} | null>>(new Array(20).fill(null));
   const [uploading, setUploading] = useState(false);
   const [currentPhotoCount, setCurrentPhotoCount] = useState(0);
   const { toast } = useToast();
 
   const onSubmit = async (data: PhotosForm) => {
-    console.log("PhotosStep onSubmit called", data, "uploadedImages count:", uploadedImages.length);
+    console.log("PhotosStep onSubmit called", data);
+    
+    const images = uploadMode === 'bulk' 
+      ? (data.images || [])
+      : uploadedImages.filter(img => img !== null).map(img => img.url);
+
+    if (images.length === 0) {
+      console.log("No images uploaded");
+      toast({
+        title: "No photos uploaded",
+        description: "You can proceed without photos, but adding photos improves listing visibility",
+        variant: "default",
+      });
+    }
 
     try {
       setUploading(true);
-      console.log("Starting base64 conversion for", uploadedImages.length, "images");
       
-      // Convert to base64 for storage (in production, upload to cloud storage)
-      const imagePromises = uploadedImages.map(async (item) => {
-        return new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = () => reject(new Error('Failed to read file'));
-          reader.readAsDataURL(item.file);
-        });
-      });
-
-      const base64Images = await Promise.all(imagePromises);
-      console.log("Base64 conversion complete, calling onNext with", base64Images.length, "images");
-      
-      onNext({ ...data, images: base64Images }, "photos");
+      onNext({ ...data, images }, "photos");
       
       toast({
         title: "Photos processed",
-        description: `${base64Images.length} photos ready for your listing`,
+        description: images.length > 0 
+          ? `${images.length} photos ready for your listing`
+          : "Listing ready without photos",
       });
     } catch (error) {
       console.error("Error in photo processing:", error);
@@ -683,49 +686,97 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
         className="space-y-6"
       >
         <div>
-          <Label className="text-base font-medium">Vehicle Photos</Label>
-          <p className="text-sm text-gray-600 mb-4">Upload high-quality photos of your vehicle. Include front, side, and interior views for better visibility.</p>
-          
-          {/* Photo Upload - No limits */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {[...Array(20)].map((_, index) => (
-              <ImageUpload
-                key={index}
-                label={`Photo ${index + 1}`}
-                description="Optional"
-                value={uploadedImages[index]?.url}
-                onChange={(base64) => {
-                  if (base64) {
-                    const base64Data = base64.split(',')[1];
-                    const blob = new Blob([Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))], { type: 'image/jpeg' });
-                    const file = new File([blob], `image_${Date.now()}.jpg`, { type: 'image/jpeg' });
-                    
-                    const newImage = { url: base64, file };
-                    const updatedImages = [...uploadedImages];
-                    updatedImages[index] = newImage;
-                    setUploadedImages(updatedImages);
-                    setCurrentPhotoCount(updatedImages.filter(img => img).length);
-                    
-                    // Update form field
-                    const imageUrls = updatedImages.map(img => img?.url).filter(Boolean);
-                    form.setValue('images', imageUrls);
-                  } else {
-                    const updatedImages = [...uploadedImages];
-                    updatedImages[index] = null;
-                    setUploadedImages(updatedImages);
-                    setCurrentPhotoCount(updatedImages.filter(img => img).length);
-                    
-                    // Update form field
-                    const imageUrls = updatedImages.map(img => img?.url).filter(Boolean);
-                    form.setValue('images', imageUrls);
-                  }
-                }}
-                required={false}
-                currentPhotoCount={currentPhotoCount}
-                className="h-48"
-              />
-            ))}
+          {/* Upload Mode Toggle */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <Label className="text-base font-medium">Vehicle Photos</Label>
+              <p className="text-sm text-gray-600">Upload high-quality photos of your vehicle for better visibility.</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant={uploadMode === 'bulk' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setUploadMode('bulk')}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                <Upload className="w-4 h-4 mr-1" />
+                Bulk Upload
+              </Button>
+              <Button
+                type="button"
+                variant={uploadMode === 'individual' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setUploadMode('individual')}
+              >
+                <Camera className="w-4 h-4 mr-1" />
+                Individual
+              </Button>
+            </div>
           </div>
+          
+          {uploadMode === 'bulk' ? (
+            /* Bulk Upload Component */
+            <FormField
+              control={form.control}
+              name="images"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <BulkImageUpload
+                      value={field.value || []}
+                      onChange={field.onChange}
+                      maxFiles={50}
+                      maxFileSize={5}
+                      className="mb-6"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            /* Individual Upload Slots */
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {[...Array(20)].map((_, index) => (
+                <ImageUpload
+                  key={index}
+                  label={`Photo ${index + 1}`}
+                  description="Optional"
+                  value={uploadedImages[index]?.url}
+                  onChange={(base64) => {
+                    if (base64) {
+                      const base64Data = base64.split(',')[1];
+                      const blob = new Blob([Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))], { type: 'image/jpeg' });
+                      const file = new File([blob], `image_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                      
+                      const newImage = { url: base64, file };
+                      const updatedImages = [...uploadedImages];
+                      updatedImages[index] = newImage;
+                      setUploadedImages(updatedImages);
+                      setCurrentPhotoCount(updatedImages.filter(img => img).length);
+                      
+                      // Update form field
+                      const imageUrls = updatedImages.map(img => img?.url).filter(Boolean);
+                      form.setValue('images', imageUrls);
+                    } else {
+                      const updatedImages = [...uploadedImages];
+                      updatedImages[index] = null;
+                      setUploadedImages(updatedImages);
+                      setCurrentPhotoCount(updatedImages.filter(img => img).length);
+                      
+                      // Update form field
+                      const imageUrls = updatedImages.map(img => img?.url).filter(Boolean);
+                      form.setValue('images', imageUrls);
+                    }
+                  }}
+                  required={false}
+                  currentPhotoCount={currentPhotoCount}
+                  className="h-48"
+                />
+              ))}
+            </div>
+          )}
 
           {/* Photo count status */}
           <div className="flex items-center justify-between mt-4">

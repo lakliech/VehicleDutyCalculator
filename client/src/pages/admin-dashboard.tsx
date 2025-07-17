@@ -53,6 +53,7 @@ import {
   Mail,
   Ban,
   Activity,
+  Package,
   RefreshCw,
   Download,
   Building2,
@@ -62,6 +63,7 @@ import {
   BarChart3
 } from "lucide-react";
 import { z } from "zod";
+import ProductCatalogManagement from "@/components/ProductCatalogManagement";
 import type { 
   VehicleReference, 
   TaxRate, 
@@ -626,7 +628,7 @@ function AuthenticatedAdminDashboard() {
           {/* Organized Navigation with Groups */}
           <div className="space-y-4">
             {/* Main Navigation */}
-            <TabsList className="grid w-full grid-cols-5 mb-4">
+            <TabsList className="grid w-full grid-cols-6 mb-4">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <Database className="h-4 w-4" />
                 Dashboard Overview
@@ -638,6 +640,10 @@ function AuthenticatedAdminDashboard() {
               <TabsTrigger value="financial" className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />
                 Financial Services
+              </TabsTrigger>
+              <TabsTrigger value="product-catalog" className="flex items-center gap-2">
+                <Package className="h-4 w-4" />
+                Product Catalog
               </TabsTrigger>
               <TabsTrigger value="monetization" className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
@@ -701,6 +707,11 @@ function AuthenticatedAdminDashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview">
             <OverviewTab />
+          </TabsContent>
+
+          {/* Product Catalog Tab */}
+          <TabsContent value="product-catalog">
+            <ProductCatalogManagement />
           </TabsContent>
 
           {/* Listings Management Tab */}

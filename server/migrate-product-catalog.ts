@@ -281,13 +281,15 @@ async function migrateProductCatalog() {
 }
 
 // Run migration if this file is executed directly
-if (require.main === module) {
-  migrateProductCatalog()
-    .then(() => process.exit(0))
-    .catch(error => {
-      console.error(error);
-      process.exit(1);
-    });
-}
+// Note: This will run when the file is imported as a script
+migrateProductCatalog()
+  .then(() => {
+    console.log('Migration completed successfully');
+    process.exit(0);
+  })
+  .catch(error => {
+    console.error('Migration failed:', error);
+    process.exit(1);
+  });
 
 export { migrateProductCatalog };

@@ -44,6 +44,8 @@ import MyMessages from "@/pages/my-messages";
 import Messages from "@/pages/messages";
 import SubscriptionManagement from "@/pages/subscription-management";
 import UsageDashboard from "@/pages/usage-dashboard";
+import BillingDashboard from "@/pages/billing-dashboard";
+import AdminBillingDashboard from "@/pages/admin-billing-dashboard";
 import { ResetPassword } from "@/pages/reset-password";
 import PaymentSuccess from "@/pages/payment-success-simple";
 import { AuthProvider } from "@/components/auth-provider";
@@ -132,9 +134,19 @@ function Router() {
               <UsageDashboard />
             </ProtectedRoute>
           </Route>
+          <Route path="/billing">
+            <ProtectedRoute>
+              <BillingDashboard />
+            </ProtectedRoute>
+          </Route>
           <Route path="/admin">
             <ProtectedRoute requireAdmin={true}>
               <AdminDashboard />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/admin/billing">
+            <ProtectedRoute requireAdmin={true}>
+              <AdminBillingDashboard />
             </ProtectedRoute>
           </Route>
 

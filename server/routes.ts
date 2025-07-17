@@ -9366,6 +9366,10 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   // Payment and billing routes
   console.log('Registering payment routes...');
   app.use('/api/payments', paymentRoutes);
+
+  // Use billing routes
+  const billingRoutes = await import('./routes/billing-routes');
+  app.use('/api/billing', billingRoutes.default);
   console.log('Payment routes registered successfully');
 
   const httpServer = createServer(app);

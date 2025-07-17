@@ -124,6 +124,10 @@ export function Navigation() {
                         <Brain className="mr-2 h-4 w-4" />
                         <span>Market Intelligence</span>
                       </Link>
+                      <Link href="/billing" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        <span>Billing</span>
+                      </Link>
                       <Link href="/subscription-management" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
                         <CreditCard className="mr-2 h-4 w-4" />
                         <span>Manage Subscription</span>
@@ -142,10 +146,16 @@ export function Navigation() {
                                        roleName === 'admin' || roleName === 'superadmin';
                         
                         return isAdmin ? (
-                          <Link href="/admin" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                            <Database className="mr-2 h-4 w-4" />
-                            <span>Admin Dashboard</span>
-                          </Link>
+                          <>
+                            <Link href="/admin" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                              <Database className="mr-2 h-4 w-4" />
+                              <span>Admin Dashboard</span>
+                            </Link>
+                            <Link href="/admin/billing" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                              <CreditCard className="mr-2 h-4 w-4" />
+                              <span>Admin Billing</span>
+                            </Link>
+                          </>
                         ) : null;
                       })()}
                       <button 

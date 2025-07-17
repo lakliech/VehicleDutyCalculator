@@ -11,6 +11,7 @@ import {
   userProductSubscriptions,
   insertProductCategorySchema,
   insertProductSchema,
+  updateProductSchema,
   insertSystemFeatureSchema,
   insertProductFeatureAssociationSchema,
   insertProductPricingSchema,
@@ -241,8 +242,11 @@ router.put('/admin/products/:id', requireAuth, requireAdmin, async (req, res) =>
     const id = parseInt(req.params.id);
     const { selectedFeatures, categoryId, name, ...productDataRaw } = req.body;
     
-    // Exclude categoryId and name from updates (they should not be changed after creation)
-    const productData = insertProductSchema.parse(productDataRaw);
+    console.log('Update product request body:', JSON.stringify(req.body, null, 2));
+    console.log('Product data raw after exclusions:', JSON.stringify(productDataRaw, null, 2));
+    
+    // Use update schema that excludes categoryId and name 
+    const productData = updateProductSchema.parse(productDataRaw);
     
     // Update the product
     const [product] = await db

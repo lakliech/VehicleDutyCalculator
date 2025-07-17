@@ -155,6 +155,14 @@ export const insertProductSchema = createInsertSchema(products)
     categoryId: z.string().transform((val) => val === '' ? null : parseInt(val)).optional(),
     sortOrder: z.number().optional().default(0)
   });
+
+export const updateProductSchema = createInsertSchema(products)
+  .omit({ id: true, createdAt: true, updatedAt: true, name: true, categoryId: true })
+  .extend({
+    basePrice: z.string().transform((val) => val === '' ? null : parseFloat(val)).optional(),
+    sortOrder: z.number().optional().default(0)
+  })
+  .partial();
 export const insertSystemFeatureSchema = createInsertSchema(systemFeatures)
   .omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
@@ -190,6 +198,7 @@ export type ProductBundle = typeof productBundles.$inferSelect;
 // Insert types
 export type InsertProductCategory = z.infer<typeof insertProductCategorySchema>;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
+export type UpdateProduct = z.infer<typeof updateProductSchema>;
 export type InsertSystemFeature = z.infer<typeof insertSystemFeatureSchema>;
 export type InsertProductFeatureAssociation = z.infer<typeof insertProductFeatureAssociationSchema>;
 export type InsertProductPricing = z.infer<typeof insertProductPricingSchema>;

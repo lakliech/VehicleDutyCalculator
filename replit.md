@@ -985,6 +985,15 @@ Changelog:
   - Integrated quick action buttons for creating new strategies, editing plans, configuring pricing rules, and viewing full analytics
   - Admin interface provides comprehensive oversight of monetization performance with KES-based revenue tracking aligned with Kenyan market
   - Module enables strategic revenue optimization through visual performance monitoring and strategy management tools
+- January 17, 2025. Enhanced edit product form with comprehensive feature selection capability:
+  - Added feature selection section to edit product dialog with checkbox interface
+  - Implemented pre-population of existing product features when opening edit dialog
+  - Updated handleEditProduct function to extract and display current feature associations
+  - Enhanced backend PUT endpoint /api/products/admin/products/:id to handle feature associations
+  - Backend now clears existing feature associations and applies new selections during product updates
+  - Feature selection displays all available features with constraint type indicators
+  - Consistent UI pattern matching create product dialog for familiar user experience
+  - Complete feature management workflow: create product with features → edit product features → update associations
 - January 17, 2025. Moved monetization strategy to main navigation tab for enhanced prominence:
   - Restructured admin dashboard navigation from 4 to 5 main tabs for better organization
   - Moved Monetization Strategy from Financial Services sub-tab to standalone main navigation tab

@@ -306,6 +306,10 @@ export default function ProductCatalogManagement() {
 
   const handleEditProduct = (product: any) => {
     setEditingProduct(product);
+    
+    // Extract existing feature IDs from the product
+    const existingFeatureIds = product.features?.map((feature: any) => feature.id) || [];
+    
     setEditProductForm({
       categoryId: product.product.categoryId.toString(),
       name: product.product.name,
@@ -315,8 +319,8 @@ export default function ProductCatalogManagement() {
       targetUsers: product.product.targetUsers || '',
       isActive: product.product.isActive,
       sortOrder: product.product.sortOrder,
-      features: [],
-      selectedFeatures: []
+      features: product.features || [],
+      selectedFeatures: existingFeatureIds
     });
     setShowEditProductDialog(true);
   };
@@ -793,6 +797,68 @@ export default function ProductCatalogManagement() {
                               onChange={(e) => setEditProductForm({ ...editProductForm, sortOrder: parseInt(e.target.value) || 0 })}
                               placeholder="0"
                             />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Feature Selection */}
+                      <div className="space-y-4">
+                        <div>
+                          <Label className="text-base font-medium">Product Features</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Select existing features or modify feature assignments. Features control system functionality like photo limits, listing duration, etc.
+                          </p>
+                        </div>
+                        
+                        <div className="border rounded-lg p-4 max-h-60 overflow-y-auto">
+                          <div className="grid grid-cols-2 gap-3">
+                            {allFeaturesError ? (
+                              <div className="col-span-2 text-center py-4 text-red-600">
+                                <p>Error loading features</p>
+                                <p className="text-sm text-muted-foreground">Please try refreshing the page</p>
+                              </div>
+                            ) : allFeatures.length === 0 ? (
+                              <div className="col-span-2 text-center py-4 text-muted-foreground">
+                                <p>No features available</p>
+                                <p className="text-sm">Create features first to assign them to products</p>
+                              </div>
+                            ) : (
+                              allFeatures.map((feature: ProductFeature) => (
+                                <div key={feature.id} className="flex items-center space-x-2">
+                                  <input
+                                    type="checkbox"
+                                    id={`edit-feature-${feature.id}`}
+                                    checked={editProductForm.selectedFeatures?.includes(feature.id) || false}
+                                    onChange={(e) => {
+                                      const currentFeatures = editProductForm.selectedFeatures || [];
+                                      if (e.target.checked) {
+                                        setEditProductForm({
+                                          ...editProductForm,
+                                          selectedFeatures: [...currentFeatures, feature.id]
+                                        });
+                                      } else {
+                                        setEditProductForm({
+                                          ...editProductForm,
+                                          selectedFeatures: currentFeatures.filter(id => id !== feature.id)
+                                        });
+                                      }
+                                    }}
+                                    className="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                  />
+                                  <Label htmlFor={`edit-feature-${feature.id}`} className="text-sm">
+                                    <span className="font-medium">{feature.name}</span>
+                                    <span className="text-muted-foreground ml-2">
+                                      {feature.limitType === 'unlimited' && '(Unlimited)'}
+                                      {feature.limitType === 'count' && `(${feature.limitValue} max)`}
+                                      {feature.limitType === 'duration' && `(${feature.limitDuration} days)`}
+                                      {feature.limitType === 'size' && `(${feature.limitSize} MB)`}
+                                      {feature.limitType === 'frequency' && `(${feature.limitFrequency}x per ${feature.frequencyPeriod}h)`}
+                                      {feature.limitType === 'boolean' && '(Yes/No)'}
+                                    </span>
+                                  </Label>
+                                </div>
+                              ))
+                            )}
                           </div>
                         </div>
                       </div>

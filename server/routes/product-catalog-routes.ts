@@ -232,8 +232,10 @@ router.post('/admin/products', requireAuth, requireAdmin, async (req, res) => {
 router.put('/admin/products/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const productData = insertProductSchema.parse(req.body);
+    const { selectedFeatures, ...productDataRaw } = req.body;
+    const productData = insertProductSchema.parse(productDataRaw);
     
+    // Update the product
     const [product] = await db
       .update(products)
       .set({ ...productData, updatedAt: new Date() })
@@ -242,6 +244,23 @@ router.put('/admin/products/:id', requireAuth, requireAdmin, async (req, res) =>
     
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    // Handle feature associations
+    if (selectedFeatures !== undefined) {
+      // First, clear existing feature associations for this product
+      await db
+        .update(productFeatures)
+        .set({ productId: null })
+        .where(eq(productFeatures.productId, id));
+      
+      // Then associate selected features with the product
+      if (selectedFeatures && selectedFeatures.length > 0) {
+        await db
+          .update(productFeatures)
+          .set({ productId: id })
+          .where(inArray(productFeatures.id, selectedFeatures));
+      }
     }
     
     res.json(product);

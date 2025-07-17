@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { FeatureManagement } from "./feature-management";
@@ -73,6 +77,26 @@ type CategoryForm = {
   isActive: boolean;
   sortOrder: number;
 };
+
+// Feature constraint schema
+const featureConstraintSchema = z.object({
+  name: z.string().min(1, "Feature name is required"),
+  description: z.string().optional(),
+  limitType: z.enum(['count', 'duration', 'size', 'frequency', 'concurrent', 'boolean', 'unlimited'], {
+    required_error: "Please select a limit type",
+  }),
+  limitValue: z.number().optional(),
+  limitDuration: z.number().optional(),
+  limitSize: z.number().optional(),
+  limitFrequency: z.number().optional(),
+  frequencyPeriod: z.number().optional(),
+  constraintConfig: z.record(z.any()).optional(),
+  isIncluded: z.boolean().default(true),
+  additionalCost: z.number().default(0),
+  sortOrder: z.number().default(0),
+});
+
+type FeatureConstraint = z.infer<typeof featureConstraintSchema>;
 
 export default function ProductCatalogManagement() {
   const { toast } = useToast();
@@ -637,10 +661,270 @@ export default function ProductCatalogManagement() {
 
         {/* Features & Pricing Tab */}
         <TabsContent value="features" className="space-y-4">
-          <FeatureManagementWrapper />
+          <FeaturesAndPricingManagement />
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+// Feature Form Component
+interface FeatureFormProps {
+  defaultValues?: any;
+  onSubmit: (data: FeatureConstraint) => void;
+  isLoading?: boolean;
+}
+
+function FeatureForm({ defaultValues, onSubmit, isLoading = false }: FeatureFormProps) {
+  const form = useForm<FeatureConstraint>({
+    resolver: zodResolver(featureConstraintSchema),
+    defaultValues: defaultValues || {
+      name: "",
+      description: "",
+      limitType: "unlimited",
+      isIncluded: true,
+      additionalCost: 0,
+      sortOrder: 0,
+    },
+  });
+
+  const limitType = form.watch("limitType");
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Feature Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Photo Upload" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="limitType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Constraint Type</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select constraint type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="count">Count-based (e.g., 5 photos)</SelectItem>
+                    <SelectItem value="duration">Duration-based (e.g., 30 days)</SelectItem>
+                    <SelectItem value="size">Size-based (e.g., 5MB)</SelectItem>
+                    <SelectItem value="frequency">Frequency-based (e.g., 3 per day)</SelectItem>
+                    <SelectItem value="concurrent">Concurrent usage (e.g., 2 active)</SelectItem>
+                    <SelectItem value="boolean">Boolean (Yes/No)</SelectItem>
+                    <SelectItem value="unlimited">Unlimited</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Describe what this feature does..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Constraint-specific fields */}
+        {limitType === 'count' && (
+          <FormField
+            control={form.control}
+            name="limitValue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Count Limit</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="e.g., 5" 
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {limitType === 'duration' && (
+          <FormField
+            control={form.control}
+            name="limitDuration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Duration (days)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="e.g., 30" 
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {limitType === 'size' && (
+          <FormField
+            control={form.control}
+            name="limitSize"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Size Limit (MB)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="e.g., 5" 
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {limitType === 'frequency' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="limitFrequency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Frequency</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="e.g., 3" 
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="frequencyPeriod"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Period (hours)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="e.g., 24" 
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
+        {limitType === 'concurrent' && (
+          <FormField
+            control={form.control}
+            name="limitValue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Concurrent Limit</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="e.g., 2" 
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="isIncluded"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Included by Default</FormLabel>
+                  <div className="text-sm text-muted-foreground">
+                    Feature is included without additional cost
+                  </div>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="additionalCost"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Additional Cost (KES)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="0" 
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : 0)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <DialogFooter>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Saving..." : "Save Feature"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
   );
 }
 
@@ -650,6 +934,8 @@ function FeaturesAndPricingManagement() {
   const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedProduct, setSelectedProduct] = useState<string>('');
+  const [isCreateFeatureOpen, setIsCreateFeatureOpen] = useState(false);
+  const [editingFeature, setEditingFeature] = useState<any>(null);
 
   // Fetch categories
   const { data: categories = [] } = useQuery({
@@ -673,6 +959,57 @@ function FeaturesAndPricingManagement() {
       return response.json();
     },
     enabled: !!selectedProduct
+  });
+
+  // Create feature mutation
+  const createFeatureMutation = useMutation({
+    mutationFn: (data: any) => apiRequest('POST', `/api/products/${selectedProduct}/features`, data),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Feature created successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/products', selectedProduct, 'features'] });
+      setIsCreateFeatureOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to create feature",
+        variant: "destructive" 
+      });
+    }
+  });
+
+  // Update feature mutation
+  const updateFeatureMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => 
+      apiRequest('PUT', `/api/products/${selectedProduct}/features/${id}`, data),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Feature updated successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/products', selectedProduct, 'features'] });
+      setEditingFeature(null);
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to update feature",
+        variant: "destructive" 
+      });
+    }
+  });
+
+  // Delete feature mutation
+  const deleteFeatureMutation = useMutation({
+    mutationFn: (id: number) => apiRequest('DELETE', `/api/products/${selectedProduct}/features/${id}`),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Feature deleted successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/products', selectedProduct, 'features'] });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to delete feature",
+        variant: "destructive" 
+      });
+    }
   });
 
   // Toggle feature activation
@@ -818,9 +1155,15 @@ function FeaturesAndPricingManagement() {
       {selectedProduct && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              Product Features
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Product Features
+              </div>
+              <Button onClick={() => setIsCreateFeatureOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Feature
+              </Button>
             </CardTitle>
             <CardDescription>
               Manage features for {selectedProductDetails?.product?.name || selectedProductDetails?.name}
@@ -861,6 +1204,10 @@ function FeaturesAndPricingManagement() {
                         {feature.limitType === 'unlimited' && 'Unlimited usage'}
                         {feature.limitType === 'count' && `Limit: ${feature.limitValue} items`}
                         {feature.limitType === 'duration' && `Duration: ${feature.limitDuration} days`}
+                        {feature.limitType === 'size' && `Size: ${feature.limitSize} MB`}
+                        {feature.limitType === 'frequency' && `${feature.limitFrequency} times per ${feature.frequencyPeriod || 24} hours`}
+                        {feature.limitType === 'concurrent' && `${feature.limitValue} concurrent`}
+                        {feature.limitType === 'boolean' && 'Yes/No feature'}
                       </div>
                       
                       {feature.additionalCost && parseFloat(feature.additionalCost) > 0 && (
@@ -869,6 +1216,26 @@ function FeaturesAndPricingManagement() {
                         </div>
                       )}
                     </div>
+                    
+                    <div className="flex gap-2 mt-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingFeature(feature)}
+                        className="flex-1"
+                      >
+                        <Edit className="h-3 w-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => deleteFeatureMutation.mutate(feature.id)}
+                        disabled={deleteFeatureMutation.isPending}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -876,12 +1243,48 @@ function FeaturesAndPricingManagement() {
               <div className="text-center py-12 text-muted-foreground">
                 <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No features found for this product</p>
-                <p className="text-sm">Add features to this product to manage them here</p>
+                <p className="text-sm">Create features to manage them here</p>
+                <Button 
+                  onClick={() => setIsCreateFeatureOpen(true)}
+                  className="mt-4"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create First Feature
+                </Button>
               </div>
             )}
           </CardContent>
         </Card>
       )}
+
+      {/* Create Feature Dialog */}
+      <Dialog open={isCreateFeatureOpen} onOpenChange={setIsCreateFeatureOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Create New Feature</DialogTitle>
+          </DialogHeader>
+          <FeatureForm
+            onSubmit={(data) => createFeatureMutation.mutate(data)}
+            isLoading={createFeatureMutation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Feature Dialog */}
+      <Dialog open={!!editingFeature} onOpenChange={() => setEditingFeature(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Feature</DialogTitle>
+          </DialogHeader>
+          {editingFeature && (
+            <FeatureForm
+              defaultValues={editingFeature}
+              onSubmit={(data) => updateFeatureMutation.mutate({ id: editingFeature.id, data })}
+              isLoading={updateFeatureMutation.isPending}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Empty State */}
       {!selectedProduct && (
@@ -893,6 +1296,266 @@ function FeaturesAndPricingManagement() {
         </Card>
       )}
     </div>
+  );
+}
+
+// Feature Form Component
+interface FeatureFormProps {
+  defaultValues?: any;
+  onSubmit: (data: FeatureConstraint) => void;
+  isLoading?: boolean;
+}
+
+function FeatureForm({ defaultValues, onSubmit, isLoading = false }: FeatureFormProps) {
+  const form = useForm<FeatureConstraint>({
+    resolver: zodResolver(featureConstraintSchema),
+    defaultValues: defaultValues || {
+      name: "",
+      description: "",
+      limitType: "unlimited",
+      isIncluded: true,
+      additionalCost: 0,
+      sortOrder: 0,
+    },
+  });
+
+  const limitType = form.watch("limitType");
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Feature Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Photo Upload" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="limitType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Constraint Type</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select constraint type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="count">Count-based (e.g., 5 photos)</SelectItem>
+                    <SelectItem value="duration">Duration-based (e.g., 30 days)</SelectItem>
+                    <SelectItem value="size">Size-based (e.g., 5MB)</SelectItem>
+                    <SelectItem value="frequency">Frequency-based (e.g., 3 per day)</SelectItem>
+                    <SelectItem value="concurrent">Concurrent usage (e.g., 2 active)</SelectItem>
+                    <SelectItem value="boolean">Boolean (Yes/No)</SelectItem>
+                    <SelectItem value="unlimited">Unlimited</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Describe what this feature does..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Constraint-specific fields */}
+        {limitType === 'count' && (
+          <FormField
+            control={form.control}
+            name="limitValue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Count Limit</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="e.g., 5" 
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {limitType === 'duration' && (
+          <FormField
+            control={form.control}
+            name="limitDuration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Duration (days)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="e.g., 30" 
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {limitType === 'size' && (
+          <FormField
+            control={form.control}
+            name="limitSize"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Size Limit (MB)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="e.g., 5" 
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {limitType === 'frequency' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="limitFrequency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Frequency</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="e.g., 3" 
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="frequencyPeriod"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Period (hours)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="e.g., 24" 
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
+        {limitType === 'concurrent' && (
+          <FormField
+            control={form.control}
+            name="limitValue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Concurrent Limit</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="e.g., 2" 
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="isIncluded"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Included by Default</FormLabel>
+                  <div className="text-sm text-muted-foreground">
+                    Feature is included without additional cost
+                  </div>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="additionalCost"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Additional Cost (KES)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="0" 
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : 0)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <DialogFooter>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Saving..." : "Save Feature"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
   );
 }
 

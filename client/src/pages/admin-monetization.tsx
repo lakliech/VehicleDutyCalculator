@@ -6,210 +6,169 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Coins, 
   TrendingUp, 
-  Settings, 
   Users, 
   BarChart3, 
   Target,
-  Plus,
-  Edit,
-  Trash2,
-  DollarSign,
-  Zap,
-  Crown,
-  Shield
+  ArrowUpDown,
+  Filter,
+  Calendar,
+  CreditCard,
+  PieChart,
+  Activity,
+  Download
 } from 'lucide-react';
 
-interface SubscriptionPlan {
-  id: number;
-  name: string;
-  description: string;
-  priceKes: number;
-  billingCycle: string;
-  features: Record<string, any>;
-  isActive: boolean;
-  sortOrder: number;
+interface RevenueAnalytics {
+  totalRevenue: number;
+  revenueGrowth: number;
+  totalTransactions: number;
+  transactionGrowth: number;
+  topProducts: Array<{
+    productName: string;
+    revenue: number;
+    transactionCount: number;
+  }>;
+  revenueByCategory: Array<{
+    categoryName: string;
+    revenue: number;
+    percentage: number;
+  }>;
+  transactionsByStatus: Array<{
+    status: string;
+    count: number;
+    percentage: number;
+  }>;
 }
 
-interface MonetizationStrategy {
+interface ProductRevenue {
+  productId: number;
+  productName: string;
+  categoryName: string;
+  totalRevenue: number;
+  transactionCount: number;
+  avgTransactionAmount: number;
+}
+
+interface Transaction {
   id: number;
-  strategyName: string;
-  targetRevenue: number;
-  timeframe: string;
+  userId: string;
+  reference: string;
+  amount: number;
+  currency: string;
   status: string;
+  method: string;
+  type: string;
   description: string;
-  tactics: string[];
-}
-
-interface PricingRule {
-  id: number;
-  feature: string;
-  basePrice: number;
-  tierMultiplier: number;
-  usageBased: boolean;
-  overage: number;
+  productName?: string;
+  categoryName?: string;
+  createdAt: Date;
+  paidAt?: Date;
 }
 
 export default function AdminMonetization() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
-  const [selectedStrategy, setSelectedStrategy] = useState<MonetizationStrategy | null>(null);
-  const [isEditingPlan, setIsEditingPlan] = useState(false);
-  const [isEditingStrategy, setIsEditingStrategy] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState('month');
+  const [transactionFilters, setTransactionFilters] = useState({
+    status: '',
+    method: '',
+    type: '',
+    startDate: '',
+    endDate: ''
+  });
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Demo data for subscription plans
-  const demoPlans: SubscriptionPlan[] = [
-    {
-      id: 1,
-      name: "Basic",
-      description: "Essential tools for individual users",
-      priceKes: 2500,
-      billingCycle: "monthly",
-      features: {
-        dutyCalculations: 50,
-        valuations: 20,
-        importEstimates: 10,
-        listings: 10,
-        basicSupport: true
-      },
-      isActive: true,
-      sortOrder: 1
-    },
-    {
-      id: 2,
-      name: "Professional",
-      description: "Advanced features for serious sellers",
-      priceKes: 8000,
-      billingCycle: "monthly",
-      features: {
-        dutyCalculations: 500,
-        valuations: 200,
-        importEstimates: 100,
-        unlimitedListings: true,
-        prioritySupport: true,
-        marketInsights: true
-      },
-      isActive: true,
-      sortOrder: 2
-    },
-    {
-      id: 3,
-      name: "Enterprise",
-      description: "Complete solution for businesses",
-      priceKes: 20000,
-      billingCycle: "monthly",
-      features: {
-        unlimitedCalculations: true,
-        unlimitedValuations: true,
-        unlimitedImportEstimates: true,
-        unlimitedListings: true,
-        whiteLabel: true,
-        apiAccess: true,
-        dedicatedSupport: true
-      },
-      isActive: true,
-      sortOrder: 3
-    }
-  ];
-
-  // Demo monetization strategies
-  const demoStrategies: MonetizationStrategy[] = [
-    {
-      id: 1,
-      strategyName: "Market Penetration 2025",
-      targetRevenue: 15000000,
-      timeframe: "12 months",
-      status: "active",
-      description: "Aggressive growth strategy targeting 15M KES in Year 1",
-      tactics: ["Freemium conversion", "Enterprise partnerships", "Premium features", "API monetization"]
-    },
-    {
-      id: 2,
-      strategyName: "Premium Services Expansion",
-      targetRevenue: 25000000,
-      timeframe: "18 months",
-      status: "planning",
-      description: "Expand high-value services for professional dealers",
-      tactics: ["White-label solutions", "Advanced analytics", "Lead generation", "Consultation services"]
-    },
-    {
-      id: 3,
-      strategyName: "B2B Enterprise Focus",
-      targetRevenue: 40000000,
-      timeframe: "24 months",
-      status: "draft",
-      description: "Target large automotive businesses and institutions",
-      tactics: ["Custom integrations", "Volume discounts", "SLA guarantees", "Dedicated support"]
-    }
-  ];
-
-  // Demo pricing rules
-  const demoPricingRules: PricingRule[] = [
-    { id: 1, feature: "Duty Calculations", basePrice: 50, tierMultiplier: 2.0, usageBased: true, overage: 5 },
-    { id: 2, feature: "Vehicle Valuations", basePrice: 100, tierMultiplier: 1.8, usageBased: true, overage: 10 },
-    { id: 3, feature: "Import Estimates", basePrice: 150, tierMultiplier: 2.2, usageBased: true, overage: 15 },
-    { id: 4, feature: "API Access", basePrice: 500, tierMultiplier: 3.0, usageBased: false, overage: 0 },
-    { id: 5, feature: "Premium Listings", basePrice: 200, tierMultiplier: 1.5, usageBased: true, overage: 20 }
-  ];
-
-  // Fetch subscription plans
-  const { data: plans = demoPlans } = useQuery({
-    queryKey: ['/api/admin/monetization/plans'],
-    queryFn: () => fetch('/api/admin/monetization/plans', { credentials: 'include' }).then(r => r.json()),
-    onError: () => console.log('Using demo subscription plans')
+  // Fetch dashboard analytics
+  const { data: dashboardAnalytics, isLoading: analyticsLoading } = useQuery({
+    queryKey: ['/api/monetization/dashboard-analytics', selectedPeriod],
+    queryFn: () => fetch(`/api/monetization/dashboard-analytics?period=${selectedPeriod}`, { credentials: 'include' }).then(r => r.json()),
+    enabled: true
   });
 
-  // Fetch monetization strategies
-  const { data: strategies = demoStrategies } = useQuery({
-    queryKey: ['/api/admin/monetization/strategies'],
-    queryFn: () => fetch('/api/admin/monetization/strategies', { credentials: 'include' }).then(r => r.json()),
-    onError: () => console.log('Using demo monetization strategies')
+  // Fetch revenue per product
+  const { data: revenuePerProduct, isLoading: revenueLoading } = useQuery({
+    queryKey: ['/api/monetization/revenue-per-product'],
+    queryFn: () => fetch('/api/monetization/revenue-per-product', { credentials: 'include' }).then(r => r.json()),
+    enabled: true
   });
 
-  // Fetch pricing rules
-  const { data: pricingRules = demoPricingRules } = useQuery({
-    queryKey: ['/api/admin/monetization/pricing-rules'],
-    queryFn: () => fetch('/api/admin/monetization/pricing-rules', { credentials: 'include' }).then(r => r.json()),
-    onError: () => console.log('Using demo pricing rules')
-  });
-
-  // Revenue analytics
-  const { data: revenueAnalytics } = useQuery({
-    queryKey: ['/api/admin/monetization/analytics'],
-    queryFn: () => fetch('/api/admin/monetization/analytics', { credentials: 'include' }).then(r => r.json()),
-    onError: () => console.log('Using demo analytics')
+  // Fetch filtered transactions
+  const { data: transactions, isLoading: transactionsLoading } = useQuery({
+    queryKey: ['/api/monetization/transactions', transactionFilters, currentPage],
+    queryFn: () => {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: '25',
+        ...Object.fromEntries(Object.entries(transactionFilters).filter(([_, value]) => value))
+      });
+      return fetch(`/api/monetization/transactions?${params}`, { credentials: 'include' }).then(r => r.json());
+    },
+    enabled: true
   });
 
   const formatCurrency = (amount: number) => {
     return `KES ${amount.toLocaleString()}`;
   };
 
-  const getPlanIcon = (planName: string) => {
-    switch (planName.toLowerCase()) {
-      case 'basic': return <Users className="h-5 w-5" />;
-      case 'professional': return <Zap className="h-5 w-5" />;
-      case 'enterprise': return <Crown className="h-5 w-5" />;
-      default: return <Shield className="h-5 w-5" />;
-    }
+  const formatDate = (date: Date | string) => {
+    return new Date(date).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  const formatDateTime = (date: Date | string) => {
+    return new Date(date).toLocaleString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      'active': 'default',
-      'planning': 'secondary',
-      'draft': 'outline',
-      'paused': 'destructive'
+      'completed': 'default',
+      'processing': 'secondary',
+      'pending': 'outline',
+      'failed': 'destructive',
+      'cancelled': 'destructive',
+      'refunded': 'secondary'
     } as const;
     
     return <Badge variant={variants[status as keyof typeof variants] || 'outline'}>{status}</Badge>;
+  };
+
+  const getGrowthIndicator = (growth: number) => {
+    if (growth > 0) {
+      return (
+        <div className="flex items-center text-green-600">
+          <TrendingUp className="h-4 w-4 mr-1" />
+          <span>+{growth.toFixed(1)}%</span>
+        </div>
+      );
+    } else if (growth < 0) {
+      return (
+        <div className="flex items-center text-red-600">
+          <TrendingUp className="h-4 w-4 mr-1 rotate-180" />
+          <span>{growth.toFixed(1)}%</span>
+        </div>
+      );
+    }
+    return <span className="text-gray-500">0%</span>;
+  };
+
+  const handleFilterChange = (field: string, value: string) => {
+    setTransactionFilters(prev => ({ ...prev, [field]: value }));
+    setCurrentPage(1);
   };
 
   return (
@@ -217,15 +176,25 @@ export default function AdminMonetization() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Monetization Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Revenue Analytics & Transaction Management</h1>
           <p className="text-muted-foreground">
-            Configure subscription plans, pricing strategies, and revenue optimization
+            Monitor actual revenue per product and manage incoming transactions
           </p>
         </div>
         <div className="flex gap-2">
+          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="month">Last Month</SelectItem>
+              <SelectItem value="quarter">Last Quarter</SelectItem>
+              <SelectItem value="year">Last Year</SelectItem>
+            </SelectContent>
+          </Select>
           <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Strategy
+            <Download className="h-4 w-4 mr-2" />
+            Export Data
           </Button>
         </div>
       </div>
@@ -234,201 +203,431 @@ export default function AdminMonetization() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             <Coins className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">KES 847,500</div>
-            <p className="text-xs text-muted-foreground">
-              +12.3% from last month
-            </p>
+            <div className="text-2xl font-bold">
+              {formatCurrency(dashboardAnalytics?.totalRevenue || 0)}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {getGrowthIndicator(dashboardAnalytics?.revenueGrowth || 0)}
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Subscribers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,247</div>
-            <p className="text-xs text-muted-foreground">
-              +8.7% from last month
-            </p>
+            <div className="text-2xl font-bold">
+              {dashboardAnalytics?.totalTransactions || 0}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {getGrowthIndicator(dashboardAnalytics?.transactionGrowth || 0)}
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Top Product Revenue</CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24.8%</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(dashboardAnalytics?.topProducts?.[0]?.revenue || 0)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              +2.1% from last month
+              {dashboardAnalytics?.topProducts?.[0]?.productName || 'No data'}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Annual Target</CardTitle>
+            <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">56.7%</div>
+            <div className="text-2xl font-bold">
+              {dashboardAnalytics?.transactionsByStatus?.find(s => s.status === 'completed')?.percentage.toFixed(1) || 0}%
+            </div>
             <p className="text-xs text-muted-foreground">
-              KES 8.5M of KES 15M target
+              Completed transactions
             </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs defaultValue="plans" className="space-y-4">
+      <Tabs defaultValue="product-revenue" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="plans">Subscription Plans</TabsTrigger>
-          <TabsTrigger value="strategies">Revenue Strategies</TabsTrigger>
-          <TabsTrigger value="pricing">Pricing Rules</TabsTrigger>
+          <TabsTrigger value="product-revenue">Product Revenue</TabsTrigger>
+          <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
-        {/* Subscription Plans Tab */}
-        <TabsContent value="plans" className="space-y-4">
+        {/* Product Revenue Tab */}
+        <TabsContent value="product-revenue" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Subscription Plans</h2>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Plan
-            </Button>
+            <h2 className="text-xl font-semibold">Revenue by Product</h2>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {plans.map((plan) => (
-              <Card key={plan.id} className="relative">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {getPlanIcon(plan.name)}
-                      <CardTitle className="text-lg">{plan.name}</CardTitle>
-                    </div>
-                    <Badge variant={plan.isActive ? "default" : "secondary"}>
-                      {plan.isActive ? "Active" : "Inactive"}
-                    </Badge>
-                  </div>
-                  <CardDescription>{plan.description}</CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  <div className="text-3xl font-bold text-purple-600">
-                    {formatCurrency(plan.priceKes)}
-                    <span className="text-sm font-normal text-muted-foreground">/{plan.billingCycle}</span>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Features:</h4>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      {Object.entries(plan.features).slice(0, 4).map(([key, value]) => (
-                        <li key={key} className="flex justify-between">
-                          <span>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
-                          <span>{typeof value === 'boolean' ? (value ? '✓' : '✗') : value}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="flex gap-2 pt-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <Edit className="h-3 w-3 mr-1" />
-                      Edit
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        {/* Revenue Strategies Tab */}
-        <TabsContent value="strategies" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Revenue Strategies</h2>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Strategy
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            {strategies.map((strategy) => (
-              <Card key={strategy.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{strategy.strategyName}</CardTitle>
-                    <div className="flex items-center gap-2">
-                      {getStatusBadge(strategy.status)}
-                      <Button variant="outline" size="sm">
-                        <Edit className="h-3 w-3 mr-1" />
-                        Edit
-                      </Button>
-                    </div>
-                  </div>
-                  <CardDescription>{strategy.description}</CardDescription>
-                </CardHeader>
-
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium">Target Revenue</Label>
-                      <p className="text-2xl font-bold text-green-600">
-                        {formatCurrency(strategy.targetRevenue)}
-                      </p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">Timeframe</Label>
-                      <p className="text-lg">{strategy.timeframe}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">Key Tactics</Label>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {strategy.tactics.slice(0, 3).map((tactic, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {tactic}
-                          </Badge>
-                        ))}
-                        {strategy.tactics.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{strategy.tactics.length - 3} more
-                          </Badge>
-                        )}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Revenue by Product Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Product Performance</CardTitle>
+                <CardDescription>Revenue breakdown by individual products</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {revenuePerProduct?.productRevenue?.map((product: ProductRevenue) => (
+                    <div key={product.productId} className="flex items-center justify-between p-3 border rounded">
+                      <div>
+                        <p className="font-medium">{product.productName}</p>
+                        <p className="text-sm text-muted-foreground">{product.categoryName}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-lg">{formatCurrency(product.totalRevenue)}</p>
+                        <p className="text-sm text-muted-foreground">{product.transactionCount} transactions</p>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  ))}
+                  
+                  {(!revenuePerProduct || revenuePerProduct.productRevenue?.length === 0) && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No product revenue data available
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Revenue by Category */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Category Performance</CardTitle>
+                <CardDescription>Revenue distribution by product categories</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {dashboardAnalytics?.revenueByCategory?.map((category, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">{category.categoryName}</span>
+                        <span className="text-sm text-muted-foreground">{category.percentage.toFixed(1)}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-purple-600 h-2 rounded-full" 
+                          style={{ width: `${category.percentage}%` }}
+                        />
+                      </div>
+                      <div className="text-sm font-medium">{formatCurrency(category.revenue)}</div>
+                    </div>
+                  ))}
+                  
+                  {(!dashboardAnalytics || dashboardAnalytics.revenueByCategory?.length === 0) && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No category revenue data available
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
-        {/* Pricing Rules Tab */}
-        <TabsContent value="pricing" className="space-y-4">
+        {/* Transactions Tab */}
+        <TabsContent value="transactions" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Pricing Rules</h2>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Rule
-            </Button>
+            <h2 className="text-xl font-semibold">Transaction Management</h2>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                Advanced Filter
+              </Button>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </div>
           </div>
 
+          {/* Transaction Filters */}
           <Card>
             <CardHeader>
-              <CardTitle>Feature Pricing Configuration</CardTitle>
+              <CardTitle>Filter Transactions</CardTitle>
+              <CardDescription>Filter transactions by status, method, type, and date range</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div>
+                  <Label htmlFor="status">Status</Label>
+                  <Select value={transactionFilters.status} onValueChange={(value) => handleFilterChange('status', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All statuses</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="processing">Processing</SelectItem>
+                      <SelectItem value="failed">Failed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                      <SelectItem value="refunded">Refunded</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label htmlFor="method">Method</Label>
+                  <Select value={transactionFilters.method} onValueChange={(value) => handleFilterChange('method', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All methods" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All methods</SelectItem>
+                      <SelectItem value="card">Card</SelectItem>
+                      <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                      <SelectItem value="mpesa">M-Pesa</SelectItem>
+                      <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                      <SelectItem value="airtel_money">Airtel Money</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="type">Type</Label>
+                  <Select value={transactionFilters.type} onValueChange={(value) => handleFilterChange('type', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All types" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All types</SelectItem>
+                      <SelectItem value="purchase">Purchase</SelectItem>
+                      <SelectItem value="subscription">Subscription</SelectItem>
+                      <SelectItem value="credit_purchase">Credit Purchase</SelectItem>
+                      <SelectItem value="refund">Refund</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="startDate">Start Date</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={transactionFilters.startDate}
+                    onChange={(e) => handleFilterChange('startDate', e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="endDate">End Date</Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={transactionFilters.endDate}
+                    onChange={(e) => handleFilterChange('endDate', e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Transaction Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Transaction History</CardTitle>
               <CardDescription>
-                Configure base pricing and tier multipliers for each feature
+                Showing {transactions?.transactions?.length || 0} of {transactions?.totalCount || 0} transactions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {transactionsLoading ? (
+                <div className="text-center py-8">Loading transactions...</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Reference</TableHead>
+                        <TableHead>User</TableHead>
+                        <TableHead>Product</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Method</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {transactions?.transactions?.map((transaction: Transaction) => (
+                        <TableRow key={transaction.id}>
+                          <TableCell className="font-mono text-sm">{transaction.reference}</TableCell>
+                          <TableCell>{transaction.userId}</TableCell>
+                          <TableCell>
+                            {transaction.productName ? (
+                              <div>
+                                <p className="font-medium">{transaction.productName}</p>
+                                <p className="text-xs text-muted-foreground">{transaction.categoryName}</p>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="font-medium">{formatCurrency(transaction.amount)}</TableCell>
+                          <TableCell>{getStatusBadge(transaction.status)}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{transaction.method}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">{transaction.type}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-sm">{formatDate(transaction.createdAt)}</p>
+                              {transaction.paidAt && (
+                                <p className="text-xs text-muted-foreground">
+                                  Paid: {formatDate(transaction.paidAt)}
+                                </p>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  
+                  {(!transactions || transactions.transactions?.length === 0) && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No transactions found
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Pagination */}
+              {transactions && transactions.totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Page {currentPage} of {transactions.totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(Math.min(transactions.totalPages, currentPage + 1))}
+                    disabled={currentPage === transactions.totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Analytics Tab */}
+        <TabsContent value="analytics" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Revenue Analytics</h2>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Calendar className="h-4 w-4 mr-2" />
+                Date Range
+              </Button>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export Report
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Top Products */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Top Performing Products</CardTitle>
+                <CardDescription>Highest revenue generating products</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {dashboardAnalytics?.topProducts?.map((product, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                      <div>
+                        <p className="font-medium">{product.productName}</p>
+                        <p className="text-sm text-muted-foreground">{product.transactionCount} transactions</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold">{formatCurrency(product.revenue)}</p>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {(!dashboardAnalytics || dashboardAnalytics.topProducts?.length === 0) && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No top products data available
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Transaction Status Distribution */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Transaction Status Distribution</CardTitle>
+                <CardDescription>Breakdown of transaction statuses</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {dashboardAnalytics?.transactionsByStatus?.map((status, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {getStatusBadge(status.status)}
+                        <span className="text-sm">{status.count} transactions</span>
+                      </div>
+                      <span className="font-medium">{status.percentage.toFixed(1)}%</span>
+                    </div>
+                  ))}
+                  
+                  {(!dashboardAnalytics || dashboardAnalytics.transactionsByStatus?.length === 0) && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No transaction status data available
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+} each feature
               </CardDescription>
             </CardHeader>
             <CardContent>

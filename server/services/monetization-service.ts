@@ -616,6 +616,321 @@ export class MonetizationService {
     };
   }
 
+  /**
+   * Get revenue breakdown by product
+   */
+  static async getRevenuePerProduct(startDate?: Date, endDate?: Date): Promise<{
+    productRevenue: Array<{
+      productId: number;
+      productName: string;
+      categoryName: string;
+      totalRevenue: number;
+      transactionCount: number;
+      avgTransactionAmount: number;
+    }>;
+    totalRevenue: number;
+  }> {
+    const start = startDate || new Date(new Date().getFullYear(), 0, 1); // Default to start of year
+    const end = endDate || new Date(); // Default to now
+    
+    // Import product schemas
+    const { products, productCategories } = await import('../../shared/product-catalog-schema');
+    const { paymentTransactions } = await import('../../shared/payment-billing-schema');
+    
+    // Get revenue by product
+    const productRevenue = await db.select({
+      productId: products.id,
+      productName: products.name,
+      categoryName: productCategories.name,
+      totalRevenue: sum(paymentTransactions.amount),
+      transactionCount: count(paymentTransactions.id),
+      avgTransactionAmount: sum(paymentTransactions.amount).mapWith(Number)
+    })
+    .from(paymentTransactions)
+    .innerJoin(products, eq(paymentTransactions.productId, products.id))
+    .innerJoin(productCategories, eq(products.categoryId, productCategories.id))
+    .where(and(
+      eq(paymentTransactions.status, 'completed'),
+      gte(paymentTransactions.createdAt, start),
+      lte(paymentTransactions.createdAt, end)
+    ))
+    .groupBy(products.id, products.name, productCategories.name)
+    .orderBy(desc(sum(paymentTransactions.amount)));
+
+    // Calculate total revenue
+    const totalRevenue = productRevenue.reduce((sum, item) => sum + parseFloat(item.totalRevenue || '0'), 0);
+
+    return {
+      productRevenue: productRevenue.map(item => ({
+        productId: item.productId,
+        productName: item.productName,
+        categoryName: item.categoryName,
+        totalRevenue: parseFloat(item.totalRevenue || '0'),
+        transactionCount: item.transactionCount,
+        avgTransactionAmount: parseFloat(item.totalRevenue || '0') / item.transactionCount
+      })),
+      totalRevenue
+    };
+  }
+
+  /**
+   * Get filtered transaction data
+   */
+  static async getFilteredTransactions(filters: {
+    status?: string;
+    method?: string;
+    type?: string;
+    startDate?: Date;
+    endDate?: Date;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    transactions: Array<{
+      id: number;
+      userId: string;
+      reference: string;
+      amount: number;
+      currency: string;
+      status: string;
+      method: string;
+      type: string;
+      description: string;
+      productName?: string;
+      categoryName?: string;
+      createdAt: Date;
+      paidAt?: Date;
+    }>;
+    totalCount: number;
+    totalPages: number;
+  }> {
+    const { paymentTransactions } = await import('../../shared/payment-billing-schema');
+    const { products, productCategories } = await import('../../shared/product-catalog-schema');
+    
+    // Build where conditions
+    const whereConditions: any[] = [];
+    
+    if (filters.status) {
+      whereConditions.push(eq(paymentTransactions.status, filters.status));
+    }
+    if (filters.method) {
+      whereConditions.push(eq(paymentTransactions.method, filters.method));
+    }
+    if (filters.type) {
+      whereConditions.push(eq(paymentTransactions.type, filters.type));
+    }
+    if (filters.startDate) {
+      whereConditions.push(gte(paymentTransactions.createdAt, filters.startDate));
+    }
+    if (filters.endDate) {
+      whereConditions.push(lte(paymentTransactions.createdAt, filters.endDate));
+    }
+
+    const page = filters.page || 1;
+    const limit = filters.limit || 50;
+    const offset = (page - 1) * limit;
+
+    // Get transactions with product info
+    const transactions = await db.select({
+      id: paymentTransactions.id,
+      userId: paymentTransactions.userId,
+      reference: paymentTransactions.reference,
+      amount: paymentTransactions.amount,
+      currency: paymentTransactions.currency,
+      status: paymentTransactions.status,
+      method: paymentTransactions.method,
+      type: paymentTransactions.type,
+      description: paymentTransactions.description,
+      productName: products.name,
+      categoryName: productCategories.name,
+      createdAt: paymentTransactions.createdAt,
+      paidAt: paymentTransactions.paidAt,
+    })
+    .from(paymentTransactions)
+    .leftJoin(products, eq(paymentTransactions.productId, products.id))
+    .leftJoin(productCategories, eq(products.categoryId, productCategories.id))
+    .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
+    .orderBy(desc(paymentTransactions.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+    // Get total count
+    const totalCountResult = await db.select({ count: count() })
+      .from(paymentTransactions)
+      .where(whereConditions.length > 0 ? and(...whereConditions) : undefined);
+
+    const totalCount = totalCountResult[0]?.count || 0;
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      transactions: transactions.map(t => ({
+        id: t.id,
+        userId: t.userId,
+        reference: t.reference,
+        amount: parseFloat(t.amount),
+        currency: t.currency,
+        status: t.status,
+        method: t.method,
+        type: t.type,
+        description: t.description,
+        productName: t.productName,
+        categoryName: t.categoryName,
+        createdAt: t.createdAt,
+        paidAt: t.paidAt,
+      })),
+      totalCount,
+      totalPages
+    };
+  }
+
+  /**
+   * Get comprehensive dashboard analytics
+   */
+  static async getDashboardAnalytics(period: string): Promise<{
+    totalRevenue: number;
+    revenueGrowth: number;
+    totalTransactions: number;
+    transactionGrowth: number;
+    topProducts: Array<{
+      productName: string;
+      revenue: number;
+      transactionCount: number;
+    }>;
+    revenueByCategory: Array<{
+      categoryName: string;
+      revenue: number;
+      percentage: number;
+    }>;
+    monthlyRevenue: Array<{
+      month: string;
+      revenue: number;
+    }>;
+    transactionsByStatus: Array<{
+      status: string;
+      count: number;
+      percentage: number;
+    }>;
+  }> {
+    const { paymentTransactions } = await import('../../shared/payment-billing-schema');
+    const { products, productCategories } = await import('../../shared/product-catalog-schema');
+    
+    // Calculate date ranges
+    const endDate = new Date();
+    const startDate = new Date();
+    
+    if (period === 'year') {
+      startDate.setFullYear(endDate.getFullYear() - 1);
+    } else if (period === 'quarter') {
+      startDate.setMonth(endDate.getMonth() - 3);
+    } else {
+      startDate.setMonth(endDate.getMonth() - 1);
+    }
+
+    // Get total revenue and transaction count
+    const totalStats = await db.select({
+      totalRevenue: sum(paymentTransactions.amount),
+      totalTransactions: count(paymentTransactions.id)
+    })
+    .from(paymentTransactions)
+    .where(and(
+      eq(paymentTransactions.status, 'completed'),
+      gte(paymentTransactions.createdAt, startDate),
+      lte(paymentTransactions.createdAt, endDate)
+    ));
+
+    const totalRevenue = parseFloat(totalStats[0]?.totalRevenue || '0');
+    const totalTransactions = totalStats[0]?.totalTransactions || 0;
+
+    // Get previous period stats for growth calculation
+    const previousStartDate = new Date(startDate);
+    const previousEndDate = new Date(startDate);
+    previousStartDate.setTime(startDate.getTime() - (endDate.getTime() - startDate.getTime()));
+
+    const previousStats = await db.select({
+      totalRevenue: sum(paymentTransactions.amount),
+      totalTransactions: count(paymentTransactions.id)
+    })
+    .from(paymentTransactions)
+    .where(and(
+      eq(paymentTransactions.status, 'completed'),
+      gte(paymentTransactions.createdAt, previousStartDate),
+      lte(paymentTransactions.createdAt, previousEndDate)
+    ));
+
+    const previousRevenue = parseFloat(previousStats[0]?.totalRevenue || '0');
+    const previousTransactions = previousStats[0]?.totalTransactions || 0;
+
+    const revenueGrowth = previousRevenue > 0 ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 : 0;
+    const transactionGrowth = previousTransactions > 0 ? ((totalTransactions - previousTransactions) / previousTransactions) * 100 : 0;
+
+    // Get top products
+    const topProducts = await db.select({
+      productName: products.name,
+      revenue: sum(paymentTransactions.amount),
+      transactionCount: count(paymentTransactions.id)
+    })
+    .from(paymentTransactions)
+    .innerJoin(products, eq(paymentTransactions.productId, products.id))
+    .where(and(
+      eq(paymentTransactions.status, 'completed'),
+      gte(paymentTransactions.createdAt, startDate),
+      lte(paymentTransactions.createdAt, endDate)
+    ))
+    .groupBy(products.id, products.name)
+    .orderBy(desc(sum(paymentTransactions.amount)))
+    .limit(5);
+
+    // Get revenue by category
+    const revenueByCategory = await db.select({
+      categoryName: productCategories.name,
+      revenue: sum(paymentTransactions.amount)
+    })
+    .from(paymentTransactions)
+    .innerJoin(products, eq(paymentTransactions.productId, products.id))
+    .innerJoin(productCategories, eq(products.categoryId, productCategories.id))
+    .where(and(
+      eq(paymentTransactions.status, 'completed'),
+      gte(paymentTransactions.createdAt, startDate),
+      lte(paymentTransactions.createdAt, endDate)
+    ))
+    .groupBy(productCategories.id, productCategories.name)
+    .orderBy(desc(sum(paymentTransactions.amount)));
+
+    // Get transactions by status
+    const transactionsByStatus = await db.select({
+      status: paymentTransactions.status,
+      count: count(paymentTransactions.id)
+    })
+    .from(paymentTransactions)
+    .where(and(
+      gte(paymentTransactions.createdAt, startDate),
+      lte(paymentTransactions.createdAt, endDate)
+    ))
+    .groupBy(paymentTransactions.status);
+
+    return {
+      totalRevenue,
+      revenueGrowth,
+      totalTransactions,
+      transactionGrowth,
+      topProducts: topProducts.map(p => ({
+        productName: p.productName,
+        revenue: parseFloat(p.revenue || '0'),
+        transactionCount: p.transactionCount
+      })),
+      revenueByCategory: revenueByCategory.map(c => ({
+        categoryName: c.categoryName,
+        revenue: parseFloat(c.revenue || '0'),
+        percentage: totalRevenue > 0 ? (parseFloat(c.revenue || '0') / totalRevenue) * 100 : 0
+      })),
+      monthlyRevenue: [], // TODO: Implement monthly breakdown
+      transactionsByStatus: transactionsByStatus.map(t => ({
+        status: t.status,
+        count: t.count,
+        percentage: totalTransactions > 0 ? (t.count / totalTransactions) * 100 : 0
+      }))
+    };
+  }
+
   // ========================================
   // UTILITY METHODS
   // ========================================

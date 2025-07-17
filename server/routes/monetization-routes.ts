@@ -311,6 +311,79 @@ router.get('/revenue/:year/:month', requireAuth, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/monetization/revenue-per-product
+ * Get revenue breakdown by product (admin only)
+ */
+router.get('/revenue-per-product', requireAuth, async (req, res) => {
+  try {
+    // TODO: Add admin role check
+    const { startDate, endDate } = req.query;
+    
+    const revenueData = await MonetizationService.getRevenuePerProduct(
+      startDate ? new Date(startDate as string) : undefined,
+      endDate ? new Date(endDate as string) : undefined
+    );
+
+    res.json(revenueData);
+  } catch (error) {
+    console.error('Error fetching revenue per product:', error);
+    res.status(500).json({ error: 'Failed to fetch revenue per product data' });
+  }
+});
+
+/**
+ * GET /api/monetization/transactions
+ * Get filtered transaction data (admin only)
+ */
+router.get('/transactions', requireAuth, async (req, res) => {
+  try {
+    // TODO: Add admin role check
+    const { 
+      status, 
+      method, 
+      type, 
+      startDate, 
+      endDate, 
+      page = 1, 
+      limit = 50 
+    } = req.query;
+    
+    const transactions = await MonetizationService.getFilteredTransactions({
+      status: status as string,
+      method: method as string,
+      type: type as string,
+      startDate: startDate ? new Date(startDate as string) : undefined,
+      endDate: endDate ? new Date(endDate as string) : undefined,
+      page: parseInt(page as string),
+      limit: parseInt(limit as string)
+    });
+
+    res.json(transactions);
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ error: 'Failed to fetch transactions' });
+  }
+});
+
+/**
+ * GET /api/monetization/dashboard-analytics
+ * Get comprehensive dashboard analytics (admin only)
+ */
+router.get('/dashboard-analytics', requireAuth, async (req, res) => {
+  try {
+    // TODO: Add admin role check
+    const { period = 'month' } = req.query;
+    
+    const analytics = await MonetizationService.getDashboardAnalytics(period as string);
+
+    res.json(analytics);
+  } catch (error) {
+    console.error('Error fetching dashboard analytics:', error);
+    res.status(500).json({ error: 'Failed to fetch dashboard analytics' });
+  }
+});
+
 // ========================================
 // ADMIN SUBSCRIPTION PLAN MANAGEMENT
 // ========================================

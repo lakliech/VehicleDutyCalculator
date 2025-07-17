@@ -222,9 +222,9 @@ router.post('/admin/products', requireAuth, requireAdmin, async (req, res) => {
     if (selectedFeatures && selectedFeatures.length > 0) {
       // Update the productId for selected features
       await db
-        .update(productFeatures)
+        .update(systemFeatures)
         .set({ productId: product.id })
-        .where(inArray(productFeatures.id, selectedFeatures));
+        .where(inArray(systemFeatures.id, selectedFeatures));
     }
     
     res.status(201).json(product);
@@ -390,7 +390,7 @@ router.get('/features', async (req, res) => {
 router.post('/features/cleanup', requireAuth, requireAdmin, async (req, res) => {
   try {
     // Get all features
-    const allFeatures = await db.select().from(productFeatures);
+    const allFeatures = await db.select().from(systemFeatures);
     
     let updatedCount = 0;
     
@@ -414,9 +414,9 @@ router.post('/features/cleanup', requireAuth, requireAdmin, async (req, res) => 
       // Update the feature if needed
       if (needsUpdate) {
         await db
-          .update(productFeatures)
+          .update(systemFeatures)
           .set({ ...updates, updatedAt: new Date() })
-          .where(eq(productFeatures.id, feature.id));
+          .where(eq(systemFeatures.id, feature.id));
         updatedCount++;
       }
     }
@@ -436,9 +436,9 @@ router.post('/features/cleanup', requireAuth, requireAdmin, async (req, res) => 
 router.post('/admin/products/:productId/features', requireAuth, requireAdmin, async (req, res) => {
   try {
     const productId = parseInt(req.params.productId);
-    const featureData = insertProductFeatureSchema.parse({ ...req.body, productId });
+    const featureData = insertSystemFeatureSchema.parse(req.body);
     
-    const [feature] = await db.insert(productFeatures).values(featureData).returning();
+    const [feature] = await db.insert(systemFeatures).values(featureData).returning();
     res.status(201).json(feature);
   } catch (error) {
     console.error('Error creating feature:', error);
@@ -512,12 +512,12 @@ router.post('/:productId/features', requireAuth, requireAdmin, async (req, res) 
 router.put('/features/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const featureData = insertProductFeatureSchema.parse(req.body);
+    const featureData = insertSystemFeatureSchema.parse(req.body);
     
     const [feature] = await db
-      .update(productFeatures)
+      .update(systemFeatures)
       .set({ ...featureData, updatedAt: new Date() })
-      .where(eq(productFeatures.id, id))
+      .where(eq(systemFeatures.id, id))
       .returning();
     
     if (!feature) {
@@ -540,8 +540,8 @@ router.delete('/features/:id', requireAuth, requireAdmin, async (req, res) => {
     const id = parseInt(req.params.id);
     
     const [feature] = await db
-      .delete(productFeatures)
-      .where(eq(productFeatures.id, id))
+      .delete(systemFeatures)
+      .where(eq(systemFeatures.id, id))
       .returning();
     
     if (!feature) {
@@ -559,12 +559,12 @@ router.delete('/features/:id', requireAuth, requireAdmin, async (req, res) => {
 router.put('/admin/features/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const featureData = insertProductFeatureSchema.parse(req.body);
+    const featureData = insertSystemFeatureSchema.parse(req.body);
     
     const [feature] = await db
-      .update(productFeatures)
+      .update(systemFeatures)
       .set({ ...featureData, updatedAt: new Date() })
-      .where(eq(productFeatures.id, id))
+      .where(eq(systemFeatures.id, id))
       .returning();
     
     if (!feature) {
@@ -670,7 +670,7 @@ router.delete('/admin/features/:id', requireAuth, requireAdmin, async (req, res)
   try {
     const id = parseInt(req.params.id);
     
-    await db.delete(productFeatures).where(eq(productFeatures.id, id));
+    await db.delete(systemFeatures).where(eq(systemFeatures.id, id));
     res.json({ message: 'Feature deleted successfully' });
   } catch (error) {
     console.error('Error deleting feature:', error);
@@ -914,8 +914,8 @@ router.post('/admin/features/normalize', requireAuth, requireAdmin, async (req, 
       console.log(`Processing group: ${group.baseName}`);
       
       // Get all features in this group
-      const features = await db.query.productFeatures.findMany({
-        where: inArray(productFeatures.id, group.featureIds)
+      const features = await db.query.systemFeatures.findMany({
+        where: inArray(systemFeatures.id, group.featureIds)
       });
       
       if (features.length === 0) {
@@ -925,13 +925,13 @@ router.post('/admin/features/normalize', requireAuth, requireAdmin, async (req, 
       
       // Update the primary feature with standardized name and description
       const primaryUpdated = await db
-        .update(productFeatures)
+        .update(systemFeatures)
         .set({
           name: group.baseName,
           description: group.baseDescription,
           updatedAt: new Date()
         })
-        .where(eq(productFeatures.id, group.keepPrimary))
+        .where(eq(systemFeatures.id, group.keepPrimary))
         .returning();
       
       // Mark duplicate features for review/removal
@@ -939,13 +939,13 @@ router.post('/admin/features/normalize', requireAuth, requireAdmin, async (req, 
       
       if (duplicateIds.length > 0) {
         const duplicatesUpdated = await db
-          .update(productFeatures)
+          .update(systemFeatures)
           .set({
             name: sql`'[DUPLICATE] ' || name`,
             description: sql`'[NORMALIZED - This feature has been consolidated. Consider removing.] ' || description`,
             updatedAt: new Date()
           })
-          .where(inArray(productFeatures.id, duplicateIds))
+          .where(inArray(systemFeatures.id, duplicateIds))
           .returning();
         
         results.push({

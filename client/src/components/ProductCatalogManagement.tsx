@@ -19,16 +19,19 @@ import {
   Trash2, 
   Package, 
   Tags, 
-  DollarSign,
+  Coins,
   Settings,
   Users,
   Target,
   Calendar,
   Clock,
-  Hash
+  Hash,
+  CheckCircle,
+  XCircle,
+  AlertCircle
 } from "lucide-react";
 
-interface ProductCategory {
+type ProductCategory = {
   id: number;
   name: string;
   description: string;
@@ -36,11 +39,22 @@ interface ProductCategory {
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
-}
+};
 
-interface Product {
+type ProductFeature = {
   id: number;
-  categoryId: number;
+  name: string;
+  description: string;
+  limitType: string;
+  limitValue: number | null;
+  limitDuration: number | null;
+  isIncluded: boolean;
+  additionalCost: string;
+  sortOrder: number;
+};
+
+type ProductForm = {
+  categoryId: string;
   name: string;
   description: string;
   basePrice: string;
@@ -48,64 +62,33 @@ interface Product {
   targetUsers: string;
   isActive: boolean;
   sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
-  category?: {
-    id: number;
-    name: string;
-  };
-  pricing?: Array<{
-    id: number;
-    tierName: string;
-    price: string;
-    billingCycle: number | null;
-    minQuantity: number;
-    maxQuantity: number | null;
-    discountPercentage: string;
-    isActive: boolean;
-  }>;
-}
+  features: ProductFeature[];
+};
 
-interface ProductFeature {
-  id: number;
-  productId: number;
+type CategoryForm = {
   name: string;
   description: string;
-  limitType: 'duration' | 'count' | 'unlimited';
-  limitValue: number | null;
-  limitDuration: number | null;
-  isIncluded: boolean;
-  additionalCost: string;
+  isActive: boolean;
   sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
-}
+};
 
 export default function ProductCatalogManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch categories
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
-    queryKey: ['/api/products/categories'],
-    queryFn: () => fetch('/api/products/categories').then(res => res.json())
-  });
+  // Dialog states
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [showProductDialog, setShowProductDialog] = useState(false);
 
-  // Fetch all products (admin)
-  const { data: products = [], isLoading: productsLoading } = useQuery({
-    queryKey: ['/api/products/admin/products'],
-    queryFn: () => fetch('/api/products/admin/products').then(res => res.json())
-  });
-
-  // State for forms
-  const [categoryForm, setCategoryForm] = useState({
+  // Form states
+  const [categoryForm, setCategoryForm] = useState<CategoryForm>({
     name: '',
     description: '',
     isActive: true,
     sortOrder: 0
   });
 
-  const [productForm, setProductForm] = useState({
+  const [productForm, setProductForm] = useState<ProductForm>({
     categoryId: '',
     name: '',
     description: '',
@@ -113,31 +96,41 @@ export default function ProductCatalogManagement() {
     billingType: 'per_period',
     targetUsers: '',
     isActive: true,
-    sortOrder: 0
+    sortOrder: 0,
+    features: []
   });
 
-  const [featureForm, setFeatureForm] = useState({
-    productId: '',
-    name: '',
-    description: '',
-    limitType: 'unlimited',
-    limitValue: '',
-    limitDuration: '',
-    isIncluded: true,
-    additionalCost: '0',
-    sortOrder: 0
+  const billingTypeOptions = [
+    { value: 'per_period', label: 'Per Period (Monthly/Yearly)' },
+    { value: 'per_listing', label: 'Per Listing' },
+    { value: 'per_policy', label: 'Per Policy' },
+    { value: 'per_report', label: 'Per Report/Item' },
+    { value: 'per_item', label: 'Per Transaction' },
+    { value: 'one_time', label: 'One Time Payment' },
+    { value: 'pay_per_boost', label: 'Pay Per Boost' }
+  ];
+
+  const limitTypeOptions = [
+    { value: 'unlimited', label: 'Unlimited' },
+    { value: 'count', label: 'Limited by Count' },
+    { value: 'duration', label: 'Limited by Duration' }
+  ];
+
+  // Fetch categories
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
+    queryKey: ['/api/products/categories'],
+    queryFn: () => fetch('/api/products/categories').then(res => res.json())
   });
 
-  // Dialog states
-  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
-  const [showProductDialog, setShowProductDialog] = useState(false);
-  const [showFeatureDialog, setShowFeatureDialog] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<ProductCategory | null>(null);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  // Fetch products
+  const { data: products = [], isLoading: productsLoading } = useQuery({
+    queryKey: ['/api/products/admin/products'],
+    queryFn: () => fetch('/api/products/admin/products').then(res => res.json())
+  });
 
   // Create category mutation
   const createCategoryMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('POST', '/api/products/admin/categories', data),
+    mutationFn: (data: CategoryForm) => apiRequest('POST', '/api/products/admin/categories', data),
     onSuccess: () => {
       toast({ title: "Success", description: "Category created successfully" });
       queryClient.invalidateQueries({ queryKey: ['/api/products/categories'] });
@@ -147,7 +140,7 @@ export default function ProductCatalogManagement() {
     onError: (error: any) => {
       toast({ 
         title: "Error", 
-        description: error.details?.[0]?.message || "Failed to create category",
+        description: error.message || "Failed to create category",
         variant: "destructive" 
       });
     }
@@ -168,13 +161,14 @@ export default function ProductCatalogManagement() {
         billingType: 'per_period',
         targetUsers: '',
         isActive: true,
-        sortOrder: 0
+        sortOrder: 0,
+        features: []
       });
     },
     onError: (error: any) => {
       toast({ 
         title: "Error", 
-        description: error.details?.[0]?.message || "Failed to create product",
+        description: error.message || "Failed to create product",
         variant: "destructive" 
       });
     }
@@ -182,69 +176,43 @@ export default function ProductCatalogManagement() {
 
   // Delete category mutation
   const deleteCategoryMutation = useMutation({
-    mutationFn: (id: number) => apiRequest('DELETE', `/api/products/admin/categories/${id}`, {}),
+    mutationFn: (id: number) => apiRequest('DELETE', `/api/products/admin/categories/${id}`),
     onSuccess: () => {
       toast({ title: "Success", description: "Category deleted successfully" });
       queryClient.invalidateQueries({ queryKey: ['/api/products/categories'] });
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({ 
         title: "Error", 
-        description: "Failed to delete category",
+        description: error.message || "Failed to delete category",
         variant: "destructive" 
       });
     }
   });
 
+  // Handlers
   const handleCreateCategory = () => {
     if (!categoryForm.name.trim()) {
-      toast({ 
-        title: "Error", 
-        description: "Category name is required",
-        variant: "destructive" 
-      });
+      toast({ title: "Error", description: "Category name is required", variant: "destructive" });
       return;
     }
-
-    createCategoryMutation.mutate({
-      ...categoryForm,
-      sortOrder: parseInt(categoryForm.sortOrder.toString()) || 0
-    });
+    createCategoryMutation.mutate(categoryForm);
   };
 
   const handleCreateProduct = () => {
     if (!productForm.name.trim() || !productForm.categoryId || !productForm.basePrice) {
-      toast({ 
-        title: "Error", 
-        description: "Product name, category, and base price are required",
-        variant: "destructive" 
-      });
+      toast({ title: "Error", description: "Please fill in all required fields", variant: "destructive" });
       return;
     }
-
-    createProductMutation.mutate({
+    
+    const productData = {
       ...productForm,
       categoryId: parseInt(productForm.categoryId),
-      basePrice: parseFloat(productForm.basePrice).toString(),
-      sortOrder: parseInt(productForm.sortOrder.toString()) || 0
-    });
+      basePrice: parseFloat(productForm.basePrice)
+    };
+    
+    createProductMutation.mutate(productData);
   };
-
-  const billingTypeOptions = [
-    { value: 'per_period', label: 'Per Period (Monthly/Yearly)' },
-    { value: 'per_listing', label: 'Per Listing' },
-    { value: 'per_policy', label: 'Per Policy' },
-    { value: 'per_report', label: 'Per Report/Item' },
-    { value: 'per_item', label: 'Per Transaction' },
-    { value: 'one_time', label: 'One Time Payment' },
-    { value: 'pay_per_boost', label: 'Pay Per Boost' }
-  ];
-
-  const limitTypeOptions = [
-    { value: 'unlimited', label: 'Unlimited' },
-    { value: 'count', label: 'Limited by Count' },
-    { value: 'duration', label: 'Limited by Duration' }
-  ];
 
   return (
     <div className="space-y-6">
@@ -592,26 +560,173 @@ export default function ProductCatalogManagement() {
 
         {/* Features & Pricing Tab */}
         <TabsContent value="features" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Features & Pricing Management</CardTitle>
-              <CardDescription>Configure product features, limits, and pricing tiers</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <Settings className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Feature and pricing management coming soon...</p>
-                <p className="text-sm">This section will allow you to:</p>
-                <ul className="text-sm mt-2 space-y-1">
-                  <li>• Configure product features with usage limits</li>
-                  <li>• Set up pricing tiers and billing cycles</li>
-                  <li>• Manage user subscriptions and usage tracking</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
+          <FeaturesAndPricingManagement />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+// Features and Pricing Management Component
+function FeaturesAndPricingManagement() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch product features
+  const { data: productFeatures = [], isLoading: featuresLoading } = useQuery({
+    queryKey: ['/api/products/features'],
+    queryFn: async () => {
+      const response = await fetch('/api/products/features');
+      if (!response.ok) throw new Error('Failed to fetch features');
+      return response.json();
+    }
+  });
+
+  // Fetch all products for filtering
+  const { data: products = [] } = useQuery({
+    queryKey: ['/api/products/admin/products'],
+    queryFn: () => fetch('/api/products/admin/products').then(res => res.json())
+  });
+
+  // Fetch all categories for filtering
+  const { data: categories = [] } = useQuery({
+    queryKey: ['/api/products/categories'],
+    queryFn: () => fetch('/api/products/categories').then(res => res.json())
+  });
+
+  // Toggle feature activation
+  const toggleFeatureMutation = useMutation({
+    mutationFn: async ({ featureId, isActive }: { featureId: number; isActive: boolean }) => {
+      return apiRequest('PUT', `/api/products/features/${featureId}`, { isIncluded: isActive });
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Feature updated successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/products/features'] });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to update feature",
+        variant: "destructive" 
+      });
+    }
+  });
+
+  // Group features by category and product
+  const groupedFeatures = productFeatures.reduce((acc: any, feature: any) => {
+    const productInfo = products.find((p: any) => (p.product?.id || p.id) === feature.productId);
+    const categoryName = productInfo?.category?.name || 'Unknown Category';
+    const productName = productInfo?.product?.name || productInfo?.name || 'Unknown Product';
+    
+    if (!acc[categoryName]) {
+      acc[categoryName] = {};
+    }
+    if (!acc[categoryName][productName]) {
+      acc[categoryName][productName] = [];
+    }
+    acc[categoryName][productName].push(feature);
+    return acc;
+  }, {});
+
+  const handleFeatureToggle = (featureId: number, currentStatus: boolean) => {
+    toggleFeatureMutation.mutate({
+      featureId,
+      isActive: !currentStatus
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Product Features Management
+          </CardTitle>
+          <CardDescription>
+            Activate and deactivate features for products across all categories
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {featuresLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading features...</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {Object.entries(groupedFeatures).map(([categoryName, products]) => (
+                <Card key={categoryName} className="border">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Tags className="h-4 w-4" />
+                      {categoryName}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {Object.entries(products as any).map(([productName, features]) => (
+                        <div key={productName} className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-medium flex items-center gap-2">
+                              <Package className="h-4 w-4" />
+                              {productName}
+                            </h4>
+                            <Badge variant="outline">
+                              {(features as any[]).length} feature{(features as any[]).length !== 1 ? 's' : ''}
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {(features as any[]).map((feature: any) => (
+                              <div key={feature.id} className="flex items-center justify-between p-3 border rounded-lg">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <div className="flex items-center gap-1">
+                                      {feature.isIncluded ? (
+                                        <CheckCircle className="h-4 w-4 text-green-500" />
+                                      ) : (
+                                        <XCircle className="h-4 w-4 text-red-500" />
+                                      )}
+                                      <span className="font-medium text-sm">{feature.name}</span>
+                                    </div>
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {feature.limitType === 'unlimited' && 'Unlimited'}
+                                    {feature.limitType === 'count' && `Limit: ${feature.limitValue}`}
+                                    {feature.limitType === 'duration' && `Duration: ${feature.limitDuration} days`}
+                                  </div>
+                                  {feature.additionalCost && parseFloat(feature.additionalCost) > 0 && (
+                                    <div className="text-xs text-muted-foreground">
+                                      +KES {parseFloat(feature.additionalCost).toLocaleString()}
+                                    </div>
+                                  )}
+                                </div>
+                                <Switch
+                                  checked={feature.isIncluded}
+                                  onCheckedChange={() => handleFeatureToggle(feature.id, feature.isIncluded)}
+                                  disabled={toggleFeatureMutation.isPending}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              
+              {Object.keys(groupedFeatures).length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No product features found</p>
+                  <p className="text-sm">Create products first to manage their features</p>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

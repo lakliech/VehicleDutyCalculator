@@ -74,6 +74,8 @@ const paymentSchema = z.object({
     billingType: z.string(),
     categoryId: z.number(),
     description: z.string(),
+  }).refine((data) => data.id > 0, {
+    message: "Please select a payment plan before proceeding",
   }),
 });
 
@@ -165,9 +167,9 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
   const pricingForm = useForm<PricingForm>({
     resolver: zodResolver(pricingSchema),
     defaultValues: {
-      askingPrice: 0,
+      price: 0,
       negotiable: true,
-      acceptsInstallments: false,
+      description: "",
       ...savedData.pricing
     },
     mode: "onChange"
@@ -263,6 +265,17 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
 
   const submitFinalListing = async (paymentData: PaymentForm) => {
     console.log("PaymentStep submitFinalListing called", paymentData);
+    
+    // Critical validation: Ensure payment data has a selected product
+    if (!paymentData.selectedProduct || !paymentData.selectedProduct.id) {
+      toast({
+        title: "Payment plan required",
+        description: "Please select a payment plan before creating your listing.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const allData = {
       ...savedData.vehicleDetails,
       ...savedData.locationCondition,
@@ -270,7 +283,7 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
       ...savedData.pricing,
       ...savedData.contact,
       title: `${savedData.vehicleDetails?.year} ${savedData.vehicleDetails?.make} ${savedData.vehicleDetails?.model}`,
-      selectedProductId: paymentData.selectedProduct?.id,
+      selectedProductId: paymentData.selectedProduct.id,
     };
 
     console.log("Final listing data:", allData);
@@ -1188,6 +1201,18 @@ function PaymentStep({ form, onSubmit, onPrev, isSubmitting }: {
             type="submit" 
             className="bg-green-600 hover:bg-green-700"
             disabled={isSubmitting || !selectedProduct}
+            onClick={(e) => {
+              console.log("Payment submit button clicked", { selectedProduct, isSubmitting });
+              if (!selectedProduct) {
+                e.preventDefault();
+                toast({
+                  title: "Payment plan required",
+                  description: "Please select a payment plan before creating your listing.",
+                  variant: "destructive",
+                });
+                return;
+              }
+            }}
           >
             {isSubmitting ? (
               <>

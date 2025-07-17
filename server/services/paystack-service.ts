@@ -64,15 +64,13 @@ export class PaystackService {
       // Create payment transaction record
       const transactionData: InsertPaymentTransaction = {
         userId: params.userId,
-        transactionRef: reference,
+        reference: reference,
         amount: params.amount.toString(),
         currency: params.currency || 'KES',
         status: 'pending',
-        transactionType: params.transactionType,
+        type: params.transactionType,
         description: params.description || `Payment for ${params.entityType || 'service'}`,
         productId: params.productId,
-        entityType: params.entityType,
-        entityId: params.entityId,
         paystackReference: response.data.reference,
         metadata: params.metadata
       };
@@ -112,12 +110,10 @@ export class PaystackService {
 
       const updatedTransaction = await storage.updatePaymentTransaction(transaction.id, {
         status: paymentData.status === 'success' ? 'completed' : 'failed',
-        paystackStatus: paymentData.status,
-        paystackGatewayResponse: paymentData.gateway_response,
-        paystackPaidAt: paymentData.paid_at ? new Date(paymentData.paid_at) : null,
-        paystackChannel: paymentData.channel,
-        paystackFees: paymentData.fees ? (paymentData.fees / 100).toString() : null,
-        paymentMethod: this.mapPaystackChannelToMethod(paymentData.channel)
+        method: this.mapPaystackChannelToMethod(paymentData.channel),
+        paystackFeePaid: paymentData.fees ? (paymentData.fees / 100).toString() : null,
+        paidAt: paymentData.paid_at ? new Date(paymentData.paid_at) : null,
+        processedAt: new Date()
       });
 
       // Process successful payment
@@ -141,7 +137,7 @@ export class PaystackService {
    */
   private async processSuccessfulPayment(transaction: PaymentTransaction) {
     try {
-      switch (transaction.transactionType) {
+      switch (transaction.type) {
         case 'credit_purchase':
           await this.processCreditPurchase(transaction);
           break;

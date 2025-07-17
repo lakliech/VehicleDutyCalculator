@@ -52,32 +52,27 @@ export const userAccounts = pgTable('user_accounts', {
 export const paymentTransactions = pgTable('payment_transactions', {
   id: serial('id').primaryKey(),
   userId: text('user_id').notNull(),
-  transactionRef: text('transaction_ref').notNull().unique(), // Paystack reference
+  accountId: integer('account_id'), // References user_accounts table
+  reference: text('reference').notNull(), // Our internal reference
+  paystackReference: text('paystack_reference'), // Paystack reference
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
   currency: text('currency').default('KES'),
-  paymentMethod: paymentMethodEnum('payment_method'),
   status: paymentStatusEnum('status').default('pending'),
-  transactionType: transactionTypeEnum('transaction_type').notNull(),
+  method: paymentMethodEnum('method'), // payment method
+  type: transactionTypeEnum('type').notNull(), // transaction type
   description: text('description'),
-  
-  // Paystack specific fields
-  paystackReference: text('paystack_reference'),
-  paystackStatus: text('paystack_status'),
-  paystackGatewayResponse: text('paystack_gateway_response'),
-  paystackPaidAt: timestamp('paystack_paid_at'),
-  paystackChannel: text('paystack_channel'),
-  paystackFees: decimal('paystack_fees', { precision: 10, scale: 2 }),
+  metadata: jsonb('metadata'),
   
   // Product/service details
   productId: integer('product_id'), // References products table
-  subscriptionId: integer('subscription_id'), // References user_product_subscriptions
-  entityType: text('entity_type'), // 'listing', 'feature', 'subscription', etc.
-  entityId: text('entity_id'), // ID of the item being paid for
+  listingId: integer('listing_id'), // References listings table
   
-  // Metadata
-  metadata: jsonb('metadata'),
-  ipAddress: text('ip_address'),
-  userAgent: text('user_agent'),
+  // Financial details
+  processingFee: decimal('processing_fee', { precision: 10, scale: 2 }),
+  netAmount: decimal('net_amount', { precision: 10, scale: 2 }),
+  paystackFeePaid: decimal('paystack_fee_paid', { precision: 10, scale: 2 }),
+  processedAt: timestamp('processed_at'),
+  paidAt: timestamp('paid_at'),
   
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow()

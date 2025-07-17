@@ -9258,8 +9258,10 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Product catalog and feature enforcement routes
+  console.log('Registering product catalog routes...');
   app.use('/api/products', productCatalogRoutes);
   app.use('/api/features', featureEnforcementRoutes);
+  console.log('Product catalog routes registered successfully');
 
   const httpServer = createServer(app);
 

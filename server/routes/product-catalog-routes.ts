@@ -352,7 +352,9 @@ router.get('/products/:productId/features', requireAuth, requireAdmin, async (re
       .orderBy(asc(productFeatureAssociations.sortOrder), asc(systemFeatures.name));
     
     console.log('Found associations:', associations.length);
-    console.log('Associations data:', JSON.stringify(associations, null, 2));
+    if (associations.length > 0) {
+      console.log('Sample association:', JSON.stringify(associations[0], null, 2));
+    }
     
     // Ensure we're returning JSON
     res.setHeader('Content-Type', 'application/json');

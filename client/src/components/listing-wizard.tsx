@@ -254,12 +254,15 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
   };
 
   const submitContact = async (contactData: ContactForm) => {
+    console.log("ContactStep submitContact called", contactData);
     saveProgress(contactData, "contact");
     setCompletedSteps(prev => [...prev.filter(s => s !== currentStep), currentStep]);
     setCurrentStep(prev => Math.min(prev + 1, STEPS.length));
+    console.log("Moving to payment step (step 6)");
   };
 
   const submitFinalListing = async (paymentData: PaymentForm) => {
+    console.log("PaymentStep submitFinalListing called", paymentData);
     const allData = {
       ...savedData.vehicleDetails,
       ...savedData.locationCondition,
@@ -270,6 +273,7 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
       selectedProductId: paymentData.selectedProduct?.id,
     };
 
+    console.log("Final listing data:", allData);
     submitListingMutation.mutate(allData);
   };
 
@@ -1035,6 +1039,7 @@ function PaymentStep({ form, onSubmit, onPrev, isSubmitting }: {
   isSubmitting: boolean;
 }) {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const { toast } = useToast();
   
   // Fetch marketplace listing products (category 1)
   const { data: basicProducts, isLoading: loadingBasic } = useQuery({
@@ -1055,6 +1060,7 @@ function PaymentStep({ form, onSubmit, onPrev, isSubmitting }: {
   });
 
   const handleProductSelect = (product: any) => {
+    console.log("Product selected:", product);
     const productData = {
       id: product.id,
       name: product.name,
@@ -1065,11 +1071,19 @@ function PaymentStep({ form, onSubmit, onPrev, isSubmitting }: {
     };
     setSelectedProduct(productData);
     form.setValue('selectedProduct', productData);
+    console.log("Selected product data:", productData);
   };
 
   const onSubmitForm = (data: PaymentForm) => {
+    console.log("PaymentStep onSubmitForm called", data, "selectedProduct:", selectedProduct);
     if (selectedProduct) {
       onSubmit(data);
+    } else {
+      toast({
+        title: "Please select a payment plan",
+        description: "You must choose a listing package before proceeding.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -1083,6 +1097,7 @@ function PaymentStep({ form, onSubmit, onPrev, isSubmitting }: {
 
   // Add debugging and fallback handling
   console.log("PaymentStep data:", { basicProducts, subscriptionProducts });
+  console.log("PaymentStep rendered, currentStep should be 6");
 
   return (
     <Form {...form}>

@@ -169,23 +169,26 @@ export default function MyListings() {
     enabled: !!selectedListingId && showInquiriesDialog,
   });
 
-  // Get conversation counts for all listings
+  // Get conversation counts for all listings (lazy loaded)
   const { data: listingConversationCounts = {} } = useQuery<Record<number, { total: number; unread: number }>>({
     queryKey: ['/api/user/listings/conversation-counts'],
-    enabled: isAuthenticated && !!listings,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    enabled: isAuthenticated && !!listings && listings.length > 0,
+    refetchInterval: 60000, // Refresh every 60 seconds (reduced frequency)
+    staleTime: 30000, // Cache for 30 seconds
   });
 
-  // Get video call appointments for seller
+  // Get video call appointments for seller (lazy loaded)
   const { data: videoCallAppointments = [] } = useQuery<VideoCallAppointment[]>({
     queryKey: ['/api/video-calls'],
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!listings, // Only load after listings are loaded
+    staleTime: 60000, // Cache for 1 minute
   });
 
-  // Get test drive appointments for seller
+  // Get test drive appointments for seller (lazy loaded)
   const { data: testDriveAppointments = [] } = useQuery<TestDriveAppointment[]>({
     queryKey: ['/api/test-drives'],
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!listings, // Only load after listings are loaded
+    staleTime: 60000, // Cache for 1 minute
   });
 
   // Get pricing recommendation for selected listing

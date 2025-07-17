@@ -689,11 +689,33 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getListingsByUser(userId: string): Promise<CarListing[]> {
+    // Optimized query with selective fields and limit
     return await db
-      .select()
+      .select({
+        id: carListings.id,
+        title: carListings.title,
+        make: carListings.make,
+        model: carListings.model,
+        year: carListings.year,
+        price: carListings.price,
+        location: carListings.location,
+        mileage: carListings.mileage,
+        fuelType: carListings.fuelType,
+        transmission: carListings.transmission,
+        bodyType: carListings.bodyType,
+        exteriorColor: carListings.exteriorColor,
+        status: carListings.status,
+        viewCount: carListings.viewCount,
+        favoriteCount: carListings.favoriteCount,
+        createdAt: carListings.createdAt,
+        updatedAt: carListings.updatedAt,
+        images: carListings.images,
+        sellerId: carListings.sellerId
+      })
       .from(carListings)
       .where(eq(carListings.sellerId, userId))
-      .orderBy(desc(carListings.createdAt));
+      .orderBy(desc(carListings.createdAt))
+      .limit(100); // Limit to 100 most recent listings
   }
 
   async createListing(listingData: InsertCarListing & { sellerId: string }): Promise<CarListing> {

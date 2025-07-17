@@ -1694,6 +1694,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/user/listings", authenticateUser, async (req, res) => {
     try {
       const listings = await storage.getListingsByUser(req.user.id);
+      
+      // Set cache headers for better performance
+      res.set('Cache-Control', 'public, max-age=120'); // Cache for 2 minutes
       res.json(listings);
     } catch (error) {
       console.error("Failed to get user listings:", error);
@@ -6227,18 +6230,20 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
-  // Get conversation counts for all user's listings - simplified version
+  // Get conversation counts for all user's listings - optimized version
   app.get('/api/user/listings/conversation-counts', authenticateUser, async (req, res) => {
     try {
       const user = req.user as any;
       
-      // Get all user's listings
+      // Get all user's listings with limit for better performance
       const userListings = await db
         .select({ id: carListings.id })
         .from(carListings)
-        .where(eq(carListings.sellerId, user.id));
+        .where(eq(carListings.sellerId, user.id))
+        .limit(100); // Limit to recent 100 listings
       
       if (!userListings.length) {
+        res.set('Cache-Control', 'public, max-age=300'); // Cache empty result for 5 minutes
         return res.json({});
       }
       
@@ -6250,6 +6255,8 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         result[listing.id] = { total: 0, unread: 0 };
       });
       
+      // Set cache headers
+      res.set('Cache-Control', 'public, max-age=120'); // Cache for 2 minutes
       res.json(result);
     } catch (error) {
       console.error("Error fetching listing conversation counts:", error);
@@ -7787,13 +7794,14 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
-  // Get video call appointments for a user
+  // Get video call appointments for a user (optimized)
   app.get('/api/video-calls', async (req: Request, res: Response) => {
     try {
       if (!req.user) {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
+      // Optimize by limiting results and using simpler query
       const appointments = await db
         .select({
           appointment: videoCallAppointments,
@@ -7813,8 +7821,11 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           eq(videoCallAppointments.buyerId, req.user.id),
           eq(videoCallAppointments.sellerId, req.user.id)
         ))
-        .orderBy(desc(videoCallAppointments.appointmentDate));
+        .orderBy(desc(videoCallAppointments.appointmentDate))
+        .limit(50); // Limit to 50 most recent appointments
 
+      // Set cache headers
+      res.set('Cache-Control', 'public, max-age=60'); // Cache for 1 minute
       res.json(appointments);
     } catch (error) {
       console.error('Failed to fetch video call appointments:', error);
@@ -7979,13 +7990,14 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
-  // Get test drive appointments for a user
+  // Get test drive appointments for a user (optimized)
   app.get('/api/test-drives', async (req: Request, res: Response) => {
     try {
       if (!req.user) {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
+      // Optimize by limiting results and using simpler query
       const appointments = await db
         .select({
           appointment: testDriveAppointments,
@@ -8006,8 +8018,11 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           eq(testDriveAppointments.buyerId, req.user.id),
           eq(testDriveAppointments.sellerId, req.user.id)
         ))
-        .orderBy(desc(testDriveAppointments.appointmentDate));
+        .orderBy(desc(testDriveAppointments.appointmentDate))
+        .limit(50); // Limit to 50 most recent appointments
 
+      // Set cache headers
+      res.set('Cache-Control', 'public, max-age=60'); // Cache for 1 minute  
       res.json(appointments);
     } catch (error) {
       console.error('Failed to fetch test drive appointments:', error);

@@ -285,6 +285,21 @@ router.get('/products/:productId/features', async (req, res) => {
   }
 });
 
+// Get all features (admin only)
+router.get('/features', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const features = await db
+      .select()
+      .from(productFeatures)
+      .orderBy(asc(productFeatures.sortOrder), asc(productFeatures.name));
+    
+    res.json(features);
+  } catch (error) {
+    console.error('Error fetching all features:', error);
+    res.status(500).json({ error: 'Failed to fetch features' });
+  }
+});
+
 // Create feature (admin only)
 router.post('/admin/products/:productId/features', requireAuth, requireAdmin, async (req, res) => {
   try {
@@ -304,6 +319,32 @@ router.post('/admin/products/:productId/features', requireAuth, requireAdmin, as
 
 // Update feature (admin only)
 router.put('/admin/features/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const featureData = insertProductFeatureSchema.parse(req.body);
+    
+    const [feature] = await db
+      .update(productFeatures)
+      .set({ ...featureData, updatedAt: new Date() })
+      .where(eq(productFeatures.id, id))
+      .returning();
+    
+    if (!feature) {
+      return res.status(404).json({ error: 'Feature not found' });
+    }
+    
+    res.json(feature);
+  } catch (error) {
+    console.error('Error updating feature:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to update feature' });
+  }
+});
+
+// Update feature (admin only) - alternative path for frontend
+router.put('/features/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const featureData = insertProductFeatureSchema.parse(req.body);

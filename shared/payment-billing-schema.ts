@@ -222,8 +222,9 @@ export const topUpAccountSchema = z.object({
 });
 
 export const processPaymentSchema = z.object({
-  transactionRef: z.string(),
-  paystackReference: z.string()
+  transactionRef: z.string().optional(),
+  paystackReference: z.string(),
+  listingData: z.any().optional()
 });
 
 export const schedulePaymentSchema = z.object({

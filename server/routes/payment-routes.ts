@@ -98,8 +98,8 @@ router.post('/verify', authenticateUser, async (req, res) => {
     const result = await paystackService.verifyPayment(data.paystackReference);
     
     // If payment is successful and there's listing data, create the listing
-    if (result.success && result.transaction && result.transaction.metadata && result.transaction.metadata.listingData) {
-      const listingData = result.transaction.metadata.listingData;
+    if (result.success && result.transaction && req.body.listingData) {
+      const listingData = req.body.listingData;
       
       try {
         // Create the listing

@@ -278,6 +278,20 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
 
     try {
       // Initialize Paystack payment
+      // Store listing data locally to avoid Paystack's 200KB limit
+      const listingData = {
+        ...savedData.vehicleDetails,
+        ...savedData.locationCondition,
+        ...savedData.photos,
+        ...savedData.pricing,
+        ...savedData.contact,
+        title: `${savedData.vehicleDetails?.year} ${savedData.vehicleDetails?.make} ${savedData.vehicleDetails?.model}`,
+        selectedProductId: paymentData.selectedProduct.id,
+      };
+
+      // Store listing data in localStorage for retrieval after payment
+      localStorage.setItem('pendingListingData', JSON.stringify(listingData));
+
       const paymentPayload = {
         amount: parseFloat(paymentData.selectedProduct.price),
         currency: 'KES',
@@ -288,15 +302,10 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
         description: `Payment for ${paymentData.selectedProduct.name}`,
         callbackUrl: `${window.location.origin}/payment-success`,
         metadata: {
-          listingData: {
-            ...savedData.vehicleDetails,
-            ...savedData.locationCondition,
-            ...savedData.photos,
-            ...savedData.pricing,
-            ...savedData.contact,
-            title: `${savedData.vehicleDetails?.year} ${savedData.vehicleDetails?.make} ${savedData.vehicleDetails?.model}`,
-            selectedProductId: paymentData.selectedProduct.id,
-          }
+          listingTitle: listingData.title,
+          productId: paymentData.selectedProduct.id,
+          productName: paymentData.selectedProduct.name,
+          listingDataStored: true // Flag to indicate data is stored locally
         }
       };
 

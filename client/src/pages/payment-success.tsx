@@ -26,20 +26,33 @@ export default function PaymentSuccess() {
     queryFn: async () => {
       if (!reference) return null;
       
+      // Get stored listing data
+      const storedListingData = localStorage.getItem('pendingListingData');
+      
       const response = await fetch('/api/payments/verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ paystackReference: reference }),
+        body: JSON.stringify({ 
+          paystackReference: reference,
+          listingData: storedListingData ? JSON.parse(storedListingData) : null
+        }),
       });
 
       if (!response.ok) {
         throw new Error('Payment verification failed');
       }
 
-      return response.json();
+      const result = await response.json();
+      
+      // Clear stored listing data after successful processing
+      if (result.success && storedListingData) {
+        localStorage.removeItem('pendingListingData');
+      }
+      
+      return result;
     },
     enabled: !!reference,
     retry: 3,

@@ -994,6 +994,9 @@ Changelog:
   - Feature selection displays all available features with constraint type indicators
   - Consistent UI pattern matching create product dialog for familiar user experience
   - Complete feature management workflow: create product with features → edit product features → update associations
+  - Made Category and Product Name fields read-only in edit product form to prevent accidental changes to core identifiers
+  - Added backend protection to ignore categoryId and name fields during product updates for data integrity
+  - Enhanced UI with visual indicators (disabled state, muted background, explanatory text) showing fields cannot be edited
 - January 17, 2025. Moved monetization strategy to main navigation tab for enhanced prominence:
   - Restructured admin dashboard navigation from 4 to 5 main tabs for better organization
   - Moved Monetization Strategy from Financial Services sub-tab to standalone main navigation tab

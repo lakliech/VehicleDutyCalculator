@@ -232,7 +232,9 @@ router.post('/admin/products', requireAuth, requireAdmin, async (req, res) => {
 router.put('/admin/products/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { selectedFeatures, ...productDataRaw } = req.body;
+    const { selectedFeatures, categoryId, name, ...productDataRaw } = req.body;
+    
+    // Exclude categoryId and name from updates (they should not be changed after creation)
     const productData = insertProductSchema.parse(productDataRaw);
     
     // Update the product

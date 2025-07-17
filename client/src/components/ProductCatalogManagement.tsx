@@ -705,12 +705,12 @@ export default function ProductCatalogManagement() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4">
                           <div>
-                            <Label htmlFor="edit-product-category">Category *</Label>
+                            <Label htmlFor="edit-product-category">Category (Read-only)</Label>
                             <Select
                               value={editProductForm.categoryId}
-                              onValueChange={(value) => setEditProductForm({ ...editProductForm, categoryId: value })}
+                              disabled
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="bg-muted">
                                 <SelectValue placeholder="Select category" />
                               </SelectTrigger>
                               <SelectContent>
@@ -721,15 +721,22 @@ export default function ProductCatalogManagement() {
                                 ))}
                               </SelectContent>
                             </Select>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Category cannot be changed after product creation
+                            </p>
                           </div>
                           <div>
-                            <Label htmlFor="edit-product-name">Product Name *</Label>
+                            <Label htmlFor="edit-product-name">Product Name (Read-only)</Label>
                             <Input
                               id="edit-product-name"
                               value={editProductForm.name}
-                              onChange={(e) => setEditProductForm({ ...editProductForm, name: e.target.value })}
+                              disabled
+                              className="bg-muted"
                               placeholder="e.g., Basic Marketplace Listing"
                             />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Product name cannot be changed after creation
+                            </p>
                           </div>
                           <div>
                             <Label htmlFor="edit-product-price">Base Price (KES) *</Label>

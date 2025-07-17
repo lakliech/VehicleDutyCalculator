@@ -132,9 +132,16 @@ export default function ProductCatalogManagement() {
   });
 
   // Fetch all features for selection
-  const { data: allFeatures = [] } = useQuery({
+  const { data: allFeatures = [], isError: allFeaturesError } = useQuery({
     queryKey: ['/api/products/features'],
-    queryFn: () => fetch('/api/products/features').then(res => res.json())
+    queryFn: async () => {
+      const res = await fetch('/api/products/features');
+      if (!res.ok) {
+        throw new Error('Failed to fetch features');
+      }
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    }
   });
 
   // Create category mutation
@@ -510,37 +517,49 @@ export default function ProductCatalogManagement() {
                         
                         <div className="border rounded-lg p-4 max-h-60 overflow-y-auto">
                           <div className="grid grid-cols-2 gap-3">
-                            {allFeatures.map((feature: ProductFeature) => (
-                              <div key={feature.id} className="flex items-center space-x-2">
-                                <input
-                                  type="checkbox"
-                                  id={`feature-${feature.id}`}
-                                  checked={productForm.selectedFeatures.includes(feature.id)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setProductForm({
-                                        ...productForm,
-                                        selectedFeatures: [...productForm.selectedFeatures, feature.id]
-                                      });
-                                    } else {
-                                      setProductForm({
-                                        ...productForm,
-                                        selectedFeatures: productForm.selectedFeatures.filter(id => id !== feature.id)
-                                      });
-                                    }
-                                  }}
-                                  className="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-                                />
-                                <Label htmlFor={`feature-${feature.id}`} className="text-sm">
-                                  <span className="font-medium">{feature.name}</span>
-                                  <span className="text-muted-foreground ml-2">
-                                    {feature.limitType === 'unlimited' && '(Unlimited)'}
-                                    {feature.limitType === 'count' && `(${feature.limitValue} max)`}
-                                    {feature.limitType === 'duration' && `(${feature.limitDuration} days)`}
-                                  </span>
-                                </Label>
+                            {allFeaturesError ? (
+                              <div className="col-span-2 text-center py-4 text-red-600">
+                                <p>Error loading features</p>
+                                <p className="text-sm text-muted-foreground">Please try refreshing the page</p>
                               </div>
-                            ))}
+                            ) : allFeatures.length === 0 ? (
+                              <div className="col-span-2 text-center py-4 text-muted-foreground">
+                                <p>No features available</p>
+                                <p className="text-sm">Create features first to assign them to products</p>
+                              </div>
+                            ) : (
+                              allFeatures.map((feature: ProductFeature) => (
+                                <div key={feature.id} className="flex items-center space-x-2">
+                                  <input
+                                    type="checkbox"
+                                    id={`feature-${feature.id}`}
+                                    checked={productForm.selectedFeatures.includes(feature.id)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setProductForm({
+                                          ...productForm,
+                                          selectedFeatures: [...productForm.selectedFeatures, feature.id]
+                                        });
+                                      } else {
+                                        setProductForm({
+                                          ...productForm,
+                                          selectedFeatures: productForm.selectedFeatures.filter(id => id !== feature.id)
+                                        });
+                                      }
+                                    }}
+                                    className="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                  />
+                                  <Label htmlFor={`feature-${feature.id}`} className="text-sm">
+                                    <span className="font-medium">{feature.name}</span>
+                                    <span className="text-muted-foreground ml-2">
+                                      {feature.limitType === 'unlimited' && '(Unlimited)'}
+                                      {feature.limitType === 'count' && `(${feature.limitValue} max)`}
+                                      {feature.limitType === 'duration' && `(${feature.limitDuration} days)`}
+                                    </span>
+                                  </Label>
+                                </div>
+                              ))
+                            )}
                           </div>
                         </div>
                       </div>

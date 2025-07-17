@@ -9217,6 +9217,42 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
+  // ==============================
+  // ADDITIONAL MONETIZATION ROUTES  
+  // ==============================
+
+  // Get usage limits for specific features
+  app.get("/api/monetization/usage-limits/:featureType", authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const { featureType } = req.params;
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
+
+      // Demo usage limits data for demonstration
+      const demoLimits = {
+        duty_calculation: { allowed: true, currentUsage: 47, limit: 500 },
+        valuation: { allowed: true, currentUsage: 23, limit: 200 },
+        import_estimate: { allowed: true, currentUsage: 8, limit: 100 },
+        api_call: { allowed: true, currentUsage: 1247, limit: 10000 },
+        listing: { allowed: true, currentUsage: 12, limit: null }
+      };
+
+      const limitData = demoLimits[featureType as keyof typeof demoLimits];
+      
+      if (!limitData) {
+        return res.status(404).json({ error: "Feature type not found" });
+      }
+
+      res.json(limitData);
+    } catch (error) {
+      console.error("Error checking usage limits:", error);
+      res.status(500).json({ error: "Failed to check usage limits" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

@@ -994,6 +994,14 @@ Changelog:
   - Updated form flow: Step 5 saves contact info and proceeds to payment selection, Step 6 completes listing with selected product
   - Integrated payment schema validation and product selection interface for seamless payment integration
   - Sellers can now choose between basic listing products or monthly subscription plans before listing completion
+- January 17, 2025. Removed photo upload limits from "Sell Your Car" module:
+  - Fixed ReferenceError bug in feature-enforcement.ts that was causing photo upload API failures
+  - Removed photo upload limit checking from image-upload.tsx component, now allows unlimited uploads
+  - Eliminated schema validation requiring minimum 3 photos, making all photos optional
+  - Removed frontend validation preventing users from proceeding without minimum photo requirements
+  - Increased photo upload slots from 10 to 20 in the listing wizard interface
+  - Updated UI text to remove references to photo limits and requirements
+  - Sellers can now upload any number of photos without restrictions or feature enforcement limitations
 - January 17, 2025. Fixed Features & Pricing Management logical hierarchy:
   - Restructured Features & Pricing Management tab to follow proper Category → Product → Features hierarchy
   - Added category and product selection dropdowns for logical navigation flow

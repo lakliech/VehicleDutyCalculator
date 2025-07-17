@@ -13,16 +13,17 @@ export class FeatureEnforcementService {
       const subscriptions = await db
         .select({
           product: products,
-          feature: productFeatures
+          feature: systemFeatures
         })
         .from(userProductSubscriptions)
         .innerJoin(products, eq(userProductSubscriptions.productId, products.id))
-        .innerJoin(productFeatures, eq(productFeatures.productId, products.id))
+        .innerJoin(productFeatureAssociations, eq(productFeatureAssociations.productId, products.id))
+        .innerJoin(systemFeatures, eq(systemFeatures.id, productFeatureAssociations.featureId))
         .where(
           and(
             eq(userProductSubscriptions.userId, userId),
             eq(userProductSubscriptions.isActive, true),
-            eq(productFeatures.isIncluded, true)
+            eq(productFeatureAssociations.isIncluded, true)
           )
         );
 
@@ -34,10 +35,10 @@ export class FeatureEnforcementService {
         
         // Take the highest limit for each feature if user has multiple subscriptions
         if (!limits[featureName] || 
-            (sub.feature.limitType === 'unlimited') ||
-            (sub.feature.limitType === 'count' && (limits[featureName].value || 0) < (sub.feature.limitValue || 0))) {
+            (sub.feature.constraintType === 'unlimited') ||
+            (sub.feature.constraintType === 'count' && (limits[featureName].value || 0) < (sub.feature.limitValue || 0))) {
           limits[featureName] = {
-            type: sub.feature.limitType,
+            type: sub.feature.constraintType,
             value: sub.feature.limitValue,
             duration: sub.feature.limitDuration
           };

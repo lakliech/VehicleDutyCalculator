@@ -39,27 +39,13 @@ export function ImageUpload({
 
   // Check photo upload limit when component mounts or photo count changes
   useEffect(() => {
-    const checkPhotoLimit = async () => {
-      if (!isAuthenticated) return;
-
-      try {
-        const response = await apiRequest('POST', '/api/features/check/photo-upload', {
-          currentPhotoCount
-        });
-        
-        if (response.ok) {
-          const result = await response.json();
-          setPhotoLimit(result);
-        } else {
-          console.error('Failed to check photo limit');
-        }
-      } catch (error) {
-        console.error('Error checking photo limit:', error);
-      }
-    };
-
-    checkPhotoLimit();
-  }, [isAuthenticated, currentPhotoCount]);
+    // Remove photo upload limits - allow unlimited uploads
+    setPhotoLimit({
+      allowed: true,
+      limit: -1,
+      constraintType: 'unlimited'
+    });
+  }, []);
 
   const handleFileSelect = async (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -81,14 +67,7 @@ export function ImageUpload({
     }
 
     // Check photo upload limit
-    if (!photoLimit.allowed) {
-      toast({
-        title: "Photo limit reached",
-        description: photoLimit.message || "You have reached your photo upload limit. Please upgrade your plan.",
-        variant: "destructive"
-      });
-      return;
-    }
+    // Photo upload limits removed - allow unlimited uploads
 
     setIsUploading(true);
     

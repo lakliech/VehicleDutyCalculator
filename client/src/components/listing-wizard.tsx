@@ -47,7 +47,7 @@ const locationConditionSchema = z.object({
 });
 
 const photosSchema = z.object({
-  images: z.array(z.string()).min(3, "At least 3 photos are required").max(10, "Maximum 10 photos allowed"),
+  images: z.array(z.string()).optional(),
   videoUrl: z.string().url().optional().or(z.literal("")),
 });
 
@@ -598,23 +598,13 @@ function LocationConditionStep({ form, onNext, onPrev }: { form: any; onNext: (d
 
 // Step 3: Photos & Video
 function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, stepName: string) => void; onPrev: () => void }) {
-  const [uploadedImages, setUploadedImages] = useState<Array<{url: string, file: File} | null>>(new Array(10).fill(null));
+  const [uploadedImages, setUploadedImages] = useState<Array<{url: string, file: File} | null>>(new Array(20).fill(null));
   const [uploading, setUploading] = useState(false);
   const [currentPhotoCount, setCurrentPhotoCount] = useState(0);
   const { toast } = useToast();
 
   const onSubmit = async (data: PhotosForm) => {
     console.log("PhotosStep onSubmit called", data, "uploadedImages count:", uploadedImages.length);
-    
-    if (uploadedImages.length < 3) {
-      console.log("Not enough images uploaded");
-      toast({
-        title: "Photos Required",
-        description: "Please upload at least 3 photos of your vehicle",
-        variant: "destructive",
-      });
-      return;
-    }
 
     try {
       setUploading(true);
@@ -693,16 +683,16 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
         className="space-y-6"
       >
         <div>
-          <Label className="text-base font-medium">Vehicle Photos *</Label>
-          <p className="text-sm text-gray-600 mb-4">Upload 3-10 high-quality photos. Include front, side, and interior views.</p>
+          <Label className="text-base font-medium">Vehicle Photos</Label>
+          <p className="text-sm text-gray-600 mb-4">Upload high-quality photos of your vehicle. Include front, side, and interior views for better visibility.</p>
           
-          {/* Feature Enforcement Photo Upload */}
+          {/* Photo Upload - No limits */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {[...Array(10)].map((_, index) => (
+            {[...Array(20)].map((_, index) => (
               <ImageUpload
                 key={index}
                 label={`Photo ${index + 1}`}
-                description={index < 3 ? "Required" : "Optional"}
+                description="Optional"
                 value={uploadedImages[index]?.url}
                 onChange={(base64) => {
                   if (base64) {
@@ -730,7 +720,7 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
                     form.setValue('images', imageUrls);
                   }
                 }}
-                required={index < 3}
+                required={false}
                 currentPhotoCount={currentPhotoCount}
                 className="h-48"
               />

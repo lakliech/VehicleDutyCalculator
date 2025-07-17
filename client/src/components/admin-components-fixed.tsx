@@ -8,7 +8,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "wouter";
 import { 
   Search, 
   Filter, 
@@ -25,8 +24,7 @@ import {
   User,
   Users,
   UserCheck,
-  UserX,
-  ExternalLink
+  UserX
 } from "lucide-react";
 
 // Types for car listings and users
@@ -132,7 +130,7 @@ export function VehiclesManagementTab({
     limit: 10
   });
   
-
+  const [expandedListingId, setExpandedListingId] = useState<number | null>(null);
 
   // Mutations for listing actions
   const updateListingStatusMutation = useMutation({
@@ -188,7 +186,11 @@ export function VehiclesManagementTab({
     pages: Math.ceil(filteredListings.length / pagination.limit)
   };
 
+  const handleToggleDetails = (listingId: number) => {
+    setExpandedListingId(expandedListingId === listingId ? null : listingId);
+  };
 
+  const selectedListing = expandedListingId ? listings.find(l => l.id === expandedListingId) : null;
 
   if (isLoading) {
     return (
@@ -311,89 +313,208 @@ export function VehiclesManagementTab({
             </TableHeader>
             <TableBody>
               {paginatedListings.map((listing) => (
-                <TableRow key={listing.id} className="cursor-pointer hover:bg-gray-50">
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <div className="font-medium">{listing.title}</div>
-                        <div className="text-sm text-gray-500">
-                          {listing.year} {listing.make} {listing.model}
-                        </div>
-                        <div className="flex items-center gap-1 mt-1">
-                          {listing.isVerified && (
-                            <Badge variant="secondary" className="text-xs">
-                              <UserCheck className="h-3 w-3 mr-1" />
-                              Verified
-                            </Badge>
-                          )}
-                          {listing.isPremium && (
-                            <Badge variant="default" className="text-xs bg-yellow-500">
-                              <Star className="h-3 w-3 mr-1" />
-                              Premium
-                            </Badge>
-                          )}
-                          {listing.isFlagged && (
-                            <Badge variant="destructive" className="text-xs">
-                              <Flag className="h-3 w-3 mr-1" />
-                              Flagged
-                            </Badge>
-                          )}
+                <>
+                  <TableRow key={listing.id} className="cursor-pointer hover:bg-gray-50">
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <div className="font-medium">{listing.title}</div>
+                          <div className="text-sm text-gray-500">
+                            {listing.year} {listing.make} {listing.model}
+                          </div>
+                          <div className="flex items-center gap-1 mt-1">
+                            {listing.isVerified && (
+                              <Badge variant="secondary" className="text-xs">
+                                <UserCheck className="h-3 w-3 mr-1" />
+                                Verified
+                              </Badge>
+                            )}
+                            {listing.isPremium && (
+                              <Badge variant="default" className="text-xs bg-yellow-500">
+                                <Star className="h-3 w-3 mr-1" />
+                                Premium
+                              </Badge>
+                            )}
+                            {listing.isFlagged && (
+                              <Badge variant="destructive" className="text-xs">
+                                <Flag className="h-3 w-3 mr-1" />
+                                Flagged
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback>
-                          {listing.seller ? 
-                            `${listing.seller.firstName?.[0] || ''}${listing.seller.lastName?.[0] || ''}` || 'U' : 
-                            'U'
-                          }
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium text-sm">
-                          {listing.seller ? 
-                            `${listing.seller.firstName || ''} ${listing.seller.lastName || ''}`.trim() || 'Unknown Seller' : 
-                            'Unknown Seller'
-                          }
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback>
+                            {listing.seller ? 
+                              `${listing.seller.firstName?.[0] || ''}${listing.seller.lastName?.[0] || ''}` || 'U' : 
+                              'U'
+                            }
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium text-sm">
+                            {listing.seller ? 
+                              `${listing.seller.firstName || ''} ${listing.seller.lastName || ''}`.trim() || 'Unknown Seller' : 
+                              'Unknown Seller'
+                            }
+                          </div>
+                          <div className="text-xs text-gray-500">{listing.seller?.email || 'No email'}</div>
                         </div>
-                        <div className="text-xs text-gray-500">{listing.seller?.email || 'No email'}</div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="font-semibold text-green-600">
-                      {formatCurrency(listing.price)}
-                    </div>
-                    {listing.negotiable && (
-                      <div className="text-xs text-gray-500">Negotiable</div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={
-                      listing.status === 'active' ? 'default' :
-                      listing.status === 'pending' ? 'secondary' :
-                      listing.status === 'rejected' ? 'destructive' : 'outline'
-                    }>
-                      {listing.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">{formatDate(listing.createdAt)}</div>
-                    <div className="text-xs text-gray-500">{listing.viewCount || 0} views</div>
-                  </TableCell>
-                  <TableCell>
-                    <Link href={`/admin/listing-details/${listing.id}`}>
-                      <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4 mr-1" />
-                        View Details
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-semibold text-green-600">
+                        {formatCurrency(listing.price)}
+                      </div>
+                      {listing.negotiable && (
+                        <div className="text-xs text-gray-500">Negotiable</div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={
+                        listing.status === 'active' ? 'default' :
+                        listing.status === 'pending' ? 'secondary' :
+                        listing.status === 'rejected' ? 'destructive' : 'outline'
+                      }>
+                        {listing.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">{formatDate(listing.createdAt)}</div>
+                      <div className="text-xs text-gray-500">{listing.viewCount || 0} views</div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleToggleDetails(listing.id)}
+                      >
+                        {expandedListingId === listing.id ? (
+                          <>
+                            <EyeOff className="h-4 w-4 mr-1" />
+                            Hide Details
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="h-4 w-4 mr-1" />
+                            View Details
+                          </>
+                        )}
                       </Button>
-                    </Link>
-                  </TableCell>
+                    </TableCell>
                   </TableRow>
-                ))}
+                  
+                  {/* Expanded Details Row */}
+                  {expandedListingId === listing.id && selectedListing && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="p-0">
+                        <div className="p-6 bg-gray-50 border-t">
+                          <div className="flex items-center gap-2 mb-4">
+                            <Car className="h-5 w-5 text-purple-600" />
+                            <h3 className="text-lg font-semibold">
+                              Listing Details - {selectedListing.year} {selectedListing.make} {selectedListing.model}
+                            </h3>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {/* Vehicle Information */}
+                            <div className="bg-white p-4 rounded-lg border">
+                              <h4 className="font-semibold mb-3">Vehicle Information</h4>
+                              <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Engine:</span>
+                                  <span>{selectedListing.engineCapacity}cc {selectedListing.fuelType}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Mileage:</span>
+                                  <span>{selectedListing.mileage?.toLocaleString()} km</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Condition:</span>
+                                  <span className="capitalize">{selectedListing.condition}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Transmission:</span>
+                                  <span className="capitalize">{selectedListing.transmission}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Seller Information */}
+                            <div className="bg-white p-4 rounded-lg border">
+                              <h4 className="font-semibold mb-3">Seller Information</h4>
+                              <div className="space-y-2 text-sm">
+                                <div className="font-medium">
+                                  {selectedListing.seller ? 
+                                    `${selectedListing.seller.firstName || ''} ${selectedListing.seller.lastName || ''}`.trim() || 'Unknown Seller' : 
+                                    'Unknown Seller'
+                                  }
+                                </div>
+                                <div className="text-gray-600">{selectedListing.seller?.email || 'No email'}</div>
+                                <div className="text-gray-600">{selectedListing.phoneNumber || 'No phone'}</div>
+                                <div className="text-gray-600">{selectedListing.location || 'No location'}</div>
+                              </div>
+                            </div>
+
+                            {/* Pricing & Status */}
+                            <div className="bg-white p-4 rounded-lg border">
+                              <h4 className="font-semibold mb-3">Pricing & Status</h4>
+                              <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Price:</span>
+                                  <span className="font-bold text-green-600">{formatCurrency(selectedListing.price)}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Status:</span>
+                                  <Badge variant={
+                                    selectedListing.status === 'active' ? 'default' :
+                                    selectedListing.status === 'pending' ? 'secondary' : 'outline'
+                                  }>
+                                    {selectedListing.status}
+                                  </Badge>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Views:</span>
+                                  <span>{selectedListing.viewCount || 0}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Description & Features */}
+                          {(selectedListing.description || (selectedListing.features && selectedListing.features.length > 0)) && (
+                            <div className="mt-4 bg-white p-4 rounded-lg border">
+                              {selectedListing.description && (
+                                <div className="mb-4">
+                                  <h4 className="font-semibold mb-2">Description</h4>
+                                  <p className="text-gray-700 text-sm">{selectedListing.description}</p>
+                                </div>
+                              )}
+                              
+                              {selectedListing.features && selectedListing.features.length > 0 && (
+                                <div>
+                                  <h4 className="font-semibold mb-2">Features</h4>
+                                  <div className="flex flex-wrap gap-1">
+                                    {selectedListing.features.map((feature: string, index: number) => (
+                                      <Badge key={index} variant="outline" className="text-xs">
+                                        {feature}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
+              ))}
             </TableBody>
           </Table>
 
@@ -609,120 +730,6 @@ export function UsersManagementTab({
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// CSV Upload Tab Component
-export function CSVUploadTab() {
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            CSV Data Upload
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>CSV upload functionality will be implemented here.</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// Tax Rates Tab Component
-export function TaxRatesTab() {
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Coins className="h-5 w-5" />
-            Tax Rates Management
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Tax rates management functionality will be implemented here.</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// Processing Fees Tab Component
-export function ProcessingFeesTab() {
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Coins className="h-5 w-5" />
-            Processing Fees
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Processing fees management functionality will be implemented here.</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// Category Rules Tab Component
-export function CategoryRulesTab() {
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Category Rules
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Category rules management functionality will be implemented here.</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// Depreciation Rates Tab Component
-export function DepreciationRatesTab() {
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingDown className="h-5 w-5" />
-            Depreciation Rates
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Depreciation rates management functionality will be implemented here.</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// Enhanced Listings Management Tab Component
-export function EnhancedListingsManagementTab() {
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Car className="h-5 w-5" />
-            Enhanced Listings Management
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Enhanced listings management functionality will be implemented here.</p>
         </CardContent>
       </Card>
     </div>

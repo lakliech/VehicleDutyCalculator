@@ -421,7 +421,9 @@ export function EnhancedListingsManagementTab({
     location: 'all',
     dateFrom: '',
     dateTo: '',
-    search: ''
+    search: '',
+    hasFlags: 'all',
+    verificationStatus: 'all'
   });
   
   const [sorting, setSorting] = useState({
@@ -561,9 +563,9 @@ export function EnhancedListingsManagementTab({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Filters Section */}
+          {/* Enhanced Filters Section */}
           <div className="mb-6 space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               <div>
                 <Label htmlFor="status-filter">Status</Label>
                 <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
@@ -594,6 +596,57 @@ export function EnhancedListingsManagementTab({
                   </SelectContent>
                 </Select>
               </div>
+
+              <div>
+                <Label htmlFor="verification-filter">Verification</Label>
+                <Select value={filters.verificationStatus} onValueChange={(value) => setFilters(prev => ({ ...prev, verificationStatus: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="verified">Verified Only</SelectItem>
+                    <SelectItem value="unverified">Unverified Only</SelectItem>
+                    <SelectItem value="premium">Premium Only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="flags-filter">Flags</Label>
+                <Select value={filters.hasFlags} onValueChange={(value) => setFilters(prev => ({ ...prev, hasFlags: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="flagged">Flagged Only</SelectItem>
+                    <SelectItem value="unflagged">No Flags</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              <div>
+                <Label htmlFor="date-from">Date From</Label>
+                <Input
+                  id="date-from"
+                  type="date"
+                  value={filters.dateFrom}
+                  onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="date-to">Date To</Label>
+                <Input
+                  id="date-to"
+                  type="date"
+                  value={filters.dateTo}
+                  onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
+                />
+              </div>
               
               <div>
                 <Label htmlFor="min-price">Min Price</Label>
@@ -618,34 +671,41 @@ export function EnhancedListingsManagementTab({
               </div>
               
               <div>
-                <Label htmlFor="search">Search</Label>
+                <Label htmlFor="search">Search (seller, make, description)</Label>
                 <Input
                   id="search"
-                  placeholder="Search listings..."
+                  placeholder="Search seller, make, description..."
                   value={filters.search}
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                 />
               </div>
-              
-              <div className="flex items-end">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setFilters({
-                    status: 'all',
-                    sellerType: 'all',
-                    make: 'all',
-                    model: 'all',
-                    minPrice: '',
-                    maxPrice: '',
-                    location: 'all',
-                    dateFrom: '',
-                    dateTo: '',
-                    search: ''
-                  })}
-                >
-                  Clear Filters
-                </Button>
+            </div>
+            
+            <div className="flex justify-between items-center pt-4">
+              <div className="text-sm text-gray-600">
+                Found {listings.length} listing{listings.length !== 1 ? 's' : ''}
               </div>
+              <Button 
+                variant="outline" 
+                onClick={() => setFilters({
+                  status: 'all',
+                  sellerType: 'all',
+                  make: 'all',
+                  model: 'all',
+                  minPrice: '',
+                  maxPrice: '',
+                  location: 'all',
+                  dateFrom: '',
+                  dateTo: '',
+                  search: '',
+                  hasFlags: 'all',
+                  verificationStatus: 'all'
+                })}
+                className="gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Clear Filters
+              </Button>
             </div>
           </div>
 
@@ -693,10 +753,10 @@ export function EnhancedListingsManagementTab({
                       }}
                     />
                   </TableHead>
-                  <TableHead>Vehicle Details</TableHead>
+                  <TableHead>Listing & Vehicle</TableHead>
+                  <TableHead>Seller</TableHead>
                   <TableHead>Price & Date</TableHead>
-                  <TableHead>Seller Information</TableHead>
-                  <TableHead>Status & Views</TableHead>
+                  <TableHead>Status & Flags</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -725,20 +785,24 @@ export function EnhancedListingsManagementTab({
                           />
                         )}
                         <div>
-                          <div className="font-semibold">{listing.year} {listing.make} {listing.model}</div>
-                          <div className="text-sm text-gray-500">
-                            {listing.engineCapacity}cc • {listing.mileage} km • {listing.fuelType}
+                          <div className="font-semibold text-purple-600">{listing.title || `${listing.year} ${listing.make} ${listing.model}`}</div>
+                          <div className="text-sm font-medium">{listing.year} {listing.make} {listing.model}</div>
+                          <div className="text-xs text-gray-500">
+                            {listing.engineCapacity}cc • {listing.mileage?.toLocaleString()} km • {listing.fuelType}
                           </div>
-                          <div className="text-xs text-gray-400">ID: {listing.id}</div>
+                          <div className="flex gap-1 mt-1">
+                            {listing.isVerified && (
+                              <Badge variant="default" className="text-xs bg-green-100 text-green-800 border-green-200">
+                                ✓ Verified
+                              </Badge>
+                            )}
+                            {listing.featured && (
+                              <Badge variant="default" className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200">
+                                ⭐ Premium
+                              </Badge>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-semibold text-green-600">
-                        {formatCurrency(listing.price)}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Listed: {new Date(listing.createdAt).toLocaleDateString()}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -752,20 +816,46 @@ export function EnhancedListingsManagementTab({
                         <div>
                           <div className="font-medium text-sm">{listing.sellerName || 'Unknown Seller'}</div>
                           <div className="text-xs text-gray-500">{listing.sellerEmail}</div>
-                          <div className="text-xs text-gray-400">ID: {listing.sellerId}</div>
+                          <div className="text-xs text-gray-400">{listing.location || 'Location not specified'}</div>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={
-                        listing.status === 'active' ? 'default' :
-                        listing.status === 'pending' ? 'secondary' :
-                        listing.status === 'rejected' ? 'destructive' : 'outline'
-                      }>
-                        {listing.status}
-                      </Badge>
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="font-semibold text-green-600">
+                        {formatCurrency(listing.price)}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Listed: {new Date(listing.createdAt).toLocaleDateString()}
+                      </div>
+                      <div className="text-xs text-gray-400">
                         Views: {listing.viewCount || 0}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-2">
+                        <Badge variant={
+                          listing.status === 'active' ? 'default' :
+                          listing.status === 'pending' ? 'secondary' :
+                          listing.status === 'rejected' ? 'destructive' : 'outline'
+                        }>
+                          {listing.status}
+                        </Badge>
+                        
+                        {/* Flag indicators */}
+                        {listing.flagCount > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            <Badge variant="destructive" className="text-xs">
+                              🚩 {listing.flagCount} Flag{listing.flagCount !== 1 ? 's' : ''}
+                            </Badge>
+                          </div>
+                        )}
+                        
+                        {/* Additional status indicators */}
+                        {listing.flaggedStatus && (
+                          <Badge variant="outline" className="text-xs border-red-200 text-red-600">
+                            Under Review
+                          </Badge>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>

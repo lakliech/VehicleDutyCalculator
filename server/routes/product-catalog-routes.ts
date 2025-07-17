@@ -347,7 +347,54 @@ router.post('/products/:productId/features', requireAuth, requireAdmin, async (r
   }
 });
 
-// Update feature (admin only)
+// Update feature by ID (admin only)
+router.put('/products/features/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const featureData = insertProductFeatureSchema.parse(req.body);
+    
+    const [feature] = await db
+      .update(productFeatures)
+      .set({ ...featureData, updatedAt: new Date() })
+      .where(eq(productFeatures.id, id))
+      .returning();
+    
+    if (!feature) {
+      return res.status(404).json({ error: 'Feature not found' });
+    }
+    
+    res.json(feature);
+  } catch (error) {
+    console.error('Error updating feature:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to update feature' });
+  }
+});
+
+// Delete feature by ID (admin only)
+router.delete('/products/features/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    
+    const [feature] = await db
+      .delete(productFeatures)
+      .where(eq(productFeatures.id, id))
+      .returning();
+    
+    if (!feature) {
+      return res.status(404).json({ error: 'Feature not found' });
+    }
+    
+    res.json({ message: 'Feature deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting feature:', error);
+    res.status(500).json({ error: 'Failed to delete feature' });
+  }
+});
+
+// Update feature (admin only) - legacy endpoint
 router.put('/admin/features/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);

@@ -1167,24 +1167,33 @@ function FeaturesAndPricingManagement() {
     queryFn: () => fetch('/api/products/admin/products').then(res => res.json())
   });
 
-  // Fetch features for selected product
-  const { data: productFeatures = [], isLoading: featuresLoading } = useQuery({
-    queryKey: ['/api/products', selectedProduct, 'features'],
+  // Fetch ALL features from database
+  const { data: allFeatures = [], isLoading: featuresLoading } = useQuery({
+    queryKey: ['/api/products/features'],
     queryFn: async () => {
-      if (!selectedProduct) return [];
-      const response = await fetch(`/api/products/${selectedProduct}/features`);
+      const response = await fetch('/api/products/features');
       if (!response.ok) throw new Error('Failed to fetch features');
       return response.json();
-    },
-    enabled: !!selectedProduct
+    }
   });
+
+  // Filter features by selected product if needed
+  const productFeatures = selectedProduct 
+    ? allFeatures.filter((feature: any) => feature.productId.toString() === selectedProduct)
+    : allFeatures;
 
   // Create feature mutation
   const createFeatureMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('POST', `/api/products/${selectedProduct}/features`, data),
+    mutationFn: (data: any) => {
+      const productId = selectedProduct || data.productId;
+      if (!productId) {
+        throw new Error('Product must be selected to create feature');
+      }
+      return apiRequest('POST', `/api/products/${productId}/features`, data);
+    },
     onSuccess: () => {
       toast({ title: "Success", description: "Feature created successfully" });
-      queryClient.invalidateQueries({ queryKey: ['/api/products', selectedProduct, 'features'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/products/features'] });
       setIsCreateFeatureOpen(false);
     },
     onError: (error: any) => {
@@ -1199,10 +1208,10 @@ function FeaturesAndPricingManagement() {
   // Update feature mutation
   const updateFeatureMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) => 
-      apiRequest('PUT', `/api/products/${selectedProduct}/features/${id}`, data),
+      apiRequest('PUT', `/api/products/features/${id}`, data),
     onSuccess: () => {
       toast({ title: "Success", description: "Feature updated successfully" });
-      queryClient.invalidateQueries({ queryKey: ['/api/products', selectedProduct, 'features'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/products/features'] });
       setEditingFeature(null);
     },
     onError: (error: any) => {
@@ -1216,10 +1225,10 @@ function FeaturesAndPricingManagement() {
 
   // Delete feature mutation
   const deleteFeatureMutation = useMutation({
-    mutationFn: (id: number) => apiRequest('DELETE', `/api/products/${selectedProduct}/features/${id}`),
+    mutationFn: (id: number) => apiRequest('DELETE', `/api/products/features/${id}`),
     onSuccess: () => {
       toast({ title: "Success", description: "Feature deleted successfully" });
-      queryClient.invalidateQueries({ queryKey: ['/api/products', selectedProduct, 'features'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/products/features'] });
     },
     onError: (error: any) => {
       toast({ 
@@ -1237,7 +1246,7 @@ function FeaturesAndPricingManagement() {
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Feature updated successfully" });
-      queryClient.invalidateQueries({ queryKey: ['/api/products', selectedProduct, 'features'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/products/features'] });
     },
     onError: (error: any) => {
       toast({ 
@@ -1503,6 +1512,128 @@ function FeaturesAndPricingManagement() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* All Features Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              All Features Database
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">
+                {allFeatures.length} Total Features
+              </Badge>
+            </div>
+          </CardTitle>
+          <CardDescription>
+            View and edit all features from the database
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {featuresLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading all features...</p>
+            </div>
+          ) : allFeatures.length > 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Feature Name</TableHead>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Limit</TableHead>
+                    <TableHead>Cost</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {allFeatures.map((feature: any) => {
+                    const product = products.find((p: any) => 
+                      (p.product?.id || p.id) === feature.productId
+                    );
+                    const productName = product?.product?.name || product?.name || 'Unknown Product';
+                    
+                    return (
+                      <TableRow key={feature.id}>
+                        <TableCell className="font-medium">{feature.name}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{productName}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">
+                            {feature.limitType}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {feature.limitType === 'unlimited' && 'Unlimited'}
+                          {feature.limitType === 'count' && `${feature.limitValue} items`}
+                          {feature.limitType === 'duration' && `${feature.limitDuration} days`}
+                          {feature.limitType === 'size' && `${feature.limitSize} MB`}
+                          {feature.limitType === 'frequency' && `${feature.limitFrequency}/${feature.frequencyPeriod || 24}h`}
+                          {feature.limitType === 'concurrent' && `${feature.limitValue} concurrent`}
+                          {feature.limitType === 'boolean' && 'Yes/No'}
+                        </TableCell>
+                        <TableCell>
+                          {feature.additionalCost && parseFloat(feature.additionalCost) > 0 ? (
+                            <span className="text-green-600 font-medium">
+                              +KES {parseFloat(feature.additionalCost).toLocaleString()}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">Free</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={feature.isIncluded}
+                              onCheckedChange={() => handleFeatureToggle(feature.id, feature.isIncluded)}
+                              disabled={toggleFeatureMutation.isPending}
+                            />
+                            <Badge variant={feature.isIncluded ? "default" : "secondary"}>
+                              {feature.isIncluded ? "Included" : "Optional"}
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setEditingFeature(feature)}
+                              disabled={updateFeatureMutation.isPending}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => deleteFeatureMutation.mutate(feature.id)}
+                              disabled={deleteFeatureMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No features found in the database</p>
+              <p className="text-sm">Create features to manage them here</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Empty State */}
       {!selectedProduct && (

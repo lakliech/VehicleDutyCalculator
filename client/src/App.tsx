@@ -41,6 +41,8 @@ import ListingDashboard from "@/pages/listing-dashboard";
 import MyWishlists from "@/pages/my-wishlists";
 import MyMessages from "@/pages/my-messages";
 import Messages from "@/pages/messages";
+import SubscriptionManagement from "@/pages/subscription-management";
+import UsageDashboard from "@/pages/usage-dashboard";
 import { ResetPassword } from "@/pages/reset-password";
 import { AuthProvider } from "@/components/auth-provider";
 import { useAuthRedirect } from "@/hooks/use-auth-redirect";
@@ -117,6 +119,16 @@ function Router() {
             </ProtectedRoute>
           </Route>
           <Route path="/messages" component={Messages} />
+          <Route path="/subscription-management">
+            <ProtectedRoute>
+              <SubscriptionManagement />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/usage-dashboard">
+            <ProtectedRoute>
+              <UsageDashboard />
+            </ProtectedRoute>
+          </Route>
           <Route path="/admin">
             <ProtectedRoute requireAdmin={true}>
               <AdminDashboard />

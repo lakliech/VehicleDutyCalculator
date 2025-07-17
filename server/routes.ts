@@ -94,6 +94,8 @@ import MemoryStore from "memorystore";
 import OpenAI from "openai";
 import { ImageOptimizer, imageUtils } from './services/image-optimizer';
 import { CacheService, CacheKeys } from './services/cache-service';
+import { MonetizationService } from './services/monetization-service';
+import { UsageLimiter } from './middleware/usage-limiter';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -1832,7 +1834,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Calculate duty
-  app.post("/api/calculate-duty", async (req, res) => {
+  // Monetization Routes
+  app.use('/api/monetization', async (req, res, next) => {
+    try {
+      // Import and use monetization routes
+      const monetizationRoutes = await import('./routes/monetization-routes');
+      monetizationRoutes.default(req, res, next);
+    } catch (error) {
+      console.error('Monetization routes error:', error);
+      res.status(500).json({ error: 'Service temporarily unavailable' });
+    }
+  });
+
+  // Initialize default monetization plans
+  app.post('/api/monetization/initialize-plans', async (req, res) => {
+    try {
+      await MonetizationService.initializeDefaultPlans();
+      res.json({ success: true, message: 'Default plans initialized' });
+    } catch (error) {
+      console.error('Error initializing plans:', error);
+      res.status(500).json({ error: 'Failed to initialize plans' });
+    }
+  });
+
+  app.post("/api/calculate-duty", UsageLimiter.dutyCalculation, async (req, res) => {
     try {
       const validation = dutyCalculationSchema.safeParse(req.body);
       
@@ -3815,7 +3840,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Calculate transfer cost based on vehicle engine capacity
-  app.post("/api/calculate-transfer-cost", async (req, res) => {
+  app.post("/api/calculate-transfer-cost", UsageLimiter.valuation, async (req, res) => {
     try {
       const { vehicleId, vehicleType, engineCapacity, specialType } = req.body;
       
@@ -6845,7 +6870,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Calculate loan payment
-  app.post('/api/financial/calculate-loan', async (req: Request, res: Response) => {
+  app.post('/api/financial/calculate-loan', UsageLimiter.valuation, async (req: Request, res: Response) => {
     try {
       const { vehiclePrice, downPayment, interestRate, tenureMonths } = req.body;
 

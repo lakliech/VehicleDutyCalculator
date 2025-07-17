@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Database, LogOut, List, Heart, MessageCircle, User, Brain } from "lucide-react";
+import { Database, LogOut, List, Heart, MessageCircle, User, Brain, CreditCard, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -123,6 +123,14 @@ export function Navigation() {
                       <Link href="/smart-pricing" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
                         <Brain className="mr-2 h-4 w-4" />
                         <span>Market Intelligence</span>
+                      </Link>
+                      <Link href="/subscription-management" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        <span>Manage Subscription</span>
+                      </Link>
+                      <Link href="/usage-dashboard" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
+                        <BarChart3 className="mr-2 h-4 w-4" />
+                        <span>Usage Dashboard</span>
                       </Link>
 
                       {/* Admin Dashboard for users with admin role */}

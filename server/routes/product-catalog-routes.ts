@@ -539,6 +539,12 @@ router.delete('/features/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     
+    // First delete all product feature associations that reference this feature
+    await db
+      .delete(productFeatureAssociations)
+      .where(eq(productFeatureAssociations.featureId, id));
+    
+    // Then delete the feature itself
     const [feature] = await db
       .delete(systemFeatures)
       .where(eq(systemFeatures.id, id))

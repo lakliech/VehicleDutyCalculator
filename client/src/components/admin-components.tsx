@@ -480,13 +480,13 @@ export function UsersManagementTab({
   }
 
   const filteredUsers = users.filter(user => {
-    const matchesRole = filters.role === 'all' || user.roleId.toString() === filters.role;
+    const matchesRole = filters.role === 'all' || (user.roleId?.toString() || '1') === filters.role;
     const matchesStatus = filters.status === 'all' || user.status === filters.status;
     const searchTerm = filters.search.toLowerCase();
     const matchesSearch = !searchTerm || 
-      user.firstName.toLowerCase().includes(searchTerm) ||
-      user.lastName.toLowerCase().includes(searchTerm) ||
-      user.email.toLowerCase().includes(searchTerm);
+      (user.firstName || '').toLowerCase().includes(searchTerm) ||
+      (user.lastName || '').toLowerCase().includes(searchTerm) ||
+      (user.email || '').toLowerCase().includes(searchTerm);
 
     return matchesRole && matchesStatus && matchesSearch;
   });
@@ -558,18 +558,18 @@ export function UsersManagementTab({
                     <div className="flex items-center gap-3">
                       <Avatar>
                         <AvatarFallback>
-                          {user.firstName[0]}{user.lastName[0]}
+                          {user.firstName?.[0] || 'U'}{user.lastName?.[0] || ''}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <div className="font-medium">{user.firstName} {user.lastName}</div>
+                        <div className="font-medium">{user.firstName || 'Unknown'} {user.lastName || 'User'}</div>
                         <div className="text-sm text-gray-500">{user.email}</div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <Select 
-                      value={user.roleId.toString()} 
+                      value={user.roleId?.toString() || '1'} 
                       onValueChange={(value) => updateUserRoleMutation.mutate({ 
                         userId: user.id, 
                         roleId: parseInt(value) 

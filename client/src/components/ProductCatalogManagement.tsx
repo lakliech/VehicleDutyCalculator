@@ -63,6 +63,7 @@ type ProductForm = {
   isActive: boolean;
   sortOrder: number;
   features: ProductFeature[];
+  selectedFeatures: number[];
 };
 
 type CategoryForm = {
@@ -97,7 +98,8 @@ export default function ProductCatalogManagement() {
     targetUsers: '',
     isActive: true,
     sortOrder: 0,
-    features: []
+    features: [],
+    selectedFeatures: []
   });
 
   const billingTypeOptions = [
@@ -126,6 +128,12 @@ export default function ProductCatalogManagement() {
   const { data: products = [], isLoading: productsLoading } = useQuery({
     queryKey: ['/api/products/admin/products'],
     queryFn: () => fetch('/api/products/admin/products').then(res => res.json())
+  });
+
+  // Fetch all features for selection
+  const { data: allFeatures = [] } = useQuery({
+    queryKey: ['/api/products/features'],
+    queryFn: () => fetch('/api/products/features').then(res => res.json())
   });
 
   // Create category mutation
@@ -380,110 +388,159 @@ export default function ProductCatalogManagement() {
                       Add Product
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
+                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Create New Product</DialogTitle>
                       <DialogDescription>
-                        Add a new product with pricing and billing model
+                        Add a new product with pricing, billing model, and features
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="product-category">Category *</Label>
-                          <Select 
-                            value={productForm.categoryId} 
-                            onValueChange={(value) => setProductForm({ ...productForm, categoryId: value })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {categories.map((category: ProductCategory) => (
-                                <SelectItem key={category.id} value={category.id.toString()}>
-                                  {category.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                    <div className="space-y-6">
+                      {/* Product Basic Information */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="product-category">Category *</Label>
+                            <Select 
+                              value={productForm.categoryId} 
+                              onValueChange={(value) => setProductForm({ ...productForm, categoryId: value })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {categories.map((category: ProductCategory) => (
+                                  <SelectItem key={category.id} value={category.id.toString()}>
+                                    {category.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label htmlFor="product-name">Product Name *</Label>
+                            <Input
+                              id="product-name"
+                              value={productForm.name}
+                              onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                              placeholder="e.g., Basic Listings"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="product-price">Base Price (KES) *</Label>
+                            <Input
+                              id="product-price"
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={productForm.basePrice}
+                              onChange={(e) => setProductForm({ ...productForm, basePrice: e.target.value })}
+                              placeholder="2500"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="product-billing">Billing Type</Label>
+                            <Select 
+                              value={productForm.billingType} 
+                              onValueChange={(value) => setProductForm({ ...productForm, billingType: value })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {billingTypeOptions.map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
-                        <div>
-                          <Label htmlFor="product-name">Product Name *</Label>
-                          <Input
-                            id="product-name"
-                            value={productForm.name}
-                            onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
-                            placeholder="e.g., Basic Listings"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="product-price">Base Price (KES) *</Label>
-                          <Input
-                            id="product-price"
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={productForm.basePrice}
-                            onChange={(e) => setProductForm({ ...productForm, basePrice: e.target.value })}
-                            placeholder="2500"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="product-billing">Billing Type</Label>
-                          <Select 
-                            value={productForm.billingType} 
-                            onValueChange={(value) => setProductForm({ ...productForm, billingType: value })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {billingTypeOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="product-description">Description</Label>
+                            <Textarea
+                              id="product-description"
+                              value={productForm.description}
+                              onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                              placeholder="Product description"
+                              rows={3}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="product-target">Target Users</Label>
+                            <Input
+                              id="product-target"
+                              value={productForm.targetUsers}
+                              onChange={(e) => setProductForm({ ...productForm, targetUsers: e.target.value })}
+                              placeholder="e.g., Small dealers, Private sellers"
+                            />
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              id="product-active"
+                              checked={productForm.isActive}
+                              onCheckedChange={(checked) => setProductForm({ ...productForm, isActive: checked })}
+                            />
+                            <Label htmlFor="product-active">Active</Label>
+                          </div>
+                          <div>
+                            <Label htmlFor="product-sort">Sort Order</Label>
+                            <Input
+                              id="product-sort"
+                              type="number"
+                              value={productForm.sortOrder}
+                              onChange={(e) => setProductForm({ ...productForm, sortOrder: parseInt(e.target.value) || 0 })}
+                              placeholder="0"
+                            />
+                          </div>
                         </div>
                       </div>
+
+                      {/* Feature Selection */}
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="product-description">Description</Label>
-                          <Textarea
-                            id="product-description"
-                            value={productForm.description}
-                            onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
-                            placeholder="Product description"
-                            rows={3}
-                          />
+                          <Label className="text-base font-medium">Product Features</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Select existing features or create new ones. Features control system functionality like photo limits, listing duration, etc.
+                          </p>
                         </div>
-                        <div>
-                          <Label htmlFor="product-target">Target Users</Label>
-                          <Input
-                            id="product-target"
-                            value={productForm.targetUsers}
-                            onChange={(e) => setProductForm({ ...productForm, targetUsers: e.target.value })}
-                            placeholder="e.g., Small dealers, Private sellers"
-                          />
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Switch
-                            id="product-active"
-                            checked={productForm.isActive}
-                            onCheckedChange={(checked) => setProductForm({ ...productForm, isActive: checked })}
-                          />
-                          <Label htmlFor="product-active">Active</Label>
-                        </div>
-                        <div>
-                          <Label htmlFor="product-sort">Sort Order</Label>
-                          <Input
-                            id="product-sort"
-                            type="number"
-                            value={productForm.sortOrder}
-                            onChange={(e) => setProductForm({ ...productForm, sortOrder: parseInt(e.target.value) || 0 })}
-                            placeholder="0"
-                          />
+                        
+                        <div className="border rounded-lg p-4 max-h-60 overflow-y-auto">
+                          <div className="grid grid-cols-2 gap-3">
+                            {allFeatures.map((feature: ProductFeature) => (
+                              <div key={feature.id} className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  id={`feature-${feature.id}`}
+                                  checked={productForm.selectedFeatures.includes(feature.id)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setProductForm({
+                                        ...productForm,
+                                        selectedFeatures: [...productForm.selectedFeatures, feature.id]
+                                      });
+                                    } else {
+                                      setProductForm({
+                                        ...productForm,
+                                        selectedFeatures: productForm.selectedFeatures.filter(id => id !== feature.id)
+                                      });
+                                    }
+                                  }}
+                                  className="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                />
+                                <Label htmlFor={`feature-${feature.id}`} className="text-sm">
+                                  <span className="font-medium">{feature.name}</span>
+                                  <span className="text-muted-foreground ml-2">
+                                    {feature.limitType === 'unlimited' && '(Unlimited)'}
+                                    {feature.limitType === 'count' && `(${feature.limitValue} max)`}
+                                    {feature.limitType === 'duration' && `(${feature.limitDuration} days)`}
+                                  </span>
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>

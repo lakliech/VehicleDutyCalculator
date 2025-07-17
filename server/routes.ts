@@ -98,6 +98,8 @@ import { MonetizationService } from './services/monetization-service';
 import { UsageLimiter } from './middleware/usage-limiter';
 import fs from 'fs/promises';
 import path from 'path';
+import productCatalogRoutes from './routes/product-catalog-routes';
+import featureEnforcementRoutes from './routes/feature-enforcement-routes';
 
 // Initialize OpenAI
 const openai = new OpenAI({ 
@@ -9264,6 +9266,10 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       res.status(500).json({ error: "Failed to check usage limits" });
     }
   });
+
+  // Product catalog and feature enforcement routes
+  app.use('/api/products', productCatalogRoutes);
+  app.use('/api/features', featureEnforcementRoutes);
 
   const httpServer = createServer(app);
 

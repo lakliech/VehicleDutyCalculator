@@ -1,8 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Upload, X, Camera, CheckCircle } from 'lucide-react';
+import { Upload, X, Camera, CheckCircle, AlertTriangle, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 
 interface ImageUploadProps {
   label: string;
@@ -11,6 +14,7 @@ interface ImageUploadProps {
   onChange: (base64: string | undefined) => void;
   className?: string;
   required?: boolean;
+  currentPhotoCount?: number;
 }
 
 export function ImageUpload({ 
@@ -19,20 +23,70 @@ export function ImageUpload({
   value, 
   onChange, 
   className,
-  required = false 
+  required = false,
+  currentPhotoCount = 0
 }: ImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [photoLimit, setPhotoLimit] = useState<{
+    allowed: boolean;
+    limit: number;
+    message?: string;
+  }>({ allowed: true, limit: 5 });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
+
+  // Check photo upload limit when component mounts or photo count changes
+  useEffect(() => {
+    const checkPhotoLimit = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        const response = await apiRequest('POST', '/api/features/check/photo-upload', {
+          currentPhotoCount
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          setPhotoLimit(result);
+        } else {
+          console.error('Failed to check photo limit');
+        }
+      } catch (error) {
+        console.error('Error checking photo limit:', error);
+      }
+    };
+
+    checkPhotoLimit();
+  }, [isAuthenticated, currentPhotoCount]);
 
   const handleFileSelect = async (file: File) => {
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file",
+        variant: "destructive"
+      });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      alert('Image size must be less than 5MB');
+      toast({
+        title: "File too large",
+        description: "Image size must be less than 5MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check photo upload limit
+    if (!photoLimit.allowed) {
+      toast({
+        title: "Photo limit reached",
+        description: photoLimit.message || "You have reached your photo upload limit. Please upgrade your plan.",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -44,11 +98,23 @@ export function ImageUpload({
         const base64 = reader.result as string;
         onChange(base64);
         setIsUploading(false);
+        
+        // Show success message with limit info
+        toast({
+          title: "Photo uploaded successfully",
+          description: photoLimit.limit === -1 ? "Unlimited uploads remaining" : 
+                      `${photoLimit.limit - currentPhotoCount - 1} more photos can be uploaded`,
+          variant: "default"
+        });
       };
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('Error reading file:', error);
-      alert('Error reading file. Please try again.');
+      toast({
+        title: "Upload failed",
+        description: "Error reading file. Please try again.",
+        variant: "destructive"
+      });
       setIsUploading(false);
     }
   };
@@ -87,34 +153,50 @@ export function ImageUpload({
               {label}
               {required && <span className="text-red-500">*</span>}
             </label>
-            {value && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={removeImage}
-                className="h-8 w-8 p-0"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {/* Photo count indicator */}
+              {isAuthenticated && (
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <span>{currentPhotoCount}</span>
+                  <span>/</span>
+                  <span>{photoLimit.limit === -1 ? '∞' : photoLimit.limit}</span>
+                  {photoLimit.limit > 5 && (
+                    <Crown className="w-3 h-3 text-yellow-500" />
+                  )}
+                </div>
+              )}
+              {value && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={removeImage}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           </div>
           <p className="text-xs text-muted-foreground">{description}</p>
           
           {!value ? (
             <div
               className={cn(
-                "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors",
-                isDragging ? "border-purple-500 bg-purple-50" : "border-gray-300 hover:border-gray-400",
-                isUploading && "opacity-50 cursor-not-allowed"
+                "border-2 border-dashed rounded-lg p-6 text-center transition-colors",
+                isDragging && photoLimit.allowed ? "border-purple-500 bg-purple-50" : 
+                !photoLimit.allowed ? "border-red-300 bg-red-50" :
+                "border-gray-300 hover:border-gray-400",
+                (isUploading || !photoLimit.allowed) && "opacity-50 cursor-not-allowed",
+                photoLimit.allowed && !isUploading && "cursor-pointer"
               )}
               onDragOver={(e) => {
                 e.preventDefault();
-                setIsDragging(true);
+                if (photoLimit.allowed) setIsDragging(true);
               }}
               onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-              onClick={() => !isUploading && fileInputRef.current?.click()}
+              onDrop={photoLimit.allowed ? handleDrop : undefined}
+              onClick={() => !isUploading && photoLimit.allowed && fileInputRef.current?.click()}
             >
               <input
                 ref={fileInputRef}
@@ -122,17 +204,36 @@ export function ImageUpload({
                 accept="image/*"
                 onChange={handleFileInput}
                 className="hidden"
-                disabled={isUploading}
+                disabled={isUploading || !photoLimit.allowed}
               />
               
               <div className="flex flex-col items-center gap-2">
-                <Upload className="w-8 h-8 text-gray-400" />
-                <p className="text-sm text-gray-600">
-                  {isUploading ? "Uploading..." : "Click to upload or drag and drop"}
-                </p>
-                <p className="text-xs text-gray-500">
-                  PNG, JPG, GIF up to 5MB
-                </p>
+                {isUploading ? (
+                  <>
+                    <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-sm text-gray-600">Uploading...</p>
+                  </>
+                ) : !photoLimit.allowed ? (
+                  <>
+                    <AlertTriangle className="w-8 h-8 text-red-400" />
+                    <p className="text-sm text-red-600">
+                      Photo limit reached ({currentPhotoCount}/{photoLimit.limit})
+                    </p>
+                    <p className="text-xs text-red-500">
+                      Upgrade your plan to upload more photos
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 text-gray-400" />
+                    <p className="text-sm text-gray-600">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      PNG, JPG, GIF up to 5MB
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           ) : (

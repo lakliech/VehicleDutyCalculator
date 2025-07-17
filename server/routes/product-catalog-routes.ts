@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { eq, desc, asc } from 'drizzle-orm';
+import { eq, desc, asc, inArray } from 'drizzle-orm';
 import { db } from '../db';
 import { 
   productCategories, 
@@ -203,8 +203,21 @@ router.get('/admin/products', requireAuth, requireAdmin, async (req, res) => {
 // Create product (admin only)
 router.post('/admin/products', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const productData = insertProductSchema.parse(req.body);
-    const [product] = await db.insert(products).values(productData).returning();
+    const { selectedFeatures, ...productData } = req.body;
+    const validatedProductData = insertProductSchema.parse(productData);
+    
+    // Create the product
+    const [product] = await db.insert(products).values(validatedProductData).returning();
+    
+    // Associate selected features with the product
+    if (selectedFeatures && selectedFeatures.length > 0) {
+      // Update the productId for selected features
+      await db
+        .update(productFeatures)
+        .set({ productId: product.id })
+        .where(inArray(productFeatures.id, selectedFeatures));
+    }
+    
     res.status(201).json(product);
   } catch (error) {
     console.error('Error creating product:', error);

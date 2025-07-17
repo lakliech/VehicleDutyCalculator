@@ -20,6 +20,7 @@ import {
   Car, ArrowLeft, ArrowRight, MapPin, Camera, Upload, 
   Coins, Phone, CheckCircle, X, Plus, Eye, Save 
 } from "lucide-react";
+import { ImageUpload } from "./image-upload";
 
 // Form schema for each step
 const vehicleDetailsSchema = z.object({
@@ -567,8 +568,9 @@ function LocationConditionStep({ form, onNext, onPrev }: { form: any; onNext: (d
 
 // Step 3: Photos & Video
 function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, stepName: string) => void; onPrev: () => void }) {
-  const [uploadedImages, setUploadedImages] = useState<Array<{url: string, file: File}>>([]);
+  const [uploadedImages, setUploadedImages] = useState<Array<{url: string, file: File} | null>>(new Array(10).fill(null));
   const [uploading, setUploading] = useState(false);
+  const [currentPhotoCount, setCurrentPhotoCount] = useState(0);
   const { toast } = useToast();
 
   const onSubmit = async (data: PhotosForm) => {
@@ -619,109 +621,30 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("handleImageUpload called", event.target.files);
-    const files = event.target.files;
+  const handleImageUpload = (base64Image: string) => {
+    // Convert base64 to File object for consistency
+    const base64Data = base64Image.split(',')[1];
+    const blob = new Blob([Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))], { type: 'image/jpeg' });
+    const file = new File([blob], `image_${Date.now()}.jpg`, { type: 'image/jpeg' });
     
-    if (!files || files.length === 0) {
-      console.log("No files selected");
-      return;
-    }
-
-    console.log(`Processing ${files.length} files`);
-    setUploading(true);
+    const newImage = {
+      url: base64Image,
+      file: file
+    };
     
-    const validFiles: File[] = [];
-    const invalidFiles: string[] = [];
-    
-    // Validate file types and sizes
-    Array.from(files).forEach(file => {
-      console.log(`Validating file: ${file.name}, type: ${file.type}, size: ${file.size}`);
-      const isValidType = file.type.startsWith('image/');
-      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
-      
-      if (!isValidType) {
-        invalidFiles.push(`${file.name} (not an image)`);
-      } else if (!isValidSize) {
-        invalidFiles.push(`${file.name} (too large - max 5MB)`);
-      } else {
-        validFiles.push(file);
-      }
-    });
-
-    console.log(`Valid files: ${validFiles.length}, Invalid files: ${invalidFiles.length}`);
-
-    // Show error toast for invalid files
-    if (invalidFiles.length > 0) {
-      toast({
-        title: "Some files were skipped",
-        description: `Invalid files: ${invalidFiles.join(", ")}`,
-        variant: "destructive",
-      });
-    }
-
-    // Create preview URLs and store files
-    const newImages = validFiles.map((file) => {
-      const url = URL.createObjectURL(file);
-      console.log(`Created object URL for ${file.name}: ${url}`);
-      return {
-        url,
-        file: file
-      };
-    });
-
-    const totalImages = uploadedImages.length + newImages.length;
-    console.log(`Total images will be: ${totalImages}`);
-    
-    if (totalImages > 10) {
-      toast({
-        title: "Too many photos",
-        description: "Maximum 10 photos allowed. Some photos were not added.",
-        variant: "destructive",
-      });
-      setUploadedImages(prev => [...prev, ...newImages].slice(0, 10));
-    } else {
-      setUploadedImages(prev => {
-        const updated = [...prev, ...newImages];
-        console.log(`Updated images state with ${updated.length} total images`);
-        
-        // Update form field with array of image URLs for validation
-        const imageUrls = updated.map(img => img.url);
-        form.setValue('images', imageUrls);
-        console.log("Updated form images field with", imageUrls.length, "URLs");
-        
-        return updated;
-      });
-      
-      if (newImages.length > 0) {
-        toast({
-          title: "Photos uploaded",
-          description: `${newImages.length} photo(s) added successfully`,
-        });
-      }
-    }
-    
-    setUploading(false);
-    
-    // Clear the input value to allow re-selecting the same files
-    event.target.value = '';
-    
-    console.log(`Upload complete. Total images now: ${uploadedImages.length + validFiles.length}`);
+    const updatedImages = [...uploadedImages, newImage];
+    setUploadedImages(updatedImages);
+    setCurrentPhotoCount(updatedImages.length);
   };
 
-  const removeImage = (index: number) => {
-    setUploadedImages(prev => {
-      // Revoke URL to prevent memory leaks
-      URL.revokeObjectURL(prev[index].url);
-      const updated = prev.filter((_, i) => i !== index);
-      
-      // Update form field with remaining image URLs
-      const imageUrls = updated.map(img => img.url);
-      form.setValue('images', imageUrls);
-      console.log("Updated form images field after removal, now has", imageUrls.length, "URLs");
-      
-      return updated;
-    });
+  const handleImageRemove = (index: number) => {
+    const updatedImages = uploadedImages.filter((_, i) => i !== index);
+    setUploadedImages(updatedImages);
+    setCurrentPhotoCount(updatedImages.length);
+    
+    // Update form field with remaining image URLs
+    const imageUrls = updatedImages.map(img => img.url);
+    form.setValue('images', imageUrls);
     
     toast({
       title: "Photo removed",
@@ -743,133 +666,56 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
           <Label className="text-base font-medium">Vehicle Photos *</Label>
           <p className="text-sm text-gray-600 mb-4">Upload 3-10 high-quality photos. Include front, side, and interior views.</p>
           
-          {/* Upload Area */}
-          <div 
-            className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors"
-            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-purple-400', 'bg-purple-50'); }}
-            onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-purple-400', 'bg-purple-50'); }}
-            onDrop={(e) => {
-              e.preventDefault();
-              e.currentTarget.classList.remove('border-purple-400', 'bg-purple-50');
-              const files = e.dataTransfer.files;
-              if (files) {
-                const event = { target: { files } } as React.ChangeEvent<HTMLInputElement>;
-                handleImageUpload(event);
-              }
-            }}
-          >
-            {uploading ? (
-              <div className="flex flex-col items-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-                <p className="text-gray-600">Processing photos...</p>
-              </div>
-            ) : (
-              <>
-                <Camera className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-gray-600 mb-4">Drag photos here or click to browse</p>
-                <p className="text-xs text-gray-500 mb-4">Supports JPG, PNG, WEBP (max 5MB per file)</p>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  id="image-upload"
-                  ref={(el) => {
-                    if (el) {
-                      (window as any).imageUploadRef = el;
-                    }
-                  }}
-                />
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  id="camera-capture"
-                  ref={(el) => {
-                    if (el) {
-                      (window as any).cameraUploadRef = el;
-                    }
-                  }}
-                />
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="cursor-pointer"
-                    onClick={() => {
-                      console.log("Choose Photos button clicked");
-                      const input = document.getElementById('image-upload') as HTMLInputElement;
-                      if (input) {
-                        input.click();
-                        console.log("File input clicked");
-                      }
-                    }}
-                  >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Choose Photos
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="cursor-pointer"
-                    onClick={() => {
-                      console.log("Take Photo button clicked");
-                      const input = document.getElementById('camera-capture') as HTMLInputElement;
-                      if (input) {
-                        input.click();
-                        console.log("Camera input clicked");
-                      }
-                    }}
-                  >
-                    <Camera className="mr-2 h-4 w-4" />
-                    Take Photo
-                  </Button>
-                </div>
-              </>
-            )}
+          {/* Feature Enforcement Photo Upload */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {[...Array(10)].map((_, index) => (
+              <ImageUpload
+                key={index}
+                label={`Photo ${index + 1}`}
+                description={index < 3 ? "Required" : "Optional"}
+                value={uploadedImages[index]?.url}
+                onChange={(base64) => {
+                  if (base64) {
+                    const base64Data = base64.split(',')[1];
+                    const blob = new Blob([Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))], { type: 'image/jpeg' });
+                    const file = new File([blob], `image_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                    
+                    const newImage = { url: base64, file };
+                    const updatedImages = [...uploadedImages];
+                    updatedImages[index] = newImage;
+                    setUploadedImages(updatedImages);
+                    setCurrentPhotoCount(updatedImages.filter(img => img).length);
+                    
+                    // Update form field
+                    const imageUrls = updatedImages.map(img => img?.url).filter(Boolean);
+                    form.setValue('images', imageUrls);
+                  } else {
+                    const updatedImages = [...uploadedImages];
+                    updatedImages[index] = null;
+                    setUploadedImages(updatedImages);
+                    setCurrentPhotoCount(updatedImages.filter(img => img).length);
+                    
+                    // Update form field
+                    const imageUrls = updatedImages.map(img => img?.url).filter(Boolean);
+                    form.setValue('images', imageUrls);
+                  }
+                }}
+                required={index < 3}
+                currentPhotoCount={currentPhotoCount}
+                className="h-48"
+              />
+            ))}
           </div>
 
-          {/* Image Preview Grid */}
-          {uploadedImages.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-              {uploadedImages.map((imageData, index) => (
-                <div key={index} className="relative group">
-                  <img
-                    src={imageData.url}
-                    alt={`Vehicle photo ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 hover:border-purple-400 transition-colors"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                  {index === 0 && (
-                    <Badge className="absolute bottom-2 left-2 bg-blue-500">Main Photo</Badge>
-                  )}
-                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-                    {Math.round(imageData.file.size / 1024)}KB
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => window.open(imageData.url, '_blank')}
-                    className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-opacity flex items-center justify-center"
-                  >
-                    <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {uploadedImages.length < 3 && (
-            <p className="text-red-600 text-sm mt-2">Please upload at least 3 photos</p>
-          )}
+          {/* Photo count status */}
+          <div className="flex items-center justify-between mt-4">
+            <p className="text-sm text-gray-600">
+              Photos uploaded: {currentPhotoCount}/10
+            </p>
+            {currentPhotoCount < 3 && (
+              <p className="text-red-600 text-sm">At least 3 photos required</p>
+            )}
+          </div>
         </div>
 
         <FormField
@@ -900,10 +746,10 @@ function PhotosStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, s
           <Button 
             type="submit" 
             className="bg-purple-600 hover:bg-purple-700"
-            disabled={uploadedImages.length < 3 || uploading}
+            disabled={currentPhotoCount < 3 || uploading}
             onClick={(e) => {
-              console.log("Next button clicked, uploaded images:", uploadedImages.length);
-              console.log("Button disabled state:", uploadedImages.length < 3 || uploading);
+              console.log("Next button clicked, uploaded images:", currentPhotoCount);
+              console.log("Button disabled state:", currentPhotoCount < 3 || uploading);
               console.log("Form errors:", form.formState.errors);
             }}
           >

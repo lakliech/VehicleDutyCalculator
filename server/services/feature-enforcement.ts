@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { productFeatures, userProductSubscriptions, products } from '../../shared/product-catalog-schema';
+import { systemFeatures, productFeatureAssociations, userProductSubscriptions, products } from '../../shared/product-catalog-schema';
 import { eq, and } from 'drizzle-orm';
 
 export class FeatureEnforcementService {

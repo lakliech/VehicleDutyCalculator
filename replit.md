@@ -1003,6 +1003,14 @@ Changelog:
   - Consolidated duplicate "Featured Placement" features (IDs 41, 43) into single normalized feature
   - Marked duplicate features with [DUPLICATE] prefix for easy identification and removal
   - Standardized feature names and descriptions for consistency across product catalog
+- January 17, 2025. Reworked feature system to treat features as configuration/reference table:
+  - Created system_features table as reference for system capabilities that can be monetized
+  - Created product_feature_associations table to link products to features with specific configurations
+  - Migrated 40 existing features to new system capabilities structure
+  - Updated database schema to separate system capabilities from product-specific feature configurations
+  - Features are no longer tied to products during creation - they represent reusable system capabilities
+  - Products now select from predefined system features and configure limits/constraints as needed
+  - Enhanced architecture provides clean separation between what system can do vs what products offer
 - January 17, 2025. Moved monetization strategy to main navigation tab for enhanced prominence:
   - Restructured admin dashboard navigation from 4 to 5 main tabs for better organization
   - Moved Monetization Strategy from Financial Services sub-tab to standalone main navigation tab

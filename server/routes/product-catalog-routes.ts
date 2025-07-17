@@ -5,16 +5,19 @@ import { db } from '../db';
 import { 
   productCategories, 
   products, 
-  productFeatures, 
+  systemFeatures,
+  productFeatureAssociations, 
   productPricing,
   userProductSubscriptions,
   insertProductCategorySchema,
   insertProductSchema,
-  insertProductFeatureSchema,
+  insertSystemFeatureSchema,
+  insertProductFeatureAssociationSchema,
   insertProductPricingSchema,
   ProductCategory,
   Product,
-  ProductFeature,
+  SystemFeature,
+  ProductFeatureAssociation,
   ProductPricing
 } from '../../shared/product-catalog-schema';
 
@@ -252,16 +255,22 @@ router.put('/admin/products/:id', requireAuth, requireAdmin, async (req, res) =>
     if (selectedFeatures !== undefined) {
       // First, clear existing feature associations for this product
       await db
-        .update(productFeatures)
-        .set({ productId: null })
-        .where(eq(productFeatures.productId, id));
+        .delete(productFeatureAssociations)
+        .where(eq(productFeatureAssociations.productId, id));
       
-      // Then associate selected features with the product
+      // Then create new associations for selected features
       if (selectedFeatures && selectedFeatures.length > 0) {
+        const associations = selectedFeatures.map((featureId: number) => ({
+          productId: id,
+          featureId,
+          isIncluded: true,
+          additionalCost: 0,
+          sortOrder: 0
+        }));
+        
         await db
-          .update(productFeatures)
-          .set({ productId: id })
-          .where(inArray(productFeatures.id, selectedFeatures));
+          .insert(productFeatureAssociations)
+          .values(associations);
       }
     }
     
@@ -301,35 +310,56 @@ router.delete('/admin/products/:id', requireAuth, requireAdmin, async (req, res)
 // PRODUCT FEATURES ENDPOINTS
 // ==============================
 
-// Get product features
+// Get product feature associations with full feature details
 router.get('/products/:productId/features', async (req, res) => {
   try {
     const productId = parseInt(req.params.productId);
     
-    const features = await db
-      .select()
-      .from(productFeatures)
-      .where(eq(productFeatures.productId, productId))
-      .orderBy(asc(productFeatures.sortOrder), asc(productFeatures.name));
+    const associations = await db
+      .select({
+        id: productFeatureAssociations.id,
+        featureId: productFeatureAssociations.featureId,
+        limitValue: productFeatureAssociations.limitValue,
+        limitDuration: productFeatureAssociations.limitDuration,
+        limitSize: productFeatureAssociations.limitSize,
+        limitFrequency: productFeatureAssociations.limitFrequency,
+        frequencyPeriod: productFeatureAssociations.frequencyPeriod,
+        constraintConfig: productFeatureAssociations.constraintConfig,
+        isIncluded: productFeatureAssociations.isIncluded,
+        additionalCost: productFeatureAssociations.additionalCost,
+        sortOrder: productFeatureAssociations.sortOrder,
+        feature: {
+          id: systemFeatures.id,
+          name: systemFeatures.name,
+          description: systemFeatures.description,
+          capability: systemFeatures.capability,
+          limitType: systemFeatures.limitType
+        }
+      })
+      .from(productFeatureAssociations)
+      .innerJoin(systemFeatures, eq(productFeatureAssociations.featureId, systemFeatures.id))
+      .where(eq(productFeatureAssociations.productId, productId))
+      .orderBy(asc(productFeatureAssociations.sortOrder), asc(systemFeatures.name));
     
-    res.json(features);
+    res.json(associations);
   } catch (error) {
-    console.error('Error fetching features:', error);
+    console.error('Error fetching product features:', error);
     res.status(500).json({ error: 'Failed to fetch features' });
   }
 });
 
-// Get all features (admin only)
-router.get('/features', requireAuth, requireAdmin, async (req, res) => {
+// Get all system features 
+router.get('/features', async (req, res) => {
   try {
     const features = await db
       .select()
-      .from(productFeatures)
-      .orderBy(asc(productFeatures.sortOrder), asc(productFeatures.name));
+      .from(systemFeatures)
+      .where(eq(systemFeatures.isActive, true))
+      .orderBy(asc(systemFeatures.sortOrder), asc(systemFeatures.name));
     
     res.json(features);
   } catch (error) {
-    console.error('Error fetching all features:', error);
+    console.error('Error fetching system features:', error);
     res.status(500).json({ error: 'Failed to fetch features' });
   }
 });
@@ -491,12 +521,12 @@ router.put('/admin/features/:id', requireAuth, requireAdmin, async (req, res) =>
 router.put('/features/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const featureData = insertProductFeatureSchema.parse(req.body);
+    const featureData = insertSystemFeatureSchema.parse(req.body);
     
     const [feature] = await db
-      .update(productFeatures)
+      .update(systemFeatures)
       .set({ ...featureData, updatedAt: new Date() })
-      .where(eq(productFeatures.id, id))
+      .where(eq(systemFeatures.id, id))
       .returning();
     
     if (!feature) {
@@ -505,7 +535,7 @@ router.put('/features/:id', requireAuth, requireAdmin, async (req, res) => {
     
     res.json(feature);
   } catch (error) {
-    console.error('Error updating feature:', error);
+    console.error('Error updating system feature:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid data', details: error.errors });
     }

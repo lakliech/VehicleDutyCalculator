@@ -50,19 +50,30 @@ export const products = pgTable('products', {
   updatedAt: timestamp('updated_at').defaultNow()
 });
 
-// Product features table
-export const productFeatures = pgTable('product_features', {
+// System features table (reference/configuration table for system capabilities)
+export const systemFeatures = pgTable('system_features', {
   id: serial('id').primaryKey(),
-  productId: integer('product_id').references(() => products.id),
-  name: text('name').notNull(),
+  name: text('name').notNull().unique(),
   description: text('description'),
+  capability: text('capability').notNull(), // What system capability this represents (e.g., 'photo_upload', 'listing_duration')
   limitType: limitTypeEnum('limit_type').default('unlimited'),
-  limitValue: integer('limit_value'), // Number for count-based limits
-  limitDuration: integer('limit_duration'), // Days for duration-based limits
-  limitSize: integer('limit_size'), // Size in MB for size-based limits
-  limitFrequency: integer('limit_frequency'), // Frequency per time period
-  frequencyPeriod: integer('frequency_period'), // Time period in hours for frequency limits
-  constraintConfig: jsonb('constraint_config'), // Additional flexible constraint configuration
+  isActive: boolean('is_active').default(true),
+  sortOrder: integer('sort_order').default(0),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Product-feature associations table (links products to features with specific configurations)
+export const productFeatureAssociations = pgTable('product_feature_associations', {
+  id: serial('id').primaryKey(),
+  productId: integer('product_id').references(() => products.id).notNull(),
+  featureId: integer('feature_id').references(() => systemFeatures.id).notNull(),
+  limitValue: integer('limit_value'), // Product-specific limit for count-based features
+  limitDuration: integer('limit_duration'), // Product-specific limit for duration-based features
+  limitSize: integer('limit_size'), // Product-specific limit for size-based features
+  limitFrequency: integer('limit_frequency'), // Product-specific frequency limits
+  frequencyPeriod: integer('frequency_period'), // Product-specific time period in hours
+  constraintConfig: jsonb('constraint_config'), // Product-specific constraint configuration
   isIncluded: boolean('is_included').default(true),
   additionalCost: decimal('additional_cost', { precision: 10, scale: 2 }).default('0'),
   sortOrder: integer('sort_order').default(0),
@@ -144,7 +155,13 @@ export const insertProductSchema = createInsertSchema(products)
     categoryId: z.string().transform((val) => val === '' ? null : parseInt(val)).optional(),
     sortOrder: z.number().optional().default(0)
   });
-export const insertProductFeatureSchema = createInsertSchema(productFeatures)
+export const insertSystemFeatureSchema = createInsertSchema(systemFeatures)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    sortOrder: z.number().optional().default(0)
+  });
+
+export const insertProductFeatureAssociationSchema = createInsertSchema(productFeatureAssociations)
   .omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
     additionalCost: z.number().optional().default(0),
@@ -164,7 +181,8 @@ export const insertProductBundleSchema = createInsertSchema(productBundles).omit
 // Select types
 export type ProductCategory = typeof productCategories.$inferSelect;
 export type Product = typeof products.$inferSelect;
-export type ProductFeature = typeof productFeatures.$inferSelect;
+export type SystemFeature = typeof systemFeatures.$inferSelect;
+export type ProductFeatureAssociation = typeof productFeatureAssociations.$inferSelect;
 export type ProductPricing = typeof productPricing.$inferSelect;
 export type UserProductSubscription = typeof userProductSubscriptions.$inferSelect;
 export type ProductBundle = typeof productBundles.$inferSelect;
@@ -172,7 +190,8 @@ export type ProductBundle = typeof productBundles.$inferSelect;
 // Insert types
 export type InsertProductCategory = z.infer<typeof insertProductCategorySchema>;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
-export type InsertProductFeature = z.infer<typeof insertProductFeatureSchema>;
+export type InsertSystemFeature = z.infer<typeof insertSystemFeatureSchema>;
+export type InsertProductFeatureAssociation = z.infer<typeof insertProductFeatureAssociationSchema>;
 export type InsertProductPricing = z.infer<typeof insertProductPricingSchema>;
 export type InsertUserProductSubscription = z.infer<typeof insertUserProductSubscriptionSchema>;
 export type InsertProductBundle = z.infer<typeof insertProductBundleSchema>;

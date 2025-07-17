@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { featureEnforcement } from '../services/feature-enforcement';
 import { db } from '../db';
-import { productFeatures, products } from '../../shared/product-catalog-schema';
+import { systemFeatures, productFeatureAssociations, products } from '../../shared/product-catalog-schema';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 

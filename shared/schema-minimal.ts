@@ -419,3 +419,6 @@ export interface User {
   lastName?: string | null;
   profileImageUrl?: string | null;
 }
+
+// Import product catalog schema
+export * from './product-catalog-schema';

@@ -1,0 +1,519 @@
+import { Router } from 'express';
+import { z } from 'zod';
+import { eq, desc, asc } from 'drizzle-orm';
+import { db } from '../db';
+import { 
+  productCategories, 
+  products, 
+  productFeatures, 
+  productPricing,
+  userProductSubscriptions,
+  insertProductCategorySchema,
+  insertProductSchema,
+  insertProductFeatureSchema,
+  insertProductPricingSchema,
+  ProductCategory,
+  Product,
+  ProductFeature,
+  ProductPricing
+} from '../../shared/product-catalog-schema';
+
+const router = Router();
+
+// Middleware for authentication (reuse existing auth middleware)
+const requireAuth = (req: any, res: any, next: any) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  next();
+};
+
+const requireAdmin = (req: any, res: any, next: any) => {
+  if (!req.user || req.user.roleId !== 3) {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+  next();
+};
+
+// ==============================
+// PRODUCT CATEGORIES ENDPOINTS
+// ==============================
+
+// Get all categories
+router.get('/categories', async (req, res) => {
+  try {
+    const categories = await db
+      .select()
+      .from(productCategories)
+      .where(eq(productCategories.isActive, true))
+      .orderBy(asc(productCategories.sortOrder), asc(productCategories.name));
+    
+    res.json(categories);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ error: 'Failed to fetch categories' });
+  }
+});
+
+// Create category (admin only)
+router.post('/admin/categories', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const categoryData = insertProductCategorySchema.parse(req.body);
+    const [category] = await db.insert(productCategories).values(categoryData).returning();
+    res.status(201).json(category);
+  } catch (error) {
+    console.error('Error creating category:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to create category' });
+  }
+});
+
+// Update category (admin only)
+router.put('/admin/categories/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const categoryData = insertProductCategorySchema.parse(req.body);
+    
+    const [category] = await db
+      .update(productCategories)
+      .set({ ...categoryData, updatedAt: new Date() })
+      .where(eq(productCategories.id, id))
+      .returning();
+    
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+    
+    res.json(category);
+  } catch (error) {
+    console.error('Error updating category:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to update category' });
+  }
+});
+
+// Delete category (admin only)
+router.delete('/admin/categories/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    
+    // Soft delete by setting isActive to false
+    const [category] = await db
+      .update(productCategories)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(productCategories.id, id))
+      .returning();
+    
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+    
+    res.json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    res.status(500).json({ error: 'Failed to delete category' });
+  }
+});
+
+// ==============================
+// PRODUCTS ENDPOINTS
+// ==============================
+
+// Get products by category
+router.get('/categories/:categoryId/products', async (req, res) => {
+  try {
+    const categoryId = parseInt(req.params.categoryId);
+    
+    const productsWithPricing = await db
+      .select({
+        id: products.id,
+        categoryId: products.categoryId,
+        name: products.name,
+        description: products.description,
+        basePrice: products.basePrice,
+        billingType: products.billingType,
+        targetUsers: products.targetUsers,
+        isActive: products.isActive,
+        sortOrder: products.sortOrder,
+        createdAt: products.createdAt,
+        updatedAt: products.updatedAt,
+        pricing: {
+          id: productPricing.id,
+          tierName: productPricing.tierName,
+          price: productPricing.price,
+          billingCycle: productPricing.billingCycle,
+          minQuantity: productPricing.minQuantity,
+          maxQuantity: productPricing.maxQuantity,
+          discountPercentage: productPricing.discountPercentage,
+          isActive: productPricing.isActive
+        }
+      })
+      .from(products)
+      .leftJoin(productPricing, eq(products.id, productPricing.productId))
+      .where(eq(products.categoryId, categoryId))
+      .orderBy(asc(products.sortOrder), asc(products.name));
+    
+    // Group pricing tiers by product
+    const productMap = new Map();
+    productsWithPricing.forEach(row => {
+      if (!productMap.has(row.id)) {
+        productMap.set(row.id, {
+          ...row,
+          pricing: []
+        });
+      }
+      if (row.pricing.id) {
+        productMap.get(row.id).pricing.push(row.pricing);
+      }
+    });
+    
+    res.json(Array.from(productMap.values()));
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
+
+// Get all products (admin only)
+router.get('/admin/products', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const allProducts = await db
+      .select({
+        product: products,
+        category: {
+          id: productCategories.id,
+          name: productCategories.name
+        }
+      })
+      .from(products)
+      .leftJoin(productCategories, eq(products.categoryId, productCategories.id))
+      .orderBy(desc(products.createdAt));
+    
+    res.json(allProducts);
+  } catch (error) {
+    console.error('Error fetching all products:', error);
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
+
+// Create product (admin only)
+router.post('/admin/products', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const productData = insertProductSchema.parse(req.body);
+    const [product] = await db.insert(products).values(productData).returning();
+    res.status(201).json(product);
+  } catch (error) {
+    console.error('Error creating product:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to create product' });
+  }
+});
+
+// Update product (admin only)
+router.put('/admin/products/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const productData = insertProductSchema.parse(req.body);
+    
+    const [product] = await db
+      .update(products)
+      .set({ ...productData, updatedAt: new Date() })
+      .where(eq(products.id, id))
+      .returning();
+    
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    res.json(product);
+  } catch (error) {
+    console.error('Error updating product:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to update product' });
+  }
+});
+
+// Delete product (admin only)
+router.delete('/admin/products/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    
+    const [product] = await db
+      .update(products)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(products.id, id))
+      .returning();
+    
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    res.json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({ error: 'Failed to delete product' });
+  }
+});
+
+// ==============================
+// PRODUCT FEATURES ENDPOINTS
+// ==============================
+
+// Get product features
+router.get('/products/:productId/features', async (req, res) => {
+  try {
+    const productId = parseInt(req.params.productId);
+    
+    const features = await db
+      .select()
+      .from(productFeatures)
+      .where(eq(productFeatures.productId, productId))
+      .orderBy(asc(productFeatures.sortOrder), asc(productFeatures.name));
+    
+    res.json(features);
+  } catch (error) {
+    console.error('Error fetching features:', error);
+    res.status(500).json({ error: 'Failed to fetch features' });
+  }
+});
+
+// Create feature (admin only)
+router.post('/admin/products/:productId/features', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const productId = parseInt(req.params.productId);
+    const featureData = insertProductFeatureSchema.parse({ ...req.body, productId });
+    
+    const [feature] = await db.insert(productFeatures).values(featureData).returning();
+    res.status(201).json(feature);
+  } catch (error) {
+    console.error('Error creating feature:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to create feature' });
+  }
+});
+
+// Update feature (admin only)
+router.put('/admin/features/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const featureData = insertProductFeatureSchema.parse(req.body);
+    
+    const [feature] = await db
+      .update(productFeatures)
+      .set({ ...featureData, updatedAt: new Date() })
+      .where(eq(productFeatures.id, id))
+      .returning();
+    
+    if (!feature) {
+      return res.status(404).json({ error: 'Feature not found' });
+    }
+    
+    res.json(feature);
+  } catch (error) {
+    console.error('Error updating feature:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to update feature' });
+  }
+});
+
+// Delete feature (admin only)
+router.delete('/admin/features/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    
+    await db.delete(productFeatures).where(eq(productFeatures.id, id));
+    res.json({ message: 'Feature deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting feature:', error);
+    res.status(500).json({ error: 'Failed to delete feature' });
+  }
+});
+
+// ==============================
+// PRODUCT PRICING ENDPOINTS
+// ==============================
+
+// Get product pricing tiers
+router.get('/products/:productId/pricing', async (req, res) => {
+  try {
+    const productId = parseInt(req.params.productId);
+    
+    const pricing = await db
+      .select()
+      .from(productPricing)
+      .where(eq(productPricing.productId, productId))
+      .orderBy(asc(productPricing.price));
+    
+    res.json(pricing);
+  } catch (error) {
+    console.error('Error fetching pricing:', error);
+    res.status(500).json({ error: 'Failed to fetch pricing' });
+  }
+});
+
+// Create pricing tier (admin only)
+router.post('/admin/products/:productId/pricing', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const productId = parseInt(req.params.productId);
+    const pricingData = insertProductPricingSchema.parse({ ...req.body, productId });
+    
+    const [pricing] = await db.insert(productPricing).values(pricingData).returning();
+    res.status(201).json(pricing);
+  } catch (error) {
+    console.error('Error creating pricing:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to create pricing' });
+  }
+});
+
+// Update pricing tier (admin only)
+router.put('/admin/pricing/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const pricingData = insertProductPricingSchema.parse(req.body);
+    
+    const [pricing] = await db
+      .update(productPricing)
+      .set({ ...pricingData, updatedAt: new Date() })
+      .where(eq(productPricing.id, id))
+      .returning();
+    
+    if (!pricing) {
+      return res.status(404).json({ error: 'Pricing not found' });
+    }
+    
+    res.json(pricing);
+  } catch (error) {
+    console.error('Error updating pricing:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to update pricing' });
+  }
+});
+
+// Delete pricing tier (admin only)
+router.delete('/admin/pricing/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    
+    await db.delete(productPricing).where(eq(productPricing.id, id));
+    res.json({ message: 'Pricing deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting pricing:', error);
+    res.status(500).json({ error: 'Failed to delete pricing' });
+  }
+});
+
+// ==============================
+// USER SUBSCRIPTIONS ENDPOINTS
+// ==============================
+
+// Get user's subscriptions
+router.get('/user/subscriptions', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    const subscriptions = await db
+      .select({
+        subscription: userProductSubscriptions,
+        product: {
+          id: products.id,
+          name: products.name,
+          description: products.description,
+          billingType: products.billingType
+        },
+        category: {
+          id: productCategories.id,
+          name: productCategories.name
+        },
+        pricing: {
+          tierName: productPricing.tierName,
+          price: productPricing.price,
+          billingCycle: productPricing.billingCycle
+        }
+      })
+      .from(userProductSubscriptions)
+      .leftJoin(products, eq(userProductSubscriptions.productId, products.id))
+      .leftJoin(productCategories, eq(products.categoryId, productCategories.id))
+      .leftJoin(productPricing, eq(userProductSubscriptions.pricingId, productPricing.id))
+      .where(eq(userProductSubscriptions.userId, userId))
+      .orderBy(desc(userProductSubscriptions.createdAt));
+    
+    res.json(subscriptions);
+  } catch (error) {
+    console.error('Error fetching user subscriptions:', error);
+    res.status(500).json({ error: 'Failed to fetch subscriptions' });
+  }
+});
+
+// Subscribe to product
+router.post('/user/subscribe', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { productId, pricingId, autoRenew } = req.body;
+    
+    // Check if user already has active subscription for this product
+    const existingSubscription = await db
+      .select()
+      .from(userProductSubscriptions)
+      .where(eq(userProductSubscriptions.userId, userId))
+      .where(eq(userProductSubscriptions.productId, productId))
+      .where(eq(userProductSubscriptions.isActive, true))
+      .limit(1);
+    
+    if (existingSubscription.length > 0) {
+      return res.status(400).json({ error: 'User already has active subscription for this product' });
+    }
+    
+    // Get pricing info to set end date
+    const [pricing] = await db
+      .select()
+      .from(productPricing)
+      .where(eq(productPricing.id, pricingId))
+      .limit(1);
+    
+    if (!pricing) {
+      return res.status(404).json({ error: 'Pricing tier not found' });
+    }
+    
+    // Calculate end date based on billing cycle
+    const startDate = new Date();
+    const endDate = pricing.billingCycle 
+      ? new Date(startDate.getTime() + pricing.billingCycle * 24 * 60 * 60 * 1000)
+      : null;
+    
+    const subscriptionData = {
+      userId,
+      productId,
+      pricingId,
+      startDate,
+      endDate,
+      isActive: true,
+      autoRenew: autoRenew || false,
+      usageCount: 0
+    };
+    
+    const [subscription] = await db.insert(userProductSubscriptions).values(subscriptionData).returning();
+    res.status(201).json(subscription);
+  } catch (error) {
+    console.error('Error creating subscription:', error);
+    res.status(500).json({ error: 'Failed to create subscription' });
+  }
+});
+
+export default router;

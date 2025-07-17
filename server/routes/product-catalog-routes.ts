@@ -750,4 +750,109 @@ router.post('/user/subscribe', requireAuth, async (req, res) => {
   }
 });
 
+// Normalize similar features (admin only)
+router.post('/admin/features/normalize', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    console.log('Starting feature normalization...');
+    
+    // Define normalization groups
+    const normalizationGroups = [
+      {
+        baseName: "Photo Upload",
+        baseDescription: "Upload photos for your listings",
+        featureIds: [1, 38, 40], // Features with IDs to normalize
+        keepPrimary: 1 // Keep feature ID 1 as primary
+      },
+      {
+        baseName: "Video Upload", 
+        baseDescription: "Upload video content for your listings",
+        featureIds: [44],
+        keepPrimary: 44
+      },
+      {
+        baseName: "Listing Duration",
+        baseDescription: "How long your listing stays active", 
+        featureIds: [2, 39, 42],
+        keepPrimary: 42 // Keep the cleaner "Listing Duration" name
+      },
+      {
+        baseName: "Featured Placement",
+        baseDescription: "Priority placement for your listings",
+        featureIds: [41, 43], // Featured Listing and Priority Placement
+        keepPrimary: 43 // Keep Priority Placement as it's clearer
+      }
+    ];
+    
+    const results = [];
+    
+    for (const group of normalizationGroups) {
+      console.log(`Processing group: ${group.baseName}`);
+      
+      // Get all features in this group
+      const features = await db.query.productFeatures.findMany({
+        where: inArray(productFeatures.id, group.featureIds)
+      });
+      
+      if (features.length === 0) {
+        console.log(`No features found for group ${group.baseName}`);
+        continue;
+      }
+      
+      // Update the primary feature with standardized name and description
+      const primaryUpdated = await db
+        .update(productFeatures)
+        .set({
+          name: group.baseName,
+          description: group.baseDescription,
+          updatedAt: new Date()
+        })
+        .where(eq(productFeatures.id, group.keepPrimary))
+        .returning();
+      
+      // Mark duplicate features for review/removal
+      const duplicateIds = group.featureIds.filter(id => id !== group.keepPrimary);
+      
+      if (duplicateIds.length > 0) {
+        const duplicatesUpdated = await db
+          .update(productFeatures)
+          .set({
+            name: sql`'[DUPLICATE] ' || name`,
+            description: sql`'[NORMALIZED - This feature has been consolidated. Consider removing.] ' || description`,
+            updatedAt: new Date()
+          })
+          .where(inArray(productFeatures.id, duplicateIds))
+          .returning();
+        
+        results.push({
+          group: group.baseName,
+          primaryFeature: primaryUpdated[0],
+          duplicatesMarked: duplicatesUpdated.length
+        });
+      } else {
+        results.push({
+          group: group.baseName,
+          primaryFeature: primaryUpdated[0],
+          duplicatesMarked: 0
+        });
+      }
+      
+      console.log(`Completed normalization for ${group.baseName}`);
+    }
+    
+    res.json({
+      success: true,
+      message: 'Feature normalization completed successfully',
+      results
+    });
+    
+  } catch (error) {
+    console.error('Error during feature normalization:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to normalize features',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 export default router;

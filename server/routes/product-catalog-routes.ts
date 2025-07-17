@@ -315,7 +315,7 @@ router.delete('/admin/products/:id', requireAuth, requireAdmin, async (req, res)
 // ==============================
 
 // Get product feature associations with full feature details
-router.get('/products/:productId/features', requireAuth, requireAdmin, async (req, res) => {
+router.get('/:productId/features', requireAuth, requireAdmin, async (req, res) => {
   try {
     const productId = parseInt(req.params.productId);
     
@@ -445,7 +445,7 @@ router.post('/admin/products/:productId/features', requireAuth, requireAdmin, as
 });
 
 // Create feature for specific product (admin only) - frontend endpoint
-router.post('/products/:productId/features', requireAuth, requireAdmin, async (req, res) => {
+router.post('/:productId/features', requireAuth, requireAdmin, async (req, res) => {
   try {
     const productId = parseInt(req.params.productId);
     
@@ -504,7 +504,7 @@ router.post('/products/:productId/features', requireAuth, requireAdmin, async (r
 });
 
 // Update feature by ID (admin only)
-router.put('/products/features/:id', requireAuth, requireAdmin, async (req, res) => {
+router.put('/features/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const featureData = insertProductFeatureSchema.parse(req.body);
@@ -530,7 +530,7 @@ router.put('/products/features/:id', requireAuth, requireAdmin, async (req, res)
 });
 
 // Delete feature by ID (admin only)
-router.delete('/products/features/:id', requireAuth, requireAdmin, async (req, res) => {
+router.delete('/features/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     
@@ -603,7 +603,7 @@ router.put('/features/:id', requireAuth, requireAdmin, async (req, res) => {
 });
 
 // Update feature for specific product (admin only)
-router.put('/products/:productId/features/:id', requireAuth, requireAdmin, async (req, res) => {
+router.put('/:productId/features/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const productId = parseInt(req.params.productId);
@@ -670,7 +670,7 @@ router.delete('/admin/features/:id', requireAuth, requireAdmin, async (req, res)
 });
 
 // Delete feature for specific product (admin only)
-router.delete('/products/:productId/features/:id', requireAuth, requireAdmin, async (req, res) => {
+router.delete('/:productId/features/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const productId = parseInt(req.params.productId);
@@ -696,7 +696,7 @@ router.delete('/products/:productId/features/:id', requireAuth, requireAdmin, as
 // ==============================
 
 // Get product pricing tiers
-router.get('/products/:productId/pricing', async (req, res) => {
+router.get('/:productId/pricing', async (req, res) => {
   try {
     const productId = parseInt(req.params.productId);
     
@@ -971,4 +971,6 @@ router.post('/admin/features/normalize', requireAuth, requireAdmin, async (req, 
   }
 });
 
+// Debug export structure
+console.log('Product catalog routes module loaded');
 export default router;

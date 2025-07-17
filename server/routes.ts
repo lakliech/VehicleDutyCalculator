@@ -9259,6 +9259,8 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
 
   // Product catalog and feature enforcement routes
   console.log('Registering product catalog routes...');
+  console.log('productCatalogRoutes type:', typeof productCatalogRoutes);
+  console.log('productCatalogRoutes keys:', Object.keys(productCatalogRoutes));
   app.use('/api/products', productCatalogRoutes);
   app.use('/api/features', featureEnforcementRoutes);
   console.log('Product catalog routes registered successfully');

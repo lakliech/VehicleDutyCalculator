@@ -313,6 +313,52 @@ router.get('/features', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// Clean up feature data (remove quotes from names and descriptions)
+router.post('/features/cleanup', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    // Get all features
+    const allFeatures = await db.select().from(productFeatures);
+    
+    let updatedCount = 0;
+    
+    // Process each feature
+    for (const feature of allFeatures) {
+      let needsUpdate = false;
+      const updates: any = {};
+      
+      // Clean up name if it has quotes
+      if (typeof feature.name === 'string' && (feature.name.startsWith('"') || feature.name.endsWith('"'))) {
+        updates.name = feature.name.replace(/^"|"$/g, '');
+        needsUpdate = true;
+      }
+      
+      // Clean up description if it has quotes
+      if (typeof feature.description === 'string' && (feature.description.startsWith('"') || feature.description.endsWith('"'))) {
+        updates.description = feature.description.replace(/^"|"$/g, '');
+        needsUpdate = true;
+      }
+      
+      // Update the feature if needed
+      if (needsUpdate) {
+        await db
+          .update(productFeatures)
+          .set({ ...updates, updatedAt: new Date() })
+          .where(eq(productFeatures.id, feature.id));
+        updatedCount++;
+      }
+    }
+    
+    res.json({ 
+      message: `Successfully cleaned up ${updatedCount} features`,
+      totalFeatures: allFeatures.length,
+      updatedFeatures: updatedCount
+    });
+  } catch (error) {
+    console.error('Error cleaning up features:', error);
+    res.status(500).json({ error: 'Failed to clean up features' });
+  }
+});
+
 // Create feature (admin only)
 router.post('/admin/products/:productId/features', requireAuth, requireAdmin, async (req, res) => {
   try {

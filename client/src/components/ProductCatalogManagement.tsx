@@ -33,7 +33,8 @@ import {
   Hash,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  RefreshCw
 } from "lucide-react";
 
 type ProductCategory = {
@@ -894,16 +895,31 @@ interface FeatureFormProps {
 }
 
 function FeatureForm({ defaultValues, onSubmit, isLoading = false }: FeatureFormProps) {
+  // Clean up the default values to remove quotes and parse correctly
+  const cleanedDefaultValues = defaultValues ? {
+    name: typeof defaultValues.name === 'string' ? defaultValues.name.replace(/^"|"$/g, '') : defaultValues.name || "",
+    description: typeof defaultValues.description === 'string' ? defaultValues.description.replace(/^"|"$/g, '') : defaultValues.description || "",
+    limitType: defaultValues.limitType || "unlimited",
+    limitValue: defaultValues.limitValue || undefined,
+    limitDuration: defaultValues.limitDuration || undefined,
+    limitSize: defaultValues.limitSize || undefined,
+    limitFrequency: defaultValues.limitFrequency || undefined,
+    frequencyPeriod: defaultValues.frequencyPeriod || undefined,
+    isIncluded: defaultValues.isIncluded !== undefined ? defaultValues.isIncluded : true,
+    additionalCost: defaultValues.additionalCost || 0,
+    sortOrder: defaultValues.sortOrder || 0,
+  } : {
+    name: "",
+    description: "",
+    limitType: "unlimited",
+    isIncluded: true,
+    additionalCost: 0,
+    sortOrder: 0,
+  };
+
   const form = useForm<FeatureConstraint>({
     resolver: zodResolver(featureConstraintSchema),
-    defaultValues: defaultValues || {
-      name: "",
-      description: "",
-      limitType: "unlimited",
-      isIncluded: true,
-      additionalCost: 0,
-      sortOrder: 0,
-    },
+    defaultValues: cleanedDefaultValues,
   });
 
   const limitType = form.watch("limitType");
@@ -1525,6 +1541,24 @@ function FeaturesAndPricingManagement() {
               <Badge variant="outline">
                 {allFeatures.length} Total Features
               </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  fetch('/api/products/features/cleanup', { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                      toast({ title: "Success", description: data.message });
+                      queryClient.invalidateQueries({ queryKey: ['/api/products/features'] });
+                    })
+                    .catch(err => {
+                      toast({ title: "Error", description: "Failed to clean up features", variant: "destructive" });
+                    });
+                }}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Clean Data
+              </Button>
             </div>
           </CardTitle>
           <CardDescription>
@@ -1558,9 +1592,12 @@ function FeaturesAndPricingManagement() {
                     );
                     const productName = product?.product?.name || product?.name || 'Unknown Product';
                     
+                    // Clean up feature name by removing quotes
+                    const cleanName = typeof feature.name === 'string' ? feature.name.replace(/^"|"$/g, '') : feature.name || 'Unnamed Feature';
+                    
                     return (
                       <TableRow key={feature.id}>
-                        <TableCell className="font-medium">{feature.name}</TableCell>
+                        <TableCell className="font-medium">{cleanName}</TableCell>
                         <TableCell>
                           <Badge variant="outline">{productName}</Badge>
                         </TableCell>

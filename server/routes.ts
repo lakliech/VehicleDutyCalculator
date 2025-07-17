@@ -1848,17 +1848,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Product Catalog Routes
-  app.use('/api/products', async (req, res, next) => {
-    try {
-      // Import and use product catalog routes
-      const productCatalogRoutes = await import('./routes/product-catalog-routes');
-      productCatalogRoutes.default(req, res, next);
-    } catch (error) {
-      console.error('Product catalog routes error:', error);
-      res.status(500).json({ error: 'Service temporarily unavailable' });
-    }
-  });
+  // Product Catalog Routes - removed async wrapper causing issues
 
   // Initialize default monetization plans
   app.post('/api/monetization/initialize-plans', async (req, res) => {

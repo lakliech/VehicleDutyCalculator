@@ -354,6 +354,8 @@ router.get('/products/:productId/features', requireAuth, requireAdmin, async (re
     console.log('Found associations:', associations.length);
     console.log('Associations data:', JSON.stringify(associations, null, 2));
     
+    // Ensure we're returning JSON
+    res.setHeader('Content-Type', 'application/json');
     res.json(associations);
   } catch (error) {
     console.error('Error fetching product features:', error);

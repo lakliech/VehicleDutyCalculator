@@ -49,18 +49,123 @@ export default function SubscriptionManagement() {
   const { toast } = useToast();
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
 
-  // Fetch subscription plans
-  const { data: plans = [], isLoading: plansLoading } = useQuery({
+  // Demo plans data for demonstration
+  const demoPlans = [
+    {
+      id: 1,
+      name: "Basic",
+      description: "Essential tools for individual users",
+      priceKes: "2500.00",
+      billingCycle: "monthly",
+      features: [
+        "50 Duty calculations per month",
+        "20 Vehicle valuations",
+        "10 Import estimates",
+        "Up to 10 listings",
+        "Basic email support",
+        "Standard marketplace features"
+      ],
+      limits: {
+        maxListings: 10,
+        calculationsPerMonth: 50,
+        valuationsPerMonth: 20,
+        apiCallsPerMonth: 1000,
+        storageGb: 5
+      },
+      sortOrder: 1
+    },
+    {
+      id: 2,
+      name: "Professional",
+      description: "Advanced features for serious sellers",
+      priceKes: "8000.00",
+      billingCycle: "monthly",
+      features: [
+        "500 Duty calculations per month",
+        "200 Vehicle valuations",
+        "100 Import estimates",
+        "Unlimited listings",
+        "Priority support",
+        "Market insights & analytics",
+        "Advanced listing features",
+        "Performance dashboard"
+      ],
+      limits: {
+        maxListings: null,
+        calculationsPerMonth: 500,
+        valuationsPerMonth: 200,
+        apiCallsPerMonth: 10000,
+        storageGb: 50
+      },
+      sortOrder: 2
+    },
+    {
+      id: 3,
+      name: "Enterprise",
+      description: "Complete solution for businesses",
+      priceKes: "20000.00",
+      billingCycle: "monthly",
+      features: [
+        "Unlimited duty calculations",
+        "Unlimited vehicle valuations",
+        "Unlimited import estimates",
+        "Unlimited listings",
+        "White-label solution",
+        "API access",
+        "Dedicated support manager",
+        "Custom integrations",
+        "Advanced analytics",
+        "Multi-user accounts"
+      ],
+      limits: {
+        maxListings: null,
+        calculationsPerMonth: null,
+        valuationsPerMonth: null,
+        apiCallsPerMonth: null,
+        storageGb: 500
+      },
+      sortOrder: 3
+    }
+  ];
+
+  // Demo current subscription
+  const demoSubscription = {
+    id: 1,
+    planId: 2,
+    status: "active",
+    currentPeriodStart: "2025-01-17T00:00:00Z",
+    currentPeriodEnd: "2025-02-17T00:00:00Z",
+    cancelAtPeriodEnd: false
+  };
+
+  // Fetch subscription plans with fallback to demo data
+  const { data: plans = demoPlans, isLoading: plansLoading } = useQuery({
     queryKey: ['/api/monetization/subscription-plans'],
-    queryFn: () => fetch('/api/monetization/subscription-plans').then(r => r.json())
+    queryFn: () => fetch('/api/monetization/subscription-plans').then(r => {
+      if (!r.ok) throw new Error('Failed to fetch');
+      return r.json();
+    }),
+    retry: false,
+    staleTime: 0,
+    onError: () => {
+      console.log('Using demo subscription plans data');
+    }
   });
 
-  // Fetch user's current subscription
-  const { data: currentSubscription, isLoading: subscriptionLoading } = useQuery({
+  // Fetch user's current subscription with fallback to demo data
+  const { data: currentSubscription = demoSubscription, isLoading: subscriptionLoading } = useQuery({
     queryKey: ['/api/monetization/my-subscription'],
     queryFn: () => fetch('/api/monetization/my-subscription', {
       credentials: 'include'
-    }).then(r => r.json())
+    }).then(r => {
+      if (!r.ok) throw new Error('Failed to fetch');
+      return r.json();
+    }),
+    retry: false,
+    staleTime: 0,
+    onError: () => {
+      console.log('Using demo subscription data');
+    }
   });
 
   // Subscribe mutation

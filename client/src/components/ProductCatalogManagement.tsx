@@ -105,6 +105,10 @@ export default function ProductCatalogManagement() {
   // Dialog states
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [showProductDialog, setShowProductDialog] = useState(false);
+  const [showEditProductDialog, setShowEditProductDialog] = useState(false);
+
+  // Edit states
+  const [editingProduct, setEditingProduct] = useState<any>(null);
 
   // Form states
   const [categoryForm, setCategoryForm] = useState<CategoryForm>({
@@ -115,6 +119,19 @@ export default function ProductCatalogManagement() {
   });
 
   const [productForm, setProductForm] = useState<ProductForm>({
+    categoryId: '',
+    name: '',
+    description: '',
+    basePrice: '',
+    billingType: 'per_period',
+    targetUsers: '',
+    isActive: true,
+    sortOrder: 0,
+    features: [],
+    selectedFeatures: []
+  });
+
+  const [editProductForm, setEditProductForm] = useState<ProductForm>({
     categoryId: '',
     name: '',
     description: '',
@@ -202,13 +219,45 @@ export default function ProductCatalogManagement() {
         targetUsers: '',
         isActive: true,
         sortOrder: 0,
-        features: []
+        features: [],
+        selectedFeatures: []
       });
     },
     onError: (error: any) => {
       toast({ 
         title: "Error", 
         description: error.message || "Failed to create product",
+        variant: "destructive" 
+      });
+    }
+  });
+
+  // Update product mutation
+  const updateProductMutation = useMutation({
+    mutationFn: (data: { id: number; productData: any }) => 
+      apiRequest('PUT', `/api/products/admin/products/${data.id}`, data.productData),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Product updated successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/products/admin/products'] });
+      setShowEditProductDialog(false);
+      setEditingProduct(null);
+      setEditProductForm({
+        categoryId: '',
+        name: '',
+        description: '',
+        basePrice: '',
+        billingType: 'per_period',
+        targetUsers: '',
+        isActive: true,
+        sortOrder: 0,
+        features: [],
+        selectedFeatures: []
+      });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to update product",
         variant: "destructive" 
       });
     }
@@ -252,6 +301,41 @@ export default function ProductCatalogManagement() {
     };
     
     createProductMutation.mutate(productData);
+  };
+
+  const handleEditProduct = (product: any) => {
+    setEditingProduct(product);
+    setEditProductForm({
+      categoryId: product.product.categoryId.toString(),
+      name: product.product.name,
+      description: product.product.description || '',
+      basePrice: product.product.basePrice.toString(),
+      billingType: product.product.billingType,
+      targetUsers: product.product.targetUsers || '',
+      isActive: product.product.isActive,
+      sortOrder: product.product.sortOrder,
+      features: [],
+      selectedFeatures: []
+    });
+    setShowEditProductDialog(true);
+  };
+
+  const handleUpdateProduct = () => {
+    if (!editProductForm.name.trim() || !editProductForm.categoryId || !editProductForm.basePrice) {
+      toast({ title: "Error", description: "Please fill in all required fields", variant: "destructive" });
+      return;
+    }
+    
+    const productData = {
+      ...editProductForm,
+      categoryId: parseInt(editProductForm.categoryId),
+      basePrice: parseFloat(editProductForm.basePrice)
+    };
+    
+    updateProductMutation.mutate({
+      id: editingProduct.product.id,
+      productData: productData
+    });
   };
 
   return (
@@ -601,6 +685,130 @@ export default function ProductCatalogManagement() {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
+
+                {/* Edit Product Dialog */}
+                <Dialog open={showEditProductDialog} onOpenChange={setShowEditProductDialog}>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Edit Product</DialogTitle>
+                      <DialogDescription>
+                        Update the product information and settings
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-6">
+                      {/* Basic Information */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="edit-product-category">Category *</Label>
+                            <Select
+                              value={editProductForm.categoryId}
+                              onValueChange={(value) => setEditProductForm({ ...editProductForm, categoryId: value })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {categories.map((category: ProductCategory) => (
+                                  <SelectItem key={category.id} value={category.id.toString()}>
+                                    {category.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label htmlFor="edit-product-name">Product Name *</Label>
+                            <Input
+                              id="edit-product-name"
+                              value={editProductForm.name}
+                              onChange={(e) => setEditProductForm({ ...editProductForm, name: e.target.value })}
+                              placeholder="e.g., Basic Marketplace Listing"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="edit-product-price">Base Price (KES) *</Label>
+                            <Input
+                              id="edit-product-price"
+                              type="number"
+                              value={editProductForm.basePrice}
+                              onChange={(e) => setEditProductForm({ ...editProductForm, basePrice: e.target.value })}
+                              placeholder="0"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="edit-product-billing">Billing Type *</Label>
+                            <Select
+                              value={editProductForm.billingType}
+                              onValueChange={(value) => setEditProductForm({ ...editProductForm, billingType: value })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select billing type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {billingTypeOptions.map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="edit-product-description">Description</Label>
+                            <Textarea
+                              id="edit-product-description"
+                              value={editProductForm.description}
+                              onChange={(e) => setEditProductForm({ ...editProductForm, description: e.target.value })}
+                              placeholder="Product description"
+                              rows={3}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="edit-product-target">Target Users</Label>
+                            <Input
+                              id="edit-product-target"
+                              value={editProductForm.targetUsers}
+                              onChange={(e) => setEditProductForm({ ...editProductForm, targetUsers: e.target.value })}
+                              placeholder="e.g., Small dealers, Private sellers"
+                            />
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              id="edit-product-active"
+                              checked={editProductForm.isActive}
+                              onCheckedChange={(checked) => setEditProductForm({ ...editProductForm, isActive: checked })}
+                            />
+                            <Label htmlFor="edit-product-active">Active</Label>
+                          </div>
+                          <div>
+                            <Label htmlFor="edit-product-sort">Sort Order</Label>
+                            <Input
+                              id="edit-product-sort"
+                              type="number"
+                              value={editProductForm.sortOrder}
+                              onChange={(e) => setEditProductForm({ ...editProductForm, sortOrder: parseInt(e.target.value) || 0 })}
+                              placeholder="0"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setShowEditProductDialog(false)}>
+                        Cancel
+                      </Button>
+                      <Button 
+                        onClick={handleUpdateProduct}
+                        disabled={updateProductMutation.isPending}
+                      >
+                        {updateProductMutation.isPending ? "Updating..." : "Update Product"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </CardHeader>
             <CardContent>
@@ -641,10 +849,20 @@ export default function ProductCatalogManagement() {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <Button variant="outline" size="sm">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditProduct(productWrapper)}
+                                disabled={updateProductMutation.isPending}
+                              >
                                 <Edit className="h-4 w-4" />
                               </Button>
-                              <Button variant="outline" size="sm">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => deleteCategoryMutation.mutate(product.id)}
+                                disabled={deleteCategoryMutation.isPending}
+                              >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>

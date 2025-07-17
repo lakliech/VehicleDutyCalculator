@@ -65,11 +65,23 @@ const contactSchema = z.object({
   hideContact: z.boolean().default(false),
 });
 
+const paymentSchema = z.object({
+  selectedProduct: z.object({
+    id: z.number(),
+    name: z.string(),
+    price: z.string(),
+    billingType: z.string(),
+    categoryId: z.number(),
+    description: z.string(),
+  }),
+});
+
 type VehicleDetailsForm = z.infer<typeof vehicleDetailsSchema>;
 type LocationConditionForm = z.infer<typeof locationConditionSchema>;
 type PhotosForm = z.infer<typeof photosSchema>;
 type PricingForm = z.infer<typeof pricingSchema>;
 type ContactForm = z.infer<typeof contactSchema>;
+type PaymentForm = z.infer<typeof paymentSchema>;
 
 interface ListingWizardProps {
   onComplete: (listingId: number) => void;
@@ -82,6 +94,7 @@ const STEPS = [
   { id: 3, title: "Photos & Video", description: "Show off your vehicle" },
   { id: 4, title: "Pricing", description: "Set your asking price" },
   { id: 5, title: "Contact Info", description: "How buyers can reach you" },
+  { id: 6, title: "Payment Plan", description: "Choose your listing package" },
 ];
 
 const KENYAN_COUNTIES = [
@@ -163,11 +176,20 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
     resolver: zodResolver(contactSchema),
     defaultValues: {
       name: "",
-      phone: "",
+      phoneNumber: "",
       email: "",
-      preferredContactMethod: "phone",
-      availableForCalls: true,
+      whatsappNumber: "",
+      hideContact: false,
       ...savedData.contact
+    },
+    mode: "onChange"
+  });
+
+  const paymentForm = useForm<PaymentForm>({
+    resolver: zodResolver(paymentSchema),
+    defaultValues: {
+      selectedProduct: null,
+      ...savedData.payment
     },
     mode: "onChange"
   });
@@ -230,14 +252,21 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
     }
   };
 
-  const submitFinalListing = async (contactData: ContactForm) => {
+  const submitContact = async (contactData: ContactForm) => {
+    saveProgress(contactData, "contact");
+    setCompletedSteps(prev => [...prev.filter(s => s !== currentStep), currentStep]);
+    setCurrentStep(prev => Math.min(prev + 1, STEPS.length));
+  };
+
+  const submitFinalListing = async (paymentData: PaymentForm) => {
     const allData = {
       ...savedData.vehicleDetails,
       ...savedData.locationCondition,
       ...savedData.photos,
       ...savedData.pricing,
-      ...contactData,
+      ...savedData.contact,
       title: `${savedData.vehicleDetails?.year} ${savedData.vehicleDetails?.make} ${savedData.vehicleDetails?.model}`,
+      selectedProductId: paymentData.selectedProduct?.id,
     };
 
     submitListingMutation.mutate(allData);
@@ -309,7 +338,8 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
           {currentStep === 2 && <LocationConditionStep form={locationForm} onNext={nextStep} onPrev={prevStep} />}
           {currentStep === 3 && <PhotosStep form={photosForm} onNext={nextStep} onPrev={prevStep} />}
           {currentStep === 4 && <PricingStep form={pricingForm} onNext={nextStep} onPrev={prevStep} />}
-          {currentStep === 5 && <ContactStep form={contactForm} onSubmit={submitFinalListing} onPrev={prevStep} isSubmitting={submitListingMutation.isPending} />}
+          {currentStep === 5 && <ContactStep form={contactForm} onSubmit={submitContact} onPrev={prevStep} isSubmitting={false} />}
+          {currentStep === 6 && <PaymentStep form={paymentForm} onSubmit={submitFinalListing} onPrev={prevStep} isSubmitting={submitListingMutation.isPending} />}
         </CardContent>
       </Card>
     </div>
@@ -952,8 +982,154 @@ function ContactStep({ form, onSubmit, onPrev, isSubmitting }: {
           </Button>
           <Button 
             type="submit" 
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            Next Step
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
+
+// Step 6: Payment Plan Selection
+function PaymentStep({ form, onSubmit, onPrev, isSubmitting }: { 
+  form: any; 
+  onSubmit: (data: PaymentForm) => void; 
+  onPrev: () => void; 
+  isSubmitting: boolean;
+}) {
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  
+  // Fetch marketplace listing products (category 1)
+  const { data: basicProducts, isLoading: loadingBasic } = useQuery({
+    queryKey: ['/api/products/categories/1/products'],
+    queryFn: () => apiRequest('GET', '/api/products/categories/1/products'),
+  });
+
+  // Fetch subscription plans (category 2)  
+  const { data: subscriptionProducts, isLoading: loadingSubscriptions } = useQuery({
+    queryKey: ['/api/products/categories/2/products'],
+    queryFn: () => apiRequest('GET', '/api/products/categories/2/products'),
+  });
+
+  const handleProductSelect = (product: any) => {
+    const productData = {
+      id: product.id,
+      name: product.name,
+      price: product.pricing[0]?.price || product.basePrice,
+      billingType: product.billingType,
+      categoryId: product.categoryId,
+      description: product.description,
+    };
+    setSelectedProduct(productData);
+    form.setValue('selectedProduct', productData);
+  };
+
+  const onSubmitForm = (data: PaymentForm) => {
+    if (selectedProduct) {
+      onSubmit(data);
+    }
+  };
+
+  if (loadingBasic || loadingSubscriptions) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmitForm)} className="space-y-6">
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Choose Your Listing Package</h3>
+          <p className="text-gray-600">Select a package that best fits your selling needs</p>
+        </div>
+
+        {/* Basic Listing Products */}
+        <div className="mb-8">
+          <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+            <Car className="h-5 w-5 mr-2 text-purple-600" />
+            Basic Listing Options
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {basicProducts?.map((product: any) => (
+              <div
+                key={product.id}
+                className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                  selectedProduct?.id === product.id
+                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    : 'border-gray-200 hover:border-purple-300 hover:shadow-sm'
+                }`}
+                onClick={() => handleProductSelect(product)}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h5 className="font-medium text-gray-900">{product.name}</h5>
+                  <span className="text-lg font-bold text-purple-600">
+                    KES {parseFloat(product.pricing[0]?.price || product.basePrice).toLocaleString()}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">{product.description}</p>
+                <Badge variant={product.billingType === 'per_listing' ? 'default' : 'secondary'}>
+                  {product.billingType === 'per_listing' ? 'Pay per listing' : product.billingType}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Subscription Plans */}
+        <div className="mb-8">
+          <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+            <Coins className="h-5 w-5 mr-2 text-purple-600" />
+            Subscription Plans
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {subscriptionProducts?.map((product: any) => (
+              <div
+                key={product.id}
+                className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                  selectedProduct?.id === product.id
+                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    : 'border-gray-200 hover:border-purple-300 hover:shadow-sm'
+                }`}
+                onClick={() => handleProductSelect(product)}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h5 className="font-medium text-gray-900">{product.name}</h5>
+                  <div className="text-right">
+                    <span className="text-lg font-bold text-purple-600">
+                      KES {parseFloat(product.pricing[0]?.price || product.basePrice).toLocaleString()}
+                    </span>
+                    <p className="text-xs text-gray-500">/month</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">{product.description}</p>
+                <Badge variant="outline">Monthly subscription</Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {selectedProduct && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <h5 className="font-medium text-green-800 mb-1">Selected Package</h5>
+            <p className="text-green-700">{selectedProduct.name} - KES {parseFloat(selectedProduct.price).toLocaleString()}</p>
+          </div>
+        )}
+
+        <div className="flex justify-between">
+          <Button type="button" variant="outline" onClick={onPrev}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Previous
+          </Button>
+          <Button 
+            type="submit" 
             className="bg-green-600 hover:bg-green-700"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !selectedProduct}
           >
             {isSubmitting ? (
               <>
@@ -963,7 +1139,7 @@ function ContactStep({ form, onSubmit, onPrev, isSubmitting }: {
             ) : (
               <>
                 <CheckCircle className="mr-2 h-4 w-4" />
-                Create Listing
+                Create Listing & Pay
               </>
             )}
           </Button>

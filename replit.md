@@ -987,6 +987,13 @@ Changelog:
   - Updated 25+ frontend components to use Coins, Banknote, and Calculator icons instead of DollarSign
   - Enhanced regional compatibility for Kenyan market with universally appropriate financial icons
   - Updated backend storage and routes files for consistent icon references across entire application
+- January 17, 2025. Integrated payment plan selection into "Sell Your Car" process:
+  - Extended ListingWizard from 5 to 6 steps, adding "Payment Plan" as final step
+  - Created PaymentStep component displaying basic listing options (KES 500-1,500) and subscription plans (KES 2,500-20,000/month)
+  - Added real-time product fetching from Marketplace Listings and Subscription Plans categories
+  - Updated form flow: Step 5 saves contact info and proceeds to payment selection, Step 6 completes listing with selected product
+  - Integrated payment schema validation and product selection interface for seamless payment integration
+  - Sellers can now choose between basic listing products or monthly subscription plans before listing completion
 - January 17, 2025. Fixed Features & Pricing Management logical hierarchy:
   - Restructured Features & Pricing Management tab to follow proper Category → Product → Features hierarchy
   - Added category and product selection dropdowns for logical navigation flow

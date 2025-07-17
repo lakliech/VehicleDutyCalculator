@@ -1841,18 +1841,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Calculate duty
   // Monetization Routes
-  app.use('/api/monetization', async (req, res, next) => {
-    try {
-      // Import and use monetization routes
-      const monetizationRoutes = await import('./routes/monetization-routes');
-      monetizationRoutes.default(req, res, next);
-    } catch (error) {
-      console.error('Monetization routes error:', error);
-      res.status(500).json({ error: 'Service temporarily unavailable' });
-    }
-  });
+  try {
+    const monetizationRoutes = await import('./routes/monetization-routes');
+    app.use('/api/monetization', monetizationRoutes.default);
+  } catch (error) {
+    console.error('Error loading monetization routes:', error);
+  }
 
   // Product Catalog Routes - removed async wrapper causing issues
 

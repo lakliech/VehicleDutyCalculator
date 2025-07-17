@@ -4,12 +4,21 @@ import { z } from 'zod';
 
 const router = express.Router();
 
-// Middleware for authentication (assumes existing auth middleware)
-const requireAuth = (req: any, res: any, next: any) => {
-  if (!req.user) {
+// Import proper authentication middleware
+const authenticateUser = (req: any, res: any, next: any) => {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
     return res.status(401).json({ error: 'Authentication required' });
   }
   next();
+};
+
+const requireRole = (roles: string[]) => {
+  return (req: any, res: any, next: any) => {
+    if (!req.user || !req.user.userRole || !roles.includes(req.user.userRole.name)) {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+    next();
+  };
 };
 
 // ========================================
@@ -34,7 +43,7 @@ router.get('/subscription-plans', async (req, res) => {
  * GET /api/monetization/my-subscription
  * Get user's current subscription
  */
-router.get('/my-subscription', requireAuth, async (req, res) => {
+router.get('/my-subscription', authenticateUser, async (req, res) => {
   try {
     const subscription = await MonetizationService.getUserSubscription(req.user.id);
     res.json(subscription);
@@ -48,7 +57,7 @@ router.get('/my-subscription', requireAuth, async (req, res) => {
  * POST /api/monetization/subscribe
  * Create new subscription
  */
-router.post('/subscribe', requireAuth, async (req, res) => {
+router.post('/subscribe', authenticateUser, async (req, res) => {
   try {
     const { planId, paymentReference } = req.body;
     
@@ -73,7 +82,7 @@ router.post('/subscribe', requireAuth, async (req, res) => {
  * POST /api/monetization/cancel-subscription
  * Cancel user's subscription
  */
-router.post('/cancel-subscription', requireAuth, async (req, res) => {
+router.post('/cancel-subscription', authenticateUser, async (req, res) => {
   try {
     const { immediately = false } = req.body;
     
@@ -93,7 +102,7 @@ router.post('/cancel-subscription', requireAuth, async (req, res) => {
  * POST /api/monetization/track-usage
  * Track feature usage
  */
-router.post('/track-usage', requireAuth, async (req, res) => {
+router.post('/track-usage', authenticateUser, async (req, res) => {
   try {
     const { featureType, resourceId, usageCount = 1 } = req.body;
     
@@ -113,7 +122,7 @@ router.post('/track-usage', requireAuth, async (req, res) => {
  * GET /api/monetization/usage-limits/:featureType
  * Check usage limits for feature
  */
-router.get('/usage-limits/:featureType', requireAuth, async (req, res) => {
+router.get('/usage-limits/:featureType', authenticateUser, async (req, res) => {
   try {
     const { featureType } = req.params;
     
@@ -147,7 +156,7 @@ router.get('/listing-packages', async (req, res) => {
  * POST /api/monetization/promote-listing
  * Promote listing with package
  */
-router.post('/promote-listing', requireAuth, async (req, res) => {
+router.post('/promote-listing', authenticateUser, async (req, res) => {
   try {
     const { listingId, packageId, paymentReference } = req.body;
     
@@ -177,7 +186,7 @@ router.post('/promote-listing', requireAuth, async (req, res) => {
  * POST /api/monetization/loan-referral
  * Create loan referral
  */
-router.post('/loan-referral', requireAuth, async (req, res) => {
+router.post('/loan-referral', authenticateUser, async (req, res) => {
   try {
     const { bankPartnerId, requestedAmount, vehicleListingId, loanApplicationId } = req.body;
     
@@ -234,7 +243,7 @@ router.put('/loan-referral/:id/status', async (req, res) => {
  * POST /api/monetization/create-api-key
  * Create API key for user
  */
-router.post('/create-api-key', requireAuth, async (req, res) => {
+router.post('/create-api-key', authenticateUser, async (req, res) => {
   try {
     const { planId, name } = req.body;
     
@@ -294,9 +303,8 @@ router.post('/mpesa-callback', async (req, res) => {
  * GET /api/monetization/revenue/:year/:month
  * Get monthly revenue breakdown (admin only)
  */
-router.get('/revenue/:year/:month', requireAuth, async (req, res) => {
+router.get('/revenue/:year/:month', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
   try {
-    // TODO: Add admin role check
     const { year, month } = req.params;
     
     const revenue = await MonetizationService.getMonthlyRevenue(
@@ -315,9 +323,8 @@ router.get('/revenue/:year/:month', requireAuth, async (req, res) => {
  * GET /api/monetization/revenue-per-product
  * Get revenue breakdown by product (admin only)
  */
-router.get('/revenue-per-product', requireAuth, async (req, res) => {
+router.get('/revenue-per-product', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
   try {
-    // TODO: Add admin role check
     const { startDate, endDate } = req.query;
     
     const revenueData = await MonetizationService.getRevenuePerProduct(
@@ -336,9 +343,8 @@ router.get('/revenue-per-product', requireAuth, async (req, res) => {
  * GET /api/monetization/transactions
  * Get filtered transaction data (admin only)
  */
-router.get('/transactions', requireAuth, async (req, res) => {
+router.get('/transactions', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
   try {
-    // TODO: Add admin role check
     const { 
       status, 
       method, 
@@ -370,9 +376,8 @@ router.get('/transactions', requireAuth, async (req, res) => {
  * GET /api/monetization/dashboard-analytics
  * Get comprehensive dashboard analytics (admin only)
  */
-router.get('/dashboard-analytics', requireAuth, async (req, res) => {
+router.get('/dashboard-analytics', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
   try {
-    // TODO: Add admin role check
     const { period = 'month' } = req.query;
     
     const analytics = await MonetizationService.getDashboardAnalytics(period as string);
@@ -392,9 +397,8 @@ router.get('/dashboard-analytics', requireAuth, async (req, res) => {
  * POST /api/monetization/admin/create-plan
  * Create new subscription plan (admin only)
  */
-router.post('/admin/create-plan', requireAuth, async (req, res) => {
+router.post('/admin/create-plan', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
   try {
-    // TODO: Add admin role check
     const createPlanSchema = z.object({
       name: z.string().min(1),
       description: z.string().optional(),
@@ -429,7 +433,7 @@ router.post('/admin/create-plan', requireAuth, async (req, res) => {
  * PUT /api/monetization/admin/update-plan/:id
  * Update existing subscription plan (admin only)
  */
-router.put('/admin/update-plan/:id', requireAuth, async (req, res) => {
+router.put('/admin/update-plan/:id', authenticateUser, async (req, res) => {
   try {
     // TODO: Add admin role check
     const { id } = req.params;
@@ -468,7 +472,7 @@ router.put('/admin/update-plan/:id', requireAuth, async (req, res) => {
  * DELETE /api/monetization/admin/delete-plan/:id
  * Delete subscription plan (admin only)
  */
-router.delete('/admin/delete-plan/:id', requireAuth, async (req, res) => {
+router.delete('/admin/delete-plan/:id', authenticateUser, async (req, res) => {
   try {
     // TODO: Add admin role check
     const { id } = req.params;
@@ -485,7 +489,7 @@ router.delete('/admin/delete-plan/:id', requireAuth, async (req, res) => {
  * POST /api/monetization/admin/create-strategy
  * Create new monetization strategy (admin only)
  */
-router.post('/admin/create-strategy', requireAuth, async (req, res) => {
+router.post('/admin/create-strategy', authenticateUser, async (req, res) => {
   try {
     // TODO: Add admin role check
     const createStrategySchema = z.object({
@@ -521,7 +525,7 @@ router.post('/admin/create-strategy', requireAuth, async (req, res) => {
  * POST /api/monetization/admin/create-pricing-rule
  * Create new pricing rule (admin only)
  */
-router.post('/admin/create-pricing-rule', requireAuth, async (req, res) => {
+router.post('/admin/create-pricing-rule', authenticateUser, async (req, res) => {
   try {
     // TODO: Add admin role check
     const createRuleSchema = z.object({

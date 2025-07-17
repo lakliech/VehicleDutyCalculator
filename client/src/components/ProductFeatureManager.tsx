@@ -121,6 +121,8 @@ export default function ProductFeatureManager() {
       }
       const data = await response.json();
       console.log('Received product features data:', data);
+      console.log('Data type:', typeof data, 'Array?', Array.isArray(data));
+      console.log('Data length:', data?.length);
       return data;
     },
     enabled: !!selectedProduct
@@ -535,7 +537,8 @@ export default function ProductFeatureManager() {
             ) : productFeatures.length === 0 ? (
               <div className="text-center py-8">
                 <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground mb-2">No features configured</p>
+                <p className="text-muted-foreground mb-2">No features configured for product {selectedProduct}</p>
+                {productFeaturesLoading && <p className="text-blue-500">Loading features...</p>}
                 <p className="text-sm text-muted-foreground">
                   Add features to this product with specific constraints and pricing.
                 </p>

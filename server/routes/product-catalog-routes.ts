@@ -25,14 +25,18 @@ const router = Router();
 
 // Middleware for authentication (reuse existing auth middleware)
 const requireAuth = (req: any, res: any, next: any) => {
+  console.log('Auth check:', { hasUser: !!req.user, userId: req.user?.id });
   if (!req.user) {
+    console.log('Authentication failed - no user');
     return res.status(401).json({ error: 'Authentication required' });
   }
   next();
 };
 
 const requireAdmin = (req: any, res: any, next: any) => {
+  console.log('Admin check:', { hasUser: !!req.user, roleId: req.user?.roleId });
   if (!req.user || req.user.roleId !== 3) {
+    console.log('Admin access denied - insufficient permissions');
     return res.status(403).json({ error: 'Admin access required' });
   }
   next();
@@ -316,6 +320,8 @@ router.get('/products/:productId/features', requireAuth, requireAdmin, async (re
     const productId = parseInt(req.params.productId);
     
     console.log('Fetching features for product:', productId);
+    console.log('User authenticated:', !!req.user);
+    console.log('User role:', req.user?.roleId);
     
     const associations = await db
       .select({

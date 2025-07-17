@@ -4929,6 +4929,7 @@ function MonetizationStrategyTab() {
                           <SelectItem value="pending">Pending</SelectItem>
                           <SelectItem value="failed">Failed</SelectItem>
                           <SelectItem value="cancelled">Cancelled</SelectItem>
+                          <SelectItem value="refunded">Refunded</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -4946,8 +4947,9 @@ function MonetizationStrategyTab() {
                           <SelectItem value="all">All methods</SelectItem>
                           <SelectItem value="card">Card</SelectItem>
                           <SelectItem value="mpesa">M-Pesa</SelectItem>
-                          <SelectItem value="airtel">Airtel Money</SelectItem>
-                          <SelectItem value="bank">Bank Transfer</SelectItem>
+                          <SelectItem value="airtel_money">Airtel Money</SelectItem>
+                          <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                          <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -4965,7 +4967,7 @@ function MonetizationStrategyTab() {
                           <SelectItem value="all">All types</SelectItem>
                           <SelectItem value="purchase">Purchase</SelectItem>
                           <SelectItem value="subscription">Subscription</SelectItem>
-                          <SelectItem value="topup">Top-up</SelectItem>
+                          <SelectItem value="credit_purchase">Credit Purchase</SelectItem>
                           <SelectItem value="refund">Refund</SelectItem>
                         </SelectContent>
                       </Select>

@@ -571,27 +571,31 @@ export default function ProductCatalogManagement() {
 function FeaturesAndPricingManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedProduct, setSelectedProduct] = useState<string>('');
 
-  // Fetch product features
-  const { data: productFeatures = [], isLoading: featuresLoading } = useQuery({
-    queryKey: ['/api/products/features'],
-    queryFn: async () => {
-      const response = await fetch('/api/products/features');
-      if (!response.ok) throw new Error('Failed to fetch features');
-      return response.json();
-    }
+  // Fetch categories
+  const { data: categories = [] } = useQuery({
+    queryKey: ['/api/products/categories'],
+    queryFn: () => fetch('/api/products/categories').then(res => res.json())
   });
 
-  // Fetch all products for filtering
+  // Fetch products for selected category
   const { data: products = [] } = useQuery({
     queryKey: ['/api/products/admin/products'],
     queryFn: () => fetch('/api/products/admin/products').then(res => res.json())
   });
 
-  // Fetch all categories for filtering
-  const { data: categories = [] } = useQuery({
-    queryKey: ['/api/products/categories'],
-    queryFn: () => fetch('/api/products/categories').then(res => res.json())
+  // Fetch features for selected product
+  const { data: productFeatures = [], isLoading: featuresLoading } = useQuery({
+    queryKey: ['/api/products', selectedProduct, 'features'],
+    queryFn: async () => {
+      if (!selectedProduct) return [];
+      const response = await fetch(`/api/products/${selectedProduct}/features`);
+      if (!response.ok) throw new Error('Failed to fetch features');
+      return response.json();
+    },
+    enabled: !!selectedProduct
   });
 
   // Toggle feature activation
@@ -601,7 +605,7 @@ function FeaturesAndPricingManagement() {
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Feature updated successfully" });
-      queryClient.invalidateQueries({ queryKey: ['/api/products/features'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/products', selectedProduct, 'features'] });
     },
     onError: (error: any) => {
       toast({ 
@@ -612,21 +616,18 @@ function FeaturesAndPricingManagement() {
     }
   });
 
-  // Group features by category and product
-  const groupedFeatures = productFeatures.reduce((acc: any, feature: any) => {
-    const productInfo = products.find((p: any) => (p.product?.id || p.id) === feature.productId);
-    const categoryName = productInfo?.category?.name || 'Unknown Category';
-    const productName = productInfo?.product?.name || productInfo?.name || 'Unknown Product';
-    
-    if (!acc[categoryName]) {
-      acc[categoryName] = {};
-    }
-    if (!acc[categoryName][productName]) {
-      acc[categoryName][productName] = [];
-    }
-    acc[categoryName][productName].push(feature);
-    return acc;
-  }, {});
+  // Filter products by selected category
+  const filteredProducts = products.filter((productWrapper: any) => {
+    const product = productWrapper.product || productWrapper;
+    const category = productWrapper.category;
+    return selectedCategory ? category?.id.toString() === selectedCategory : true;
+  });
+
+  // Get selected product details
+  const selectedProductDetails = products.find((p: any) => {
+    const product = p.product || p;
+    return product.id.toString() === selectedProduct;
+  });
 
   const handleFeatureToggle = (featureId: number, currentStatus: boolean) => {
     toggleFeatureMutation.mutate({
@@ -636,97 +637,185 @@ function FeaturesAndPricingManagement() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Category and Product Selection */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
-            Product Features Management
+            Features & Pricing Management
           </CardTitle>
           <CardDescription>
-            Activate and deactivate features for products across all categories
+            Select a category and product to manage features and pricing
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {featuresLoading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading features...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Category Selection */}
+            <div>
+              <Label htmlFor="category-select">Select Category</Label>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Categories</SelectItem>
+                  {categories.map((category: any) => (
+                    <SelectItem key={category.id} value={category.id.toString()}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          ) : (
-            <div className="space-y-6">
-              {Object.entries(groupedFeatures).map(([categoryName, products]) => (
-                <Card key={categoryName} className="border">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Tags className="h-4 w-4" />
-                      {categoryName}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {Object.entries(products as any).map(([productName, features]) => (
-                        <div key={productName} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <h4 className="font-medium flex items-center gap-2">
-                              <Package className="h-4 w-4" />
-                              {productName}
-                            </h4>
-                            <Badge variant="outline">
-                              {(features as any[]).length} feature{(features as any[]).length !== 1 ? 's' : ''}
-                            </Badge>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {(features as any[]).map((feature: any) => (
-                              <div key={feature.id} className="flex items-center justify-between p-3 border rounded-lg">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <div className="flex items-center gap-1">
-                                      {feature.isIncluded ? (
-                                        <CheckCircle className="h-4 w-4 text-green-500" />
-                                      ) : (
-                                        <XCircle className="h-4 w-4 text-red-500" />
-                                      )}
-                                      <span className="font-medium text-sm">{feature.name}</span>
-                                    </div>
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    {feature.limitType === 'unlimited' && 'Unlimited'}
-                                    {feature.limitType === 'count' && `Limit: ${feature.limitValue}`}
-                                    {feature.limitType === 'duration' && `Duration: ${feature.limitDuration} days`}
-                                  </div>
-                                  {feature.additionalCost && parseFloat(feature.additionalCost) > 0 && (
-                                    <div className="text-xs text-muted-foreground">
-                                      +KES {parseFloat(feature.additionalCost).toLocaleString()}
-                                    </div>
-                                  )}
-                                </div>
-                                <Switch
-                                  checked={feature.isIncluded}
-                                  onCheckedChange={() => handleFeatureToggle(feature.id, feature.isIncluded)}
-                                  disabled={toggleFeatureMutation.isPending}
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-              
-              {Object.keys(groupedFeatures).length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                  <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No product features found</p>
-                  <p className="text-sm">Create products first to manage their features</p>
-                </div>
-              )}
+
+            {/* Product Selection */}
+            <div>
+              <Label htmlFor="product-select">Select Product</Label>
+              <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a product" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No Product Selected</SelectItem>
+                  {filteredProducts.map((productWrapper: any) => {
+                    const product = productWrapper.product || productWrapper;
+                    const category = productWrapper.category;
+                    return (
+                      <SelectItem key={product.id} value={product.id.toString()}>
+                        {product.name} ({category?.name || 'No Category'})
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
             </div>
-          )}
+          </div>
         </CardContent>
       </Card>
+
+      {/* Product Details and Pricing */}
+      {selectedProductDetails && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              Product Details & Pricing
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <Label className="text-sm font-medium">Product Name</Label>
+                <p className="text-sm text-muted-foreground">{selectedProductDetails.product?.name || selectedProductDetails.name}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Category</Label>
+                <p className="text-sm text-muted-foreground">{selectedProductDetails.category?.name || 'N/A'}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Base Price</Label>
+                <p className="text-sm text-muted-foreground font-semibold">
+                  KES {parseFloat(selectedProductDetails.product?.basePrice || selectedProductDetails.basePrice || '0').toLocaleString()}
+                </p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Billing Type</Label>
+                <Badge variant="outline">
+                  {(selectedProductDetails.product?.billingType || selectedProductDetails.billingType || 'per_period').replace('_', ' ')}
+                </Badge>
+              </div>
+            </div>
+            {selectedProductDetails.product?.description || selectedProductDetails.description && (
+              <div className="mt-4">
+                <Label className="text-sm font-medium">Description</Label>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {selectedProductDetails.product?.description || selectedProductDetails.description}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Product Features */}
+      {selectedProduct && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Product Features
+            </CardTitle>
+            <CardDescription>
+              Manage features for {selectedProductDetails?.product?.name || selectedProductDetails?.name}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {featuresLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading features...</p>
+              </div>
+            ) : productFeatures.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {productFeatures.map((feature: any) => (
+                  <div key={feature.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        {feature.isIncluded ? (
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-red-500" />
+                        )}
+                        <span className="font-medium text-sm">{feature.name}</span>
+                      </div>
+                      <Switch
+                        checked={feature.isIncluded}
+                        onCheckedChange={() => handleFeatureToggle(feature.id, feature.isIncluded)}
+                        disabled={toggleFeatureMutation.isPending}
+                      />
+                    </div>
+                    
+                    {feature.description && (
+                      <p className="text-xs text-muted-foreground mb-2">{feature.description}</p>
+                    )}
+                    
+                    <div className="space-y-1">
+                      <div className="text-xs text-muted-foreground">
+                        {feature.limitType === 'unlimited' && 'Unlimited usage'}
+                        {feature.limitType === 'count' && `Limit: ${feature.limitValue} items`}
+                        {feature.limitType === 'duration' && `Duration: ${feature.limitDuration} days`}
+                      </div>
+                      
+                      {feature.additionalCost && parseFloat(feature.additionalCost) > 0 && (
+                        <div className="text-xs font-medium text-green-600">
+                          Additional Cost: +KES {parseFloat(feature.additionalCost).toLocaleString()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No features found for this product</p>
+                <p className="text-sm">Add features to this product to manage them here</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Empty State */}
+      {!selectedProduct && (
+        <Card>
+          <CardContent className="text-center py-12">
+            <Package className="h-12 w-12 mx-auto mb-4 opacity-50 text-muted-foreground" />
+            <p className="text-muted-foreground">Select a product to manage its features and pricing</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

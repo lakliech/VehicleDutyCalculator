@@ -57,7 +57,8 @@ import {
   Building2,
   CreditCard,
   Banknote,
-  Receipt
+  Receipt,
+  BarChart3
 } from "lucide-react";
 import { z } from "zod";
 import type { 

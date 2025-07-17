@@ -1,6 +1,40 @@
-import { pgTable, text, serial, integer, decimal, boolean, timestamp, varchar, json, numeric } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, decimal, boolean, timestamp, varchar, json, numeric, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+// Payment status enum
+export const paymentStatusEnum = pgEnum('payment_status', [
+  'pending',
+  'processing',
+  'completed',
+  'failed',
+  'cancelled',
+  'refunded',
+  'partially_refunded'
+]);
+
+// Payment method enum
+export const paymentMethodEnum = pgEnum('payment_method', [
+  'card',
+  'mobile_money',
+  'bank_transfer',
+  'ussd',
+  'bank',
+  'mpesa',
+  'airtel_money',
+  'credit'
+]);
+
+// Transaction type enum
+export const transactionTypeEnum = pgEnum('transaction_type', [
+  'purchase',
+  'subscription',
+  'credit_purchase',
+  'credit_deduction',
+  'refund',
+  'penalty',
+  'bonus'
+]);
 
 // Essential tables for marketplace functionality
 
@@ -379,6 +413,93 @@ export const loanApplications = pgTable("loan_applications", {
   approvedInterestRate: numeric("approved_interest_rate", { precision: 5, scale: 2 }),
   approvedTenureMonths: integer("approved_tenure_months"),
   remarks: text("remarks"),
+});
+
+// ==============================
+// PAYMENT & BILLING TABLES
+// ==============================
+
+export const userAccounts = pgTable("user_accounts", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  accountNumber: text("account_number").notNull().unique(),
+  creditBalance: numeric("credit_balance", { precision: 12, scale: 2 }).default("0.00"),
+  totalEarned: numeric("total_earned", { precision: 12, scale: 2 }).default("0.00"),
+  totalSpent: numeric("total_spent", { precision: 12, scale: 2 }).default("0.00"),
+  accountType: text("account_type").default("standard"),
+  status: text("status").default("active"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const paymentTransactions = pgTable("payment_transactions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  accountId: integer("account_id").references(() => userAccounts.id),
+  reference: text("reference").notNull().unique(),
+  paystackReference: text("paystack_reference"),
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+  currency: text("currency").default("KES"),
+  status: paymentStatusEnum("status").default("pending"),
+  method: paymentMethodEnum("method").default("card"),
+  type: transactionTypeEnum("type").default("purchase"),
+  description: text("description"),
+  metadata: json("metadata"),
+  productId: integer("product_id"),
+  listingId: integer("listing_id"),
+  processingFee: numeric("processing_fee", { precision: 12, scale: 2 }),
+  netAmount: numeric("net_amount", { precision: 12, scale: 2 }),
+  paystackFeePaid: numeric("paystack_fee_paid", { precision: 12, scale: 2 }),
+  processedAt: timestamp("processed_at"),
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const accountCreditTransactions = pgTable("account_credit_transactions", {
+  id: serial("id").primaryKey(),
+  accountId: integer("account_id").references(() => userAccounts.id).notNull(),
+  transactionId: integer("transaction_id").references(() => paymentTransactions.id),
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+  type: text("type").notNull(),
+  description: text("description"),
+  referenceType: text("reference_type"),
+  referenceId: text("reference_id"),
+  metadata: json("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const paymentSchedules = pgTable("payment_schedules", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  productId: integer("product_id"),
+  listingId: integer("listing_id"),
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+  paymentType: text("payment_type").notNull(),
+  scheduleType: text("schedule_type").notNull(),
+  scheduledDate: timestamp("scheduled_date"),
+  description: text("description"),
+  metadata: json("metadata"),
+  status: text("status").default("pending"),
+  processedAt: timestamp("processed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const userProductSubscriptions = pgTable("user_product_subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  productId: integer("product_id"),
+  subscriptionType: text("subscription_type").notNull(),
+  status: text("status").default("active"),
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  lastPaymentDate: timestamp("last_payment_date"),
+  nextBillingDate: timestamp("next_billing_date"),
+  cancelledAt: timestamp("cancelled_at"),
+  metadata: json("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // ==============================

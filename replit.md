@@ -147,6 +147,43 @@ The system implements updated depreciation rates:
 - Development: `npm run dev` - starts server with hot reload
 - Production: `npm run build && npm start` - builds and starts production server
 
+## Payment System Integration
+
+### Payment Architecture
+The platform implements a comprehensive payment and billing system using Paystack (Kenya's preferred payment processor):
+
+#### Core Components:
+- **User Accounts**: Credit-based account management with balance tracking
+- **Payment Transactions**: Complete transaction lifecycle management
+- **Account Credits**: Credit system for subscription and pay-per-use services
+- **Payment Schedules**: Automated billing and subscription management
+- **Product Subscriptions**: Subscription-based service management
+
+#### Payment Methods Supported:
+- Card payments (Visa, Mastercard)
+- Mobile money (M-Pesa, Airtel Money)
+- Bank transfers and USSD
+- Account credits for prepaid services
+
+#### Business Model:
+- **Prepayment**: Subscription products requiring upfront payment
+- **Pay-on-Delivery**: Basic listing products with payment upon completion
+- **Credit System**: Top-up credits for pay-per-use features
+
+#### Database Schema:
+- `user_accounts`: User account management and credit balances
+- `payment_transactions`: Complete payment transaction records
+- `account_credit_transactions`: Credit system transaction history
+- `payment_schedules`: Automated billing schedules
+- `user_product_subscriptions`: Subscription management
+
+#### API Endpoints:
+- `POST /api/payments/initialize`: Initialize payment process
+- `POST /api/payments/topup`: Top-up account credits
+- `POST /api/payments/verify`: Verify payment completion
+- `POST /api/payments/schedule`: Create payment schedules
+- `GET /api/payments/history`: User payment history
+
 ## Changelog
 
 Changelog:

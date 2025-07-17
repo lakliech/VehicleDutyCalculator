@@ -16,6 +16,9 @@ import {
   type FavoriteListing, type SavedSearch, type CarComparison,
   type AutoFlagRule, type FlagCountTracking, type AutomatedActionsLog, type SellerReputationTracking
 } from "@shared/schema";
+import { 
+  userAccounts, paymentTransactions, accountCreditTransactions, paymentSchedules, userProductSubscriptions 
+} from "@shared/schema-minimal";
 import { db } from "./db";
 import { eq, and, gte, lte, or, desc, asc, sql, gt, inArray, isNull, ilike } from "drizzle-orm";
 import bcrypt from "bcrypt";
@@ -73,6 +76,31 @@ export interface IStorage {
   getValidPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
   markPasswordResetTokenAsUsed(token: string): Promise<void>;
   updateUserPassword(email: string, newPassword: string): Promise<void>;
+
+  // Payment and billing methods
+  createUserAccount(accountData: any): Promise<any>;
+  getUserAccount(userId: string): Promise<any>;
+  updateUserAccount(accountId: number, updates: any): Promise<any>;
+  
+  createPaymentTransaction(transactionData: any): Promise<any>;
+  getPaymentTransactionByReference(reference: string): Promise<any>;
+  updatePaymentTransaction(transactionId: number, updates: any): Promise<any>;
+  getPaymentTransactions(userId: string, limit?: number, offset?: number): Promise<any[]>;
+  
+  createCreditTransaction(creditData: any): Promise<any>;
+  getCreditTransactions(userId: string, limit?: number): Promise<any[]>;
+  
+  createPaymentSchedule(scheduleData: any): Promise<any>;
+  getPaymentSchedule(scheduleId: number): Promise<any>;
+  updatePaymentSchedule(scheduleId: number, updates: any): Promise<any>;
+  getScheduledPayments(userId: string, filters?: any): Promise<any[]>;
+  
+  getUserProductSubscription(userId: string, productId: number): Promise<any>;
+  updateUserProductSubscription(subscriptionId: number, updates: any): Promise<any>;
+  createUserProductSubscription(subscriptionData: any): Promise<any>;
+  
+  getProductPricing(productId: number): Promise<any>;
+  activateListing(listingId: string): Promise<void>;
   
   // Admin authentication methods
   getAdminByUsername(username: string): Promise<AdminCredential | undefined>;
@@ -3101,6 +3129,142 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
     
     return listing || null;
+  }
+
+  // =============================
+  // PAYMENT METHODS
+  // =============================
+  
+  async createUserAccount(data: any): Promise<any> {
+    const [account] = await db.insert(userAccounts).values(data).returning();
+    return account;
+  }
+
+  async getUserAccount(userId: string): Promise<any> {
+    const [account] = await db.select().from(userAccounts).where(eq(userAccounts.userId, userId));
+    return account;
+  }
+
+  async updateUserAccount(accountId: number, updates: any): Promise<any> {
+    const [account] = await db.update(userAccounts).set(updates).where(eq(userAccounts.id, accountId)).returning();
+    return account;
+  }
+
+  async createPaymentTransaction(data: any): Promise<any> {
+    const [transaction] = await db.insert(paymentTransactions).values(data).returning();
+    return transaction;
+  }
+
+  async getPaymentTransaction(id: number): Promise<any> {
+    const [transaction] = await db.select().from(paymentTransactions).where(eq(paymentTransactions.id, id));
+    return transaction;
+  }
+
+  async updatePaymentTransaction(id: number, data: any): Promise<any> {
+    const [transaction] = await db.update(paymentTransactions).set(data).where(eq(paymentTransactions.id, id)).returning();
+    return transaction;
+  }
+
+  async createAccountCreditTransaction(data: any): Promise<any> {
+    const [transaction] = await db.insert(accountCreditTransactions).values(data).returning();
+    return transaction;
+  }
+
+  async getAccountCreditTransactions(accountId: number): Promise<any[]> {
+    return await db.select().from(accountCreditTransactions).where(eq(accountCreditTransactions.accountId, accountId));
+  }
+
+  async createPaymentSchedule(data: any): Promise<any> {
+    const [schedule] = await db.insert(paymentSchedules).values(data).returning();
+    return schedule;
+  }
+
+  async getPaymentSchedule(id: number): Promise<any> {
+    const [schedule] = await db.select().from(paymentSchedules).where(eq(paymentSchedules.id, id));
+    return schedule;
+  }
+
+  async updatePaymentSchedule(id: number, data: any): Promise<any> {
+    const [schedule] = await db.update(paymentSchedules).set(data).where(eq(paymentSchedules.id, id)).returning();
+    return schedule;
+  }
+
+  async createUserProductSubscription(data: any): Promise<any> {
+    const [subscription] = await db.insert(userProductSubscriptions).values(data).returning();
+    return subscription;
+  }
+
+  async getUserProductSubscription(userId: string, productId: number): Promise<any> {
+    const [subscription] = await db.select().from(userProductSubscriptions)
+      .where(and(eq(userProductSubscriptions.userId, userId), eq(userProductSubscriptions.productId, productId)));
+    return subscription;
+  }
+
+  async updateUserProductSubscription(id: number, data: any): Promise<any> {
+    const [subscription] = await db.update(userProductSubscriptions).set(data).where(eq(userProductSubscriptions.id, id)).returning();
+    return subscription;
+  }
+
+  async getUserPaymentTransactions(userId: string): Promise<any[]> {
+    return await db.select().from(paymentTransactions).where(eq(paymentTransactions.userId, userId));
+  }
+
+  async getUserPaymentSchedules(userId: string): Promise<any[]> {
+    return await db.select().from(paymentSchedules).where(eq(paymentSchedules.userId, userId));
+  }
+
+  async getUserSubscriptions(userId: string): Promise<any[]> {
+    return await db.select().from(userProductSubscriptions).where(eq(userProductSubscriptions.userId, userId));
+  }
+
+  async updateAccountBalance(accountId: number, amount: number): Promise<any> {
+    const [account] = await db.update(userAccounts)
+      .set({ creditBalance: amount.toString() })
+      .where(eq(userAccounts.id, accountId))
+      .returning();
+    return account;
+  }
+
+  async getPaymentTransactionByReference(reference: string): Promise<any> {
+    const [transaction] = await db.select().from(paymentTransactions).where(eq(paymentTransactions.reference, reference));
+    return transaction;
+  }
+
+  async getPaymentTransactions(userId: string, limit?: number): Promise<any[]> {
+    const query = db.select().from(paymentTransactions).where(eq(paymentTransactions.userId, userId));
+    if (limit) {
+      return await query.limit(limit);
+    }
+    return await query;
+  }
+
+  async createCreditTransaction(data: any): Promise<any> {
+    const [transaction] = await db.insert(accountCreditTransactions).values(data).returning();
+    return transaction;
+  }
+
+  async getCreditTransactions(accountId: number, limit?: number): Promise<any[]> {
+    const query = db.select().from(accountCreditTransactions).where(eq(accountCreditTransactions.accountId, accountId));
+    if (limit) {
+      return await query.limit(limit);
+    }
+    return await query;
+  }
+
+  async getScheduledPayments(userId: string, status?: string): Promise<any[]> {
+    let query = db.select().from(paymentSchedules).where(eq(paymentSchedules.userId, userId));
+    if (status) {
+      query = query.where(eq(paymentSchedules.status, status));
+    }
+    return await query;
+  }
+
+  async updatePaymentStatus(transactionId: number, status: string): Promise<any> {
+    const [transaction] = await db.update(paymentTransactions)
+      .set({ status: status as any })
+      .where(eq(paymentTransactions.id, transactionId))
+      .returning();
+    return transaction;
   }
 }
 

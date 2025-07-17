@@ -1,6 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import paymentRoutes from "./routes/payment-routes";
 import { 
   appUsers,
   carListings,
@@ -9264,6 +9265,11 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   app.use('/api/products', productCatalogRoutes);
   app.use('/api/features', featureEnforcementRoutes);
   console.log('Product catalog routes registered successfully');
+
+  // Payment and billing routes
+  console.log('Registering payment routes...');
+  app.use('/api/payments', paymentRoutes);
+  console.log('Payment routes registered successfully');
 
   const httpServer = createServer(app);
 

@@ -278,43 +278,57 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
 
     try {
       // Initialize Paystack payment
+      const paymentPayload = {
+        amount: parseFloat(paymentData.selectedProduct.price),
+        currency: 'KES',
+        productId: paymentData.selectedProduct.id,
+        entityType: 'listing',
+        entityId: null, // Will be set after listing creation
+        transactionType: paymentData.selectedProduct.billingType === 'one-time' ? 'purchase' : 'subscription',
+        description: `Payment for ${paymentData.selectedProduct.name}`,
+        callbackUrl: `${window.location.origin}/payment-success`,
+        metadata: {
+          listingData: {
+            ...savedData.vehicleDetails,
+            ...savedData.locationCondition,
+            ...savedData.photos,
+            ...savedData.pricing,
+            ...savedData.contact,
+            title: `${savedData.vehicleDetails?.year} ${savedData.vehicleDetails?.make} ${savedData.vehicleDetails?.model}`,
+            selectedProductId: paymentData.selectedProduct.id,
+          }
+        }
+      };
+
+      console.log('Initializing payment with payload:', paymentPayload);
+
       const paymentResponse = await fetch('/api/payments/initialize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({
-          amount: parseFloat(paymentData.selectedProduct.price),
-          currency: 'KES',
-          productId: paymentData.selectedProduct.id,
-          entityType: 'listing',
-          entityId: null, // Will be set after listing creation
-          transactionType: paymentData.selectedProduct.billingType === 'one-time' ? 'purchase' : 'subscription',
-          description: `Payment for ${paymentData.selectedProduct.name}`,
-          callbackUrl: `${window.location.origin}/payment-success`,
-          metadata: {
-            listingData: {
-              ...savedData.vehicleDetails,
-              ...savedData.locationCondition,
-              ...savedData.photos,
-              ...savedData.pricing,
-              ...savedData.contact,
-              title: `${savedData.vehicleDetails?.year} ${savedData.vehicleDetails?.make} ${savedData.vehicleDetails?.model}`,
-              selectedProductId: paymentData.selectedProduct.id,
-            }
-          }
-        }),
+        body: JSON.stringify(paymentPayload),
       });
 
+      console.log('Payment response status:', paymentResponse.status);
+
       if (!paymentResponse.ok) {
-        throw new Error('Payment initialization failed');
+        const errorText = await paymentResponse.text();
+        console.error('Payment initialization failed:', errorText);
+        throw new Error(`Payment initialization failed: ${errorText}`);
       }
 
-      const paymentData = await paymentResponse.json();
+      const paymentResult = await paymentResponse.json();
+      console.log('Payment initialization result:', paymentResult);
+      
+      if (!paymentResult.paymentUrl) {
+        console.error('No payment URL received:', paymentResult);
+        throw new Error('No payment URL received from server');
+      }
       
       // Redirect to Paystack payment page
-      window.location.href = paymentData.authorization_url;
+      window.location.href = paymentResult.paymentUrl;
       
     } catch (error) {
       console.error('Payment initialization error:', error);

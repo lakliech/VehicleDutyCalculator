@@ -24,13 +24,17 @@ const authenticateUser = (req: any, res: any, next: any) => {
  */
 router.post('/initialize', authenticateUser, async (req, res) => {
   try {
+    console.log('Payment initialization request body:', req.body);
+    console.log('User:', req.user);
+    
     const data = createPaymentIntentSchema.parse(req.body);
     
     if (!req.user?.email) {
+      console.error('User email missing:', req.user);
       return res.status(400).json({ error: 'User email is required' });
     }
 
-    const result = await paystackService.initializePayment({
+    const paymentParams = {
       userId: req.user.id,
       amount: data.amount,
       currency: data.currency,
@@ -42,12 +46,17 @@ router.post('/initialize', authenticateUser, async (req, res) => {
       description: `Payment for ${data.entityType || 'service'}`,
       callbackUrl: data.callbackUrl || `${req.protocol}://${req.get('host')}/payment-success`,
       metadata: data.metadata
-    });
+    };
 
+    console.log('Calling paystackService.initializePayment with:', paymentParams);
+
+    const result = await paystackService.initializePayment(paymentParams);
+
+    console.log('Payment initialization result:', result);
     res.json(result);
   } catch (error) {
     console.error('Payment initialization error:', error);
-    res.status(500).json({ error: 'Payment initialization failed' });
+    res.status(500).json({ error: 'Payment initialization failed', details: error.message });
   }
 });
 

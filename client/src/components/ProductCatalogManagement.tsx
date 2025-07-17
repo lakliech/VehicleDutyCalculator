@@ -296,8 +296,8 @@ export default function ProductCatalogManagement() {
     
     const productData = {
       ...productForm,
-      categoryId: parseInt(productForm.categoryId),
-      basePrice: parseFloat(productForm.basePrice)
+      categoryId: productForm.categoryId,
+      basePrice: productForm.basePrice
     };
     
     createProductMutation.mutate(productData);
@@ -328,8 +328,8 @@ export default function ProductCatalogManagement() {
     
     const productData = {
       ...editProductForm,
-      categoryId: parseInt(editProductForm.categoryId),
-      basePrice: parseFloat(editProductForm.basePrice)
+      categoryId: editProductForm.categoryId,
+      basePrice: editProductForm.basePrice
     };
     
     updateProductMutation.mutate({

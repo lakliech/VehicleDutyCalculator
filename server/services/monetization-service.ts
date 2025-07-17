@@ -708,9 +708,8 @@ export class MonetizationService {
     totalCount: number;
     totalPages: number;
   }> {
-    const { paymentTransactions } = await import('../../shared/payment-billing-schema');
+    const { paymentTransactions, appUsers, carListings } = await import('../../shared/schema-minimal');
     const { products, productCategories } = await import('../../shared/product-catalog-schema');
-    const { appUsers, carListings } = await import('../../shared/schema-minimal');
     
     // Build where conditions
     const whereConditions: any[] = [];
@@ -739,7 +738,8 @@ export class MonetizationService {
     const transactions = await db.select({
       id: paymentTransactions.id,
       userId: paymentTransactions.userId,
-      userName: appUsers.name,
+      userFirstName: appUsers.firstName,
+      userLastName: appUsers.lastName,
       userEmail: appUsers.email,
       reference: paymentTransactions.reference,
       amount: paymentTransactions.amount,
@@ -778,7 +778,7 @@ export class MonetizationService {
       transactions: transactions.map(t => ({
         id: t.id,
         userId: t.userId,
-        userName: t.userName || 'Unknown User',
+        userName: `${t.userFirstName || ''} ${t.userLastName || ''}`.trim() || 'Unknown User',
         userEmail: t.userEmail || '',
         reference: t.reference,
         amount: parseFloat(t.amount),

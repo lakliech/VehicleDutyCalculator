@@ -4782,12 +4782,9 @@ function MonetizationStrategyTab() {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <CreateStrategyDialog />
+                <CreatePlanDialog />
                 <EditPlansDialog />
                 <PricingRulesDialog />
-                <Button variant="outline" className="flex flex-col h-20">
-                  <BarChart3 className="h-5 w-5 mb-1" />
-                  <span className="text-xs">Full Analytics</span>
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -5739,23 +5736,39 @@ function CreateStrategyDialog() {
     tactics: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Create new strategy logic here
-    toast({
-      title: "Strategy Created",
-      description: `New strategy "${formData.strategyName}" has been created successfully.`
-    });
-    
-    setIsOpen(false);
-    setFormData({
-      strategyName: '',
-      targetRevenue: '',
-      timeframe: '',
-      description: '',
-      tactics: ''
-    });
+    try {
+      const response = await apiRequest('POST', '/api/monetization/admin/create-strategy', {
+        strategyName: formData.strategyName,
+        targetRevenue: parseFloat(formData.targetRevenue),
+        timeframe: formData.timeframe,
+        description: formData.description,
+        tactics: formData.tactics
+      });
+
+      toast({
+        title: "Strategy Created",
+        description: `New strategy "${formData.strategyName}" has been created successfully.`
+      });
+      
+      setIsOpen(false);
+      setFormData({
+        strategyName: '',
+        targetRevenue: '',
+        timeframe: '',
+        description: '',
+        tactics: ''
+      });
+    } catch (error) {
+      console.error('Error creating strategy:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create strategy. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -5850,6 +5863,194 @@ function CreateStrategyDialog() {
   );
 }
 
+// Create Plan Dialog Component
+function CreatePlanDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const [planData, setPlanData] = useState({
+    name: '',
+    description: '',
+    priceKes: '',
+    billingCycle: 'monthly' as 'monthly' | 'quarterly' | 'annually',
+    features: '',
+    maxListings: '',
+    calculationsPerMonth: '',
+    isActive: true
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!planData.name || !planData.priceKes) {
+      toast({
+        title: "Error",
+        description: "Plan name and price are required.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      const featuresArray = planData.features.split(',').map(f => f.trim()).filter(f => f);
+      const limits: any = {};
+      
+      if (planData.maxListings) limits.maxListings = parseInt(planData.maxListings);
+      if (planData.calculationsPerMonth) limits.calculationsPerMonth = parseInt(planData.calculationsPerMonth);
+      
+      const response = await apiRequest('POST', '/api/monetization/admin/create-plan', {
+        name: planData.name,
+        description: planData.description,
+        priceKes: parseFloat(planData.priceKes),
+        billingCycle: planData.billingCycle,
+        features: featuresArray,
+        limits,
+        isActive: planData.isActive
+      });
+
+      toast({
+        title: "Plan Created",
+        description: `${planData.name} has been created successfully.`
+      });
+      
+      setIsOpen(false);
+      setPlanData({
+        name: '',
+        description: '',
+        priceKes: '',
+        billingCycle: 'monthly',
+        features: '',
+        maxListings: '',
+        calculationsPerMonth: '',
+        isActive: true
+      });
+    } catch (error) {
+      console.error('Error creating plan:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create plan. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="flex flex-col h-20">
+          <CreditCard className="h-5 w-5 mb-1" />
+          <span className="text-xs">Create Plan</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Create New Subscription Plan</DialogTitle>
+          <DialogDescription>
+            Create a new subscription plan with features and pricing
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="planName">Plan Name *</Label>
+            <Input
+              id="planName"
+              value={planData.name}
+              onChange={(e) => setPlanData({ ...planData, name: e.target.value })}
+              placeholder="e.g., Basic, Professional, Enterprise"
+              required
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Input
+              id="description"
+              value={planData.description}
+              onChange={(e) => setPlanData({ ...planData, description: e.target.value })}
+              placeholder="Brief description of the plan"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="price">Price (KES) *</Label>
+            <Input
+              id="price"
+              type="number"
+              value={planData.priceKes}
+              onChange={(e) => setPlanData({ ...planData, priceKes: e.target.value })}
+              placeholder="2500"
+              required
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="billing">Billing Cycle</Label>
+            <select
+              id="billing"
+              value={planData.billingCycle}
+              onChange={(e) => setPlanData({ ...planData, billingCycle: e.target.value as any })}
+              className="w-full p-2 border rounded-md"
+            >
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="annually">Annually</option>
+            </select>
+          </div>
+          
+          <div>
+            <Label htmlFor="features">Features (comma-separated)</Label>
+            <Input
+              id="features"
+              value={planData.features}
+              onChange={(e) => setPlanData({ ...planData, features: e.target.value })}
+              placeholder="Unlimited listings, Premium support, Analytics"
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label htmlFor="maxListings">Max Listings</Label>
+              <Input
+                id="maxListings"
+                type="number"
+                value={planData.maxListings}
+                onChange={(e) => setPlanData({ ...planData, maxListings: e.target.value })}
+                placeholder="50"
+              />
+            </div>
+            <div>
+              <Label htmlFor="calculations">Calculations/Month</Label>
+              <Input
+                id="calculations"
+                type="number"
+                value={planData.calculationsPerMonth}
+                onChange={(e) => setPlanData({ ...planData, calculationsPerMonth: e.target.value })}
+                placeholder="100"
+              />
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isActive"
+              checked={planData.isActive}
+              onChange={(e) => setPlanData({ ...planData, isActive: e.target.checked })}
+            />
+            <Label htmlFor="isActive">Active Plan</Label>
+          </div>
+          
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">Create Plan</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Edit Plans Dialog Component
 function EditPlansDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -5885,16 +6086,38 @@ function EditPlansDialog() {
     setSelectedPlan(planId);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Update plan logic here
-    toast({
-      title: "Plan Updated",
-      description: `${planData.name} has been updated successfully.`
-    });
+    if (!selectedPlan) return;
     
-    setIsOpen(false);
+    try {
+      const featuresArray = planData.features.split(',').map(f => f.trim()).filter(f => f);
+      
+      const response = await apiRequest('PUT', `/api/monetization/admin/update-plan/${selectedPlan}`, {
+        name: planData.name,
+        description: planData.description,
+        priceKes: parseFloat(planData.priceKes),
+        billingCycle: planData.billingCycle,
+        features: featuresArray,
+        isActive: planData.isActive
+      });
+
+      toast({
+        title: "Plan Updated",
+        description: `${planData.name} has been updated successfully.`
+      });
+      
+      setIsOpen(false);
+      setSelectedPlan('');
+    } catch (error) {
+      console.error('Error updating plan:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update plan. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -6025,23 +6248,39 @@ function PricingRulesDialog() {
     overage: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Create pricing rule logic here
-    toast({
-      title: "Pricing Rule Created",
-      description: `New pricing rule for "${ruleData.feature}" has been created.`
-    });
-    
-    setIsOpen(false);
-    setRuleData({
-      feature: '',
-      basePrice: '',
-      tierMultiplier: '',
-      usageBased: false,
-      overage: ''
-    });
+    try {
+      const response = await apiRequest('POST', '/api/monetization/admin/create-pricing-rule', {
+        feature: ruleData.feature,
+        basePrice: parseFloat(ruleData.basePrice),
+        tierMultiplier: ruleData.tierMultiplier ? parseFloat(ruleData.tierMultiplier) : undefined,
+        usageBased: ruleData.usageBased,
+        overage: ruleData.overage ? parseFloat(ruleData.overage) : undefined
+      });
+
+      toast({
+        title: "Pricing Rule Created",
+        description: `New pricing rule for "${ruleData.feature}" has been created.`
+      });
+      
+      setIsOpen(false);
+      setRuleData({
+        feature: '',
+        basePrice: '',
+        tierMultiplier: '',
+        usageBased: false,
+        overage: ''
+      });
+    } catch (error) {
+      console.error('Error creating pricing rule:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create pricing rule. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

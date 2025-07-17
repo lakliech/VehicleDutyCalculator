@@ -311,6 +311,175 @@ router.get('/revenue/:year/:month', requireAuth, async (req, res) => {
   }
 });
 
+// ========================================
+// ADMIN SUBSCRIPTION PLAN MANAGEMENT
+// ========================================
+
+/**
+ * POST /api/monetization/admin/create-plan
+ * Create new subscription plan (admin only)
+ */
+router.post('/admin/create-plan', requireAuth, async (req, res) => {
+  try {
+    // TODO: Add admin role check
+    const createPlanSchema = z.object({
+      name: z.string().min(1),
+      description: z.string().optional(),
+      priceKes: z.number().positive(),
+      billingCycle: z.enum(['monthly', 'quarterly', 'annually']),
+      features: z.array(z.string()).default([]),
+      limits: z.object({
+        maxListings: z.number().optional(),
+        calculationsPerMonth: z.number().optional(),
+        valuationsPerMonth: z.number().optional(),
+        apiCallsPerMonth: z.number().optional(),
+        storageGb: z.number().optional(),
+      }).default({}),
+      isActive: z.boolean().default(true),
+      sortOrder: z.number().default(0)
+    });
+
+    const validatedData = createPlanSchema.parse(req.body);
+    
+    const plan = await MonetizationService.createSubscriptionPlan(validatedData);
+    res.json(plan);
+  } catch (error) {
+    console.error('Error creating subscription plan:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to create subscription plan' });
+  }
+});
+
+/**
+ * PUT /api/monetization/admin/update-plan/:id
+ * Update existing subscription plan (admin only)
+ */
+router.put('/admin/update-plan/:id', requireAuth, async (req, res) => {
+  try {
+    // TODO: Add admin role check
+    const { id } = req.params;
+    
+    const updatePlanSchema = z.object({
+      name: z.string().min(1).optional(),
+      description: z.string().optional(),
+      priceKes: z.number().positive().optional(),
+      billingCycle: z.enum(['monthly', 'quarterly', 'annually']).optional(),
+      features: z.array(z.string()).optional(),
+      limits: z.object({
+        maxListings: z.number().optional(),
+        calculationsPerMonth: z.number().optional(),
+        valuationsPerMonth: z.number().optional(),
+        apiCallsPerMonth: z.number().optional(),
+        storageGb: z.number().optional(),
+      }).optional(),
+      isActive: z.boolean().optional(),
+      sortOrder: z.number().optional()
+    });
+
+    const validatedData = updatePlanSchema.parse(req.body);
+    
+    const plan = await MonetizationService.updateSubscriptionPlan(parseInt(id), validatedData);
+    res.json(plan);
+  } catch (error) {
+    console.error('Error updating subscription plan:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to update subscription plan' });
+  }
+});
+
+/**
+ * DELETE /api/monetization/admin/delete-plan/:id
+ * Delete subscription plan (admin only)
+ */
+router.delete('/admin/delete-plan/:id', requireAuth, async (req, res) => {
+  try {
+    // TODO: Add admin role check
+    const { id } = req.params;
+    
+    await MonetizationService.deleteSubscriptionPlan(parseInt(id));
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting subscription plan:', error);
+    res.status(500).json({ error: 'Failed to delete subscription plan' });
+  }
+});
+
+/**
+ * POST /api/monetization/admin/create-strategy
+ * Create new monetization strategy (admin only)
+ */
+router.post('/admin/create-strategy', requireAuth, async (req, res) => {
+  try {
+    // TODO: Add admin role check
+    const createStrategySchema = z.object({
+      strategyName: z.string().min(1),
+      targetRevenue: z.number().positive(),
+      timeframe: z.string().min(1),
+      description: z.string().optional(),
+      tactics: z.string().optional()
+    });
+
+    const validatedData = createStrategySchema.parse(req.body);
+    
+    // Create strategy (this would need implementation in MonetizationService)
+    // For now, we'll simulate success
+    res.json({ 
+      success: true, 
+      strategy: {
+        id: Date.now(),
+        ...validatedData,
+        createdAt: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Error creating monetization strategy:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to create monetization strategy' });
+  }
+});
+
+/**
+ * POST /api/monetization/admin/create-pricing-rule
+ * Create new pricing rule (admin only)
+ */
+router.post('/admin/create-pricing-rule', requireAuth, async (req, res) => {
+  try {
+    // TODO: Add admin role check
+    const createRuleSchema = z.object({
+      feature: z.string().min(1),
+      basePrice: z.number().positive(),
+      tierMultiplier: z.number().positive().optional(),
+      usageBased: z.boolean().default(false),
+      overage: z.number().positive().optional()
+    });
+
+    const validatedData = createRuleSchema.parse(req.body);
+    
+    // Create pricing rule (this would need implementation in MonetizationService)
+    // For now, we'll simulate success
+    res.json({ 
+      success: true, 
+      rule: {
+        id: Date.now(),
+        ...validatedData,
+        createdAt: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Error creating pricing rule:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to create pricing rule' });
+  }
+});
+
 /**
  * POST /api/monetization/initialize-plans
  * Initialize default subscription plans (admin only)

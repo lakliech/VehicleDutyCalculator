@@ -99,6 +99,104 @@ export class MonetizationService {
       .where(eq(userSubscriptions.id, subscription.id));
   }
 
+  /**
+   * Create new subscription plan (admin only)
+   */
+  static async createSubscriptionPlan(planData: {
+    name: string;
+    description?: string;
+    priceKes: number;
+    billingCycle: 'monthly' | 'quarterly' | 'annually';
+    features?: string[];
+    limits?: {
+      maxListings?: number;
+      calculationsPerMonth?: number;
+      valuationsPerMonth?: number;
+      apiCallsPerMonth?: number;
+      storageGb?: number;
+    };
+    isActive?: boolean;
+    sortOrder?: number;
+  }): Promise<SubscriptionPlan> {
+    const [plan] = await db.insert(subscriptionPlans).values({
+      ...planData,
+      features: planData.features || [],
+      limits: planData.limits || {},
+      isActive: planData.isActive !== undefined ? planData.isActive : true,
+      sortOrder: planData.sortOrder || 0,
+      priceKes: planData.priceKes.toString(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }).returning();
+
+    return plan;
+  }
+
+  /**
+   * Update existing subscription plan (admin only)
+   */
+  static async updateSubscriptionPlan(
+    planId: number, 
+    updateData: Partial<{
+      name: string;
+      description: string;
+      priceKes: number;
+      billingCycle: 'monthly' | 'quarterly' | 'annually';
+      features: string[];
+      limits: {
+        maxListings?: number;
+        calculationsPerMonth?: number;
+        valuationsPerMonth?: number;
+        apiCallsPerMonth?: number;
+        storageGb?: number;
+      };
+      isActive: boolean;
+      sortOrder: number;
+    }>
+  ): Promise<SubscriptionPlan> {
+    const plan = await db.select().from(subscriptionPlans).where(eq(subscriptionPlans.id, planId)).limit(1);
+    if (!plan[0]) throw new Error('Subscription plan not found');
+
+    const updatePayload: any = {
+      ...updateData,
+      updatedAt: new Date()
+    };
+
+    if (updateData.priceKes !== undefined) {
+      updatePayload.priceKes = updateData.priceKes.toString();
+    }
+
+    const [updatedPlan] = await db.update(subscriptionPlans)
+      .set(updatePayload)
+      .where(eq(subscriptionPlans.id, planId))
+      .returning();
+
+    return updatedPlan;
+  }
+
+  /**
+   * Delete subscription plan (admin only)
+   */
+  static async deleteSubscriptionPlan(planId: number): Promise<void> {
+    const plan = await db.select().from(subscriptionPlans).where(eq(subscriptionPlans.id, planId)).limit(1);
+    if (!plan[0]) throw new Error('Subscription plan not found');
+
+    // Check if any users are subscribed to this plan
+    const activeSubscriptions = await db.select()
+      .from(userSubscriptions)
+      .where(and(
+        eq(userSubscriptions.planId, planId),
+        eq(userSubscriptions.status, 'active')
+      ))
+      .limit(1);
+
+    if (activeSubscriptions.length > 0) {
+      throw new Error('Cannot delete plan with active subscriptions');
+    }
+
+    await db.delete(subscriptionPlans).where(eq(subscriptionPlans.id, planId));
+  }
+
   // ========================================
   // BILLING & PAYMENTS
   // ========================================

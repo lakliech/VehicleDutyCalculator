@@ -330,8 +330,25 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
         throw new Error('No payment URL received from server');
       }
       
-      // Redirect to Paystack payment page
-      window.location.href = paymentResult.paymentUrl;
+      // Show success message and redirect
+      toast({
+        title: "Payment Initialized Successfully",
+        description: "Redirecting to Paystack for payment...",
+        duration: 3000,
+      });
+      
+      console.log('Redirecting to payment URL:', paymentResult.paymentUrl);
+      
+      // Small delay to let user see the success message
+      setTimeout(() => {
+        try {
+          window.location.href = paymentResult.paymentUrl;
+        } catch (redirectError) {
+          console.error('Redirect error:', redirectError);
+          // Fallback redirect method
+          window.open(paymentResult.paymentUrl, '_self');
+        }
+      }, 1000);
       
     } catch (error) {
       console.error('Payment initialization error:', error);

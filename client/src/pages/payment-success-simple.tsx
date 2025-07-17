@@ -1,24 +1,22 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-export default function PaymentSuccess() {
-  const [location, navigate] = useLocation();
+export default function PaymentSuccessSimple() {
   const [reference, setReference] = useState<string | null>(null);
 
   useEffect(() => {
     // Extract reference from URL parameters
-    const params = new URLSearchParams(location.split('?')[1]);
+    const params = new URLSearchParams(window.location.search);
     const ref = params.get('reference');
     if (ref) {
       setReference(ref);
     }
-  }, [location]);
+  }, []);
 
   const { data: paymentStatus, isLoading, error } = useQuery({
     queryKey: ['payment-verification', reference],
@@ -59,11 +57,11 @@ export default function PaymentSuccess() {
   });
 
   const handleReturnHome = () => {
-    navigate('/');
+    window.location.href = '/';
   };
 
   const handleViewListings = () => {
-    navigate('/profile?tab=listings');
+    window.location.href = '/profile?tab=listings';
   };
 
   if (isLoading) {
@@ -133,70 +131,48 @@ export default function PaymentSuccess() {
           <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
           <CardTitle>Payment Successful!</CardTitle>
           <CardDescription>
-            Your payment has been processed and your listing has been created.
+            Your car listing has been created successfully
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Transaction Details */}
-          <div className="border rounded-lg p-4">
-            <h3 className="font-medium text-gray-900 mb-2">Transaction Details</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Amount:</span>
-                <span className="font-medium">KES {parseFloat(transaction?.amount || '0').toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Reference:</span>
-                <span className="font-medium font-mono text-xs">{reference}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Status:</span>
-                <Badge variant="default" className="bg-green-100 text-green-800">
-                  Paid
-                </Badge>
-              </div>
-            </div>
-          </div>
-
-          {/* Listing Details */}
-          {listing && (
-            <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-gray-900 mb-2">Your Listing</h3>
+          {transaction && (
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="font-semibold mb-2">Transaction Details</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Vehicle:</span>
-                  <span className="font-medium">{listing.year} {listing.make} {listing.model}</span>
+                  <span>Amount:</span>
+                  <span>KES {transaction.amount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Price:</span>
-                  <span className="font-medium">KES {parseFloat(listing.price).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Status:</span>
-                  <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
-                    Under Review
+                  <span>Status:</span>
+                  <Badge variant="default" className="bg-green-100 text-green-800">
+                    {transaction.status}
                   </Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span>Reference:</span>
+                  <span className="text-xs">{transaction.reference}</span>
                 </div>
               </div>
             </div>
           )}
-
-          {/* Action Buttons */}
-          <div className="space-y-2">
-            <Button onClick={handleViewListings} className="w-full bg-purple-600 hover:bg-purple-700">
+          
+          {listing && (
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="font-semibold mb-2">Listing Created</h3>
+              <p className="text-sm text-gray-600">
+                {listing.title} has been listed successfully
+              </p>
+            </div>
+          )}
+          
+          <div className="flex flex-col space-y-2">
+            <Button onClick={handleViewListings} className="w-full">
               View My Listings
             </Button>
             <Button onClick={handleReturnHome} variant="outline" className="w-full">
               Return to Home
             </Button>
-          </div>
-
-          {/* Additional Info */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-medium text-blue-900 mb-1">What's Next?</h4>
-            <p className="text-sm text-blue-800">
-              Your listing is now under review. You'll receive an email notification once it's approved and live on the marketplace.
-            </p>
           </div>
         </CardContent>
       </Card>

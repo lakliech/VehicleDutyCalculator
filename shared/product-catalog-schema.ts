@@ -15,8 +15,12 @@ export const billingTypeEnum = pgEnum('billing_type', [
 
 // Feature limit type enum
 export const limitTypeEnum = pgEnum('limit_type', [
-  'duration',        // Limited by time (days, months)
-  'count',          // Limited by number of uses
+  'count',          // Limited by number of uses (e.g., 5 photos)
+  'duration',       // Limited by time (e.g., 30 days listing)
+  'size',           // Limited by file size (e.g., 5MB per photo)
+  'frequency',      // Limited by frequency (e.g., 3 times per day)
+  'concurrent',     // Limited by concurrent usage (e.g., 2 active listings)
+  'boolean',        // True/false feature (e.g., featured listing)
   'unlimited'       // No limits
 ]);
 
@@ -55,6 +59,10 @@ export const productFeatures = pgTable('product_features', {
   limitType: limitTypeEnum('limit_type').default('unlimited'),
   limitValue: integer('limit_value'), // Number for count-based limits
   limitDuration: integer('limit_duration'), // Days for duration-based limits
+  limitSize: integer('limit_size'), // Size in MB for size-based limits
+  limitFrequency: integer('limit_frequency'), // Frequency per time period
+  frequencyPeriod: integer('frequency_period'), // Time period in hours for frequency limits
+  constraintConfig: jsonb('constraint_config'), // Additional flexible constraint configuration
   isIncluded: boolean('is_included').default(true),
   additionalCost: decimal('additional_cost', { precision: 10, scale: 2 }).default('0'),
   sortOrder: integer('sort_order').default(0),

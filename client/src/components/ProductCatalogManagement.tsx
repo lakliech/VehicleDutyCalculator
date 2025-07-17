@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { FeatureManagement } from "./feature-management";
 import { 
   Plus, 
   Edit, 
@@ -617,7 +618,7 @@ export default function ProductCatalogManagement() {
 
         {/* Features & Pricing Tab */}
         <TabsContent value="features" className="space-y-4">
-          <FeaturesAndPricingManagement />
+          <FeatureManagementWrapper />
         </TabsContent>
       </Tabs>
     </div>
@@ -869,6 +870,116 @@ function FeaturesAndPricingManagement() {
           <CardContent className="text-center py-12">
             <Package className="h-12 w-12 mx-auto mb-4 opacity-50 text-muted-foreground" />
             <p className="text-muted-foreground">Select a product to manage its features and pricing</p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// Feature Management Wrapper Component
+function FeatureManagementWrapper() {
+  const [selectedProduct, setSelectedProduct] = useState<string>('');
+  
+  // Fetch all products for the dropdown
+  const { data: products = [], isLoading: productsLoading } = useQuery({
+    queryKey: ['/api/products'],
+    queryFn: () => fetch('/api/products').then(res => res.json())
+  });
+
+  const selectedProductDetails = products.find((p: any) => {
+    const product = p.product || p;
+    return product.id.toString() === selectedProduct;
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Product Selection */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Select Product</CardTitle>
+          <CardDescription>Choose a product to manage its features with comprehensive constraints</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="product-select">Product</Label>
+              <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a product" />
+                </SelectTrigger>
+                <SelectContent>
+                  {products.map((item: any) => {
+                    const product = item.product || item;
+                    const category = item.category || null;
+                    return (
+                      <SelectItem key={product.id} value={product.id.toString()}>
+                        {product.name} {category && `(${category.name})`}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Product Details */}
+      {selectedProductDetails && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Product Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <Label className="text-sm font-medium">Name</Label>
+                <p className="text-sm text-muted-foreground">{selectedProductDetails.product?.name || selectedProductDetails.name}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Category</Label>
+                <p className="text-sm text-muted-foreground">{selectedProductDetails.category?.name || 'N/A'}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Base Price</Label>
+                <p className="text-sm text-muted-foreground">
+                  KES {parseFloat(selectedProductDetails.product?.basePrice || selectedProductDetails.basePrice || '0').toLocaleString()}
+                </p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Billing Type</Label>
+                <p className="text-sm text-muted-foreground capitalize">
+                  {(selectedProductDetails.product?.billingType || selectedProductDetails.billingType || 'per_period').replace('_', ' ')}
+                </p>
+              </div>
+            </div>
+            {selectedProductDetails.product?.description || selectedProductDetails.description && (
+              <div className="mt-4">
+                <Label className="text-sm font-medium">Description</Label>
+                <p className="text-sm text-muted-foreground">
+                  {selectedProductDetails.product?.description || selectedProductDetails.description}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Feature Management */}
+      {selectedProduct && (
+        <FeatureManagement productId={parseInt(selectedProduct)} />
+      )}
+
+      {/* No Product Selected */}
+      {!selectedProduct && (
+        <Card>
+          <CardContent className="text-center py-8">
+            <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <p className="text-muted-foreground mb-2">Select a product to manage its features</p>
+            <p className="text-sm text-muted-foreground">
+              Create and define features with various constraint types including count, duration, size, frequency, concurrent, and boolean limits.
+            </p>
           </CardContent>
         </Card>
       )}

@@ -54,8 +54,189 @@ export class FeatureEnforcementService {
     }
   }
 
+  // Enhanced constraint checking for different types
+  async checkConstraint(userId: string, featureName: string, currentValue: number = 0, additionalParams: Record<string, any> = {}): Promise<{
+    allowed: boolean;
+    limit: number | null;
+    message?: string;
+    constraintType: string;
+  }> {
+    const { limits } = await this.getUserFeatures(userId);
+    
+    const normalizedFeatureName = featureName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const feature = limits[normalizedFeatureName];
+    
+    if (!feature) {
+      return { allowed: false, limit: 0, message: 'Feature not available', constraintType: 'none' };
+    }
+    
+    switch (feature.type) {
+      case 'unlimited':
+        return { allowed: true, limit: -1, constraintType: 'unlimited' };
+      
+      case 'count':
+        const countLimit = feature.value || 0;
+        return {
+          allowed: currentValue < countLimit,
+          limit: countLimit,
+          message: currentValue >= countLimit ? `Maximum ${countLimit} items allowed` : undefined,
+          constraintType: 'count'
+        };
+      
+      case 'duration':
+        const durationDays = feature.duration || 0;
+        return {
+          allowed: true,
+          limit: durationDays,
+          message: `Available for ${durationDays} days`,
+          constraintType: 'duration'
+        };
+      
+      case 'size':
+        const sizeLimit = feature.value || 0; // Size in MB
+        const currentSize = additionalParams.currentSize || 0;
+        return {
+          allowed: currentSize <= sizeLimit,
+          limit: sizeLimit,
+          message: currentSize > sizeLimit ? `Maximum ${sizeLimit}MB allowed` : undefined,
+          constraintType: 'size'
+        };
+      
+      case 'frequency':
+        const frequencyLimit = feature.value || 0;
+        const period = feature.duration || 24; // hours
+        const currentFrequency = additionalParams.currentFrequency || 0;
+        return {
+          allowed: currentFrequency < frequencyLimit,
+          limit: frequencyLimit,
+          message: currentFrequency >= frequencyLimit ? `Maximum ${frequencyLimit} times per ${period} hours` : undefined,
+          constraintType: 'frequency'
+        };
+      
+      case 'concurrent':
+        const concurrentLimit = feature.value || 0;
+        const currentConcurrent = additionalParams.currentConcurrent || 0;
+        return {
+          allowed: currentConcurrent < concurrentLimit,
+          limit: concurrentLimit,
+          message: currentConcurrent >= concurrentLimit ? `Maximum ${concurrentLimit} concurrent items` : undefined,
+          constraintType: 'concurrent'
+        };
+      
+      case 'boolean':
+        return {
+          allowed: true,
+          limit: 1,
+          message: 'Feature available',
+          constraintType: 'boolean'
+        };
+      
+      default:
+        return { allowed: false, limit: 0, message: 'Unknown constraint type', constraintType: 'unknown' };
+    }
+  }
+
   // Check if user can upload photos based on their subscription
   async checkPhotoUploadLimit(userId: string, currentPhotoCount: number): Promise<{
+    allowed: boolean;
+    limit: number;
+    message?: string;
+  }> {
+    const result = await this.checkConstraint(userId, 'photos', currentPhotoCount);
+    
+    return {
+      allowed: result.allowed,
+      limit: result.limit || 1,
+      message: result.message
+    };
+  }
+
+  // Check listing creation limit
+  async checkListingCreationLimit(userId: string, currentListingCount: number): Promise<{
+    allowed: boolean;
+    limit: number;
+    message?: string;
+  }> {
+    const result = await this.checkConstraint(userId, 'listings', currentListingCount);
+    
+    return {
+      allowed: result.allowed,
+      limit: result.limit || 1,
+      message: result.message
+    };
+  }
+
+  // Check listing duration limit
+  async checkListingDurationLimit(userId: string): Promise<{
+    allowed: boolean;
+    duration: number;
+    message?: string;
+  }> {
+    const result = await this.checkConstraint(userId, 'listing_duration');
+    
+    return {
+      allowed: result.allowed,
+      duration: result.limit || 7, // Default 7 days
+      message: result.message
+    };
+  }
+
+  // Check boost limit
+  async checkBoostLimit(userId: string, currentBoostCount: number): Promise<{
+    allowed: boolean;
+    limit: number;
+    message?: string;
+  }> {
+    const result = await this.checkConstraint(userId, 'boosts', currentBoostCount);
+    
+    return {
+      allowed: result.allowed,
+      limit: result.limit || 0,
+      message: result.message
+    };
+  }
+
+  // Check premium feature access
+  async checkPremiumFeatureAccess(userId: string, featureName: string): Promise<{
+    allowed: boolean;
+    message?: string;
+  }> {
+    const result = await this.checkConstraint(userId, featureName);
+    
+    return {
+      allowed: result.allowed,
+      message: result.message
+    };
+  }
+
+  // Get comprehensive user feature summary
+  async getUserFeatureSummary(userId: string): Promise<{
+    features: any[];
+    limits: Record<string, any>;
+    summary: {
+      totalFeatures: number;
+      activeFeatures: number;
+      constraintTypes: string[];
+    };
+  }> {
+    const { features, limits } = await this.getUserFeatures(userId);
+    
+    const constraintTypes = Object.values(limits).map((limit: any) => limit.type);
+    const uniqueConstraintTypes = [...new Set(constraintTypes)];
+    
+    return {
+      features,
+      limits,
+      summary: {
+        totalFeatures: features.length,
+        activeFeatures: Object.keys(limits).length,
+        constraintTypes: uniqueConstraintTypes
+      }
+    };
+  }
+
+  // Legacy method for backward compatibility
+  async checkPhotoUploadLimitLegacy(userId: string, currentPhotoCount: number): Promise<{
     allowed: boolean;
     limit: number;
     message?: string;

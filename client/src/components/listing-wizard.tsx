@@ -283,7 +283,7 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
         currency: 'KES',
         productId: paymentData.selectedProduct.id,
         entityType: 'listing',
-        entityId: null, // Will be set after listing creation
+        entityId: undefined, // Will be set after listing creation
         transactionType: paymentData.selectedProduct.billingType === 'one-time' ? 'purchase' : 'subscription',
         description: `Payment for ${paymentData.selectedProduct.name}`,
         callbackUrl: `${window.location.origin}/payment-success`,

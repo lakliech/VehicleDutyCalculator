@@ -1039,13 +1039,19 @@ function PaymentStep({ form, onSubmit, onPrev, isSubmitting }: {
   // Fetch marketplace listing products (category 1)
   const { data: basicProducts, isLoading: loadingBasic } = useQuery({
     queryKey: ['/api/products/categories/1/products'],
-    queryFn: () => apiRequest('GET', '/api/products/categories/1/products'),
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/products/categories/1/products');
+      return response.json ? await response.json() : response;
+    },
   });
 
   // Fetch subscription plans (category 2)  
   const { data: subscriptionProducts, isLoading: loadingSubscriptions } = useQuery({
     queryKey: ['/api/products/categories/2/products'],
-    queryFn: () => apiRequest('GET', '/api/products/categories/2/products'),
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/products/categories/2/products');
+      return response.json ? await response.json() : response;
+    },
   });
 
   const handleProductSelect = (product: any) => {
@@ -1075,6 +1081,9 @@ function PaymentStep({ form, onSubmit, onPrev, isSubmitting }: {
     );
   }
 
+  // Add debugging and fallback handling
+  console.log("PaymentStep data:", { basicProducts, subscriptionProducts });
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmitForm)} className="space-y-6">
@@ -1090,7 +1099,7 @@ function PaymentStep({ form, onSubmit, onPrev, isSubmitting }: {
             Basic Listing Options
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {basicProducts?.map((product: any) => (
+            {Array.isArray(basicProducts) && basicProducts.map((product: any) => (
               <div
                 key={product.id}
                 className={`border rounded-lg p-4 cursor-pointer transition-all ${
@@ -1122,7 +1131,7 @@ function PaymentStep({ form, onSubmit, onPrev, isSubmitting }: {
             Subscription Plans
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {subscriptionProducts?.map((product: any) => (
+            {Array.isArray(subscriptionProducts) && subscriptionProducts.map((product: any) => (
               <div
                 key={product.id}
                 className={`border rounded-lg p-4 cursor-pointer transition-all ${

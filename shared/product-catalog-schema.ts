@@ -137,7 +137,13 @@ export const bundleProducts = pgTable('bundle_products', {
 
 // Insert schemas
 export const insertProductCategorySchema = createInsertSchema(productCategories).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertProductSchema = createInsertSchema(products).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertProductSchema = createInsertSchema(products)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    basePrice: z.string().transform((val) => val === '' ? null : parseFloat(val)).optional(),
+    categoryId: z.string().transform((val) => val === '' ? null : parseInt(val)).optional(),
+    sortOrder: z.number().optional().default(0)
+  });
 export const insertProductFeatureSchema = createInsertSchema(productFeatures).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertProductPricingSchema = createInsertSchema(productPricing).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserProductSubscriptionSchema = createInsertSchema(userProductSubscriptions).omit({ id: true, createdAt: true, updatedAt: true });

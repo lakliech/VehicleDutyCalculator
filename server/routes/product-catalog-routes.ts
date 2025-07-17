@@ -382,6 +382,33 @@ router.put('/features/:id', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// Update feature for specific product (admin only)
+router.put('/products/:productId/features/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const productId = parseInt(req.params.productId);
+    const featureData = insertProductFeatureSchema.parse({ ...req.body, productId });
+    
+    const [feature] = await db
+      .update(productFeatures)
+      .set({ ...featureData, updatedAt: new Date() })
+      .where(and(eq(productFeatures.id, id), eq(productFeatures.productId, productId)))
+      .returning();
+    
+    if (!feature) {
+      return res.status(404).json({ error: 'Feature not found' });
+    }
+    
+    res.json(feature);
+  } catch (error) {
+    console.error('Error updating product feature:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to update product feature' });
+  }
+});
+
 // Delete feature (admin only)
 router.delete('/admin/features/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
@@ -392,6 +419,28 @@ router.delete('/admin/features/:id', requireAuth, requireAdmin, async (req, res)
   } catch (error) {
     console.error('Error deleting feature:', error);
     res.status(500).json({ error: 'Failed to delete feature' });
+  }
+});
+
+// Delete feature for specific product (admin only)
+router.delete('/products/:productId/features/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const productId = parseInt(req.params.productId);
+    
+    const result = await db
+      .delete(productFeatures)
+      .where(and(eq(productFeatures.id, id), eq(productFeatures.productId, productId)))
+      .returning();
+    
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'Feature not found' });
+    }
+    
+    res.json({ message: 'Feature deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting product feature:', error);
+    res.status(500).json({ error: 'Failed to delete product feature' });
   }
 });
 

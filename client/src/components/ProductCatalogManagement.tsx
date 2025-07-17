@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { FeatureManagement } from "./feature-management";
+import ProductFeatureManager from "./ProductFeatureManager";
 import { 
   Plus, 
   Edit, 
@@ -353,7 +353,7 @@ export default function ProductCatalogManagement() {
       </div>
 
       <Tabs defaultValue="categories" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="categories" className="flex items-center gap-2">
             <Tags className="h-4 w-4" />
             Categories
@@ -364,7 +364,11 @@ export default function ProductCatalogManagement() {
           </TabsTrigger>
           <TabsTrigger value="features" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
-            Features & Pricing
+            System Features
+          </TabsTrigger>
+          <TabsTrigger value="product-features" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            Product Features
           </TabsTrigger>
         </TabsList>
 
@@ -954,6 +958,10 @@ export default function ProductCatalogManagement() {
         {/* Features & Pricing Tab */}
         <TabsContent value="features" className="space-y-4">
           <FeaturesAndPricingManagement />
+        </TabsContent>
+
+        <TabsContent value="product-features" className="space-y-4">
+          <ProductFeatureManager />
         </TabsContent>
       </Tabs>
     </div>

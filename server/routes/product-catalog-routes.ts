@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { eq, desc, asc, inArray } from 'drizzle-orm';
+import { eq, desc, asc, inArray, and } from 'drizzle-orm';
 import { db } from '../db';
 import { 
   productCategories, 
@@ -431,16 +431,47 @@ router.post('/admin/products/:productId/features', requireAuth, requireAdmin, as
 router.post('/products/:productId/features', requireAuth, requireAdmin, async (req, res) => {
   try {
     const productId = parseInt(req.params.productId);
-    const featureData = insertProductFeatureSchema.parse({ ...req.body, productId });
+    const associationData = insertProductFeatureAssociationSchema.parse({ 
+      ...req.body, 
+      productId 
+    });
     
-    const [feature] = await db.insert(productFeatures).values(featureData).returning();
-    res.status(201).json(feature);
+    const [association] = await db.insert(productFeatureAssociations).values(associationData).returning();
+    
+    // Fetch the full association with feature details
+    const fullAssociation = await db
+      .select({
+        id: productFeatureAssociations.id,
+        productId: productFeatureAssociations.productId,
+        featureId: productFeatureAssociations.featureId,
+        limitValue: productFeatureAssociations.limitValue,
+        limitDuration: productFeatureAssociations.limitDuration,
+        limitSize: productFeatureAssociations.limitSize,
+        limitFrequency: productFeatureAssociations.limitFrequency,
+        frequencyPeriod: productFeatureAssociations.frequencyPeriod,
+        isIncluded: productFeatureAssociations.isIncluded,
+        additionalCost: productFeatureAssociations.additionalCost,
+        feature: {
+          id: systemFeatures.id,
+          name: systemFeatures.name,
+          description: systemFeatures.description,
+          capability: systemFeatures.capability,
+          limitType: systemFeatures.limitType,
+          isActive: systemFeatures.isActive
+        }
+      })
+      .from(productFeatureAssociations)
+      .innerJoin(systemFeatures, eq(productFeatureAssociations.featureId, systemFeatures.id))
+      .where(eq(productFeatureAssociations.id, association.id))
+      .limit(1);
+    
+    res.status(201).json(fullAssociation[0]);
   } catch (error) {
-    console.error('Error creating product feature:', error);
+    console.error('Error creating product feature association:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid data', details: error.errors });
     }
-    res.status(500).json({ error: 'Failed to create product feature' });
+    res.status(500).json({ error: 'Failed to create product feature association' });
   }
 });
 
@@ -548,25 +579,52 @@ router.put('/products/:productId/features/:id', requireAuth, requireAdmin, async
   try {
     const id = parseInt(req.params.id);
     const productId = parseInt(req.params.productId);
-    const featureData = insertProductFeatureSchema.parse({ ...req.body, productId });
+    const associationData = insertProductFeatureAssociationSchema.parse({ ...req.body, productId });
     
-    const [feature] = await db
-      .update(productFeatures)
-      .set({ ...featureData, updatedAt: new Date() })
-      .where(and(eq(productFeatures.id, id), eq(productFeatures.productId, productId)))
+    const [association] = await db
+      .update(productFeatureAssociations)
+      .set({ ...associationData, updatedAt: new Date() })
+      .where(and(eq(productFeatureAssociations.id, id), eq(productFeatureAssociations.productId, productId)))
       .returning();
     
-    if (!feature) {
-      return res.status(404).json({ error: 'Feature not found' });
+    if (!association) {
+      return res.status(404).json({ error: 'Feature association not found' });
     }
     
-    res.json(feature);
+    // Fetch the full association with feature details
+    const fullAssociation = await db
+      .select({
+        id: productFeatureAssociations.id,
+        productId: productFeatureAssociations.productId,
+        featureId: productFeatureAssociations.featureId,
+        limitValue: productFeatureAssociations.limitValue,
+        limitDuration: productFeatureAssociations.limitDuration,
+        limitSize: productFeatureAssociations.limitSize,
+        limitFrequency: productFeatureAssociations.limitFrequency,
+        frequencyPeriod: productFeatureAssociations.frequencyPeriod,
+        isIncluded: productFeatureAssociations.isIncluded,
+        additionalCost: productFeatureAssociations.additionalCost,
+        feature: {
+          id: systemFeatures.id,
+          name: systemFeatures.name,
+          description: systemFeatures.description,
+          capability: systemFeatures.capability,
+          limitType: systemFeatures.limitType,
+          isActive: systemFeatures.isActive
+        }
+      })
+      .from(productFeatureAssociations)
+      .innerJoin(systemFeatures, eq(productFeatureAssociations.featureId, systemFeatures.id))
+      .where(eq(productFeatureAssociations.id, association.id))
+      .limit(1);
+    
+    res.json(fullAssociation[0]);
   } catch (error) {
-    console.error('Error updating product feature:', error);
+    console.error('Error updating product feature association:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid data', details: error.errors });
     }
-    res.status(500).json({ error: 'Failed to update product feature' });
+    res.status(500).json({ error: 'Failed to update product feature association' });
   }
 });
 
@@ -590,18 +648,18 @@ router.delete('/products/:productId/features/:id', requireAuth, requireAdmin, as
     const productId = parseInt(req.params.productId);
     
     const result = await db
-      .delete(productFeatures)
-      .where(and(eq(productFeatures.id, id), eq(productFeatures.productId, productId)))
+      .delete(productFeatureAssociations)
+      .where(and(eq(productFeatureAssociations.id, id), eq(productFeatureAssociations.productId, productId)))
       .returning();
     
     if (result.length === 0) {
-      return res.status(404).json({ error: 'Feature not found' });
+      return res.status(404).json({ error: 'Feature association not found' });
     }
     
-    res.json({ message: 'Feature deleted successfully' });
+    res.json({ message: 'Feature association deleted successfully' });
   } catch (error) {
-    console.error('Error deleting product feature:', error);
-    res.status(500).json({ error: 'Failed to delete product feature' });
+    console.error('Error deleting product feature association:', error);
+    res.status(500).json({ error: 'Failed to delete product feature association' });
   }
 });
 

@@ -152,7 +152,7 @@ export function VehiclesManagementTab({
   });
 
   // Filter and paginate listings
-  const filteredListings = listings.filter(listing => {
+  const filteredListings = (listings || []).filter(listing => {
     const matchesStatus = filters.status === 'all' || listing.status === filters.status;
     const matchesVerified = filters.verified === 'all' || (filters.verified === 'yes' ? listing.isVerified : !listing.isVerified);
     const matchesPremium = filters.premium === 'all' || (filters.premium === 'yes' ? listing.isPremium : !listing.isPremium);

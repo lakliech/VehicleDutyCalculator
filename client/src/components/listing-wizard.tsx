@@ -292,20 +292,14 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
       // Store listing data in localStorage for retrieval after payment
       localStorage.setItem('pendingListingData', JSON.stringify(listingData));
 
+      // Minimal payload as per Paystack documentation
       const paymentPayload = {
         amount: parseFloat(paymentData.selectedProduct.price),
+        callback_url: `${window.location.origin}/payment-success`,
         currency: 'KES',
-        productId: paymentData.selectedProduct.id,
-        entityType: 'listing',
-        entityId: undefined, // Will be set after listing creation
-        transactionType: paymentData.selectedProduct.billingType === 'one-time' ? 'purchase' : 'subscription',
-        description: `Payment for ${paymentData.selectedProduct.name}`,
-        callbackUrl: `${window.location.origin}/payment-success`,
         metadata: {
-          listingTitle: listingData.title,
-          productId: paymentData.selectedProduct.id,
-          productName: paymentData.selectedProduct.name,
-          listingDataStored: true // Flag to indicate data is stored locally
+          product_id: paymentData.selectedProduct.id,
+          listing_title: listingData.title
         }
       };
 

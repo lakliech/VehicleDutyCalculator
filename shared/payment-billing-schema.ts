@@ -207,12 +207,8 @@ export type InsertSavedPaymentMethod = z.infer<typeof insertSavedPaymentMethodSc
 // Validation schemas for API endpoints
 export const createPaymentIntentSchema = z.object({
   amount: z.number().min(1),
+  callback_url: z.string().optional(),
   currency: z.string().default('KES'),
-  productId: z.number().optional(),
-  entityType: z.string().optional(),
-  entityId: z.string().nullish(),
-  callbackUrl: z.string().optional(),
-  paymentMethod: z.enum(['card', 'mobile_money', 'bank_transfer', 'ussd', 'bank', 'mpesa', 'airtel_money']).optional(),
   metadata: z.any().optional()
 });
 

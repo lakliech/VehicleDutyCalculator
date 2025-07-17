@@ -1053,6 +1053,12 @@ Changelog:
   - Enhanced backend PUT endpoint /api/products/admin/products/:id to handle feature associations
   - Backend now clears existing feature associations and applies new selections during product updates
   - Feature selection displays all available features with constraint type indicators
+- January 17, 2025. Optimized Paystack payment integration following official documentation:
+  - Simplified payload to minimal requirements: amount, callback_url, currency, metadata
+  - Enhanced security by using authenticated user's email instead of client-provided email
+  - Reduced payload size significantly while maintaining full functionality
+  - Implemented localStorage strategy for listing data to avoid Paystack's 200KB limit
+  - Payment system now follows Paystack best practices with minimal, secure data transmission
   - Consistent UI pattern matching create product dialog for familiar user experience
   - Complete feature management workflow: create product with features → edit product features → update associations
   - Made Category and Product Name fields read-only in edit product form to prevent accidental changes to core identifiers

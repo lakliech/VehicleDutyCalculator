@@ -34,17 +34,20 @@ router.post('/initialize', authenticateUser, async (req, res) => {
       return res.status(400).json({ error: 'User email is required' });
     }
 
+    // Extract product info from metadata for internal tracking
+    const productId = data.metadata?.product_id;
+    const listingTitle = data.metadata?.listing_title;
+    
     const paymentParams = {
       userId: req.user.id,
       amount: data.amount,
       currency: data.currency,
-      email: req.user.email,
-      productId: data.productId,
-      entityType: data.entityType,
-      entityId: data.entityId,
-      transactionType: data.productId ? 'subscription' : 'purchase',
-      description: `Payment for ${data.entityType || 'service'}`,
-      callbackUrl: data.callbackUrl || `${req.protocol}://${req.get('host')}/payment-success`,
+      email: req.user.email, // Use authenticated user's email for security
+      productId: productId,
+      entityType: 'listing',
+      transactionType: 'purchase',
+      description: `Payment for listing: ${listingTitle}`,
+      callbackUrl: data.callback_url || `${req.protocol}://${req.get('host')}/payment-success`,
       metadata: data.metadata
     };
 

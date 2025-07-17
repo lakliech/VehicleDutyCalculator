@@ -9370,6 +9370,10 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   // Use billing routes
   const billingRoutes = await import('./routes/billing-routes');
   app.use('/api/billing', billingRoutes.default);
+
+  // Use subscription-product routes
+  const subscriptionProductRoutes = await import('./routes/subscription-product-routes');
+  app.use('/api/subscription-products', subscriptionProductRoutes.default);
   console.log('Payment routes registered successfully');
 
   const httpServer = createServer(app);

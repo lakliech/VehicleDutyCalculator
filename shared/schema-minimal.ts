@@ -36,6 +36,24 @@ export const transactionTypeEnum = pgEnum('transaction_type', [
   'bonus'
 ]);
 
+// Subscription status enum
+export const subscriptionStatusEnum = pgEnum('subscription_status', [
+  'pending',
+  'active',
+  'cancelled',
+  'paused',
+  'expired'
+]);
+
+// Product type enum
+export const productTypeEnum = pgEnum('product_type', [
+  'feature_access',
+  'listing_package',
+  'api_access',
+  'analytics_package',
+  'premium_support'
+]);
+
 // Essential tables for marketplace functionality
 
 // ==============================
@@ -58,6 +76,70 @@ export const appUsers = pgTable("app_users", {
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// ==============================
+// SUBSCRIPTION & PRODUCT MANAGEMENT
+// ==============================
+
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  productType: productTypeEnum("product_type").notNull(),
+  basePrice: decimal("base_price", { precision: 10, scale: 2 }).notNull(),
+  features: json("features").$type<string[]>(), // Array of feature identifiers
+  limits: json("limits").$type<Record<string, number>>(), // Usage limits per feature
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const subscriptionPlans = pgTable("subscription_plans", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  monthlyPrice: decimal("monthly_price", { precision: 10, scale: 2 }).notNull(),
+  yearlyPrice: decimal("yearly_price", { precision: 10, scale: 2 }),
+  productIds: json("product_ids").$type<number[]>(), // Array of product IDs included
+  limits: json("limits").$type<Record<string, number>>(), // Overall limits for the plan
+  features: json("features").$type<string[]>(), // Featured benefits
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const userSubscriptions = pgTable("user_subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  planId: integer("plan_id").references(() => subscriptionPlans.id).notNull(),
+  status: subscriptionStatusEnum("status").notNull().default('pending'),
+  subscriptionType: varchar("subscription_type", { length: 50 }).notNull(), // 'monthly' or 'yearly'
+  currentPeriodStart: timestamp("current_period_start").notNull(),
+  currentPeriodEnd: timestamp("current_period_end").notNull(),
+  nextBillingDate: timestamp("next_billing_date"),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  cancelledAt: timestamp("cancelled_at"),
+  pausedAt: timestamp("paused_at"),
+  resumedAt: timestamp("resumed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const userProductAccess = pgTable("user_product_access", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  subscriptionId: integer("subscription_id").references(() => userSubscriptions.id),
+  accessType: varchar("access_type", { length: 50 }).notNull(), // 'subscription', 'one_time', 'trial'
+  isActive: boolean("is_active").default(true),
+  expiresAt: timestamp("expires_at"),
+  usageCount: integer("usage_count").default(0),
+  usageLimit: integer("usage_limit"),
+  grantedAt: timestamp("granted_at").defaultNow().notNull(),
+  revokedAt: timestamp("revoked_at"),
 });
 
 // ==============================

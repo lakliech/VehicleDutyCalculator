@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { ImageUpload } from "./image-upload";
 import { BulkImageUpload } from "./bulk-image-upload";
-import LocationSelector from "./LocationSelector";
+import KenyanLocationSelector from "./KenyanLocationSelector";
 
 // Form schema for each step
 const vehicleDetailsSchema = z.object({
@@ -41,10 +41,8 @@ const vehicleDetailsSchema = z.object({
 const locationConditionSchema = z.object({
   location: z.string().min(1, "Location is required"),
   locationType: z.enum(["locally_available", "overseas"]).default("locally_available"),
-  countryId: z.number().optional(),
-  countyId: z.number().optional(),
-  constituencyId: z.number().optional(),
-  wardId: z.number().optional(),
+  county: z.string().optional(),
+  area: z.string().optional(),
   specificLocation: z.string().optional(),
   condition: z.enum(["new", "used", "accidented"], {
     required_error: "Please select vehicle condition",
@@ -645,27 +643,27 @@ function VehicleDetailsStep({ form, onNext }: { form: any; onNext: (data: any, s
 function LocationConditionStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, stepName: string) => void; onPrev: () => void }) {
   const [locationData, setLocationData] = useState({
     locationType: form.getValues("locationType") || "locally_available",
-    countryId: form.getValues("countryId"),
-    countyId: form.getValues("countyId"),
-    constituencyId: form.getValues("constituencyId"),
-    wardId: form.getValues("wardId"),
+    county: form.getValues("county"),
+    area: form.getValues("area"),
+    specificLocation: form.getValues("specificLocation"),
   });
 
   const handleLocationChange = (location: any) => {
     setLocationData(location);
     form.setValue("locationType", location.locationType);
-    form.setValue("countryId", location.countryId);
-    form.setValue("countyId", location.countyId);
-    form.setValue("constituencyId", location.constituencyId);
-    form.setValue("wardId", location.wardId);
+    form.setValue("county", location.county);
+    form.setValue("area", location.area);
+    form.setValue("specificLocation", location.specificLocation);
     
     // Auto-populate the legacy location field for compatibility
-    if (location.locationType === "overseas") {
-      form.setValue("location", "Overseas");
-    } else if (location.countyId) {
-      // This will be the county name once we have the data
-      form.setValue("location", "Kenya");
-    }
+    const locationParts = [];
+    if (location.specificLocation) locationParts.push(location.specificLocation);
+    if (location.area) locationParts.push(location.area);
+    if (location.county) locationParts.push(location.county);
+    if (location.locationType === 'overseas') locationParts.push("Overseas");
+    
+    const formattedLocation = locationParts.join(", ");
+    form.setValue("location", formattedLocation || "Location not specified");
   };
 
   const onSubmit = (data: LocationConditionForm) => {
@@ -676,9 +674,14 @@ function LocationConditionStep({ form, onNext, onPrev }: { form: any; onNext: (d
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Location Selection */}
-        <LocationSelector 
+        <KenyanLocationSelector 
           onLocationChange={handleLocationChange}
-          defaultValues={locationData}
+          defaultValues={{
+            locationType: locationData.locationType,
+            county: form.getValues("county"),
+            area: form.getValues("area"),
+            specificLocation: form.getValues("specificLocation")
+          }}
         />
 
         {/* Additional Location Details */}

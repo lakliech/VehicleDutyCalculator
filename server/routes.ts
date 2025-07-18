@@ -23,10 +23,7 @@ import {
   loanProducts,
   loanApplications,
   paymentTransactions,
-  countries,
-  counties,
-  constituencies,
-  wards
+  kenyanLocations
 } from "@shared/schema-minimal";
 
 import { 
@@ -9555,19 +9552,37 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   // LOCATION REFERENCE ENDPOINTS
   // ========================================
 
-  // Get all countries
-  app.get("/api/countries", async (req, res) => {
+  // Get all Kenyan counties
+  app.get("/api/kenyan-counties", async (req, res) => {
     try {
-      const countriesData = await db
-        .select()
-        .from(countries)
-        .orderBy(asc(countries.name));
+      const counties = await db
+        .selectDistinct({ county: kenyanLocations.county })
+        .from(kenyanLocations)
+        .orderBy(asc(kenyanLocations.county));
       
       res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-      res.json(countriesData);
+      res.json(counties.map(c => c.county));
     } catch (error) {
-      console.error("Failed to fetch countries:", error);
-      res.status(500).json({ error: "Failed to fetch countries" });
+      console.error("Failed to fetch Kenyan counties:", error);
+      res.status(500).json({ error: "Failed to fetch Kenyan counties" });
+    }
+  });
+
+  // Get areas by county
+  app.get("/api/kenyan-counties/:county/areas", async (req, res) => {
+    try {
+      const county = req.params.county;
+      const areas = await db
+        .selectDistinct({ area: kenyanLocations.area })
+        .from(kenyanLocations)
+        .where(eq(kenyanLocations.county, county))
+        .orderBy(asc(kenyanLocations.area));
+      
+      res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      res.json(areas.map(a => a.area));
+    } catch (error) {
+      console.error("Failed to fetch areas:", error);
+      res.status(500).json({ error: "Failed to fetch areas" });
     }
   });
 

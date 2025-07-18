@@ -57,6 +57,17 @@ export const productTypeEnum = pgEnum('product_type', [
 // Essential tables for marketplace functionality
 
 // ==============================
+// LOCATION MANAGEMENT
+// ==============================
+
+export const kenyanLocations = pgTable("kenyan_locations", {
+  id: serial("id").primaryKey(),
+  county: varchar("county", { length: 100 }).notNull(),
+  area: varchar("area", { length: 200 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// ==============================
 // USER AUTHENTICATION & MANAGEMENT
 // ==============================
 

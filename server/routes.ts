@@ -9475,8 +9475,16 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         .from(vehicleReferences)
         .orderBy(asc(vehicleReferences.make));
       
+      // Convert to title case for frontend consistency
+      const formattedMakes = makes.map(m => {
+        const make = m.make;
+        return make.toLowerCase().split(' ').map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        ).join(' ');
+      });
+      
       res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-      res.json(makes.map(m => m.make));
+      res.json(formattedMakes);
     } catch (error) {
       console.error("Failed to fetch vehicle makes:", error);
       res.status(500).json({ error: "Failed to fetch vehicle makes" });
@@ -9487,14 +9495,35 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   app.get("/api/vehicle-makes/:make/models", async (req, res) => {
     try {
       const make = req.params.make;
+      console.log("Fetching models for make:", make);
+      
       const models = await db
         .selectDistinct({ model: vehicleReferences.model })
         .from(vehicleReferences)
-        .where(eq(vehicleReferences.make, make))
+        .where(sql`UPPER(${vehicleReferences.make}) = UPPER(${make})`)
         .orderBy(asc(vehicleReferences.model));
       
+      console.log("Found models:", models.length);
+      
+      // Convert models to title case for consistency
+      const formattedModels = models.map(m => {
+        const model = m.model;
+        // Handle special cases and preserve certain formatting
+        return model.split(' ').map(word => {
+          // Preserve certain technical terms in uppercase
+          if (['GUN', 'URJ', 'FE', 'GD', 'SPEC', 'STD', 'MID', 'HIGH', 'AUTO', 'MANUAL'].includes(word)) {
+            return word;
+          }
+          // Handle acronyms like BMW, SUV etc
+          if (word.length <= 3 && word.toUpperCase() === word) {
+            return word;
+          }
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        }).join(' ');
+      });
+      
       res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-      res.json(models.map(m => m.model));
+      res.json(formattedModels);
     } catch (error) {
       console.error("Failed to fetch vehicle models:", error);
       res.status(500).json({ error: "Failed to fetch vehicle models" });

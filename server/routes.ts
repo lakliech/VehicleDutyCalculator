@@ -22,7 +22,11 @@ import {
   bankPartners,
   loanProducts,
   loanApplications,
-  paymentTransactions
+  paymentTransactions,
+  countries,
+  counties,
+  constituencies,
+  wards
 } from "@shared/schema-minimal";
 
 import { 
@@ -9467,10 +9471,9 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   app.get("/api/vehicle-makes", async (req, res) => {
     try {
       const makes = await db
-        .selectDistinct({ make: schema.vehicleReferences.make })
-        .from(schema.vehicleReferences)
-        .where(eq(schema.vehicleReferences.isActive, true))
-        .orderBy(asc(schema.vehicleReferences.make));
+        .selectDistinct({ make: vehicleReferences.make })
+        .from(vehicleReferences)
+        .orderBy(asc(vehicleReferences.make));
       
       res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
       res.json(makes.map(m => m.make));
@@ -9485,13 +9488,10 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     try {
       const make = req.params.make;
       const models = await db
-        .selectDistinct({ model: schema.vehicleReferences.model })
-        .from(schema.vehicleReferences)
-        .where(and(
-          eq(schema.vehicleReferences.make, make),
-          eq(schema.vehicleReferences.isActive, true)
-        ))
-        .orderBy(asc(schema.vehicleReferences.model));
+        .selectDistinct({ model: vehicleReferences.model })
+        .from(vehicleReferences)
+        .where(eq(vehicleReferences.make, make))
+        .orderBy(asc(vehicleReferences.model));
       
       res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
       res.json(models.map(m => m.model));
@@ -9507,13 +9507,12 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       const { make, model } = req.params;
       const vehicleDetails = await db
         .select()
-        .from(schema.vehicleReferences)
+        .from(vehicleReferences)
         .where(and(
-          eq(schema.vehicleReferences.make, make),
-          eq(schema.vehicleReferences.model, model),
-          eq(schema.vehicleReferences.isActive, true)
+          eq(vehicleReferences.make, make),
+          eq(vehicleReferences.model, model)
         ))
-        .orderBy(desc(schema.vehicleReferences.year));
+        .orderBy(desc(vehicleReferences.year));
       
       res.set('Cache-Control', 'public, max-age=1800'); // Cache for 30 minutes
       res.json(vehicleDetails);
@@ -9530,14 +9529,13 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   // Get all countries
   app.get("/api/countries", async (req, res) => {
     try {
-      const countries = await db
+      const countriesData = await db
         .select()
-        .from(schema.countries)
-        .where(eq(schema.countries.isActive, true))
-        .orderBy(asc(schema.countries.sortOrder), asc(schema.countries.name));
+        .from(countries)
+        .orderBy(asc(countries.name));
       
       res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-      res.json(countries);
+      res.json(countriesData);
     } catch (error) {
       console.error("Failed to fetch countries:", error);
       res.status(500).json({ error: "Failed to fetch countries" });
@@ -9548,14 +9546,14 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   app.get("/api/countries/:countryId/counties", async (req, res) => {
     try {
       const countryId = parseInt(req.params.countryId);
-      const counties = await db
+      const countiesData = await db
         .select()
-        .from(schema.counties)
-        .where(and(eq(schema.counties.countryId, countryId), eq(schema.counties.isActive, true)))
-        .orderBy(asc(schema.counties.sortOrder), asc(schema.counties.name));
+        .from(counties)
+        .where(eq(counties.countryId, countryId))
+        .orderBy(asc(counties.name));
       
       res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-      res.json(counties);
+      res.json(countiesData);
     } catch (error) {
       console.error("Failed to fetch counties:", error);
       res.status(500).json({ error: "Failed to fetch counties" });
@@ -9566,14 +9564,14 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   app.get("/api/counties/:countyId/constituencies", async (req, res) => {
     try {
       const countyId = parseInt(req.params.countyId);
-      const constituencies = await db
+      const constituenciesData = await db
         .select()
-        .from(schema.constituencies)
-        .where(and(eq(schema.constituencies.countyId, countyId), eq(schema.constituencies.isActive, true)))
-        .orderBy(asc(schema.constituencies.sortOrder), asc(schema.constituencies.name));
+        .from(constituencies)
+        .where(eq(constituencies.countyId, countyId))
+        .orderBy(asc(constituencies.name));
       
       res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-      res.json(constituencies);
+      res.json(constituenciesData);
     } catch (error) {
       console.error("Failed to fetch constituencies:", error);
       res.status(500).json({ error: "Failed to fetch constituencies" });
@@ -9584,14 +9582,14 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   app.get("/api/constituencies/:constituencyId/wards", async (req, res) => {
     try {
       const constituencyId = parseInt(req.params.constituencyId);
-      const wards = await db
+      const wardsData = await db
         .select()
-        .from(schema.wards)
-        .where(and(eq(schema.wards.constituencyId, constituencyId), eq(schema.wards.isActive, true)))
-        .orderBy(asc(schema.wards.sortOrder), asc(schema.wards.name));
+        .from(wards)
+        .where(eq(wards.constituencyId, constituencyId))
+        .orderBy(asc(wards.name));
       
       res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-      res.json(wards);
+      res.json(wardsData);
     } catch (error) {
       console.error("Failed to fetch wards:", error);
       res.status(500).json({ error: "Failed to fetch wards" });

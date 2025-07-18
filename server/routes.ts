@@ -9395,6 +9395,81 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   app.use('/api/unified-billing', unifiedBillingRoutes.default);
   console.log('Payment routes registered successfully');
 
+  // ========================================
+  // LOCATION REFERENCE ENDPOINTS
+  // ========================================
+
+  // Get all countries
+  app.get("/api/countries", async (req, res) => {
+    try {
+      const countries = await db
+        .select()
+        .from(schema.countries)
+        .where(eq(schema.countries.isActive, true))
+        .orderBy(asc(schema.countries.sortOrder), asc(schema.countries.name));
+      
+      res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      res.json(countries);
+    } catch (error) {
+      console.error("Failed to fetch countries:", error);
+      res.status(500).json({ error: "Failed to fetch countries" });
+    }
+  });
+
+  // Get counties by country
+  app.get("/api/countries/:countryId/counties", async (req, res) => {
+    try {
+      const countryId = parseInt(req.params.countryId);
+      const counties = await db
+        .select()
+        .from(schema.counties)
+        .where(and(eq(schema.counties.countryId, countryId), eq(schema.counties.isActive, true)))
+        .orderBy(asc(schema.counties.sortOrder), asc(schema.counties.name));
+      
+      res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      res.json(counties);
+    } catch (error) {
+      console.error("Failed to fetch counties:", error);
+      res.status(500).json({ error: "Failed to fetch counties" });
+    }
+  });
+
+  // Get constituencies by county
+  app.get("/api/counties/:countyId/constituencies", async (req, res) => {
+    try {
+      const countyId = parseInt(req.params.countyId);
+      const constituencies = await db
+        .select()
+        .from(schema.constituencies)
+        .where(and(eq(schema.constituencies.countyId, countyId), eq(schema.constituencies.isActive, true)))
+        .orderBy(asc(schema.constituencies.sortOrder), asc(schema.constituencies.name));
+      
+      res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      res.json(constituencies);
+    } catch (error) {
+      console.error("Failed to fetch constituencies:", error);
+      res.status(500).json({ error: "Failed to fetch constituencies" });
+    }
+  });
+
+  // Get wards by constituency
+  app.get("/api/constituencies/:constituencyId/wards", async (req, res) => {
+    try {
+      const constituencyId = parseInt(req.params.constituencyId);
+      const wards = await db
+        .select()
+        .from(schema.wards)
+        .where(and(eq(schema.wards.constituencyId, constituencyId), eq(schema.wards.isActive, true)))
+        .orderBy(asc(schema.wards.sortOrder), asc(schema.wards.name));
+      
+      res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      res.json(wards);
+    } catch (error) {
+      console.error("Failed to fetch wards:", error);
+      res.status(500).json({ error: "Failed to fetch wards" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

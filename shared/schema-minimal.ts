@@ -143,6 +143,49 @@ export const userProductAccess = pgTable("user_product_access", {
 });
 
 // ==============================
+// LOCATION REFERENCE TABLES
+// ==============================
+
+export const countries = pgTable("countries", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  code: varchar("code", { length: 10 }).notNull().unique(), // ISO country code
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const counties = pgTable("counties", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  code: varchar("code", { length: 10 }),
+  countryId: integer("country_id").references(() => countries.id).notNull(),
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const constituencies = pgTable("constituencies", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  code: varchar("code", { length: 10 }),
+  countyId: integer("county_id").references(() => counties.id).notNull(),
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const wards = pgTable("wards", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  code: varchar("code", { length: 10 }),
+  constituencyId: integer("constituency_id").references(() => constituencies.id).notNull(),
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// ==============================
 // CAR LISTINGS 
 // ==============================
 
@@ -166,6 +209,12 @@ export const carListings = pgTable("car_listings", {
   price: decimal("price", { precision: 12, scale: 2 }).notNull(),
   negotiable: boolean("negotiable").default(true),
   location: text("location").notNull(),
+  locationType: varchar("location_type", { length: 50 }).notNull().default("locally_available"), // "locally_available" or "overseas"
+  countryId: integer("country_id").references(() => countries.id),
+  countyId: integer("county_id").references(() => counties.id),
+  constituencyId: integer("constituency_id").references(() => constituencies.id),
+  wardId: integer("ward_id").references(() => wards.id),
+  specificLocation: text("specific_location"), // Additional location details
   description: text("description"),
   features: json("features").$type<string[]>(), // array of feature strings
   documents: json("documents"), // array of document objects
@@ -592,6 +641,12 @@ export const userProductSubscriptions = pgTable("user_product_subscriptions", {
 export type AppUser = typeof appUsers.$inferSelect;
 export type InsertAppUser = typeof appUsers.$inferInsert;
 export const insertAppUserSchema = createInsertSchema(appUsers).omit({ id: true, createdAt: true, updatedAt: true });
+
+// Location types
+export type Country = typeof countries.$inferSelect;
+export type County = typeof counties.$inferSelect;
+export type Constituency = typeof constituencies.$inferSelect;
+export type Ward = typeof wards.$inferSelect;
 
 export type CarListing = typeof carListings.$inferSelect;
 export type InsertCarListing = typeof carListings.$inferInsert;

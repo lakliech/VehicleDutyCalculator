@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { ImageUpload } from "./image-upload";
 import { BulkImageUpload } from "./bulk-image-upload";
+import LocationSelector from "./LocationSelector";
 
 // Form schema for each step
 const vehicleDetailsSchema = z.object({
@@ -39,6 +40,12 @@ const vehicleDetailsSchema = z.object({
 
 const locationConditionSchema = z.object({
   location: z.string().min(1, "Location is required"),
+  locationType: z.enum(["locally_available", "overseas"]).default("locally_available"),
+  countryId: z.number().optional(),
+  countyId: z.number().optional(),
+  constituencyId: z.number().optional(),
+  wardId: z.number().optional(),
+  specificLocation: z.string().optional(),
   condition: z.enum(["new", "used", "accidented"], {
     required_error: "Please select vehicle condition",
   }),
@@ -147,6 +154,12 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
     resolver: zodResolver(locationConditionSchema),
     defaultValues: {
       location: "",
+      locationType: "locally_available",
+      countryId: undefined,
+      countyId: undefined,
+      constituencyId: undefined,
+      wardId: undefined,
+      specificLocation: "",
       condition: "used",
       ownershipStatus: "private",
       ...savedData.locationCondition
@@ -581,6 +594,31 @@ function VehicleDetailsStep({ form, onNext }: { form: any; onNext: (data: any, s
 
 // Step 2: Location & Condition
 function LocationConditionStep({ form, onNext, onPrev }: { form: any; onNext: (data: any, stepName: string) => void; onPrev: () => void }) {
+  const [locationData, setLocationData] = useState({
+    locationType: form.getValues("locationType") || "locally_available",
+    countryId: form.getValues("countryId"),
+    countyId: form.getValues("countyId"),
+    constituencyId: form.getValues("constituencyId"),
+    wardId: form.getValues("wardId"),
+  });
+
+  const handleLocationChange = (location: any) => {
+    setLocationData(location);
+    form.setValue("locationType", location.locationType);
+    form.setValue("countryId", location.countryId);
+    form.setValue("countyId", location.countyId);
+    form.setValue("constituencyId", location.constituencyId);
+    form.setValue("wardId", location.wardId);
+    
+    // Auto-populate the legacy location field for compatibility
+    if (location.locationType === "overseas") {
+      form.setValue("location", "Overseas");
+    } else if (location.countyId) {
+      // This will be the county name once we have the data
+      form.setValue("location", "Kenya");
+    }
+  };
+
   const onSubmit = (data: LocationConditionForm) => {
     onNext(data, "locationCondition");
   };
@@ -588,32 +626,31 @@ function LocationConditionStep({ form, onNext, onPrev }: { form: any; onNext: (d
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Location *</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || ""}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select county/city" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {KENYAN_COUNTIES.map((county) => (
-                      <SelectItem key={county} value={county}>
-                        {county}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        {/* Location Selection */}
+        <LocationSelector 
+          onLocationChange={handleLocationChange}
+          defaultValues={locationData}
+        />
 
+        {/* Additional Location Details */}
+        <FormField
+          control={form.control}
+          name="specificLocation"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Specific Location (Optional)</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="e.g., Near City Mall, Industrial Area, etc."
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="condition"

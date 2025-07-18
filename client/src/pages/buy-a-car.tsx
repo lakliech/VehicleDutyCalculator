@@ -173,6 +173,15 @@ export default function BuyACar() {
     },
   });
 
+  // Fetch featured listings
+  const { data: featuredListings = [], isLoading: featuredLoading } = useQuery({
+    queryKey: ['/api/featured-listings'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/featured-listings');
+      return response.json();
+    },
+  });
+
   const formatCurrency = (amount: number) => {
     return `KES ${amount.toLocaleString()}`;
   };
@@ -692,6 +701,138 @@ export default function BuyACar() {
             </div>
           </div>
         </div>
+
+        {/* Featured Listings Section */}
+        {featuredListings.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Featured Cars</h2>
+                <p className="text-gray-600">Hand-picked quality vehicles from verified sellers</p>
+              </div>
+              <Link href="/buy-a-car?featured=true">
+                <Button variant="outline" className="text-purple-600 border-purple-600 hover:bg-purple-50">
+                  View All Featured
+                </Button>
+              </Link>
+            </div>
+            
+            {featuredLoading ? (
+              <div className="flex gap-4 overflow-x-auto pb-2">
+                {Array.from({length: 6}).map((_, i) => (
+                  <Card key={i} className="flex-shrink-0 w-80 animate-pulse">
+                    <div className="aspect-video bg-gray-200 rounded-t-lg" />
+                    <CardContent className="p-4">
+                      <div className="h-4 bg-gray-200 rounded mb-2" />
+                      <div className="h-4 bg-gray-200 rounded w-2/3 mb-2" />
+                      <div className="h-4 bg-gray-200 rounded w-1/3" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                {featuredListings.map((car) => (
+                  <div key={car.id} className="flex-shrink-0 w-80">
+                    <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-purple-100">
+                      <div className="relative">
+                        <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+                          {car.images?.length > 0 ? (
+                            <img
+                              src={car.images[0]}
+                              alt={`${car.make} ${car.model}`}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-4xl text-gray-400">
+                              <Car />
+                            </div>
+                          )}
+                          
+                          <div className="absolute top-2 right-2 flex gap-1">
+                            <Badge className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                              <Star className="h-3 w-3 mr-1" />
+                              Featured
+                            </Badge>
+                          </div>
+                          
+                          <div className="absolute top-2 left-2 flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="h-8 w-8 p-0 bg-white/80 hover:bg-white"
+                              onClick={() => handleAddToFavorites(car.id)}
+                            >
+                              <Heart className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          
+                          <div className="absolute bottom-2 left-2 flex gap-1">
+                            {car.isVerified && (
+                              <Badge className="bg-green-500 hover:bg-green-600">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Verified
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <CardContent className="p-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className="font-semibold text-lg leading-tight">
+                              {car.year} {car.make} {car.model}
+                            </h3>
+                            <div className="text-right">
+                              <div className="text-xl font-bold text-purple-600">
+                                {formatCurrency(car.price)}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
+                            <div className="flex items-center gap-1">
+                              <Gauge className="h-4 w-4" />
+                              {car.mileage?.toLocaleString()} km
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Fuel className="h-4 w-4" />
+                              {car.fuelType}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Settings className="h-4 w-4" />
+                              {car.transmission}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              {car.location}
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-2 mt-4">
+                            <Button 
+                              className="flex-1 bg-purple-600 hover:bg-purple-700"
+                              onClick={() => handleViewDetails(car.id)}
+                            >
+                              View Details
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="px-3"
+                              onClick={() => handleWhatsAppSeller(car.id)}
+                            >
+                              <MessageCircle className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </div>
+                    </Card>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="flex gap-6">
           {/* Desktop Filters Sidebar */}

@@ -3262,6 +3262,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get featured listings
+  app.get('/api/featured-listings', async (req: Request, res: Response) => {
+    try {
+      const cacheKey = CacheKeys.carListings('featured');
+      
+      // Check cache first
+      const cached = await CacheService.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+
+      // Query featured listings
+      const featuredListings = await db
+        .select({
+          listing: carListings
+        })
+        .from(carListings)
+        .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
+        .where(and(
+          eq(carListings.status, 'active'),
+          eq(appUsers.status, 'active'),
+          eq(carListings.featured, true)
+        ))
+        .orderBy(desc(carListings.createdAt))
+        .limit(6);
+
+      // Transform database results to match expected format
+      const transformedListings = featuredListings.map(row => {
+        return {
+          id: row.listing.id,
+          make: row.listing.make,
+          model: row.listing.model,
+          year: row.listing.year,
+          price: parseInt(row.listing.price),
+          mileage: parseInt(row.listing.mileage || '0'),
+          fuelType: row.listing.fuelType,
+          transmission: row.listing.transmission,
+          bodyType: row.listing.bodyType,
+          location: row.listing.location,
+          condition: row.listing.condition,
+          exteriorColor: row.listing.exteriorColor,
+          images: row.listing.images || [],
+          features: row.listing.features || [],
+          isVerified: row.listing.isVerified || false,
+          featured: true,
+          viewCount: row.listing.viewCount || 0,
+          favoriteCount: row.listing.favoriteCount || 0,
+          createdAt: row.listing.createdAt ? row.listing.createdAt.toISOString() : new Date().toISOString(),
+          sellerId: row.listing.sellerId,
+          title: row.listing.title,
+          description: row.listing.description
+        };
+      });
+
+      // Cache the response for 10 minutes
+      await CacheService.set(cacheKey, transformedListings, { ttl: 600 });
+
+      res.json(transformedListings);
+    } catch (error) {
+      console.error('Failed to fetch featured listings:', error);
+      res.status(500).json({ error: 'Failed to fetch featured listings' });
+    }
+  });
+
   // Get filter options for car listings
   app.get('/api/car-listing-filters', async (req: Request, res: Response) => {
     try {

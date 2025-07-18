@@ -635,6 +635,26 @@ export const userProductSubscriptions = pgTable("user_product_subscriptions", {
 });
 
 // ==============================
+// VEHICLE REFERENCE DATA
+// ==============================
+
+export const vehicleReferences = pgTable("vehicle_references", {
+  id: serial("id").primaryKey(),
+  make: varchar("make", { length: 100 }).notNull(),
+  model: varchar("model", { length: 100 }).notNull(),
+  year: integer("year"),
+  engineCapacity: integer("engine_capacity"), // in cc
+  fuelType: varchar("fuel_type", { length: 50 }),
+  bodyType: varchar("body_type", { length: 50 }),
+  crspKes: numeric("crsp_kes", { precision: 12, scale: 2 }),
+  crsp2020: numeric("crsp2020", { precision: 12, scale: 2 }),
+  discontinuationYear: integer("discontinuation_year"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// ==============================
 // TYPES & SCHEMAS
 // ==============================
 
@@ -666,6 +686,9 @@ export type InsertTestDriveAppointment = typeof testDriveAppointments.$inferInse
 
 export type UserActivity = typeof userActivities.$inferSelect;
 export type InsertUserActivity = typeof userActivities.$inferInsert;
+
+export type VehicleReference = typeof vehicleReferences.$inferSelect;
+export type InsertVehicleReference = typeof vehicleReferences.$inferInsert;
 
 // ==============================
 // PASSPORT USER INTERFACE

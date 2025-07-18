@@ -449,6 +449,27 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
 
 // Step 1: Vehicle Details
 function VehicleDetailsStep({ form, onNext }: { form: any; onNext: (data: any, stepName: string) => void }) {
+  const [selectedMake, setSelectedMake] = useState<string>(form.getValues("make") || "");
+  
+  // Query for vehicle makes
+  const { data: vehicleMakes = [], isLoading: makesLoading } = useQuery({
+    queryKey: ['/api/vehicle-makes'],
+    enabled: true,
+  });
+
+  // Query for vehicle models based on selected make
+  const { data: vehicleModels = [], isLoading: modelsLoading } = useQuery({
+    queryKey: ['/api/vehicle-makes', selectedMake, 'models'],
+    enabled: !!selectedMake,
+  });
+
+  const handleMakeChange = (make: string) => {
+    setSelectedMake(make);
+    form.setValue("make", make);
+    // Clear model when make changes
+    form.setValue("model", "");
+  };
+
   const onSubmit = (data: VehicleDetailsForm) => {
     onNext(data, "vehicleDetails");
   };
@@ -463,14 +484,14 @@ function VehicleDetailsStep({ form, onNext }: { form: any; onNext: (data: any, s
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Make *</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || ""}>
+                <Select onValueChange={handleMakeChange} value={field.value || ""}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select make" />
+                      <SelectValue placeholder={makesLoading ? "Loading makes..." : "Select make"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {VEHICLE_MAKES.map((make) => (
+                    {vehicleMakes.map((make: string) => (
                       <SelectItem key={make} value={make}>
                         {make}
                       </SelectItem>
@@ -488,9 +509,32 @@ function VehicleDetailsStep({ form, onNext }: { form: any; onNext: (data: any, s
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Model *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter model" {...field} value={field.value || ""} />
-                </FormControl>
+                <Select 
+                  onValueChange={field.onChange} 
+                  value={field.value || ""} 
+                  disabled={!selectedMake || modelsLoading}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue 
+                        placeholder={
+                          !selectedMake 
+                            ? "Select make first" 
+                            : modelsLoading 
+                            ? "Loading models..." 
+                            : "Select model"
+                        } 
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {vehicleModels.map((model: string) => (
+                      <SelectItem key={model} value={model}>
+                        {model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

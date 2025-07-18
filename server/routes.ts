@@ -9396,6 +9396,70 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   console.log('Payment routes registered successfully');
 
   // ========================================
+  // VEHICLE REFERENCE ENDPOINTS
+  // ========================================
+
+  // Get all vehicle makes
+  app.get("/api/vehicle-makes", async (req, res) => {
+    try {
+      const makes = await db
+        .selectDistinct({ make: schema.vehicleReferences.make })
+        .from(schema.vehicleReferences)
+        .where(eq(schema.vehicleReferences.isActive, true))
+        .orderBy(asc(schema.vehicleReferences.make));
+      
+      res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      res.json(makes.map(m => m.make));
+    } catch (error) {
+      console.error("Failed to fetch vehicle makes:", error);
+      res.status(500).json({ error: "Failed to fetch vehicle makes" });
+    }
+  });
+
+  // Get models by make
+  app.get("/api/vehicle-makes/:make/models", async (req, res) => {
+    try {
+      const make = req.params.make;
+      const models = await db
+        .selectDistinct({ model: schema.vehicleReferences.model })
+        .from(schema.vehicleReferences)
+        .where(and(
+          eq(schema.vehicleReferences.make, make),
+          eq(schema.vehicleReferences.isActive, true)
+        ))
+        .orderBy(asc(schema.vehicleReferences.model));
+      
+      res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      res.json(models.map(m => m.model));
+    } catch (error) {
+      console.error("Failed to fetch vehicle models:", error);
+      res.status(500).json({ error: "Failed to fetch vehicle models" });
+    }
+  });
+
+  // Get vehicle details by make and model
+  app.get("/api/vehicle-references/:make/:model", async (req, res) => {
+    try {
+      const { make, model } = req.params;
+      const vehicleDetails = await db
+        .select()
+        .from(schema.vehicleReferences)
+        .where(and(
+          eq(schema.vehicleReferences.make, make),
+          eq(schema.vehicleReferences.model, model),
+          eq(schema.vehicleReferences.isActive, true)
+        ))
+        .orderBy(desc(schema.vehicleReferences.year));
+      
+      res.set('Cache-Control', 'public, max-age=1800'); // Cache for 30 minutes
+      res.json(vehicleDetails);
+    } catch (error) {
+      console.error("Failed to fetch vehicle details:", error);
+      res.status(500).json({ error: "Failed to fetch vehicle details" });
+    }
+  });
+
+  // ========================================
   // LOCATION REFERENCE ENDPOINTS
   // ========================================
 

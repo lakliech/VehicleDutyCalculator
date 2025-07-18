@@ -460,6 +460,11 @@ function VehicleDetailsStep({ form, onNext }: { form: any; onNext: (data: any, s
   // Query for vehicle models based on selected make
   const { data: vehicleModels = [], isLoading: modelsLoading } = useQuery({
     queryKey: ['/api/vehicle-makes', selectedMake, 'models'],
+    queryFn: () => {
+      if (!selectedMake) return Promise.resolve([]);
+      return fetch(`/api/vehicle-makes/${encodeURIComponent(selectedMake)}/models`)
+        .then(res => res.json());
+    },
     enabled: !!selectedMake,
   });
 

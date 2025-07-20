@@ -86,7 +86,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
-import { sql, eq, desc, and, or, gte, lte, ne, asc, count } from "drizzle-orm";
+import { sql, eq, desc, and, or, gte, lte, ne, asc, count, isNotNull, like, inArray, not, isNull } from "drizzle-orm";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 import ListingQualityAssessment, { triggerQualityAssessment } from './quality-assessment';

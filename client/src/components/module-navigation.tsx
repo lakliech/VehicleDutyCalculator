@@ -44,11 +44,7 @@ const moduleItems: ModuleItem[] = [
     label: "MyCar's Worth",
     icon: <Coins className="h-4 w-4" />
   },
-  {
-    href: "/service-estimator",
-    label: "Service Estimates", 
-    icon: <Wrench className="h-4 w-4" />
-  },
+
   {
     href: "/transfer-cost",
     label: "Transfer Cost",

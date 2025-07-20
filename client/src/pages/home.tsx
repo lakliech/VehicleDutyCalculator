@@ -76,11 +76,7 @@ const ADDITIONAL_TOOLS = [
     title: "Vehicle Loans",
     icon: CreditCard
   },
-  {
-    href: "/service-estimator",
-    title: "Service Cost",
-    icon: Wrench
-  },
+
   {
     href: "/mileage-verification",
     title: "Mileage Verify",

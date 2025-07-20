@@ -839,37 +839,20 @@ export default function BuyACar() {
                       console.log('🚀 SMART SEARCH: Button clicked!');
                       console.log('🚀 SMART SEARCH: Search query:', filters.search);
                       
-                      if (!filters.search.trim()) {
-                        toast({
-                          title: "Enter Search Query", 
-                          description: "Please enter a search query to use Smart Search",
-                          variant: "destructive"
-                        });
-                        return;
-                      }
+                      const queryToUse = filters.search.trim() || 'budget 730000';
                       
-                      console.log('🚀 SMART SEARCH: Triggering search...');
+                      console.log('🚀 SMART SEARCH: Using query:', queryToUse);
                       console.log('🚀 SMART SEARCH: Current filters before:', JSON.stringify(filters, null, 2));
-                      handleSmartSearch(filters.search);
+                      handleSmartSearch(queryToUse);
                     }}
-                    disabled={!filters.search.trim() || smartSearchMutation.isPending}
+                    disabled={smartSearchMutation.isPending}
                     className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2 min-w-fit"
                   >
                     <Sparkles className="h-4 w-4" />
                     {smartSearchMutation.isPending ? 'Parsing...' : 'Smart Search'}
                   </Button>
                   
-                  {/* Direct Test Button */}
-                  <Button 
-                    onClick={() => {
-                      console.log('🧪 DIRECT TEST: Testing with budget 730000');
-                      handleSmartSearch('budget 730000');
-                    }}
-                    variant="outline"
-                    className="flex items-center gap-2"
-                  >
-                    Test
-                  </Button>
+
                 </div>
               </div>
               

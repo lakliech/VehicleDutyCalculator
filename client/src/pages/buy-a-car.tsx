@@ -136,7 +136,7 @@ export default function BuyACar() {
 
   // Fetch car listings
   const { data: listings, isLoading: listingsLoading } = useQuery({
-    queryKey: ['/api/car-listings', filters, currentPage],
+    queryKey: ['car-listings', filters.search, filters.make, filters.model, currentPage],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.append('page', currentPage.toString());
@@ -161,8 +161,12 @@ export default function BuyACar() {
       
       const url = `/api/car-listings?${params.toString()}`;
       const response = await apiRequest('GET', url);
-      return response.json();
+      const data = await response.json();
+      return data;
     },
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
   });
 
   // Fetch filter options

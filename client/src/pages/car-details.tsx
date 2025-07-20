@@ -153,6 +153,16 @@ export default function CarDetails() {
     enabled: !!id,
   });
 
+  // Fetch other listings from the same seller
+  const { data: sellerListings, isLoading: sellerListingsLoading } = useQuery({
+    queryKey: ['/api/seller/listings', vehicle?.sellerId, id],
+    queryFn: async () => {
+      const response = await apiRequest('GET', `/api/seller/${vehicle?.sellerId}/listings?limit=6&excludeId=${id}`);
+      return response.json();
+    },
+    enabled: !!vehicle?.sellerId && !!id,
+  });
+
   // Video call scheduling mutation
   const scheduleVideoCallMutation = useMutation({
     mutationFn: async (data: { appointmentDate: string; duration?: number; notes?: string }) => {
@@ -1035,6 +1045,120 @@ export default function CarDetails() {
           </div>
         </div>
       </div>
+
+      {/* Other Listings from This Seller */}
+      {sellerListings && sellerListings.length > 0 && (
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                More Cars from {vehicle?.sellerInfo?.name || "This Seller"}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                Explore {sellerListings.length} other vehicle{sellerListings.length !== 1 ? 's' : ''} from this seller
+              </p>
+            </div>
+            <Badge variant={vehicle?.sellerInfo?.type === "dealer" ? "default" : "secondary"} className="text-sm">
+              {vehicle?.sellerInfo?.type === "dealer" ? "Dealer" : "Individual Seller"}
+            </Badge>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sellerListings.map((listing: any) => (
+              <Card key={listing.id} className="group hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    onClick={() => window.location.href = `/car-details/${listing.id}`}>
+                <div className="relative">
+                  <div className="aspect-video relative overflow-hidden rounded-t-lg">
+                    {listing.images && listing.images.length > 0 ? (
+                      <img
+                        src={listing.images[0]}
+                        alt={`${listing.year} ${listing.make} ${listing.model}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                        <Car className="h-12 w-12 text-gray-400" />
+                      </div>
+                    )}
+                    {listing.featured && (
+                      <Badge className="absolute top-3 left-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                        Featured
+                      </Badge>
+                    )}
+                    {listing.isVerified && (
+                      <Badge className="absolute top-3 right-3 bg-green-600 text-white">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Verified
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div>
+                        <h3 className="font-semibold text-lg text-gray-900 dark:text-white group-hover:text-purple-600 transition-colors">
+                          {listing.year} {listing.make} {listing.model}
+                        </h3>
+                        <p className="text-2xl font-bold text-purple-600">
+                          KES {parseInt(listing.price).toLocaleString()}
+                        </p>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-1">
+                          <Gauge className="h-4 w-4" />
+                          {listing.mileage?.toLocaleString() || 'N/A'} km
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Fuel className="h-4 w-4" />
+                          {listing.fuelType}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Settings className="h-4 w-4" />
+                          {listing.transmission}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          {listing.location}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center gap-1">
+                            <Eye className="h-4 w-4" />
+                            {listing.viewCount || 0}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Heart className="h-4 w-4" />
+                            {listing.favoriteCount || 0}
+                          </span>
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          {listing.exteriorColor}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {sellerListings.length >= 6 && (
+            <div className="text-center mt-8">
+              <Button 
+                variant="outline" 
+                className="px-8 py-2 hover:bg-purple-50 hover:text-purple-600 hover:border-purple-300"
+                onClick={() => window.location.href = `/buy-a-car?seller=${vehicle?.sellerId}`}
+              >
+                View All Listings from This Seller
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Message Seller Dialog */}
       <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>

@@ -1705,6 +1705,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get listings by specific seller ID (for "view all seller listings" feature)
+  app.get("/api/seller/:sellerId/listings", async (req, res) => {
+    try {
+      const { sellerId } = req.params;
+      const { limit = 6, excludeId } = req.query;
+      
+      const listings = await db
+        .select({
+          id: carListings.id,
+          title: carListings.title,
+          make: carListings.make,
+          model: carListings.model,
+          year: carListings.year,
+          price: carListings.price,
+          location: carListings.location,
+          mileage: carListings.mileage,
+          fuelType: carListings.fuelType,
+          transmission: carListings.transmission,
+          bodyType: carListings.bodyType,
+          exteriorColor: carListings.exteriorColor,
+          status: carListings.status,
+          viewCount: carListings.viewCount,
+          favoriteCount: carListings.favoriteCount,
+          createdAt: carListings.createdAt,
+          images: carListings.images,
+          isVerified: carListings.isVerified,
+          featured: carListings.featured,
+        })
+        .from(carListings)
+        .where(
+          and(
+            eq(carListings.sellerId, sellerId),
+            eq(carListings.status, 'active'),
+            excludeId ? sql`${carListings.id} != ${parseInt(excludeId as string)}` : sql`1=1`
+          )
+        )
+        .orderBy(desc(carListings.createdAt))
+        .limit(parseInt(limit as string) || 6);
+
+      res.json(listings);
+    } catch (error) {
+      console.error("Failed to get seller listings:", error);
+      res.status(500).json({ error: "Failed to get seller listings" });
+    }
+  });
+
   app.get("/api/user/activities", authenticateUser, async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 50;

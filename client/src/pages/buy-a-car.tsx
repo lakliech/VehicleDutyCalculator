@@ -818,9 +818,19 @@ export default function BuyACar() {
             <Button 
               onClick={(e) => {
                 e.preventDefault();
-                console.log('🚀 BUTTON CLICKED: Smart Search button clicked with query:', filters.search);
-                console.log('🚀 BUTTON CLICKED: Button disabled?', !filters.search.trim() || smartSearchMutation.isPending);
-                console.log('🚀 BUTTON CLICKED: Mutation status:', smartSearchMutation.status);
+                e.stopPropagation();
+                console.log('🚀 BUTTON TEST: Button clicked!');
+                console.log('🚀 BUTTON TEST: Query value:', filters.search);
+                console.log('🚀 BUTTON TEST: Query length:', filters.search?.length || 0);
+                console.log('🚀 BUTTON TEST: Is disabled?', !filters.search.trim() || smartSearchMutation.isPending);
+                
+                if (!filters.search.trim()) {
+                  console.log('🚀 BUTTON TEST: Empty query, returning');
+                  alert('Please enter a search query');
+                  return;
+                }
+                
+                console.log('🚀 BUTTON TEST: Calling handleSmartSearch...');
                 handleSmartSearch(filters.search);
               }}
               disabled={!filters.search.trim() || smartSearchMutation.isPending}
@@ -829,6 +839,16 @@ export default function BuyACar() {
             >
               <Sparkles className="h-4 w-4" />
               {smartSearchMutation.isPending ? 'Parsing...' : 'Smart Search'}
+            </Button>
+            <Button 
+              onClick={() => {
+                console.log('🧪 TEST BUTTON: Basic button clicked!');
+                alert('Test button works!');
+              }}
+              variant="outline"
+              type="button"
+            >
+              Test
             </Button>
             <div className="flex gap-2">
               <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>

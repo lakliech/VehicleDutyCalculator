@@ -435,17 +435,17 @@ export default function ExcelImport() {
                     <div key={field} className="space-y-2">
                       <Label className="text-red-600">{label} *</Label>
                       <Select
-                        value={columnMapping[field]?.toString() || ''}
+                        value={columnMapping[field]?.toString() || 'none'}
                         onValueChange={(value) => setColumnMapping(prev => ({
                           ...prev,
-                          [field]: value ? parseInt(value) : null
+                          [field]: value && value !== 'none' ? parseInt(value) : null
                         }))}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">-- None --</SelectItem>
+                          <SelectItem value="none">-- None --</SelectItem>
                           {getColumnOptions(field)}
                         </SelectContent>
                       </Select>
@@ -461,17 +461,17 @@ export default function ExcelImport() {
                       <div key={field} className="space-y-2">
                         <Label className="text-sm">{label}</Label>
                         <Select
-                          value={columnMapping[field]?.toString() || ''}
+                          value={columnMapping[field]?.toString() || 'none'}
                           onValueChange={(value) => setColumnMapping(prev => ({
                             ...prev,
-                            [field]: value ? parseInt(value) : null
+                            [field]: value && value !== 'none' ? parseInt(value) : null
                           }))}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">-- None --</SelectItem>
+                            <SelectItem value="none">-- None --</SelectItem>
                             {getColumnOptions(field)}
                           </SelectContent>
                         </Select>

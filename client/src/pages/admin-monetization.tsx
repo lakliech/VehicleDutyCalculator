@@ -383,7 +383,7 @@ export default function AdminMonetization() {
                       <SelectValue placeholder="All statuses" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All statuses</SelectItem>
+                      <SelectItem value="all">All statuses</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="processing">Processing</SelectItem>
@@ -401,7 +401,7 @@ export default function AdminMonetization() {
                       <SelectValue placeholder="All methods" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All methods</SelectItem>
+                      <SelectItem value="all">All methods</SelectItem>
                       <SelectItem value="card">Card</SelectItem>
                       <SelectItem value="mobile_money">Mobile Money</SelectItem>
                       <SelectItem value="mpesa">M-Pesa</SelectItem>
@@ -418,7 +418,7 @@ export default function AdminMonetization() {
                       <SelectValue placeholder="All types" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All types</SelectItem>
+                      <SelectItem value="all">All types</SelectItem>
                       <SelectItem value="purchase">Purchase</SelectItem>
                       <SelectItem value="subscription">Subscription</SelectItem>
                       <SelectItem value="credit_purchase">Credit Purchase</SelectItem>

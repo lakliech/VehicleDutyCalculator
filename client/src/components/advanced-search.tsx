@@ -296,7 +296,7 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
                     <SelectValue placeholder="Any make" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any make</SelectItem>
+                    <SelectItem value="all">Any make</SelectItem>
                     {filterOptions?.makes?.map((make: string) => (
                       <SelectItem key={make} value={make}>{make}</SelectItem>
                     ))}
@@ -311,7 +311,7 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
                     <SelectValue placeholder="Any fuel" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any fuel</SelectItem>
+                    <SelectItem value="all">Any fuel</SelectItem>
                     <SelectItem value="petrol">Petrol</SelectItem>
                     <SelectItem value="diesel">Diesel</SelectItem>
                     <SelectItem value="electric">Electric</SelectItem>
@@ -327,7 +327,7 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
                     <SelectValue placeholder="Any drive" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any drive</SelectItem>
+                    <SelectItem value="all">Any drive</SelectItem>
                     <SelectItem value="2WD">2WD</SelectItem>
                     <SelectItem value="4WD">4WD</SelectItem>
                     <SelectItem value="AWD">AWD</SelectItem>

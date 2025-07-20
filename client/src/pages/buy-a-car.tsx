@@ -791,6 +791,7 @@ export default function BuyACar() {
                 onChange={(e) => handleFilterChange('search', e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
+                    console.log('🎯 ENTER KEY PRESSED: Triggering smart search with:', filters.search);
                     handleSmartSearch(filters.search);
                   }
                 }}
@@ -815,12 +816,16 @@ export default function BuyACar() {
               )}
             </div>
             <Button 
-              onClick={() => {
-                console.log('Smart Search button clicked with query:', filters.search);
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('🚀 BUTTON CLICKED: Smart Search button clicked with query:', filters.search);
+                console.log('🚀 BUTTON CLICKED: Button disabled?', !filters.search.trim() || smartSearchMutation.isPending);
+                console.log('🚀 BUTTON CLICKED: Mutation status:', smartSearchMutation.status);
                 handleSmartSearch(filters.search);
               }}
               disabled={!filters.search.trim() || smartSearchMutation.isPending}
               className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+              type="button"
             >
               <Sparkles className="h-4 w-4" />
               {smartSearchMutation.isPending ? 'Parsing...' : 'Smart Search'}

@@ -173,8 +173,8 @@ export default function MyListings() {
   const { data: listingConversationCounts = {} } = useQuery<Record<number, { total: number; unread: number }>>({
     queryKey: ['/api/user/listings/conversation-counts'],
     enabled: isAuthenticated && !!listings && listings.length > 0,
-    refetchInterval: 60000, // Refresh every 60 seconds (reduced frequency)
-    staleTime: 30000, // Cache for 30 seconds
+    refetchInterval: 180000, // Refresh every 3 minutes (optimized for performance)
+    staleTime: 120000, // Cache for 2 minutes
   });
 
   // Get video call appointments for seller (lazy loaded)

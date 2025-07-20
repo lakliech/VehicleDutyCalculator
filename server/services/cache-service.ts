@@ -8,7 +8,7 @@ export interface CacheOptions {
 export class CacheService {
   private static client: Redis.RedisClientType | null = null;
   private static isConnected = false;
-  private static readonly DEFAULT_TTL = 3600; // 1 hour
+  private static readonly DEFAULT_TTL = 1800; // 30 minutes for balanced performance
   private static readonly CONNECTION_TIMEOUT = 5000; // 5 seconds
 
   static async initialize(): Promise<void> {

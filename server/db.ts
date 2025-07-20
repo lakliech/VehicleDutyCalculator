@@ -20,7 +20,8 @@ const connectionConfig = {
   connectionString: process.env.DATABASE_URL,
   connectionTimeoutMillis: 5000,
   idleTimeoutMillis: 30000,
-  max: 10,
+  max: 25, // Increased from 10 for better concurrency
+  min: 5, // Maintain minimum connections
 };
 
 export const pool = new Pool(connectionConfig);

@@ -115,12 +115,9 @@ export default function BuyACar() {
   };
 
   const handleSmartSearch = async (query: string) => {
-    console.log('🚀 SMART SEARCH: Starting with query:', query);
-    
     try {
       const response = await apiRequest('POST', '/api/smart-search-parse', { query });
       const data = await response.json();
-      console.log('🚀 SMART SEARCH: API response:', data);
       
       const { filters: aiFilters, explanation } = data;
       
@@ -138,7 +135,6 @@ export default function BuyACar() {
         maxYear: aiFilters.maxYear ?? filters.maxYear,
       };
       
-      console.log('🚀 SMART SEARCH: Applying filters:', newFilters);
       setFilters(newFilters);
       setCurrentPage(1);
       queryClient.invalidateQueries({ queryKey: ['car-listings'] });
@@ -148,7 +144,6 @@ export default function BuyACar() {
         description: explanation || "Filters applied successfully",
       });
     } catch (error) {
-      console.error('🚀 SMART SEARCH: Error:', error);
       toast({
         title: "Search Error",
         description: "Unable to process your search",
@@ -498,10 +493,9 @@ export default function BuyACar() {
                 <SwipeInterface
                   vehicles={listings.cars}
                   onSwipeLeft={(car) => {
-                    console.log('Passed on:', car.make, car.model);
+                    // User passed on this car
                   }}
                   onSwipeRight={(car) => {
-                    console.log('Liked:', car.make, car.model);
                     handleAddToFavorites(car.id);
                     toast({
                       title: "Car Liked!",

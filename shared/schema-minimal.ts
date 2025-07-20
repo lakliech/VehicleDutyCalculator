@@ -713,5 +713,41 @@ export interface User {
   profileImageUrl?: string | null;
 }
 
+// Import listing schema for bulk imports
+export const importListingSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  make: z.string().min(1, "Make is required"),
+  model: z.string().min(1, "Model is required"),
+  year: z.number().min(1990).max(new Date().getFullYear() + 1),
+  price: z.number().min(0),
+  mileage: z.number().min(0).optional(),
+  fuelType: z.string().optional(),
+  transmission: z.string().optional(),
+  bodyType: z.string().optional(),
+  driveConfiguration: z.string().optional(),
+  engineSize: z.number().min(0).optional(),
+  exteriorColor: z.string().optional(),
+  interiorColor: z.string().optional(),
+  condition: z.string().default("used"),
+  location: z.string().default("Nairobi"),
+  county: z.string().optional(),
+  area: z.string().optional(),
+  description: z.string().optional(),
+  features: z.array(z.string()).optional(),
+  sellerName: z.string().optional(),
+  sellerPhone: z.string().optional(),
+  sellerEmail: z.string().optional(),
+  stockNumber: z.string().optional(),
+  chassisType: z.string().optional(),
+  grade: z.string().optional(),
+  doors: z.number().optional(),
+  seats: z.number().optional(),
+  auctionGrade: z.string().optional(),
+  extraFeatures: z.string().optional(),
+  status: z.enum(['pending', 'active', 'inactive']).default('pending')
+});
+
+export type ImportListing = z.infer<typeof importListingSchema>;
+
 // Import product catalog schema
 export * from './product-catalog-schema';

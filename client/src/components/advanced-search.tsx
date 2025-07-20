@@ -85,11 +85,16 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
       }
     });
 
-    // Extract price hints
-    const priceMatch = query.match(/under\s+(\d+(?:\.\d+)?)[mk]?/i);
+    // Extract price hints - support "budget" keyword
+    const priceMatch = query.match(/(?:under|budget)\s+(\d+(?:,?\d+)*(?:\.\d+)?)[mk]?/i);
     if (priceMatch) {
-      const price = parseFloat(priceMatch[1]);
-      newFilters.maxPrice = price * (priceMatch[1].includes('k') ? 1000 : price < 100 ? 1000000 : 1);
+      const priceStr = priceMatch[1].replace(/,/g, ''); // Remove commas
+      const price = parseFloat(priceStr);
+      const fullMatch = priceMatch[0].toLowerCase();
+      const multiplier = fullMatch.includes('k') ? 1000 : 
+                        fullMatch.includes('m') ? 1000000 : 
+                        (price < 1000 ? 1000 : 1); // Assume numbers like 700 mean 700,000
+      newFilters.maxPrice = price * multiplier;
     }
 
     // Extract year hints
@@ -143,9 +148,42 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
     onFiltersChange?.(newFilters);
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (searchQuery.trim()) {
-      processNaturalSearch(searchQuery);
+      try {
+        // Try smart search first
+        const response = await apiRequest('POST', '/api/smart-search-parse', { query: searchQuery });
+        const result = await response.json();
+        
+        if (result.filters) {
+          // Convert the API response format to match our filter structure
+          const newFilters = {
+            ...filters,
+            search: searchQuery,
+            make: result.filters.make?.[0] || filters.make,
+            model: result.filters.model?.[0] || filters.model,
+            minPrice: result.filters.minPrice || filters.minPrice,
+            maxPrice: result.filters.maxPrice || filters.maxPrice,
+            minYear: result.filters.minYear || filters.minYear,
+            maxYear: result.filters.maxYear || filters.maxYear,
+            fuelType: result.filters.fuelType?.[0] || filters.fuelType,
+            bodyType: result.filters.bodyType?.[0] || filters.bodyType,
+          };
+          
+          setFilters(newFilters);
+          onFiltersChange?.(newFilters);
+          
+          if (result.explanation) {
+            toast({ 
+              title: "Smart Search Applied",
+              description: result.explanation 
+            });
+          }
+        }
+      } catch (error) {
+        // Fall back to basic search if smart search fails
+        processNaturalSearch(searchQuery);
+      }
     }
   };
 
@@ -184,10 +222,15 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Try: 'Red Toyota under 2M' or 'Diesel 4WD 2020'"
+            placeholder="Try: 'budget 700,000' or 'Red Toyota under 2M' or 'Diesel 4WD 2020'"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+              }
+            }}
             className="pl-10"
           />
         </div>

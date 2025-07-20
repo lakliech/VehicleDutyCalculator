@@ -38,7 +38,7 @@ import { ModuleNavigation } from "@/components/module-navigation";
 import { AdvancedSearch } from "@/components/advanced-search";
 import { SwipeInterface } from "@/components/swipe-interface";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 
@@ -137,7 +137,7 @@ export default function BuyACar() {
 
   // Fetch car listings
   const { data: listings, isLoading: listingsLoading } = useQuery({
-    queryKey: ['car-listings', filters.search, filters.make, filters.model, currentPage],
+    queryKey: ['car-listings', filters.search, filters.make, filters.model, filters.maxPrice, filters.minPrice, currentPage],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.append('page', currentPage.toString());
@@ -300,7 +300,8 @@ export default function BuyACar() {
     mutationFn: async (query: string) => {
       console.log('Making API request for smart search:', query);
       try {
-        const data = await apiRequest('POST', '/api/smart-search-parse', { query });
+        const response = await apiRequest('POST', '/api/smart-search-parse', { query });
+        const data = await response.json();
         console.log('API response data:', data);
         return data;
       } catch (error) {
@@ -308,9 +309,9 @@ export default function BuyACar() {
         throw error;
       }
     },
-    onSuccess: (data) => {
-      console.log('Smart search success:', data);
-      const { filters: aiFilters, explanation } = data;
+    onSuccess: (response) => {
+      console.log('Smart search success:', response);
+      const { filters: aiFilters, explanation } = response;
       
       console.log('Current filters before update:', filters);
       console.log('AI extracted filters:', aiFilters);
@@ -335,6 +336,9 @@ export default function BuyACar() {
 
       // Reset to first page for new search
       setCurrentPage(1);
+      
+      // Force refresh the listings query
+      queryClient.invalidateQueries({ queryKey: ['car-listings'] });
 
       // Show success toast
       toast({

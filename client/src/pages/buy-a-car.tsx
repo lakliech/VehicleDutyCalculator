@@ -36,7 +36,7 @@ import {
 import { ModuleNavigation } from "@/components/module-navigation";
 import { AdvancedSearch } from "@/components/advanced-search";
 import { SwipeInterface } from "@/components/swipe-interface";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
@@ -292,6 +292,61 @@ export default function BuyACar() {
     
     // Open WhatsApp in new tab
     window.open(whatsappUrl, '_blank');
+  };
+
+  // AI-powered smart search mutation
+  const smartSearchMutation = useMutation({
+    mutationFn: async (query: string) => {
+      const response = await apiRequest('POST', '/api/smart-search-parse', { query });
+      return response;
+    },
+    onSuccess: (data) => {
+      const { filters: aiFilters, explanation } = data;
+      
+      // Apply the AI-extracted filters to our current filters
+      setFilters(prev => ({
+        ...prev,
+        make: aiFilters.make || prev.make,
+        model: aiFilters.model || prev.model,
+        fuelType: aiFilters.fuelType || prev.fuelType,
+        transmission: aiFilters.transmission || prev.transmission,
+        bodyType: aiFilters.bodyType || prev.bodyType,
+        minPrice: aiFilters.minPrice !== null ? aiFilters.minPrice : prev.minPrice,
+        maxPrice: aiFilters.maxPrice !== null ? aiFilters.maxPrice : prev.maxPrice,
+        minYear: aiFilters.minYear !== null ? aiFilters.minYear : prev.minYear,
+        maxYear: aiFilters.maxYear !== null ? aiFilters.maxYear : prev.maxYear,
+        search: aiFilters.search || prev.search
+      }));
+
+      // Reset to first page for new search
+      setCurrentPage(1);
+
+      // Show success toast
+      toast({
+        title: "Smart Search Applied",
+        description: explanation || "Filters applied successfully",
+      });
+    },
+    onError: (error) => {
+      console.error('Smart search error:', error);
+      toast({
+        title: "Search Error",
+        description: "Unable to parse your search. Please try a different format.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleSmartSearch = (query: string) => {
+    if (!query.trim()) return;
+    
+    // Only trigger AI parsing if the query looks natural language-ish
+    // (contains keywords like "budget", "under", numbers, etc.)
+    const naturalLanguageIndicators = /\b(budget|under|over|between|k|m|automatic|manual|petrol|diesel|suv|sedan)\b/i;
+    
+    if (naturalLanguageIndicators.test(query)) {
+      smartSearchMutation.mutate(query);
+    }
   };
 
   const FilterSidebar = () => (
@@ -690,12 +745,23 @@ export default function BuyACar() {
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Smart search: make, model, body type, fuel, transmission..."
-                className="pl-10"
+                placeholder="Smart search: 'budget 700k suzuki', 'honda crv automatic under 2M'..."
+                className={`pl-10 ${smartSearchMutation.isPending ? 'pr-20' : filters.search ? 'pr-8' : ''}`}
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSmartSearch(filters.search);
+                  }
+                }}
+                disabled={smartSearchMutation.isPending}
               />
-              {filters.search && (
+              {smartSearchMutation.isPending && (
+                <div className="absolute right-12 top-3">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-purple-600 border-t-transparent"></div>
+                </div>
+              )}
+              {filters.search && !smartSearchMutation.isPending && (
                 <div className="absolute right-3 top-3">
                   <Button
                     variant="ghost"
@@ -708,6 +774,14 @@ export default function BuyACar() {
                 </div>
               )}
             </div>
+            <Button 
+              onClick={() => handleSmartSearch(filters.search)}
+              disabled={!filters.search || smartSearchMutation.isPending}
+              className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+            >
+              <Sparkles className="h-4 w-4" />
+              {smartSearchMutation.isPending ? 'Parsing...' : 'Smart Search'}
+            </Button>
             <div className="flex gap-2">
               <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
                 <SheetTrigger asChild>

@@ -4903,8 +4903,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===============================
-  // CHATBOT API ROUTES
+  // AI SMART SEARCH & CHATBOT API ROUTES
   // ===============================
+
+  // AI-powered smart search parsing endpoint
+  app.post('/api/smart-search-parse', async (req, res) => {
+    try {
+      const { query } = req.body;
+      
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ error: 'Query is required' });
+      }
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content: `You are a Kenyan car marketplace search parser. Parse natural language search queries and extract filters.
+
+Extract these filters from user queries:
+- budget/price: Convert terms like "budget 700000", "under 1M", "between 500k-1M" to minPrice/maxPrice in KES
+- make: Car brands like "Toyota", "Nissan", "Honda", "Suzuki", "Mercedes", etc.
+- model: Car models like "Corolla", "X-Trail", "Fit", "Alto", etc.
+- fuel: "petrol", "diesel", "hybrid", "electric"
+- transmission: "manual", "automatic", "cvt"
+- bodyType: "suv", "sedan", "hatchback", "wagon", "coupe", "pickup", "van"
+- year: Extract year ranges like "2018-2020", "after 2015", "before 2020"
+- condition: "excellent", "good", "fair", "poor"
+
+Kenyan price abbreviations:
+- "k" or "K" = thousand (e.g., "500k" = 500,000)
+- "M" = million (e.g., "1.5M" = 1,500,000)
+- "budget" usually refers to maxPrice
+
+Return JSON only:
+{
+  "filters": {
+    "search": "extracted keywords for text search",
+    "make": ["extracted makes"],
+    "model": ["extracted models"], 
+    "minPrice": number or null,
+    "maxPrice": number or null,
+    "fuelType": ["extracted fuel types"],
+    "transmission": ["extracted transmissions"],
+    "bodyType": ["extracted body types"],
+    "minYear": number or null,
+    "maxYear": number or null
+  },
+  "explanation": "Brief explanation of what was extracted"
+}
+
+Examples:
+- "budget 700k suzuki" → budget=700000, make=["Suzuki"]
+- "honda crv under 2M automatic" → make=["Honda"], model=["CR-V"], maxPrice=2000000, transmission=["automatic"]
+- "toyota corolla 2018-2020 petrol" → make=["Toyota"], model=["Corolla"], minYear=2018, maxYear=2020, fuelType=["petrol"]`
+          },
+          {
+            role: "user",
+            content: query
+          }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 500
+      });
+
+      const result = JSON.parse(completion.choices[0].message.content || '{"filters": {}, "explanation": "No filters extracted"}');
+      res.json(result);
+    } catch (error) {
+      console.error('Smart search parsing error:', error);
+      res.status(500).json({ 
+        error: 'Failed to parse search query',
+        filters: {},
+        explanation: 'Error occurred while parsing'
+      });
+    }
+  });
 
   // AI-powered vehicle recommendation chatbot
   app.post('/api/chatbot/recommend', async (req, res) => {

@@ -297,24 +297,27 @@ export default function BuyACar() {
   // AI-powered smart search mutation
   const smartSearchMutation = useMutation({
     mutationFn: async (query: string) => {
+      console.log('Making API request for smart search:', query);
       const response = await apiRequest('POST', '/api/smart-search-parse', { query });
+      console.log('API response:', response);
       return response;
     },
     onSuccess: (data) => {
+      console.log('Smart search success:', data);
       const { filters: aiFilters, explanation } = data;
       
       // Apply the AI-extracted filters to our current filters
       setFilters(prev => ({
         ...prev,
-        make: aiFilters.make || prev.make,
-        model: aiFilters.model || prev.model,
-        fuelType: aiFilters.fuelType || prev.fuelType,
-        transmission: aiFilters.transmission || prev.transmission,
-        bodyType: aiFilters.bodyType || prev.bodyType,
-        minPrice: aiFilters.minPrice !== null ? aiFilters.minPrice : prev.minPrice,
-        maxPrice: aiFilters.maxPrice !== null ? aiFilters.maxPrice : prev.maxPrice,
-        minYear: aiFilters.minYear !== null ? aiFilters.minYear : prev.minYear,
-        maxYear: aiFilters.maxYear !== null ? aiFilters.maxYear : prev.maxYear,
+        make: aiFilters.make && aiFilters.make.length > 0 ? aiFilters.make : prev.make,
+        model: aiFilters.model && aiFilters.model.length > 0 ? aiFilters.model : prev.model,
+        fuelType: aiFilters.fuelType && aiFilters.fuelType.length > 0 ? aiFilters.fuelType : prev.fuelType,
+        transmission: aiFilters.transmission && aiFilters.transmission.length > 0 ? aiFilters.transmission : prev.transmission,
+        bodyType: aiFilters.bodyType && aiFilters.bodyType.length > 0 ? aiFilters.bodyType : prev.bodyType,
+        minPrice: aiFilters.minPrice !== null && aiFilters.minPrice !== undefined ? aiFilters.minPrice : prev.minPrice,
+        maxPrice: aiFilters.maxPrice !== null && aiFilters.maxPrice !== undefined ? aiFilters.maxPrice : prev.maxPrice,
+        minYear: aiFilters.minYear !== null && aiFilters.minYear !== undefined ? aiFilters.minYear : prev.minYear,
+        maxYear: aiFilters.maxYear !== null && aiFilters.maxYear !== undefined ? aiFilters.maxYear : prev.maxYear,
         search: aiFilters.search || prev.search
       }));
 
@@ -340,13 +343,10 @@ export default function BuyACar() {
   const handleSmartSearch = (query: string) => {
     if (!query.trim()) return;
     
-    // Only trigger AI parsing if the query looks natural language-ish
-    // (contains keywords like "budget", "under", numbers, etc.)
-    const naturalLanguageIndicators = /\b(budget|under|over|between|k|m|automatic|manual|petrol|diesel|suv|sedan)\b/i;
+    console.log('Smart search triggered with query:', query);
     
-    if (naturalLanguageIndicators.test(query)) {
-      smartSearchMutation.mutate(query);
-    }
+    // Always trigger AI parsing for any query - let AI decide what's relevant
+    smartSearchMutation.mutate(query);
   };
 
   const FilterSidebar = () => (

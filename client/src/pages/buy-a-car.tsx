@@ -317,65 +317,56 @@ export default function BuyACar() {
 
   // AI-powered smart search mutation
   const smartSearchMutation = useMutation({
+    mutationKey: ['smart-search'],
     mutationFn: async (query: string) => {
-      console.log('🔍 SMART SEARCH DEBUG: Starting mutation for query:', query);
-      try {
-        const response = await apiRequest('POST', '/api/smart-search-parse', { query });
-        const data = await response.json();
-        console.log('🔍 SMART SEARCH DEBUG: API response:', data);
-        return data;
-      } catch (error) {
-        console.error('🔍 SMART SEARCH DEBUG: API error:', error);
-        throw error;
-      }
+      console.log('🔍 SMART SEARCH: Starting search for query:', query);
+      const response = await apiRequest('POST', '/api/smart-search-parse', { query });
+      const data = await response.json();
+      console.log('🔍 SMART SEARCH: API response:', data);
+      return data;
     },
     onSuccess: (response) => {
-      console.log('🔍 SMART SEARCH DEBUG: onSuccess triggered with:', response);
+      console.log('🔍 SMART SEARCH: Success! Applying filters...');
       const { filters: aiFilters, explanation } = response;
       
-      console.log('🔍 SMART SEARCH DEBUG: Current filters before update:', filters);
-      console.log('🔍 SMART SEARCH DEBUG: AI extracted filters:', aiFilters);
-      
-      // Apply the AI-extracted filters to our current filters
+      // Apply AI-extracted filters
       const newFilters = {
         ...filters,
-        make: aiFilters.make && aiFilters.make.length > 0 ? aiFilters.make : filters.make,
-        model: aiFilters.model && aiFilters.model.length > 0 ? aiFilters.model : filters.model,
-        fuelType: aiFilters.fuelType && aiFilters.fuelType.length > 0 ? aiFilters.fuelType : filters.fuelType,
-        transmission: aiFilters.transmission && aiFilters.transmission.length > 0 ? aiFilters.transmission : filters.transmission,
-        bodyType: aiFilters.bodyType && aiFilters.bodyType.length > 0 ? aiFilters.bodyType : filters.bodyType,
-        minPrice: aiFilters.minPrice !== null && aiFilters.minPrice !== undefined ? aiFilters.minPrice : filters.minPrice,
-        maxPrice: aiFilters.maxPrice !== null && aiFilters.maxPrice !== undefined ? aiFilters.maxPrice : filters.maxPrice,
-        minYear: aiFilters.minYear !== null && aiFilters.minYear !== undefined ? aiFilters.minYear : filters.minYear,
-        maxYear: aiFilters.maxYear !== null && aiFilters.maxYear !== undefined ? aiFilters.maxYear : filters.maxYear,
+        make: aiFilters.make?.length > 0 ? aiFilters.make : filters.make,
+        model: aiFilters.model?.length > 0 ? aiFilters.model : filters.model,
+        fuelType: aiFilters.fuelType?.length > 0 ? aiFilters.fuelType : filters.fuelType,
+        transmission: aiFilters.transmission?.length > 0 ? aiFilters.transmission : filters.transmission,
+        bodyType: aiFilters.bodyType?.length > 0 ? aiFilters.bodyType : filters.bodyType,
+        minPrice: aiFilters.minPrice ?? filters.minPrice,
+        maxPrice: aiFilters.maxPrice ?? filters.maxPrice,
+        minYear: aiFilters.minYear ?? filters.minYear,
+        maxYear: aiFilters.maxYear ?? filters.maxYear,
         search: aiFilters.search || filters.search
       };
       
-      console.log('🔍 SMART SEARCH DEBUG: New filters to apply:', newFilters);
+      console.log('🔍 SMART SEARCH: Applying new filters:', newFilters);
       setFilters(newFilters);
-
-      // Reset to first page for new search
       setCurrentPage(1);
       
-      // Force refresh the listings query
-      console.log('🔍 SMART SEARCH DEBUG: Invalidating queries...');
+      // Force refresh listings
       queryClient.invalidateQueries({ queryKey: ['car-listings'] });
-      queryClient.refetchQueries({ queryKey: ['car-listings'] });
-
-      // Show success toast
+      
       toast({
         title: "Smart Search Applied",
         description: explanation || "Filters applied successfully",
       });
     },
     onError: (error) => {
-      console.error('Smart search error:', error);
-      console.error('Error details:', JSON.stringify(error, null, 2));
+      console.error('🔍 SMART SEARCH: Error:', error);
       toast({
         title: "Search Error",
         description: `Unable to parse your search: ${error.message || 'Unknown error'}`,
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      // Reset mutation state after completion (success or error)
+      console.log('🔍 SMART SEARCH: Search completed, ready for next search');
     }
   });
 
@@ -815,11 +806,7 @@ export default function BuyACar() {
                     }}
                     disabled={smartSearchMutation.isPending}
                   />
-                  {smartSearchMutation.isPending && (
-                    <div className="absolute right-12 top-3">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-purple-600 border-t-transparent"></div>
-                    </div>
-                  )}
+
                   {filters.search && !smartSearchMutation.isPending && (
                     <div className="absolute right-3 top-3">
                       <Button
@@ -833,27 +820,51 @@ export default function BuyACar() {
                     </div>
                   )}
                 </div>
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={() => {
-                      console.log('🚀 SMART SEARCH: Button clicked!');
-                      console.log('🚀 SMART SEARCH: Search query:', filters.search);
+                <Button 
+                  onClick={async () => {
+                    console.log('🚀 SMART SEARCH: Button clicked!');
+                    const queryToUse = filters.search.trim() || 'budget 730000';
+                    console.log('🚀 SMART SEARCH: Using query:', queryToUse);
+                    
+                    try {
+                      console.log('🚀 SMART SEARCH: Making API call...');
+                      const response = await apiRequest('POST', '/api/smart-search-parse', { query: queryToUse });
+                      const data = await response.json();
+                      console.log('🚀 SMART SEARCH: API response:', data);
                       
-                      const queryToUse = filters.search.trim() || 'budget 730000';
+                      const { filters: aiFilters, explanation } = data;
                       
-                      console.log('🚀 SMART SEARCH: Using query:', queryToUse);
-                      console.log('🚀 SMART SEARCH: Current filters before:', JSON.stringify(filters, null, 2));
-                      handleSmartSearch(queryToUse);
-                    }}
-                    disabled={smartSearchMutation.isPending}
-                    className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2 min-w-fit"
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    {smartSearchMutation.isPending ? 'Parsing...' : 'Smart Search'}
-                  </Button>
-                  
-
-                </div>
+                      // Apply filters directly
+                      const newFilters = {
+                        ...filters,
+                        maxPrice: aiFilters.maxPrice ?? filters.maxPrice,
+                        make: aiFilters.make?.length > 0 ? aiFilters.make : filters.make,
+                        model: aiFilters.model?.length > 0 ? aiFilters.model : filters.model,
+                      };
+                      
+                      console.log('🚀 SMART SEARCH: Applying filters:', newFilters);
+                      setFilters(newFilters);
+                      setCurrentPage(1);
+                      queryClient.invalidateQueries({ queryKey: ['car-listings'] });
+                      
+                      toast({
+                        title: "Smart Search Applied",
+                        description: explanation || "Filters applied successfully",
+                      });
+                    } catch (error) {
+                      console.error('🚀 SMART SEARCH: Error:', error);
+                      toast({
+                        title: "Search Error",
+                        description: "Unable to process your search",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Smart Search
+                </Button>
               </div>
               
               {/* Smart Search Results */}

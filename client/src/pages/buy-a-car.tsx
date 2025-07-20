@@ -775,8 +775,11 @@ export default function BuyACar() {
               )}
             </div>
             <Button 
-              onClick={() => handleSmartSearch(filters.search)}
-              disabled={!filters.search || smartSearchMutation.isPending}
+              onClick={() => {
+                console.log('Smart Search button clicked with query:', filters.search);
+                handleSmartSearch(filters.search);
+              }}
+              disabled={!filters.search.trim() || smartSearchMutation.isPending}
               className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
             >
               <Sparkles className="h-4 w-4" />

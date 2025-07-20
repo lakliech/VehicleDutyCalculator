@@ -204,6 +204,27 @@ The platform implements a comprehensive payment and billing system using Paystac
 - `POST /api/payments/schedule`: Create payment schedules
 - `GET /api/payments/history`: User payment history
 
+## AI-Powered Natural Language Search
+
+### Smart Search Implementation
+The platform now features AI-powered natural language search that converts user queries into structured filters using OpenAI GPT-4o:
+
+- **Natural Language Processing**: Users can type queries like "budget 700k suzuki" or "honda crv automatic under 2M"
+- **Automatic Filter Extraction**: AI extracts relevant filters (price, make, model, fuel type, transmission, etc.)
+- **Kenyan Context**: Understands local price abbreviations (k = thousand, M = million) and common search patterns
+- **Real-time Application**: Extracted filters are automatically applied to search results with visual feedback
+
+### Technical Implementation:
+- **Backend**: `/api/smart-search-parse` endpoint using OpenAI GPT-4o
+- **Frontend**: Smart search button with loading states and toast notifications
+- **User Experience**: Works via Enter key or Smart Search button click
+- **Error Handling**: Graceful fallbacks and informative error messages
+
+### Examples Supported:
+- "budget 700k suzuki" → Max price 700,000 KES + Suzuki make filter
+- "honda crv automatic under 2M" → Honda + CR-V + automatic + max price 2M
+- "toyota corolla 2018-2020 petrol" → Toyota + Corolla + year range + fuel type
+
 ## Changelog
 
 **KENYAN LOCATION AUTO-POPULATION SYSTEM - January 18, 2025:**

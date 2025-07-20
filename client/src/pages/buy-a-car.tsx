@@ -834,30 +834,25 @@ export default function BuyACar() {
                   )}
                 </div>
                 <Button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('🚀 BUTTON TEST: Smart Search button clicked!');
-                    console.log('🚀 BUTTON TEST: Query value:', filters.search);
-                    console.log('🚀 BUTTON TEST: Query length:', filters.search?.length || 0);
-                    console.log('🚀 BUTTON TEST: Is disabled?', !filters.search.trim() || smartSearchMutation.isPending);
+                  onClick={() => {
+                    console.log('🚀 SMART SEARCH: Button clicked!');
+                    console.log('🚀 SMART SEARCH: Search query:', filters.search);
                     
                     if (!filters.search.trim()) {
-                      console.log('🚀 BUTTON TEST: Empty query, returning');
                       toast({
-                        title: "Enter Search Query",
+                        title: "Enter Search Query", 
                         description: "Please enter a search query to use Smart Search",
                         variant: "destructive"
                       });
                       return;
                     }
                     
-                    console.log('🚀 BUTTON TEST: Calling handleSmartSearch...');
+                    console.log('🚀 SMART SEARCH: Triggering search...');
+                    console.log('🚀 SMART SEARCH: Current filters before:', JSON.stringify(filters, null, 2));
                     handleSmartSearch(filters.search);
                   }}
                   disabled={!filters.search.trim() || smartSearchMutation.isPending}
-                  className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
-                  type="button"
+                  className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2 min-w-fit"
                 >
                   <Sparkles className="h-4 w-4" />
                   {smartSearchMutation.isPending ? 'Parsing...' : 'Smart Search'}
@@ -866,6 +861,13 @@ export default function BuyACar() {
               
               {/* Smart Search Results */}
               <div className="mt-4">
+                {/* Debug Info */}
+                <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
+                  <p><strong>Debug:</strong> listingsLoading={listingsLoading?.toString()}, cars={listings?.cars?.length || 0}, total={listings?.total || 0}</p>
+                  <p><strong>Filters:</strong> search="{filters.search}", maxPrice={filters.maxPrice}</p>
+                  <p><strong>Smart Search Status:</strong> {smartSearchMutation.status}</p>
+                </div>
+                
                 {listingsLoading ? (
                   <div className="text-center py-4">
                     <div className="animate-spin h-6 w-6 border-2 border-purple-600 border-t-transparent rounded-full mx-auto"></div>

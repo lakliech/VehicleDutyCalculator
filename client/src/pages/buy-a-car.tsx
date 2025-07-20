@@ -779,118 +779,120 @@ export default function BuyACar() {
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Smart search: 'budget 700k suzuki', 'honda crv automatic under 2M'..."
-                className={`pl-10 ${smartSearchMutation.isPending ? 'pr-20' : filters.search ? 'pr-8' : ''}`}
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    console.log('🎯 ENTER KEY PRESSED: Triggering smart search with:', filters.search);
-                    handleSmartSearch(filters.search);
-                  }
-                }}
-                disabled={smartSearchMutation.isPending}
-              />
-              {smartSearchMutation.isPending && (
-                <div className="absolute right-12 top-3">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-purple-600 border-t-transparent"></div>
-                </div>
-              )}
-              {filters.search && !smartSearchMutation.isPending && (
-                <div className="absolute right-3 top-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-4 w-4 p-0 text-gray-400 hover:text-gray-600"
-                    onClick={() => handleFilterChange('search', '')}
-                  >
-                    ×
-                  </Button>
-                </div>
-              )}
-            </div>
-            <Button 
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🚀 BUTTON TEST: Button clicked!');
-                console.log('🚀 BUTTON TEST: Query value:', filters.search);
-                console.log('🚀 BUTTON TEST: Query length:', filters.search?.length || 0);
-                console.log('🚀 BUTTON TEST: Is disabled?', !filters.search.trim() || smartSearchMutation.isPending);
-                
-                if (!filters.search.trim()) {
-                  console.log('🚀 BUTTON TEST: Empty query, returning');
-                  alert('Please enter a search query');
-                  return;
-                }
-                
-                console.log('🚀 BUTTON TEST: Calling handleSmartSearch...');
-                handleSmartSearch(filters.search);
-              }}
-              disabled={!filters.search.trim() || smartSearchMutation.isPending}
-              className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
-              type="button"
-            >
+        {/* Main Tabs Navigation */}
+        <Tabs defaultValue="smart-search" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="smart-search" className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
-              {smartSearchMutation.isPending ? 'Parsing...' : 'Smart Search'}
-            </Button>
-            <Button 
-              onClick={() => {
-                console.log('🧪 TEST BUTTON: Basic button clicked!');
-                alert('Test button works!');
-              }}
-              variant="outline"
-              type="button"
-            >
-              Test
-            </Button>
-            <div className="flex gap-2">
-              <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2 md:hidden">
-                    <Filter className="h-4 w-4" />
-                    Filters
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-80">
-                  <SheetHeader>
-                    <SheetTitle>Filters</SheetTitle>
-                    <SheetDescription>
-                      Refine your search to find the perfect car
-                    </SheetDescription>
-                  </SheetHeader>
-                  <div className="mt-6">
-                    <FilterSidebar />
+              Smart Search
+            </TabsTrigger>
+            <TabsTrigger value="browse-all" className="flex items-center gap-2">
+              <Grid className="h-4 w-4" />
+              Browse All
+            </TabsTrigger>
+            <TabsTrigger value="swipe-mode" className="flex items-center gap-2">
+              <Smartphone className="h-4 w-4" />
+              Swipe Mode
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Smart Search Tab */}
+          <TabsContent value="smart-search" className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Smart search: 'budget 700k suzuki', 'honda crv automatic under 2M'..."
+                    className={`pl-10 ${smartSearchMutation.isPending ? 'pr-20' : filters.search ? 'pr-8' : ''}`}
+                    value={filters.search}
+                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        console.log('🎯 ENTER KEY PRESSED: Triggering smart search with:', filters.search);
+                        handleSmartSearch(filters.search);
+                      }
+                    }}
+                    disabled={smartSearchMutation.isPending}
+                  />
+                  {smartSearchMutation.isPending && (
+                    <div className="absolute right-12 top-3">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-purple-600 border-t-transparent"></div>
+                    </div>
+                  )}
+                  {filters.search && !smartSearchMutation.isPending && (
+                    <div className="absolute right-3 top-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 w-4 p-0 text-gray-400 hover:text-gray-600"
+                        onClick={() => handleFilterChange('search', '')}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <Button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🚀 BUTTON TEST: Smart Search button clicked!');
+                    console.log('🚀 BUTTON TEST: Query value:', filters.search);
+                    console.log('🚀 BUTTON TEST: Query length:', filters.search?.length || 0);
+                    console.log('🚀 BUTTON TEST: Is disabled?', !filters.search.trim() || smartSearchMutation.isPending);
+                    
+                    if (!filters.search.trim()) {
+                      console.log('🚀 BUTTON TEST: Empty query, returning');
+                      toast({
+                        title: "Enter Search Query",
+                        description: "Please enter a search query to use Smart Search",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    
+                    console.log('🚀 BUTTON TEST: Calling handleSmartSearch...');
+                    handleSmartSearch(filters.search);
+                  }}
+                  disabled={!filters.search.trim() || smartSearchMutation.isPending}
+                  className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+                  type="button"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {smartSearchMutation.isPending ? 'Parsing...' : 'Smart Search'}
+                </Button>
+              </div>
+              
+              {/* Smart Search Results */}
+              <div className="mt-4">
+                {listingsLoading ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin h-6 w-6 border-2 border-purple-600 border-t-transparent rounded-full mx-auto"></div>
+                    <p className="mt-2 text-gray-600">Searching...</p>
                   </div>
-                </SheetContent>
-              </Sheet>
-              
-              <Select value={filters.sortBy} onValueChange={(value) => handleFilterChange('sortBy', value)}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="recommended">Recommended</SelectItem>
-                  <SelectItem value="price_low">Price: Low to High</SelectItem>
-                  <SelectItem value="price_high">Price: High to Low</SelectItem>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="mileage_low">Lowest Mileage</SelectItem>
-                  <SelectItem value="year_new">Newest Year</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Button onClick={handleSearch} className="bg-purple-600 hover:bg-purple-700">
-                Search
-              </Button>
+                ) : listings?.cars?.length > 0 ? (
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-600">Found {listings.total} cars matching your search</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {listings.cars.slice(0, 6).map((car: CarListing) => (
+                        <CarCard key={car.id} car={car} />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No results yet</h3>
+                    <p className="text-gray-600">Try searching with terms like "budget 700k suzuki" or "honda crv automatic"</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
+          </TabsContent>
+
+          {/* Browse All Tab */}
+          <TabsContent value="browse-all" className="space-y-6">
 
         {/* Featured Listings Section - Debug Force Show */}
         {true && (

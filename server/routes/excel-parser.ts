@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import * as XLSX from 'xlsx';
+import XLSX from 'xlsx';
 import sharp from 'sharp';
 import fetch from 'node-fetch';
 import { db } from "../db";

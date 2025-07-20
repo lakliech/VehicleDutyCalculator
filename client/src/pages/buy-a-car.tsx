@@ -300,8 +300,7 @@ export default function BuyACar() {
     mutationFn: async (query: string) => {
       console.log('Making API request for smart search:', query);
       try {
-        const response = await apiRequest('POST', '/api/smart-search-parse', { query });
-        const data = await response.json();
+        const data = await apiRequest('POST', '/api/smart-search-parse', { query });
         console.log('API response data:', data);
         return data;
       } catch (error) {

@@ -893,8 +893,61 @@ export default function BuyACar() {
 
           {/* Browse All Tab */}
           <TabsContent value="browse-all" className="space-y-6">
+            {/* Filters and Search Bar */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search by make, model, or keywords..."
+                    className="pl-10"
+                    value={filters.search}
+                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" className="flex items-center gap-2">
+                        <Filter className="h-4 w-4" />
+                        Filters
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-80">
+                      <SheetHeader>
+                        <SheetTitle>Filters</SheetTitle>
+                        <SheetDescription>
+                          Refine your search to find the perfect car
+                        </SheetDescription>
+                      </SheetHeader>
+                      <div className="mt-6">
+                        <FilterSidebar />
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                  
+                  <Select value={filters.sortBy} onValueChange={(value) => handleFilterChange('sortBy', value)}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="recommended">Recommended</SelectItem>
+                      <SelectItem value="price_low">Price: Low to High</SelectItem>
+                      <SelectItem value="price_high">Price: High to Low</SelectItem>
+                      <SelectItem value="newest">Newest First</SelectItem>
+                      <SelectItem value="mileage_low">Lowest Mileage</SelectItem>
+                      <SelectItem value="year_new">Newest Year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  <Button onClick={handleSearch} className="bg-purple-600 hover:bg-purple-700">
+                    Search
+                  </Button>
+                </div>
+              </div>
+            </div>
 
-        {/* Featured Listings Section - Debug Force Show */}
+        {/* Featured Listings Section */}
         {true && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
@@ -1169,8 +1222,37 @@ export default function BuyACar() {
                 <p className="text-gray-600">Try adjusting your filters or search terms</p>
               </div>
             )}
-          </div>
-        </div>
+          </TabsContent>
+
+          {/* Swipe Mode Tab */}
+          <TabsContent value="swipe-mode" className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-semibold mb-2">Swipe to Find Your Perfect Car</h3>
+                <p className="text-gray-600">Swipe right to like, left to pass. Find cars you love quickly!</p>
+              </div>
+              
+              {listings?.cars?.length > 0 ? (
+                <SwipeInterface
+                  vehicles={listings.cars}
+                  onSwipeLeft={(car) => {
+                    console.log('Passed on:', car.make, car.model);
+                  }}
+                  onSwipeRight={(car) => {
+                    console.log('Liked:', car.make, car.model);
+                    handleAddToFavorites(car.id);
+                  }}
+                />
+              ) : (
+                <div className="text-center py-12">
+                  <Smartphone className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Loading cars...</h3>
+                  <p className="text-gray-600">Get ready to swipe through available cars</p>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

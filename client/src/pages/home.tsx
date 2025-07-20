@@ -18,7 +18,8 @@ import {
   Search,
   TrendingUp,
   MessageCircle,
-  Brain
+  Brain,
+  Shield
 } from "lucide-react";
 
 // Core automotive tools - streamlined for simplicity
@@ -79,6 +80,11 @@ const ADDITIONAL_TOOLS = [
     href: "/service-estimator",
     title: "Service Cost",
     icon: Wrench
+  },
+  {
+    href: "/mileage-verification",
+    title: "Mileage Verify",
+    icon: Shield
   }
 ];
 

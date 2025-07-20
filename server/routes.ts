@@ -107,6 +107,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import productCatalogRoutes from './routes/product-catalog-routes';
 import featureEnforcementRoutes from './routes/feature-enforcement-routes';
+import { registerMileageVerificationRoutes } from './routes/mileage-verification';
 
 // Initialize OpenAI
 const openai = new OpenAI({ 
@@ -9797,6 +9798,9 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   // Register Excel parser routes
   const { registerExcelParserRoutes } = await import("./routes/excel-parser");
   registerExcelParserRoutes(app, authenticateUser, requireRole);
+
+  // Register mileage verification routes
+  registerMileageVerificationRoutes(app);
 
   const httpServer = createServer(app);
 

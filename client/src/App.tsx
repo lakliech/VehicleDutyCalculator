@@ -48,6 +48,7 @@ import BillingDashboard from "@/pages/billing-dashboard";
 import UnifiedBillingDashboard from "@/pages/unified-billing-dashboard";
 import AdminBillingDashboard from "@/pages/admin-billing-dashboard";
 import ExcelImport from "@/pages/excel-import";
+import MileageVerification from "@/pages/mileage-verification";
 import { ResetPassword } from "@/pages/reset-password";
 import PaymentSuccess from "@/pages/payment-success-simple";
 import { AuthProvider } from "@/components/auth-provider";
@@ -81,6 +82,7 @@ function Router() {
             </ProtectedRoute>
           </Route>
           <Route path="/ai-advisor" component={AIAdvisor} />
+          <Route path="/mileage-verification" component={MileageVerification} />
           <Route path="/price-trends" component={PriceTrends} />
           <Route path="/price-heatmap" component={PriceTrends} />
           <Route path="/smart-pricing" component={SmartPricing} />

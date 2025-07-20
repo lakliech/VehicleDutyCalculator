@@ -13,7 +13,8 @@ import {
   Search,
   Home,
   User,
-  UserPlus
+  UserPlus,
+  Shield
 } from "lucide-react";
 
 interface ModuleItem {
@@ -67,6 +68,11 @@ const moduleItems: ModuleItem[] = [
     href: "/vehicle-loans",
     label: "Vehicle Loans",
     icon: <CreditCard className="h-4 w-4" />
+  },
+  {
+    href: "/mileage-verification",
+    label: "Mileage Verify",
+    icon: <Shield className="h-4 w-4" />
   }
 ];
 

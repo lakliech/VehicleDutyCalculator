@@ -2128,6 +2128,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bank Partners API endpoints
+  app.get('/api/bank-partners', async (req, res) => {
+    try {
+      const partners = await db
+        .select()
+        .from(bankPartners)
+        .where(eq(bankPartners.isActive, true))
+        .orderBy(bankPartners.bankName);
+      
+      res.json(partners);
+    } catch (error) {
+      console.error("Error fetching bank partners:", error);
+      res.status(500).json({ message: "Failed to fetch bank partners" });
+    }
+  });
+
+  // Loan Products API endpoints
+  app.get('/api/loan-products', async (req, res) => {
+    try {
+      const products = await db
+        .select({
+          id: loanProducts.id,
+          bankId: loanProducts.bankId,
+          productName: loanProducts.productName,
+          productType: loanProducts.productType,
+          minInterestRate: loanProducts.minInterestRate,
+          maxInterestRate: loanProducts.maxInterestRate,
+          minLoanAmount: loanProducts.minLoanAmount,
+          maxLoanAmount: loanProducts.maxLoanAmount,
+          minTenureMonths: loanProducts.minTenureMonths,
+          maxTenureMonths: loanProducts.maxTenureMonths,
+          maxFinancingPercentage: loanProducts.maxFinancingPercentage,
+          processingFeePercentage: loanProducts.processingFeeRate,
+          requiresDownPayment: loanProducts.guarantorRequired,
+          minDownPaymentPercentage: loanProducts.minDownPaymentPercentage,
+          eligibilityRequirements: loanProducts.eligibilityCriteria,
+          requiredDocuments: loanProducts.requiredDocuments,
+          features: loanProducts.features,
+          isActive: loanProducts.isActive,
+          // Join bank details
+          bankName: bankPartners.bankName,
+          bankCode: bankPartners.bankCode,
+          bankLogoUrl: bankPartners.logoUrl,
+          bankWebsiteUrl: bankPartners.websiteUrl,
+          bankContactPhone: bankPartners.contactPhone
+        })
+        .from(loanProducts)
+        .leftJoin(bankPartners, eq(loanProducts.bankId, bankPartners.id))
+        .where(and(
+          eq(loanProducts.isActive, true),
+          eq(bankPartners.isActive, true)
+        ))
+        .orderBy(bankPartners.bankName, loanProducts.productName);
+      
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching loan products:", error);
+      res.status(500).json({ message: "Failed to fetch loan products" });
+    }
+  });
+
+  // Get loan products by bank
+  app.get('/api/bank-partners/:bankId/loan-products', async (req, res) => {
+    try {
+      const bankId = parseInt(req.params.bankId);
+      const products = await db
+        .select()
+        .from(loanProducts)
+        .where(and(
+          eq(loanProducts.bankId, bankId),
+          eq(loanProducts.isActive, true)
+        ))
+        .orderBy(loanProducts.productName);
+      
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching loan products for bank:", error);
+      res.status(500).json({ message: "Failed to fetch loan products for bank" });
+    }
+  });
+
   // Get all distinct makes (with optional category filtering)
   app.get("/api/vehicle-references/makes", async (req, res) => {
     try {

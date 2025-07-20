@@ -31,7 +31,8 @@ import {
   Settings,
   Car,
   RotateCcw,
-  Smartphone
+  Smartphone,
+  Sparkles
 } from "lucide-react";
 import { ModuleNavigation } from "@/components/module-navigation";
 import { AdvancedSearch } from "@/components/advanced-search";
@@ -427,7 +428,7 @@ export default function BuyACar() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Any make</SelectItem>
-              {filterOptions?.makes?.filter(make => make && make.trim()).map((make: string) => (
+              {filterOptions?.makes?.filter((make: string) => make && make.trim()).map((make: string) => (
                 <SelectItem key={make} value={make}>{make}</SelectItem>
               ))}
             </SelectContent>
@@ -443,7 +444,7 @@ export default function BuyACar() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Any model</SelectItem>
-              {filterOptions?.models?.filter(model => model && model.trim()).map((model: string) => (
+              {filterOptions?.models?.filter((model: string) => model && model.trim()).map((model: string) => (
                 <SelectItem key={model} value={model}>{model}</SelectItem>
               ))}
             </SelectContent>

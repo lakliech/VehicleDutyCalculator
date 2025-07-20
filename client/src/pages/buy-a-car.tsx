@@ -159,7 +159,8 @@ export default function BuyACar() {
       if (filters.features.length > 0) params.append('features', filters.features.join(','));
       if (filters.sortBy) params.append('sortBy', filters.sortBy);
       
-      const response = await apiRequest('GET', `/api/car-listings?${params.toString()}`);
+      const url = `/api/car-listings?${params.toString()}`;
+      const response = await apiRequest('GET', url);
       return response.json();
     },
   });

@@ -3262,7 +3262,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Query listings with filters and error handling
       let dbListings;
       try {
-        console.log('🔍 Executing car listings query with search:', search);
+
         dbListings = await db
           .select({
             listing: carListings

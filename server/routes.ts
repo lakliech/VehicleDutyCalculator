@@ -3153,7 +3153,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           or(
             sql`${carListings.make} ILIKE ${searchTerm}`,
             sql`${carListings.model} ILIKE ${searchTerm}`,
-            sql`${carListings.title} ILIKE ${searchTerm}`
+            sql`${carListings.title} ILIKE ${searchTerm}`,
+            sql`${carListings.description} ILIKE ${searchTerm}`,
+            sql`${carListings.bodyType} ILIKE ${searchTerm}`,
+            sql`${carListings.fuelType} ILIKE ${searchTerm}`,
+            sql`${carListings.transmission} ILIKE ${searchTerm}`,
+            sql`CONCAT(${carListings.make}, ' ', ${carListings.model}) ILIKE ${searchTerm}`
           )
         );
       }
@@ -3216,12 +3221,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Get total count for pagination
-      const [totalCount] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(carListings)
-        .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
-        .where(and(...whereConditions));
+      // Get total count for pagination with error handling
+      let totalCount;
+      try {
+        const [count] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(carListings)
+          .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
+          .where(and(...whereConditions));
+        totalCount = count;
+      } catch (countError) {
+        console.error('📊 Error getting count:', countError);
+        totalCount = { count: 0 };
+      }
 
       // Build ordering
       let orderBy;
@@ -3247,17 +3259,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           break;
       }
 
-      // Query listings with filters
-      const dbListings = await db
-        .select({
-          listing: carListings
-        })
-        .from(carListings)
-        .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
-        .where(and(...whereConditions))
-        .orderBy(orderBy)
-        .limit(limitNum)
-        .offset(offset);
+      // Query listings with filters and error handling
+      let dbListings;
+      try {
+        console.log('🔍 Executing car listings query with search:', search);
+        dbListings = await db
+          .select({
+            listing: carListings
+          })
+          .from(carListings)
+          .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
+          .where(and(...whereConditions))
+          .orderBy(orderBy)
+          .limit(limitNum)
+          .offset(offset);
+        console.log('✅ Car listings query successful, found:', dbListings.length);
+      } catch (queryError) {
+        console.error('❌ Error executing car listings query:', queryError);
+        dbListings = [];
+      }
 
       // Transform database results to match expected format
       const transformedListings = dbListings.map(row => {

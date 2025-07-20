@@ -217,6 +217,13 @@ export default function BuyACar() {
   const handleFilterChange = (key: keyof CarFilters, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
     setCurrentPage(1);
+    
+    // For search, trigger automatic search after a short delay
+    if (key === 'search') {
+      setTimeout(() => {
+        setCurrentPage(1);
+      }, 300);
+    }
   };
 
   const handleAddToFavorites = async (listingId: number) => {
@@ -678,11 +685,23 @@ export default function BuyACar() {
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search by make, model, or keyword..."
+                placeholder="Smart search: make, model, body type, fuel, transmission..."
                 className="pl-10"
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
               />
+              {filters.search && (
+                <div className="absolute right-3 top-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 w-4 p-0 text-gray-400 hover:text-gray-600"
+                    onClick={() => handleFilterChange('search', '')}
+                  >
+                    ×
+                  </Button>
+                </div>
+              )}
             </div>
             <div className="flex gap-2">
               <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>

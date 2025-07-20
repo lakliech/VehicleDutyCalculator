@@ -139,6 +139,15 @@ export default function BuyACar() {
   const { data: listings, isLoading: listingsLoading } = useQuery({
     queryKey: ['car-listings', filters.search, filters.make, filters.model, filters.maxPrice, filters.minPrice, currentPage],
     queryFn: async () => {
+      console.log('🔍 QUERY DEBUG: Car listings queryFn called with filters:', { 
+        search: filters.search, 
+        make: filters.make, 
+        model: filters.model, 
+        maxPrice: filters.maxPrice, 
+        minPrice: filters.minPrice, 
+        page: currentPage 
+      });
+      
       const params = new URLSearchParams();
       params.append('page', currentPage.toString());
       params.append('limit', '8');
@@ -161,8 +170,13 @@ export default function BuyACar() {
       if (filters.sortBy) params.append('sortBy', filters.sortBy);
       
       const url = `/api/car-listings?${params.toString()}`;
+      console.log('🔍 QUERY DEBUG: Making API request to:', url);
       const response = await apiRequest('GET', url);
       const data = await response.json();
+      console.log('🔍 QUERY DEBUG: API response:', { 
+        totalCars: data?.cars?.length || 0, 
+        firstCar: data?.cars?.[0]?.make + ' ' + data?.cars?.[0]?.model || 'none' 
+      });
       return data;
     },
     staleTime: 0,
@@ -304,23 +318,23 @@ export default function BuyACar() {
   // AI-powered smart search mutation
   const smartSearchMutation = useMutation({
     mutationFn: async (query: string) => {
-      console.log('Making API request for smart search:', query);
+      console.log('🔍 SMART SEARCH DEBUG: Starting mutation for query:', query);
       try {
         const response = await apiRequest('POST', '/api/smart-search-parse', { query });
         const data = await response.json();
-        console.log('API response data:', data);
+        console.log('🔍 SMART SEARCH DEBUG: API response:', data);
         return data;
       } catch (error) {
-        console.error('API request failed:', error);
+        console.error('🔍 SMART SEARCH DEBUG: API error:', error);
         throw error;
       }
     },
     onSuccess: (response) => {
-      console.log('Smart search success:', response);
+      console.log('🔍 SMART SEARCH DEBUG: onSuccess triggered with:', response);
       const { filters: aiFilters, explanation } = response;
       
-      console.log('Current filters before update:', filters);
-      console.log('AI extracted filters:', aiFilters);
+      console.log('🔍 SMART SEARCH DEBUG: Current filters before update:', filters);
+      console.log('🔍 SMART SEARCH DEBUG: AI extracted filters:', aiFilters);
       
       // Apply the AI-extracted filters to our current filters
       const newFilters = {
@@ -337,14 +351,16 @@ export default function BuyACar() {
         search: aiFilters.search || filters.search
       };
       
-      console.log('New filters to apply:', newFilters);
+      console.log('🔍 SMART SEARCH DEBUG: New filters to apply:', newFilters);
       setFilters(newFilters);
 
       // Reset to first page for new search
       setCurrentPage(1);
       
       // Force refresh the listings query
+      console.log('🔍 SMART SEARCH DEBUG: Invalidating queries...');
       queryClient.invalidateQueries({ queryKey: ['car-listings'] });
+      queryClient.refetchQueries({ queryKey: ['car-listings'] });
 
       // Show success toast
       toast({
@@ -366,7 +382,8 @@ export default function BuyACar() {
   const handleSmartSearch = (query: string) => {
     if (!query.trim()) return;
     
-    console.log('Smart search triggered with query:', query);
+    console.log('🔍 SMART SEARCH DEBUG: handleSmartSearch called with query:', query);
+    console.log('🔍 SMART SEARCH DEBUG: Current mutation status:', smartSearchMutation.status);
     
     // Always trigger AI parsing for any query - let AI decide what's relevant
     smartSearchMutation.mutate(query);

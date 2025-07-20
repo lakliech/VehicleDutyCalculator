@@ -12,7 +12,8 @@ import {
   priceAlerts, 
   depreciationForecasts,
   marketInsights,
-  marketPriceAnalysis
+  marketPriceAnalysis,
+  vehicleReferences
 } from '../../shared/schema-minimal';
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 
@@ -302,6 +303,41 @@ export class SmartPricingAI {
           competitorPrices: [adjustedPrice]
         };
       }
+
+      // Final fallback: Use current price as baseline with market estimates
+      console.log(`No market data found for ${vehicle.make} ${vehicle.model}, using current price as baseline`);
+      const currentPrice = parseFloat(vehicle.price);
+      
+      return {
+        averagePrice: currentPrice,
+        medianPrice: currentPrice,
+        priceRange: {
+          min: currentPrice * 0.8,
+          max: currentPrice * 1.2,
+          percentile_25: currentPrice * 0.9,
+          percentile_75: currentPrice * 1.1
+        },
+        sampleSize: 0,
+        competitorPrices: []
+      };
+    }
+
+    // Handle case where we have similar vehicles
+    if (prices.length === 0) {
+      // This shouldn't happen due to the check above, but safety fallback
+      const currentPrice = parseFloat(vehicle.price);
+      return {
+        averagePrice: currentPrice,
+        medianPrice: currentPrice,
+        priceRange: {
+          min: currentPrice * 0.8,
+          max: currentPrice * 1.2,
+          percentile_25: currentPrice * 0.9,
+          percentile_75: currentPrice * 1.1
+        },
+        sampleSize: 0,
+        competitorPrices: []
+      };
     }
 
     const sortedPrices = prices.sort((a, b) => a - b);

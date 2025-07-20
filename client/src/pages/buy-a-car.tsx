@@ -173,26 +173,37 @@ export default function BuyACar() {
     },
   });
 
-  // Fetch featured listings
+  // Fetch featured listings - Enhanced Debug Version
   const { data: featuredListings = [], isLoading: featuredLoading, error: featuredError } = useQuery({
-    queryKey: ['/api/featured-listings'],
+    queryKey: ['featured-listings'],
     queryFn: async () => {
-      console.log('🔍 Fetching featured listings...');
-      const response = await apiRequest('GET', '/api/featured-listings');
-      const data = await response.json();
-      console.log('✅ Featured listings response:', data);
-      return data;
+      console.log('🚀 STARTING FEATURED LISTINGS FETCH');
+      try {
+        const response = await apiRequest('GET', '/api/featured-listings');
+        console.log('📡 Featured API Response Status:', response.status);
+        const data = await response.json();
+        console.log('✅ Featured API Data:', data);
+        return data;
+      } catch (err) {
+        console.error('❌ Featured API Error:', err);
+        throw err;
+      }
     },
-    staleTime: 0, // Force refetch
-    retry: 3,
+    staleTime: 0,
+    retry: false,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
   });
 
-  // Debug featured listings
-  console.log('Featured listings debug:', {
+  // Enhanced Debug
+  console.log('🐛 FEATURED LISTINGS DEBUG:', {
     data: featuredListings,
-    loading: featuredLoading,
+    loading: featuredLoading, 
     error: featuredError,
-    length: featuredListings?.length
+    hasData: !!featuredListings,
+    length: featuredListings?.length,
+    type: typeof featuredListings,
+    isArray: Array.isArray(featuredListings)
   });
 
   const formatCurrency = (amount: number) => {
@@ -730,12 +741,40 @@ export default function BuyACar() {
               </Link>
             </div>
             
-            {/* Debug Info */}
-            <div className="mb-4 p-4 bg-yellow-100 rounded">
-              <p>Featured Loading: {featuredLoading ? 'YES' : 'NO'}</p>
-              <p>Featured Error: {featuredError ? String(featuredError) : 'NO ERROR'}</p>
-              <p>Featured Count: {featuredListings?.length || 0}</p>
-              <p>Featured Data: {JSON.stringify(featuredListings).substring(0, 100)}...</p>
+            {/* Enhanced Debug Info */}
+            <div className="mb-4 p-4 bg-yellow-100 rounded text-sm">
+              <h3 className="font-bold mb-2">Featured Listings Debug</h3>
+              <button 
+                onClick={() => {
+                  console.log('🔥 MANUAL API TEST');
+                  apiRequest('GET', '/api/featured-listings')
+                    .then(res => res.json())
+                    .then(data => console.log('🔥 MANUAL TEST RESULT:', data))
+                    .catch(err => console.error('🔥 MANUAL TEST ERROR:', err));
+                }}
+                className="mb-2 px-3 py-1 bg-blue-500 text-white rounded text-xs"
+              >
+                Test API Manually
+              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <p>Loading: <span className="font-mono">{featuredLoading ? 'YES' : 'NO'}</span></p>
+                <p>Error: <span className="font-mono">{featuredError ? 'YES' : 'NO'}</span></p>
+                <p>Has Data: <span className="font-mono">{featuredListings ? 'YES' : 'NO'}</span></p>
+                <p>Is Array: <span className="font-mono">{Array.isArray(featuredListings) ? 'YES' : 'NO'}</span></p>
+                <p>Count: <span className="font-mono">{featuredListings?.length || 0}</span></p>
+                <p>Type: <span className="font-mono">{typeof featuredListings}</span></p>
+              </div>
+              {featuredError && (
+                <div className="mt-2 p-2 bg-red-100 rounded">
+                  <p className="text-red-700">Error: {String(featuredError)}</p>
+                </div>
+              )}
+              <div className="mt-2">
+                <p className="text-xs">Data Preview:</p>
+                <pre className="text-xs bg-gray-100 p-1 rounded overflow-x-auto">
+                  {JSON.stringify(featuredListings, null, 2).substring(0, 300)}...
+                </pre>
+              </div>
             </div>
 
             {featuredLoading ? (
@@ -753,7 +792,7 @@ export default function BuyACar() {
               </div>
             ) : (
               <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                {featuredListings.map((car) => (
+                {(Array.isArray(featuredListings) ? featuredListings : []).map((car) => (
                   <div key={car.id} className="flex-shrink-0 w-80">
                     <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-purple-100">
                       <div className="relative">

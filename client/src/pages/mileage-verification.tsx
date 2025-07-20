@@ -8,7 +8,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Shield, Search, CheckCircle, XCircle, AlertTriangle, Car } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Navigation } from '@/components/navigation';
 import { ModuleNavigation } from '@/components/module-navigation';
 
 interface VerificationResult {
@@ -129,9 +128,7 @@ export default function MileageVerification() {
   };
 
   return (
-    <>
-      <Navigation />
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-cyan-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-cyan-50 py-8">
         <div className="max-w-4xl mx-auto px-4 space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
@@ -365,7 +362,6 @@ export default function MileageVerification() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </>
+    </div>
   );
 }

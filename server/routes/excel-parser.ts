@@ -125,12 +125,17 @@ async function downloadImage(url: string, stockNumber: string): Promise<string |
   try {
     console.log(`Downloading image: ${url}`);
     
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    
     const response = await fetch(url, {
-      timeout: 10000,
+      signal: controller.signal,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
     });
+    
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
@@ -276,9 +281,9 @@ function mapRowToListing(row: any[], columnMapping: any, defaultSeller: any): Im
   return listing;
 }
 
-export function registerExcelParserRoutes(app: Express) {
+export function registerExcelParserRoutes(app: Express, authenticateUser: any, requireRole: any) {
   // Parse Excel file endpoint
-  app.post("/api/parse-excel", upload.single('file'), async (req: Request, res: Response) => {
+  app.post("/api/parse-excel", authenticateUser, requireRole(['admin', 'superadmin']), upload.single('file'), async (req: Request, res: Response) => {
     try {
       if (!req.file) {
         return res.status(400).json({
@@ -315,7 +320,7 @@ export function registerExcelParserRoutes(app: Express) {
   });
 
   // Parse specific sheet endpoint
-  app.post("/api/parse-excel-sheet", async (req: Request, res: Response) => {
+  app.post("/api/parse-excel-sheet", authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
     try {
       const { fileName, sheetName } = req.body;
       
@@ -342,7 +347,7 @@ export function registerExcelParserRoutes(app: Express) {
   });
 
   // Import Excel listings with streaming progress
-  app.post("/api/import-excel-listings", upload.single('file'), async (req: Request, res: Response) => {
+  app.post("/api/import-excel-listings", authenticateUser, requireRole(['admin', 'superadmin']), upload.single('file'), async (req: Request, res: Response) => {
     try {
       let { fileName, sheetName, columnMapping, downloadImages, defaultSeller, skipRows } = req.body;
       
@@ -385,7 +390,6 @@ export function registerExcelParserRoutes(app: Express) {
         const newSeller = await db
           .insert(appUsers)
           .values({
-            id: DEFAULT_SELLER.id,
             email: defaultSeller?.email || DEFAULT_SELLER.email,
             firstName: defaultSeller?.name?.split(' ')[0] || "JANS",
             lastName: defaultSeller?.name?.split(' ').slice(1).join(' ') || "Motors",
@@ -393,7 +397,7 @@ export function registerExcelParserRoutes(app: Express) {
             isActive: true,
             status: "active",
             emailVerified: true,
-            roleId: "user"
+            roleId: 1
           })
           .returning();
         

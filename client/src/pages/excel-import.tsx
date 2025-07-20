@@ -107,7 +107,15 @@ export default function ExcelImport() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await apiRequest('POST', '/api/parse-excel', formData);
+      const response = await fetch('/api/parse-excel', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       const data = await response.json();
 
       if (data.success) {
@@ -486,7 +494,7 @@ export default function ExcelImport() {
                   <Checkbox
                     id="download-images"
                     checked={downloadImages}
-                    onCheckedChange={setDownloadImages}
+                    onCheckedChange={(checked) => setDownloadImages(checked === true)}
                   />
                   <Label htmlFor="download-images">
                     Download images from URLs (if Image URL column is mapped)

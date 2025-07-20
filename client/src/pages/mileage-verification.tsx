@@ -23,6 +23,9 @@ interface VerificationResult {
     registrationDate?: string;
     lastInspection?: string;
     certificateNumber?: string;
+    chassisNumber?: string;
+    inspectionCenter?: string;
+    status?: string;
   };
   message?: string;
   timestamp: string;
@@ -260,6 +263,20 @@ export default function MileageVerification() {
                         <div>
                           <Label className="text-sm text-gray-500">Certificate Number</Label>
                           <p className="font-mono text-sm">{result.vehicleDetails.certificateNumber}</p>
+                        </div>
+                      )}
+                      {result.vehicleDetails.inspectionCenter && (
+                        <div>
+                          <Label className="text-sm text-gray-500">Inspection Center</Label>
+                          <p className="font-semibold">{result.vehicleDetails.inspectionCenter}</p>
+                        </div>
+                      )}
+                      {result.vehicleDetails.status && (
+                        <div>
+                          <Label className="text-sm text-gray-500">Inspection Status</Label>
+                          <p className={`font-semibold ${result.vehicleDetails.status === 'Pass' ? 'text-green-600' : 'text-red-600'}`}>
+                            {result.vehicleDetails.status}
+                          </p>
                         </div>
                       )}
                     </div>

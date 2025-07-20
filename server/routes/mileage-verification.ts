@@ -135,6 +135,51 @@ function processVerificationData(data: any, chassisNumber: string): Verification
     };
   }
 
+  // Handle nested array format: [[{...}]]
+  let responseData = data;
+  if (Array.isArray(data) && data.length > 0) {
+    responseData = data[0];
+    if (Array.isArray(responseData) && responseData.length > 0) {
+      responseData = responseData[0];
+    }
+  }
+
+  // Check for specific API response format
+  if (responseData && typeof responseData === 'object') {
+    const record = responseData;
+    
+    // Check if we have inspection detail data
+    if (record.AA_Response === 'Inspection Detail' && record.ChassisNumber && record.Mileage) {
+      return {
+        status: 'verified',
+        vehicleDetails: {
+          chassisNumber: record.ChassisNumber,
+          mileage: record.Mileage,
+          registrationDate: record.DateOfFirstRegistration,
+          lastInspection: record.DateOfInspection,
+          inspectionCenter: record.InspectionCenter,
+          status: record.Status
+        }
+      };
+    }
+
+    // Check for no record found
+    if (record.AA_Response === 'No record found.') {
+      return {
+        status: 'not_found',
+        message: 'No verification records found for this chassis number'
+      };
+    }
+
+    // Check for error responses
+    if (record.AA_Response === 'Something wrong') {
+      return {
+        status: 'error',
+        message: 'Verification service encountered an error'
+      };
+    }
+  }
+
   // Check if the response indicates an error
   if (data.error || data.status === 'error') {
     return {
@@ -178,18 +223,9 @@ function processVerificationData(data: any, chassisNumber: string): Verification
     };
   }
 
-  // Default case - assume verification was successful but with limited data
+  // Default fallback
   return {
-    status: 'verified',
-    vehicleDetails: {
-      make: data.make || undefined,
-      model: data.model || undefined,
-      year: data.year || undefined,
-      engine: data.engine || undefined,
-      mileage: data.mileage || undefined,
-      registrationDate: data.registrationDate || undefined,
-      lastInspection: data.lastInspection || undefined,
-      certificateNumber: data.certificateNumber || undefined
-    }
+    status: 'not_found',
+    message: 'No valid verification data found in response'
   };
 }

@@ -359,7 +359,7 @@ export default function BuyACar() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Any make</SelectItem>
-              {filterOptions?.makes?.map((make: string) => (
+              {filterOptions?.makes?.filter(make => make && make.trim()).map((make: string) => (
                 <SelectItem key={make} value={make}>{make}</SelectItem>
               ))}
             </SelectContent>
@@ -375,7 +375,7 @@ export default function BuyACar() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Any model</SelectItem>
-              {filterOptions?.models?.map((model: string) => (
+              {filterOptions?.models?.filter(model => model && model.trim()).map((model: string) => (
                 <SelectItem key={model} value={model}>{model}</SelectItem>
               ))}
             </SelectContent>

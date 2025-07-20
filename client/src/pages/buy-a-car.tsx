@@ -218,6 +218,12 @@ export default function BuyACar() {
 
   const handleSearch = () => {
     setCurrentPage(1);
+    
+    // If there's a search query, process it with smart search
+    if (filters.search.trim()) {
+      console.log('Regular search triggered with query:', filters.search);
+      handleSmartSearch(filters.search);
+    }
   };
 
   const handleFilterChange = (key: keyof CarFilters, value: any) => {

@@ -3409,12 +3409,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(cached);
       }
 
+      // Query actual database for filter options
+      const [makesResult, modelsResult, fuelTypesResult, transmissionsResult, bodyTypesResult] = await Promise.all([
+        db.selectDistinct({ make: carListings.make }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.make), ne(carListings.make, ''))),
+        db.selectDistinct({ model: carListings.model }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.model), ne(carListings.model, ''))),
+        db.selectDistinct({ fuelType: carListings.fuelType }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.fuelType), ne(carListings.fuelType, ''))),
+        db.selectDistinct({ transmission: carListings.transmission }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.transmission), ne(carListings.transmission, ''))),
+        db.selectDistinct({ bodyType: carListings.bodyType }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.bodyType), ne(carListings.bodyType, '')))
+      ]);
+
       const filterOptions = {
-        makes: ['Toyota', 'Nissan', 'Subaru', 'Honda', 'Mazda', 'Mitsubishi', 'Hyundai', 'Kia', 'BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen'],
-        models: ['Harrier', 'X-Trail', 'Forester', 'CR-V', 'CX-5', 'Outlander', 'Tucson', 'Sportage', 'X3', 'GLC', 'Q5', 'Tiguan'],
-        fuelTypes: ['Petrol', 'Diesel', 'Hybrid', 'Electric'],
-        transmissions: ['Manual', 'Automatic', 'CVT'],
-        bodyTypes: ['SUV', 'Hatchback', 'Saloon', 'Coupe', 'Wagon', 'Van', 'Pickup'],
+        makes: makesResult.map(r => r.make).filter(make => make && make.trim()).sort(),
+        models: modelsResult.map(r => r.model).filter(model => model && model.trim()).sort(),
+        fuelTypes: fuelTypesResult.map(r => r.fuelType).filter(fuel => fuel && fuel.trim()).sort(),
+        transmissions: transmissionsResult.map(r => r.transmission).filter(trans => trans && trans.trim()).sort(),
+        bodyTypes: bodyTypesResult.map(r => r.bodyType).filter(body => body && body.trim()).sort(),
         colors: ['Black', 'White', 'Grey', 'Silver', 'Red', 'Blue', 'Green', 'Yellow', 'Brown', 'Other'],
         features: ['Navigation', 'Bluetooth', 'Cruise Control', 'Parking Sensors', 'Sunroof', 'Leather Seats', 'Alloy Wheels', 'Reverse Camera', '4WD', 'AWD']
       };

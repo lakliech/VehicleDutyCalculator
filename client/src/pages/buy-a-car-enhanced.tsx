@@ -146,7 +146,7 @@ export default function BuyACarEnhanced() {
   };
 
   const handleSwipeLeft = (vehicle: CarListing) => {
-    console.log('Passed on vehicle:', vehicle.id);
+    // User passed on this vehicle
   };
 
   const handleSwipeRight = (vehicle: CarListing) => {

@@ -298,28 +298,40 @@ export default function BuyACar() {
   const smartSearchMutation = useMutation({
     mutationFn: async (query: string) => {
       console.log('Making API request for smart search:', query);
-      const response = await apiRequest('POST', '/api/smart-search-parse', { query });
-      console.log('API response:', response);
-      return response;
+      try {
+        const response = await apiRequest('POST', '/api/smart-search-parse', { query });
+        const data = await response.json();
+        console.log('API response data:', data);
+        return data;
+      } catch (error) {
+        console.error('API request failed:', error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       console.log('Smart search success:', data);
       const { filters: aiFilters, explanation } = data;
       
+      console.log('Current filters before update:', filters);
+      console.log('AI extracted filters:', aiFilters);
+      
       // Apply the AI-extracted filters to our current filters
-      setFilters(prev => ({
-        ...prev,
-        make: aiFilters.make && aiFilters.make.length > 0 ? aiFilters.make : prev.make,
-        model: aiFilters.model && aiFilters.model.length > 0 ? aiFilters.model : prev.model,
-        fuelType: aiFilters.fuelType && aiFilters.fuelType.length > 0 ? aiFilters.fuelType : prev.fuelType,
-        transmission: aiFilters.transmission && aiFilters.transmission.length > 0 ? aiFilters.transmission : prev.transmission,
-        bodyType: aiFilters.bodyType && aiFilters.bodyType.length > 0 ? aiFilters.bodyType : prev.bodyType,
-        minPrice: aiFilters.minPrice !== null && aiFilters.minPrice !== undefined ? aiFilters.minPrice : prev.minPrice,
-        maxPrice: aiFilters.maxPrice !== null && aiFilters.maxPrice !== undefined ? aiFilters.maxPrice : prev.maxPrice,
-        minYear: aiFilters.minYear !== null && aiFilters.minYear !== undefined ? aiFilters.minYear : prev.minYear,
-        maxYear: aiFilters.maxYear !== null && aiFilters.maxYear !== undefined ? aiFilters.maxYear : prev.maxYear,
-        search: aiFilters.search || prev.search
-      }));
+      const newFilters = {
+        ...filters,
+        make: aiFilters.make && aiFilters.make.length > 0 ? aiFilters.make : filters.make,
+        model: aiFilters.model && aiFilters.model.length > 0 ? aiFilters.model : filters.model,
+        fuelType: aiFilters.fuelType && aiFilters.fuelType.length > 0 ? aiFilters.fuelType : filters.fuelType,
+        transmission: aiFilters.transmission && aiFilters.transmission.length > 0 ? aiFilters.transmission : filters.transmission,
+        bodyType: aiFilters.bodyType && aiFilters.bodyType.length > 0 ? aiFilters.bodyType : filters.bodyType,
+        minPrice: aiFilters.minPrice !== null && aiFilters.minPrice !== undefined ? aiFilters.minPrice : filters.minPrice,
+        maxPrice: aiFilters.maxPrice !== null && aiFilters.maxPrice !== undefined ? aiFilters.maxPrice : filters.maxPrice,
+        minYear: aiFilters.minYear !== null && aiFilters.minYear !== undefined ? aiFilters.minYear : filters.minYear,
+        maxYear: aiFilters.maxYear !== null && aiFilters.maxYear !== undefined ? aiFilters.maxYear : filters.maxYear,
+        search: aiFilters.search || filters.search
+      };
+      
+      console.log('New filters to apply:', newFilters);
+      setFilters(newFilters);
 
       // Reset to first page for new search
       setCurrentPage(1);
@@ -332,9 +344,10 @@ export default function BuyACar() {
     },
     onError: (error) => {
       console.error('Smart search error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       toast({
         title: "Search Error",
-        description: "Unable to parse your search. Please try a different format.",
+        description: `Unable to parse your search: ${error.message || 'Unknown error'}`,
         variant: "destructive",
       });
     }

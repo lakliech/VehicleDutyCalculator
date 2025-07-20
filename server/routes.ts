@@ -3312,14 +3312,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get featured listings
   app.get('/api/featured-listings', async (req: Request, res: Response) => {
     try {
+      console.log('🎯 Featured listings API called');
       const cacheKey = CacheKeys.carListings('featured');
       
       // Check cache first
       const cached = await CacheService.get(cacheKey);
       if (cached) {
+        console.log('📦 Returning cached featured listings:', cached.length);
         return res.json(cached);
       }
 
+      console.log('🔍 Querying database for featured listings...');
       // Query featured listings
       const featuredListings = await db
         .select({
@@ -3329,11 +3332,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
         .where(and(
           eq(carListings.status, 'active'),
-          eq(appUsers.status, 'active'),
           eq(carListings.featured, true)
         ))
         .orderBy(desc(carListings.createdAt))
         .limit(6);
+
+      console.log('📊 Found featured listings from DB:', featuredListings.length);
 
       // Transform database results to match expected format
       const transformedListings = featuredListings.map(row => {
@@ -3366,6 +3370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Cache the response for 10 minutes
       await CacheService.set(cacheKey, transformedListings, { ttl: 600 });
 
+      console.log('✅ Returning featured listings:', transformedListings.length);
       res.json(transformedListings);
     } catch (error) {
       console.error('Failed to fetch featured listings:', error);

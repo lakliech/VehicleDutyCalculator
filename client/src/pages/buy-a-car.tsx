@@ -174,12 +174,23 @@ export default function BuyACar() {
   });
 
   // Fetch featured listings
-  const { data: featuredListings = [], isLoading: featuredLoading } = useQuery({
+  const { data: featuredListings = [], isLoading: featuredLoading, error: featuredError } = useQuery({
     queryKey: ['/api/featured-listings'],
     queryFn: async () => {
+      console.log('🔍 Fetching featured listings...');
       const response = await apiRequest('GET', '/api/featured-listings');
-      return response.json();
+      const data = await response.json();
+      console.log('✅ Featured listings response:', data);
+      return data;
     },
+  });
+
+  // Debug featured listings
+  console.log('Featured listings debug:', {
+    data: featuredListings,
+    loading: featuredLoading,
+    error: featuredError,
+    length: featuredListings?.length
   });
 
   const formatCurrency = (amount: number) => {

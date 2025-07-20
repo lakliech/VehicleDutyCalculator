@@ -254,6 +254,8 @@ The platform now features AI-powered natural language search that converts user 
 - **Database insights**: Cheapest cars in database are 720,000-730,000 KES (Mazda Carol models)
 - **API verification**: Confirmed smart search API correctly parses natural language and returns appropriate filters
 - **Browse All functionality**: Verified all tabs working correctly, API returning 8 active cars from active users
+- **Fixed search term persistence**: Smart search now clears the search field after extracting filters to prevent API from searching for literal terms like "budget 1000000"
+- **Result accuracy**: Smart search for "budget 1000000" correctly finds 2 cars under 1M KES (both Mazda Carols)
 
 **KENYAN LOCATION AUTO-POPULATION SYSTEM - January 18, 2025:**
 - **Problem Solved**: Location system was broken (countries table didn't exist) and complex hierarchy wasn't suitable for Kenya

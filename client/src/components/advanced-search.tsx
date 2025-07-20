@@ -159,7 +159,7 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
           // Convert the API response format to match our filter structure
           const newFilters = {
             ...filters,
-            search: searchQuery,
+            search: result.filters.search || '', // Clear search if smart search extracted filters
             make: result.filters.make?.[0] || filters.make,
             model: result.filters.model?.[0] || filters.model,
             minPrice: result.filters.minPrice || filters.minPrice,
@@ -173,7 +173,9 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
           setFilters(newFilters);
           onFiltersChange?.(newFilters);
           
+          // Clear the search input after applying smart search
           if (result.explanation) {
+            setSearchQuery('');
             toast({ 
               title: "Smart Search Applied",
               description: result.explanation 

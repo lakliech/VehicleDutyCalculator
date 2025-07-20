@@ -246,6 +246,15 @@ The platform now features AI-powered natural language search that converts user 
 - **User Experience**: All three tabs now fully functional with clean, modern interface
 - **Integration**: Smart search parses queries like "budget 730000" and applies maxPrice filter automatically
 
+**SMART SEARCH ENHANCEMENTS - January 20, 2025:**
+- **Fixed "budget" keyword support**: Updated advanced-search.tsx pattern matching to handle "budget X" queries
+- **Pattern improvements**: Now supports "budget 700,000" with comma formatting and assumes 3-digit numbers mean thousands
+- **Enhanced no-results UX**: Added helpful message showing exact budget constraint when no cars match
+- **Smart price adjustment**: Added button to automatically increase budget by 100,000 KES when no results found
+- **Database insights**: Cheapest cars in database are 720,000-730,000 KES (Mazda Carol models)
+- **API verification**: Confirmed smart search API correctly parses natural language and returns appropriate filters
+- **Browse All functionality**: Verified all tabs working correctly, API returning 8 active cars from active users
+
 **KENYAN LOCATION AUTO-POPULATION SYSTEM - January 18, 2025:**
 - **Problem Solved**: Location system was broken (countries table didn't exist) and complex hierarchy wasn't suitable for Kenya
 - **Solution Implemented**: Created simplified location system using real Kenya location data

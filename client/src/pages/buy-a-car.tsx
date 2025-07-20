@@ -183,6 +183,8 @@ export default function BuyACar() {
       console.log('✅ Featured listings response:', data);
       return data;
     },
+    staleTime: 0, // Force refetch
+    retry: 3,
   });
 
   // Debug featured listings
@@ -713,8 +715,8 @@ export default function BuyACar() {
           </div>
         </div>
 
-        {/* Featured Listings Section */}
-        {featuredListings.length > 0 && (
+        {/* Featured Listings Section - Debug Force Show */}
+        {true && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -728,6 +730,14 @@ export default function BuyACar() {
               </Link>
             </div>
             
+            {/* Debug Info */}
+            <div className="mb-4 p-4 bg-yellow-100 rounded">
+              <p>Featured Loading: {featuredLoading ? 'YES' : 'NO'}</p>
+              <p>Featured Error: {featuredError ? String(featuredError) : 'NO ERROR'}</p>
+              <p>Featured Count: {featuredListings?.length || 0}</p>
+              <p>Featured Data: {JSON.stringify(featuredListings).substring(0, 100)}...</p>
+            </div>
+
             {featuredLoading ? (
               <div className="flex gap-4 overflow-x-auto pb-2">
                 {Array.from({length: 6}).map((_, i) => (

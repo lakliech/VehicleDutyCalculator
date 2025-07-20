@@ -47,6 +47,7 @@ import UsageDashboard from "@/pages/usage-dashboard";
 import BillingDashboard from "@/pages/billing-dashboard";
 import UnifiedBillingDashboard from "@/pages/unified-billing-dashboard";
 import AdminBillingDashboard from "@/pages/admin-billing-dashboard";
+import ExcelImport from "@/pages/excel-import";
 import { ResetPassword } from "@/pages/reset-password";
 import PaymentSuccess from "@/pages/payment-success-simple";
 import { AuthProvider } from "@/components/auth-provider";
@@ -153,6 +154,11 @@ function Router() {
           <Route path="/admin/billing">
             <ProtectedRoute requireAdmin={true}>
               <AdminBillingDashboard />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/admin/excel-import">
+            <ProtectedRoute requireAdmin={true}>
+              <ExcelImport />
             </ProtectedRoute>
           </Route>
 

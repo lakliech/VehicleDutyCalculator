@@ -659,14 +659,18 @@ function AuthenticatedAdminDashboard() {
 
             {/* Secondary Navigation for System Configuration */}
             {activeTab === "system" && (
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-7">
                 <TabsTrigger value="vehicles" className="flex items-center gap-2">
                   <Car className="h-4 w-4" />
                   Vehicle Database
                 </TabsTrigger>
                 <TabsTrigger value="csv-upload" className="flex items-center gap-2">
                   <Upload className="h-4 w-4" />
-                  Data Import
+                  CSV Import
+                </TabsTrigger>
+                <TabsTrigger value="excel-import" className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Excel Import
                 </TabsTrigger>
                 <TabsTrigger value="tax-rates" className="flex items-center gap-2">
                   <Percent className="h-4 w-4" />
@@ -883,6 +887,34 @@ function AuthenticatedAdminDashboard() {
               uploadResults={uploadResults}
               onClearResults={() => setUploadResults(null)}
             />
+          </TabsContent>
+
+          {/* Excel Import Tab */}
+          <TabsContent value="excel-import">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="h-5 w-5" />
+                  Excel Import Utility
+                </CardTitle>
+                <CardDescription>
+                  Import vehicle listings from JANS STOCK Excel files with automatic image downloading and column mapping
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <Button asChild className="mb-4">
+                    <Link href="/admin/excel-import">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Launch Excel Import Tool
+                    </Link>
+                  </Button>
+                  <p className="text-sm text-gray-600">
+                    Open the dedicated Excel import interface for bulk listing creation
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Tax Rates Tab */}

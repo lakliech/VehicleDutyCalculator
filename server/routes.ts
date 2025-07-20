@@ -9794,6 +9794,10 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
+  // Register Excel parser routes
+  const { registerExcelParserRoutes } = await import("./routes/excel-parser");
+  registerExcelParserRoutes(app);
+
   const httpServer = createServer(app);
 
   return httpServer;

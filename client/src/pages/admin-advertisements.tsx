@@ -97,6 +97,32 @@ export default function AdminAdvertisements() {
     }
   });
 
+  // Ad position mutations
+  const updatePositionMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: any }) => 
+      apiRequest('PUT', `/api/advertisements/positions/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/advertisements/positions'] });
+      toast({ title: "Ad position updated successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to update ad position", variant: "destructive" });
+    }
+  });
+
+  // Advertisement mutations
+  const updateAdvertisementMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: any }) => 
+      apiRequest('PUT', `/api/advertisements/advertisements/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/advertisements/advertisements'] });
+      toast({ title: "Advertisement updated successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to update advertisement", variant: "destructive" });
+    }
+  });
+
   // Floating ad mutations
   const updateFloatingAdMutation = useMutation({
     mutationFn: ({ id, data }: { id: number, data: any }) => 
@@ -427,10 +453,91 @@ export default function AdminAdvertisements() {
                           <span className="text-sm text-gray-500">
                             Max: {position.maxAdsSimultaneous || 0} ad{(position.maxAdsSimultaneous || 0) > 1 ? 's' : ''}
                           </span>
-                          <Button variant="outline" size="sm">
-                            <Edit className="h-3 w-3 mr-1" />
-                            Edit
-                          </Button>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Edit className="h-3 w-3 mr-1" />
+                                Edit
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Edit Ad Position</DialogTitle>
+                              </DialogHeader>
+                              
+                              <form onSubmit={(e) => {
+                                e.preventDefault();
+                                const formData = new FormData(e.target as HTMLFormElement);
+                                const data = {
+                                  positionName: formData.get('positionName'),
+                                  description: formData.get('description'),
+                                  dimensions: formData.get('dimensions'),
+                                  location: formData.get('location'),
+                                  pricePerDay: parseFloat(formData.get('pricePerDay') as string),
+                                  pricePerWeek: parseFloat(formData.get('pricePerWeek') as string),
+                                  pricePerMonth: parseFloat(formData.get('pricePerMonth') as string),
+                                  maxAdsPerDay: parseInt(formData.get('maxAdsPerDay') as string),
+                                  isActive: formData.get('isActive') === 'true',
+                                };
+                                
+                                updatePositionMutation.mutate({ id: position.id, data });
+                              }} className="space-y-4">
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label htmlFor="editPositionName">Position Name</Label>
+                                    <Input id="editPositionName" name="positionName" defaultValue={position.positionName} required />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="editLocation">Location</Label>
+                                    <Input id="editLocation" name="location" defaultValue={position.location} required />
+                                  </div>
+                                </div>
+                                
+                                <div>
+                                  <Label htmlFor="editDescription">Description</Label>
+                                  <Textarea id="editDescription" name="description" defaultValue={position.description || ''} />
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label htmlFor="editDimensions">Dimensions</Label>
+                                    <Input id="editDimensions" name="dimensions" defaultValue={position.dimensions} required />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="editMaxAds">Max Ads Per Day</Label>
+                                    <Input id="editMaxAds" name="maxAdsPerDay" type="number" defaultValue={position.maxAdsPerDay} required />
+                                  </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-3 gap-4">
+                                  <div>
+                                    <Label htmlFor="editPriceDay">Price Per Day</Label>
+                                    <Input id="editPriceDay" name="pricePerDay" type="number" step="0.01" defaultValue={position.pricePerDay} required />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="editPriceWeek">Price Per Week</Label>
+                                    <Input id="editPriceWeek" name="pricePerWeek" type="number" step="0.01" defaultValue={position.pricePerWeek} required />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="editPriceMonth">Price Per Month</Label>
+                                    <Input id="editPriceMonth" name="pricePerMonth" type="number" step="0.01" defaultValue={position.pricePerMonth} required />
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center space-x-2">
+                                  <input type="checkbox" id="editIsActive" name="isActive" value="true" defaultChecked={position.isActive} />
+                                  <Label htmlFor="editIsActive">Active</Label>
+                                </div>
+                                
+                                <div className="flex justify-end gap-2">
+                                  <Button type="submit" disabled={updatePositionMutation.isPending}>
+                                    {updatePositionMutation.isPending ? 'Updating...' : 'Update Position'}
+                                  </Button>
+                                </div>
+                              </form>
+                            </DialogContent>
+                          </Dialog>
                         </div>
                       </div>
                     </CardContent>
@@ -669,10 +776,171 @@ export default function AdminAdvertisements() {
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button variant="outline" size="sm">
-                              <Eye className="h-3 w-3 mr-1" />
-                              View
-                            </Button>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  View
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                  <DialogTitle>Advertisement Details</DialogTitle>
+                                </DialogHeader>
+                                
+                                <div className="space-y-4">
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <Label className="text-sm font-medium">Campaign Name</Label>
+                                      <p className="text-sm text-gray-700">{ad.campaignName}</p>
+                                    </div>
+                                    <div>
+                                      <Label className="text-sm font-medium">Advertiser</Label>
+                                      <p className="text-sm text-gray-700">{ad.advertiserName}</p>
+                                    </div>
+                                  </div>
+                                  
+                                  <div>
+                                    <Label className="text-sm font-medium">Ad Title</Label>
+                                    <p className="text-sm text-gray-700">{ad.adTitle}</p>
+                                  </div>
+                                  
+                                  <div>
+                                    <Label className="text-sm font-medium">Description</Label>
+                                    <p className="text-sm text-gray-700">{ad.adDescription}</p>
+                                  </div>
+                                  
+                                  {ad.adImageUrl && (
+                                    <div>
+                                      <Label className="text-sm font-medium">Advertisement Image</Label>
+                                      <img src={ad.adImageUrl} alt={ad.adTitle} className="max-w-full h-32 object-cover rounded border mt-2" />
+                                    </div>
+                                  )}
+                                  
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <Label className="text-sm font-medium">Target URL</Label>
+                                      <p className="text-sm text-blue-600 break-all">{ad.adTargetUrl}</p>
+                                    </div>
+                                    <div>
+                                      <Label className="text-sm font-medium">Total Budget</Label>
+                                      <p className="text-sm text-gray-700">KES {parseFloat(ad.totalBudget).toLocaleString()}</p>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                      <Label className="text-sm font-medium">Status</Label>
+                                      <Badge variant={ad.status === 'approved' ? 'default' : ad.status === 'rejected' ? 'destructive' : 'secondary'}>
+                                        {ad.status}
+                                      </Badge>
+                                    </div>
+                                    <div>
+                                      <Label className="text-sm font-medium">Start Date</Label>
+                                      <p className="text-sm text-gray-700">{new Date(ad.startDate).toLocaleDateString()}</p>
+                                    </div>
+                                    <div>
+                                      <Label className="text-sm font-medium">End Date</Label>
+                                      <p className="text-sm text-gray-700">{new Date(ad.endDate).toLocaleDateString()}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                            
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                  <Edit className="h-3 w-3 mr-1" />
+                                  Edit
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                  <DialogTitle>Edit Advertisement</DialogTitle>
+                                </DialogHeader>
+                                
+                                <form onSubmit={(e) => {
+                                  e.preventDefault();
+                                  const formData = new FormData(e.target as HTMLFormElement);
+                                  const data = {
+                                    campaignName: formData.get('campaignName'),
+                                    adTitle: formData.get('adTitle'),
+                                    adDescription: formData.get('adDescription'),
+                                    adImageUrl: formData.get('adImageUrl'),
+                                    adTargetUrl: formData.get('adTargetUrl'),
+                                    totalBudget: parseFloat(formData.get('totalBudget') as string),
+                                    startDate: formData.get('startDate'),
+                                    endDate: formData.get('endDate'),
+                                  };
+                                  
+                                  updateAdvertisementMutation.mutate({ id: ad.id, data });
+                                }} className="space-y-4">
+                                  
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <Label htmlFor="editCampaignName">Campaign Name</Label>
+                                      <Input id="editCampaignName" name="campaignName" defaultValue={ad.campaignName} required />
+                                    </div>
+                                    <div>
+                                      <Label htmlFor="editTotalBudget">Total Budget</Label>
+                                      <Input id="editTotalBudget" name="totalBudget" type="number" step="0.01" defaultValue={ad.totalBudget} required />
+                                    </div>
+                                  </div>
+                                  
+                                  <div>
+                                    <Label htmlFor="editAdTitle">Ad Title</Label>
+                                    <Input id="editAdTitle" name="adTitle" defaultValue={ad.adTitle} required />
+                                  </div>
+                                  
+                                  <div>
+                                    <Label htmlFor="editAdDescription">Ad Description</Label>
+                                    <Textarea id="editAdDescription" name="adDescription" defaultValue={ad.adDescription} required />
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <Label htmlFor="editAdImageUrl">Image URL</Label>
+                                      <Input id="editAdImageUrl" name="adImageUrl" defaultValue={ad.adImageUrl || ''} />
+                                    </div>
+                                    <div>
+                                      <Label htmlFor="editAdTargetUrl">Target URL</Label>
+                                      <Input id="editAdTargetUrl" name="adTargetUrl" defaultValue={ad.adTargetUrl} required />
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <Label htmlFor="editStartDate">Start Date</Label>
+                                      <Input 
+                                        id="editStartDate" 
+                                        name="startDate" 
+                                        type="date" 
+                                        defaultValue={new Date(ad.startDate).toISOString().split('T')[0]} 
+                                        required 
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label htmlFor="editEndDate">End Date</Label>
+                                      <Input 
+                                        id="editEndDate" 
+                                        name="endDate" 
+                                        type="date" 
+                                        defaultValue={new Date(ad.endDate).toISOString().split('T')[0]} 
+                                        required 
+                                      />
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex justify-end gap-2">
+                                    <Button type="submit" disabled={updateAdvertisementMutation.isPending}>
+                                      {updateAdvertisementMutation.isPending ? 'Updating...' : 'Update Advertisement'}
+                                    </Button>
+                                  </div>
+                                </form>
+                              </DialogContent>
+                            </Dialog>
+                            
                             {ad.status === 'pending' && (
                               <>
                                 <Button 

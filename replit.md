@@ -227,25 +227,29 @@ The platform now features AI-powered natural language search that converts user 
 
 ## Changelog
 
-**COMPLETE FLOATING ADS MANAGEMENT WITH CRUD OPERATIONS - January 21, 2025:**
-- **Problem Solved**: User requested activation of edit, pause, delete actions for floating ads plus image support
-- **Database Enhancement**: Added `image_url` field to floating_ads table for image support in ads
-- **Backend API Implementation**: Created complete CRUD operations for floating ads:
-  - `PUT /api/advertisements/floating-ads/:id` - Update floating ad with validation
-  - `PATCH /api/advertisements/floating-ads/:id/toggle` - Toggle active/inactive status
-  - `DELETE /api/advertisements/floating-ads/:id` - Delete floating ad with confirmation
+**COMPLETE AD MANAGEMENT SYSTEM WITH FULL CRUD OPERATIONS - January 21, 2025:**
+- **Problem Solved**: User requested activation of edit actions for ad positions and view/edit actions for advertisements
+- **Backend API Implementation**: Created comprehensive CRUD operations for all advertisement components:
+  - **Ad Positions**: `PUT /api/advertisements/positions/:id` - Update ad position with validation
+  - **Advertisements**: `GET /api/advertisements/advertisements/:id` - View single advertisement details
+  - **Advertisements**: `PUT /api/advertisements/advertisements/:id` - Update advertisement with validation
+  - **Floating Ads**: Complete CRUD with PUT (edit), PATCH (toggle), DELETE operations
 - **Frontend Mutations**: Implemented React Query mutations with proper error handling:
-  - `updateFloatingAdMutation` - Edit floating ad with comprehensive form dialog
-  - `toggleFloatingAdMutation` - Pause/activate with loading states and button feedback
-  - `deleteFloatingAdMutation` - Delete with confirmation dialog and proper cache invalidation
+  - `updatePositionMutation` - Edit ad positions with comprehensive form dialog
+  - `updateAdvertisementMutation` - Edit advertisements with detailed form validation
+  - `updateFloatingAdMutation` - Edit floating ads with image support
+  - All mutations include loading states, error handling, and cache invalidation
 - **Admin Interface Enhancement**: 
-  - Added functional Edit button opening comprehensive edit dialog with all fields
-  - Active Pause/Activate buttons with real-time status changes and loading indicators
-  - Delete button with confirmation prompt and proper error handling
-  - Image URL field in both creation and edit forms for ad image support
-- **FloatingAd Component Update**: Enhanced to display images from both `imageUrl` and legacy `adImageUrl` fields
-- **User Experience**: Complete floating ads management with immediate visual feedback and proper cache invalidation
-- **Technical Achievement**: Full CRUD operations with TypeScript safety, proper validation, and seamless admin experience
+  - **Ad Positions**: Functional Edit dialog with all fields (pricing, dimensions, location, status)
+  - **Advertisements**: View dialog showing complete advertisement details with image display
+  - **Advertisements**: Edit dialog with campaign details, budget, dates, and image URL fields
+  - **Floating Ads**: Complete edit, pause/activate, and delete functionality with image support
+- **Enhanced User Experience**: 
+  - Real-time status updates with visual feedback
+  - Comprehensive form validation and error messages
+  - Proper cache invalidation ensuring immediate UI updates
+  - Image display support in both view and edit modes
+- **Technical Achievement**: Complete advertisement management ecosystem with full CRUD operations, TypeScript safety, and seamless admin experience across all ad types
 
 **COMPLETE DEALER PROFILE SYSTEM WITH SMART NAVIGATION - January 21, 2025:**
 - **Problem Solved**: Implemented comprehensive dealer profile functionality with intelligent navigation based on user status

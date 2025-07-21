@@ -46,6 +46,29 @@ router.post('/positions', authenticateUser, requireRole(['admin', 'superadmin'])
 // Update ad position (Admin only)
 router.put('/positions/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
   try {
+    const { id } = req.params;
+    const validatedData = adPositionSchema.partial().parse(req.body);
+    
+    const [updatedPosition] = await db
+      .update(adPositions)
+      .set({ ...validatedData, updatedAt: new Date() })
+      .where(eq(adPositions.id, parseInt(id)))
+      .returning();
+    
+    if (!updatedPosition) {
+      return res.status(404).json({ error: 'Ad position not found' });
+    }
+    
+    res.json(updatedPosition);
+  } catch (error) {
+    console.error('Error updating ad position:', error);
+    res.status(500).json({ error: 'Failed to update ad position' });
+  }
+});
+
+// Update ad position (Admin only)
+router.put('/positions/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  try {
     // Return error since advertisement tables don't exist
     res.status(501).json({ error: 'Ad position update not available - database tables not configured' });
   } catch (error) {
@@ -126,6 +149,50 @@ router.post('/advertisements', async (req, res) => {
   } catch (error) {
     console.error('Error creating advertisement:', error);
     res.status(500).json({ error: 'Failed to create advertisement' });
+  }
+});
+
+// Get single advertisement (Admin only)
+router.get('/advertisements/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const [advertisement] = await db
+      .select()
+      .from(advertisements)
+      .where(eq(advertisements.id, parseInt(id)));
+    
+    if (!advertisement) {
+      return res.status(404).json({ error: 'Advertisement not found' });
+    }
+    
+    res.json(advertisement);
+  } catch (error) {
+    console.error('Error fetching advertisement:', error);
+    res.status(500).json({ error: 'Failed to fetch advertisement' });
+  }
+});
+
+// Update advertisement (Admin only)
+router.put('/advertisements/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const validatedData = advertisementSchema.partial().parse(req.body);
+    
+    const [updatedAd] = await db
+      .update(advertisements)
+      .set({ ...validatedData, updatedAt: new Date() })
+      .where(eq(advertisements.id, parseInt(id)))
+      .returning();
+    
+    if (!updatedAd) {
+      return res.status(404).json({ error: 'Advertisement not found' });
+    }
+    
+    res.json(updatedAd);
+  } catch (error) {
+    console.error('Error updating advertisement:', error);
+    res.status(500).json({ error: 'Failed to update advertisement' });
   }
 });
 

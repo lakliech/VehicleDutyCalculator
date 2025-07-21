@@ -72,8 +72,8 @@ export const requireRole = (roles: string[]) => {
     try {
       const userRole = await storage.getUserRole(req.user.id);
       
-      if (!userRole || !roles.includes(userRole.role)) {
-        console.log(`User ${req.user.id} with role ${userRole?.role} attempted to access endpoint requiring roles: ${roles.join(', ')}`);
+      if (!userRole || !roles.includes(userRole.name)) {
+        console.log(`User ${req.user.id} with role ${userRole?.name} attempted to access endpoint requiring roles: ${roles.join(', ')}`);
         return res.status(403).json({ error: "Insufficient permissions" });
       }
 

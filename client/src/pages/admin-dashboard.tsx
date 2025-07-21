@@ -634,7 +634,7 @@ function AuthenticatedAdminDashboard() {
             {/* Primary Navigation - Core Functions */}
             <div className="bg-gray-50 rounded-xl p-4">
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Core Management</h3>
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="overview" className="flex items-center gap-2">
                   <Database className="h-4 w-4" />
                   <span className="hidden sm:inline">Dashboard</span>
@@ -643,13 +643,10 @@ function AuthenticatedAdminDashboard() {
                   <Car className="h-4 w-4" />
                   <span className="hidden sm:inline">Marketplace</span>
                 </TabsTrigger>
-              </TabsList>
-            </div>
-
-            {/* Secondary Navigation - Advanced Features */}
-            <div className="bg-blue-50 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">Advanced Features</h3>
-              <TabsList className="grid w-full grid-cols-1">
+                <TabsTrigger value="monetization" className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  <span className="hidden sm:inline">Monetization</span>
+                </TabsTrigger>
                 <TabsTrigger value="system" className="flex items-center gap-2">
                   <Settings className="h-4 w-4" />
                   <span className="hidden sm:inline">System Config</span>
@@ -698,18 +695,7 @@ function AuthenticatedAdminDashboard() {
               </div>
             )}
 
-            {/* Dashboard Sub-Navigation */}
-            {activeTab === "overview" && (
-              <div className="bg-green-50 rounded-xl p-4">
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">Dashboard Analytics</h4>
-                <TabsList className="grid w-full grid-cols-1">
-                  <TabsTrigger value="monetization" className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    <span className="hidden sm:inline">Monetization</span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-            )}
+
 
             {/* Marketplace Management Sub-Navigation */}
             {activeTab === "marketplace" && (

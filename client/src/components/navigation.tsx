@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Database, LogOut, List, Heart, MessageCircle, User, Brain, CreditCard, BarChart3 } from "lucide-react";
+import { Database, LogOut, List, Heart, MessageCircle, User, Brain, CreditCard, BarChart3, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -55,9 +55,6 @@ export function Navigation() {
           <div className="flex items-center space-x-6">
             {/* Navigation Menu */}
             <nav className="hidden md:flex items-center space-x-6">
-              <Link href="/dealer-registration" className="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors bg-purple-50 hover:bg-purple-100 px-3 py-1 rounded-md">
-                Register As a Dealer
-              </Link>
               <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
                 About Us
               </Link>
@@ -138,6 +135,14 @@ export function Navigation() {
                       <Link href="/usage-dashboard" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
                         <BarChart3 className="mr-2 h-4 w-4" />
                         <span>Usage Dashboard</span>
+                      </Link>
+                      
+                      {/* Separator */}
+                      <div className="border-t border-gray-200 my-1"></div>
+                      
+                      <Link href="/dealer-registration" className="flex items-center px-3 py-2 text-sm hover:bg-purple-50 transition-colors text-purple-600">
+                        <Building className="mr-2 h-4 w-4" />
+                        <span>Register as Dealer</span>
                       </Link>
 
                       {/* Admin Dashboard for users with admin role */}

@@ -3510,10 +3510,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         dbListings = await db
           .select({
-            listing: carListings
+            listing: carListings,
+            dealerName: sql<string>`dealer_profiles.dealer_name`,
+            dealerLogoUrl: sql<string>`dealer_profiles.logo_url`,
+            isVerifiedDealer: sql<boolean>`dealer_profiles.is_verified`,
           })
           .from(carListings)
           .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
+          .leftJoin(sql`dealer_profiles`, sql`dealer_profiles.user_id = ${carListings.sellerId}`)
           .where(and(...whereConditions))
           .orderBy(orderBy)
           .limit(limitNum)
@@ -3550,7 +3554,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           createdAt: row.listing.createdAt ? row.listing.createdAt.toISOString() : new Date().toISOString(),
           sellerId: row.listing.sellerId,
           title: row.listing.title,
-          description: row.listing.description
+          description: row.listing.description,
+          dealerName: row.dealerName,
+          dealerLogoUrl: row.dealerLogoUrl,
+          isVerifiedDealer: row.isVerifiedDealer || false
         };
       });
 
@@ -3591,10 +3598,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Query featured listings
       const featuredListings = await db
         .select({
-          listing: carListings
+          listing: carListings,
+          dealerName: sql<string>`dealer_profiles.dealer_name`,
+          dealerLogoUrl: sql<string>`dealer_profiles.logo_url`,
+          isVerifiedDealer: sql<boolean>`dealer_profiles.is_verified`,
         })
         .from(carListings)
         .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
+        .leftJoin(sql`dealer_profiles`, sql`dealer_profiles.user_id = ${carListings.sellerId}`)
         .where(and(
           eq(carListings.status, 'active'),
           eq(carListings.featured, true)
@@ -3628,7 +3639,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           createdAt: row.listing.createdAt ? row.listing.createdAt.toISOString() : new Date().toISOString(),
           sellerId: row.listing.sellerId,
           title: row.listing.title,
-          description: row.listing.description
+          description: row.listing.description,
+          dealerName: row.dealerName,
+          dealerLogoUrl: row.dealerLogoUrl,
+          isVerifiedDealer: row.isVerifiedDealer || false
         };
       });
 

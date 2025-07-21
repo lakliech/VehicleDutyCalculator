@@ -47,6 +47,7 @@ const profileSchema = z.object({
   description: z.string().max(300, "Description must be under 300 characters"),
   website: z.string().url().optional().or(z.literal("")),
   specialties: z.array(z.string()),
+  logoFile: z.any().optional(),
 });
 
 const packageSchema = z.object({
@@ -68,8 +69,50 @@ export default function DealerRegistration() {
     businessRegistration?: File;
     directorId?: File;
     locationProof?: File;
+    logo?: File;
   }>({});
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [, setLocation] = useLocation();
+
+  // Logo upload handler
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file size (2MB max)
+      if (file.size > 2 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select a file smaller than 2MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file (PNG, JPG, or SVG)",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setUploadedFiles(prev => ({ ...prev, logo: file }));
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setLogoPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      toast({
+        title: "Logo uploaded",
+        description: "Your business logo has been uploaded successfully",
+      });
+    }
+  };
 
   // Calculate progress percentage
   const getProgress = () => {
@@ -156,7 +199,12 @@ export default function DealerRegistration() {
   };
 
   const handleProfileSubmit = (data: z.infer<typeof profileSchema>) => {
-    setRegistrationData((prev: any) => ({ ...prev, ...data }));
+    // Include logo upload data
+    const profileData = {
+      ...data,
+      logoUrl: logoPreview, // Base64 encoded logo for simple storage
+    };
+    setRegistrationData((prev: any) => ({ ...prev, ...profileData }));
     setCurrentStage("package");
   };
 
@@ -360,6 +408,45 @@ export default function DealerRegistration() {
                           </FormItem>
                         )}
                       />
+                    </div>
+
+                    {/* Logo Upload Section */}
+                    <div className="space-y-4">
+                      <Label>Business Logo</Label>
+                      <div className="flex items-center space-x-4">
+                        <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden bg-gray-50">
+                          {logoPreview ? (
+                            <img 
+                              src={logoPreview} 
+                              alt="Logo preview" 
+                              className="w-full h-full object-contain"
+                            />
+                          ) : (
+                            <Camera className="w-8 h-8 text-gray-400" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <input
+                            type="file"
+                            id="logo-upload"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleLogoUpload}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => document.getElementById('logo-upload')?.click()}
+                            className="w-full"
+                          >
+                            <Upload className="w-4 h-4 mr-2" />
+                            Upload Logo
+                          </Button>
+                          <p className="text-xs text-gray-500 mt-1">
+                            PNG, JPG, or SVG. Max 2MB. Recommended: 300x300px
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

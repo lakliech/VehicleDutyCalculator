@@ -43,6 +43,9 @@ interface CarListing {
   favoriteCount: number;
   viewCount: number;
   phoneNumber: string;
+  dealerName?: string;
+  dealerLogoUrl?: string;
+  isVerifiedDealer?: boolean;
 }
 
 interface CarFilters {
@@ -240,6 +243,35 @@ export default function BuyACar() {
                 +{car.features.length - 3} more
               </Badge>
             )}
+          </div>
+        )}
+        
+        {/* Dealer Information */}
+        {car.dealerName && (
+          <div className="flex items-center gap-2 mb-3 p-2 bg-gray-50 rounded-lg">
+            {car.dealerLogoUrl ? (
+              <img 
+                src={car.dealerLogoUrl} 
+                alt={`${car.dealerName} logo`}
+                className="w-8 h-8 rounded-full object-cover border"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <span className="text-purple-600 font-semibold text-xs">
+                  {car.dealerName.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+            <div className="flex-1">
+              <div className="flex items-center gap-1">
+                <span className="text-sm font-medium text-gray-900">{car.dealerName}</span>
+                {car.isVerifiedDealer && (
+                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
+                    ✓ Verified
+                  </Badge>
+                )}
+              </div>
+            </div>
           </div>
         )}
         

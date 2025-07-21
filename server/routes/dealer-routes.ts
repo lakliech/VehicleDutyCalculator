@@ -24,13 +24,16 @@ const router = Router();
 import { authenticateUser, requireRole } from "../middleware/auth";
 
 // Registration endpoint (no auth required)
-router.post("/register", async (req, res) => {
+router.post("/register", authenticateUser, async (req: any, res) => {
   try {
     const dealerData = req.body;
-    console.log('Dealer registration data:', dealerData);
+    const userId = req.user?.id;
     
-    // Generate unique dealer ID
-    const dealerId = `dealer_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    console.log('Dealer registration data:', dealerData, 'User ID:', userId);
     
     // Determine listing limit based on package
     const getListingLimitForPackage = (packageType: string) => {
@@ -51,18 +54,27 @@ router.post("/register", async (req, res) => {
       INSERT INTO dealer_profiles 
       (user_id, dealer_name, business_location, phone_numbers, whatsapp_number, 
        email_address, website_url, dealer_bio, years_in_business, specialties, 
-       status, is_verified, package_type, listing_limit)
+       status, is_verified, package_type, listing_limit, logo_url)
       VALUES 
-      (${dealerId}, ${dealerData.businessName}, ${dealerData.location}, 
+      (${userId}, ${dealerData.businessName}, ${dealerData.location}, 
        ${JSON.stringify(phoneNumbersArray)}::jsonb, ${dealerData.whatsappNumber || null},
        ${dealerData.businessEmail}, ${dealerData.website || null}, 
        ${dealerData.description || null}, ${dealerData.yearsInBusiness || 0}, 
        ${JSON.stringify(specialtiesArray)}::jsonb, 'pending', false, 
-       ${dealerData.packageType}, ${getListingLimitForPackage(dealerData.packageType)})
+       ${dealerData.packageType}, ${getListingLimitForPackage(dealerData.packageType)}, 
+       ${dealerData.logoUrl || null})
       RETURNING id, user_id, dealer_name
     `);
     
     const newDealer = newDealerResult.rows[0];
+
+    // Create user-dealer association
+    await db.execute(sql`
+      INSERT INTO dealer_user_associations 
+      (dealer_id, user_id, role, status, association_date)
+      VALUES 
+      (${(newDealer as any).id}, ${userId}, 'owner', 'active', CURRENT_TIMESTAMP)
+    `);
 
     res.json({ 
       success: true, 

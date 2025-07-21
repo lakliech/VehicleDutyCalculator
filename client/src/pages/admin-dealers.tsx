@@ -136,13 +136,13 @@ export default function AdminDealers() {
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-4">
                   <Avatar className="w-16 h-16">
-                    <AvatarImage src={dealer.logoUrl || dealer.user.profileImageUrl || ""} />
+                    <AvatarImage src={dealer.logoUrl || dealer.user?.profileImageUrl || ""} />
                     <AvatarFallback>{dealer.dealerName.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div>
                     <h3 className="font-bold text-lg">{dealer.dealerName}</h3>
-                    <p className="text-gray-600">{dealer.user.firstName} {dealer.user.lastName}</p>
-                    <p className="text-sm text-gray-500">{dealer.user.email}</p>
+                    <p className="text-gray-600">{dealer.user?.firstName} {dealer.user?.lastName}</p>
+                    <p className="text-sm text-gray-500">{dealer.user?.email || 'No email available'}</p>
                   </div>
                 </div>
                 

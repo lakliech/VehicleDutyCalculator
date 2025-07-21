@@ -188,7 +188,7 @@ export default function Home() {
             </Badge>
           </div>
           
-          <h1 className="text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+          <h1 className="font-bold text-gray-900 mb-6 tracking-tight text-[48px]">
             Your Complete
             <br />
             <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">
@@ -237,7 +237,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Featured Tools - Extra Large Visibility */}
       <section className="pb-16 px-4">
         <div className="max-w-7xl mx-auto">
@@ -293,7 +292,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Professional Tools - Enhanced Grid */}
       <section className="py-16 bg-gradient-to-r from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4">
@@ -340,7 +338,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Enhanced Stats Section */}
       <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4 text-center">
@@ -368,7 +365,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Premium Contact CTA */}
       <section className="py-20 px-4 bg-gradient-to-r from-purple-900 via-blue-900 to-purple-900">
         <div className="max-w-4xl mx-auto text-center">
@@ -406,7 +402,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Floating Ads */}
       <FloatingAd />
     </div>

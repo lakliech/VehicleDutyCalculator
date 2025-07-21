@@ -293,7 +293,7 @@ export default function Home() {
         </div>
       </section>
       {/* Professional Tools - Enhanced Grid */}
-      <section className="py-16 bg-gradient-to-r from-gray-50 to-blue-50">
+      <section className="py-16 bg-gradient-to-r from-gray-50 to-blue-50 pt-[8px] pb-[8px]">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">

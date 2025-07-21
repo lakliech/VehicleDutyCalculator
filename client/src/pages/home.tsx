@@ -1,413 +1,197 @@
 import { Link } from "wouter";
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/components/auth-provider";
-import { useQuery } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import { 
   Calculator, 
-  Car, 
-  Wrench, 
-  Banknote, 
-  FileText, 
+  Search, 
   ShoppingCart, 
+  Brain,
+  Car,
+  Banknote,
+  FileText,
   CreditCard,
   ArrowRight,
-  Search,
   TrendingUp,
-  MessageCircle,
-  Brain,
   Shield
 } from "lucide-react";
 
-// Core automotive tools - streamlined for simplicity
-const CORE_TOOLS = [
-  {
-    href: "/duty-calculator",
-    title: "Duty Calculator",
-    description: "Calculate import duties with official KRA rates",
-    icon: Calculator
-  },
+// Simplified tool structure for minimalist design
+const PRIMARY_TOOLS = [
   {
     href: "/buy-a-car",
-    title: "Buy a Car",
-    description: "Browse and purchase quality vehicles",
-    icon: Search
+    title: "Find Cars",
+    description: "Browse thousands of verified vehicles",
+    icon: Search,
+    gradient: "from-blue-500 to-blue-600"
   },
   {
-    href: "/sell-my-car",
-    title: "Sell My Car",
-    description: "List your vehicle for sale",
-    icon: ShoppingCart
+    href: "/sell-my-car", 
+    title: "Sell Vehicle",
+    description: "List your car with professional photos",
+    icon: ShoppingCart,
+    gradient: "from-green-500 to-green-600"
+  },
+  {
+    href: "/duty-calculator",
+    title: "Import Duty",
+    description: "Calculate KRA import taxes instantly",
+    icon: Calculator,
+    gradient: "from-purple-500 to-purple-600"
   },
   {
     href: "/ai-advisor",
-    title: "AI Advisor",
-    description: "Get smart vehicle recommendations",
-    icon: MessageCircle
+    title: "AI Advisor", 
+    description: "Get personalized vehicle recommendations",
+    icon: Brain,
+    gradient: "from-orange-500 to-orange-600"
   }
 ];
 
-const ADDITIONAL_TOOLS = [
-  {
-    href: "/importation-estimator",
-    title: "Import Calculator",
-    icon: Car
-  },
-  {
-    href: "/mycars-worth", 
-    title: "Car Valuation",
-    icon: Banknote
-  },
-  {
-    href: "/transfer-cost",
-    title: "Transfer Cost",
-    icon: FileText
-  },
-  {
-    href: "/price-trends",
-    title: "Price Trends",
-    icon: TrendingUp
-  },
-  {
-    href: "/vehicle-loans",
-    title: "Vehicle Loans",
-    icon: CreditCard
-  },
-
-  {
-    href: "/mileage-verification",
-    title: "Mileage Verify",
-    icon: Shield
-  }
+const SECONDARY_TOOLS = [
+  { href: "/importation-estimator", title: "Import Cost", icon: Car },
+  { href: "/mycars-worth", title: "Car Value", icon: Banknote },
+  { href: "/transfer-cost", title: "Transfer", icon: FileText },
+  { href: "/vehicle-loans", title: "Financing", icon: CreditCard },
+  { href: "/price-trends", title: "Trends", icon: TrendingUp },
+  { href: "/mileage-verification", title: "Verify", icon: Shield }
 ];
-
-// Simple tool card component with larger icons
-const ToolCard = ({ tool, size = "default" }: { tool: any; size?: "default" | "small" }) => {
-  const IconComponent = tool.icon;
-  const isLarge = size === "default";
-  
-  return (
-    <Link href={tool.href}>
-      <Card className={`group cursor-pointer hover:shadow-lg transition-all duration-200 ${isLarge ? 'h-48' : 'h-28'}`}>
-        <CardHeader className={`text-center ${isLarge ? 'pb-4 pt-6' : 'p-4'}`}>
-          <div className={`bg-purple-100 rounded-lg ${isLarge ? 'w-16 h-16 mb-3' : 'w-12 h-12 mb-2'} flex items-center justify-center mx-auto group-hover:bg-purple-200 transition-colors duration-200`}>
-            <IconComponent className={`${isLarge ? 'h-10 w-10' : 'h-6 w-6'} text-purple-600`} />
-          </div>
-          <CardTitle className={`${isLarge ? 'text-lg' : 'text-sm'} font-semibold text-gray-900`}>
-            {tool.title}
-          </CardTitle>
-          {isLarge && (
-            <p className="text-sm text-gray-600 mt-2">
-              {tool.description}
-            </p>
-          )}
-        </CardHeader>
-      </Card>
-    </Link>
-  );
-};
 
 export default function Home() {
-  const { toast } = useToast();
-  const { user } = useAuth();
-  const [selectedMake, setSelectedMake] = useState<string>("");
-  const [selectedModel, setSelectedModel] = useState<string>("");
-  const [selectedPriceRange, setSelectedPriceRange] = useState<string>("");
-  const [selectedYear, setSelectedYear] = useState<string>("");
-  const [selectedFuelType, setSelectedFuelType] = useState<string>("");
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false);
-
-  // Fetch vehicle makes
-  const { data: makes } = useQuery({
-    queryKey: ['/api/car-listing-filters'],
-    select: (data: any) => data.makes || []
-  });
-
-  // Fetch models based on selected make
-  const { data: models } = useQuery({
-    queryKey: ['/api/car-listing-filters', selectedMake],
-    enabled: !!selectedMake && selectedMake !== "any",
-    select: (data: any) => data.models || []
-  });
-
-  const handleSearch = () => {
-    // Build query params for the Buy A Car page
-    const params = new URLSearchParams();
-    if (selectedMake && selectedMake !== "any") params.append('make', selectedMake);
-    if (selectedModel && selectedModel !== "any") params.append('model', selectedModel);
-    if (selectedPriceRange && selectedPriceRange !== "any") params.append('priceRange', selectedPriceRange);
-    if (selectedYear && selectedYear !== "any") params.append('year', selectedYear);
-    if (selectedFuelType && selectedFuelType !== "any") params.append('fuelType', selectedFuelType);
-    
-    // Navigate to buy-a-car with filters
-    window.location.href = `/buy-a-car${params.toString() ? '?' + params.toString() : ''}`;
-  };
-
-  // OAuth handling is now done globally in App.tsx via useAuthRedirect
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Clean Hero Section */}
-      <section className="bg-white border-b">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Left Side - Smart Vehicle Filter */}
-            <div className="lg:col-span-1">
-              <div className="bg-gradient-to-br from-purple-50 to-cyan-50 border border-purple-200 rounded-lg shadow-lg p-6">
-                <div className="flex items-center mb-4">
-                  <Search className="h-5 w-5 text-purple-600 mr-2" />
-                  <h3 className="text-lg font-semibold text-gray-900">Smart Car Finder</h3>
-                </div>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Make</label>
-                    <Select value={selectedMake} onValueChange={(value) => {
-                      setSelectedMake(value);
-                      setSelectedModel("any"); // Reset model when make changes
-                    }}>
-                      <SelectTrigger className="border-purple-200 focus:border-purple-500">
-                        <SelectValue placeholder="Select make" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="any">Any make</SelectItem>
-                        {makes?.map((make: string) => (
-                          <SelectItem key={make} value={make}>{make}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
-                    <Select 
-                      value={selectedModel} 
-                      onValueChange={setSelectedModel}
-                      disabled={!selectedMake || selectedMake === "any"}
-                    >
-                      <SelectTrigger className="border-purple-200 focus:border-purple-500">
-                        <SelectValue placeholder="Select model" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="any">Any model</SelectItem>
-                        {models?.map((model: string) => (
-                          <SelectItem key={model} value={model}>{model}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Budget Range</label>
-                    <Select value={selectedPriceRange} onValueChange={setSelectedPriceRange}>
-                      <SelectTrigger className="border-purple-200 focus:border-purple-500">
-                        <SelectValue placeholder="Select budget" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="any">Any budget</SelectItem>
-                        <SelectItem value="0-500000">Under KES 500K</SelectItem>
-                        <SelectItem value="500000-1000000">KES 500K - 1M</SelectItem>
-                        <SelectItem value="1000000-2000000">KES 1M - 2M</SelectItem>
-                        <SelectItem value="2000000-3000000">KES 2M - 3M</SelectItem>
-                        <SelectItem value="3000000-5000000">KES 3M - 5M</SelectItem>
-                        <SelectItem value="5000000-">Above KES 5M</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  {/* Advanced filters toggle */}
-                  <div className="text-center">
-                    <button
-                      onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                      className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-                    >
-                      {showAdvancedFilters ? 'Hide' : 'Show'} Advanced Filters
-                    </button>
-                  </div>
-                  
-                  {showAdvancedFilters && (
-                    <div className="grid grid-cols-2 gap-3 pt-2">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
-                        <Select value={selectedYear} onValueChange={setSelectedYear}>
-                          <SelectTrigger className="border-purple-200 focus:border-purple-500">
-                            <SelectValue placeholder="Any year" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="any">Any year</SelectItem>
-                            <SelectItem value="2020-">2020 & newer</SelectItem>
-                            <SelectItem value="2015-2019">2015-2019</SelectItem>
-                            <SelectItem value="2010-2014">2010-2014</SelectItem>
-                            <SelectItem value="2005-2009">2005-2009</SelectItem>
-                            <SelectItem value="-2004">Before 2005</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Fuel</label>
-                        <Select value={selectedFuelType} onValueChange={setSelectedFuelType}>
-                          <SelectTrigger className="border-purple-200 focus:border-purple-500">
-                            <SelectValue placeholder="Any fuel" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="any">Any fuel</SelectItem>
-                            <SelectItem value="petrol">Petrol</SelectItem>
-                            <SelectItem value="diesel">Diesel</SelectItem>
-                            <SelectItem value="hybrid">Hybrid</SelectItem>
-                            <SelectItem value="electric">Electric</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="flex gap-2">
-                    <Button 
-                      onClick={handleSearch}
-                      className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
-                    >
-                      <Search className="mr-2 h-4 w-4" />
-                      Find Perfect Car
-                    </Button>
-                    {(selectedMake || selectedModel || selectedPriceRange || selectedYear || selectedFuelType) && (
-                      <Button 
-                        onClick={() => {
-                          setSelectedMake("");
-                          setSelectedModel("");
-                          setSelectedPriceRange("");
-                          setSelectedYear("");
-                          setSelectedFuelType("");
-                        }}
-                        variant="outline"
-                        className="px-3 py-3 border-purple-200 hover:bg-purple-50"
-                      >
-                        Clear
-                      </Button>
-                    )}
-                  </div>
-                  
-                  {/* Active filters display */}
-                  {(selectedMake || selectedModel || selectedPriceRange || selectedYear || selectedFuelType) && (
-                    <div className="text-center">
-                      <p className="text-xs text-gray-500">
-                        {[selectedMake, selectedModel, selectedPriceRange, selectedYear, selectedFuelType].filter(Boolean).length} filter(s) applied
-                      </p>
-                    </div>
-                  )}
-                  
-                  {/* Smart suggestions */}
-                  <div className="mt-4 pt-4 border-t border-purple-200">
-                    <p className="text-xs text-gray-600 mb-2">Popular searches:</p>
-                    <div className="flex flex-wrap gap-2">
-                      <button 
-                        onClick={() => {
-                          setSelectedMake("Toyota");
-                          setSelectedPriceRange("500000-1000000");
-                          setSelectedYear("2015-2019");
-                          setSelectedFuelType("petrol");
-                        }}
-                        className="px-2 py-1 bg-white border border-purple-200 rounded-full text-xs text-purple-600 hover:bg-purple-50 transition-colors"
-                      >
-                        Toyota Petrol 2015-2019
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setSelectedMake("Nissan");
-                          setSelectedPriceRange("1000000-2000000");
-                          setSelectedYear("2010-2014");
-                          setSelectedFuelType("petrol");
-                        }}
-                        className="px-2 py-1 bg-white border border-purple-200 rounded-full text-xs text-purple-600 hover:bg-purple-50 transition-colors"
-                      >
-                        Nissan 1M-2M
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setSelectedMake("Subaru");
-                          setSelectedPriceRange("2000000-3000000");
-                          setSelectedYear("2015-2019");
-                          setSelectedFuelType("petrol");
-                        }}
-                        className="px-2 py-1 bg-white border border-purple-200 rounded-full text-xs text-purple-600 hover:bg-purple-50 transition-colors"
-                      >
-                        Subaru AWD
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setSelectedFuelType("hybrid");
-                          setSelectedPriceRange("2000000-3000000");
-                          setSelectedYear("2015-2019");
-                        }}
-                        className="px-2 py-1 bg-white border border-purple-200 rounded-full text-xs text-purple-600 hover:bg-purple-50 transition-colors"
-                      >
-                        Hybrid Cars
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setSelectedPriceRange("0-500000");
-                          setSelectedYear("2010-2014");
-                        }}
-                        className="px-2 py-1 bg-white border border-purple-200 rounded-full text-xs text-purple-600 hover:bg-purple-50 transition-colors"
-                      >
-                        Budget Cars
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+    <div className="min-h-screen bg-white">
+      {/* Hero Section - Ultra Clean */}
+      <section className="pt-20 pb-16 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6 tracking-tight">
+            Kenya's Modern
+            <br />
+            <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              Car Marketplace
+            </span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Buy, sell, and manage vehicles with intelligent tools designed for the Kenyan market
+          </p>
+          
+          {/* Quick Search Bar */}
+          <div className="max-w-lg mx-auto mb-12">
+            <div className="relative">
+              <Input 
+                placeholder="Search cars: 'Toyota Vitz under 1M' or 'Honda CRV automatic'"
+                className="h-14 pl-5 pr-14 text-lg border-2 border-gray-200 rounded-full focus:border-purple-500 focus:outline-none"
+              />
+              <Button 
+                size="sm"
+                className="absolute right-2 top-2 bottom-2 px-6 bg-purple-600 hover:bg-purple-700 rounded-full"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
             </div>
+            <p className="text-sm text-gray-500 mt-2">
+              Try: "budget 800k" or "Subaru Forester 2018"
+            </p>
+          </div>
+        </div>
+      </section>
 
-            {/* Right Side - Popular Tools */}
-            <div className="lg:col-span-2">
-              {user && (
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-2 mb-6 inline-block">
-                  <span className="text-purple-700 text-sm">Welcome back, {user.firstName || 'User'}!</span>
-                </div>
-              )}
-              
-              <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Popular Tools
-              </h2>
-              
-              {/* Core Tools Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {CORE_TOOLS.map((tool) => (
-                  <ToolCard key={tool.href} tool={tool} />
-                ))}
-              </div>
+      {/* Primary Tools - Clean Grid */}
+      <section className="pb-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {PRIMARY_TOOLS.map((tool) => {
+              const IconComponent = tool.icon;
+              return (
+                <Link key={tool.href} href={tool.href}>
+                  <Card className="group cursor-pointer border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-full">
+                    <CardContent className="p-8 text-center">
+                      <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                        <IconComponent className="h-8 w-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {tool.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {tool.description}
+                      </p>
+                      <div className="flex items-center justify-center mt-4 text-purple-600 group-hover:text-purple-700">
+                        <span className="text-sm font-medium">Get Started</span>
+                        <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Secondary Tools - Minimal Grid */}
+      <section className="pb-16 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-semibold text-center text-gray-900 mb-8">
+            Additional Tools
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {SECONDARY_TOOLS.map((tool) => {
+              const IconComponent = tool.icon;
+              return (
+                <Link key={tool.href} href={tool.href}>
+                  <Card className="group cursor-pointer border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all duration-200 h-24">
+                    <CardContent className="p-4 text-center flex flex-col items-center justify-center h-full">
+                      <div className="w-8 h-8 mb-2 text-gray-600 group-hover:text-purple-600 transition-colors duration-200">
+                        <IconComponent className="h-full w-full" />
+                      </div>
+                      <span className="text-xs font-medium text-gray-700 group-hover:text-gray-900">
+                        {tool.title}
+                      </span>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section - Clean */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">3,500+</div>
+              <div className="text-gray-600">Vehicles Listed</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">15+</div>
+              <div className="text-gray-600">Partner Banks</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">99%</div>
+              <div className="text-gray-600">Accuracy Rate</div>
             </div>
           </div>
         </div>
       </section>
-      {/* Additional Tools Section */}
-      <section className="max-w-6xl mx-auto px-4 py-8">
-        <h3 className="text-base font-semibold text-gray-700 mb-4 text-center">
-          Additional Services
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {ADDITIONAL_TOOLS.map((tool) => (
-            <ToolCard key={tool.href} tool={tool} size="small" />
-          ))}
-        </div>
-      </section>
-      {/* Simple Contact Section */}
-      <section className="bg-purple-600 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-8 text-center">
-          <h3 className="text-xl font-bold mb-3">Need Help Importing?</h3>
-          <p className="text-purple-100 mb-4 max-w-2xl mx-auto text-sm">
-            Professional import services from Japan, UK, Dubai, and more countries.
-          </p>
-          <Button 
-            size="lg" 
-            className="bg-white text-purple-600 hover:bg-gray-100"
-            onClick={() => window.open('https://wa.me/254736272719?text=Hi, I need help with car import services', '_blank')}
-          >
-            Contact on WhatsApp
-          </Button>
+
+      {/* Contact CTA - Minimal */}
+      <section className="py-16 px-4">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-8 text-white">
+            <h3 className="text-2xl font-semibold mb-4">
+              Need Help Importing a Vehicle?
+            </h3>
+            <p className="text-purple-100 mb-6">
+              Professional import services from Japan, UK, South Africa, Dubai, and more
+            </p>
+            <Button 
+              size="lg"
+              className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-8"
+            >
+              Call 0736 272719
+            </Button>
+          </div>
         </div>
       </section>
     </div>

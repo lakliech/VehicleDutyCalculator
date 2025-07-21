@@ -178,78 +178,70 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Enhanced Hero Section */}
-      <section className="pt-16 pb-12 px-4">
+      {/* Compact Hero Section */}
+      <section className="pt-12 pb-8 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="flex items-center justify-center mb-4">
-            <Sparkles className="h-8 w-8 text-purple-600 mr-3" />
-            <Badge className="bg-purple-100 text-purple-700 px-4 py-1">
+          <div className="flex items-center justify-center mb-3">
+            <Sparkles className="h-6 w-6 text-purple-600 mr-2" />
+            <Badge className="bg-purple-100 text-purple-700 px-3 py-1 text-sm">
               Kenya's #1 Car Platform
             </Badge>
           </div>
           
-          <h1 className="font-bold text-gray-900 mb-6 tracking-tight text-[52px]">
-            Your Complete
-            <br />
+          <h1 className="font-bold text-gray-900 mb-4 tracking-tight text-4xl lg:text-5xl">
+            Your Complete{" "}
             <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">
               Automotive Hub
             </span>
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Everything you need to buy, sell, import, and manage vehicles in Kenya. 
-            Professional tools trusted by thousands of car enthusiasts.
+          <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
+            Everything you need to buy, sell, import, and manage vehicles in Kenya.
           </p>
           
-          {/* Enhanced Quick Search */}
-          <div className="max-w-2xl mx-auto mb-16">
-            <div className="relative bg-white rounded-2xl shadow-xl p-2 border-2 border-purple-100">
+          {/* Compact Quick Search */}
+          <div className="max-w-xl mx-auto mb-8">
+            <div className="relative bg-white rounded-xl shadow-lg p-2 border border-purple-100">
               <Input 
-                placeholder="Try: 'Toyota Vitz under 1M' or 'Honda CRV automatic 2018'"
-                className="h-16 pl-6 pr-20 text-lg border-0 rounded-xl focus:ring-0 focus:outline-none bg-transparent"
+                placeholder="Try: 'Toyota Vitz under 1M' or 'Honda CRV automatic'"
+                className="h-12 pl-4 pr-16 text-base border-0 rounded-lg focus:ring-0 focus:outline-none bg-transparent"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleKeyPress}
                 disabled={isSearching}
               />
               <Button 
-                size="lg"
+                size="sm"
                 onClick={handleSmartSearch}
                 disabled={isSearching}
-                className="absolute right-2 top-2 bottom-2 px-8 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-xl shadow-lg disabled:opacity-50"
+                className="absolute right-2 top-2 bottom-2 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg shadow disabled:opacity-50"
               >
                 {isSearching ? (
-                  <>
-                    <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2" />
-                    Searching...
-                  </>
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
                 ) : (
-                  <>
-                    <Search className="h-5 w-5 mr-2" />
-                    Search
-                  </>
+                  <Search className="h-4 w-4" />
                 )}
               </Button>
             </div>
-            <p className="text-sm text-gray-500 mt-3">
-              <strong>Smart AI Search:</strong> "budget 800k suzuki" • "honda crv automatic" • "subaru forester 2018"
+            <p className="text-xs text-gray-500 mt-2">
+              <strong>AI Search:</strong> "budget 800k suzuki" • "honda crv automatic"
             </p>
           </div>
         </div>
       </section>
-      {/* Featured Tools - Extra Large Visibility */}
-      <section className="pb-16 px-4">
+      {/* Featured Tools - Compact Layout */}
+      <section className="pb-12 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">
               Professional Automotive Tools
             </h2>
-            <p className="text-lg text-gray-600">
-              Industry-leading tools designed specifically for the Kenyan automotive market
+            <p className="text-base text-gray-600">
+              Industry-leading tools for the Kenyan automotive market
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
             {FEATURED_TOOLS.map((tool, index) => {
               const IconComponent = tool.icon;
               return (
@@ -262,7 +254,7 @@ export default function Home() {
                       </Badge>
                     </div>
                     
-                    <CardContent className="p-8 text-center relative">
+                    <CardContent className="p-6 text-center relative">
                       {/* Gradient Background Effect */}
                       <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
                       
@@ -292,42 +284,39 @@ export default function Home() {
           </div>
         </div>
       </section>
-      {/* Professional Tools - Enhanced Grid */}
-      <section className="py-16 bg-gradient-to-r from-gray-50 to-blue-50 pt-[8px] pb-[8px]">
+      {/* Professional Tools - Compact Grid */}
+      <section className="py-10 bg-gradient-to-r from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">
               Specialized Tools & Services
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-sm text-gray-600">
               Advanced calculators and verification tools for automotive professionals
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {PROFESSIONAL_TOOLS.map((tool) => {
               const IconComponent = tool.icon;
               return (
                 <Link key={tool.href} href={tool.href}>
-                  <Card className="group cursor-pointer border border-gray-200 hover:border-purple-300 hover:shadow-xl transition-all duration-300 h-full bg-white">
-                    <CardContent className="p-6">
-                      <div className="flex items-start space-x-4">
-                        <div className={`w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center group-hover:bg-purple-100 transition-colors duration-300`}>
-                          <IconComponent className={`h-6 w-6 ${tool.color} group-hover:text-purple-600 transition-colors duration-300`} />
+                  <Card className="group cursor-pointer border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 h-full bg-white">
+                    <CardContent className="p-4">
+                      <div className="text-center">
+                        <div className={`w-10 h-10 mx-auto mb-3 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-purple-100 transition-colors duration-300`}>
+                          <IconComponent className={`h-5 w-5 ${tool.color} group-hover:text-purple-600 transition-colors duration-300`} />
                         </div>
                         
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-purple-700 transition-colors duration-300">
-                            {tool.title}
-                          </h3>
-                          <p className="text-sm text-gray-600 leading-relaxed">
-                            {tool.description}
-                          </p>
-                          
-                          <div className="flex items-center mt-4 text-purple-600 group-hover:text-purple-700">
-                            <span className="text-sm font-medium">Learn More</span>
-                            <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
-                          </div>
+                        <h3 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-purple-700 transition-colors duration-300">
+                          {tool.title}
+                        </h3>
+                        <p className="text-xs text-gray-600 mb-2">
+                          {tool.description}
+                        </p>
+                        
+                        <div className="flex items-center justify-center text-purple-600 group-hover:text-purple-700">
+                          <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform duration-300" />
                         </div>
                       </div>
                     </CardContent>
@@ -338,65 +327,65 @@ export default function Home() {
           </div>
         </div>
       </section>
-      {/* Enhanced Stats Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-12">
+      {/* Compact Stats Section */}
+      <section className="py-12 bg-white">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">
             Trusted by Kenya's Automotive Community
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="group">
-              <div className="text-4xl font-bold text-purple-600 mb-2 group-hover:scale-110 transition-transform duration-300">3,500+</div>
-              <div className="text-gray-600 font-medium">Vehicles Listed</div>
+              <div className="text-2xl font-bold text-purple-600 mb-1 group-hover:scale-110 transition-transform duration-300">3,500+</div>
+              <div className="text-gray-600 text-sm font-medium">Vehicles Listed</div>
             </div>
             <div className="group">
-              <div className="text-4xl font-bold text-blue-600 mb-2 group-hover:scale-110 transition-transform duration-300">15+</div>
-              <div className="text-gray-600 font-medium">Partner Banks</div>
+              <div className="text-2xl font-bold text-blue-600 mb-1 group-hover:scale-110 transition-transform duration-300">15+</div>
+              <div className="text-gray-600 text-sm font-medium">Partner Banks</div>
             </div>
             <div className="group">
-              <div className="text-4xl font-bold text-green-600 mb-2 group-hover:scale-110 transition-transform duration-300">99%</div>
-              <div className="text-gray-600 font-medium">Accuracy Rate</div>
+              <div className="text-2xl font-bold text-green-600 mb-1 group-hover:scale-110 transition-transform duration-300">99%</div>
+              <div className="text-gray-600 text-sm font-medium">Accuracy Rate</div>
             </div>
             <div className="group">
-              <div className="text-4xl font-bold text-orange-600 mb-2 group-hover:scale-110 transition-transform duration-300">24/7</div>
-              <div className="text-gray-600 font-medium">Support Available</div>
+              <div className="text-2xl font-bold text-orange-600 mb-1 group-hover:scale-110 transition-transform duration-300">24/7</div>
+              <div className="text-gray-600 text-sm font-medium">Support Available</div>
             </div>
           </div>
         </div>
       </section>
-      {/* Premium Contact CTA */}
-      <section className="py-20 px-4 bg-gradient-to-r from-purple-900 via-blue-900 to-purple-900">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-12 border border-white/20">
-            <Star className="h-12 w-12 text-yellow-400 mx-auto mb-6" />
+      {/* Compact Contact CTA */}
+      <section className="py-12 px-4 bg-gradient-to-r from-purple-900 via-blue-900 to-purple-900">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+            <Star className="h-8 w-8 text-yellow-400 mx-auto mb-4" />
             
-            <h3 className="text-3xl font-bold text-white mb-6">
+            <h3 className="text-xl font-bold text-white mb-4">
               Professional Vehicle Import Services
             </h3>
             
-            <p className="text-xl text-purple-100 mb-8 leading-relaxed">
+            <p className="text-base text-purple-100 mb-6">
               Expert assistance for importing vehicles from Japan, UK, South Africa, Dubai, Australia, Singapore, and Thailand
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
               <Button 
-                size="lg"
-                className="bg-white text-purple-600 hover:bg-gray-100 font-bold px-8 py-4 text-lg rounded-xl shadow-xl"
+                size="default"
+                className="bg-white text-purple-600 hover:bg-gray-100 font-bold px-6 py-3 text-base rounded-lg shadow-lg"
               >
                 📞 Call 0736 272719
               </Button>
               
               <Button 
-                size="lg"
+                size="default"
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-purple-600 font-semibold px-8 py-4 text-lg rounded-xl bg-[#533e94]"
+                className="border-white text-white hover:bg-white hover:text-purple-600 font-semibold px-6 py-3 text-base rounded-lg bg-[#533e94]"
               >
                 Get Free Quote
               </Button>
             </div>
             
-            <p className="text-purple-200 text-sm mt-6">
+            <p className="text-purple-200 text-xs mt-4">
               Professional guidance • Competitive rates • Trusted by thousands
             </p>
           </div>

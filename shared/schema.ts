@@ -743,6 +743,28 @@ export const dealerProfileSchema = createInsertSchema(dealerProfiles).omit({
   dealerBio: z.string().max(500, "Bio must be under 500 characters").optional(),
 });
 
+// Dealer invitation schemas
+export const dealerInvitationSchema = createInsertSchema(dealerInvitations).omit({
+  id: true,
+  invitedUserId: true,
+  acceptedAt: true,
+  currentUses: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  dealerId: z.number(),
+  invitationType: z.enum(["general", "email", "referral"]).default("general"),
+  invitedEmail: z.string().email().optional(),
+  maxUses: z.number().min(1).max(100).default(1),
+  expiresAt: z.string().datetime().optional(),
+});
+
+export const dealerUserAssociationSchema = createInsertSchema(dealerUserAssociations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const dealerReviewSchema = createInsertSchema(dealerReviews).omit({
   id: true,
   dealerId: true,

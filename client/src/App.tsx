@@ -33,6 +33,7 @@ import AdminAdvertisements from "@/pages/admin-advertisements";
 import AdminDealers from "@/pages/admin-dealers";
 import DealerProfile from "@/pages/dealer-profile";
 import DealerRegistration from "@/pages/dealer-registration";
+import DealerInvitation from "@/pages/dealer-invitation";
 import Dealers from "@/pages/dealers";
 
 import AdminListingDetails from "@/pages/admin-listing-details";
@@ -57,9 +58,11 @@ import { ResetPassword } from "@/pages/reset-password";
 import PaymentSuccess from "@/pages/payment-success-simple";
 import { AuthProvider } from "@/components/auth-provider";
 import { useAuthRedirect } from "@/hooks/use-auth-redirect";
+import { useDealerRedirect } from "@/hooks/use-dealer-redirect";
 
 function Router() {
   useAuthRedirect();  // Handle OAuth redirects globally
+  useDealerRedirect(); // Handle dealer redirects for associated users
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
@@ -78,6 +81,7 @@ function Router() {
           <Route path="/dealers" component={Dealers} />
           <Route path="/dealer/:userId" component={DealerProfile} />
           <Route path="/dealer-registration" component={DealerRegistration} />
+          <Route path="/dealer-invitation/:token" component={DealerInvitation} />
           <Route path="/sell-my-car" component={SellMyCar} />
           <Route path="/vehicle-loans" component={VehicleLoans} />
           <Route path="/loan-pre-approval" component={LoanPreApproval} />

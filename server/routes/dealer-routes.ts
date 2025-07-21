@@ -6,13 +6,17 @@ import {
   dealerReviews, 
   dealerAnalytics,
   dealerVerificationDocs,
+  dealerInvitations,
+  dealerUserAssociations,
   carListings,
   appUsers,
   dealerProfileSchema,
   dealerReviewSchema,
+  dealerInvitationSchema,
   type DealerProfile,
   type DealerReview
 } from "@shared/schema";
+import crypto from "crypto";
 import { eq, desc, asc, and, avg, count, sql } from "drizzle-orm";
 
 const router = Router();
@@ -73,6 +77,251 @@ router.post("/register", async (req, res) => {
 
 // For admin routes, use requireRole middleware instead
 const requireAdmin = requireRole(['admin', 'superadmin']);
+
+// Create dealer invitation (dealers can create invitations for their dealership)
+router.post("/:dealerId/invitations", authenticateUser, async (req, res) => {
+  try {
+    const dealerId = parseInt(req.params.dealerId);
+    const userId = req.user.id;
+    
+    // Verify user is the dealer or has admin access
+    const dealer = await db
+      .select()
+      .from(dealerProfiles)
+      .where(eq(dealerProfiles.id, dealerId))
+      .limit(1);
+    
+    if (!dealer.length) {
+      return res.status(404).json({ error: "Dealer not found" });
+    }
+    
+    // Check if user owns this dealer profile (simplified check - you may want to improve this)
+    const userRole = await db
+      .select()
+      .from(appUsers)
+      .where(eq(appUsers.id, userId))
+      .limit(1);
+    
+    if (!userRole.length) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    
+    // Generate unique invitation token
+    const invitationToken = crypto.randomBytes(32).toString('hex');
+    
+    // Create invitation
+    const invitationData = {
+      dealerId,
+      invitationToken,
+      invitationType: req.body.invitationType || "general",
+      invitedEmail: req.body.invitedEmail || null,
+      maxUses: req.body.maxUses || 1,
+      expiresAt: req.body.expiresAt ? new Date(req.body.expiresAt) : null,
+      createdBy: userId,
+      metadata: {
+        invitationMessage: req.body.invitationMessage || null,
+        redirectUrl: `/dealer/${userId}`,
+        customParams: req.body.customParams || null
+      }
+    };
+    
+    const newInvitation = await db
+      .insert(dealerInvitations)
+      .values(invitationData)
+      .returning();
+    
+    // Generate invitation URL
+    const baseUrl = req.protocol + '://' + req.get('host');
+    const invitationUrl = `${baseUrl}/dealer-invitation/${invitationToken}`;
+    
+    res.json({ 
+      success: true, 
+      invitation: newInvitation[0],
+      invitationUrl 
+    });
+  } catch (error) {
+    console.error('Error creating dealer invitation:', error);
+    res.status(500).json({ error: 'Failed to create invitation' });
+  }
+});
+
+// Accept dealer invitation (public endpoint for invitation URLs)
+router.get("/invitation/:token", async (req, res) => {
+  try {
+    const token = req.params.token;
+    
+    // Find invitation by token
+    const invitation = await db
+      .select()
+      .from(dealerInvitations)
+      .leftJoin(dealerProfiles, eq(dealerInvitations.dealerId, dealerProfiles.id))
+      .where(and(
+        eq(dealerInvitations.invitationToken, token),
+        eq(dealerInvitations.status, 'active')
+      ))
+      .limit(1);
+    
+    if (!invitation.length) {
+      return res.status(404).json({ error: "Invalid or expired invitation" });
+    }
+    
+    const invitationData = invitation[0].dealer_invitations;
+    const dealerData = invitation[0].dealer_profiles;
+    
+    // Check if invitation has expired
+    if (invitationData.expiresAt && new Date(invitationData.expiresAt) < new Date()) {
+      return res.status(400).json({ error: "Invitation has expired" });
+    }
+    
+    // Check if invitation has reached max uses
+    if (invitationData.currentUses >= invitationData.maxUses) {
+      return res.status(400).json({ error: "Invitation has reached maximum uses" });
+    }
+    
+    res.json({
+      success: true,
+      invitation: invitationData,
+      dealer: dealerData,
+      redirectUrl: `/dealer/${dealerData.userId}`
+    });
+  } catch (error) {
+    console.error('Error processing invitation:', error);
+    res.status(500).json({ error: 'Failed to process invitation' });
+  }
+});
+
+// Process invitation acceptance during user registration/login
+router.post("/invitation/:token/accept", authenticateUser, async (req, res) => {
+  try {
+    const token = req.params.token;
+    const userId = req.user.id;
+    
+    // Find and validate invitation
+    const invitation = await db
+      .select()
+      .from(dealerInvitations)
+      .leftJoin(dealerProfiles, eq(dealerInvitations.dealerId, dealerProfiles.id))
+      .where(and(
+        eq(dealerInvitations.invitationToken, token),
+        eq(dealerInvitations.status, 'active')
+      ))
+      .limit(1);
+    
+    if (!invitation.length) {
+      return res.status(404).json({ error: "Invalid or expired invitation" });
+    }
+    
+    const invitationData = invitation[0].dealer_invitations;
+    const dealerData = invitation[0].dealer_profiles;
+    
+    // Check if invitation has expired
+    if (invitationData.expiresAt && new Date(invitationData.expiresAt) < new Date()) {
+      return res.status(400).json({ error: "Invitation has expired" });
+    }
+    
+    // Check if user already associated with this dealer
+    const existingAssociation = await db
+      .select()
+      .from(dealerUserAssociations)
+      .where(and(
+        eq(dealerUserAssociations.dealerId, invitationData.dealerId),
+        eq(dealerUserAssociations.userId, userId)
+      ))
+      .limit(1);
+    
+    if (existingAssociation.length) {
+      return res.status(400).json({ error: "User already associated with this dealer" });
+    }
+    
+    // Create dealer-user association
+    await db
+      .insert(dealerUserAssociations)
+      .values({
+        dealerId: invitationData.dealerId,
+        userId,
+        associationType: 'invitation',
+        invitationId: invitationData.id,
+        status: 'active',
+        metadata: {
+          source: 'invitation_link',
+          invitationToken: token
+        }
+      });
+    
+    // Update invitation usage count
+    await db
+      .update(dealerInvitations)
+      .set({
+        currentUses: sql`${dealerInvitations.currentUses} + 1`,
+        invitedUserId: invitationData.invitedUserId ? invitationData.invitedUserId : userId,
+        acceptedAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(dealerInvitations.id, invitationData.id));
+    
+    // If invitation has reached max uses, mark as used
+    if ((invitationData.currentUses + 1) >= invitationData.maxUses) {
+      await db
+        .update(dealerInvitations)
+        .set({
+          status: 'used',
+          updatedAt: new Date()
+        })
+        .where(eq(dealerInvitations.id, invitationData.id));
+    }
+    
+    res.json({
+      success: true,
+      dealerId: invitationData.dealerId,
+      dealerUserId: dealerData.userId,
+      redirectUrl: `/dealer/${dealerData.userId}`,
+      message: 'Successfully joined dealer network'
+    });
+  } catch (error) {
+    console.error('Error accepting invitation:', error);
+    res.status(500).json({ error: 'Failed to accept invitation' });
+  }
+});
+
+// Get user's dealer associations (for determining login redirect)
+router.get("/user/:userId/associations", authenticateUser, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const requestingUserId = req.user.id;
+    
+    // Users can only view their own associations (or admins can view any)
+    const userRole = await db
+      .select()
+      .from(appUsers)
+      .where(eq(appUsers.id, requestingUserId))
+      .limit(1);
+    
+    if (userId !== requestingUserId && !userRole[0]?.roleId) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    
+    const associations = await db
+      .select()
+      .from(dealerUserAssociations)
+      .leftJoin(dealerProfiles, eq(dealerUserAssociations.dealerId, dealerProfiles.id))
+      .where(and(
+        eq(dealerUserAssociations.userId, userId),
+        eq(dealerUserAssociations.status, 'active')
+      ))
+      .orderBy(desc(dealerUserAssociations.associationDate));
+    
+    res.json({
+      success: true,
+      associations: associations.map(a => ({
+        ...a.dealer_user_associations,
+        dealer: a.dealer_profiles
+      }))
+    });
+  } catch (error) {
+    console.error('Error fetching dealer associations:', error);
+    res.status(500).json({ error: 'Failed to fetch associations' });
+  }
+});
 
 // Get dealer profile for current user
 router.get("/profile", authenticateUser, async (req, res) => {

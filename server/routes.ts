@@ -2,6 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import paymentRoutes from "./routes/payment-routes";
+import dealerRoutes from "./routes/dealer-routes";
 import { 
   appUsers,
   carListings,

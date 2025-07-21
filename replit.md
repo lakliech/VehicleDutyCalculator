@@ -227,6 +227,29 @@ The platform now features AI-powered natural language search that converts user 
 
 ## Changelog
 
+**DEALER INVITATION SYSTEM WITH POST-LOGIN REDIRECTION - January 21, 2025:**
+- **Problem Solved**: User requested functionality for dealers to invite users, with automatic redirection to dealer profiles on subsequent logins
+- **Complete Invitation System**: 
+  - Dealer invitation creation API with token-based invitations and customizable parameters
+  - Public invitation acceptance page at `/dealer-invitation/:token` with dealer information display
+  - Automatic user-dealer association creation upon invitation acceptance
+  - Post-login dealer redirection hook for users associated with dealers
+- **API Endpoints**:
+  - `POST /api/dealers/:dealerId/invitations` - Create dealer invitations with custom parameters
+  - `GET /api/dealers/invitation/:token` - Fetch invitation details for display
+  - `POST /api/dealers/invitation/:token/accept` - Accept invitation and create user association
+  - `GET /api/dealers/user/:userId/associations` - Get user's dealer associations for redirect logic
+- **Frontend Components**:
+  - DealerInvitation page with professional invitation acceptance interface
+  - Dealer redirect hook (`useDealerRedirect`) integrated into main App component
+  - Automatic login flow handling with session storage for invitation tokens
+- **Database Integration**: Uses existing dealer invitation and association tables for complete functionality
+- **User Experience**: 
+  - Users clicking invitation links are guided through authentication flow
+  - After login, users are automatically redirected to their associated dealer's profile
+  - Subsequent logins always redirect to dealer profile for associated users
+- **Technical Implementation**: Comprehensive error handling, token validation, and secure association management
+
 **COMPLETE DEALER REGISTRATION USER JOURNEY IMPLEMENTATION - January 21, 2025:**
 - **Problem Solved**: User requested complete dealer registration user journey with multi-stage wizard
 - **Multi-Stage Registration Wizard**: 

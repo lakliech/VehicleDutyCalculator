@@ -27,6 +27,8 @@ import {
   kenyanLocations
 } from "@shared/schema-minimal";
 
+import { savedSearches } from "@shared/schema";
+
 import { 
   products, productCategories 
 } from "@shared/product-catalog-schema";

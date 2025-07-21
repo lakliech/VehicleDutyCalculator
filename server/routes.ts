@@ -92,8 +92,7 @@ import { db } from "./db";
 import { sql, eq, desc, and, or, gte, lte, ne, asc, count, isNotNull, like, inArray, not, isNull } from "drizzle-orm";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
-import ListingQualityAssessment, { triggerQualityAssessment } from './quality-assessment';
-import KeywordAnalytics from './keyword-analytics';
+// Quality assessment and keyword analytics modules removed
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 import crypto from "crypto";
@@ -7229,85 +7228,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
-  // ========================================
-  // KEYWORD ANALYTICS ENDPOINTS
-  // ========================================
-  
-  // Track keyword conversion (inquiry, phone click, etc.)
-  app.post('/api/keyword-analytics/conversion', async (req: Request, res: Response) => {
-    try {
-      const { listingId, keyword, conversionType, viewerId } = req.body;
-      
-      await KeywordAnalytics.trackKeywordConversion({
-        listingId,
-        keyword,
-        conversionType,
-        viewerId
-      });
-      
-      res.json({ message: 'Conversion tracked successfully' });
-    } catch (error) {
-      console.error('Error tracking keyword conversion:', error);
-      res.status(500).json({ error: 'Failed to track conversion' });
-    }
-  });
-
-  // Get keyword analytics for a specific listing
-  app.get('/api/listing/:listingId/keywords', async (req: Request, res: Response) => {
-    try {
-      const listingId = parseInt(req.params.listingId);
-      const limit = parseInt(req.query.limit as string) || 20;
-      
-      const keywords = await KeywordAnalytics.getListingKeywords(listingId, limit);
-      
-      res.json(keywords);
-    } catch (error) {
-      console.error('Error fetching listing keywords:', error);
-      res.status(500).json({ error: 'Failed to fetch listing keywords' });
-    }
-  });
-
-  // Get keyword analytics for seller's listings
-  app.get('/api/seller/:sellerId/keyword-analytics', async (req: Request, res: Response) => {
-    try {
-      const sellerId = req.params.sellerId;
-      
-      const analytics = await KeywordAnalytics.getSellerKeywordAnalytics(sellerId);
-      
-      res.json(analytics);
-    } catch (error) {
-      console.error('Error fetching seller keyword analytics:', error);
-      res.status(500).json({ error: 'Failed to fetch keyword analytics' });
-    }
-  });
-
-  // Get trending keywords across platform
-  app.get('/api/keyword-analytics/trending', async (req: Request, res: Response) => {
-    try {
-      const limit = parseInt(req.query.limit as string) || 20;
-      
-      const trendingKeywords = await KeywordAnalytics.getTrendingKeywords(limit);
-      
-      res.json(trendingKeywords);
-    } catch (error) {
-      console.error('Error fetching trending keywords:', error);
-      res.status(500).json({ error: 'Failed to fetch trending keywords' });
-    }
-  });
-
-  // Get keyword recommendations for listing optimization
-  app.get('/api/listing/:listingId/keyword-recommendations', async (req: Request, res: Response) => {
-    try {
-      const listingId = parseInt(req.params.listingId);
-      
-      const recommendations = await KeywordAnalytics.generateKeywordRecommendations(listingId);
-      
-      res.json({ recommendations });
-    } catch (error) {
-      console.error('Error generating keyword recommendations:', error);
-      res.status(500).json({ error: 'Failed to generate recommendations' });
-    }
-  });
+  // Keyword analytics endpoints removed - module deleted
 
   // ==============================
   // FINANCIAL SERVICES ROUTES

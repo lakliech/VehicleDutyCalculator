@@ -227,23 +227,32 @@ The platform now features AI-powered natural language search that converts user 
 
 ## Changelog
 
-**DEALER REGISTRATION DATABASE SCHEMA FIXES - January 21, 2025:**
-- **Problem Solved**: Dealer registration was failing due to database schema mismatches between code and actual database structure
+**DEALER REGISTRATION SYSTEM FULLY OPERATIONAL - January 21, 2025:**
+- **Problem Solved**: Complete dealer registration system with admin management functionality
 - **Database Schema Resolution**: 
-  - Fixed missing columns (`map_coordinates`, `suspension_reason`, `registration_date`) by adding them to database
+  - Fixed missing columns (`map_coordinates`, `suspension_reason`, `registration_date`, `association_date`) by adding them to database
   - Converted `specialties` and `phone_numbers` columns from text[] to jsonb for proper array handling
+  - Added missing columns to `dealer_user_associations` table (`invitation_id`, `source`, `notes`, `referral_code`, `last_interaction`)
   - Resolved type casting issues between JavaScript arrays and PostgreSQL array types
 - **Backend API Fixes**:
   - Updated dealer registration endpoint to use direct SQL with proper jsonb array formatting
   - Fixed array parameter handling for specialties and phone numbers fields
+  - Fixed authentication middleware to properly recognize admin role names
   - Confirmed API now returns successful responses with proper dealerId assignment
+- **Admin Access Implementation**:
+  - Assigned admin role (role_id: 3) to user account for dealer management access
+  - Fixed role-based authentication middleware to check `userRole.name` instead of `userRole.role`
+  - Admin dealer management endpoint now working: `GET /api/dealers/admin/profiles 200`
 - **Document Upload Implementation**: 
   - Added actual file handling with validation, progress tracking, and visual feedback
   - Replaced placeholder functionality with working file upload system
   - Added proper error handling and file type validation
 - **TypeScript Error Resolution**: Fixed all compilation errors in dealer registration form components
 - **User Experience**: Complete dealer registration flow now functional from frontend form to backend database storage
-- **Testing Confirmed**: API endpoint successfully creates dealers with response `{"success":true,"dealerId":2}`
+- **Testing Confirmed**: 
+  - 3 dealers successfully created in database (Success Motors, JSONB Motors, Bright and Chaste Limited)
+  - Admin dashboard access working through browser authentication
+  - All dealer registration and management functionality operational
 
 **DEALER INVITATION SYSTEM WITH POST-LOGIN REDIRECTION - January 21, 2025:**
 - **Problem Solved**: User requested functionality for dealers to invite users, with automatic redirection to dealer profiles on subsequent logins

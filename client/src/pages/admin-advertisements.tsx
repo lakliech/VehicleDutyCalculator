@@ -636,7 +636,8 @@ export default function AdminAdvertisements() {
                           
                           try {
                             const uploadResponse = await apiRequest('POST', '/api/advertisements/upload-image', imageFormData);
-                            adImageUrl = uploadResponse.imageUrl;
+                            const uploadResult = await uploadResponse.json();
+                            adImageUrl = uploadResult.imageUrl;
                             toast({ title: "Image uploaded successfully" });
                           } catch (uploadError: any) {
                             throw new Error(`Image upload failed: ${uploadError.message}`);

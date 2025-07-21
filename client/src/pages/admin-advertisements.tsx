@@ -837,11 +837,11 @@ export default function AdminAdvertisements() {
                                     </div>
                                     <div>
                                       <Label className="text-sm font-medium">Start Date</Label>
-                                      <p className="text-sm text-gray-700">{new Date(ad.startDate).toLocaleDateString()}</p>
+                                      <p className="text-sm text-gray-700">{ad.startDate ? new Date(ad.startDate).toLocaleDateString() : 'Not set'}</p>
                                     </div>
                                     <div>
                                       <Label className="text-sm font-medium">End Date</Label>
-                                      <p className="text-sm text-gray-700">{new Date(ad.endDate).toLocaleDateString()}</p>
+                                      <p className="text-sm text-gray-700">{ad.endDate ? new Date(ad.endDate).toLocaleDateString() : 'Not set'}</p>
                                     </div>
                                   </div>
                                 </div>
@@ -916,7 +916,7 @@ export default function AdminAdvertisements() {
                                         id="editStartDate" 
                                         name="startDate" 
                                         type="date" 
-                                        defaultValue={new Date(ad.startDate).toISOString().split('T')[0]} 
+                                        defaultValue={ad.startDate ? new Date(ad.startDate).toISOString().split('T')[0] : ''} 
                                         required 
                                       />
                                     </div>
@@ -926,7 +926,7 @@ export default function AdminAdvertisements() {
                                         id="editEndDate" 
                                         name="endDate" 
                                         type="date" 
-                                        defaultValue={new Date(ad.endDate).toISOString().split('T')[0]} 
+                                        defaultValue={ad.endDate ? new Date(ad.endDate).toISOString().split('T')[0] : ''} 
                                         required 
                                       />
                                     </div>

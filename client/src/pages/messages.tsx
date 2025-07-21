@@ -89,7 +89,8 @@ export default function MessagesPage() {
   // Get messaging stats
   const { data: stats } = useQuery({
     queryKey: ['/api/messaging/stats'],
-    enabled: !!user
+    enabled: !!user && user?.id != null,
+    retry: false, // Don't retry on auth failure
   });
 
   // Send message mutation

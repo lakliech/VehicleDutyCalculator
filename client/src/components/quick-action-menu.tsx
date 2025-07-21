@@ -19,6 +19,7 @@ import {
   Menu
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/components/auth-provider";
 
 interface QuickActionMenuProps {
   className?: string;
@@ -27,11 +28,14 @@ interface QuickActionMenuProps {
 export function QuickActionMenu({ className }: QuickActionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [location] = useLocation();
+  const { user, isAuthenticated } = useAuth();
 
-  // Get unread message count
+  // Get unread message count for authenticated users only
   const { data: messagingStats } = useQuery({
     queryKey: ['/api/messaging/stats'],
+    enabled: !!isAuthenticated && !!user && user?.id != null,
     refetchInterval: 30000, // Poll every 30 seconds
+    retry: false, // Don't retry on auth failure
   });
 
   // Hide menu on admin pages
@@ -174,12 +178,12 @@ export function QuickActionMenu({ className }: QuickActionMenuProps) {
                 <div className="font-medium text-xs md:text-sm truncate">Messages</div>
                 <div className="text-xs opacity-90 truncate hidden md:block">View conversations</div>
               </div>
-              {messagingStats?.unreadCount > 0 && (
+              {(messagingStats as any)?.unreadCount > 0 && (
                 <Badge 
                   variant="destructive" 
                   className="absolute -top-1 -right-1 md:-top-2 md:-right-2 h-5 w-5 md:h-6 md:w-6 rounded-full p-0 flex items-center justify-center text-xs"
                 >
-                  {messagingStats.unreadCount > 99 ? '99+' : messagingStats.unreadCount}
+                  {(messagingStats as any).unreadCount > 99 ? '99+' : (messagingStats as any).unreadCount}
                 </Badge>
               )}
             </Button>

@@ -20,8 +20,9 @@ export function Navigation() {
   // Get unread message count for authenticated users
   const { data: messagingStats } = useQuery({
     queryKey: ['/api/messaging/stats'],
-    enabled: !!isAuthenticated && !!user && !isAdminPage,
+    enabled: !!isAuthenticated && !!user && !isAdminPage && user?.id != null,
     refetchInterval: 30000, // Refresh every 30 seconds
+    retry: false, // Don't retry on auth failure
   });
 
   const handleLogout = () => {

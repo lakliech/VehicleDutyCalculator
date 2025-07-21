@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -69,6 +70,7 @@ interface CarFilters {
 
 export default function BuyACar() {
   const { toast } = useToast();
+  const [location] = useLocation();
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<CarFilters>({
     search: '',
@@ -88,6 +90,30 @@ export default function BuyACar() {
     features: [],
     sortBy: 'recommended'
   });
+
+  // Handle URL parameters from smart search
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    
+    if (params.toString()) {
+      const newFilters = { ...filters };
+      
+      if (params.get('maxPrice')) newFilters.maxPrice = parseInt(params.get('maxPrice')!);
+      if (params.get('minPrice')) newFilters.minPrice = parseInt(params.get('minPrice')!);
+      if (params.get('make')) newFilters.make = params.get('make')!.split(',');
+      if (params.get('model')) newFilters.model = params.get('model')!.split(',');
+      if (params.get('fuelType')) newFilters.fuelType = params.get('fuelType')!.split(',');
+      if (params.get('transmission')) newFilters.transmission = params.get('transmission')!.split(',');
+      if (params.get('bodyType')) newFilters.bodyType = params.get('bodyType')!.split(',');
+      if (params.get('minYear')) newFilters.minYear = parseInt(params.get('minYear')!);
+      if (params.get('maxYear')) newFilters.maxYear = parseInt(params.get('maxYear')!);
+      
+      setFilters(newFilters);
+      
+      // Clear URL parameters after loading them
+      window.history.replaceState({}, '', '/buy-a-car');
+    }
+  }, []);
 
   // Fetch car listings
   const { data: listings, isLoading: listingsLoading } = useQuery({

@@ -1,9 +1,12 @@
-import { Link } from "wouter";
+import { useState } from "react";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FloatingAd } from "@/components/floating-ad";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   Calculator, 
   Search, 
@@ -106,6 +109,73 @@ const PROFESSIONAL_TOOLS = [
 ];
 
 export default function Home() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  const handleSmartSearch = async () => {
+    if (!searchQuery.trim()) {
+      toast({
+        title: "Search Required",
+        description: "Please enter a search query",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSearching(true);
+    
+    try {
+      const response = await apiRequest('POST', '/api/smart-search-parse', { 
+        query: searchQuery.trim() 
+      });
+      const data = await response.json();
+      
+      const { filters: aiFilters, explanation } = data;
+      
+      // Create URL parameters for the extracted filters
+      const params = new URLSearchParams();
+      
+      if (aiFilters.maxPrice) params.set('maxPrice', aiFilters.maxPrice.toString());
+      if (aiFilters.minPrice) params.set('minPrice', aiFilters.minPrice.toString());
+      if (aiFilters.make?.length > 0) params.set('make', aiFilters.make.join(','));
+      if (aiFilters.model?.length > 0) params.set('model', aiFilters.model.join(','));
+      if (aiFilters.fuelType?.length > 0) params.set('fuelType', aiFilters.fuelType.join(','));
+      if (aiFilters.transmission?.length > 0) params.set('transmission', aiFilters.transmission.join(','));
+      if (aiFilters.bodyType?.length > 0) params.set('bodyType', aiFilters.bodyType.join(','));
+      if (aiFilters.minYear) params.set('minYear', aiFilters.minYear.toString());
+      if (aiFilters.maxYear) params.set('maxYear', aiFilters.maxYear.toString());
+      
+      // Clear search field and navigate to buy-a-car with filters
+      setSearchQuery("");
+      
+      toast({
+        title: "Smart Search Applied",
+        description: explanation || "Filters extracted and applied successfully",
+      });
+      
+      // Navigate to buy-a-car page with the smart search parameters
+      setLocation(`/buy-a-car?${params.toString()}`);
+      
+    } catch (error) {
+      console.error('Smart search error:', error);
+      toast({
+        title: "Search Error",
+        description: "Failed to process your search. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSmartSearch();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Enhanced Hero Section */}
@@ -137,13 +207,28 @@ export default function Home() {
               <Input 
                 placeholder="Try: 'Toyota Vitz under 1M' or 'Honda CRV automatic 2018'"
                 className="h-16 pl-6 pr-20 text-lg border-0 rounded-xl focus:ring-0 focus:outline-none bg-transparent"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyPress}
+                disabled={isSearching}
               />
               <Button 
                 size="lg"
-                className="absolute right-2 top-2 bottom-2 px-8 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-xl shadow-lg"
+                onClick={handleSmartSearch}
+                disabled={isSearching}
+                className="absolute right-2 top-2 bottom-2 px-8 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-xl shadow-lg disabled:opacity-50"
               >
-                <Search className="h-5 w-5 mr-2" />
-                Search
+                {isSearching ? (
+                  <>
+                    <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2" />
+                    Searching...
+                  </>
+                ) : (
+                  <>
+                    <Search className="h-5 w-5 mr-2" />
+                    Search
+                  </>
+                )}
               </Button>
             </div>
             <p className="text-sm text-gray-500 mt-3">

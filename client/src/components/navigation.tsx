@@ -1,16 +1,18 @@
 import { Link, useLocation } from "wouter";
-import { Database, LogOut, List, Heart, MessageCircle, User, Brain, CreditCard, BarChart3, Building } from "lucide-react";
+import { Database, LogOut, List, Heart, MessageCircle, User, Brain, CreditCard, BarChart3, Building, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/components/auth-provider";
 import { AuthForms } from "@/components/auth-forms";
 import { useQuery } from "@tanstack/react-query";
+import { useDealerStatus } from "@/hooks/useDealerStatus";
 import gariyangu from "@assets/gylogo_1752064168868.png";
 
 export function Navigation() {
   const [location] = useLocation();
   const { user, isAuthenticated, logout, isAdminAuthenticated } = useAuth();
+  const { hasDealer, dealerProfile, isAdmin, isLoading: dealerLoading } = useDealerStatus(isAuthenticated);
   
   // Check if current page is an admin page
   const isAdminPage = location.startsWith('/admin');
@@ -140,10 +142,27 @@ export function Navigation() {
                       {/* Separator */}
                       <div className="border-t border-gray-200 my-1"></div>
                       
-                      <Link href="/dealer-registration" className="flex items-center px-3 py-2 text-sm hover:bg-purple-50 transition-colors text-purple-600">
-                        <Building className="mr-2 h-4 w-4" />
-                        <span>Register as Dealer</span>
-                      </Link>
+                      {/* Profile Switching for Dealers */}
+                      {hasDealer && dealerProfile && (
+                        <>
+                          <Link href={`/dealer-profile/${dealerProfile.id}`} className="flex items-center px-3 py-2 text-sm hover:bg-purple-50 transition-colors text-purple-600">
+                            <Building className="mr-2 h-4 w-4" />
+                            <span>Switch to Dealer Profile</span>
+                          </Link>
+                          <Link href="/dealer-dashboard" className="flex items-center px-3 py-2 text-sm hover:bg-purple-50 transition-colors text-purple-600">
+                            <Users className="mr-2 h-4 w-4" />
+                            <span>Dealer Dashboard</span>
+                          </Link>
+                        </>
+                      )}
+                      
+                      {/* Register as Dealer - Only show if user doesn't have dealer profile and is not admin */}
+                      {!hasDealer && !isAdmin && !dealerLoading && (
+                        <Link href="/dealer-registration" className="flex items-center px-3 py-2 text-sm hover:bg-purple-50 transition-colors text-purple-600">
+                          <Building className="mr-2 h-4 w-4" />
+                          <span>Register as Dealer</span>
+                        </Link>
+                      )}
 
                       {/* Admin Dashboard for users with admin role */}
                       {(() => {
@@ -182,17 +201,19 @@ export function Navigation() {
             ) : (
               !isAdminPage && (
                 <div className="flex items-center space-x-3">
-                  {/* Mobile Register As Dealer Button */}
-                  <div className="md:hidden">
-                    <Link href="/dealer-registration">
-                      <Button
-                        size="sm"
-                        className="bg-purple-600 hover:bg-purple-700 text-white text-xs px-3 py-1.5"
-                      >
-                        Register As Dealer
-                      </Button>
-                    </Link>
-                  </div>
+                  {/* Mobile Register As Dealer Button - Only show if user doesn't have dealer profile and is not admin */}
+                  {!hasDealer && !isAdmin && !dealerLoading && (
+                    <div className="md:hidden">
+                      <Link href="/dealer-registration">
+                        <Button
+                          size="sm"
+                          className="bg-purple-600 hover:bg-purple-700 text-white text-xs px-3 py-1.5"
+                        >
+                          Register As Dealer
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
                   <div className="sm:hidden">
                     <AuthForms />
                   </div>

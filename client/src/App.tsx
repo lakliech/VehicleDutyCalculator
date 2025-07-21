@@ -34,6 +34,8 @@ import AdminDealers from "@/pages/admin-dealers";
 import DealerProfile from "@/pages/dealer-profile";
 import DealerRegistration from "@/pages/dealer-registration";
 import DealerInvitation from "@/pages/dealer-invitation";
+import DealerDashboard from "@/pages/dealer-dashboard";
+import DealerProfilePage from "@/pages/dealer-profile/[id]";
 import Dealers from "@/pages/dealers";
 
 import AdminListingDetails from "@/pages/admin-listing-details";
@@ -82,6 +84,12 @@ function Router() {
           <Route path="/dealer/:userId" component={DealerProfile} />
           <Route path="/dealer-registration" component={DealerRegistration} />
           <Route path="/dealer-invitation/:token" component={DealerInvitation} />
+          <Route path="/dealer-dashboard">
+            <ProtectedRoute>
+              <DealerDashboard />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/dealer-profile/:id" component={DealerProfilePage} />
           <Route path="/sell-my-car" component={SellMyCar} />
           <Route path="/vehicle-loans" component={VehicleLoans} />
           <Route path="/loan-pre-approval" component={LoanPreApproval} />

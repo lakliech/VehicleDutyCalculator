@@ -23,6 +23,36 @@ const router = Router();
 
 import { authenticateUser, requireRole } from "../middleware/auth";
 
+// Check if user has existing dealer profile
+router.get("/user/status", authenticateUser, async (req: any, res) => {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    // Check if user has a dealer profile
+    const dealerProfile = await db
+      .select()
+      .from(dealerProfiles)
+      .where(eq(dealerProfiles.userId, userId))
+      .limit(1);
+
+    const hasDealer = dealerProfile.length > 0;
+    const profile = hasDealer ? dealerProfile[0] : null;
+
+    res.json({
+      hasDealer,
+      dealerProfile: profile,
+      userRole: req.user?.role || null
+    });
+  } catch (error) {
+    console.error('Error checking dealer status:', error);
+    res.status(500).json({ error: 'Failed to check dealer status' });
+  }
+});
+
 // Registration endpoint (no auth required)
 router.post("/register", authenticateUser, async (req: any, res) => {
   try {

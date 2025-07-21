@@ -488,6 +488,107 @@ export const driveConfigurations = pgTable("drive_configurations", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Dealer Profiles for enhanced dealer management
+export const dealerProfiles = pgTable("dealer_profiles", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull().unique(), // Links to app_users
+  dealerName: text("dealer_name").notNull(), // Business name
+  businessName: text("business_name"), // Official business name if different
+  logoUrl: varchar("logo_url", { length: 500 }), // Company logo
+  businessLocation: text("business_location").notNull(), // Physical address
+  mapCoordinates: text("map_coordinates"), // lat,lng for map pin
+  phoneNumbers: text("phone_numbers").array(), // Multiple phone numbers
+  emailAddress: varchar("email_address", { length: 255 }),
+  whatsappNumber: varchar("whatsapp_number", { length: 20 }),
+  websiteUrl: varchar("website_url", { length: 255 }),
+  socialMediaLinks: json("social_media_links").$type<{facebook?: string; instagram?: string; twitter?: string; linkedin?: string}>(),
+  businessHours: json("business_hours").$type<{[key: string]: {open: string; close: string; closed?: boolean}}>(), // Days of week with hours
+  yearsInBusiness: integer("years_in_business"),
+  registrationDate: timestamp("registration_date").defaultNow().notNull(),
+  dealerBio: text("dealer_bio"), // Short description
+  specialties: text("specialties").array(), // Types of vehicles they specialize in
+  servicesOffered: text("services_offered").array(), // financing, trade-ins, warranties, etc.
+  isVerified: boolean("is_verified").default(false),
+  verificationBadge: text("verification_badge"), // trusted-dealer, premium-dealer, certified-dealer
+  verificationDate: timestamp("verification_date"),
+  verifiedBy: varchar("verified_by", { length: 255 }), // Admin who verified
+  status: text("status").notNull().default("pending"), // pending, approved, rejected, suspended
+  suspensionReason: text("suspension_reason"),
+  suspendedAt: timestamp("suspended_at"),
+  suspendedBy: varchar("suspended_by", { length: 255 }),
+  listingLimit: integer("listing_limit").default(10), // Based on package
+  packageType: text("package_type").default("free"), // free, basic, premium, enterprise
+  adminNotes: text("admin_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Dealer Reviews and Ratings
+export const dealerReviews = pgTable("dealer_reviews", {
+  id: serial("id").primaryKey(),
+  dealerId: integer("dealer_id").references(() => dealerProfiles.id).notNull(),
+  reviewerId: varchar("reviewer_id", { length: 255 }).notNull(), // User who left review
+  rating: integer("rating").notNull(), // 1-5 stars
+  reviewTitle: text("review_title"),
+  reviewText: text("review_text").notNull(),
+  transactionType: text("transaction_type"), // purchase, inquiry, service
+  vehicleInvolved: text("vehicle_involved"), // Make/model if applicable
+  communicationRating: integer("communication_rating"), // 1-5
+  professionelismRating: integer("professionalism_rating"), // 1-5
+  timelinessRating: integer("timeliness_rating"), // 1-5
+  overallExperience: text("overall_experience"), // excellent, good, fair, poor
+  wouldRecommend: boolean("would_recommend"),
+  isVerifiedPurchase: boolean("is_verified_purchase").default(false),
+  dealerResponse: text("dealer_response"), // Dealer's response to review
+  dealerResponseDate: timestamp("dealer_response_date"),
+  status: text("status").default("active"), // active, hidden, reported, removed
+  moderationNotes: text("moderation_notes"),
+  moderatedBy: varchar("moderated_by", { length: 255 }),
+  moderatedAt: timestamp("moderated_at"),
+  helpfulVotes: integer("helpful_votes").default(0),
+  reportedCount: integer("reported_count").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Dealer Analytics for performance tracking
+export const dealerAnalytics = pgTable("dealer_analytics", {
+  id: serial("id").primaryKey(),
+  dealerId: integer("dealer_id").references(() => dealerProfiles.id).notNull(),
+  date: timestamp("date").notNull(), // Daily analytics
+  profileViews: integer("profile_views").default(0),
+  listingViews: integer("listing_views").default(0),
+  inquiries: integer("inquiries").default(0),
+  phoneClicks: integer("phone_clicks").default(0),
+  whatsappClicks: integer("whatsapp_clicks").default(0),
+  emailClicks: integer("email_clicks").default(0),
+  websiteClicks: integer("website_clicks").default(0),
+  directContacts: integer("direct_contacts").default(0),
+  favoriteAdds: integer("favorite_adds").default(0),
+  shareClicks: integer("share_clicks").default(0),
+  newReviews: integer("new_reviews").default(0),
+  averageRating: decimal("average_rating", { precision: 3, scale: 2 }),
+  responseTime: integer("response_time"), // Average response time in minutes
+  conversionRate: decimal("conversion_rate", { precision: 5, scale: 2 }), // inquiries to sales
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Dealer Verification Documents
+export const dealerVerificationDocs = pgTable("dealer_verification_docs", {
+  id: serial("id").primaryKey(),
+  dealerId: integer("dealer_id").references(() => dealerProfiles.id).notNull(),
+  documentType: text("document_type").notNull(), // business_license, tax_certificate, id_copy, premises_photo
+  documentUrl: varchar("document_url", { length: 500 }).notNull(),
+  documentName: text("document_name").notNull(),
+  uploadDate: timestamp("upload_date").defaultNow().notNull(),
+  verificationStatus: text("verification_status").default("pending"), // pending, approved, rejected
+  verifiedBy: varchar("verified_by", { length: 255 }),
+  verificationDate: timestamp("verification_date"),
+  verificationNotes: text("verification_notes"),
+  expiryDate: timestamp("expiry_date"), // For documents that expire
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Schemas for marketplace functionality
 export const carListingSchema = createInsertSchema(carListings).omit({
   id: true,
@@ -577,6 +678,51 @@ export const carValuationSchema = createInsertSchema(carValuations).omit({
   createdAt: true,
 });
 
+// Dealer profile schemas
+export const dealerProfileSchema = createInsertSchema(dealerProfiles).omit({
+  id: true,
+  userId: true,
+  registrationDate: true,
+  isVerified: true,
+  verificationDate: true,
+  verifiedBy: true,
+  status: true,
+  suspensionReason: true,
+  suspendedAt: true,
+  suspendedBy: true,
+  adminNotes: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  dealerName: z.string().min(2, "Dealer name must be at least 2 characters"),
+  businessLocation: z.string().min(5, "Business location is required"),
+  phoneNumbers: z.array(z.string()).min(1, "At least one phone number is required"),
+  emailAddress: z.string().email("Valid email address required").optional(),
+  dealerBio: z.string().max(500, "Bio must be under 500 characters").optional(),
+});
+
+export const dealerReviewSchema = createInsertSchema(dealerReviews).omit({
+  id: true,
+  dealerId: true,
+  reviewerId: true,
+  dealerResponse: true,
+  dealerResponseDate: true,
+  status: true,
+  moderationNotes: true,
+  moderatedBy: true,
+  moderatedAt: true,
+  helpfulVotes: true,
+  reportedCount: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  rating: z.number().min(1).max(5),
+  reviewText: z.string().min(10, "Review must be at least 10 characters"),
+  communicationRating: z.number().min(1).max(5).optional(),
+  professionelismRating: z.number().min(1).max(5).optional(),
+  timelinessRating: z.number().min(1).max(5).optional(),
+});
+
 export type CarListing = typeof carListings.$inferSelect;
 export type InsertCarListing = z.infer<typeof carListingSchema>;
 export type CarInquiry = typeof carInquiries.$inferSelect;
@@ -588,6 +734,14 @@ export type FavoriteListing = typeof favoriteListings.$inferSelect;
 export type CarComparison = typeof carComparisons.$inferSelect;
 export type VehicleColor = typeof vehicleColors.$inferSelect;
 export type DriveConfiguration = typeof driveConfigurations.$inferSelect;
+
+// Dealer types
+export type DealerProfile = typeof dealerProfiles.$inferSelect;
+export type InsertDealerProfile = z.infer<typeof dealerProfileSchema>;
+export type DealerReview = typeof dealerReviews.$inferSelect;
+export type InsertDealerReview = z.infer<typeof dealerReviewSchema>;
+export type DealerAnalytics = typeof dealerAnalytics.$inferSelect;
+export type DealerVerificationDoc = typeof dealerVerificationDocs.$inferSelect;
 
 // Financial Services Tables for Loan Pre-approval and Trade-in
 export const bankPartners = pgTable("bank_partners", {
@@ -1320,7 +1474,7 @@ export const messages = pgTable("messages", {
   messageType: text("message_type").notNull().default("text"), // 'text', 'image', 'file', 'system', 'template'
   content: text("content").notNull(),
   metadata: text("metadata"), // JSON for attachments, system message details, etc.
-  replyToMessageId: integer("reply_to_message_id").references(() => messages.id), // for threading
+  replyToMessageId: integer("reply_to_message_id"), // for threading
   isSystemMessage: boolean("is_system_message").default(false),
   isEdited: boolean("is_edited").default(false),
   editedAt: timestamp("edited_at"),

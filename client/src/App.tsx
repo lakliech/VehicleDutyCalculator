@@ -30,6 +30,8 @@ import PriceTrends from "@/pages/price-trends";
 import SmartPricing from "@/pages/smart-pricing";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminAdvertisements from "@/pages/admin-advertisements";
+import DealerProfile from "@/pages/dealer-profile";
+import Dealers from "@/pages/dealers";
 
 import AdminListingDetails from "@/pages/admin-listing-details";
 import AdminUsers from "@/pages/admin-users";
@@ -71,6 +73,8 @@ function Router() {
           <Route path="/mycars-worth" component={MyCarsWorth} />
           <Route path="/buy-a-car" component={BuyACarEnhanced} />
           <Route path="/car-details/:id" component={CarDetails} />
+          <Route path="/dealers" component={Dealers} />
+          <Route path="/dealer/:userId" component={DealerProfile} />
           <Route path="/sell-my-car" component={SellMyCar} />
           <Route path="/vehicle-loans" component={VehicleLoans} />
           <Route path="/loan-pre-approval" component={LoanPreApproval} />

@@ -106,6 +106,7 @@ import { UsageLimiter } from './middleware/usage-limiter';
 import fs from 'fs/promises';
 import path from 'path';
 import productCatalogRoutes from './routes/product-catalog-routes';
+import dealerRoutes from './routes/dealer-routes';
 import featureEnforcementRoutes from './routes/feature-enforcement-routes';
 import { registerMileageVerificationRoutes } from './routes/mileage-verification';
 
@@ -176,6 +177,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return "http://localhost:5000/api/auth/google/callback";
   };
 
+  // Apple OAuth callback URL
+  const getAppleCallbackURL = () => {
+    if (process.env.REPLIT_DOMAINS) {
+      const domain = process.env.REPLIT_DOMAINS.split(',')[0];
+      return `https://${domain}/api/auth/apple/callback`;
+    }
+    if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+      return `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/auth/apple/callback`;
+    }
+    return "http://localhost:5000/api/auth/apple/callback";
+  };
+
   // Google OAuth Strategy
   passport.use(new GoogleStrategy({
     clientID: "955395502828-pj4cbgcrkkehsjcsigst2jcn60t9qttm.apps.googleusercontent.com",
@@ -203,6 +216,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return done(error, null);
     }
   }));
+
+  // Apple OAuth Strategy - only add if credentials are available
+  if (process.env.APPLE_CLIENT_ID && process.env.APPLE_TEAM_ID && process.env.APPLE_KEY_ID && process.env.APPLE_PRIVATE_KEY) {
+    const AppleStrategy = require('passport-apple').Strategy;
+    
+    passport.use(new AppleStrategy({
+      clientID: process.env.APPLE_CLIENT_ID,
+      teamID: process.env.APPLE_TEAM_ID,
+      keyID: process.env.APPLE_KEY_ID,
+      key: process.env.APPLE_PRIVATE_KEY,
+      callbackURL: getAppleCallbackURL(),
+      scope: ['name', 'email']
+    }, async (accessToken: any, refreshToken: any, profile: any, done: any) => {
+      try {
+        // Apple profile structure is different from Google
+        const email = profile.email || profile.emails?.[0]?.value;
+        const firstName = profile.name?.firstName || profile.displayName?.split(' ')[0] || '';
+        const lastName = profile.name?.lastName || profile.displayName?.split(' ')[1] || '';
+        
+        // Check if user exists
+        let user = await storage.getUserByEmail(email || '');
+        
+        if (!user && email) {
+          // Create new user
+          user = await storage.createUser({
+            id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+            profileImageUrl: null, // Apple doesn't provide profile images
+            password: crypto.randomBytes(32).toString('hex'), // Random password for OAuth users
+          });
+        }
+        
+        return done(null, user);
+      } catch (error) {
+        return done(error, null);
+      }
+    }));
+  }
 
   // Passport serialization
   passport.serializeUser((user: any, done) => {
@@ -396,6 +449,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
       state: state
     })(req, res, next);
   });
+
+  // Configure Apple OAuth strategy if credentials are available
+  if (process.env.APPLE_CLIENT_ID && process.env.APPLE_TEAM_ID && process.env.APPLE_KEY_ID && process.env.APPLE_PRIVATE_KEY) {
+    const AppleStrategy = require('passport-apple').Strategy;
+    
+    passport.use(new AppleStrategy({
+      clientID: process.env.APPLE_CLIENT_ID,
+      teamID: process.env.APPLE_TEAM_ID,
+      keyID: process.env.APPLE_KEY_ID,
+      privateKeyString: process.env.APPLE_PRIVATE_KEY,
+      callbackURL: '/api/auth/apple/callback',
+      scope: ['name', 'email'],
+      passReqToCallback: false
+    }, async (accessToken: string, refreshToken: string, idToken: any, profile: any, done: any) => {
+      try {
+        // Extract user info from Apple profile
+        const email = profile.email || idToken?.email;
+        const firstName = profile.name?.firstName || profile.displayName?.split(' ')[0] || '';
+        const lastName = profile.name?.lastName || profile.displayName?.split(' ').slice(1).join(' ') || '';
+        
+        // Check if user exists
+        let user = await storage.getUserByEmail(email);
+        
+        if (!user) {
+          // Create new user
+          user = await storage.createUser({
+            email,
+            firstName,
+            lastName,
+            authProvider: 'apple',
+            profileImageUrl: null
+          });
+        }
+        
+        return done(null, user);
+      } catch (error) {
+        console.error('Apple OAuth error:', error);
+        return done(error, null);
+      }
+    }));
+  }
+
+  // Apple OAuth routes - only available if credentials are configured
+  if (process.env.APPLE_CLIENT_ID && process.env.APPLE_TEAM_ID && process.env.APPLE_KEY_ID && process.env.APPLE_PRIVATE_KEY) {
+    app.get('/api/auth/apple', (req: Request, res: Response, next: NextFunction) => {
+      const returnUrl = req.query.returnUrl as string;
+      console.log('Apple OAuth initiated, returnUrl:', returnUrl);
+      
+      const state = returnUrl ? Buffer.from(returnUrl).toString('base64') : '';
+      
+      passport.authenticate('apple', {
+        scope: ['name', 'email'],
+        state: state
+      })(req, res, next);
+    });
+
+    app.post('/api/auth/apple/callback',
+      passport.authenticate('apple', { failureRedirect: '/?error=auth_failed' }),
+      async (req: Request, res: Response) => {
+        try {
+          // Ensure session is properly saved
+          await new Promise<void>((resolve, reject) => {
+            req.session.save((err) => {
+              if (err) {
+                console.error('Session save error:', err);
+                reject(err);
+              } else {
+                resolve();
+              }
+            });
+          });
+          
+          // Add slight delay to ensure session is fully persisted
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          // Get returnUrl from state parameter
+          const state = req.body.state as string;
+          let returnUrl = '/';
+          
+          if (state) {
+            try {
+              returnUrl = Buffer.from(state, 'base64').toString('utf-8');
+              console.log('Apple OAuth callback, returnUrl from state:', returnUrl);
+            } catch (error) {
+              console.error('Error decoding state parameter:', error);
+            }
+          }
+          
+          // Successful authentication, redirect to original page
+          console.log('Redirecting to:', `${returnUrl}?social=apple&success=true`);
+          res.redirect(`${returnUrl}?social=apple&success=true`);
+        } catch (error) {
+          console.error('Apple OAuth callback error:', error);
+          res.redirect('/?error=session_failed');
+        }
+      }
+    );
+  }
 
   app.get('/api/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/?error=auth_failed' }),
@@ -1909,6 +2060,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Product Catalog Routes - removed async wrapper causing issues
+  
+  // Dealer Routes
+  app.use('/api/dealers', dealerRoutes);
 
   // Initialize default monetization plans
   app.post('/api/monetization/initialize-plans', async (req, res) => {

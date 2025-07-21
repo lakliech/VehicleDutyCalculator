@@ -19,6 +19,58 @@ const router = Router();
 
 import { authenticateUser, requireRole } from "../middleware/auth";
 
+// Registration endpoint (no auth required)
+router.post("/register", async (req, res) => {
+  try {
+    const dealerData = req.body;
+    console.log('Dealer registration data:', dealerData);
+    
+    // Generate unique dealer ID
+    const dealerId = `dealer_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Determine listing limit based on package
+    const getListingLimitForPackage = (packageType: string) => {
+      switch (packageType) {
+        case 'free': return 5;
+        case 'premium': return -1; // unlimited
+        case 'featured': return -1; // unlimited
+        default: return 5;
+      }
+    };
+    
+    // Create dealer profile
+    const newDealer = await db
+      .insert(dealerProfiles)
+      .values({
+        userId: dealerId,
+        dealerName: dealerData.businessName,
+        businessName: dealerData.businessName,
+        businessLocation: dealerData.location,
+        phoneNumbers: [dealerData.phoneNumber],
+        whatsappNumber: dealerData.whatsappNumber || null,
+        emailAddress: dealerData.businessEmail,
+        websiteUrl: dealerData.website || null,
+        dealerBio: dealerData.description || null,
+        yearsInBusiness: dealerData.yearsInBusiness || 0,
+        specialties: dealerData.specialties || [],
+        status: 'pending',
+        isVerified: false,
+        packageType: dealerData.packageType,
+        listingLimit: getListingLimitForPackage(dealerData.packageType),
+      })
+      .returning();
+
+    res.json({ 
+      success: true, 
+      dealerId: newDealer[0].id,
+      message: 'Dealer registration successful. Your application is under review.'
+    });
+  } catch (error) {
+    console.error('Error registering dealer:', error);
+    res.status(500).json({ error: 'Failed to register dealer' });
+  }
+});
+
 // For admin routes, use requireRole middleware instead
 const requireAdmin = requireRole(['admin', 'superadmin']);
 

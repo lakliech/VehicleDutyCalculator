@@ -92,9 +92,15 @@ export default function Dealers() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Verified Dealers</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-6">
             Connect with trusted, verified car dealers across Kenya. Find the right dealer for your needs.
           </p>
+          <Link href="/dealer-registration">
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 text-lg">
+              <Building className="w-5 h-5 mr-2" />
+              Register as Dealer
+            </Button>
+          </Link>
         </div>
 
         {/* Stats Section */}

@@ -32,6 +32,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import AdminAdvertisements from "@/pages/admin-advertisements";
 import AdminDealers from "@/pages/admin-dealers";
 import DealerProfile from "@/pages/dealer-profile";
+import DealerRegistration from "@/pages/dealer-registration";
 import Dealers from "@/pages/dealers";
 
 import AdminListingDetails from "@/pages/admin-listing-details";
@@ -76,6 +77,7 @@ function Router() {
           <Route path="/car-details/:id" component={CarDetails} />
           <Route path="/dealers" component={Dealers} />
           <Route path="/dealer/:userId" component={DealerProfile} />
+          <Route path="/dealer-registration" component={DealerRegistration} />
           <Route path="/sell-my-car" component={SellMyCar} />
           <Route path="/vehicle-loans" component={VehicleLoans} />
           <Route path="/loan-pre-approval" component={LoanPreApproval} />

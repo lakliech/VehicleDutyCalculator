@@ -1,0 +1,144 @@
+USER JOURNEY: Registering a Dealer
+✅ STAGE 1: Entry Point
+User Action:
+
+Clicks on "Register as a Dealer" from:
+
+Top menu / CTA
+
+Seller dashboard
+
+Homepage "Sell with us as a Dealer" banner
+
+System Response:
+
+Redirect to the Dealer Registration Wizard or modal
+
+✅ STAGE 2: Account Setup
+User Action:
+
+Enters basic credentials:
+
+Business Email
+
+Password
+
+Confirm Password
+
+Accepts Terms & Conditions and Platform Policy
+
+Optional: OAuth sign-up with Google/LinkedIn (for quicker access)
+
+System Response:
+
+Creates dealer account (status = incomplete profile)
+
+Sends email verification link (optional)
+
+Logs user into dealer onboarding dashboard
+
+✅ STAGE 3: Business Profile Setup
+User Action:
+Fills out a Dealer Profile Form:
+
+Business Name (Required)
+
+Business Type: Individual / Limited / Franchise
+
+Location (Dropdown + Google Maps Integration)
+
+Years in Operation
+
+KRA PIN (optional for verification)
+
+Logo Upload
+
+Cover Image (optional)
+
+Phone Number (Required, OTP Verification)
+
+WhatsApp Number (optional)
+
+Email Address (auto-filled or editable)
+
+Short Description/About Us (max 300 chars)
+
+Website/Social Links (optional)
+
+System Response:
+
+Real-time validation of required fields
+
+Display progress bar (e.g., 60% profile complete)
+
+✅ STAGE 4: Package Selection (Optional Monetization)
+User Action:
+
+Choose a package:
+
+Free (limited listings/month)
+
+Premium (unlimited listings, branding, analytics)
+
+Featured Dealer (adds homepage exposure)
+
+System Response:
+
+If payment required, trigger checkout
+
+Once complete, unlock posting features per package
+
+✅ STAGE 5: Verification
+User Action:
+
+Upload verification documents:
+
+Business Registration Certificate
+
+Director ID or KRA PIN
+
+Utility bill or location photo (optional)
+
+System Response:
+
+Admin receives a verification request
+
+Dealer gets status: “Pending Verification”
+
+Allow limited use (e.g., post but cannot go live until verified)
+
+✅ STAGE 6: Onboarding Completion
+User Action:
+
+Views a welcome message with steps:
+
+Complete profile ✔
+
+Post your first car ✔
+
+Track inquiries & boost listings
+
+System Response:
+
+Dealer dashboard activated
+
+Optional tooltips/tutorial on:
+
+How to create a listing
+
+How to manage inventory
+
+How to promote listings
+
+✅ STAGE 7: Start Posting Listings
+User Action:
+
+Dealer clicks "Add Vehicle"
+
+Follows same flow as regular listing with branding automatically applied
+
+System Response:
+
+Listings are linked to dealer page
+
+Admin/moderation checks apply before going live

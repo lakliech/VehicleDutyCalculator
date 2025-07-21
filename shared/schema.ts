@@ -493,7 +493,6 @@ export const dealerProfiles = pgTable("dealer_profiles", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id", { length: 255 }).notNull().unique(), // Links to app_users
   dealerName: text("dealer_name").notNull(), // Business name
-  businessName: text("business_name"), // Official business name if different
   logoUrl: varchar("logo_url", { length: 500 }), // Company logo
   businessLocation: text("business_location").notNull(), // Physical address
   mapCoordinates: text("map_coordinates"), // lat,lng for map pin

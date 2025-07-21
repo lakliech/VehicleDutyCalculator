@@ -42,27 +42,21 @@ router.post("/register", async (req, res) => {
       }
     };
     
-    // Create dealer profile
-    const newDealer = await db
-      .insert(dealerProfiles)
-      .values({
-        userId: dealerId,
-        dealerName: dealerData.businessName,
-        businessName: dealerData.businessName,
-        businessLocation: dealerData.location,
-        phoneNumbers: [dealerData.phoneNumber],
-        whatsappNumber: dealerData.whatsappNumber || null,
-        emailAddress: dealerData.businessEmail,
-        websiteUrl: dealerData.website || null,
-        dealerBio: dealerData.description || null,
-        yearsInBusiness: dealerData.yearsInBusiness || 0,
-        specialties: dealerData.specialties || [],
-        status: 'pending',
-        isVerified: false,
-        packageType: dealerData.packageType,
-        listingLimit: getListingLimitForPackage(dealerData.packageType),
-      })
-      .returning();
+    // Create dealer profile using direct SQL to avoid schema issues
+    const [newDealer] = await db.execute(sql`
+      INSERT INTO dealer_profiles 
+      (user_id, dealer_name, business_location, phone_numbers, whatsapp_number, 
+       email_address, website_url, dealer_bio, years_in_business, specialties, 
+       status, is_verified, package_type, listing_limit)
+      VALUES 
+      (${dealerId}, ${dealerData.businessName}, ${dealerData.location}, 
+       ${[dealerData.phoneNumber]}, ${dealerData.whatsappNumber || null},
+       ${dealerData.businessEmail}, ${dealerData.website || null}, 
+       ${dealerData.description || null}, ${dealerData.yearsInBusiness || 0}, 
+       ${dealerData.specialties || []}, 'pending', false, 
+       ${dealerData.packageType}, ${getListingLimitForPackage(dealerData.packageType)})
+      RETURNING id, user_id, dealer_name
+    `);
 
     res.json({ 
       success: true, 

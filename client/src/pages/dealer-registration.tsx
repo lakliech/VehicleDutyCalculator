@@ -53,6 +53,8 @@ const packageSchema = z.object({
   packageType: z.enum(["free", "premium", "featured"]),
 });
 
+type PackageType = "free" | "premium" | "featured";
+
 const verificationSchema = z.object({
   businessRegistration: z.any().optional(),
   directorId: z.any().optional(),
@@ -62,6 +64,11 @@ const verificationSchema = z.object({
 export default function DealerRegistration() {
   const [currentStage, setCurrentStage] = useState<RegistrationStage>("account");
   const [registrationData, setRegistrationData] = useState<any>({});
+  const [uploadedFiles, setUploadedFiles] = useState<{
+    businessRegistration?: File;
+    directorId?: File;
+    locationProof?: File;
+  }>({});
   const [, setLocation] = useLocation();
 
   // Calculate progress percentage
@@ -138,18 +145,23 @@ export default function DealerRegistration() {
     },
   });
 
+  // Handle file upload
+  const handleFileUpload = (file: File, documentType: 'businessRegistration' | 'directorId' | 'locationProof') => {
+    setUploadedFiles(prev => ({ ...prev, [documentType]: file }));
+  };
+
   const handleAccountSubmit = (data: z.infer<typeof accountSchema>) => {
-    setRegistrationData(prev => ({ ...prev, ...data }));
+    setRegistrationData((prev: any) => ({ ...prev, ...data }));
     setCurrentStage("profile");
   };
 
   const handleProfileSubmit = (data: z.infer<typeof profileSchema>) => {
-    setRegistrationData(prev => ({ ...prev, ...data }));
+    setRegistrationData((prev: any) => ({ ...prev, ...data }));
     setCurrentStage("package");
   };
 
   const handlePackageSubmit = (data: z.infer<typeof packageSchema>) => {
-    setRegistrationData(prev => ({ ...prev, ...data }));
+    setRegistrationData((prev: any) => ({ ...prev, ...data }));
     setCurrentStage("verification");
   };
 
@@ -467,7 +479,7 @@ export default function DealerRegistration() {
                                 if (checked) {
                                   profileForm.setValue("specialties", [...current, specialty]);
                                 } else {
-                                  profileForm.setValue("specialties", current.filter(s => s !== specialty));
+                                  profileForm.setValue("specialties", current.filter((s: string) => s !== specialty));
                                 }
                               }}
                             />
@@ -590,18 +602,52 @@ export default function DealerRegistration() {
                         <div className="space-y-2">
                           <Label>Business Registration Certificate</Label>
                           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                            <p className="text-sm text-gray-600">Click to upload or drag and drop</p>
-                            <p className="text-xs text-gray-500">PDF, PNG, JPG up to 5MB</p>
+                            <input
+                              type="file"
+                              id="business-registration"
+                              accept=".pdf,.png,.jpg,.jpeg"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleFileUpload(file, 'businessRegistration');
+                              }}
+                              className="hidden"
+                            />
+                            <label htmlFor="business-registration" className="cursor-pointer">
+                              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                              <p className="text-sm text-gray-600">
+                                {uploadedFiles.businessRegistration ? 
+                                  uploadedFiles.businessRegistration.name : 
+                                  "Click to upload or drag and drop"
+                                }
+                              </p>
+                              <p className="text-xs text-gray-500">PDF, PNG, JPG up to 5MB</p>
+                            </label>
                           </div>
                         </div>
 
                         <div className="space-y-2">
                           <Label>Director ID or KRA PIN Certificate</Label>
                           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                            <p className="text-sm text-gray-600">Click to upload or drag and drop</p>
-                            <p className="text-xs text-gray-500">PDF, PNG, JPG up to 5MB</p>
+                            <input
+                              type="file"
+                              id="director-id"
+                              accept=".pdf,.png,.jpg,.jpeg"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleFileUpload(file, 'directorId');
+                              }}
+                              className="hidden"
+                            />
+                            <label htmlFor="director-id" className="cursor-pointer">
+                              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                              <p className="text-sm text-gray-600">
+                                {uploadedFiles.directorId ? 
+                                  uploadedFiles.directorId.name : 
+                                  "Click to upload or drag and drop"
+                                }
+                              </p>
+                              <p className="text-xs text-gray-500">PDF, PNG, JPG up to 5MB</p>
+                            </label>
                           </div>
                         </div>
                       </div>
@@ -609,9 +655,26 @@ export default function DealerRegistration() {
                       <div className="space-y-2">
                         <Label>Location Proof (Optional)</Label>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                          <p className="text-sm text-gray-600">Utility bill or business location photo</p>
-                          <p className="text-xs text-gray-500">PDF, PNG, JPG up to 5MB</p>
+                          <input
+                            type="file"
+                            id="location-proof"
+                            accept=".pdf,.png,.jpg,.jpeg"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleFileUpload(file, 'locationProof');
+                            }}
+                            className="hidden"
+                          />
+                          <label htmlFor="location-proof" className="cursor-pointer">
+                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-sm text-gray-600">
+                              {uploadedFiles.locationProof ? 
+                                uploadedFiles.locationProof.name : 
+                                "Utility bill or business location photo"
+                              }
+                            </p>
+                            <p className="text-xs text-gray-500">PDF, PNG, JPG up to 5MB</p>
+                          </label>
                         </div>
                       </div>
                     </div>

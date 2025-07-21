@@ -178,7 +178,11 @@ export default function AdminAdvertisements() {
                     <DialogTitle>Create New Ad Position</DialogTitle>
                   </DialogHeader>
                   
-                  <form action={handleCreatePosition} className="space-y-4">
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target as HTMLFormElement);
+                    handleCreatePosition(formData);
+                  }} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="positionName">Position Name</Label>
@@ -376,7 +380,7 @@ export default function AdminAdvertisements() {
                         
                         <div className="flex justify-between items-center pt-2">
                           <span className="text-sm text-gray-500">
-                            Max: {position.maxAdsSimultaneous} ad{position.maxAdsSimultaneous > 1 ? 's' : ''}
+                            Max: {position.maxAdsSimultaneous || 0} ad{(position.maxAdsSimultaneous || 0) > 1 ? 's' : ''}
                           </span>
                           <Button variant="outline" size="sm">
                             <Edit className="h-3 w-3 mr-1" />

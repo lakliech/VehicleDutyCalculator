@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,16 +63,27 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
   });
 
   const { toast } = useToast();
+  const { user, isAuthenticated } = useAuth();
 
   // Get filter options
   const { data: filterOptions } = useQuery({
     queryKey: ['/api/car-listing-filters'],
   });
 
-  // Get saved searches
-  const { data: savedSearches } = useQuery({
+  // Get saved searches - only when authenticated AND user explicitly tries to view saved searches
+  const { data: savedSearches, refetch: refetchSavedSearches } = useQuery({
     queryKey: ['/api/saved-searches'],
+    enabled: false, // Disabled by default - will be enabled manually when needed
+    retry: false, // Don't retry on auth failure
   });
+
+  // Refetch saved searches when dialog opens and user is authenticated
+  const handleShowSavedSearches = (open: boolean) => {
+    setShowSavedSearches(open);
+    if (open && isAuthenticated && user) {
+      refetchSavedSearches();
+    }
+  };
 
   // Natural language search processing
   const processNaturalSearch = (query: string) => {
@@ -247,7 +259,7 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
 
       {/* Quick Action Buttons */}
       <div className="flex gap-2 flex-wrap">
-        <Dialog open={showSavedSearches} onOpenChange={setShowSavedSearches}>
+        <Dialog open={showSavedSearches} onOpenChange={handleShowSavedSearches}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
               <Heart className="h-4 w-4 mr-2" />

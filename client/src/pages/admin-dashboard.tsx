@@ -634,7 +634,7 @@ function AuthenticatedAdminDashboard() {
             {/* Primary Navigation - Core Functions */}
             <div className="bg-gray-50 rounded-xl p-4">
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Core Management</h3>
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="overview" className="flex items-center gap-2">
                   <Database className="h-4 w-4" />
                   <span className="hidden sm:inline">Dashboard</span>
@@ -643,29 +643,13 @@ function AuthenticatedAdminDashboard() {
                   <Car className="h-4 w-4" />
                   <span className="hidden sm:inline">Marketplace</span>
                 </TabsTrigger>
-                <TabsTrigger value="advertisements" className="flex items-center gap-2">
-                  <Monitor className="h-4 w-4" />
-                  <span className="hidden sm:inline">Advertisements</span>
-                </TabsTrigger>
-                <TabsTrigger value="financial" className="flex items-center gap-2">
-                  <CreditCard className="h-4 w-4" />
-                  <span className="hidden sm:inline">Financial</span>
-                </TabsTrigger>
               </TabsList>
             </div>
 
             {/* Secondary Navigation - Advanced Features */}
             <div className="bg-blue-50 rounded-xl p-4">
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Advanced Features</h3>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="product-catalog" className="flex items-center gap-2">
-                  <Package className="h-4 w-4" />
-                  <span className="hidden sm:inline">Product Catalog</span>
-                </TabsTrigger>
-                <TabsTrigger value="monetization" className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4" />
-                  <span className="hidden sm:inline">Monetization</span>
-                </TabsTrigger>
+              <TabsList className="grid w-full grid-cols-1">
                 <TabsTrigger value="system" className="flex items-center gap-2">
                   <Settings className="h-4 w-4" />
                   <span className="hidden sm:inline">System Config</span>
@@ -714,28 +698,57 @@ function AuthenticatedAdminDashboard() {
               </div>
             )}
 
+            {/* Dashboard Sub-Navigation */}
+            {activeTab === "overview" && (
+              <div className="bg-green-50 rounded-xl p-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">Dashboard Analytics</h4>
+                <TabsList className="grid w-full grid-cols-1">
+                  <TabsTrigger value="monetization" className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4" />
+                    <span className="hidden sm:inline">Monetization</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+            )}
+
             {/* Marketplace Management Sub-Navigation */}
             {activeTab === "marketplace" && (
               <div className="bg-green-50 rounded-xl p-4">
                 <h4 className="text-sm font-semibold text-gray-700 mb-3">Marketplace Management</h4>
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="listings" className="flex items-center gap-2">
-                    <Car className="h-4 w-4" />
-                    <span className="hidden sm:inline">Listings</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="users" className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    <span className="hidden sm:inline">Users</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="dealers" className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4" />
-                    <span className="hidden sm:inline">Dealers</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="flagging" className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    <span className="hidden sm:inline">Flagging</span>
-                  </TabsTrigger>
-                </TabsList>
+                <div className="space-y-3">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="listings" className="flex items-center gap-2">
+                      <Car className="h-4 w-4" />
+                      <span className="hidden sm:inline">Listings</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="users" className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      <span className="hidden sm:inline">Users</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="dealers" className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4" />
+                      <span className="hidden sm:inline">Dealers</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="flagging" className="flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      <span className="hidden sm:inline">Flagging</span>
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="advertisements" className="flex items-center gap-2">
+                      <Monitor className="h-4 w-4" />
+                      <span className="hidden sm:inline">Advertisements</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="financial" className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      <span className="hidden sm:inline">Financial</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="product-catalog" className="flex items-center gap-2">
+                      <Package className="h-4 w-4" />
+                      <span className="hidden sm:inline">Product Catalog</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
               </div>
             )}
           </div>

@@ -589,6 +589,48 @@ export const dealerVerificationDocs = pgTable("dealer_verification_docs", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Dealer Invitations for user onboarding to dealerships
+export const dealerInvitations = pgTable("dealer_invitations", {
+  id: serial("id").primaryKey(),
+  dealerId: integer("dealer_id").references(() => dealerProfiles.id).notNull(),
+  invitationToken: varchar("invitation_token", { length: 255 }).notNull().unique(), // Unique invitation URL token
+  invitedEmail: varchar("invited_email", { length: 255 }), // Optional email for targeted invitations
+  invitationType: text("invitation_type").default("general"), // general, email, referral
+  status: text("status").default("active"), // active, used, expired, revoked
+  maxUses: integer("max_uses").default(1), // How many times this invitation can be used
+  currentUses: integer("current_uses").default(0), // How many times it has been used
+  expiresAt: timestamp("expires_at"), // Optional expiration date
+  invitedUserId: varchar("invited_user_id", { length: 255 }), // Set when invitation is accepted
+  acceptedAt: timestamp("accepted_at"), // When invitation was accepted
+  createdBy: varchar("created_by", { length: 255 }).notNull(), // User ID of dealer who created invitation
+  metadata: json("metadata").$type<{
+    invitationMessage?: string;
+    redirectUrl?: string;
+    customParams?: Record<string, any>;
+  }>(), // Additional invitation data
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Dealer User Associations for tracking users associated with dealers
+export const dealerUserAssociations = pgTable("dealer_user_associations", {
+  id: serial("id").primaryKey(),
+  dealerId: integer("dealer_id").references(() => dealerProfiles.id).notNull(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id).notNull(),
+  associationType: text("association_type").default("invitation"), // invitation, direct_signup, referral
+  invitationId: integer("invitation_id").references(() => dealerInvitations.id), // Link to invitation if applicable
+  status: text("status").default("active"), // active, inactive, suspended
+  associationDate: timestamp("association_date").defaultNow().notNull(),
+  lastInteraction: timestamp("last_interaction"),
+  metadata: json("metadata").$type<{
+    source?: string;
+    notes?: string;
+    referralCode?: string;
+  }>(), // Additional association data
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Schemas for marketplace functionality
 export const carListingSchema = createInsertSchema(carListings).omit({
   id: true,

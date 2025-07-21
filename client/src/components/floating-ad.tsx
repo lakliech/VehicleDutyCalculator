@@ -55,7 +55,7 @@ export function FloatingAd() {
     const today = new Date().toDateString();
     const dailyShown = getDailyShownAds();
     dailyShown.add(adId);
-    localStorage.setItem(`floatingAds_${today}`, JSON.stringify([...dailyShown]));
+    localStorage.setItem(`floatingAds_${today}`, JSON.stringify(Array.from(dailyShown)));
   };
 
   // Show ad with delay and animation
@@ -68,8 +68,8 @@ export function FloatingAd() {
     if (closedAds.has(ad.id)) return;
 
     setTimeout(() => {
-      setVisibleAds(prev => new Set([...prev, ad.id]));
-      setSessionShownAds(prev => new Set([...prev, ad.id]));
+      setVisibleAds(prev => new Set(Array.from(prev).concat(ad.id)));
+      setSessionShownAds(prev => new Set(Array.from(prev).concat(ad.id)));
       
       if (ad.showOncePerDay) {
         setDailyShownAd(ad.id);
@@ -103,7 +103,7 @@ export function FloatingAd() {
   const closeAd = (ad: FloatingAdData) => {
     if (!ad.isCloseable) return;
     
-    setClosedAds(prev => new Set([...prev, ad.id]));
+    setClosedAds(prev => new Set(Array.from(prev).concat(ad.id)));
     hideAd(ad.id, ad.exitAnimation, ad.animationDuration);
   };
 
@@ -242,7 +242,7 @@ export function FloatingAd() {
         );
       })}
 
-      <style jsx>{`
+      <style>{`
         @keyframes fade {
           from { opacity: 0; }
           to { opacity: 1; }

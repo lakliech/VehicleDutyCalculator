@@ -2450,6 +2450,9 @@ export const floatingAds = pgTable("floating_ads", {
   exitAnimation: text("exit_animation").default("fade"), // "fade", "slide-up", "slide-down", "zoom-out"
   animationDuration: integer("animation_duration").default(500), // milliseconds
   
+  // Image support
+  imageUrl: text("image_url"), // URL for floating ad image
+  
   // Scheduling
   isActive: boolean("is_active").default(true),
   startTime: timestamp("start_time").notNull(),

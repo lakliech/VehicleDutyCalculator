@@ -19,6 +19,7 @@ interface FloatingAdData {
     isCloseable: boolean;
     enterAnimation: string;
     exitAnimation: string;
+    imageUrl?: string;
     isActive: boolean;
   };
   advertisements: {
@@ -177,10 +178,10 @@ export default function FloatingAd() {
           onClick={() => handleAdClick(adData.adTargetUrl)}
         >
           {/* Ad Image */}
-          {adData.adImageUrl && (
+          {(floatingAd.imageUrl || adData.adImageUrl) && (
             <div className="relative h-2/3 overflow-hidden">
               <img
-                src={adData.adImageUrl}
+                src={floatingAd.imageUrl || adData.adImageUrl}
                 alt={adData.adTitle}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 onError={(e) => {

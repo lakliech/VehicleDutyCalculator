@@ -227,27 +227,25 @@ The platform now features AI-powered natural language search that converts user 
 
 ## Changelog
 
-**COMPLETE ADVERTISEMENT MANAGEMENT SYSTEM - January 21, 2025:**
-- **Problem Solved**: User reported advertisement management returning HTML error instead of functional interface
-- **Database Implementation**: Created complete advertisement database schema with 5 core tables:
-  - `ad_positions` - Define advertising positions across platform (header, sidebar, homepage, etc.)
-  - `advertisements` - Store advertisement campaigns with targeting, budget, and approval workflow
-  - `ad_placements` - Link advertisements to specific positions with scheduling and performance tracking
-  - `floating_ads` - Configure floating advertisement behavior with positioning and animation
-  - `ad_analytics` - Track advertisement performance with daily impression/click/conversion metrics
-- **API Restoration**: Converted placeholder empty array responses to fully functional database operations:
-  - `GET /api/advertisements/positions` - Returns actual ad positions with pricing
-  - `GET /api/advertisements/advertisements` - Returns paginated advertisements with filtering
-  - `POST /api/advertisements/positions` - Creates new ad positions (admin only)
-  - `POST /api/advertisements/advertisements` - Creates new advertisement campaigns
-  - `PATCH /api/advertisements/:id/status` - Updates advertisement approval status
-  - `GET /api/advertisements/placements` - Returns placement data with joins
-  - `POST /api/advertisements/placements` - Creates new ad placements
-  - `GET /api/advertisements/floating-ads/active` - Returns active floating ads
-- **Sample Data**: Populated tables with realistic sample data (4 ad positions, 3 advertisements, 3 placements, 1 floating ad)
-- **Admin Interface**: Fixed TypeScript errors in admin advertisements component (form submission and null handling)
-- **Technical Achievement**: Complete transition from graceful error handling to fully functional advertisement management system
-- **User Experience**: Advertisement management now displays actual data instead of empty interfaces
+**COMPLETE FLOATING ADS MANAGEMENT WITH CRUD OPERATIONS - January 21, 2025:**
+- **Problem Solved**: User requested activation of edit, pause, delete actions for floating ads plus image support
+- **Database Enhancement**: Added `image_url` field to floating_ads table for image support in ads
+- **Backend API Implementation**: Created complete CRUD operations for floating ads:
+  - `PUT /api/advertisements/floating-ads/:id` - Update floating ad with validation
+  - `PATCH /api/advertisements/floating-ads/:id/toggle` - Toggle active/inactive status
+  - `DELETE /api/advertisements/floating-ads/:id` - Delete floating ad with confirmation
+- **Frontend Mutations**: Implemented React Query mutations with proper error handling:
+  - `updateFloatingAdMutation` - Edit floating ad with comprehensive form dialog
+  - `toggleFloatingAdMutation` - Pause/activate with loading states and button feedback
+  - `deleteFloatingAdMutation` - Delete with confirmation dialog and proper cache invalidation
+- **Admin Interface Enhancement**: 
+  - Added functional Edit button opening comprehensive edit dialog with all fields
+  - Active Pause/Activate buttons with real-time status changes and loading indicators
+  - Delete button with confirmation prompt and proper error handling
+  - Image URL field in both creation and edit forms for ad image support
+- **FloatingAd Component Update**: Enhanced to display images from both `imageUrl` and legacy `adImageUrl` fields
+- **User Experience**: Complete floating ads management with immediate visual feedback and proper cache invalidation
+- **Technical Achievement**: Full CRUD operations with TypeScript safety, proper validation, and seamless admin experience
 
 **COMPLETE DEALER PROFILE SYSTEM WITH SMART NAVIGATION - January 21, 2025:**
 - **Problem Solved**: Implemented comprehensive dealer profile functionality with intelligent navigation based on user status

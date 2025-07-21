@@ -283,6 +283,82 @@ router.post('/floating-ads', authenticateUser, requireRole(['admin', 'superadmin
   }
 });
 
+// Update floating ad (Admin only)
+router.put('/floating-ads/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const validatedData = floatingAdSchema.partial().parse(req.body);
+    
+    const [updatedFloatingAd] = await db
+      .update(floatingAds)
+      .set({ ...validatedData, updatedAt: new Date() })
+      .where(eq(floatingAds.id, parseInt(id)))
+      .returning();
+    
+    if (!updatedFloatingAd) {
+      return res.status(404).json({ error: 'Floating ad not found' });
+    }
+    
+    res.json(updatedFloatingAd);
+  } catch (error) {
+    console.error('Error updating floating ad:', error);
+    res.status(500).json({ error: 'Failed to update floating ad' });
+  }
+});
+
+// Toggle floating ad status (Admin only)
+router.patch('/floating-ads/:id/toggle', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Get current status
+    const [currentAd] = await db
+      .select({ isActive: floatingAds.isActive })
+      .from(floatingAds)
+      .where(eq(floatingAds.id, parseInt(id)));
+    
+    if (!currentAd) {
+      return res.status(404).json({ error: 'Floating ad not found' });
+    }
+    
+    // Toggle status
+    const [updatedFloatingAd] = await db
+      .update(floatingAds)
+      .set({ 
+        isActive: !currentAd.isActive,
+        updatedAt: new Date()
+      })
+      .where(eq(floatingAds.id, parseInt(id)))
+      .returning();
+    
+    res.json(updatedFloatingAd);
+  } catch (error) {
+    console.error('Error toggling floating ad status:', error);
+    res.status(500).json({ error: 'Failed to toggle floating ad status' });
+  }
+});
+
+// Delete floating ad (Admin only)
+router.delete('/floating-ads/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const [deletedFloatingAd] = await db
+      .delete(floatingAds)
+      .where(eq(floatingAds.id, parseInt(id)))
+      .returning();
+    
+    if (!deletedFloatingAd) {
+      return res.status(404).json({ error: 'Floating ad not found' });
+    }
+    
+    res.json({ success: true, message: 'Floating ad deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting floating ad:', error);
+    res.status(500).json({ error: 'Failed to delete floating ad' });
+  }
+});
+
 // ==============================
 // ANALYTICS AND TRACKING
 // ==============================

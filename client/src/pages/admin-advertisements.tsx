@@ -97,6 +97,43 @@ export default function AdminAdvertisements() {
     }
   });
 
+  // Floating ad mutations
+  const updateFloatingAdMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: any }) => 
+      apiRequest('PUT', `/api/advertisements/floating-ads/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/advertisements/floating-ads/active'] });
+      toast({ title: "Floating ad updated successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to update floating ad", variant: "destructive" });
+    }
+  });
+
+  const toggleFloatingAdMutation = useMutation({
+    mutationFn: (id: number) => 
+      apiRequest('PATCH', `/api/advertisements/floating-ads/${id}/toggle`, {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/advertisements/floating-ads/active'] });
+      toast({ title: "Floating ad status updated" });
+    },
+    onError: () => {
+      toast({ title: "Failed to update status", variant: "destructive" });
+    }
+  });
+
+  const deleteFloatingAdMutation = useMutation({
+    mutationFn: (id: number) => 
+      apiRequest('DELETE', `/api/advertisements/floating-ads/${id}`, {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/advertisements/floating-ads/active'] });
+      toast({ title: "Floating ad deleted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete floating ad", variant: "destructive" });
+    }
+  });
+
   // Status badge colors
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -723,7 +760,7 @@ export default function AdminAdvertisements() {
                     apiRequest('POST', '/api/advertisements/floating-ads', data)
                       .then(() => {
                         toast({ title: "Success", description: "Floating ad created successfully" });
-                        setSelectedTab('floating');
+                        queryClient.invalidateQueries({ queryKey: ['/api/advertisements/floating-ads/active'] });
                       })
                       .catch((error) => {
                         toast({ title: "Error", description: `Failed to create floating ad: ${error.message}`, variant: "destructive" });
@@ -745,6 +782,10 @@ export default function AdminAdvertisements() {
                             ))}
                           </SelectContent>
                         </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="imageUrl">Image URL</Label>
+                        <Input id="imageUrl" name="imageUrl" placeholder="https://example.com/image.jpg" />
                       </div>
                     </div>
                     
@@ -988,18 +1029,151 @@ export default function AdminAdvertisements() {
                         </div>
                         
                         <div className="flex justify-end gap-2 pt-2">
-                          <Button variant="outline" size="sm">
-                            <Edit className="h-3 w-3 mr-1" />
-                            Edit
-                          </Button>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Edit className="h-3 w-3 mr-1" />
+                                Edit
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-4xl">
+                              <DialogHeader>
+                                <DialogTitle>Edit Floating Ad</DialogTitle>
+                              </DialogHeader>
+                              
+                              <form onSubmit={(e) => {
+                                e.preventDefault();
+                                const formData = new FormData(e.target as HTMLFormElement);
+                                const data = {
+                                  advertisementId: parseInt(formData.get('advertisementId') as string),
+                                  positionX: formData.get('positionX'),
+                                  positionY: formData.get('positionY'),
+                                  width: formData.get('width'),
+                                  height: formData.get('height'),
+                                  hideDuration: parseInt(formData.get('hideDuration') as string),
+                                  showDelay: parseInt(formData.get('showDelay') as string) || 0,
+                                  startTime: formData.get('startTime'),
+                                  endTime: formData.get('endTime'),
+                                  triggerEvent: formData.get('triggerEvent'),
+                                  isCloseable: formData.get('isCloseable') === 'true',
+                                  enterAnimation: formData.get('enterAnimation'),
+                                  exitAnimation: formData.get('exitAnimation'),
+                                  imageUrl: formData.get('imageUrl'),
+                                };
+                                
+                                updateFloatingAdMutation.mutate({ id: floatingAd.floating_ads.id, data });
+                              }} className="space-y-4">
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label htmlFor="editAdvertisementId">Advertisement</Label>
+                                    <Select name="advertisementId" defaultValue={floatingAd.floating_ads.advertisementId?.toString()}>
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {advertisementsData?.advertisements?.map((ad: Advertisement) => (
+                                          <SelectItem key={ad.id} value={ad.id.toString()}>
+                                            {ad.adTitle} - {ad.campaignName}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="editImageUrl">Image URL</Label>
+                                    <Input id="editImageUrl" name="imageUrl" defaultValue={floatingAd.floating_ads.imageUrl || ''} />
+                                  </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-4 gap-4">
+                                  <div>
+                                    <Label>Position X</Label>
+                                    <Select name="positionX" defaultValue={floatingAd.floating_ads.positionX}>
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="left">Left</SelectItem>
+                                        <SelectItem value="center">Center</SelectItem>
+                                        <SelectItem value="right">Right</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div>
+                                    <Label>Position Y</Label>
+                                    <Select name="positionY" defaultValue={floatingAd.floating_ads.positionY}>
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="top">Top</SelectItem>
+                                        <SelectItem value="center">Center</SelectItem>
+                                        <SelectItem value="bottom">Bottom</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div>
+                                    <Label>Width</Label>
+                                    <Input name="width" defaultValue={floatingAd.floating_ads.width} />
+                                  </div>
+                                  <div>
+                                    <Label>Height</Label>
+                                    <Input name="height" defaultValue={floatingAd.floating_ads.height} />
+                                  </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label>Show Delay (seconds)</Label>
+                                    <Input name="showDelay" type="number" defaultValue={floatingAd.floating_ads.showDelay} />
+                                  </div>
+                                  <div>
+                                    <Label>Display Duration (seconds)</Label>
+                                    <Input name="hideDuration" type="number" defaultValue={floatingAd.floating_ads.hideDuration} />
+                                  </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label>Start Time</Label>
+                                    <Input name="startTime" type="datetime-local" defaultValue={new Date(floatingAd.floating_ads.startTime).toISOString().slice(0, 16)} />
+                                  </div>
+                                  <div>
+                                    <Label>End Time</Label>
+                                    <Input name="endTime" type="datetime-local" defaultValue={new Date(floatingAd.floating_ads.endTime).toISOString().slice(0, 16)} />
+                                  </div>
+                                </div>
+                                
+                                <div className="flex justify-end gap-2">
+                                  <Button type="submit" disabled={updateFloatingAdMutation.isPending}>
+                                    {updateFloatingAdMutation.isPending ? 'Updating...' : 'Update Floating Ad'}
+                                  </Button>
+                                </div>
+                              </form>
+                            </DialogContent>
+                          </Dialog>
+                          
                           <Button 
                             variant={floatingAd.floating_ads.isActive ? "secondary" : "default"} 
                             size="sm"
+                            onClick={() => toggleFloatingAdMutation.mutate(floatingAd.floating_ads.id)}
+                            disabled={toggleFloatingAdMutation.isPending}
                           >
                             {floatingAd.floating_ads.isActive ? <Pause className="h-3 w-3 mr-1" /> : <Play className="h-3 w-3 mr-1" />}
                             {floatingAd.floating_ads.isActive ? "Pause" : "Activate"}
                           </Button>
-                          <Button variant="destructive" size="sm">
+                          
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            onClick={() => {
+                              if (confirm('Are you sure you want to delete this floating ad? This action cannot be undone.')) {
+                                deleteFloatingAdMutation.mutate(floatingAd.floating_ads.id);
+                              }
+                            }}
+                            disabled={deleteFloatingAdMutation.isPending}
+                          >
                             <Trash2 className="h-3 w-3 mr-1" />
                             Delete
                           </Button>

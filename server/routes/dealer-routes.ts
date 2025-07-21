@@ -42,25 +42,31 @@ router.post("/register", async (req, res) => {
       }
     };
     
+    // Use INSERT with ARRAY constructor
+    const phoneNumbersArray = [dealerData.phoneNumber];
+    const specialtiesArray = dealerData.specialties || [];
+
     // Create dealer profile using direct SQL to avoid schema issues
-    const [newDealer] = await db.execute(sql`
+    const newDealerResult = await db.execute(sql`
       INSERT INTO dealer_profiles 
       (user_id, dealer_name, business_location, phone_numbers, whatsapp_number, 
        email_address, website_url, dealer_bio, years_in_business, specialties, 
        status, is_verified, package_type, listing_limit)
       VALUES 
       (${dealerId}, ${dealerData.businessName}, ${dealerData.location}, 
-       ${[dealerData.phoneNumber]}, ${dealerData.whatsappNumber || null},
+       ${JSON.stringify(phoneNumbersArray)}::jsonb, ${dealerData.whatsappNumber || null},
        ${dealerData.businessEmail}, ${dealerData.website || null}, 
        ${dealerData.description || null}, ${dealerData.yearsInBusiness || 0}, 
-       ${dealerData.specialties || []}, 'pending', false, 
+       ${JSON.stringify(specialtiesArray)}::jsonb, 'pending', false, 
        ${dealerData.packageType}, ${getListingLimitForPackage(dealerData.packageType)})
       RETURNING id, user_id, dealer_name
     `);
+    
+    const newDealer = newDealerResult.rows[0];
 
     res.json({ 
       success: true, 
-      dealerId: newDealer[0].id,
+      dealerId: (newDealer as any).id,
       message: 'Dealer registration successful. Your application is under review.'
     });
   } catch (error) {

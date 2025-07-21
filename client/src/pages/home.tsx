@@ -394,7 +394,7 @@ export default function Home() {
               <Button 
                 size="lg"
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-purple-600 font-semibold px-8 py-4 text-lg rounded-xl"
+                className="border-white text-white hover:bg-white hover:text-purple-600 font-semibold px-8 py-4 text-lg rounded-xl bg-[#533e94]"
               >
                 Get Free Quote
               </Button>

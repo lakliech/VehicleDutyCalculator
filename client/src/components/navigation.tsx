@@ -55,6 +55,9 @@ export function Navigation() {
           <div className="flex items-center space-x-6">
             {/* Navigation Menu */}
             <nav className="hidden md:flex items-center space-x-6">
+              <Link href="/dealer-registration" className="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors bg-purple-50 hover:bg-purple-100 px-3 py-1 rounded-md">
+                Register As a Dealer
+              </Link>
               <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
                 About Us
               </Link>
@@ -173,8 +176,21 @@ export function Navigation() {
               </>
             ) : (
               !isAdminPage && (
-                <div className="sm:hidden">
-                  <AuthForms />
+                <div className="flex items-center space-x-3">
+                  {/* Mobile Register As Dealer Button */}
+                  <div className="md:hidden">
+                    <Link href="/dealer-registration">
+                      <Button
+                        size="sm"
+                        className="bg-purple-600 hover:bg-purple-700 text-white text-xs px-3 py-1.5"
+                      >
+                        Register As Dealer
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="sm:hidden">
+                    <AuthForms />
+                  </div>
                 </div>
               )
             )}

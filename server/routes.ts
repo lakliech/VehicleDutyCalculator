@@ -160,6 +160,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Determine the correct callback URL based on environment
   const getCallbackURL = () => {
+    // Check for custom domain first
+    if (process.env.NODE_ENV === 'production' || process.env.REPLIT_DEPLOYMENT) {
+      const customDomain = 'https://gariyangu.co.ke/api/auth/google/callback';
+      console.log('Using custom domain for Google OAuth callback:', customDomain);
+      return customDomain;
+    }
     // Check if we're in Replit environment
     if (process.env.REPLIT_DOMAINS) {
       // Use the first domain from REPLIT_DOMAINS
@@ -181,6 +187,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Apple OAuth callback URL
   const getAppleCallbackURL = () => {
+    // Check for custom domain first
+    if (process.env.NODE_ENV === 'production' || process.env.REPLIT_DEPLOYMENT) {
+      return 'https://gariyangu.co.ke/api/auth/apple/callback';
+    }
     if (process.env.REPLIT_DOMAINS) {
       const domain = process.env.REPLIT_DOMAINS.split(',')[0];
       return `https://${domain}/api/auth/apple/callback`;

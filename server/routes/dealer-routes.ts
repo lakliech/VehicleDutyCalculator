@@ -71,9 +71,9 @@ router.post("/register", authenticateUser, async (req: any, res) => {
     // Create user-dealer association
     await db.execute(sql`
       INSERT INTO dealer_user_associations 
-      (dealer_id, user_id, role, status, association_date)
+      (dealer_id, user_id, association_type, status, association_date)
       VALUES 
-      (${(newDealer as any).id}, ${userId}, 'owner', 'active', CURRENT_TIMESTAMP)
+      (${(newDealer as any).id}, ${userId}, 'direct_signup', 'active', CURRENT_TIMESTAMP)
     `);
 
     res.json({ 

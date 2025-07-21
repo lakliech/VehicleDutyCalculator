@@ -29,7 +29,7 @@ import AIAdvisor from "@/pages/ai-advisor";
 import PriceTrends from "@/pages/price-trends";
 import SmartPricing from "@/pages/smart-pricing";
 import AdminDashboard from "@/pages/admin-dashboard";
-
+import AdminAdvertisements from "@/pages/admin-advertisements";
 
 import AdminListingDetails from "@/pages/admin-listing-details";
 import AdminUsers from "@/pages/admin-users";
@@ -163,7 +163,11 @@ function Router() {
               <ExcelImport />
             </ProtectedRoute>
           </Route>
-
+          <Route path="/admin/advertisements">
+            <ProtectedRoute requireAdmin={true}>
+              <AdminAdvertisements />
+            </ProtectedRoute>
+          </Route>
 
           <Route path="/admin/listings/:id">
             <ProtectedRoute requireAdmin={true}>

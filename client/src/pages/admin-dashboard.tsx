@@ -62,7 +62,8 @@ import {
   Receipt,
   BarChart3,
   Coins,
-  Target
+  Target,
+  Monitor
 } from "lucide-react";
 import { z } from "zod";
 import ProductCatalogManagement from "@/components/ProductCatalogManagement";
@@ -630,7 +631,7 @@ function AuthenticatedAdminDashboard() {
           {/* Organized Navigation with Groups */}
           <div className="space-y-4">
             {/* Main Navigation */}
-            <TabsList className="grid w-full grid-cols-6 mb-4">
+            <TabsList className="grid w-full grid-cols-7 mb-4">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <Database className="h-4 w-4" />
                 Dashboard Overview
@@ -638,6 +639,10 @@ function AuthenticatedAdminDashboard() {
               <TabsTrigger value="marketplace" className="flex items-center gap-2">
                 <Car className="h-4 w-4" />
                 Marketplace Management
+              </TabsTrigger>
+              <TabsTrigger value="advertisements" className="flex items-center gap-2">
+                <Monitor className="h-4 w-4" />
+                Advertisement Management
               </TabsTrigger>
               <TabsTrigger value="financial" className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />
@@ -957,6 +962,40 @@ function AuthenticatedAdminDashboard() {
               tradeInEvaluations={tradeInEvaluations}
               tradeInEvaluationsLoading={tradeInEvaluationsLoading}
             />
+          </TabsContent>
+
+          {/* Advertisement Management Tab */}
+          <TabsContent value="advertisements">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Monitor className="h-5 w-5" />
+                    Advertisement Management
+                  </CardTitle>
+                  <CardDescription>
+                    Manage advertisement positions, pricing, campaigns, and floating ads with comprehensive analytics.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <Monitor className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                      Advanced Advertisement Management
+                    </h3>
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                      Access the comprehensive advertisement management system for position mapping, 
+                      pricing configuration, campaign management, and floating ad controls.
+                    </p>
+                    <Button asChild className="bg-purple-600 hover:bg-purple-700">
+                      <Link href="/admin/advertisements">
+                        Open Advertisement Dashboard
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Monetization Strategy Management Tab */}

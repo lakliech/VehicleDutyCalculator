@@ -1900,6 +1900,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('Error loading monetization routes:', error);
   }
 
+  // Advertisement Management Routes
+  try {
+    const advertisementRoutes = await import('./routes/advertisement-routes');
+    app.use('/api/advertisements', advertisementRoutes.default);
+  } catch (error) {
+    console.error('Error loading advertisement routes:', error);
+  }
+
   // Product Catalog Routes - removed async wrapper causing issues
 
   // Initialize default monetization plans

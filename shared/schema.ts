@@ -2068,3 +2068,235 @@ export type LoanCalculation = typeof loanCalculations.$inferSelect;
 export type InsertLoanApplication = z.infer<typeof loanApplicationSchema>;
 export type InsertTradeInEvaluation = z.infer<typeof tradeInEvaluationSchema>;
 export type InsertLoanCalculation = z.infer<typeof loanCalculationSchema>;
+
+// ==============================
+// ADVERTISEMENT MANAGEMENT SCHEMA
+// ==============================
+
+// Advertisement positions on the website
+export const adPositions = pgTable("ad_positions", {
+  id: serial("id").primaryKey(),
+  positionName: text("position_name").notNull().unique(), // "header_banner", "sidebar_right", "homepage_hero", etc.
+  displayName: text("display_name").notNull(), // "Header Banner", "Right Sidebar", "Homepage Hero"
+  description: text("description").notNull(),
+  dimensions: text("dimensions").notNull(), // "728x90", "300x250", "1200x400"
+  location: text("location").notNull(), // "homepage", "buy_cars", "sell_cars", "duty_calculator", "all_pages"
+  maxAdsSimultaneous: integer("max_ads_simultaneous").default(1), // How many ads can show at once
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0), // For display ordering
+  pricePerDay: decimal("price_per_day", { precision: 10, scale: 2 }).notNull(),
+  pricePerWeek: decimal("price_per_week", { precision: 10, scale: 2 }).notNull(),
+  pricePerMonth: decimal("price_per_month", { precision: 10, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Advertisement content and campaigns
+export const advertisements = pgTable("advertisements", {
+  id: serial("id").primaryKey(),
+  advertiserName: text("advertiser_name").notNull(),
+  advertiserEmail: text("advertiser_email").notNull(),
+  advertiserPhone: text("advertiser_phone"),
+  campaignName: text("campaign_name").notNull(),
+  adTitle: text("ad_title").notNull(),
+  adDescription: text("ad_description"),
+  adImageUrl: text("ad_image_url").notNull(),
+  adTargetUrl: text("ad_target_url").notNull(), // Where the ad clicks lead
+  adType: text("ad_type").notNull(), // "banner", "floating", "interstitial", "native"
+  
+  // Display settings
+  backgroundColor: varchar("background_color", { length: 7 }), // Hex color code
+  textColor: varchar("text_color", { length: 7 }), // Hex color code
+  borderStyle: text("border_style"), // "solid", "dashed", "none"
+  animationType: text("animation_type"), // "none", "fade", "slide", "bounce"
+  
+  // Targeting options
+  targetAudience: text("target_audience").array(), // ["car_buyers", "car_sellers", "duty_calculators"]
+  targetLocations: text("target_locations").array(), // ["nairobi", "mombasa", "kisumu"] or ["all"]
+  targetDevices: text("target_devices").array(), // ["desktop", "mobile", "tablet"]
+  
+  // Budget and billing
+  totalBudget: decimal("total_budget", { precision: 12, scale: 2 }).notNull(),
+  dailyBudget: decimal("daily_budget", { precision: 10, scale: 2 }),
+  costModel: text("cost_model").notNull(), // "fixed_period", "per_click", "per_impression"
+  
+  // Status and approval
+  status: text("status").notNull().default("pending"), // "pending", "approved", "active", "paused", "completed", "rejected"
+  approvedBy: text("approved_by"), // Admin user ID who approved
+  approvedAt: timestamp("approved_at"),
+  rejectionReason: text("rejection_reason"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Advertisement placements - assigns ads to positions with scheduling
+export const adPlacements = pgTable("ad_placements", {
+  id: serial("id").primaryKey(),
+  advertisementId: integer("advertisement_id").references(() => advertisements.id, { onDelete: "cascade" }).notNull(),
+  positionId: integer("position_id").references(() => adPositions.id, { onDelete: "cascade" }).notNull(),
+  
+  // Scheduling
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  isActive: boolean("is_active").default(true),
+  
+  // Display settings for this placement
+  displayOrder: integer("display_order").default(0), // Priority when multiple ads in same position
+  showDuration: integer("show_duration").default(30), // Seconds to show (for rotating ads)
+  
+  // Performance tracking
+  impressions: integer("impressions").default(0),
+  clicks: integer("clicks").default(0),
+  conversions: integer("conversions").default(0),
+  
+  // Billing for this placement
+  periodType: text("period_type").notNull(), // "daily", "weekly", "monthly", "custom"
+  periodsBooked: integer("periods_booked").notNull(),
+  totalCost: decimal("total_cost", { precision: 12, scale: 2 }).notNull(),
+  amountPaid: decimal("amount_paid", { precision: 12, scale: 2 }).default("0"),
+  paymentStatus: text("payment_status").notNull().default("pending"), // "pending", "paid", "overdue"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  uniquePlacement: {
+    name: "unique_ad_position_period",
+    columns: [table.advertisementId, table.positionId, table.startDate],
+  },
+}));
+
+// Advertisement analytics and performance tracking
+export const adAnalytics = pgTable("ad_analytics", {
+  id: serial("id").primaryKey(),
+  placementId: integer("placement_id").references(() => adPlacements.id, { onDelete: "cascade" }).notNull(),
+  date: text("date").notNull(), // YYYY-MM-DD format
+  
+  // Performance metrics
+  impressions: integer("impressions").default(0),
+  uniqueImpressions: integer("unique_impressions").default(0),
+  clicks: integer("clicks").default(0),
+  uniqueClicks: integer("unique_clicks").default(0),
+  conversions: integer("conversions").default(0),
+  
+  // Audience breakdown
+  desktopViews: integer("desktop_views").default(0),
+  mobileViews: integer("mobile_views").default(0),
+  tabletViews: integer("tablet_views").default(0),
+  
+  // Geographic breakdown
+  nairobiViews: integer("nairobi_views").default(0),
+  mombasaViews: integer("mombasa_views").default(0),
+  otherLocationsViews: integer("other_locations_views").default(0),
+  
+  // Time-based metrics
+  avgViewDuration: integer("avg_view_duration").default(0), // in seconds
+  peakHour: integer("peak_hour"), // Hour of day with most views (0-23)
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  uniqueDailyAnalytics: {
+    name: "unique_placement_date",
+    columns: [table.placementId, table.date],
+  },
+}));
+
+// Floating ads configuration for homepage
+export const floatingAds = pgTable("floating_ads", {
+  id: serial("id").primaryKey(),
+  advertisementId: integer("advertisement_id").references(() => advertisements.id, { onDelete: "cascade" }).notNull(),
+  
+  // Display configuration
+  positionX: text("position_x").notNull(), // "left", "center", "right", "10px", "50%"
+  positionY: text("position_y").notNull(), // "top", "center", "bottom", "10px", "50%"
+  width: text("width").notNull(), // "300px", "50%", "auto"
+  height: text("height").notNull(), // "250px", "auto"
+  zIndex: integer("z_index").default(1000),
+  
+  // Behavior configuration
+  showDelay: integer("show_delay").default(0), // Seconds before showing
+  hideDuration: integer("hide_duration").notNull(), // Seconds before auto-hiding
+  isCloseable: boolean("is_closeable").default(true), // Can user close it?
+  closeButtonStyle: text("close_button_style").default("top-right"), // "top-right", "top-left", "none"
+  
+  // Trigger configuration
+  triggerEvent: text("trigger_event").default("page_load"), // "page_load", "scroll", "time_spent", "exit_intent"
+  triggerValue: integer("trigger_value"), // Scroll percentage, time in seconds, etc.
+  
+  // Frequency control
+  showOncePerSession: boolean("show_once_per_session").default(false),
+  showOncePerDay: boolean("show_once_per_day").default(false),
+  maxShowsPerUser: integer("max_shows_per_user"), // Total shows per user
+  
+  // Animation settings
+  enterAnimation: text("enter_animation").default("fade"), // "fade", "slide-up", "slide-down", "bounce", "zoom"
+  exitAnimation: text("exit_animation").default("fade"), // "fade", "slide-up", "slide-down", "zoom-out"
+  animationDuration: integer("animation_duration").default(500), // milliseconds
+  
+  // Scheduling
+  isActive: boolean("is_active").default(true),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time").notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Advertisement schemas
+export const adPositionSchema = createInsertSchema(adPositions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const advertisementSchema = createInsertSchema(advertisements).omit({
+  id: true,
+  status: true,
+  approvedBy: true,
+  approvedAt: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  advertiserEmail: z.string().email("Valid email is required"),
+  adTitle: z.string().min(5, "Ad title must be at least 5 characters"),
+  adTargetUrl: z.string().url("Valid URL is required"),
+  totalBudget: z.number().min(1000, "Minimum budget is KES 1,000"),
+  targetAudience: z.array(z.string()).min(1, "At least one target audience required"),
+});
+
+export const adPlacementSchema = createInsertSchema(adPlacements).omit({
+  id: true,
+  isActive: true,
+  impressions: true,
+  clicks: true,
+  conversions: true,
+  amountPaid: true,
+  paymentStatus: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  startDate: z.string().transform(str => new Date(str)),
+  endDate: z.string().transform(str => new Date(str)),
+  totalCost: z.number().min(100, "Minimum cost is KES 100"),
+});
+
+export const floatingAdSchema = createInsertSchema(floatingAds).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  hideDuration: z.number().min(5, "Minimum hide duration is 5 seconds").max(300, "Maximum hide duration is 5 minutes"),
+  startTime: z.string().transform(str => new Date(str)),
+  endTime: z.string().transform(str => new Date(str)),
+});
+
+// Advertisement types
+export type AdPosition = typeof adPositions.$inferSelect;
+export type Advertisement = typeof advertisements.$inferSelect;
+export type AdPlacement = typeof adPlacements.$inferSelect;
+export type AdAnalytics = typeof adAnalytics.$inferSelect;
+export type FloatingAd = typeof floatingAds.$inferSelect;
+export type InsertAdPosition = z.infer<typeof adPositionSchema>;
+export type InsertAdvertisement = z.infer<typeof advertisementSchema>;
+export type InsertAdPlacement = z.infer<typeof adPlacementSchema>;
+export type InsertFloatingAd = z.infer<typeof floatingAdSchema>;

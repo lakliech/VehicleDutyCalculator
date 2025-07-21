@@ -27,7 +27,9 @@ import {
   Play,
   Monitor,
   Smartphone,
-  Tablet
+  Tablet,
+  Upload,
+  X
 } from "lucide-react";
 import type { AdPosition, Advertisement, AdPlacement } from "@shared/schema";
 
@@ -43,9 +45,52 @@ interface AdvertisementWithPlacements extends Advertisement {
 export default function AdminAdvertisements() {
   const [selectedTab, setSelectedTab] = useState("positions");
   const [selectedPosition, setSelectedPosition] = useState<AdPosition | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Handle file upload
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setUploadedImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Remove uploaded image
+  const removeUploadedImage = () => {
+    setUploadedImage(null);
+    setImagePreview(null);
+  };
 
   // Queries
   const { data: positions, isLoading: positionsLoading } = useQuery({
@@ -578,35 +623,62 @@ export default function AdminAdvertisements() {
                       <DialogTitle>Create New Advertisement</DialogTitle>
                     </DialogHeader>
                     
-                    <form onSubmit={(e) => {
+                    <form onSubmit={async (e) => {
                       e.preventDefault();
-                      const formData = new FormData(e.target as HTMLFormElement);
-                      const data = {
-                        advertiserName: formData.get('advertiserName') as string,
-                        advertiserEmail: formData.get('advertiserEmail') as string,
-                        campaignName: formData.get('campaignName') as string,
-                        adTitle: formData.get('adTitle') as string,
-                        adDescription: formData.get('adDescription') as string,
-                        adImageUrl: formData.get('adImageUrl') as string,
-                        adTargetUrl: formData.get('adTargetUrl') as string,
-                        adType: formData.get('adType') as string,
-                        targetAudience: [formData.get('targetAudience') as string],
-                        totalBudget: parseFloat(formData.get('totalBudget') as string),
-                        dailyBudget: parseFloat(formData.get('dailyBudget') as string),
-                        costModel: formData.get('costModel') as string,
-                        startDate: formData.get('startDate') as string,
-                        endDate: formData.get('endDate') as string,
-                        status: 'pending'
-                      };
                       
-                      apiRequest('POST', '/api/advertisements/advertisements', data)
-                        .then(() => {
-                          toast({ title: "Success", description: "Advertisement created successfully" });
-                          queryClient.invalidateQueries({ queryKey: ['/api/advertisements/advertisements'] });
-                        })
-                        .catch((error) => {
-                          toast({ title: "Error", description: `Failed to create advertisement: ${error.message}`, variant: "destructive" });
+                      try {
+                        let adImageUrl = '';
+                        
+                        // Upload image if file is selected
+                        if (uploadedImage) {
+                          const imageFormData = new FormData();
+                          imageFormData.append('image', uploadedImage);
+                          
+                          try {
+                            const uploadResponse = await apiRequest('POST', '/api/advertisements/upload-image', imageFormData);
+                            adImageUrl = uploadResponse.imageUrl;
+                            toast({ title: "Image uploaded successfully" });
+                          } catch (uploadError: any) {
+                            throw new Error(`Image upload failed: ${uploadError.message}`);
+                          }
+                        }
+                        
+                        const formData = new FormData(e.target as HTMLFormElement);
+                        const data = {
+                          advertiserName: formData.get('advertiserName') as string,
+                          advertiserEmail: formData.get('advertiserEmail') as string,
+                          campaignName: formData.get('campaignName') as string,
+                          adTitle: formData.get('adTitle') as string,
+                          adDescription: formData.get('adDescription') as string,
+                          adImageUrl: adImageUrl, // Use uploaded image URL
+                          adTargetUrl: formData.get('adTargetUrl') as string,
+                          adType: formData.get('adType') as string,
+                          targetAudience: [formData.get('targetAudience') as string],
+                          totalBudget: parseFloat(formData.get('totalBudget') as string),
+                          dailyBudget: parseFloat(formData.get('dailyBudget') as string),
+                          costModel: formData.get('costModel') as string,
+                          startDate: formData.get('startDate') as string,
+                          endDate: formData.get('endDate') as string,
+                          status: 'pending'
+                        };
+                        
+                        await apiRequest('POST', '/api/advertisements/advertisements', data);
+                        
+                        toast({ title: "Success", description: "Advertisement created successfully" });
+                        queryClient.invalidateQueries({ queryKey: ['/api/advertisements/advertisements'] });
+                        
+                        // Reset form and image state
+                        (e.target as HTMLFormElement).reset();
+                        setUploadedImage(null);
+                        setImagePreview(null);
+                        
+                      } catch (error: any) {
+                        toast({ 
+                          title: "Error", 
+                          description: `Failed to create advertisement: ${error.message}`, 
+                          variant: "destructive" 
                         });
+                      }
                     }} className="space-y-6">
                       
                       <div className="grid grid-cols-2 gap-4">
@@ -638,8 +710,42 @@ export default function AdminAdvertisements() {
                       
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="adImageUrl">Image URL</Label>
-                          <Input id="adImageUrl" name="adImageUrl" placeholder="https://example.com/image.jpg" required />
+                          <Label htmlFor="adImage">Advertisement Image</Label>
+                          <div className="space-y-4">
+                            {!imagePreview ? (
+                              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                                <label htmlFor="adImage" className="cursor-pointer">
+                                  <span className="text-sm text-gray-600">
+                                    Click to upload an image or drag and drop
+                                  </span>
+                                  <Input
+                                    id="adImage"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileUpload}
+                                    className="hidden"
+                                  />
+                                </label>
+                                <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
+                              </div>
+                            ) : (
+                              <div className="relative">
+                                <img
+                                  src={imagePreview}
+                                  alt="Advertisement preview"
+                                  className="w-full h-32 object-cover rounded-lg border"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={removeUploadedImage}
+                                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <div>
                           <Label htmlFor="adTargetUrl">Target URL</Label>

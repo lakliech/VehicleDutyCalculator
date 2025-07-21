@@ -1,4 +1,6 @@
 import express from "express";
+import multer from "multer";
+import path from "path";
 import { db } from "../db";
 import { 
   adPositions, 
@@ -15,6 +17,50 @@ import { authenticateUser, requireRole } from "../middleware/auth";
 import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 
 const router = express.Router();
+
+// Configure multer for image uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/advertisements/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  }
+});
+
+// ==============================
+// IMAGE UPLOAD ENDPOINT
+// ==============================
+
+// Upload image for advertisements
+router.post('/upload-image', authenticateUser, requireRole(['admin', 'superadmin']), upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided' });
+    }
+    
+    const imageUrl = `/uploads/advertisements/${req.file.filename}`;
+    res.json({ imageUrl });
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    res.status(500).json({ error: 'Failed to upload image' });
+  }
+});
 
 // ==============================
 // AD POSITIONS MANAGEMENT

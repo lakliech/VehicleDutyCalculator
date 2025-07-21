@@ -188,7 +188,7 @@ export default function Home() {
             </Badge>
           </div>
           
-          <h1 className="font-bold text-gray-900 mb-6 tracking-tight text-[48px]">
+          <h1 className="font-bold text-gray-900 mb-6 tracking-tight text-[52px]">
             Your Complete
             <br />
             <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">

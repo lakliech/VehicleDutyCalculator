@@ -596,127 +596,147 @@ function AuthenticatedAdminDashboard() {
       {/* Header */}
       <header className="bg-gradient-to-r from-purple-50 to-purple-100 shadow-sm border-b border-purple-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between h-14">
+            <div className="flex items-center space-x-3">
               <img 
                 src={gariyangu} 
                 alt="Gariyangu Logo" 
-                className="h-16 w-auto"
+                className="h-10 w-auto"
               />
               <div>
-                <h1 className="text-xl font-semibold text-purple-900">Admin Dashboard</h1>
-                <p className="text-sm text-purple-700">Manage vehicle data, tax rates, and categories</p>
+                <h1 className="text-lg font-semibold text-purple-900">Admin Dashboard</h1>
+                <p className="text-xs text-purple-700">Platform Management</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={logout}
-                className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs px-3 py-1"
               >
-                <LogOut className="h-4 w-4" />
-                Logout
+                <LogOut className="h-3 w-3" />
+                <span className="hidden sm:inline">Logout</span>
               </Button>
-              <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800">
+              <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 text-xs">
                 <Shield className="h-3 w-3 mr-1" />
-                Admin Access
+                Admin
               </Badge>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          {/* Organized Navigation with Groups */}
+          {/* Reorganized Navigation - Three-Tier Structure */}
           <div className="space-y-4">
-            {/* Main Navigation */}
-            <TabsList className="grid w-full grid-cols-7 mb-4">
-              <TabsTrigger value="overview" className="flex items-center gap-2">
-                <Database className="h-4 w-4" />
-                Dashboard Overview
-              </TabsTrigger>
-              <TabsTrigger value="marketplace" className="flex items-center gap-2">
-                <Car className="h-4 w-4" />
-                Marketplace Management
-              </TabsTrigger>
-              <TabsTrigger value="advertisements" className="flex items-center gap-2">
-                <Monitor className="h-4 w-4" />
-                Advertisement Management
-              </TabsTrigger>
-              <TabsTrigger value="financial" className="flex items-center gap-2">
-                <CreditCard className="h-4 w-4" />
-                Financial Services
-              </TabsTrigger>
-              <TabsTrigger value="product-catalog" className="flex items-center gap-2">
-                <Package className="h-4 w-4" />
-                Product Catalog
-              </TabsTrigger>
-              <TabsTrigger value="monetization" className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Monetization Strategy
-              </TabsTrigger>
-              <TabsTrigger value="system" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                System Configuration
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Secondary Navigation for System Configuration */}
-            {activeTab === "system" && (
-              <TabsList className="grid w-full grid-cols-7">
-                <TabsTrigger value="vehicles" className="flex items-center gap-2">
+            {/* Primary Navigation - Core Functions */}
+            <div className="bg-gray-50 rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Core Management</h3>
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="overview" className="flex items-center gap-2">
+                  <Database className="h-4 w-4" />
+                  <span className="hidden sm:inline">Dashboard</span>
+                </TabsTrigger>
+                <TabsTrigger value="marketplace" className="flex items-center gap-2">
                   <Car className="h-4 w-4" />
-                  Vehicle Database
+                  <span className="hidden sm:inline">Marketplace</span>
                 </TabsTrigger>
-                <TabsTrigger value="csv-upload" className="flex items-center gap-2">
-                  <Upload className="h-4 w-4" />
-                  CSV Import
+                <TabsTrigger value="advertisements" className="flex items-center gap-2">
+                  <Monitor className="h-4 w-4" />
+                  <span className="hidden sm:inline">Advertisements</span>
                 </TabsTrigger>
-                <TabsTrigger value="excel-import" className="flex items-center gap-2">
-                  <Upload className="h-4 w-4" />
-                  Excel Import
-                </TabsTrigger>
-                <TabsTrigger value="tax-rates" className="flex items-center gap-2">
-                  <Percent className="h-4 w-4" />
-                  Tax Configuration
-                </TabsTrigger>
-                <TabsTrigger value="processing-fees" className="flex items-center gap-2">
-                  <Calculator className="h-4 w-4" />
-                  Fee Structure
-                </TabsTrigger>
-                <TabsTrigger value="categories" className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  Category Rules
-                </TabsTrigger>
-                <TabsTrigger value="depreciation" className="flex items-center gap-2">
-                  <TrendingDown className="h-4 w-4" />
-                  Depreciation
+                <TabsTrigger value="financial" className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4" />
+                  <span className="hidden sm:inline">Financial</span>
                 </TabsTrigger>
               </TabsList>
+            </div>
+
+            {/* Secondary Navigation - Advanced Features */}
+            <div className="bg-blue-50 rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Advanced Features</h3>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="product-catalog" className="flex items-center gap-2">
+                  <Package className="h-4 w-4" />
+                  <span className="hidden sm:inline">Product Catalog</span>
+                </TabsTrigger>
+                <TabsTrigger value="monetization" className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  <span className="hidden sm:inline">Monetization</span>
+                </TabsTrigger>
+                <TabsTrigger value="system" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  <span className="hidden sm:inline">System Config</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            {/* System Configuration Sub-Navigation */}
+            {activeTab === "system" && (
+              <div className="bg-purple-50 rounded-xl p-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">System Configuration</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <TabsList className="grid grid-cols-4">
+                    <TabsTrigger value="vehicles" className="flex items-center gap-1">
+                      <Car className="h-4 w-4" />
+                      <span className="hidden lg:inline">Vehicles</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="csv-upload" className="flex items-center gap-1">
+                      <Upload className="h-4 w-4" />
+                      <span className="hidden lg:inline">CSV</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="excel-import" className="flex items-center gap-1">
+                      <Upload className="h-4 w-4" />
+                      <span className="hidden lg:inline">Excel</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="tax-rates" className="flex items-center gap-1">
+                      <Percent className="h-4 w-4" />
+                      <span className="hidden lg:inline">Tax</span>
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsList className="grid grid-cols-3">
+                    <TabsTrigger value="processing-fees" className="flex items-center gap-1">
+                      <Calculator className="h-4 w-4" />
+                      <span className="hidden lg:inline">Fees</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="categories" className="flex items-center gap-1">
+                      <Settings className="h-4 w-4" />
+                      <span className="hidden lg:inline">Rules</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="depreciation" className="flex items-center gap-1">
+                      <TrendingDown className="h-4 w-4" />
+                      <span className="hidden lg:inline">Depreciation</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+              </div>
             )}
 
-            {/* Secondary Navigation for Marketplace Management */}
+            {/* Marketplace Management Sub-Navigation */}
             {activeTab === "marketplace" && (
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="listings" className="flex items-center gap-2">
-                  <Car className="h-4 w-4" />
-                  Car Listings
-                </TabsTrigger>
-                <TabsTrigger value="users" className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  User Management
-                </TabsTrigger>
-                <TabsTrigger value="dealers" className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4" />
-                  Dealer Management
-                </TabsTrigger>
-                <TabsTrigger value="flagging" className="flex items-center gap-2">
-                  <Shield className="h-4 w-4" />
-                  Auto-Flagging System
-                </TabsTrigger>
-              </TabsList>
+              <div className="bg-green-50 rounded-xl p-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">Marketplace Management</h4>
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="listings" className="flex items-center gap-2">
+                    <Car className="h-4 w-4" />
+                    <span className="hidden sm:inline">Listings</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="users" className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    <span className="hidden sm:inline">Users</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="dealers" className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4" />
+                    <span className="hidden sm:inline">Dealers</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="flagging" className="flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    <span className="hidden sm:inline">Flagging</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
             )}
           </div>
 

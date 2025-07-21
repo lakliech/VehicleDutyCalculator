@@ -142,7 +142,7 @@ export default function AdminAdvertisements() {
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="positions" className="flex items-center gap-2">
               <MapPin className="h-4 w-4" />
               Ad Positions
@@ -154,6 +154,10 @@ export default function AdminAdvertisements() {
             <TabsTrigger value="placements" className="flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
               Placements
+            </TabsTrigger>
+            <TabsTrigger value="floating" className="flex items-center gap-2">
+              <Smartphone className="h-4 w-4" />
+              Floating Ads
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
@@ -517,6 +521,252 @@ export default function AdminAdvertisements() {
               Placements management interface will be implemented here.
               This will show scheduled ad placements across different positions.
             </div>
+          </TabsContent>
+
+          {/* FLOATING ADS TAB */}
+          <TabsContent value="floating" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-semibold">Floating Ads</h2>
+              
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    Create Floating Ad
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl">
+                  <DialogHeader>
+                    <DialogTitle>Create New Floating Ad</DialogTitle>
+                  </DialogHeader>
+                  
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target as HTMLFormElement);
+                    const data = {
+                      advertisementId: parseInt(formData.get('advertisementId') as string),
+                      positionX: formData.get('positionX'),
+                      positionY: formData.get('positionY'),
+                      width: formData.get('width'),
+                      height: formData.get('height'),
+                      hideDuration: parseInt(formData.get('hideDuration') as string),
+                      showDelay: parseInt(formData.get('showDelay') as string) || 0,
+                      startTime: formData.get('startTime'),
+                      endTime: formData.get('endTime'),
+                      triggerEvent: formData.get('triggerEvent'),
+                      isCloseable: formData.get('isCloseable') === 'true',
+                      enterAnimation: formData.get('enterAnimation'),
+                      exitAnimation: formData.get('exitAnimation'),
+                    };
+                    
+                    // Create floating ad via specific endpoint
+                    apiRequest('POST', '/api/advertisements/floating-ads', data)
+                      .then(() => {
+                        toast({ title: "Success", description: "Floating ad created successfully" });
+                        setSelectedTab('floating');
+                      })
+                      .catch((error) => {
+                        toast({ title: "Error", description: `Failed to create floating ad: ${error.message}`, variant: "destructive" });
+                      });
+                  }} className="space-y-6">
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="advertisementId">Advertisement</Label>
+                        <Select name="advertisementId" required>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select advertisement" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {advertisementsData?.advertisements?.map((ad: Advertisement) => (
+                              <SelectItem key={ad.id} value={ad.id.toString()}>
+                                {ad.adTitle} - {ad.campaignName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="triggerEvent">Trigger Event</Label>
+                        <Select name="triggerEvent" defaultValue="page_load">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="page_load">Page Load</SelectItem>
+                            <SelectItem value="scroll">Scroll</SelectItem>
+                            <SelectItem value="time_spent">Time Spent</SelectItem>
+                            <SelectItem value="exit_intent">Exit Intent</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-4">
+                      <div>
+                        <Label htmlFor="positionX">Position X</Label>
+                        <Select name="positionX" defaultValue="right">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="left">Left</SelectItem>
+                            <SelectItem value="center">Center</SelectItem>
+                            <SelectItem value="right">Right</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="positionY">Position Y</Label>
+                        <Select name="positionY" defaultValue="center">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="top">Top</SelectItem>
+                            <SelectItem value="center">Center</SelectItem>
+                            <SelectItem value="bottom">Bottom</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="width">Width</Label>
+                        <Input 
+                          name="width" 
+                          placeholder="300px or 50%" 
+                          defaultValue="300px"
+                          required 
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="height">Height</Label>
+                        <Input 
+                          name="height" 
+                          placeholder="400px or auto" 
+                          defaultValue="400px"
+                          required 
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <Label htmlFor="showDelay">Show Delay (seconds)</Label>
+                        <Input 
+                          name="showDelay" 
+                          type="number" 
+                          min="0" 
+                          defaultValue="3"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="hideDuration">Hide Duration (seconds)</Label>
+                        <Input 
+                          name="hideDuration" 
+                          type="number" 
+                          min="5" 
+                          max="300" 
+                          defaultValue="30"
+                          required 
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="isCloseable">Can be Closed</Label>
+                        <Select name="isCloseable" defaultValue="true">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">Yes</SelectItem>
+                            <SelectItem value="false">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="enterAnimation">Enter Animation</Label>
+                        <Select name="enterAnimation" defaultValue="fade">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="fade">Fade</SelectItem>
+                            <SelectItem value="slide-up">Slide Up</SelectItem>
+                            <SelectItem value="slide-down">Slide Down</SelectItem>
+                            <SelectItem value="bounce">Bounce</SelectItem>
+                            <SelectItem value="zoom">Zoom</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="exitAnimation">Exit Animation</Label>
+                        <Select name="exitAnimation" defaultValue="fade">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="fade">Fade</SelectItem>
+                            <SelectItem value="slide-up">Slide Up</SelectItem>
+                            <SelectItem value="slide-down">Slide Down</SelectItem>
+                            <SelectItem value="zoom-out">Zoom Out</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="startTime">Start Time</Label>
+                        <Input 
+                          name="startTime" 
+                          type="datetime-local" 
+                          defaultValue={new Date().toISOString().slice(0, 16)}
+                          required 
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="endTime">End Time</Label>
+                        <Input 
+                          name="endTime" 
+                          type="datetime-local" 
+                          defaultValue={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
+                          required 
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2">
+                      <Button type="submit" disabled={createPlacementMutation.isPending}>
+                        {createPlacementMutation.isPending ? 'Creating...' : 'Create Floating Ad'}
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {/* Active Floating Ads Display */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Active Floating Ads</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8 text-gray-500">
+                  Floating ads will be displayed here once created.
+                  These ads appear as overlays on the homepage and other pages.
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* ANALYTICS TAB */}

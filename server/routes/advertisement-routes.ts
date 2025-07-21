@@ -121,7 +121,7 @@ router.get('/advertisements/:id', authenticateUser, requireRole(['admin', 'super
 router.post('/advertisements', async (req, res) => {
   try {
     const validatedData = advertisementSchema.parse(req.body);
-    const [newAd] = await db.insert(advertisements).values(validatedData).returning();
+    const [newAd] = await db.insert(advertisements).values([validatedData]).returning();
     res.status(201).json(newAd);
   } catch (error) {
     console.error('Error creating advertisement:', error);
@@ -236,7 +236,7 @@ router.get('/placements', authenticateUser, requireRole(['admin', 'superadmin'])
 router.post('/placements', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
   try {
     const validatedData = adPlacementSchema.parse(req.body);
-    const [newPlacement] = await db.insert(adPlacements).values(validatedData).returning();
+    const [newPlacement] = await db.insert(adPlacements).values([validatedData]).returning();
     res.status(201).json(newPlacement);
   } catch (error) {
     console.error('Error creating ad placement:', error);
@@ -275,7 +275,7 @@ router.get('/floating-ads/active', async (req, res) => {
 router.post('/floating-ads', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
   try {
     const validatedData = floatingAdSchema.parse(req.body);
-    const [newFloatingAd] = await db.insert(floatingAds).values(validatedData).returning();
+    const [newFloatingAd] = await db.insert(floatingAds).values([validatedData]).returning();
     res.status(201).json(newFloatingAd);
   } catch (error) {
     console.error('Error creating floating ad:', error);

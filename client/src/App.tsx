@@ -30,6 +30,7 @@ import PriceTrends from "@/pages/price-trends";
 import SmartPricing from "@/pages/smart-pricing";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminAdvertisements from "@/pages/admin-advertisements";
+import AdminDealers from "@/pages/admin-dealers";
 import DealerProfile from "@/pages/dealer-profile";
 import Dealers from "@/pages/dealers";
 

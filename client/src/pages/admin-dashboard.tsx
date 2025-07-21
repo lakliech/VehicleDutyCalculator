@@ -79,6 +79,7 @@ import type {
   UserRole
 } from "@shared/schema";
 import { useAuth } from "@/components/auth-provider";
+import AdminDealers from "@/pages/admin-dealers";
 import gariyangu from "@assets/gylogo_1752064168868.png";
 
 // Form schemas for validation
@@ -698,7 +699,7 @@ function AuthenticatedAdminDashboard() {
 
             {/* Secondary Navigation for Marketplace Management */}
             {activeTab === "marketplace" && (
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="listings" className="flex items-center gap-2">
                   <Car className="h-4 w-4" />
                   Car Listings
@@ -706,6 +707,10 @@ function AuthenticatedAdminDashboard() {
                 <TabsTrigger value="users" className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   User Management
+                </TabsTrigger>
+                <TabsTrigger value="dealers" className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  Dealer Management
                 </TabsTrigger>
                 <TabsTrigger value="flagging" className="flex items-center gap-2">
                   <Shield className="h-4 w-4" />
@@ -733,6 +738,11 @@ function AuthenticatedAdminDashboard() {
           {/* Users Management Tab */}
           <TabsContent value="users">
             <UsersManagementTab />
+          </TabsContent>
+
+          {/* Dealer Management Tab */}
+          <TabsContent value="dealers">
+            <AdminDealers />
           </TabsContent>
 
           {/* Automated Flagging System Tab */}

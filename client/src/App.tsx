@@ -54,6 +54,7 @@ import UsageDashboard from "@/pages/usage-dashboard";
 import BillingDashboard from "@/pages/billing-dashboard";
 import UnifiedBillingDashboard from "@/pages/unified-billing-dashboard";
 import AdminBillingDashboard from "@/pages/admin-billing-dashboard";
+import AdminSMSDashboard from "@/pages/admin-sms-dashboard";
 import ExcelImport from "@/pages/excel-import";
 import MileageVerification from "@/pages/mileage-verification";
 import ConciergeService from "@/pages/concierge-service";
@@ -179,6 +180,11 @@ function Router() {
           <Route path="/admin/billing">
             <ProtectedRoute requireAdmin={true}>
               <AdminBillingDashboard />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/admin/sms">
+            <ProtectedRoute requireAdmin={true}>
+              <AdminSMSDashboard />
             </ProtectedRoute>
           </Route>
           <Route path="/admin/excel-import">

@@ -112,6 +112,7 @@ import dealerRoutes from './routes/dealer-routes';
 import featureEnforcementRoutes from './routes/feature-enforcement-routes';
 import { registerMileageVerificationRoutes } from './routes/mileage-verification';
 import roleManagementRoutes from './routes/role-management-routes';
+import { smsRoutes } from './routes/sms-routes';
 
 // Initialize OpenAI
 const openai = new OpenAI({ 
@@ -2085,6 +2086,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Dealer Routes
   app.use('/api/dealers', dealerRoutes);
+  
+  // SMS Routes
+  app.use('/api/sms', smsRoutes);
 
   // Role Management Routes
   app.use('/api/admin', roleManagementRoutes);

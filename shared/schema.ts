@@ -1636,6 +1636,37 @@ export const blockedUsers = pgTable("blocked_users", {
   },
 }));
 
+// SMS Templates for different notification types
+export const smsTemplates = pgTable("sms_templates", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  category: varchar("category", { length: 100 }).notNull(), // 'message', 'listing', 'admin', 'marketing'
+  description: text("description"),
+  variables: text("variables"), // JSON array of variable names
+  isActive: boolean("is_active").default(true),
+  usageCount: integer("usage_count").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// SMS Logs for tracking all sent messages
+export const smsLogs = pgTable("sms_logs", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id),
+  phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
+  message: text("message").notNull(),
+  templateId: integer("template_id").references(() => smsTemplates.id),
+  provider: varchar("provider", { length: 50 }).notNull(), // 'africas_talking', 'twilio', etc.
+  success: boolean("success").notNull(),
+  messageId: varchar("message_id", { length: 255 }), // Provider's message ID
+  error: text("error"),
+  cost: decimal("cost", { precision: 10, scale: 4 }), // Cost in local currency
+  isBulk: boolean("is_bulk").default(false),
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Schemas for messaging system
 export const conversationSchema = createInsertSchema(conversations).omit({
   id: true,
@@ -1671,6 +1702,20 @@ export const messageTemplateSchema = createInsertSchema(messageTemplates).omit({
   usageCount: true,
 });
 
+// SMS Template Schema
+export const smsTemplateSchema = createInsertSchema(smsTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  usageCount: true,
+});
+
+// SMS Log Schema  
+export const smsLogSchema = createInsertSchema(smsLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
 // New conversation request schema
 export const newConversationSchema = z.object({
   type: z.enum(['listing_inquiry', 'duty_calculation', 'transfer_request', 'general_support']),
@@ -1703,6 +1748,10 @@ export type ConversationAnalytics = typeof conversationAnalytics.$inferSelect;
 export type MessageNotificationSettings = typeof messageNotificationSettings.$inferSelect;
 export type BlockedUser = typeof blockedUsers.$inferSelect;
 export type NewConversation = z.infer<typeof newConversationSchema>;
+export type SMSTemplate = typeof smsTemplates.$inferSelect;
+export type InsertSMSTemplate = z.infer<typeof smsTemplateSchema>;
+export type SMSLog = typeof smsLogs.$inferSelect;
+export type InsertSMSLog = z.infer<typeof smsLogSchema>;
 
 // Vehicle Valuation Schema (old version - to be replaced)
 

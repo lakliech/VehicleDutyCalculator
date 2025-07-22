@@ -63,7 +63,8 @@ import {
   BarChart3,
   Coins,
   Target,
-  Monitor
+  Monitor,
+  MessageSquareText
 } from "lucide-react";
 import { z } from "zod";
 import ProductCatalogManagement from "@/components/ProductCatalogManagement";
@@ -696,6 +697,17 @@ function AuthenticatedAdminDashboard() {
                       <span className="hidden lg:inline">Roles</span>
                     </TabsTrigger>
                   </TabsList>
+                  <div className="mt-3">
+                    <h5 className="text-xs font-semibold text-gray-600 mb-2">External Tools</h5>
+                    <div className="flex gap-2">
+                      <Link href="/admin/sms">
+                        <Button variant="outline" size="sm" className="flex items-center gap-2">
+                          <MessageSquareText className="h-4 w-4" />
+                          SMS Management
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

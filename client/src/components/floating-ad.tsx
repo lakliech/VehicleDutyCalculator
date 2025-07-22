@@ -41,6 +41,8 @@ export function FloatingAd() {
   // Force cache invalidation on mount to ensure fresh data
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ['/api/advertisements/floating-ads/active'] });
+    // Also clear any browser cache for the API
+    queryClient.removeQueries({ queryKey: ['/api/advertisements/floating-ads/active'] });
   }, [queryClient]);
 
   // Query for active floating ads
@@ -236,7 +238,7 @@ export function FloatingAd() {
               ...getAnimationStyles(ad),
               backgroundColor: ad.backgroundColor || '#ffffff',
               color: ad.textColor || '#000000',
-              border: '3px solid #ff0000',
+              border: '1px solid #e5e7eb',
               borderRadius: '8px',
               boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
               overflow: 'hidden',

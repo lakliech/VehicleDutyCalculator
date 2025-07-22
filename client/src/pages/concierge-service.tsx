@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -75,6 +75,25 @@ export default function ConciergeService() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+
+  // Close auth dialog when user becomes authenticated
+  useEffect(() => {
+    if (isAuthenticated && showAuthDialog) {
+      setShowAuthDialog(false);
+      // Auto-submit the form if they just authenticated
+      if (requestForm.budgetRange && requestForm.vehicleType && requestForm.timeline) {
+        handleAuthenticatedSubmit();
+      }
+    }
+  }, [isAuthenticated, showAuthDialog]);
+
+  // Handle submission for authenticated users
+  const handleAuthenticatedSubmit = () => {
+    createRequestMutation.mutate({
+      ...requestForm,
+      contactEmail: requestForm.contactEmail || user?.email,
+    });
+  };
 
   // Form state for new request
   const [requestForm, setRequestForm] = useState({
@@ -165,10 +184,7 @@ export default function ConciergeService() {
       return;
     }
 
-    createRequestMutation.mutate({
-      ...requestForm,
-      contactEmail: requestForm.contactEmail || user?.email,
-    });
+    handleAuthenticatedSubmit();
   };
 
   // Handle submission for unauthenticated users (require email)

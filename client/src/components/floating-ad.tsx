@@ -153,9 +153,15 @@ export function FloatingAd() {
 
   // Close ad manually
   const closeAd = (ad: FloatingAdData) => {
-    if (!ad.isCloseable) return;
+    console.log(`FloatingAd: closeAd called for ad ${ad.id}, isCloseable: ${ad.isCloseable}`);
+    if (!ad.isCloseable) {
+      console.log(`FloatingAd: Ad ${ad.id} is not closeable, returning`);
+      return;
+    }
     
+    console.log(`FloatingAd: Adding ad ${ad.id} to closedAds set`);
     setClosedAds(prev => new Set(Array.from(prev).concat(ad.id)));
+    console.log(`FloatingAd: Calling hideAd for ad ${ad.id}`);
     hideAd(ad.id, ad.exitAnimation, ad.animationDuration);
   };
 
@@ -228,6 +234,10 @@ export function FloatingAd() {
     <>
       {floatingAds.map((ad: FloatingAdData) => {
         if (!visibleAds.has(ad.id)) return null;
+        if (closedAds.has(ad.id)) {
+          console.log(`FloatingAd: Ad ${ad.id} is in closedAds set, not rendering`);
+          return null;
+        }
 
         return (
           <div
@@ -250,10 +260,15 @@ export function FloatingAd() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => closeAd(ad)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log(`FloatingAd: Close button clicked for ad ${ad.id}`);
+                  closeAd(ad);
+                }}
                 className={`absolute ${
                   ad.closeButtonStyle === 'top-left' ? 'top-1 left-1' : 'top-1 right-1'
-                } w-6 h-6 p-0 rounded-full bg-gray-100 hover:bg-gray-200 z-10`}
+                } w-6 h-6 p-0 rounded-full bg-gray-100 hover:bg-gray-200 z-20`}
               >
                 <X className="h-3 w-3" />
               </Button>

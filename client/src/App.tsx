@@ -61,6 +61,7 @@ import PaymentSuccess from "@/pages/payment-success-simple";
 import { AuthProvider } from "@/components/auth-provider";
 import { useAuthRedirect } from "@/hooks/use-auth-redirect";
 import { useDealerRedirect } from "@/hooks/use-dealer-redirect";
+import { FloatingAd } from "@/components/floating-ad";
 
 function Router() {
   useAuthRedirect();  // Handle OAuth redirects globally
@@ -209,6 +210,7 @@ function Router() {
       </main>
       <Footer />
       <QuickActionMenu />
+      <FloatingAd />
     </div>
   );
 }

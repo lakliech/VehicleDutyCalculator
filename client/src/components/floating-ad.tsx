@@ -22,13 +22,13 @@ interface FloatingAdData {
   hideDuration: number;
   isCloseable: boolean;
   closeButtonStyle: string;
-  triggerEvent: string;
-  triggerValue?: number;
+  triggerEvent: string | null;
+  triggerValue?: number | null;
   showOncePerSession: boolean;
   showOncePerDay: boolean;
-  maxShowsPerUser?: number;
-  enterAnimation: string;
-  exitAnimation: string;
+  maxShowsPerUser?: number | null;
+  enterAnimation: string | null;
+  exitAnimation: string | null;
   animationDuration: number;
 }
 
@@ -38,11 +38,40 @@ export function FloatingAd() {
   const [sessionShownAds, setSessionShownAds] = useState<Set<number>>(new Set());
 
   // Query for active floating ads
-  const { data: floatingAds } = useQuery({
+  const { data: rawFloatingAds } = useQuery({
     queryKey: ['/api/advertisements/floating-ads/active'],
     queryFn: () => apiRequest('GET', '/api/advertisements/floating-ads/active').then(res => res.json()),
     refetchInterval: 60000, // Refetch every minute to get updated ads
   });
+
+  // Transform the API response to match expected format
+  const floatingAds = rawFloatingAds?.map((item: any) => ({
+    id: item.floating_ads.id,
+    adTitle: item.advertisements.adTitle,
+    adDescription: item.advertisements.adDescription,
+    adImageUrl: item.advertisements.adImageUrl,
+    adTargetUrl: item.advertisements.adTargetUrl,
+    backgroundColor: item.advertisements.backgroundColor,
+    textColor: item.advertisements.textColor,
+    animationType: item.advertisements.animationType,
+    positionX: item.floating_ads.positionX,
+    positionY: item.floating_ads.positionY,
+    width: item.floating_ads.width,
+    height: item.floating_ads.height,
+    zIndex: item.floating_ads.zIndex,
+    showDelay: item.floating_ads.showDelay,
+    hideDuration: item.floating_ads.hideDuration,
+    isCloseable: item.floating_ads.isCloseable,
+    closeButtonStyle: item.floating_ads.closeButtonStyle,
+    triggerEvent: item.floating_ads.triggerEvent,
+    triggerValue: item.floating_ads.triggerValue,
+    showOncePerSession: item.floating_ads.showOncePerSession,
+    showOncePerDay: item.floating_ads.showOncePerDay,
+    maxShowsPerUser: item.floating_ads.maxShowsPerUser,
+    enterAnimation: item.floating_ads.enterAnimation || 'fade',
+    exitAnimation: item.floating_ads.exitAnimation || 'fade',
+    animationDuration: item.floating_ads.animationDuration,
+  })) || [];
 
   // Check localStorage for daily shown ads
   const getDailyShownAds = (): Set<number> => {
@@ -85,10 +114,11 @@ export function FloatingAd() {
   };
 
   // Hide ad with animation
-  const hideAd = (adId: number, exitAnimation: string, animationDuration: number) => {
+  const hideAd = (adId: number, exitAnimation: string | null, animationDuration: number) => {
     const adElement = document.getElementById(`floating-ad-${adId}`);
     if (adElement) {
-      adElement.style.animation = `${exitAnimation} ${animationDuration}ms ease-out`;
+      const animation = exitAnimation || 'fade';
+      adElement.style.animation = `${animation} ${animationDuration}ms ease-out`;
       setTimeout(() => {
         setVisibleAds(prev => {
           const newSet = new Set(prev);
@@ -111,8 +141,13 @@ export function FloatingAd() {
   useEffect(() => {
     if (!floatingAds || floatingAds.length === 0) return;
 
+    console.log('FloatingAd: Processing ads:', floatingAds);
+
     floatingAds.forEach((ad: FloatingAdData) => {
-      if (ad.triggerEvent === 'page_load') {
+      console.log(`FloatingAd: Processing ad ${ad.id}, trigger: ${ad.triggerEvent}`);
+      
+      if (ad.triggerEvent === 'page_load' || ad.triggerEvent === null) {
+        console.log(`FloatingAd: Showing ad ${ad.id} on page load`);
         showAd(ad);
       } else if (ad.triggerEvent === 'scroll' && ad.triggerValue) {
         const handleScroll = () => {
@@ -121,6 +156,16 @@ export function FloatingAd() {
             showAd(ad);
             window.removeEventListener('scroll', handleScroll);
           }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+      } else if (ad.triggerEvent === 'scroll' && !ad.triggerValue) {
+        // If scroll trigger without value, trigger immediately on any scroll
+        console.log(`FloatingAd: Setting up scroll trigger for ad ${ad.id}`);
+        const handleScroll = () => {
+          console.log(`FloatingAd: Scroll triggered for ad ${ad.id}`);
+          showAd(ad);
+          window.removeEventListener('scroll', handleScroll);
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
@@ -156,8 +201,9 @@ export function FloatingAd() {
 
   // Get animation styles
   const getAnimationStyles = (ad: FloatingAdData) => {
+    const animation = ad.enterAnimation || 'fade';
     return {
-      animation: `${ad.enterAnimation} ${ad.animationDuration}ms ease-out`,
+      animation: `${animation} ${ad.animationDuration}ms ease-out`,
     };
   };
 

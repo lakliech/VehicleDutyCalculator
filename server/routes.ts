@@ -728,7 +728,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin role assignment endpoint (for superadmins to assign admin roles)
-  app.post('/api/admin/assign-role', authenticateUser, requireRole(['superadmin']), async (req: Request, res: Response) => {
+  app.post('/api/admin/assign-role', authenticateUser, requireRole(['superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { userId, roleId } = req.body;
       
@@ -761,7 +761,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Comprehensive Admin Management API Routes
   
   // Admin Dashboard Stats
-  app.get('/api/admin/dashboard-stats', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/dashboard-stats', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const stats = await storage.getAdminDashboardStats();
       res.json(stats);
@@ -772,7 +772,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Enhanced Listing Management with Comprehensive Filtering and Sorting
-  app.get('/api/admin/listings-with-stats', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/listings-with-stats', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { 
         status, 
@@ -961,7 +961,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Enhanced User Management with Comprehensive Filtering
-  app.get('/api/admin/users-management', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/users-management', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { 
         search, 
@@ -996,7 +996,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update User Role
-  app.put('/api/admin/users/:userId/role', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.put('/api/admin/users/:userId/role', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
       const { roleId } = req.body;
@@ -1014,7 +1014,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bulk User Actions
-  app.post('/api/admin/users/bulk-action', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.post('/api/admin/users/bulk-action', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { userIds, action, data } = req.body;
       
@@ -1041,7 +1041,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bulk Listing Operations
-  app.post('/api/admin/bulk-update-listings', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.post('/api/admin/bulk-update-listings', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { listingIds, status, reason } = req.body;
       
@@ -1068,7 +1068,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Individual Listing Details
-  app.get('/api/admin/listing-details/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/listing-details/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const listingId = parseInt(req.params.id);
       console.log('Fetching listing details for ID:', listingId);
@@ -1088,7 +1088,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Individual Listing Actions
-  app.put('/api/admin/listing/:id/approve', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.put('/api/admin/listing/:id/approve', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const listingId = parseInt(req.params.id);
       const { notes } = req.body;
@@ -1107,7 +1107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/listing/:id/reject', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.put('/api/admin/listing/:id/reject', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const listingId = parseInt(req.params.id);
       const { reason } = req.body;
@@ -1130,7 +1130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/listing/:id/flag', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.put('/api/admin/listing/:id/flag', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const listingId = parseInt(req.params.id);
       const { reason, notes } = req.body;
@@ -1153,7 +1153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Automated flagging system endpoints
-  app.get('/api/admin/auto-flag-rules', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/auto-flag-rules', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const rules = await db.select().from(autoFlagRules).orderBy(autoFlagRules.category, autoFlagRules.displayName);
       res.json(rules);
@@ -1163,7 +1163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/automated-actions/:listingId', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/automated-actions/:listingId', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const listingId = parseInt(req.params.listingId);
       const actions = await db.select()
@@ -1178,7 +1178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/flag-count-tracking/:listingId', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/flag-count-tracking/:listingId', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const listingId = parseInt(req.params.listingId);
       const flagCounts = await db.select()
@@ -1193,7 +1193,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/seller-reputation/:sellerId', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/seller-reputation/:sellerId', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const sellerId = req.params.sellerId;
       const reputation = await storage.getSellerReputationScore(sellerId);
@@ -1213,7 +1213,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/flagging-stats', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/flagging-stats', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       // Get total flagged listings (using car_listings table)
       const totalFlags = await db.select({ count: sql`count(*)` })
@@ -1252,7 +1252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/listing/:id/note', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.post('/api/admin/listing/:id/note', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const listingId = parseInt(req.params.id);
       const { note } = req.body;
@@ -1275,7 +1275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User History and Management
-  app.get('/api/admin/user/:id/history', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/user/:id/history', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const userId = req.params.id;
       const history = await storage.getUserHistory(userId);
@@ -1287,7 +1287,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/user/:id/suspend', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.post('/api/admin/user/:id/suspend', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const userId = req.params.id;
       const { reason, duration } = req.body;
@@ -1308,7 +1308,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Listing Analytics and Reporting
-  app.get('/api/admin/analytics/overview', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/analytics/overview', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { period } = req.query; // 'week', 'month', 'quarter', 'year'
       
@@ -1329,7 +1329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Content Moderation Tools
-  app.get('/api/admin/flagged-content', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/flagged-content', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { type, status } = req.query;
       
@@ -1343,7 +1343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/content/:id/resolve-flag', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.post('/api/admin/content/:id/resolve-flag', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const contentId = req.params.id;
       const { action, resolution } = req.body; // 'dismiss', 'remove', 'warn_user'
@@ -1504,7 +1504,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User management endpoints
-  app.get("/api/admin/users", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/users", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       // Get all users with their roles
       const users = await db.select({
@@ -1521,7 +1521,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/users/:id/role", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.put("/api/admin/users/:id/role", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const { roleId } = req.body;
       await storage.updateUserRole(req.params.id, roleId);
@@ -1533,7 +1533,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Role management endpoints
-  app.get("/api/admin/roles", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/roles", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const roles = await storage.getAllRoles();
       res.json(roles);
@@ -1543,7 +1543,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/roles", authenticateUser, requireRole(['superadmin']), async (req, res) => {
+  app.post("/api/admin/roles", authenticateUser, requireRole(['superadmin', 'super_admin']), async (req, res) => {
     try {
       const validation = userRoleSchema.safeParse(req.body);
       
@@ -1563,7 +1563,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Listing management endpoints
-  app.get("/api/admin/listings", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/listings", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const listings = await storage.getAllListingsForAdmin();
       res.json(listings);
@@ -1573,7 +1573,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/listings/:id/approve", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:id/approve", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const { notes } = req.body;
       const approval = await storage.approveListing(parseInt(req.params.id), req.user.id, notes);
@@ -1584,7 +1584,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/listings/:id/reject", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:id/reject", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const { reason } = req.body;
       const approval = await storage.rejectListing(parseInt(req.params.id), req.user.id, reason);
@@ -1595,7 +1595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/listings/:id/request-changes", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:id/request-changes", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const { changes, notes } = req.body;
       const approval = await storage.requestChanges(parseInt(req.params.id), req.user.id, changes, notes);
@@ -1606,7 +1606,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/listings/:id", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.put("/api/admin/listings/:id", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const validation = adminUpdateListingSchema.safeParse(req.body);
       
@@ -1626,7 +1626,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/admin/listings/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.delete("/api/admin/listings/:id", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       await storage.deleteListing(parseInt(req.params.id));
       res.json({ success: true });
@@ -1637,7 +1637,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Enhanced listing management endpoints
-  app.post("/api/admin/listings/:id/flag", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:id/flag", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const { reason } = req.body;
       await storage.flagListing(parseInt(req.params.id), req.user.id, reason);
@@ -1648,7 +1648,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/listings/:id/unflag", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:id/unflag", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       await storage.unflagListing(parseInt(req.params.id), req.user.id);
       res.json({ success: true });
@@ -1658,7 +1658,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/listings/:id/details", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/listings/:id/details", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const details = await storage.getListingById(parseInt(req.params.id));
       res.json(details);
@@ -1668,7 +1668,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/listings/:id/note", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:id/note", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const { note } = req.body;
       await storage.addAdminNote(parseInt(req.params.id), req.user.id, note);
@@ -1679,7 +1679,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/listings/:id/notes", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/listings/:id/notes", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const notes = await storage.getListingNotes(parseInt(req.params.id));
       res.json(notes);
@@ -1689,7 +1689,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/listings/:id/mark-sold", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:id/mark-sold", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       await storage.markListingAsSold(parseInt(req.params.id), req.user.id);
       res.json({ success: true });
@@ -1699,7 +1699,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/listings/:id/archive", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:id/archive", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       await storage.archiveListing(parseInt(req.params.id), req.user.id);
       res.json({ success: true });
@@ -1709,7 +1709,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/listings/:id/restore", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:id/restore", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       await storage.restoreListing(parseInt(req.params.id), req.user.id);
       res.json({ success: true });
@@ -1719,7 +1719,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/listings/:id/duplicate-check", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/listings/:id/duplicate-check", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const duplicates = await storage.duplicateCheck(parseInt(req.params.id));
       res.json(duplicates);
@@ -1729,7 +1729,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/listings/export", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/listings/export", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const listings = await storage.exportListings(req.query);
       res.json(listings);
@@ -1740,7 +1740,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Media management endpoints
-  app.post("/api/admin/listings/:id/media", authenticateUser, requireRole(['editor', 'admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:id/media", authenticateUser, requireRole(['editor', 'admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const listingId = parseInt(req.params.id);
       const validation = mediaManagementSchema.safeParse(req.body);
@@ -1825,7 +1825,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin meta fields update endpoint
-  app.put("/api/admin/listings/:id/meta", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.put("/api/admin/listings/:id/meta", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const listingId = parseInt(req.params.id);
       const validation = adminMetaUpdateSchema.safeParse(req.body);
@@ -1846,7 +1846,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get available users for reassignment
-  app.get("/api/admin/available-users", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/available-users", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const users = await storage.getAvailableUsers();
       res.json(users);
@@ -2584,7 +2584,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all vehicle references for admin
-  app.get("/api/admin/vehicle-references", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/vehicle-references", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const results = await db
         .select()
@@ -2599,7 +2599,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add new vehicle reference
-  app.post("/api/admin/vehicle-references", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/vehicle-references", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const validation = z.object({
         make: z.string().min(1),
@@ -2635,7 +2635,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update vehicle reference
-  app.put("/api/admin/vehicle-references/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.put("/api/admin/vehicle-references/:id", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
@@ -2701,7 +2701,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete vehicle reference
-  app.delete("/api/admin/vehicle-references/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.delete("/api/admin/vehicle-references/:id", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const vehicleId = parseInt(req.params.id);
       
@@ -2722,7 +2722,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all tax rates
-  app.get("/api/admin/tax-rates", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/tax-rates", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const results = await db
         .select()
@@ -2736,7 +2736,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add new tax rate
-  app.post("/api/admin/tax-rates", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/tax-rates", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const validation = z.object({
         vehicleCategory: z.string().min(1),
@@ -2856,7 +2856,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update tax rate
-  app.put("/api/admin/tax-rates/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.put("/api/admin/tax-rates/:id", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
@@ -2894,7 +2894,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all processing fees
-  app.get("/api/admin/processing-fees", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/processing-fees", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const results = await db
         .select()
@@ -2908,7 +2908,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add new processing fee
-  app.post("/api/admin/processing-fees", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/processing-fees", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const validation = z.object({
         feeType: z.string().min(1),
@@ -2940,7 +2940,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update processing fee
-  app.put("/api/admin/processing-fees/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.put("/api/admin/processing-fees/:id", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
@@ -2977,7 +2977,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete processing fee
-  app.delete("/api/admin/processing-fees/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.delete("/api/admin/processing-fees/:id", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       
@@ -3002,7 +3002,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all category rules
-  app.get("/api/admin/category-rules", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/category-rules", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const results = await db
         .select()
@@ -3016,7 +3016,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add new category rule
-  app.post("/api/admin/category-rules", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/category-rules", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const validation = z.object({
         category: z.string().min(1),
@@ -3047,7 +3047,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update category rule
-  app.put("/api/admin/category-rules/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.put("/api/admin/category-rules/:id", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
@@ -3084,7 +3084,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all depreciation rates
-  app.get("/api/admin/depreciation-rates", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/depreciation-rates", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const results = await db
         .select()
@@ -3098,7 +3098,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update depreciation rate
-  app.put("/api/admin/depreciation-rates/:id", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.put("/api/admin/depreciation-rates/:id", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validation = z.object({
@@ -3136,7 +3136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // CSV Upload functionality for vehicle references
   const upload = multer({ storage: multer.memoryStorage() });
 
-  app.post("/api/admin/upload-vehicle-csv", authenticateUser, requireRole(['admin', 'superadmin']), upload.single('csv'), async (req, res) => {
+  app.post("/api/admin/upload-vehicle-csv", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), upload.single('csv'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No CSV file uploaded" });
@@ -3260,7 +3260,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get dashboard stats
-  app.get("/api/admin/stats", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/stats", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       // Get total users
       const totalUsersResult = await db
@@ -3306,7 +3306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all users with their roles
-  app.get("/api/admin/users", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/users", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       // Get all users from the database with their roles
       const users = await db
@@ -3335,7 +3335,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update user role
-  app.put("/api/admin/users/:userId/role", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.put("/api/admin/users/:userId/role", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const { userId } = req.params;
       const { roleId } = req.body;
@@ -3353,7 +3353,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all roles
-  app.get("/api/admin/roles", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/roles", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const roles = await storage.getAllRoles();
       res.json(roles);
@@ -3878,7 +3878,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all listings for admin
-  app.get("/api/admin/listings", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/listings", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const listings = await storage.getAllListingsForAdmin();
       res.json(listings);
@@ -4199,7 +4199,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===============================
 
   // Get all listings for admin
-  app.get("/api/admin/listings", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.get("/api/admin/listings", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const listings = await storage.getAllListingsForAdmin();
       res.json(listings);
@@ -4210,7 +4210,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Approve listing
-  app.post("/api/admin/listings/:listingId/approve", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:listingId/approve", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const listingId = parseInt(req.params.listingId);
       const { notes } = req.body;
@@ -4228,7 +4228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Reject listing
-  app.post("/api/admin/listings/:listingId/reject", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:listingId/reject", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const listingId = parseInt(req.params.listingId);
       const { reason } = req.body;
@@ -4250,7 +4250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Request changes to listing
-  app.post("/api/admin/listings/:listingId/request-changes", authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+  app.post("/api/admin/listings/:listingId/request-changes", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const listingId = parseInt(req.params.listingId);
       const { changes, notes } = req.body;
@@ -7186,7 +7186,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Admin messaging endpoints
-  app.get('/api/admin/messaging/conversations', authenticateUser, requireRole('admin'), async (req, res) => {
+  app.get('/api/admin/messaging/conversations', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 50;
       const offset = parseInt(req.query.offset as string) || 0;
@@ -7222,7 +7222,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     }
   });
 
-  app.get('/api/admin/messaging/analytics', authenticateUser, requireRole('admin'), async (req, res) => {
+  app.get('/api/admin/messaging/analytics', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
       const analytics = await db.execute(sql`
         SELECT 
@@ -7572,7 +7572,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   // ==============================
 
   // Get all banks for admin management
-  app.get('/api/admin/financial/banks', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/financial/banks', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const banks = await db.select().from(bankPartners).orderBy(bankPartners.bankName);
       res.json(banks);
@@ -7583,7 +7583,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Create new bank
-  app.post('/api/admin/financial/banks', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.post('/api/admin/financial/banks', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const bankData = req.body;
       const [newBank] = await db.insert(bankPartners).values(bankData).returning();
@@ -7595,7 +7595,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Update bank
-  app.put('/api/admin/financial/banks/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.put('/api/admin/financial/banks/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const bankData = req.body;
@@ -7611,7 +7611,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Delete bank
-  app.delete('/api/admin/financial/banks/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.delete('/api/admin/financial/banks/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       await db.delete(bankPartners).where(eq(bankPartners.id, parseInt(id)));
@@ -7623,7 +7623,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Get all loan products for admin management
-  app.get('/api/admin/financial/loan-products', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/financial/loan-products', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const dbProducts = await db.select({
         id: loanProducts.id,
@@ -7671,7 +7671,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Create new loan product
-  app.post('/api/admin/financial/loan-products', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.post('/api/admin/financial/loan-products', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const formData = req.body;
       
@@ -7709,7 +7709,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Update loan product
-  app.put('/api/admin/financial/loan-products/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.put('/api/admin/financial/loan-products/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const formData = req.body;
@@ -7752,7 +7752,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Delete loan product
-  app.delete('/api/admin/financial/loan-products/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.delete('/api/admin/financial/loan-products/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       await db.delete(loanProducts).where(eq(loanProducts.id, parseInt(id)));
@@ -7764,7 +7764,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Get all loan applications for admin management
-  app.get('/api/admin/financial/loan-applications', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/financial/loan-applications', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const applications = await db.select({
         id: loanApplications.id,
@@ -7803,7 +7803,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Update loan application status
-  app.put('/api/admin/financial/loan-applications/:id/status', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.put('/api/admin/financial/loan-applications/:id/status', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const { status, remarks, preApprovalAmount, approvedInterestRate, approvedTenureMonths } = req.body;
@@ -7831,7 +7831,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Get all trade-in evaluations for admin management
-  app.get('/api/admin/financial/trade-in-evaluations', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.get('/api/admin/financial/trade-in-evaluations', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const evaluations = await db.select().from(tradeInEvaluations)
         .orderBy(desc(tradeInEvaluations.createdAt));
@@ -7843,7 +7843,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Update trade-in evaluation status
-  app.put('/api/admin/financial/trade-in-evaluations/:id/status', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.put('/api/admin/financial/trade-in-evaluations/:id/status', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const { status, remarks } = req.body;
@@ -9559,7 +9559,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   });
 
   // Generate market insights (Admin only)
-  app.post('/api/pricing/generate-insights', authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.post('/api/pricing/generate-insights', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { SmartPricingAI } = await import('./services/smart-pricing-ai');
       

@@ -237,7 +237,7 @@ router.delete('/subscriptions/:id', authenticateUser, async (req, res) => {
 /**
  * Get revenue analytics (Admin only)
  */
-router.get('/admin/analytics', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/admin/analytics', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
     const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
@@ -253,7 +253,7 @@ router.get('/admin/analytics', authenticateUser, requireRole(['admin', 'superadm
 /**
  * Process recurring billing (Admin only)
  */
-router.post('/admin/recurring-billing', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.post('/admin/recurring-billing', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const result = await BillingEngine.processRecurringBilling();
     res.json(result);
@@ -266,7 +266,7 @@ router.post('/admin/recurring-billing', authenticateUser, requireRole(['admin', 
 /**
  * Get all user accounts (Admin only)
  */
-router.get('/admin/accounts', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/admin/accounts', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { userAccounts, appUsers } = await import('../../shared/schema-minimal');
     const { db } = await import('../db');
@@ -308,7 +308,7 @@ router.get('/admin/accounts', authenticateUser, requireRole(['admin', 'superadmi
 /**
  * Get all active subscriptions (Admin only)
  */
-router.get('/admin/subscriptions', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/admin/subscriptions', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { userProductSubscriptions, appUsers } = await import('../../shared/schema-minimal');
     const { products } = await import('../../shared/product-catalog-schema');
@@ -353,7 +353,7 @@ router.get('/admin/subscriptions', authenticateUser, requireRole(['admin', 'supe
 /**
  * Update account balance (Admin only)
  */
-router.post('/admin/accounts/:id/balance', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.post('/admin/accounts/:id/balance', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const accountId = parseInt(req.params.id);
     const { amount, type, description } = req.body;

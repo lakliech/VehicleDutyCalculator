@@ -283,7 +283,7 @@ function mapRowToListing(row: any[], columnMapping: any, defaultSeller: any): Im
 
 export function registerExcelParserRoutes(app: Express, authenticateUser: any, requireRole: any) {
   // Parse Excel file endpoint
-  app.post("/api/parse-excel", authenticateUser, requireRole(['admin', 'superadmin']), upload.single('file'), async (req: Request, res: Response) => {
+  app.post("/api/parse-excel", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), upload.single('file'), async (req: Request, res: Response) => {
     try {
       if (!req.file) {
         return res.status(400).json({
@@ -320,7 +320,7 @@ export function registerExcelParserRoutes(app: Express, authenticateUser: any, r
   });
 
   // Parse specific sheet endpoint
-  app.post("/api/parse-excel-sheet", authenticateUser, requireRole(['admin', 'superadmin']), async (req: Request, res: Response) => {
+  app.post("/api/parse-excel-sheet", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
       const { fileName, sheetName } = req.body;
       
@@ -347,7 +347,7 @@ export function registerExcelParserRoutes(app: Express, authenticateUser: any, r
   });
 
   // Import Excel listings with streaming progress
-  app.post("/api/import-excel-listings", authenticateUser, requireRole(['admin', 'superadmin']), upload.single('file'), async (req: Request, res: Response) => {
+  app.post("/api/import-excel-listings", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), upload.single('file'), async (req: Request, res: Response) => {
     try {
       let { fileName, sheetName, columnMapping, downloadImages, defaultSeller, skipRows } = req.body;
       

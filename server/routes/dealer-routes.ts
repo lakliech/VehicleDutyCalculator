@@ -118,7 +118,7 @@ router.post("/register", authenticateUser, async (req: any, res) => {
 });
 
 // For admin routes, use requireRole middleware instead
-const requireAdmin = requireRole(['admin', 'superadmin']);
+const requireAdmin = requireRole(['admin', 'superadmin', 'super_admin']);
 
 // Create dealer invitation (dealers can create invitations for their dealership)
 router.post("/:dealerId/invitations", authenticateUser, async (req, res) => {

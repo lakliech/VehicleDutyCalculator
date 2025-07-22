@@ -359,7 +359,7 @@ router.post('/mpesa-callback', async (req, res) => {
  * GET /api/monetization/revenue/:year/:month
  * Get monthly revenue breakdown (admin only)
  */
-router.get('/revenue/:year/:month', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/revenue/:year/:month', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { year, month } = req.params;
     
@@ -379,7 +379,7 @@ router.get('/revenue/:year/:month', authenticateUser, requireRole(['admin', 'sup
  * GET /api/monetization/revenue-per-product
  * Get revenue breakdown by product (admin only)
  */
-router.get('/revenue-per-product', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/revenue-per-product', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     
@@ -399,7 +399,7 @@ router.get('/revenue-per-product', authenticateUser, requireRole(['admin', 'supe
  * GET /api/monetization/transactions
  * Get filtered transaction data (admin only)
  */
-router.get('/transactions', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/transactions', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { 
       status, 
@@ -432,7 +432,7 @@ router.get('/transactions', authenticateUser, requireRole(['admin', 'superadmin'
  * GET /api/monetization/dashboard-analytics
  * Get comprehensive dashboard analytics (admin only)
  */
-router.get('/dashboard-analytics', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/dashboard-analytics', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { period = 'month' } = req.query;
     
@@ -453,7 +453,7 @@ router.get('/dashboard-analytics', authenticateUser, requireRole(['admin', 'supe
  * POST /api/monetization/admin/create-plan
  * Create new subscription plan (admin only)
  */
-router.post('/admin/create-plan', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.post('/admin/create-plan', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const createPlanSchema = z.object({
       name: z.string().min(1),

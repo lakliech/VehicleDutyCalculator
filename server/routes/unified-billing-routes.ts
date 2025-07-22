@@ -281,7 +281,7 @@ router.post('/track-usage', authenticateUser, async (req, res) => {
  * GET /api/unified-billing/admin/analytics
  * Get revenue analytics (admin only)
  */
-router.get('/admin/analytics', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/admin/analytics', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { period = 'month' } = req.query;
     const analytics = await UnifiedBillingService.getRevenueAnalytics(period as string);

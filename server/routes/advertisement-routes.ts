@@ -48,7 +48,7 @@ const upload = multer({
 // ==============================
 
 // Upload image for advertisements
-router.post('/upload-image', authenticateUser, requireRole(['admin', 'superadmin']), upload.single('image'), async (req, res) => {
+router.post('/upload-image', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No image file provided' });
@@ -78,7 +78,7 @@ router.get('/positions', async (req, res) => {
 });
 
 // Create new ad position (Admin only)
-router.post('/positions', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.post('/positions', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const validatedData = adPositionSchema.parse(req.body);
     const [newPosition] = await db.insert(adPositions).values(validatedData).returning();
@@ -90,7 +90,7 @@ router.post('/positions', authenticateUser, requireRole(['admin', 'superadmin'])
 });
 
 // Update ad position (Admin only)
-router.put('/positions/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.put('/positions/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { id } = req.params;
     const validatedData = adPositionSchema.partial().parse(req.body);
@@ -113,7 +113,7 @@ router.put('/positions/:id', authenticateUser, requireRole(['admin', 'superadmin
 });
 
 // Update ad position (Admin only)
-router.put('/positions/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.put('/positions/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     // Return error since advertisement tables don't exist
     res.status(501).json({ error: 'Ad position update not available - database tables not configured' });
@@ -124,7 +124,7 @@ router.put('/positions/:id', authenticateUser, requireRole(['admin', 'superadmin
 });
 
 // Delete ad position (Admin only)
-router.delete('/positions/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.delete('/positions/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     // Return error since advertisement tables don't exist
     res.status(501).json({ error: 'Ad position deletion not available - database tables not configured' });
@@ -139,7 +139,7 @@ router.delete('/positions/:id', authenticateUser, requireRole(['admin', 'superad
 // ==============================
 
 // Get all advertisements (Admin only)
-router.get('/advertisements', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/advertisements', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { status, page = 1, limit = 20 } = req.query;
     const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
@@ -176,7 +176,7 @@ router.get('/advertisements', authenticateUser, requireRole(['admin', 'superadmi
 });
 
 // Get single advertisement details
-router.get('/advertisements/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/advertisements/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     // Return placeholder data since advertisement tables don't exist
     res.status(404).json({ error: 'Advertisement not found' });
@@ -199,7 +199,7 @@ router.post('/advertisements', async (req, res) => {
 });
 
 // Get single advertisement (Admin only)
-router.get('/advertisements/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/advertisements/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -220,7 +220,7 @@ router.get('/advertisements/:id', authenticateUser, requireRole(['admin', 'super
 });
 
 // Update advertisement (Admin only)
-router.put('/advertisements/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.put('/advertisements/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { id } = req.params;
     const validatedData = advertisementSchema.partial().parse(req.body);
@@ -243,7 +243,7 @@ router.put('/advertisements/:id', authenticateUser, requireRole(['admin', 'super
 });
 
 // Update advertisement status (Admin only)
-router.patch('/advertisements/:id/status', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.patch('/advertisements/:id/status', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { id } = req.params;
     const { status, rejectionReason } = req.body;
@@ -307,7 +307,7 @@ router.get('/positions/:positionId/placements', async (req, res) => {
 });
 
 // Get all placements (Admin only)
-router.get('/placements', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/placements', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const placements = await db
       .select({
@@ -346,7 +346,7 @@ router.get('/placements', authenticateUser, requireRole(['admin', 'superadmin'])
 });
 
 // Create new ad placement (Admin only)
-router.post('/placements', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.post('/placements', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const validatedData = adPlacementSchema.parse(req.body);
     const [newPlacement] = await db.insert(adPlacements).values([validatedData]).returning();
@@ -385,7 +385,7 @@ router.get('/floating-ads/active', async (req, res) => {
 });
 
 // Create floating ad configuration (Admin only)
-router.post('/floating-ads', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.post('/floating-ads', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const validatedData = floatingAdSchema.parse(req.body);
     const [newFloatingAd] = await db.insert(floatingAds).values([validatedData]).returning();
@@ -397,7 +397,7 @@ router.post('/floating-ads', authenticateUser, requireRole(['admin', 'superadmin
 });
 
 // Update floating ad (Admin only)
-router.put('/floating-ads/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.put('/floating-ads/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { id } = req.params;
     const validatedData = floatingAdSchema.partial().parse(req.body);
@@ -420,7 +420,7 @@ router.put('/floating-ads/:id', authenticateUser, requireRole(['admin', 'superad
 });
 
 // Toggle floating ad status (Admin only)
-router.patch('/floating-ads/:id/toggle', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.patch('/floating-ads/:id/toggle', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -452,7 +452,7 @@ router.patch('/floating-ads/:id/toggle', authenticateUser, requireRole(['admin',
 });
 
 // Delete floating ad (Admin only)
-router.delete('/floating-ads/:id', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.delete('/floating-ads/:id', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -523,7 +523,7 @@ router.post('/track/click/:placementId', async (req, res) => {
 });
 
 // Get advertisement analytics (Admin only)
-router.get('/analytics/:advertisementId', authenticateUser, requireRole(['admin', 'superadmin']), async (req, res) => {
+router.get('/analytics/:advertisementId', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
   try {
     const { advertisementId } = req.params;
     const { startDate, endDate } = req.query;

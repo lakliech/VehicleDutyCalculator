@@ -96,14 +96,26 @@ export function FloatingAd() {
 
   // Show ad with delay and animation
   const showAd = (ad: FloatingAdData) => {
+    console.log(`FloatingAd: showAd called for ad ${ad.id}, delay: ${ad.showDelay}s`);
     const dailyShown = getDailyShownAds();
     
     // Check if ad should be shown based on frequency controls
-    if (ad.showOncePerSession && sessionShownAds.has(ad.id)) return;
-    if (ad.showOncePerDay && dailyShown.has(ad.id)) return;
-    if (closedAds.has(ad.id)) return;
+    if (ad.showOncePerSession && sessionShownAds.has(ad.id)) {
+      console.log(`FloatingAd: Ad ${ad.id} already shown this session`);
+      return;
+    }
+    if (ad.showOncePerDay && dailyShown.has(ad.id)) {
+      console.log(`FloatingAd: Ad ${ad.id} already shown today`);
+      return;
+    }
+    if (closedAds.has(ad.id)) {
+      console.log(`FloatingAd: Ad ${ad.id} already closed`);
+      return;
+    }
 
+    console.log(`FloatingAd: Scheduling ad ${ad.id} to show after ${ad.showDelay} seconds`);
     setTimeout(() => {
+      console.log(`FloatingAd: Making ad ${ad.id} visible now`);
       setVisibleAds(prev => new Set(Array.from(prev).concat(ad.id)));
       setSessionShownAds(prev => new Set(Array.from(prev).concat(ad.id)));
       
@@ -113,6 +125,7 @@ export function FloatingAd() {
 
       // Auto-hide after specified duration
       if (ad.hideDuration > 0) {
+        console.log(`FloatingAd: Scheduling ad ${ad.id} to hide after ${ad.hideDuration} seconds`);
         setTimeout(() => {
           hideAd(ad.id, ad.exitAnimation, ad.animationDuration);
         }, ad.hideDuration * 1000);
@@ -223,7 +236,7 @@ export function FloatingAd() {
               ...getAnimationStyles(ad),
               backgroundColor: ad.backgroundColor || '#ffffff',
               color: ad.textColor || '#000000',
-              border: '1px solid #e5e7eb',
+              border: '3px solid #ff0000',
               borderRadius: '8px',
               boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
               overflow: 'hidden',
@@ -266,11 +279,15 @@ export function FloatingAd() {
                     alt={ad.adTitle}
                     className="w-full h-full object-cover"
                     onLoad={() => {
+                      console.log(`FloatingAd: Image loaded for ad ${ad.id}`);
                       // Track impression
                       apiRequest('POST', `/api/advertisements/track/impression/${ad.id}`, {
                         userAgent: navigator.userAgent,
                         deviceType: window.innerWidth < 768 ? 'mobile' : 'desktop'
                       }).catch(console.error);
+                    }}
+                    onError={(e) => {
+                      console.log(`FloatingAd: Image failed to load for ad ${ad.id}:`, e);
                     }}
                   />
                 </div>

@@ -63,6 +63,7 @@ import { AuthProvider } from "@/components/auth-provider";
 import { useAuthRedirect } from "@/hooks/use-auth-redirect";
 import { useDealerRedirect } from "@/hooks/use-dealer-redirect";
 import { FloatingAd } from "@/components/floating-ad";
+import { ConciergeFAB } from "@/components/concierge-fab";
 
 function Router() {
   useAuthRedirect();  // Handle OAuth redirects globally
@@ -213,6 +214,7 @@ function Router() {
       <Footer />
       <QuickActionMenu />
       <FloatingAd />
+      <ConciergeFAB />
     </div>
   );
 }

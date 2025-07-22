@@ -259,10 +259,31 @@ export interface IStorage {
   getCarListingById(id: number): Promise<CarListing | null>;
 
   // =============================
-  // PAYMENT METHODS
+  // PAYMENT METHODS  
   // =============================
-  
+  createUserRoles(): Promise<void>;
+  getUserFeatureSummary(userId: string): Promise<{
+    plan: any;
+    features: any;
+  }>;
+  createUserAccount(data: any): Promise<any>;
+  getUserAccount(userId: string): Promise<any>;
+  updateUserAccount(accountId: number, updates: any): Promise<any>;
+  createPaymentTransaction(data: any): Promise<any>;
+  getPaymentTransaction(id: number): Promise<any>;
+  updatePaymentTransaction(id: number, data: any): Promise<any>;
+  createAccountCreditTransaction(data: any): Promise<any>;
+  getAccountCreditTransactions(accountId: number, limit?: number): Promise<any[]>;
+  getCreditTransactions(accountId: number, limit?: number): Promise<any[]>;
+  createPaymentSchedule(data: any): Promise<any>;
+  getPaymentSchedules(userId: string): Promise<any[]>;
+  updatePaymentSchedule(id: number, data: any): Promise<any>;
+  createUserProductSubscription(data: any): Promise<any>;
+  getUserProductSubscriptions(userId: string): Promise<any[]>;
+  updateUserProductSubscription(id: number, data: any): Promise<any>;
+}
 
+export class MemStorage implements IStorage {
   // Create user roles
   async createUserRoles(): Promise<void> {
     const roles = [
@@ -550,4 +571,4 @@ export interface IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = new MemStorage();

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
@@ -36,12 +36,19 @@ export function FloatingAd() {
   const [visibleAds, setVisibleAds] = useState<Set<number>>(new Set());
   const [closedAds, setClosedAds] = useState<Set<number>>(new Set());
   const [sessionShownAds, setSessionShownAds] = useState<Set<number>>(new Set());
+  const queryClient = useQueryClient();
+
+  // Force cache invalidation on mount to ensure fresh data
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['/api/advertisements/floating-ads/active'] });
+  }, [queryClient]);
 
   // Query for active floating ads
   const { data: rawFloatingAds } = useQuery({
     queryKey: ['/api/advertisements/floating-ads/active'],
     queryFn: () => apiRequest('GET', '/api/advertisements/floating-ads/active').then(res => res.json()),
     refetchInterval: 60000, // Refetch every minute to get updated ads
+    staleTime: 0, // Always refetch to get latest data
   });
 
   // Transform the API response to match expected format
@@ -141,13 +148,8 @@ export function FloatingAd() {
   useEffect(() => {
     if (!floatingAds || floatingAds.length === 0) return;
 
-    console.log('FloatingAd: Processing ads:', floatingAds);
-
     floatingAds.forEach((ad: FloatingAdData) => {
-      console.log(`FloatingAd: Processing ad ${ad.id}, trigger: ${ad.triggerEvent}`);
-      
       if (ad.triggerEvent === 'page_load' || ad.triggerEvent === null) {
-        console.log(`FloatingAd: Showing ad ${ad.id} on page load`);
         showAd(ad);
       } else if (ad.triggerEvent === 'scroll' && ad.triggerValue) {
         const handleScroll = () => {
@@ -161,9 +163,7 @@ export function FloatingAd() {
         return () => window.removeEventListener('scroll', handleScroll);
       } else if (ad.triggerEvent === 'scroll' && !ad.triggerValue) {
         // If scroll trigger without value, trigger immediately on any scroll
-        console.log(`FloatingAd: Setting up scroll trigger for ad ${ad.id}`);
         const handleScroll = () => {
-          console.log(`FloatingAd: Scroll triggered for ad ${ad.id}`);
           showAd(ad);
           window.removeEventListener('scroll', handleScroll);
         };

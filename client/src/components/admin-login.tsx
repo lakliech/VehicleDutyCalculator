@@ -12,7 +12,7 @@ export function AdminLogin() {
     window.location.href = `/api/auth/google?returnUrl=${encodeURIComponent(currentUrl)}`;
   };
 
-  const isAdmin = user?.roleId === 3 || user?.roleId === 4;
+  const isAdmin = user?.roleId === 3 || user?.roleId === 4 || user?.roleId === 5;
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">

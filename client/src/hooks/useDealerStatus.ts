@@ -20,7 +20,7 @@ export function useDealerStatus(isAuthenticated: boolean) {
     if (!data?.userRole) return false;
     const roleId = data.userRole.id;
     const roleName = data.userRole.name?.toLowerCase();
-    return roleId === 3 || roleId === 4 || roleName === 'admin' || roleName === 'superadmin';
+    return roleId === 3 || roleId === 4 || roleId === 5 || roleName === 'admin' || roleName === 'superadmin' || roleName === 'super_admin';
   };
 
   return {

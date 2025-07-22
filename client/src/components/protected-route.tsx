@@ -45,8 +45,8 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
     const roleId = (user as any).roleId || userRole?.id;
     const roleName = userRole?.name?.toLowerCase();
     
-    const isAdmin = roleId === 3 || roleId === 4 || 
-                   roleName === 'admin' || roleName === 'superadmin';
+    const isAdmin = roleId === 3 || roleId === 4 || roleId === 5 ||
+                   roleName === 'admin' || roleName === 'superadmin' || roleName === 'super_admin';
     
     console.log('Admin check:', { roleId, roleName, userRole, isAdmin });
     

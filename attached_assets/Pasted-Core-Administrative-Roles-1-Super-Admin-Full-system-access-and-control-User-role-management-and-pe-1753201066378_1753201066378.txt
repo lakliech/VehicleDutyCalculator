@@ -1,0 +1,103 @@
+Core Administrative Roles
+1. Super Admin
+
+Full system access and control
+User role management and permissions
+System configuration and settings
+Database management and backups
+Revenue and financial oversight
+2. Platform Admin
+
+General platform management
+User account management (suspend/activate)
+Content moderation and flagging resolution
+Basic reporting and analytics
+System monitoring
+Specialized Management Roles
+3. Marketplace Manager
+
+Vehicle listing approval/rejection
+Dealer profile verification
+Marketplace analytics and insights
+Listing quality control
+Market pricing oversight
+4. Financial Manager
+
+Billing and payment management
+Subscription oversight
+Revenue analytics
+Financial product management (loans, insurance)
+Transaction monitoring
+5. Content Moderator
+
+Flag review and resolution
+User warning system management
+Content quality enforcement
+Community guideline enforcement
+Spam and fraud detection
+6. Customer Support Manager
+
+Messaging system oversight
+Customer inquiry management
+Support ticket resolution
+User assistance and guidance
+Platform onboarding support
+Business Operation Roles
+7. Marketing Manager
+
+Advertisement campaign management
+SEO and content optimization
+Promotional content oversight
+Market research and insights
+Brand management
+8. Dealer Relations Manager
+
+Dealer onboarding and verification
+Dealer support and training
+Partnership management
+Dealer analytics and performance
+Business development
+9. Product Manager
+
+Feature development oversight
+Product catalog management
+User experience optimization
+A/B testing and experimentation
+Product roadmap planning
+Technical Roles
+10. System Administrator
+
+Server management and monitoring
+Performance optimization
+Security management
+Backup and recovery
+Technical maintenance
+11. Data Analyst
+
+Advanced analytics and reporting
+Market intelligence generation
+Performance metrics analysis
+Business intelligence dashboards
+Data quality management
+Service-Specific Roles
+12. Concierge Service Manager
+
+Concierge request oversight
+Service quality management
+Expert advisor coordination
+Premium service delivery
+Customer satisfaction monitoring
+13. Financial Services Coordinator
+
+Loan application processing
+Trade-in evaluation management
+Bank partnership coordination
+Financial product oversight
+Credit assessment support
+This role structure provides:
+
+Clear separation of responsibilities
+Scalable permission management
+Specialized expertise areas
+Comprehensive system coverage
+Flexibility for growth

@@ -67,6 +67,7 @@ import {
 } from "lucide-react";
 import { z } from "zod";
 import ProductCatalogManagement from "@/components/ProductCatalogManagement";
+import RoleManagementTab from "@/components/admin/RoleManagementTab";
 import type { 
   VehicleReference, 
   TaxRate, 
@@ -677,7 +678,7 @@ function AuthenticatedAdminDashboard() {
                       <span className="hidden lg:inline">Tax</span>
                     </TabsTrigger>
                   </TabsList>
-                  <TabsList className="grid grid-cols-3">
+                  <TabsList className="grid grid-cols-4">
                     <TabsTrigger value="processing-fees" className="flex items-center gap-1">
                       <Calculator className="h-4 w-4" />
                       <span className="hidden lg:inline">Fees</span>
@@ -689,6 +690,10 @@ function AuthenticatedAdminDashboard() {
                     <TabsTrigger value="depreciation" className="flex items-center gap-1">
                       <TrendingDown className="h-4 w-4" />
                       <span className="hidden lg:inline">Depreciation</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="roles" className="flex items-center gap-1">
+                      <Shield className="h-4 w-4" />
+                      <span className="hidden lg:inline">Roles</span>
                     </TabsTrigger>
                   </TabsList>
                 </div>
@@ -1039,6 +1044,11 @@ function AuthenticatedAdminDashboard() {
               isLoading={depreciationRatesLoading}
               onUpdate={updateDepreciationRateMutation.mutate}
             />
+          </TabsContent>
+
+          {/* Role Management Tab */}
+          <TabsContent value="roles">
+            <RoleManagementTab />
           </TabsContent>
         </Tabs>
       </main>

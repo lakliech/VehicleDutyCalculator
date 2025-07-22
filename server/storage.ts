@@ -569,6 +569,327 @@ export class MemStorage implements IStorage {
       .returning();
     return transaction;
   }
+
+  // =============================
+  // CORE USER MANAGEMENT METHODS
+  // =============================
+
+  async calculateDuty(calculation: DutyCalculation): Promise<DutyResult> {
+    // Implement duty calculation logic
+    throw new Error("Not implemented");
+  }
+
+  async saveCalculation(vehicleData: InsertVehicle, calculationData: Omit<InsertCalculation, 'vehicleId'>): Promise<{ vehicle: Vehicle; calculation: Calculation }> {
+    // Implement calculation saving logic
+    throw new Error("Not implemented");
+  }
+
+  async getCalculationHistory(limit?: number): Promise<Array<Vehicle & { calculation: Calculation }>> {
+    // Implement calculation history retrieval
+    return [];
+  }
+
+  async createUser(userData: InsertAppUser & { password: string }): Promise<AppUser> {
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const { password, ...userDataWithoutPassword } = userData;
+    
+    const [user] = await db.insert(appUsers).values({
+      ...userDataWithoutPassword,
+      passwordHash: hashedPassword
+    }).returning();
+    
+    return user;
+  }
+
+  async getUserById(id: string): Promise<AppUser | undefined> {
+    const [user] = await db.select().from(appUsers).where(eq(appUsers.id, id));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<AppUser | undefined> {
+    const [user] = await db.select().from(appUsers).where(eq(appUsers.email, email));
+    return user;
+  }
+
+  async updateUser(id: string, userData: Partial<InsertAppUser>): Promise<AppUser> {
+    const [user] = await db.update(appUsers).set(userData).where(eq(appUsers.id, id)).returning();
+    return user;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await db.delete(appUsers).where(eq(appUsers.id, id));
+  }
+
+  async getUserRole(userId: string): Promise<UserRole | undefined> {
+    const [user] = await db.select({
+      role: userRoles
+    }).from(appUsers)
+      .leftJoin(userRoles, eq(appUsers.roleId, userRoles.id))
+      .where(eq(appUsers.id, userId));
+    return user?.role;
+  }
+
+  async updateUserRole(userId: string, roleId: number): Promise<void> {
+    await db.update(appUsers).set({ roleId }).where(eq(appUsers.id, userId));
+  }
+
+  async getUserWithRole(userId: string): Promise<AppUser & { role?: UserRole } | null> {
+    const [result] = await db.select({
+      user: appUsers,
+      role: userRoles
+    }).from(appUsers)
+      .leftJoin(userRoles, eq(appUsers.roleId, userRoles.id))
+      .where(eq(appUsers.id, userId));
+      
+    if (!result) return null;
+    
+    return {
+      ...result.user,
+      role: result.role || undefined
+    };
+  }
+
+  // =============================
+  // ROLE MANAGEMENT METHODS
+  // =============================
+
+  async getAllRoles(): Promise<UserRole[]> {
+    return await db.select().from(userRoles);
+  }
+
+  async createRole(roleData: InsertUserRole): Promise<UserRole> {
+    const [role] = await db.insert(userRoles).values(roleData).returning();
+    return role;
+  }
+
+  async updateRole(id: number, roleData: Partial<InsertUserRole>): Promise<UserRole> {
+    const [role] = await db.update(userRoles).set(roleData).where(eq(userRoles.id, id)).returning();
+    return role;
+  }
+
+  async deleteRole(id: number): Promise<void> {
+    await db.delete(userRoles).where(eq(userRoles.id, id));
+  }
+
+  // =============================
+  // LISTING MANAGEMENT METHODS
+  // =============================
+
+  async getAllListingsForAdmin(): Promise<Array<CarListing & { seller: AppUser; approval?: ListingApproval }>> {
+    // Implement listing retrieval with seller and approval info
+    return [];
+  }
+
+  async getListingsByUser(userId: string): Promise<CarListing[]> {
+    return await db.select().from(carListings).where(eq(carListings.sellerId, userId));
+  }
+
+  async getListingById(id: number): Promise<CarListing & { seller: AppUser; approval?: ListingApproval } | null> {
+    // Implement listing retrieval with seller and approval info
+    return null;
+  }
+
+  async createListing(listingData: InsertCarListing & { sellerId: string }): Promise<CarListing> {
+    const [listing] = await db.insert(carListings).values(listingData).returning();
+    return listing;
+  }
+
+  async updateListing(id: number, listingData: Partial<InsertCarListing>): Promise<CarListing> {
+    const [listing] = await db.update(carListings).set(listingData).where(eq(carListings.id, id)).returning();
+    return listing;
+  }
+
+  async deleteListing(id: number): Promise<void> {
+    await db.delete(carListings).where(eq(carListings.id, id));
+  }
+
+  // =============================
+  // STUB IMPLEMENTATIONS FOR REMAINING INTERFACE METHODS
+  // =============================
+
+  async approveListing(listingId: number, reviewerId: string, notes?: string): Promise<ListingApproval> {
+    throw new Error("Not implemented");
+  }
+
+  async rejectListing(listingId: number, reviewerId: string, reason: string): Promise<ListingApproval> {
+    throw new Error("Not implemented");
+  }
+
+  async requestChanges(listingId: number, reviewerId: string, changes: string[], notes?: string): Promise<ListingApproval> {
+    throw new Error("Not implemented");
+  }
+
+  async getListingApproval(listingId: number): Promise<ListingApproval | undefined> {
+    return undefined;
+  }
+
+  async logUserActivity(userId: string, activityType: string, entityType?: string, entityId?: string, description?: string, metadata?: any): Promise<void> {
+    // Implement user activity logging
+  }
+
+  async getUserActivities(userId: string, limit?: number): Promise<UserActivity[]> {
+    return [];
+  }
+
+  async getUserStats(userId: string): Promise<UserStats | undefined> {
+    return undefined;
+  }
+
+  async updateUserStats(userId: string, updates: Partial<UserStats>): Promise<UserStats> {
+    throw new Error("Not implemented");
+  }
+
+  async getUserPreferences(userId: string): Promise<UserPreferences | undefined> {
+    return undefined;
+  }
+
+  async updateUserPreferences(userId: string, preferences: Partial<UserPreferences>): Promise<UserPreferences> {
+    throw new Error("Not implemented");
+  }
+
+  async createPasswordResetToken(email: string): Promise<PasswordResetToken> {
+    throw new Error("Not implemented");
+  }
+
+  async verifyPasswordResetToken(token: string): Promise<PasswordResetToken | null> {
+    return null;
+  }
+
+  async deletePasswordResetToken(token: string): Promise<void> {
+    // Implement token deletion
+  }
+
+  async validateUserLogin(email: string, password: string): Promise<AppUser | null> {
+    const user = await this.getUserByEmail(email);
+    if (!user || !user.passwordHash) return null;
+    
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    return isValid ? user : null;
+  }
+
+  async getUserSession(userId: string): Promise<any> {
+    return null;
+  }
+
+  async createUserSession(userId: string, sessionData: any): Promise<any> {
+    return null;
+  }
+
+  async updateUserSession(userId: string, sessionData: any): Promise<any> {
+    return null;
+  }
+
+  async deleteUserSession(userId: string): Promise<void> {
+    // Implement session deletion
+  }
+
+  async getAllUsers(): Promise<AppUser[]> {
+    return await db.select().from(appUsers);
+  }
+
+  async getUsersWithRoles(): Promise<Array<AppUser & { role?: UserRole }>> {
+    const results = await db.select({
+      user: appUsers,
+      role: userRoles
+    }).from(appUsers)
+      .leftJoin(userRoles, eq(appUsers.roleId, userRoles.id));
+
+    return results.map(r => ({
+      ...r.user,
+      role: r.role || undefined
+    }));
+  }
+
+  // Add stub implementations for all other interface methods
+  async createAdminCredential(data: InsertAdminCredential): Promise<AdminCredential> { throw new Error("Not implemented"); }
+  async getAdminByEmail(email: string): Promise<AdminCredential | undefined> { return undefined; }
+  async updateAdminCredential(id: number, updates: Partial<InsertAdminCredential>): Promise<AdminCredential> { throw new Error("Not implemented"); }
+  async deleteAdminCredential(id: number): Promise<void> {}
+  async validateAdminLogin(email: string, password: string): Promise<AdminCredential | null> { return null; }
+  async getAllAdmins(): Promise<AdminCredential[]> { return []; }
+  async logAdminActivity(adminId: number, action: string, description?: string, metadata?: any): Promise<void> {}
+  async getAdminActivities(adminId?: number, limit?: number): Promise<AdminAuditLog[]> { return []; }
+  async flagListing(listingId: number, flaggerId: string, reason: string, description?: string, metadata?: any): Promise<ListingFlag> { throw new Error("Not implemented"); }
+  async getFlagsByListing(listingId: number): Promise<ListingFlag[]> { return []; }
+  async getFlagsByUser(userId: string): Promise<ListingFlag[]> { return []; }
+  async updateFlagStatus(id: number, status: string, resolvedBy?: string, resolution?: string): Promise<ListingFlag> { throw new Error("Not implemented"); }
+  async deleteFlagsByListing(listingId: number): Promise<void> {}
+  async updateListingAnalytics(listingId: number, updates: Partial<InsertListingAnalytics>): Promise<ListingAnalytics> { throw new Error("Not implemented"); }
+  async getListingAnalytics(listingId: number): Promise<ListingAnalytics | undefined> { return undefined; }
+  async incrementListingViews(listingId: number): Promise<void> {}
+  async incrementListingContacts(listingId: number): Promise<void> {}
+  async addAdminNote(listingId: number, adminId: number, note: string, type?: string, visibility?: string): Promise<AdminNote> { throw new Error("Not implemented"); }
+  async getAdminNotes(listingId: number): Promise<AdminNote[]> { return []; }
+  async updateAdminNote(id: number, updates: Partial<InsertAdminNote>): Promise<AdminNote> { throw new Error("Not implemented"); }
+  async deleteAdminNote(id: number): Promise<void> {}
+  async warnUser(userId: string, issuedBy: string, reason: string, description?: string, severity?: string): Promise<UserWarning> { throw new Error("Not implemented"); }
+  async getUserWarnings(userId: string): Promise<UserWarning[]> { return []; }
+  async acknowledgeWarning(id: number): Promise<UserWarning> { throw new Error("Not implemented"); }
+  async createAdminTemplate(data: InsertAdminTemplate): Promise<AdminTemplate> { throw new Error("Not implemented"); }
+  async getAdminTemplates(category?: string): Promise<AdminTemplate[]> { return []; }
+  async updateAdminTemplate(id: number, updates: Partial<InsertAdminTemplate>): Promise<AdminTemplate> { throw new Error("Not implemented"); }
+  async deleteAdminTemplate(id: number): Promise<void> {}
+  async addToFavorites(userId: string, listingId: number): Promise<FavoriteListing> { throw new Error("Not implemented"); }
+  async removeFromFavorites(userId: string, listingId: number): Promise<void> {}
+  async getFavoriteListings(userId: string): Promise<FavoriteListing[]> { return []; }
+  async saveSearch(userId: string, searchCriteria: any, name?: string): Promise<SavedSearch> { throw new Error("Not implemented"); }
+  async getSavedSearches(userId: string): Promise<SavedSearch[]> { return []; }
+  async deleteSavedSearch(id: number): Promise<void> {}
+  async addToComparison(userId: string, listingId: number): Promise<CarComparison> { throw new Error("Not implemented"); }
+  async removeFromComparison(userId: string, listingId: number): Promise<void> {}
+  async getComparisons(userId: string): Promise<CarComparison[]> { return []; }
+  async clearComparisons(userId: string): Promise<void> {}
+  async createAutoFlagRule(data: AutoFlagRule): Promise<AutoFlagRule> { throw new Error("Not implemented"); }
+  async getAutoFlagRules(): Promise<AutoFlagRule[]> { return []; }
+  async updateAutoFlagRule(id: number, updates: Partial<AutoFlagRule>): Promise<AutoFlagRule> { throw new Error("Not implemented"); }
+  async deleteAutoFlagRule(id: number): Promise<void> {}
+  async incrementFlagCount(userId: string, flagType: string): Promise<void> {}
+  async getFlagCount(userId: string): Promise<FlagCountTracking[]> { return []; }
+  async logAutomatedAction(ruleId: number, targetId: string, targetType: string, action: string, result: string, metadata?: any): Promise<void> {}
+  async getAutomatedActionLogs(limit?: number): Promise<AutomatedActionsLog[]> { return []; }
+  async updateSellerReputation(userId: string, updates: Partial<SellerReputationTracking>): Promise<SellerReputationTracking> { throw new Error("Not implemented"); }
+  async getSellerReputation(userId: string): Promise<SellerReputationTracking | undefined> { return undefined; }
+  async createConversation(data: any): Promise<any> { throw new Error("Not implemented"); }
+  async getConversation(id: number): Promise<any> { return null; }
+  async getUserConversations(userId: string): Promise<any[]> { return []; }
+  async updateConversation(id: number, data: any): Promise<any> { throw new Error("Not implemented"); }
+  async deleteConversation(id: number): Promise<void> {}
+  async sendMessage(data: any): Promise<any> { throw new Error("Not implemented"); }
+  async getMessages(conversationId: number, limit?: number, offset?: number): Promise<any[]> { return []; }
+  async updateMessage(id: number, data: any): Promise<any> { throw new Error("Not implemented"); }
+  async deleteMessage(id: number): Promise<void> {}
+  async markMessageAsRead(id: number): Promise<void> {}
+  async getUnreadCount(userId: string): Promise<number> { return 0; }
+  async searchConversations(userId: string, query: string): Promise<any[]> { return []; }
+  async archiveConversation(id: number): Promise<void> {}
+  async unarchiveConversation(id: number): Promise<void> {}
+  async getArchivedConversations(userId: string): Promise<any[]> { return []; }
+  async muteConversation(id: number, userId: string): Promise<void> {}
+  async unmuteConversation(id: number, userId: string): Promise<void> {}
+  async getMutedConversations(userId: string): Promise<any[]> { return []; }
+  async createMessageTemplate(data: any): Promise<any> { throw new Error("Not implemented"); }
+  async getMessageTemplates(category?: string): Promise<any[]> { return []; }
+  async updateMessageTemplate(id: number, data: any): Promise<void> {}
+  async deleteMessageTemplate(id: number): Promise<void> {}
+  async blockUser(blockerId: string, blockedId: string, reason?: string, blockType?: string): Promise<void> {}
+  async unblockUser(blockerId: string, blockedId: string): Promise<void> {}
+  async getBlockedUsers(userId: string): Promise<any[]> { return []; }
+  async isUserBlocked(userId1: string, userId2: string): Promise<boolean> { return false; }
+  async getNotificationSettings(userId: string): Promise<any[]> { return []; }
+  async updateNotificationSettings(userId: string, conversationType: string, settings: any): Promise<void> {}
+  async getConversationAnalytics(conversationId: number): Promise<any> { return null; }
+  async updateConversationAnalytics(conversationId: number, data: any): Promise<void> {}
+  async getMessagingStats(userId: string): Promise<{ totalConversations: number; activeConversations: number; totalMessages: number; unreadCount: number; avgResponseTime: number; }> {
+    return { totalConversations: 0, activeConversations: 0, totalMessages: 0, unreadCount: 0, avgResponseTime: 0 };
+  }
+  async getPriceAlerts(listingId: number, userId: string): Promise<any[]> { return []; }
+  async createPriceAlert(alert: any): Promise<any> { throw new Error("Not implemented"); }
+  async getSmartRecommendations(listingId: number): Promise<any[]> { return []; }
+  async createSmartRecommendation(recommendation: any): Promise<any> { throw new Error("Not implemented"); }
+  async getCarListingById(id: number): Promise<CarListing | null> {
+    const [listing] = await db.select().from(carListings).where(eq(carListings.id, id));
+    return listing || null;
+  }
 }
 
 export const storage = new MemStorage();

@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AuthForms } from "@/components/auth-forms";
 import { 
   Car, 
   Shield, 
@@ -72,6 +74,7 @@ export default function ConciergeService() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
   // Form state for new request
   const [requestForm, setRequestForm] = useState({
@@ -92,17 +95,17 @@ export default function ConciergeService() {
   });
 
   // Fetch concierge packages
-  const { data: packages = [], isLoading: packagesLoading } = useQuery({
+  const { data: packages = [], isLoading: packagesLoading } = useQuery<ConciergePackage[]>({
     queryKey: ["/api/concierge/packages"],
   });
 
   // Fetch concierge advisors
-  const { data: advisors = [], isLoading: advisorsLoading } = useQuery({
+  const { data: advisors = [], isLoading: advisorsLoading } = useQuery<ConciergeAdvisor[]>({
     queryKey: ["/api/concierge/advisors"],
   });
 
   // Fetch user's requests (if authenticated)
-  const { data: userRequests = [], isLoading: requestsLoading } = useQuery({
+  const { data: userRequests = [], isLoading: requestsLoading } = useQuery<ConciergeRequest[]>({
     queryKey: ["/api/concierge/requests"],
     enabled: isAuthenticated,
   });
@@ -148,15 +151,6 @@ export default function ConciergeService() {
   });
 
   const handleSubmitRequest = () => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to submit a concierge request.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (!requestForm.budgetRange || !requestForm.vehicleType || !requestForm.timeline) {
       toast({
         title: "Missing Information",
@@ -166,10 +160,29 @@ export default function ConciergeService() {
       return;
     }
 
+    if (!isAuthenticated) {
+      setShowAuthDialog(true);
+      return;
+    }
+
     createRequestMutation.mutate({
       ...requestForm,
       contactEmail: requestForm.contactEmail || user?.email,
     });
+  };
+
+  // Handle submission for unauthenticated users (require email)
+  const handleUnauthenticatedSubmit = () => {
+    if (!requestForm.contactEmail) {
+      toast({
+        title: "Email Required",
+        description: "Please provide your email address to submit a request.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createRequestMutation.mutate(requestForm);
   };
 
   const getStatusBadge = (status: string) => {
@@ -636,6 +649,59 @@ export default function ConciergeService() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Authentication Dialog for Unauthenticated Users */}
+      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Sign In Required</DialogTitle>
+            <DialogDescription>
+              Please sign in or create an account to submit your concierge request. Already have the details filled? 
+              You can also submit without creating an account by providing your email.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Option 1: Login/Register */}
+            <div className="space-y-3">
+              <AuthForms />
+            </div>
+            
+            {/* Option 2: Submit without account */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or continue without account</span>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="guest-email">Email Address *</Label>
+                <Input
+                  id="guest-email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={requestForm.contactEmail}
+                  onChange={(e) => setRequestForm(prev => ({ ...prev, contactEmail: e.target.value }))}
+                />
+              </div>
+              <Button 
+                onClick={() => {
+                  handleUnauthenticatedSubmit();
+                  setShowAuthDialog(false);
+                }}
+                disabled={createRequestMutation.isPending}
+                className="w-full"
+              >
+                {createRequestMutation.isPending ? "Submitting..." : "Submit Request"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

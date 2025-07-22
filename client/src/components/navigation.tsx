@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Database, LogOut, List, Heart, MessageCircle, User, Brain, CreditCard, BarChart3, Building, Users } from "lucide-react";
+import { Database, LogOut, List, Heart, MessageCircle, User, Brain, CreditCard, BarChart3, Building, Users, MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -7,12 +7,14 @@ import { useAuth } from "@/components/auth-provider";
 import { AuthForms } from "@/components/auth-forms";
 import { useQuery } from "@tanstack/react-query";
 import { useDealerStatus } from "@/hooks/useDealerStatus";
+import { useRoleBasedAccess } from "@/hooks/useRoleBasedAccess";
 import gariyangu from "@assets/gylogo_1752064168868.png";
 
 export function Navigation() {
   const [location] = useLocation();
   const { user, isAuthenticated, logout, isAdminAuthenticated } = useAuth();
   const { hasDealer, dealerProfile, isAdmin, isLoading: dealerLoading } = useDealerStatus(isAuthenticated);
+  const { isAdmin: hasAdminAccess, isSuperAdmin, hasRole } = useRoleBasedAccess();
   
   // Check if current page is an admin page
   const isAdminPage = location.startsWith('/admin');
@@ -166,26 +168,28 @@ export function Navigation() {
                       )}
 
                       {/* Admin Dashboard for users with admin role */}
-                      {(() => {
-                        const userRole = (user as any)?.role;
-                        const roleId = (user as any)?.roleId || userRole?.id;
-                        const roleName = userRole?.name?.toLowerCase();
-                        const isAdmin = roleId === 3 || roleId === 4 || 
-                                       roleName === 'admin' || roleName === 'superadmin';
-                        
-                        return isAdmin ? (
-                          <>
-                            <Link href="/admin" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                              <Database className="mr-2 h-4 w-4" />
-                              <span>Admin Dashboard</span>
-                            </Link>
-                            <Link href="/admin/billing" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                              <CreditCard className="mr-2 h-4 w-4" />
-                              <span>Admin Billing</span>
-                            </Link>
-                          </>
-                        ) : null;
-                      })()}
+                      {hasAdminAccess && (
+                        <>
+                          <div className="border-t border-gray-200 my-1"></div>
+                          <div className="px-3 py-1">
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Administrative {isSuperAdmin && <span className="text-amber-600">(Super Admin)</span>}
+                            </p>
+                          </div>
+                          <Link href="/admin" className="flex items-center px-3 py-2 text-sm hover:bg-orange-50 transition-colors text-orange-600">
+                            <Database className="mr-2 h-4 w-4" />
+                            <span>Admin Dashboard</span>
+                          </Link>
+                          <Link href="/admin/sms" className="flex items-center px-3 py-2 text-sm hover:bg-orange-50 transition-colors text-orange-600">
+                            <MessageSquareText className="mr-2 h-4 w-4" />
+                            <span>SMS Management</span>
+                          </Link>
+                          <Link href="/admin/billing" className="flex items-center px-3 py-2 text-sm hover:bg-orange-50 transition-colors text-orange-600">
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            <span>Admin Billing</span>
+                          </Link>
+                        </>
+                      )}
                       <button 
                         onClick={handleLogout}
                         className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-50 transition-colors text-left"

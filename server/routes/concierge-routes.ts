@@ -2,6 +2,8 @@ import express from 'express';
 import { z } from 'zod';
 import { db } from '../db';
 import { eq, and, desc } from 'drizzle-orm';
+import { conciergeRequests, conciergeRequestSchema } from '../../shared/schema';
+import { authenticateUser } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -101,23 +103,7 @@ const mockAdvisors = [
   }
 ];
 
-// Request schema
-const conciergeRequestSchema = z.object({
-  budgetRange: z.string(),
-  vehicleType: z.string(),
-  timeline: z.string(),
-  preferences: z.object({
-    lifestyle: z.string().optional(),
-    location: z.string().optional(),
-    comfortVsUtility: z.string().optional(),
-    ownershipHistory: z.string().optional(),
-    financing: z.string().optional(),
-    importPreference: z.string().optional(),
-    urgency: z.string().optional()
-  }),
-  contactEmail: z.string().email(),
-  contactPhone: z.string().optional()
-});
+// Using the schema from shared/schema.ts which is already imported
 
 // Get all packages
 router.get('/packages', async (req, res) => {
@@ -140,11 +126,21 @@ router.get('/advisors', async (req, res) => {
 });
 
 // Get user's concierge requests (requires authentication)
-router.get('/requests', async (req, res) => {
+router.get('/requests', authenticateUser, async (req: any, res) => {
   try {
-    // In production, this would check authentication and fetch from database
-    // For now, return empty array as these tables don't exist yet
-    res.json([]);
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const userRequests = await db
+      .select()
+      .from(conciergeRequests)
+      .where(eq(conciergeRequests.userId, userId))
+      .orderBy(desc(conciergeRequests.createdAt));
+
+    res.json(userRequests);
   } catch (error) {
     console.error('Error fetching concierge requests:', error);
     res.status(500).json({ error: 'Failed to fetch requests' });
@@ -152,7 +148,7 @@ router.get('/requests', async (req, res) => {
 });
 
 // Create new concierge request
-router.post('/requests', async (req, res) => {
+router.post('/requests', authenticateUser, async (req: any, res) => {
   try {
     const validation = conciergeRequestSchema.safeParse(req.body);
     
@@ -164,18 +160,25 @@ router.post('/requests', async (req, res) => {
     }
 
     const requestData = validation.data;
+    const userId = req.user?.id;
     
-    // In production, this would save to database
-    // For now, just return success response
-    const mockRequest = {
-      id: Math.floor(Math.random() * 1000),
-      ...requestData,
-      status: 'consultation',
-      assignedAdvisor: null,
-      createdAt: new Date().toISOString()
-    };
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
 
-    console.log('New concierge request received:', {
+    // Save to database
+    const [newRequest] = await db
+      .insert(conciergeRequests)
+      .values({
+        ...requestData,
+        userId,
+        status: 'consultation',
+      })
+      .returning();
+
+    console.log('New concierge request created:', {
+      id: newRequest.id,
+      userId,
       budgetRange: requestData.budgetRange,
       vehicleType: requestData.vehicleType,
       timeline: requestData.timeline,
@@ -185,7 +188,7 @@ router.post('/requests', async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Request submitted successfully',
-      request: mockRequest
+      request: newRequest
     });
 
   } catch (error) {

@@ -45,6 +45,15 @@ const FEATURED_TOOLS = [
     badgeColor: "bg-green-500"
   },
   {
+    href: "/concierge-service",
+    title: "Concierge Service", 
+    description: "Expert car buying assistance from professionals",
+    icon: User,
+    gradient: "from-amber-500 via-amber-600 to-amber-700",
+    badge: "Premium",
+    badgeColor: "bg-amber-500"
+  },
+  {
     href: "/duty-calculator",
     title: "Import Duty",
     description: "Calculate KRA import taxes with official rates",
@@ -106,13 +115,6 @@ const PROFESSIONAL_TOOLS = [
     description: "Chassis number verification",
     icon: Shield,
     color: "text-cyan-600"
-  },
-  { 
-    href: "/concierge-service", 
-    title: "Full Concierge Service", 
-    description: "Expert car buying assistance",
-    icon: User,
-    color: "text-amber-600"
   }
 ];
 
@@ -249,7 +251,7 @@ export default function Home() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {FEATURED_TOOLS.map((tool, index) => {
               const IconComponent = tool.icon;
               return (

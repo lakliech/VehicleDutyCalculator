@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Database, LogOut, List, Heart, MessageCircle, User, Brain, CreditCard, BarChart3, Building, Users, MessageSquareText } from "lucide-react";
+import { Database, LogOut, List, Heart, MessageCircle, User, Brain, CreditCard, BarChart3, Building, Users, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -181,7 +181,7 @@ export function Navigation() {
                             <span>Admin Dashboard</span>
                           </Link>
                           <Link href="/admin/sms" className="flex items-center px-3 py-2 text-sm hover:bg-orange-50 transition-colors text-orange-600">
-                            <MessageSquareText className="mr-2 h-4 w-4" />
+                            <MessageSquare className="mr-2 h-4 w-4" />
                             <span>SMS Management</span>
                           </Link>
                           <Link href="/admin/billing" className="flex items-center px-3 py-2 text-sm hover:bg-orange-50 transition-colors text-orange-600">

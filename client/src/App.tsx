@@ -37,6 +37,9 @@ import DealerInvitation from "@/pages/dealer-invitation";
 import DealerDashboard from "@/pages/dealer-dashboard";
 import DealerProfilePage from "@/pages/dealer-profile/[id]";
 import Dealers from "@/pages/dealers";
+import LiveStreaming from "@/pages/live-streaming";
+import GroupBuying from "@/pages/group-buying";
+import InfluencerHub from "@/pages/influencer-hub";
 
 import AdminListingDetails from "@/pages/admin-listing-details";
 import AdminUsers from "@/pages/admin-users";
@@ -110,6 +113,9 @@ function Router() {
           <Route path="/price-heatmap" component={PriceTrends} />
           <Route path="/smart-pricing" component={SmartPricing} />
           <Route path="/concierge-service" component={ConciergeService} />
+          <Route path="/live-streaming" component={LiveStreaming} />
+          <Route path="/group-buying" component={GroupBuying} />
+          <Route path="/influencer-hub" component={InfluencerHub} />
           <Route path="/dashboard">
             <ProtectedRoute>
               <Dashboard />

@@ -56,6 +56,7 @@ import UnifiedBillingDashboard from "@/pages/unified-billing-dashboard";
 import AdminBillingDashboard from "@/pages/admin-billing-dashboard";
 import ExcelImport from "@/pages/excel-import";
 import MileageVerification from "@/pages/mileage-verification";
+import ConciergeService from "@/pages/concierge-service";
 import { ResetPassword } from "@/pages/reset-password";
 import PaymentSuccess from "@/pages/payment-success-simple";
 import { AuthProvider } from "@/components/auth-provider";
@@ -106,6 +107,7 @@ function Router() {
           <Route path="/price-trends" component={PriceTrends} />
           <Route path="/price-heatmap" component={PriceTrends} />
           <Route path="/smart-pricing" component={SmartPricing} />
+          <Route path="/concierge-service" component={ConciergeService} />
           <Route path="/dashboard">
             <ProtectedRoute>
               <Dashboard />

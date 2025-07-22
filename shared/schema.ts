@@ -2520,3 +2520,214 @@ export type InsertAdPosition = z.infer<typeof adPositionSchema>;
 export type InsertAdvertisement = z.infer<typeof advertisementSchema>;
 export type InsertAdPlacement = z.infer<typeof adPlacementSchema>;
 export type InsertFloatingAd = z.infer<typeof floatingAdSchema>;
+
+// ==============================
+// FULL CONCIERGE SERVICE SCHEMA
+// ==============================
+
+// Main concierge requests table
+export const conciergeRequests = pgTable("concierge_requests", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id),
+  status: varchar("status", { length: 50 }).default("consultation"), // consultation, search, verification, negotiation, payment, delivery, completed, cancelled
+  budgetRange: varchar("budget_range", { length: 100 }),
+  vehicleType: varchar("vehicle_type", { length: 100 }),
+  timeline: varchar("timeline", { length: 100 }),
+  preferences: json("preferences").$type<{
+    lifestyle?: string;
+    location?: string;
+    comfortVsUtility?: string;
+    ownershipHistory?: string;
+    financing?: string;
+    importPreference?: string;
+    urgency?: string;
+  }>(),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 20 }),
+  assignedAdvisor: varchar("assigned_advisor", { length: 255 }),
+  consultationNotes: text("consultation_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Vehicle recommendations from experts
+export const conciergeRecommendations = pgTable("concierge_recommendations", {
+  id: serial("id").primaryKey(),
+  requestId: integer("request_id").references(() => conciergeRequests.id),
+  listingId: varchar("listing_id", { length: 255 }).references(() => carListings.id),
+  priceAnalysis: text("price_analysis"),
+  prosAndCons: json("pros_and_cons").$type<{
+    pros: string[];
+    cons: string[];
+  }>(),
+  maintenanceCosts: text("maintenance_costs"),
+  reputation: text("reputation"),
+  recommendation: varchar("recommendation", { length: 50 }), // highly_recommended, recommended, consider, not_recommended
+  ranking: integer("ranking").default(1), // 1 = first choice, 2 = second choice, etc.
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Vehicle inspection reports
+export const conciergeInspections = pgTable("concierge_inspections", {
+  id: serial("id").primaryKey(),
+  requestId: integer("request_id").references(() => conciergeRequests.id),
+  listingId: varchar("listing_id", { length: 255 }).references(() => carListings.id),
+  inspectionType: varchar("inspection_type", { length: 50 }), // history_check, physical_inspection, road_test
+  inspectorName: varchar("inspector_name", { length: 255 }),
+  inspectionDate: timestamp("inspection_date"),
+  findings: json("findings").$type<{
+    mechanical?: string[];
+    cosmetic?: string[];
+    roadTest?: string[];
+    history?: string[];
+    overall?: string;
+  }>(),
+  overallRating: varchar("overall_rating", { length: 20 }), // excellent, good, fair, poor
+  reportUrl: varchar("report_url", { length: 500 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Negotiation tracking
+export const conciergeNegotiations = pgTable("concierge_negotiations", {
+  id: serial("id").primaryKey(),
+  requestId: integer("request_id").references(() => conciergeRequests.id),
+  listingId: varchar("listing_id", { length: 255 }).references(() => carListings.id),
+  originalPrice: decimal("original_price", { precision: 12, scale: 2 }),
+  negotiatedPrice: decimal("negotiated_price", { precision: 12, scale: 2 }),
+  savings: decimal("savings", { precision: 12, scale: 2 }),
+  extras: json("extras").$type<string[]>(),
+  negotiationNotes: text("negotiation_notes"),
+  status: varchar("status", { length: 50 }).default("pending"), // pending, accepted, rejected, counter_offer
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Transaction and payment handling
+export const conciergeTransactions = pgTable("concierge_transactions", {
+  id: serial("id").primaryKey(),
+  requestId: integer("request_id").references(() => conciergeRequests.id),
+  listingId: varchar("listing_id", { length: 255 }).references(() => carListings.id),
+  transactionType: varchar("transaction_type", { length: 50 }), // escrow, direct, bank_transfer, financing
+  amount: decimal("amount", { precision: 12, scale: 2 }),
+  paymentStatus: varchar("payment_status", { length: 50 }).default("pending"), // pending, processing, completed, failed
+  escrowId: varchar("escrow_id", { length: 100 }),
+  paymentReference: varchar("payment_reference", { length: 100 }),
+  transferDocuments: json("transfer_documents").$type<{
+    ntsa?: boolean;
+    logbook?: boolean;
+    insurance?: boolean;
+    taxes?: boolean;
+  }>(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Post-purchase follow-ups
+export const conciergeFollowUps = pgTable("concierge_follow_ups", {
+  id: serial("id").primaryKey(),
+  requestId: integer("request_id").references(() => conciergeRequests.id),
+  followUpDate: timestamp("follow_up_date"),
+  followUpType: varchar("follow_up_type", { length: 50 }), // 1_week, 1_month, 3_months, maintenance_reminder
+  status: varchar("status", { length: 50 }).default("scheduled"), // scheduled, completed, missed
+  notes: text("notes"),
+  serviceProviders: json("service_providers").$type<{
+    mechanics?: string[];
+    insurers?: string[];
+    parts?: string[];
+  }>(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Concierge advisors/staff
+export const conciergeAdvisors = pgTable("concierge_advisors", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  title: varchar("title", { length: 100 }),
+  expertise: json("expertise").$type<string[]>(),
+  experience: text("experience"),
+  profileImageUrl: varchar("profile_image_url", { length: 500 }),
+  contactPhone: varchar("contact_phone", { length: 20 }),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  isActive: boolean("is_active").default(true),
+  rating: decimal("rating", { precision: 3, scale: 2 }),
+  completedRequests: integer("completed_requests").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Service pricing and packages
+export const conciergePackages = pgTable("concierge_packages", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  features: json("features").$type<string[]>(),
+  maxVehicles: integer("max_vehicles").default(3), // Max vehicles to evaluate
+  includesInspection: boolean("includes_inspection").default(true),
+  includesNegotiation: boolean("includes_negotiation").default(true),
+  includesEscrow: boolean("includes_escrow").default(false),
+  includesFollowUp: boolean("includes_follow_up").default(true),
+  timeline: varchar("timeline", { length: 100 }), // "5-7 business days"
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Create insert schemas for concierge tables
+export const conciergeRequestSchema = createInsertSchema(conciergeRequests).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const conciergeRecommendationSchema = createInsertSchema(conciergeRecommendations).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const conciergeInspectionSchema = createInsertSchema(conciergeInspections).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const conciergeNegotiationSchema = createInsertSchema(conciergeNegotiations).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const conciergeTransactionSchema = createInsertSchema(conciergeTransactions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const conciergeFollowUpSchema = createInsertSchema(conciergeFollowUps).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const conciergeAdvisorSchema = createInsertSchema(conciergeAdvisors).omit({
+  id: true,
+  createdAt: true,
+  rating: true,
+  completedRequests: true,
+});
+
+export const conciergePackageSchema = createInsertSchema(conciergePackages).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Type exports for concierge service
+export type ConciergeRequest = typeof conciergeRequests.$inferSelect;
+export type InsertConciergeRequest = z.infer<typeof conciergeRequestSchema>;
+export type ConciergeRecommendation = typeof conciergeRecommendations.$inferSelect;
+export type InsertConciergeRecommendation = z.infer<typeof conciergeRecommendationSchema>;
+export type ConciergeInspection = typeof conciergeInspections.$inferSelect;
+export type InsertConciergeInspection = z.infer<typeof conciergeInspectionSchema>;
+export type ConciergeNegotiation = typeof conciergeNegotiations.$inferSelect;
+export type InsertConciergeNegotiation = z.infer<typeof conciergeNegotiationSchema>;
+export type ConciergeTransaction = typeof conciergeTransactions.$inferSelect;
+export type InsertConciergeTransaction = z.infer<typeof conciergeTransactionSchema>;
+export type ConciergeFollowUp = typeof conciergeFollowUps.$inferSelect;
+export type InsertConciergeFollowUp = z.infer<typeof conciergeFollowUpSchema>;
+export type ConciergeAdvisor = typeof conciergeAdvisors.$inferSelect;
+export type InsertConciergeAdvisor = z.infer<typeof conciergeAdvisorSchema>;
+export type ConciergePackage = typeof conciergePackages.$inferSelect;
+export type InsertConciergePackage = z.infer<typeof conciergePackageSchema>;

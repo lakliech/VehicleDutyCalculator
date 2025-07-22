@@ -2071,6 +2071,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('Error loading advertisement routes:', error);
   }
 
+  // Concierge Service Routes
+  try {
+    const conciergeRoutes = await import('./routes/concierge-routes');
+    app.use('/api/concierge', conciergeRoutes.default);
+    console.log("Concierge service routes registered successfully");
+  } catch (error) {
+    console.error('Error loading concierge routes:', error);
+  }
+
   // Product Catalog Routes - removed async wrapper causing issues
   
   // Dealer Routes
@@ -9992,6 +10001,15 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
 
   // Register mileage verification routes
   registerMileageVerificationRoutes(app);
+
+  // Register concierge service routes
+  try {
+    const conciergeRoutes = await import("./routes/concierge-routes");
+    app.use("/api/concierge", conciergeRoutes.default);
+    console.log("Concierge service routes registered successfully");
+  } catch (error) {
+    console.error("Failed to load concierge routes:", error);
+  }
 
   const httpServer = createServer(app);
 

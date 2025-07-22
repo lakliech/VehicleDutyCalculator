@@ -20,7 +20,8 @@ import {
   TrendingUp,
   Shield,
   Sparkles,
-  Star
+  Star,
+  User
 } from "lucide-react";
 
 // Enhanced tool structure with extra visibility features
@@ -105,6 +106,13 @@ const PROFESSIONAL_TOOLS = [
     description: "Chassis number verification",
     icon: Shield,
     color: "text-cyan-600"
+  },
+  { 
+    href: "/concierge-service", 
+    title: "Full Concierge Service", 
+    description: "Expert car buying assistance",
+    icon: User,
+    color: "text-amber-600"
   }
 ];
 

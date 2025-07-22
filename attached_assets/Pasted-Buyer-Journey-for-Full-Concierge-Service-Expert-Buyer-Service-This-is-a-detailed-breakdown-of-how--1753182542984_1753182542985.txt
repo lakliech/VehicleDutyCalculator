@@ -1,0 +1,164 @@
+Buyer Journey for Full Concierge Service (Expert Buyer Service)
+This is a detailed breakdown of how a Full Concierge Service for buying a car on a classified platform should work from the buyer’s perspective, designed to be intuitive, reassuring, and highly professional.
+
+The goal is to remove uncertainty, reduce risk, and save time for the buyer, especially those who lack confidence in buying a used or imported car.
+
+🚗 1️⃣ Entry Point: Awareness & Sign-Up
+🔹 Buyer Touchpoints:
+Prominent CTAs: “Need Expert Help Finding the Right Car?”
+
+Shown on:
+
+Homepage banners
+
+Search pages (“Can’t Decide? Let Us Help”)
+
+Buyer guides / FAQs
+
+After inquiries on listings
+
+🔹 Buyer Action:
+Clicks “Get Full Concierge Service”
+
+Brief explainer page outlining benefits, steps, and fee
+
+Simple sign-up form:
+
+Contact info (email, phone)
+
+Budget range
+
+Vehicle type / purpose
+
+Timeline for purchase
+
+Preferences (new/used, brand bias, etc.)
+
+🔹 System Response:
+Confirmation email / WhatsApp message sent
+
+Buyer assigned to a dedicated advisor (or team)
+
+🚗 2️⃣ Needs Discovery Consultation
+🔹 Mode: Call, Video, WhatsApp, or In-App Chat
+🔹 Expert Actions:
+Deep-dive conversation on buyer’s needs:
+
+Lifestyle: Family, work, leisure
+
+Location specifics (terrain, roads, parts availability)
+
+Comfort vs. utility vs. prestige preferences
+
+Ownership history (first car vs. upgrade)
+
+Clarify:
+
+Financing needs
+
+Preferences for local vs. import
+
+Urgency / flexibility
+
+🔹 Deliverable:
+Summary report back to buyer confirming understanding of brief
+
+Initial timeline expectation for delivery
+
+🚗 3️⃣ Curated Options & Recommendations
+🔹 Expert Provides:
+3–5 handpicked options from verified, reputable sellers
+
+Each with:
+
+Price analysis (fairness vs. market rate)
+
+Pros/cons breakdown
+
+Maintenance & fuel cost expectations
+
+Known issues / reputation insights
+
+Financing advice if applicable
+
+🔹 Buyer Action:
+Gives feedback, refines preferences
+
+Shortlists preferred option(s)
+
+🚗 4️⃣ Vehicle Verification & Due Diligence
+🔹 Concierge Team Actions:
+Conducts history checks:
+
+Accident records, theft, loans, insurance claims
+
+Physical inspection (either in-house or partner garages):
+
+Mechanical checks
+
+Cosmetic condition
+
+Road test report
+
+Provides:
+
+Comprehensive inspection report
+
+Verified valuation (market-based)
+
+Recommendations for negotiation leverage
+
+🚗 5️⃣ Negotiation & Deal Facilitation
+🔹 Expert Support:
+Negotiates with seller on buyer’s behalf
+
+Secures:
+
+Better pricing
+
+Extras (service, accessories, warranties where possible)
+
+Manages communication to avoid scams or pressure tactics
+
+🚗 6️⃣ Payment & Transaction Handling
+🔹 Support Provided:
+Escrow service (optional for security)
+
+Guidance on secure payment methods
+
+Facilitates ownership transfer:
+
+NTSA portal (Kenya)
+
+Logbook
+
+Insurance introductions
+
+Any required taxes or fees clarified upfront
+
+🚗 7️⃣ Delivery / Handover
+🔹 Buyer Options:
+Pickup arrangement at seller location
+
+Home/office delivery (if offered)
+
+Final checklist verification before sign-off
+
+🚗 8️⃣ Post-Purchase Support
+🔹 Concierge Provides:
+Follow-up check-in (1–3 months)
+
+Maintenance schedule guidance
+
+Introductions to trusted service providers:
+
+Mechanics, insurers, parts suppliers
+
+Feedback collection for continuous improvement
+
+📊 Optional Deliverables: Buyer Portal / Dashboard
+Track progress of search, verifications, negotiation
+
+Access reports and documents
+
+Centralize communication with concierge team

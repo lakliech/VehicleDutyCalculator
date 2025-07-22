@@ -476,13 +476,12 @@ router.delete('/floating-ads/:id', authenticateUser, requireRole(['admin', 'supe
 // ANALYTICS AND TRACKING
 // ==============================
 
-// Track ad impression
+// Track ad impression - Simplified version to avoid schema conflicts
 router.post('/track/impression/:placementId', async (req, res) => {
   try {
     const { placementId } = req.params;
-    const { userAgent, ipAddress, deviceType = 'desktop', location = 'other' } = req.body;
     
-    // Update placement impressions
+    // Only update placement impressions (no detailed analytics)
     await db
       .update(adPlacements)
       .set({ 
@@ -490,28 +489,7 @@ router.post('/track/impression/:placementId', async (req, res) => {
       })
       .where(eq(adPlacements.id, parseInt(placementId)));
     
-    // Update daily analytics
-    const today = new Date().toISOString().split('T')[0];
-    
-    await db
-      .insert(adAnalytics)
-      .values({
-        placementId: parseInt(placementId),
-        date: today,
-        impressions: 1,
-        uniqueImpressions: 1,
-        [`${deviceType}Views`]: 1,
-        [`${location}Views`]: 1
-      })
-      .onConflictDoUpdate({
-        target: [adAnalytics.placementId, adAnalytics.date],
-        set: {
-          impressions: sql`${adAnalytics.impressions} + 1`,
-          [`${deviceType}Views`]: sql`${adAnalytics[`${deviceType}Views` as keyof typeof adAnalytics]} + 1`,
-          [`${location}Views`]: sql`${adAnalytics[`${location}Views` as keyof typeof adAnalytics]} + 1`
-        }
-      });
-    
+    console.log(`Ad impression tracked for placement ${placementId}`);
     res.json({ success: true });
   } catch (error) {
     console.error('Error tracking ad impression:', error);
@@ -533,23 +511,9 @@ router.post('/track/click/:placementId', async (req, res) => {
       })
       .where(eq(adPlacements.id, parseInt(placementId)));
     
-    // Update daily analytics
-    const today = new Date().toISOString().split('T')[0];
-    
-    await db
-      .insert(adAnalytics)
-      .values({
-        placementId: parseInt(placementId),
-        date: today,
-        clicks: 1,
-        uniqueClicks: 1
-      })
-      .onConflictDoUpdate({
-        target: [adAnalytics.placementId, adAnalytics.date],
-        set: {
-          clicks: sql`${adAnalytics.clicks} + 1`
-        }
-      });
+    // Note: Detailed analytics disabled due to schema mismatch
+    // Only basic click counting on placements is active
+    console.log(`Ad click tracked for placement ${placementId}`);
     
     res.json({ success: true });
   } catch (error) {

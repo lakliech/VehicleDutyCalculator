@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { format, formatDistanceToNow } from "date-fns";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface GroupBuy {
   id: number;
@@ -55,6 +55,7 @@ interface GroupBuy {
 export default function GroupBuying() {
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [selectedGroupBuy, setSelectedGroupBuy] = useState<GroupBuy | null>(null);
   const [joinQuantity, setJoinQuantity] = useState(1);
   const [customizations, setCustomizations] = useState({

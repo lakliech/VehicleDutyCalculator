@@ -69,6 +69,6 @@ export function useRoleBasedAccess(): RoleBasedAccess {
     hasPermission,
     roleId,
     roleName,
-    userRole
+    userRole: userRole || null
   };
 }

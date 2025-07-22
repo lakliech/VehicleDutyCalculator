@@ -15,7 +15,7 @@ import {
   Video, Camera, Edit3, CheckCircle, Clock
 } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
 interface InfluencerReview {
@@ -59,6 +59,7 @@ interface Influencer {
 export default function InfluencerHub() {
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("reviews");
   const [isInfluencerModalOpen, setIsInfluencerModalOpen] = useState(false);
   const [influencerFormData, setInfluencerFormData] = useState({

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Database, LogOut, List, Heart, MessageCircle, User, Brain, CreditCard, BarChart3, Building, Users, MessageSquare } from "lucide-react";
+import { Database, LogOut, List, Heart, MessageCircle, User, Brain, CreditCard, BarChart3, Building, Users, MessageSquare, MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,13 @@ export function Navigation() {
   const isAdminPage = location.startsWith('/admin');
 
   // Get unread message count for authenticated users
-  const { data: messagingStats } = useQuery({
+  const { data: messagingStats } = useQuery<{
+    totalConversations: number;
+    activeConversations: number;
+    totalMessages: number;
+    unreadCount: number;
+    avgResponseTime: number;
+  }>({
     queryKey: ['/api/messaging/stats'],
     enabled: !!isAuthenticated && !!user && !isAdminPage && user?.id != null,
     refetchInterval: 30000, // Refresh every 30 seconds

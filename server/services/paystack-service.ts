@@ -113,9 +113,36 @@ export class PaystackService {
       const paymentData = response.data;
       
       // Update payment transaction
+      console.log('Looking for payment transaction with reference:', reference);
       const transaction = await storage.getPaymentTransactionByReference(reference);
+      console.log('Found transaction:', transaction);
       if (!transaction) {
-        throw new Error('Payment transaction not found');
+        // Try to find by Paystack reference as fallback
+        const paystackTransaction = await storage.getPaymentTransactionByPaystackReference(reference);
+        console.log('Paystack reference search result:', paystackTransaction);
+        if (!paystackTransaction) {
+          throw new Error('Payment transaction not found');
+        }
+        // Use the Paystack transaction if found
+        const updatedTransaction = await storage.updatePaymentTransaction(paystackTransaction.id, {
+          status: paymentData.status === 'success' ? 'completed' : 'failed',
+          method: this.mapPaystackChannelToMethod(paymentData.channel),
+          provider: paymentData.authorization?.brand || paymentData.authorization?.bank || paymentData.channel,
+          paystackFeePaid: paymentData.fees ? (paymentData.fees / 100).toString() : null,
+          paidAt: paymentData.paid_at ? new Date(paymentData.paid_at) : null,
+          processedAt: new Date()
+        });
+
+        // Process successful payment
+        if (paymentData.status === 'success') {
+          await this.processSuccessfulPayment(updatedTransaction);
+        }
+
+        return {
+          transaction: updatedTransaction,
+          data: paymentData,
+          success: paymentData.status === 'success'
+        };
       }
 
       const updatedTransaction = await storage.updatePaymentTransaction(transaction.id, {

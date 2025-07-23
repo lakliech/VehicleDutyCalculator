@@ -156,6 +156,7 @@ export class UnifiedBillingService {
       const finalAmount = billingType === 'yearly' ? amount * 10 : amount; // 10x for yearly (17% discount already applied)
 
       // Initialize payment with Paystack
+      console.log('Initializing payment for subscription:', { userId, planId, billingType, finalAmount });
       const paymentResult = await paystackService.initializePayment({
         userId,
         amount: finalAmount,
@@ -172,6 +173,11 @@ export class UnifiedBillingService {
           product_id: planId // Also add to metadata for backward compatibility
         },
         redirectUrl: `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/billing?payment=success`
+      });
+      
+      console.log('Payment initialization result:', {
+        reference: paymentResult.reference,
+        transactionId: paymentResult.transaction?.id
       });
 
       return {

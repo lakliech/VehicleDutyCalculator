@@ -67,10 +67,7 @@ const addCompactSection = (doc: jsPDF, title: string, y: number) => {
   });
 };
 
-const addTableRow = (doc: jsPDF, label: string, value: string, y: number, isTotal: boolean = false, isHeader: boolean = false) => {
-  const margins = PDF_CONFIG.margins;
-  const pageWidth = doc.internal.pageSize.width;
-  const contentWidth = pageWidth - margins.left - margins.right;
+const addTableRow = (doc: jsPDF, label: string, value: string, y: number, contentWidth: number, startX: number, isTotal: boolean = false, isHeader: boolean = false) => {
   const rowHeight = 10;
   
   // Table borders (thin)
@@ -80,27 +77,27 @@ const addTableRow = (doc: jsPDF, label: string, value: string, y: number, isTota
   // Background for headers and totals
   if (isHeader) {
     doc.setFillColor(PDF_CONFIG.colors.primary[0], PDF_CONFIG.colors.primary[1], PDF_CONFIG.colors.primary[2]);
-    doc.rect(margins.left, y - 6, contentWidth, rowHeight, 'FD');
+    doc.rect(startX, y - 6, contentWidth, rowHeight, 'FD');
   } else if (isTotal) {
     doc.setFillColor(PDF_CONFIG.colors.background[0], PDF_CONFIG.colors.background[1], PDF_CONFIG.colors.background[2]);
-    doc.rect(margins.left, y - 6, contentWidth, rowHeight, 'FD');
+    doc.rect(startX, y - 6, contentWidth, rowHeight, 'FD');
   } else {
     // Regular row with border only
-    doc.rect(margins.left, y - 6, contentWidth, rowHeight, 'D');
+    doc.rect(startX, y - 6, contentWidth, rowHeight, 'D');
   }
   
   // Text color
   const textColor = isHeader ? [255, 255, 255] : (isTotal ? PDF_CONFIG.colors.primary : PDF_CONFIG.colors.text);
   
   // Label
-  addText(doc, label, margins.left + 2, y, {
+  addText(doc, label, startX + 2, y, {
     fontSize: PDF_CONFIG.fonts.small.size + 1,
     fontStyle: (isTotal || isHeader) ? 'bold' : 'normal',
     color: textColor
   });
   
   // Value (right-aligned)
-  addText(doc, value, margins.left + contentWidth - 2, y, {
+  addText(doc, value, startX + contentWidth - 2, y, {
     fontSize: PDF_CONFIG.fonts.small.size + 1,
     fontStyle: (isTotal || isHeader) ? 'bold' : 'normal',
     color: textColor,
@@ -147,46 +144,46 @@ export function generateDutyCalculationPDF(
   // === MAIN CONTENT (Left Column) ===
   // Vehicle Information Table
   currentY = addCompactSection(doc, "VEHICLE DETAILS", currentY) + 5;
-  currentY = addTableRow(doc, "ITEM", "VALUE", currentY, false, true);
+  currentY = addTableRow(doc, "ITEM", "VALUE", currentY, mainContentWidth, margins.left, false, true);
   
   if (selectedVehicle) {
-    currentY = addTableRow(doc, "Make & Model", `${selectedVehicle.make} ${selectedVehicle.model}`, currentY);
-    currentY = addTableRow(doc, "Body Type", selectedVehicle.bodyType || 'N/A', currentY);
-    currentY = addTableRow(doc, "Fuel Type", selectedVehicle.fuelType || 'N/A', currentY);
+    currentY = addTableRow(doc, "Make & Model", `${selectedVehicle.make} ${selectedVehicle.model}`, currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, "Body Type", selectedVehicle.bodyType || 'N/A', currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, "Fuel Type", selectedVehicle.fuelType || 'N/A', currentY, mainContentWidth, margins.left);
   }
   
-  currentY = addTableRow(doc, "Engine Size", `${engineSize}cc`, currentY);
-  currentY = addTableRow(doc, "Year", yearOfManufacture.toString(), currentY);
+  currentY = addTableRow(doc, "Engine Size", `${engineSize}cc`, currentY, mainContentWidth, margins.left);
+  currentY = addTableRow(doc, "Year", yearOfManufacture.toString(), currentY, mainContentWidth, margins.left);
   const vehicleAge = new Date().getFullYear() - yearOfManufacture + 1;
-  currentY = addTableRow(doc, "Age", `${vehicleAge} years`, currentY);
-  currentY = addTableRow(doc, "Import Type", isDirectImport ? 'Direct Import' : 'Previously Registered', currentY);
+  currentY = addTableRow(doc, "Age", `${vehicleAge} years`, currentY, mainContentWidth, margins.left);
+  currentY = addTableRow(doc, "Import Type", isDirectImport ? 'Direct Import' : 'Previously Registered', currentY, mainContentWidth, margins.left);
   
   currentY += 8;
   
   // Valuation Table
   currentY = addCompactSection(doc, "VALUATION", currentY) + 5;
-  currentY = addTableRow(doc, "COMPONENT", "AMOUNT (KES)", currentY, false, true);
-  currentY = addTableRow(doc, "CRSP Value", formatCurrency(result.currentRetailPrice), currentY);
+  currentY = addTableRow(doc, "COMPONENT", "AMOUNT (KES)", currentY, mainContentWidth, margins.left, false, true);
+  currentY = addTableRow(doc, "CRSP Value", formatCurrency(result.currentRetailPrice), currentY, mainContentWidth, margins.left);
   currentY = addTableRow(doc, `Depreciation (${(result.depreciationRate * 100).toFixed(0)}%)`, 
-    `-${formatCurrency(result.currentRetailPrice - result.depreciatedPrice)}`, currentY);
-  currentY = addTableRow(doc, "Customs Value", formatCurrency(result.customsValue), currentY, true);
+    `-${formatCurrency(result.currentRetailPrice - result.depreciatedPrice)}`, currentY, mainContentWidth, margins.left);
+  currentY = addTableRow(doc, "Customs Value", formatCurrency(result.customsValue), currentY, mainContentWidth, margins.left, true);
   
   currentY += 8;
   
   // Tax Breakdown Table
   currentY = addCompactSection(doc, "TAX BREAKDOWN", currentY) + 5;
-  currentY = addTableRow(doc, "TAX TYPE", "AMOUNT (KES)", currentY, false, true);
-  currentY = addTableRow(doc, "Import Duty", formatCurrency(result.importDuty), currentY);
-  currentY = addTableRow(doc, "Excise Duty", formatCurrency(result.exciseDuty), currentY);
-  currentY = addTableRow(doc, "VAT (16%)", formatCurrency(result.vat), currentY);
+  currentY = addTableRow(doc, "TAX TYPE", "AMOUNT (KES)", currentY, mainContentWidth, margins.left, false, true);
+  currentY = addTableRow(doc, "Import Duty", formatCurrency(result.importDuty), currentY, mainContentWidth, margins.left);
+  currentY = addTableRow(doc, "Excise Duty", formatCurrency(result.exciseDuty), currentY, mainContentWidth, margins.left);
+  currentY = addTableRow(doc, "VAT (16%)", formatCurrency(result.vat), currentY, mainContentWidth, margins.left);
   
   if (isDirectImport) {
-    currentY = addTableRow(doc, "RDL (2%)", formatCurrency(result.rdl), currentY);
-    currentY = addTableRow(doc, "IDF (2.5%)", formatCurrency(result.idfFees), currentY);
+    currentY = addTableRow(doc, "RDL (2%)", formatCurrency(result.rdl), currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, "IDF (2.5%)", formatCurrency(result.idfFees), currentY, mainContentWidth, margins.left);
   }
   
-  currentY = addTableRow(doc, "Registration Fees", formatCurrency(result.registrationFees || 0), currentY);
-  currentY = addTableRow(doc, "TOTAL PAYABLE", formatCurrency(result.totalPayable), currentY, true);
+  currentY = addTableRow(doc, "Registration Fees", formatCurrency(result.registrationFees || 0), currentY, mainContentWidth, margins.left);
+  currentY = addTableRow(doc, "TOTAL PAYABLE", formatCurrency(result.totalPayable), currentY, mainContentWidth, margins.left, true);
   
   // === GARIYANGU FEATURES SIDEBAR (Right Column) ===
   let sidebarY = margins.top + PDF_CONFIG.logo.height + 10;
@@ -264,13 +261,14 @@ export function generateDutyCalculationPDF(
   
   const ctaText = "Get expert help with vehicle imports from Japan, UK, Dubai & more. Our team handles everything from sourcing to delivery.";
   
-  // Word wrap CTA text
+  // Word wrap CTA text within sidebar width
+  const maxWidth = sidebarWidth * 0.85; // Use 85% of sidebar width for text wrapping
   const words = ctaText.split(' ');
   let line = '';
   for (const word of words) {
     const testLine = line + word + ' ';
     const textWidth = doc.getStringUnitWidth(testLine) * (PDF_CONFIG.fonts.small.size + 1) / doc.internal.scaleFactor;
-    if (textWidth > sidebarWidth && line !== '') {
+    if (textWidth > maxWidth && line !== '') {
       addText(doc, line.trim(), sidebarX, sidebarY, {
         fontSize: PDF_CONFIG.fonts.small.size + 1,
         color: PDF_CONFIG.colors.text
@@ -339,48 +337,48 @@ export function generateImportCostPDF(
   // === MAIN CONTENT (Left Column) ===
   // Vehicle Information Table
   currentY = addCompactSection(doc, "VEHICLE DETAILS", currentY) + 5;
-  currentY = addTableRow(doc, "ITEM", "VALUE", currentY, false, true);
+  currentY = addTableRow(doc, "ITEM", "VALUE", currentY, mainContentWidth, margins.left, false, true);
   
   if (vehicleData) {
-    currentY = addTableRow(doc, "Make & Model", `${vehicleData.make || 'Manual'} ${vehicleData.model || 'Entry'}`, currentY);
-    currentY = addTableRow(doc, "Engine Size", `${vehicleData.engineCapacity}cc`, currentY);
-    currentY = addTableRow(doc, "Year", vehicleData.year?.toString() || 'N/A', currentY);
+    currentY = addTableRow(doc, "Make & Model", `${vehicleData.make || 'Manual'} ${vehicleData.model || 'Entry'}`, currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, "Engine Size", `${vehicleData.engineCapacity}cc`, currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, "Year", vehicleData.year?.toString() || 'N/A', currentY, mainContentWidth, margins.left);
   }
   
   currentY += 8;
   
   // Import Cost Breakdown Table
   currentY = addCompactSection(doc, "COST BREAKDOWN", currentY) + 5;
-  currentY = addTableRow(doc, "COST COMPONENT", "AMOUNT", currentY, false, true);
+  currentY = addTableRow(doc, "COST COMPONENT", "AMOUNT", currentY, mainContentWidth, margins.left, false, true);
   
   if (estimateData.cifAmount && estimateData.currency) {
     currentY = addTableRow(doc, `CIF Price (${estimateData.currency})`, 
-      estimateData.cifAmount.toLocaleString(), currentY);
+      estimateData.cifAmount.toLocaleString(), currentY, mainContentWidth, margins.left);
   }
   
   if (estimateData.cifKes) {
-    currentY = addTableRow(doc, "CIF Price (KES)", formatCurrency(estimateData.cifKes), currentY);
+    currentY = addTableRow(doc, "CIF Price (KES)", formatCurrency(estimateData.cifKes), currentY, mainContentWidth, margins.left);
   }
   
   if (estimateData.dutyAmount) {
-    currentY = addTableRow(doc, "Duty & Taxes", formatCurrency(estimateData.dutyAmount), currentY);
+    currentY = addTableRow(doc, "Duty & Taxes", formatCurrency(estimateData.dutyAmount), currentY, mainContentWidth, margins.left);
   }
   
   if (estimateData.clearingCharges) {
-    currentY = addTableRow(doc, "Clearing Charges", formatCurrency(estimateData.clearingCharges), currentY);
+    currentY = addTableRow(doc, "Clearing Charges", formatCurrency(estimateData.clearingCharges), currentY, mainContentWidth, margins.left);
   }
   
   if (estimateData.transportCost) {
-    currentY = addTableRow(doc, "Transport Cost", formatCurrency(estimateData.transportCost), currentY);
+    currentY = addTableRow(doc, "Transport Cost", formatCurrency(estimateData.transportCost), currentY, mainContentWidth, margins.left);
   }
   
   if (estimateData.serviceFeeAmount) {
     currentY = addTableRow(doc, `Service Fee (${estimateData.serviceFeePercentage || 0}%)`, 
-      formatCurrency(estimateData.serviceFeeAmount), currentY);
+      formatCurrency(estimateData.serviceFeeAmount), currentY, mainContentWidth, margins.left);
   }
   
   if (estimateData.totalPayable) {
-    currentY = addTableRow(doc, "TOTAL COST", formatCurrency(estimateData.totalPayable), currentY, true);
+    currentY = addTableRow(doc, "TOTAL COST", formatCurrency(estimateData.totalPayable), currentY, mainContentWidth, margins.left, true);
   }
   
   // === GARIYANGU FEATURES SIDEBAR (Right Column) ===
@@ -459,13 +457,14 @@ export function generateImportCostPDF(
   
   const ctaText = "Let our experts handle your vehicle import from start to finish. We provide transparent pricing, professional service, and complete peace of mind.";
   
-  // Word wrap CTA text
+  // Word wrap CTA text within sidebar width
+  const maxWidth = sidebarWidth * 0.85; // Use 85% of sidebar width for text wrapping
   const words = ctaText.split(' ');
   let line = '';
   for (const word of words) {
     const testLine = line + word + ' ';
     const textWidth = doc.getStringUnitWidth(testLine) * (PDF_CONFIG.fonts.small.size + 1) / doc.internal.scaleFactor;
-    if (textWidth > sidebarWidth && line !== '') {
+    if (textWidth > maxWidth && line !== '') {
       addText(doc, line.trim(), sidebarX, sidebarY, {
         fontSize: PDF_CONFIG.fonts.small.size + 1,
         color: PDF_CONFIG.colors.text

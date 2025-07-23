@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { generateDutyCalculationPDF } from "@/lib/pdf-generator-new";
-import { generateDutyCalculationHTMLPDF } from "@/lib/pdf-generator-html";
+
 import { dutyCalculationSchema, type DutyCalculation, type DutyResult, type VehicleReference, type ManualVehicleData, type Trailer, type HeavyMachinery } from "@shared/schema";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { VehicleCategorySelector } from "@/components/vehicle-category-selector";
@@ -262,7 +262,7 @@ export default function DutyCalculator() {
       setCategoryConflict(null);
 
       // Update form category
-      form.setValue('vehicleCategory', selectedCategory);
+      form.setValue('vehicleCategory', selectedCategory as any);
 
       // Show notification about category filter
       const categoryNames: Record<string, string> = {
@@ -671,7 +671,7 @@ export default function DutyCalculator() {
                           value={selectedCategory}
                           onValueChange={(category) => {
                             setSelectedCategory(category);
-                            form.setValue('vehicleCategory', category);
+                            form.setValue('vehicleCategory', category as any);
                             // Reset other selections when category changes
                             setSelectedVehicle(null);
                             setSelectedTrailer(null);
@@ -821,7 +821,7 @@ export default function DutyCalculator() {
                       )}
 
                       {/* Discontinuation Warning - Only for Direct Import */}
-                      {selectedVehicle && selectedVehicle.discontinuationYear && form.watch('importType') === 'direct' && (
+                      {selectedVehicle && selectedVehicle.discontinuationYear && form.watch('isDirectImport') === true && (
                         (() => {
                           const currentYear = new Date().getFullYear();
                           const yearsSinceDiscontinuation = currentYear - selectedVehicle.discontinuationYear;
@@ -879,13 +879,13 @@ export default function DutyCalculator() {
                       className="w-full bg-purple-600 hover:bg-purple-700"
                       disabled={
                         calculateDutyMutation.isPending || 
-                        (selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
-                        categoryConflict
+                        (selectedVehicle?.discontinuationYear && form.watch('isDirectImport') === true && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
+                        !!categoryConflict
                       }
                     >
                       {calculateDutyMutation.isPending ? (
                         <>Calculating...</>
-                      ) : selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8 ? (
+                      ) : selectedVehicle?.discontinuationYear && form.watch('isDirectImport') === true && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8 ? (
                         <>
                           <AlertCircle className="h-4 w-4 mr-2" />
                           Cannot Import (Discontinued)
@@ -937,13 +937,7 @@ export default function DutyCalculator() {
                       size="sm"
                       title="Print/Save as PDF"
                       onClick={() => {
-                        generateDutyCalculationHTMLPDF(
-                          calculationResult,
-                          selectedVehicle,
-                          yearOfManufacture,
-                          form.getValues("engineSize"),
-                          form.getValues("isDirectImport")
-                        );
+                        window.print();
                         toast({
                           title: "Print Dialog Opened",
                           description: "Use browser print to save as PDF or print directly.",

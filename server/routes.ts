@@ -5093,7 +5093,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Calculate import estimate
-  app.post('/api/import-estimate', async (req: Request, res: Response) => {
+  app.post('/api/import-estimate', UsageLimiter.importEstimate, async (req: Request, res: Response) => {
     try {
       console.log('Received request body:', req.body);
       const estimateData = importEstimateSchema.parse(req.body);

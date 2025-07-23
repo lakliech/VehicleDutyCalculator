@@ -162,8 +162,16 @@ export default function ImportationEstimator() {
       return response.json();
     },
     onSuccess: (data) => {
-      setEstimateResult(data);
-      setShowResults(true);
+      // Clear previous results first to force refresh
+      setEstimateResult(null);
+      setShowResults(false);
+      
+      // Set new results after brief delay to ensure UI refresh
+      setTimeout(() => {
+        setEstimateResult(data);
+        setShowResults(true);
+      }, 100);
+      
       toast({
         title: "Import estimate calculated",
         description: "Your vehicle import cost estimate is ready.",

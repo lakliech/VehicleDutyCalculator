@@ -2114,7 +2114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/calculate-duty", async (req, res) => {
+  app.post("/api/calculate-duty", UsageLimiter.dutyCalculation, async (req, res) => {
     try {
       const validation = dutyCalculationSchema.safeParse(req.body);
       

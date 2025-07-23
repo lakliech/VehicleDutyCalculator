@@ -7,7 +7,7 @@ import {
   type BillingTransaction, type UsageTracking as UsageTrackingType
 } from '../../shared/monetization-schema';
 import { userProductSubscriptions } from '../../shared/product-catalog-schema';
-import { eq, and, gte, lte, desc, sum, count } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, sum, count, sql } from 'drizzle-orm';
 import { startOfMonth, endOfMonth, addMonths } from 'date-fns';
 
 /**
@@ -277,18 +277,13 @@ export class MonetizationService {
     usageCount = 1
   ): Promise<void> {
     const now = new Date();
-    const periodStart = startOfMonth(now);
-    const periodEnd = endOfMonth(now);
+    const usageDate = now.toISOString().split('T')[0]; // Convert to date format
 
-    await db.insert(usageTracking).values({
-      userId,
-      featureType,
-      resourceId,
-      usageCount,
-      periodStart,
-      periodEnd,
-      createdAt: now
-    });
+    // Use direct SQL to match actual table structure
+    await db.execute(sql`
+      INSERT INTO usage_tracking (user_id, feature_type, usage_count, usage_date, created_at)
+      VALUES (${userId}, ${featureType}, ${usageCount}, ${usageDate}, ${now.toISOString()})
+    `);
   }
 
   /**
@@ -340,16 +335,17 @@ export class MonetizationService {
       const periodStart = startOfMonth(now);
       const periodEnd = endOfMonth(now);
 
-      const result = await db.select({ total: sum(usageTracking.usageCount) })
-        .from(usageTracking)
-        .where(and(
-          eq(usageTracking.userId, userId),
-          eq(usageTracking.featureType, featureType),
-          gte(usageTracking.usageDate, periodStart.toISOString().split('T')[0]),
-          lte(usageTracking.usageDate, periodEnd.toISOString().split('T')[0])
-        ));
+      // Use direct SQL since the actual table has usage_date not usageDate
+      const result = await db.execute(sql`
+        SELECT COALESCE(SUM(usage_count), 0) as total
+        FROM usage_tracking 
+        WHERE user_id = ${userId} 
+        AND feature_type = ${featureType}
+        AND usage_date >= ${periodStart.toISOString().split('T')[0]}
+        AND usage_date <= ${periodEnd.toISOString().split('T')[0]}
+      `);
 
-      return parseInt(result[0]?.total || '0');
+      return parseInt(result.rows[0]?.total || '0');
     } catch (error) {
       console.error('Error fetching current usage:', error);
       return 0; // Return 0 to allow usage when there's an error

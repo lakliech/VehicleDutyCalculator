@@ -236,7 +236,7 @@ export default function ImportationEstimator() {
     },
   });
 
-  const onSubmit = (data: ImportEstimateForm) => {
+  const onSubmit = async (data: ImportEstimateForm) => {
     console.log('=== FORM SUBMISSION DEBUG ===');
     console.log('1. Form data received:', data);
     console.log('2. Manual vehicle data in state:', manualVehicleData);
@@ -255,13 +255,26 @@ export default function ImportationEstimator() {
       return;
     }
     
+    // For manual vehicle entry, override form validation by using manual data
+    let finalData = data;
+    if (manualVehicleData) {
+      console.log('🔧 Using manual vehicle data to override form values');
+      finalData = {
+        ...data,
+        make: manualVehicleData.make,
+        model: manualVehicleData.model,
+        engineCapacity: manualVehicleData.engineCapacity
+      };
+      console.log('📝 Final form data with manual overrides:', finalData);
+    }
+    
     // Convert numbers to strings for backend schema compatibility
     const backendData = {
-      ...data,
-      cifAmount: data.cifAmount.toString(),
-      exchangeRate: data.exchangeRate.toString(),
-      transportCost: data.transportCost.toString(),
-      serviceFeePercentage: data.serviceFeePercentage.toString(),
+      ...finalData,
+      cifAmount: finalData.cifAmount.toString(),
+      exchangeRate: finalData.exchangeRate.toString(),
+      transportCost: finalData.transportCost.toString(),
+      serviceFeePercentage: finalData.serviceFeePercentage.toString(),
     };
     
     // Include manual vehicle data if available
@@ -506,10 +519,12 @@ export default function ImportationEstimator() {
                       </div>
 
                       <Button
-                        type="submit"
+                        type="button"
                         className="w-full"
                         disabled={calculateEstimate.isPending}
                         onClick={(e) => {
+                          e.preventDefault();
+                          
                           // Debug form validation issues
                           const formState = form.formState;
                           console.log('Form validation state:', formState);
@@ -517,6 +532,16 @@ export default function ImportationEstimator() {
                           console.log('Form values:', form.getValues());
                           console.log('Manual vehicle data available:', !!manualVehicleData);
                           console.log('Selected vehicle available:', !!selectedVehicle);
+                          
+                          // Handle custom submission with validation bypass for manual entry
+                          if (manualVehicleData || selectedVehicle) {
+                            console.log('✅ Vehicle data available - bypassing form validation');
+                            const formData = form.getValues();
+                            onSubmit(formData);
+                          } else {
+                            console.log('❌ No vehicle data - triggering form validation');
+                            form.handleSubmit(onSubmit)();
+                          }
                         }}
                       >
                         {calculateEstimate.isPending ? (

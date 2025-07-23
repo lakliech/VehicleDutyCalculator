@@ -56,11 +56,11 @@ export default function ImportationEstimator() {
     defaultValues: {
       make: "",
       model: "",
-      year: undefined,
-      engineCapacity: undefined,
+      year: 2020,
+      engineCapacity: 0,
       cifCurrency: "USD",
-      cifAmount: undefined,
-      exchangeRate: undefined,
+      cifAmount: 0,
+      exchangeRate: 129.50,
       transportCost: 0,
       serviceFeePercentage: 5,
       customerName: "",
@@ -140,8 +140,8 @@ export default function ImportationEstimator() {
   // Watch for changes in key form fields to clear results
   const watchedFields = form.watch(["make", "model", "engineCapacity", "year", "cifAmount", "cifCurrency", "exchangeRate"]);
   React.useEffect(() => {
-    // Clear results when any key calculation field changes
-    if (estimateResult && showResults) {
+    // Clear results when any key calculation field changes (but not on initial load)
+    if (estimateResult && showResults && watchedFields.some(field => field !== "" && field !== 0)) {
       setEstimateResult(null);
       setShowResults(false);
     }

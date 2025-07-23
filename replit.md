@@ -383,6 +383,20 @@ The platform now features a sophisticated role-based navigation system that dyna
   - Graceful error handling when make parameter missing or no vehicles found
 - **Result**: Much more efficient proration calculations with relevant reference vehicles loaded quickly
 
+**IMPORT COST CALCULATOR RESULT REFRESH ENHANCEMENT - January 23, 2025:**
+- **Problem Solved**: Import cost calculator results did not clear when users selected different vehicles or modified calculation parameters
+- **Enhanced User Experience**: 
+  - Added automatic result clearing when vehicle selection changes in VehicleSelector callback
+  - Implemented comprehensive form field watching to clear results when key parameters change
+  - Added result clearing for make, model, engine capacity, year, CIF amount, currency, and exchange rate modifications
+  - Enhanced result refresh logic to prevent clearing on initial page load but clear on actual user changes
+- **Technical Implementation**:
+  - Modified VehicleSelector onVehicleSelect callback to immediately clear results when different vehicle selected
+  - Added useEffect hook monitoring key form fields for changes that affect calculations
+  - Fixed controlled/uncontrolled input warnings by providing proper default values for all form fields
+  - Enhanced authentication flow with proper credentials inclusion for import estimate API calls
+- **Result**: Clean user experience where old calculation results don't persist when making new vehicle selections or changing important calculation inputs
+
 **ENHANCED PRORATION LOGIC FOR DUTY COMPUTATION - January 23, 2025:**
 - **Problem Solved**: Removed strict filtering that limited users to same-make vehicles for proration calculations
 - **Backend Enhancement**: Modified `/api/vehicle-references/search` endpoint to allow any vehicle model for reference calculations

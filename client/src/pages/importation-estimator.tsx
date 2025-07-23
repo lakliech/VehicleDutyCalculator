@@ -412,7 +412,7 @@ export default function ImportationEstimator() {
                                     step="0.01"
                                     placeholder="e.g., 129.50"
                                     {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -432,7 +432,7 @@ export default function ImportationEstimator() {
                                   type="number"
                                   placeholder="e.g., 14000"
                                   {...field}
-                                  onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -479,7 +479,7 @@ export default function ImportationEstimator() {
                                     step="0.1"
                                     placeholder="e.g., 5.0"
                                     {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                                   />
                                 </FormControl>
                                 <FormMessage />

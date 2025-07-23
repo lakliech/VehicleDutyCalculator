@@ -152,15 +152,15 @@ export default function ImportationEstimator() {
     }
   }, [selectedCurrency, exchangeRates, form]);
 
-  // Watch for changes in key form fields to clear results
-  const watchedFields = form.watch(["make", "model", "engineCapacity", "year", "cifAmount", "cifCurrency", "exchangeRate"]);
-  React.useEffect(() => {
-    // Clear results when any key calculation field changes (but not on initial load)
-    if (estimateResult && showResults && watchedFields.some(field => field !== "" && field !== 0)) {
-      setEstimateResult(null);
-      setShowResults(false);
-    }
-  }, [watchedFields]);
+  // Watch for changes in key form fields to clear results - DISABLED TO PREVENT CLEARING AFTER API SUCCESS
+  // const watchedFields = form.watch(["make", "model", "engineCapacity", "year", "cifAmount", "cifCurrency", "exchangeRate"]);
+  // React.useEffect(() => {
+  //   // Clear results when any key calculation field changes (but not on initial load)
+  //   if (estimateResult && showResults && watchedFields.some(field => field !== "" && field !== 0)) {
+  //     setEstimateResult(null);
+  //     setShowResults(false);
+  //   }
+  // }, [watchedFields]);
 
   // Auto-populate vehicle details when vehicle is selected and clear previous results
   React.useEffect(() => {
@@ -180,9 +180,7 @@ export default function ImportationEstimator() {
   React.useEffect(() => {
     console.log('Manual vehicle data effect triggered:', manualVehicleData);
     if (manualVehicleData) {
-      // Clear previous results when new manual vehicle data is available
-      setEstimateResult(null);
-      setShowResults(false);
+      // Don't clear results - let user recalculate if needed
       
       // Update form with manual vehicle details
       console.log('Setting form values from manual data:', {
@@ -597,6 +595,7 @@ export default function ImportationEstimator() {
             <div className="space-y-6">
               {(() => {
                 console.log('🔍 Render check - showResults:', showResults, 'estimateResult:', !!estimateResult);
+                console.log('🔍 Actual estimateResult data:', estimateResult);
                 return null;
               })()}
               {showResults && estimateResult ? (
@@ -607,7 +606,7 @@ export default function ImportationEstimator() {
                       Import Cost Breakdown
                     </CardTitle>
                     <CardDescription>
-                      Total estimated cost for importing your {estimateResult.vehicleInfo.make} {estimateResult.vehicleInfo.model}
+                      Total estimated cost for importing your vehicle
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">

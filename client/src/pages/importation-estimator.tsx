@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Calculator, Banknote, FileText, Truck, Ship } from "lucide-react";
+import { AlertCircle, Calculator, Banknote, FileText, Truck, Ship, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { ModuleNavigation } from "@/components/module-navigation";

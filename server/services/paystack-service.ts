@@ -40,7 +40,7 @@ export class PaystackService {
     const reference = `pay_${randomUUID()}`;
     
     try {
-      // Initialize payment with Paystack
+      // Initialize payment with Paystack - only send essential data
       const paystackData: any = {
         reference,
         amount: params.amount * 100, // Convert to kobo
@@ -48,12 +48,14 @@ export class PaystackService {
         currency: params.currency || 'KES',
         channels: params.channels || ['card', 'mobile_money', 'ussd', 'bank_transfer'],
         metadata: {
-          ...params.metadata,
+          // Only send essential metadata to Paystack
           user_id: params.userId,
-          product_id: params.productId,
-          entity_type: params.entityType,
-          entity_id: params.entityId,
-          transaction_type: params.transactionType
+          transaction_type: params.transactionType,
+          // Include only necessary custom metadata
+          ...(params.metadata && {
+            plan_id: params.metadata.plan_id,
+            billing_type: params.metadata.billing_type
+          })
         }
       };
 
@@ -67,7 +69,11 @@ export class PaystackService {
         paystackData.redirect_url = params.redirectUrl;
       }
 
+      console.log('Sending to Paystack:', JSON.stringify(paystackData, null, 2));
+      
       const response = await this.paystack.transaction.initialize(paystackData);
+      
+      console.log('Paystack response:', JSON.stringify(response, null, 2));
 
       if (!response.status) {
         throw new Error(response.message || 'Payment initialization failed');

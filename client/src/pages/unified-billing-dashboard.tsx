@@ -149,12 +149,18 @@ export default function UnifiedBillingDashboard() {
         const PaystackPop = (window as any).PaystackPop;
         
         if (PaystackPop) {
+          // Clean Paystack configuration with only required fields
           const paymentConfig = {
             key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
             email: data.customerEmail,
             amount: data.plan.amount * 100, // Paystack expects amount in kobo
             currency: 'KES',
             ref: data.reference,
+            metadata: {
+              plan_id: data.plan.id,
+              plan_name: data.plan.name,
+              billing_type: data.plan.billingType
+            },
             callback: function(response: any) {
               // Payment successful, verify on server
               console.log('Payment successful:', response);
@@ -195,7 +201,7 @@ export default function UnifiedBillingDashboard() {
             }
           };
           
-          console.log('Paystack config:', paymentConfig);
+          console.log('Clean Paystack config being sent:', JSON.stringify(paymentConfig, null, 2));
           const handler = PaystackPop.setup(paymentConfig);
           handler.openIframe();
         } else {

@@ -149,10 +149,6 @@ export function Navigation() {
                         <CreditCard className="mr-2 h-4 w-4" />
                         <span>Billing</span>
                       </Link>
-                      <Link href="/subscription-management" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
-                        <CreditCard className="mr-2 h-4 w-4" />
-                        <span>Manage Subscription</span>
-                      </Link>
                       <Link href="/usage-dashboard" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
                         <BarChart3 className="mr-2 h-4 w-4" />
                         <span>Usage Dashboard</span>

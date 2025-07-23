@@ -129,7 +129,7 @@ export default function ImportationEstimator() {
   // Auto-update exchange rate when currency changes
   const selectedCurrency = form.watch("cifCurrency");
   React.useEffect(() => {
-    if (exchangeRates && selectedCurrency) {
+    if (exchangeRates && selectedCurrency && Array.isArray(exchangeRates)) {
       const rate = exchangeRates.find((r: any) => r.currency === selectedCurrency);
       if (rate) {
         form.setValue("exchangeRate", parseFloat(rate.rate));
@@ -152,6 +152,7 @@ export default function ImportationEstimator() {
       const response = await fetch('/api/import-estimate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data),
       });
       
@@ -235,10 +236,7 @@ export default function ImportationEstimator() {
                       <div className="space-y-4">
                         <Label className="text-base font-semibold">Vehicle Details</Label>
                         <VehicleSelector
-                          selectedVehicle={selectedVehicle}
                           onVehicleSelect={setSelectedVehicle}
-                          category="vehicle"
-                          allowManualEntry={true}
                         />
                         
                         <FormField

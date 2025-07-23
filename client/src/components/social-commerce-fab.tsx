@@ -59,7 +59,7 @@ export function SocialCommerceFAB() {
   ];
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-20 md:right-24 z-50">
       {/* Expanded Menu */}
       {isExpanded && (
         <>

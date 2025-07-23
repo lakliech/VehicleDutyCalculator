@@ -237,9 +237,23 @@ export default function ImportationEstimator() {
   });
 
   const onSubmit = (data: ImportEstimateForm) => {
-    console.log('Form submission - Form data:', data);
-    console.log('Form submission - Manual vehicle data:', manualVehicleData);
-    console.log('Form submission - Selected vehicle:', selectedVehicle);
+    console.log('=== FORM SUBMISSION DEBUG ===');
+    console.log('1. Form data received:', data);
+    console.log('2. Manual vehicle data in state:', manualVehicleData);
+    console.log('3. Selected vehicle in state:', selectedVehicle);
+    console.log('4. Form validation state:', form.formState);
+    console.log('5. Form errors:', form.formState.errors);
+    
+    // Validate required vehicle selection
+    if (!manualVehicleData && !selectedVehicle) {
+      console.error('❌ No vehicle selected - blocking submission');
+      toast({
+        title: "Vehicle Required",
+        description: "Please select a vehicle from database or enter manual vehicle data",
+        variant: "destructive"
+      });
+      return;
+    }
     
     // Convert numbers to strings for backend schema compatibility
     const backendData = {
@@ -268,7 +282,8 @@ export default function ImportationEstimator() {
       })
     };
     
-    console.log('Form submission - Final submit data:', submitData);
+    console.log('6. Final submit data to API:', submitData);
+    console.log('✅ Proceeding with API call...');
     calculateEstimate.mutate(submitData);
   };
 

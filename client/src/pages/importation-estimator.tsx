@@ -382,14 +382,9 @@ export default function ImportationEstimator() {
                           }}
                           onManualVehicleData={(data) => {
                             console.log('Manual vehicle data received in parent callback:', data);
-                            // Clear results immediately when manual vehicle data changes
-                            if (data !== manualVehicleData) {
-                              setEstimateResult(null);
-                              setShowResults(false);
-                            }
                             console.log('Setting manualVehicleData state to:', data);
                             setManualVehicleData(data);
-                            // Don't clear selected vehicle automatically - let user manually toggle
+                            // Don't clear results when manual vehicle data changes - let user recalculate if needed
                           }}
                         />
                         
@@ -545,16 +540,7 @@ export default function ImportationEstimator() {
                         </div>
                       </div>
 
-                      {/* Usage Limit Notice */}
-                      <Alert className="border-blue-200 bg-blue-50">
-                        <Info className="h-4 w-4 text-blue-600" />
-                        <AlertDescription className="text-blue-800">
-                          <strong>Free Plan:</strong> 2 import estimates per month. 
-                          <a href="/billing" className="underline ml-1 font-medium hover:text-blue-900">
-                            Upgrade to Premium
-                          </a> for unlimited calculations and advanced features.
-                        </AlertDescription>
-                      </Alert>
+
 
                       <Button
                         type="button"

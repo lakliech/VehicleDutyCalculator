@@ -157,9 +157,10 @@ export const insertProductSchema = createInsertSchema(products)
   });
 
 export const updateProductSchema = createInsertSchema(products)
-  .omit({ id: true, createdAt: true, updatedAt: true, name: true, categoryId: true })
+  .omit({ id: true, createdAt: true, updatedAt: true })
   .extend({
     basePrice: z.string().transform((val) => val === '' ? null : parseFloat(val)).optional(),
+    categoryId: z.string().transform((val) => val === '' ? null : parseInt(val)).optional(),
     sortOrder: z.number().optional().default(0)
   })
   .partial();

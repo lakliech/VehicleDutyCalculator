@@ -351,6 +351,27 @@ The platform now features a sophisticated role-based navigation system that dyna
 
 ## Changelog
 
+**SUBSCRIPTION PRICING AND PRODUCT UPDATE FIXES - January 23, 2025:**
+- **Problem Solved**: Fixed dual issues with subscription plan pricing and product update functionality after user report of anomalies
+- **Subscription Pricing Fix**: 
+  - Corrected Basic Plan price from 1000.00 KES to 2500.00 KES in database
+  - All subscription plans now return correct pricing: Basic (2,500 KES), Professional (8,000 KES), Enterprise (20,000 KES)
+  - API endpoint /api/unified-billing/plans verified working with accurate prices
+- **Product Update Schema Fix**:
+  - Fixed updateProductSchema to allow updates to basePrice, name, and categoryId fields
+  - Removed schema restrictions that were preventing product catalog updates
+  - Updated product catalog routes to properly handle all product data fields
+- **Basic Plan Features Restoration**:
+  - Added missing feature associations for Basic Plan (product_id = 4)
+  - Basic Plan now correctly displays 6 features: Active Listings (20 limit), Duty estimator, Import cost calculator, Unlimited calculations, Basic analytics, Standard support
+  - Fixed empty features array issue in subscription plans API response
+- **Technical Implementation**:
+  - Updated shared/product-catalog-schema.ts updateProductSchema to include previously excluded fields
+  - Modified server/routes/product-catalog-routes.ts to process complete product data
+  - Inserted proper product_feature_associations records for Basic Plan with correct limits and sort order
+- **Verification**: All subscription plans API calls return complete feature lists and correct pricing
+- **Result**: Complete resolution of subscription pricing inconsistencies and product update functionality restoration
+
 **REMOVED BILLING & PLANS TAB FROM USER PROFILE - January 23, 2025:**
 - **Problem Solved**: User requested removal of "Billing & Plans" tab from user profile page navigation
 - **User Profile Navigation Update**: Removed billing tab from profile navigation tabs array

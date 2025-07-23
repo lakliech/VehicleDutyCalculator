@@ -243,12 +243,12 @@ router.post('/admin/products', requireAuth, requireAdmin, async (req, res) => {
 router.put('/admin/products/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { selectedFeatures, categoryId, name, ...productDataRaw } = req.body;
+    const { selectedFeatures, ...productDataRaw } = req.body;
     
     console.log('Update product request body:', JSON.stringify(req.body, null, 2));
-    console.log('Product data raw after exclusions:', JSON.stringify(productDataRaw, null, 2));
+    console.log('Product data raw:', JSON.stringify(productDataRaw, null, 2));
     
-    // Use update schema that excludes categoryId and name 
+    // Parse all product data including categoryId and name
     const productData = updateProductSchema.parse(productDataRaw);
     
     // Update the product

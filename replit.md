@@ -351,6 +351,25 @@ The platform now features a sophisticated role-based navigation system that dyna
 
 ## Changelog
 
+**PRODUCT_FEATURES TABLE DEPRECATION AND SYSTEM MODERNIZATION - January 23, 2025:**
+- **Problem Solved**: Deprecated legacy `product_features` table that caused data inconsistencies between admin dashboard and frontend displays
+- **Database Migration**: Renamed `product_features` to `product_features_deprecated_20250123` with deprecation comment
+- **Feature Enforcement Routes Migration**: Updated all CRUD operations to use modern `product_feature_associations` + `system_features` approach
+- **Data Consistency Achievement**: 
+  - Legacy table showed only 3 features for Basic Plan: "10 active listings, Basic analytics, Standard support"
+  - Modern system correctly shows 6 features: "Active Listings (20), Duty estimator, Import cost calculator, Unlimited calculations, Basic analytics, Standard support"
+- **Technical Implementation**:
+  - Migrated GET, POST, PUT, DELETE endpoints in feature-enforcement-routes.ts
+  - Fixed schema errors in product-catalog-schema.ts for proper decimal handling
+  - Updated featureUsage table to reference systemFeatures instead of deprecated table
+  - Created combined result objects that merge system feature definitions with product-specific configurations
+- **System Benefits**:
+  - Eliminated data duplication between two feature systems
+  - Improved data accuracy and consistency across admin dashboard and frontend
+  - Enhanced flexibility with normalized feature association approach
+  - Simplified maintenance with single authoritative feature data source
+- **Result**: Complete deprecation of legacy `product_features` table with all functionality migrated to modern architecture
+
 **FIXED PRORATION LOADING STATES AND AUTHENTICATION ISSUES - January 23, 2025:**
 - **Critical Error Fix**: Resolved immediate "No NISSAN reference vehicles found" error appearing before data loaded
 - **Authentication Fix**: Removed authentication requirement from duty calculation endpoint that was causing 401 errors

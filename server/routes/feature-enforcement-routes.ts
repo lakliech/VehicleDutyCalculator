@@ -122,10 +122,28 @@ router.get('/products/:productId/features', requireAuth, async (req, res) => {
     }
 
     const features = await db
-      .select()
-      .from(productFeatures)
-      .where(eq(productFeatures.productId, productId))
-      .orderBy(productFeatures.sortOrder);
+      .select({
+        id: productFeatureAssociations.id,
+        productId: productFeatureAssociations.productId,
+        featureId: productFeatureAssociations.featureId,
+        name: systemFeatures.name,
+        description: systemFeatures.description,
+        capability: systemFeatures.capability,
+        limitType: systemFeatures.limitType,
+        limitValue: productFeatureAssociations.limitValue,
+        limitDuration: productFeatureAssociations.limitDuration,
+        limitSize: productFeatureAssociations.limitSize,
+        limitFrequency: productFeatureAssociations.limitFrequency,
+        frequencyPeriod: productFeatureAssociations.frequencyPeriod,
+        constraintConfig: productFeatureAssociations.constraintConfig,
+        isIncluded: productFeatureAssociations.isIncluded,
+        additionalCost: productFeatureAssociations.additionalCost,
+        sortOrder: productFeatureAssociations.sortOrder,
+      })
+      .from(productFeatureAssociations)
+      .innerJoin(systemFeatures, eq(productFeatureAssociations.featureId, systemFeatures.id))
+      .where(eq(productFeatureAssociations.productId, productId))
+      .orderBy(productFeatureAssociations.sortOrder, systemFeatures.name);
 
     res.json(features);
   } catch (error) {
@@ -155,15 +173,58 @@ router.post('/products/:productId/features', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    const [newFeature] = await db
-      .insert(productFeatures)
+    // Create system feature first
+    const [systemFeature] = await db
+      .insert(systemFeatures)
       .values({
-        productId,
-        ...validatedData,
+        name: validatedData.name,
+        description: validatedData.description,
+        capability: validatedData.name.toLowerCase().replace(/\s+/g, '_'),
+        limitType: validatedData.limitType,
+        isActive: true,
+        sortOrder: validatedData.sortOrder || 0,
       })
       .returning();
 
-    res.status(201).json(newFeature);
+    // Create product-feature association
+    const [newAssociation] = await db
+      .insert(productFeatureAssociations)
+      .values({
+        productId,
+        featureId: systemFeature.id,
+        limitValue: validatedData.limitValue,
+        limitDuration: validatedData.limitDuration,
+        limitSize: validatedData.limitSize,
+        limitFrequency: validatedData.limitFrequency,
+        frequencyPeriod: validatedData.frequencyPeriod,
+        constraintConfig: validatedData.constraintConfig,
+        isIncluded: validatedData.isIncluded,
+        additionalCost: validatedData.additionalCost.toString(),
+        sortOrder: validatedData.sortOrder || 0,
+      })
+      .returning();
+
+    // Return combined result
+    const result = {
+      id: newAssociation.id,
+      productId: newAssociation.productId,
+      featureId: newAssociation.featureId,
+      name: systemFeature.name,
+      description: systemFeature.description,
+      capability: systemFeature.capability,
+      limitType: systemFeature.limitType,
+      limitValue: newAssociation.limitValue,
+      limitDuration: newAssociation.limitDuration,
+      limitSize: newAssociation.limitSize,
+      limitFrequency: newAssociation.limitFrequency,
+      frequencyPeriod: newAssociation.frequencyPeriod,
+      constraintConfig: newAssociation.constraintConfig,
+      isIncluded: newAssociation.isIncluded,
+      additionalCost: newAssociation.additionalCost,
+      sortOrder: newAssociation.sortOrder,
+    };
+
+    res.status(201).json(result);
   } catch (error) {
     console.error('Error creating feature:', error);
     if (error instanceof z.ZodError) {
@@ -185,21 +246,69 @@ router.put('/products/:productId/features/:featureId', requireAuth, async (req, 
 
     const validatedData = featureSchema.parse(req.body);
 
-    const [updatedFeature] = await db
-      .update(productFeatures)
+    // Update the product-feature association
+    const [updatedAssociation] = await db
+      .update(productFeatureAssociations)
       .set({
-        ...validatedData,
+        limitValue: validatedData.limitValue,
+        limitDuration: validatedData.limitDuration,
+        limitSize: validatedData.limitSize,
+        limitFrequency: validatedData.limitFrequency,
+        frequencyPeriod: validatedData.frequencyPeriod,
+        constraintConfig: validatedData.constraintConfig,
+        isIncluded: validatedData.isIncluded,
+        additionalCost: validatedData.additionalCost.toString(),
+        sortOrder: validatedData.sortOrder || 0,
         updatedAt: new Date(),
       })
       .where(and(
-        eq(productFeatures.id, featureId),
-        eq(productFeatures.productId, productId)
+        eq(productFeatureAssociations.id, featureId),
+        eq(productFeatureAssociations.productId, productId)
       ))
       .returning();
 
-    if (!updatedFeature) {
+    if (!updatedAssociation) {
       return res.status(404).json({ error: 'Feature not found' });
     }
+
+    // Get the updated system feature details
+    const [systemFeature] = await db
+      .select()
+      .from(systemFeatures)
+      .where(eq(systemFeatures.id, updatedAssociation.featureId))
+      .limit(1);
+
+    // Update system feature if needed
+    if (systemFeature) {
+      await db
+        .update(systemFeatures)
+        .set({
+          name: validatedData.name,
+          description: validatedData.description,
+          limitType: validatedData.limitType,
+          updatedAt: new Date(),
+        })
+        .where(eq(systemFeatures.id, systemFeature.id));
+    }
+
+    // Return combined result
+    const updatedFeature = {
+      id: updatedAssociation.id,
+      productId: updatedAssociation.productId,
+      featureId: updatedAssociation.featureId,
+      name: validatedData.name,
+      description: validatedData.description,
+      limitType: validatedData.limitType,
+      limitValue: updatedAssociation.limitValue,
+      limitDuration: updatedAssociation.limitDuration,
+      limitSize: updatedAssociation.limitSize,
+      limitFrequency: updatedAssociation.limitFrequency,
+      frequencyPeriod: updatedAssociation.frequencyPeriod,
+      constraintConfig: updatedAssociation.constraintConfig,
+      isIncluded: updatedAssociation.isIncluded,
+      additionalCost: updatedAssociation.additionalCost,
+      sortOrder: updatedAssociation.sortOrder,
+    };
 
     res.json(updatedFeature);
   } catch (error) {
@@ -221,15 +330,15 @@ router.delete('/products/:productId/features/:featureId', requireAuth, async (re
       return res.status(400).json({ error: 'Invalid product ID or feature ID' });
     }
 
-    const [deletedFeature] = await db
-      .delete(productFeatures)
+    const [deletedAssociation] = await db
+      .delete(productFeatureAssociations)
       .where(and(
-        eq(productFeatures.id, featureId),
-        eq(productFeatures.productId, productId)
+        eq(productFeatureAssociations.id, featureId),
+        eq(productFeatureAssociations.productId, productId)
       ))
       .returning();
 
-    if (!deletedFeature) {
+    if (!deletedAssociation) {
       return res.status(404).json({ error: 'Feature not found' });
     }
 

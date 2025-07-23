@@ -11,22 +11,46 @@ export class UnifiedBillingService {
    */
   static async getSubscriptionPlans() {
     try {
-      // Use direct SQL query
-      const result = await pool.query(`
+      // Get subscription plans
+      const plansResult = await pool.query(`
         SELECT * FROM products 
         WHERE category_id = 2 AND is_active = true 
         ORDER BY sort_order
       `);
 
-      // Return plans with structure expected by frontend
-      return result.rows.map((plan: any) => ({
+      // Get features for all subscription plans
+      const planIds = plansResult.rows.map(plan => plan.id);
+      
+      const featuresResult = await pool.query(`
+        SELECT product_id, name, description, limit_value, limit_type 
+        FROM product_features 
+        WHERE product_id = ANY($1) AND is_included = true
+        ORDER BY product_id, sort_order, name
+      `, [planIds]);
+
+      // Group features by product_id
+      const featuresByPlan = featuresResult.rows.reduce((acc: any, feature: any) => {
+        if (!acc[feature.product_id]) {
+          acc[feature.product_id] = [];
+        }
+        acc[feature.product_id].push({
+          name: feature.name,
+          description: feature.description,
+          limit: feature.limit_value || 'unlimited',
+          type: feature.limit_type || 'feature'
+        });
+        return acc;
+      }, {});
+
+      // Return plans with features
+      return plansResult.rows.map((plan: any) => ({
         id: plan.id,
         name: plan.name,
         description: plan.description,
         basePrice: parseFloat(plan.base_price),
         monthly_price: parseFloat(plan.base_price),
         billingType: plan.billing_type,
-        features: [], // Will be populated from product features if needed
+        features: featuresByPlan[plan.id] || [],
         sortOrder: plan.sort_order
       }));
     } catch (error) {

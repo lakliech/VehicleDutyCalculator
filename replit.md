@@ -397,6 +397,20 @@ The platform now features a sophisticated role-based navigation system that dyna
   - Enhanced authentication flow with proper credentials inclusion for import estimate API calls
 - **Result**: Clean user experience where old calculation results don't persist when making new vehicle selections or changing important calculation inputs
 
+**SUBSCRIPTION PLANS NOW SHOW CONFIGURED FEATURES - January 23, 2025:**
+- **Problem Solved**: Subscription management API was returning empty features arrays despite configured plan features in database
+- **Database Integration**: Enhanced UnifiedBillingService to query product_features table and join with subscription plans
+- **Feature Mapping**: Successfully mapped features to plans:
+  - Basic Plan (KES 2,500): 10 active listings, Basic analytics, Standard support
+  - Professional Plan (KES 8,000): Unlimited listings, AI pricing insights, Lead management tools
+  - Enterprise Plan (KES 20,000): Custom analytics, API access, Dedicated account manager
+- **Technical Implementation**:
+  - Added dynamic feature querying using product IDs from subscription plans
+  - Implemented feature grouping by plan ID with proper limit and type mapping
+  - Enhanced API response to include complete feature details with descriptions and limits
+- **API Enhancement**: /api/unified-billing/plans now returns comprehensive feature data for each subscription plan
+- **Result**: Frontend subscription management pages now display accurate feature lists for each plan tier
+
 **ENHANCED PRORATION LOGIC FOR DUTY COMPUTATION - January 23, 2025:**
 - **Problem Solved**: Removed strict filtering that limited users to same-make vehicles for proration calculations
 - **Backend Enhancement**: Modified `/api/vehicle-references/search` endpoint to allow any vehicle model for reference calculations

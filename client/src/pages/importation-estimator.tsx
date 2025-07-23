@@ -49,10 +49,19 @@ export default function ImportationEstimator() {
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [manualVehicleData, setManualVehicleData] = useState<any>(null);
   
-  // Debug log state changes
+  // Use refs to store the latest values for reliable access in event handlers
+  const manualVehicleDataRef = useRef<any>(null);
+  const selectedVehicleRef = useRef<any>(null);
+  
+  // Debug log state changes and update refs
   React.useEffect(() => {
     console.log('manualVehicleData state changed:', manualVehicleData);
+    manualVehicleDataRef.current = manualVehicleData;
   }, [manualVehicleData]);
+  
+  React.useEffect(() => {
+    selectedVehicleRef.current = selectedVehicle;
+  }, [selectedVehicle]);
   const [showResults, setShowResults] = useState(false);
   const [estimateResult, setEstimateResult] = useState<any>(null);
   const { toast } = useToast();
@@ -522,19 +531,26 @@ export default function ImportationEstimator() {
                         type="button"
                         className="w-full"
                         disabled={calculateEstimate.isPending}
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.preventDefault();
                           
                           // Debug form validation issues
                           const formState = form.formState;
+                          console.log('=== BUTTON CLICK DEBUG ===');
                           console.log('Form validation state:', formState);
                           console.log('Form errors:', formState.errors);
                           console.log('Form values:', form.getValues());
-                          console.log('Manual vehicle data available:', !!manualVehicleData);
-                          console.log('Selected vehicle available:', !!selectedVehicle);
+                          console.log('Manual vehicle data (state):', manualVehicleData);
+                          console.log('Manual vehicle data (ref):', manualVehicleDataRef.current);
+                          console.log('Selected vehicle (state):', selectedVehicle);
+                          console.log('Selected vehicle (ref):', selectedVehicleRef.current);
+                          
+                          // Use ref values for more reliable access to current state
+                          const currentManualData = manualVehicleDataRef.current;
+                          const currentSelectedVehicle = selectedVehicleRef.current;
                           
                           // Handle custom submission with validation bypass for manual entry
-                          if (manualVehicleData || selectedVehicle) {
+                          if (currentManualData || currentSelectedVehicle) {
                             console.log('✅ Vehicle data available - bypassing form validation');
                             const formData = form.getValues();
                             onSubmit(formData);

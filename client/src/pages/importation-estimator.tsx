@@ -137,9 +137,24 @@ export default function ImportationEstimator() {
     }
   }, [selectedCurrency, exchangeRates, form]);
 
-  // Auto-populate vehicle details when vehicle is selected
+  // Watch for changes in key form fields to clear results
+  const watchedFields = form.watch(["make", "model", "engineCapacity", "year", "cifAmount", "cifCurrency", "exchangeRate"]);
+  React.useEffect(() => {
+    // Clear results when any key calculation field changes
+    if (estimateResult && showResults) {
+      setEstimateResult(null);
+      setShowResults(false);
+    }
+  }, [watchedFields]);
+
+  // Auto-populate vehicle details when vehicle is selected and clear previous results
   React.useEffect(() => {
     if (selectedVehicle) {
+      // Clear previous results when a new vehicle is selected
+      setEstimateResult(null);
+      setShowResults(false);
+      
+      // Update form with new vehicle details
       form.setValue("make", selectedVehicle.make);
       form.setValue("model", selectedVehicle.model);
       form.setValue("engineCapacity", selectedVehicle.engineCapacity);
@@ -236,7 +251,14 @@ export default function ImportationEstimator() {
                       <div className="space-y-4">
                         <Label className="text-base font-semibold">Vehicle Details</Label>
                         <VehicleSelector
-                          onVehicleSelect={setSelectedVehicle}
+                          onVehicleSelect={(vehicle) => {
+                            // Clear results immediately when vehicle selection starts
+                            if (vehicle !== selectedVehicle) {
+                              setEstimateResult(null);
+                              setShowResults(false);
+                            }
+                            setSelectedVehicle(vehicle);
+                          }}
                         />
                         
                         <FormField

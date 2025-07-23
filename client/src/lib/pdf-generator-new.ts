@@ -2,9 +2,9 @@ import jsPDF from 'jspdf';
 import type { DutyResult, VehicleReference } from '@shared/schema';
 import gariyanGuLogo from '@assets/gylogo_1752064168868.png';
 
-// Clean, professional PDF styling configuration
+// Compact one-page PDF styling configuration
 const PDF_CONFIG = {
-  margins: { left: 25, right: 25, top: 30, bottom: 30 },
+  margins: { left: 15, right: 15, top: 15, bottom: 15 },
   colors: {
     primary: [116, 10, 114],    // #740a72 - Gariyangu purple
     secondary: [177, 5, 115],   // #b10573 - purple-pink
@@ -12,20 +12,20 @@ const PDF_CONFIG = {
     dark: [56, 16, 114],        // #381072 - dark purple
     text: [51, 51, 51],         // #333333 - dark gray
     lightText: [107, 114, 128], // #6b7280 - light gray
-    border: [229, 231, 235],    // #e5e7eb - very light gray
-    background: [249, 250, 251] // #f9fafb - light background
+    border: [200, 200, 200],    // Thin gray borders
+    background: [248, 250, 252] // #f8fafc - subtle background
   },
   fonts: {
-    title: { size: 20, style: 'bold' },
-    subtitle: { size: 14, style: 'bold' },
-    heading: { size: 12, style: 'bold' },
-    body: { size: 10, style: 'normal' },
-    small: { size: 8, style: 'normal' }
+    title: { size: 16, style: 'bold' },
+    subtitle: { size: 12, style: 'bold' },
+    heading: { size: 10, style: 'bold' },
+    body: { size: 9, style: 'normal' },
+    small: { size: 7, style: 'normal' }
   },
   logo: {
-    width: 45,   // Proportional logo size
-    height: 30,  // Maintain aspect ratio
-    margin: 10
+    width: 35,   // Compact logo size
+    height: 23,  // Maintain aspect ratio
+    margin: 8
   }
 };
 
@@ -57,55 +57,57 @@ const addText = (doc: jsPDF, text: string, x: number, y: number, options: any = 
   return y + fontSize * 0.5; // Return next line position
 };
 
-const addSection = (doc: jsPDF, title: string, y: number, backgroundColor?: number[]) => {
-  const pageWidth = doc.internal.pageSize.width;
+const addCompactSection = (doc: jsPDF, title: string, y: number) => {
   const margins = PDF_CONFIG.margins;
-  
-  // Background rectangle for section headers
-  if (backgroundColor) {
-    doc.setFillColor(backgroundColor[0], backgroundColor[1], backgroundColor[2]);
-    doc.rect(margins.left - 5, y - 8, pageWidth - margins.left - margins.right + 10, 16, 'F');
-  }
   
   return addText(doc, title, margins.left, y, {
     fontSize: PDF_CONFIG.fonts.heading.size,
     fontStyle: PDF_CONFIG.fonts.heading.style,
-    color: backgroundColor ? [255, 255, 255] : PDF_CONFIG.colors.primary
+    color: PDF_CONFIG.colors.primary
   });
 };
 
-const addTableRow = (doc: jsPDF, label: string, value: string, y: number, isTotal: boolean = false) => {
+const addTableRow = (doc: jsPDF, label: string, value: string, y: number, isTotal: boolean = false, isHeader: boolean = false) => {
   const margins = PDF_CONFIG.margins;
   const pageWidth = doc.internal.pageSize.width;
   const contentWidth = pageWidth - margins.left - margins.right;
+  const rowHeight = 10;
   
-  // Add subtle background for total rows
-  if (isTotal) {
+  // Table borders (thin)
+  doc.setDrawColor(PDF_CONFIG.colors.border[0], PDF_CONFIG.colors.border[1], PDF_CONFIG.colors.border[2]);
+  doc.setLineWidth(0.3);
+  
+  // Background for headers and totals
+  if (isHeader) {
+    doc.setFillColor(PDF_CONFIG.colors.primary[0], PDF_CONFIG.colors.primary[1], PDF_CONFIG.colors.primary[2]);
+    doc.rect(margins.left, y - 6, contentWidth, rowHeight, 'FD');
+  } else if (isTotal) {
     doc.setFillColor(PDF_CONFIG.colors.background[0], PDF_CONFIG.colors.background[1], PDF_CONFIG.colors.background[2]);
-    doc.rect(margins.left - 5, y - 8, contentWidth + 10, 14, 'F');
+    doc.rect(margins.left, y - 6, contentWidth, rowHeight, 'FD');
+  } else {
+    // Regular row with border only
+    doc.rect(margins.left, y - 6, contentWidth, rowHeight, 'D');
   }
   
-  // Add border line
-  doc.setDrawColor(PDF_CONFIG.colors.border[0], PDF_CONFIG.colors.border[1], PDF_CONFIG.colors.border[2]);
-  doc.setLineWidth(0.5);
-  doc.line(margins.left, y + 5, margins.left + contentWidth, y + 5);
+  // Text color
+  const textColor = isHeader ? [255, 255, 255] : (isTotal ? PDF_CONFIG.colors.primary : PDF_CONFIG.colors.text);
   
   // Label
-  addText(doc, label, margins.left, y, {
-    fontSize: PDF_CONFIG.fonts.body.size,
-    fontStyle: isTotal ? 'bold' : 'normal',
-    color: isTotal ? PDF_CONFIG.colors.primary : PDF_CONFIG.colors.text
+  addText(doc, label, margins.left + 2, y, {
+    fontSize: PDF_CONFIG.fonts.small.size + 1,
+    fontStyle: (isTotal || isHeader) ? 'bold' : 'normal',
+    color: textColor
   });
   
   // Value (right-aligned)
-  addText(doc, value, margins.left + contentWidth, y, {
-    fontSize: PDF_CONFIG.fonts.body.size,
-    fontStyle: isTotal ? 'bold' : 'normal',
-    color: isTotal ? PDF_CONFIG.colors.primary : PDF_CONFIG.colors.text,
+  addText(doc, value, margins.left + contentWidth - 2, y, {
+    fontSize: PDF_CONFIG.fonts.small.size + 1,
+    fontStyle: (isTotal || isHeader) ? 'bold' : 'normal',
+    color: textColor,
     align: 'right'
   });
   
-  return y + 16;
+  return y + rowHeight;
 };
 
 export function generateDutyCalculationPDF(
@@ -117,169 +119,181 @@ export function generateDutyCalculationPDF(
 ) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
+  const pageHeight = doc.internal.pageSize.height;
   const margins = PDF_CONFIG.margins;
   let currentY = margins.top;
   
-  // === HEADER SECTION ===
-  // Add proportional logo at top left
+  // Split page into two columns: 70% for report, 30% for Gariyangu features
+  const mainContentWidth = (pageWidth - margins.left - margins.right) * 0.68;
+  const sidebarX = margins.left + mainContentWidth + 10;
+  const sidebarWidth = (pageWidth - margins.left - margins.right) * 0.28;
+  
+  // === COMPACT HEADER ===
   doc.addImage(gariyanGuLogo, 'PNG', margins.left, currentY, PDF_CONFIG.logo.width, PDF_CONFIG.logo.height);
   
-  // Company info next to logo
-  const logoRightX = margins.left + PDF_CONFIG.logo.width + PDF_CONFIG.logo.margin;
-  currentY = addText(doc, "Kenya's Car Marketplace", logoRightX, currentY + 8, {
-    fontSize: PDF_CONFIG.fonts.subtitle.size,
-    fontStyle: PDF_CONFIG.fonts.subtitle.style,
+  addText(doc, "DUTY CALCULATION REPORT", margins.left + PDF_CONFIG.logo.width + 8, currentY + 8, {
+    fontSize: PDF_CONFIG.fonts.title.size,
+    fontStyle: PDF_CONFIG.fonts.title.style,
     color: PDF_CONFIG.colors.primary
   });
   
-  currentY = addText(doc, "Professional Vehicle Import Services", logoRightX, currentY + 6, {
+  addText(doc, new Date().toLocaleDateString('en-KE'), margins.left + PDF_CONFIG.logo.width + 8, currentY + 18, {
     fontSize: PDF_CONFIG.fonts.small.size,
     color: PDF_CONFIG.colors.lightText
   });
   
-  // Contact info (right-aligned)
-  addText(doc, "Contact: +254 736 272719", pageWidth - margins.right, margins.top + 8, {
-    fontSize: PDF_CONFIG.fonts.small.size,
-    color: PDF_CONFIG.colors.lightText,
-    align: 'right'
-  });
+  currentY += PDF_CONFIG.logo.height + 10;
   
-  addText(doc, "support@gariyangu.com", pageWidth - margins.right, margins.top + 16, {
-    fontSize: PDF_CONFIG.fonts.small.size,
-    color: PDF_CONFIG.colors.lightText,
-    align: 'right'
-  });
-  
-  currentY = margins.top + PDF_CONFIG.logo.height + 20;
-  
-  // === DOCUMENT TITLE ===
-  currentY = addText(doc, "MOTOR VEHICLE DUTY CALCULATION", pageWidth / 2, currentY, {
-    fontSize: PDF_CONFIG.fonts.title.size,
-    fontStyle: PDF_CONFIG.fonts.title.style,
-    color: PDF_CONFIG.colors.primary,
-    align: 'center'
-  });
-  
-  currentY = addText(doc, "Official KRA Import Duty Assessment Report", pageWidth / 2, currentY + 8, {
-    fontSize: PDF_CONFIG.fonts.body.size,
-    color: PDF_CONFIG.colors.lightText,
-    align: 'center'
-  });
-  
-  // Date and report info
-  const currentDate = new Date().toLocaleDateString('en-KE', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-  
-  currentY = addText(doc, `Generated: ${currentDate}`, pageWidth / 2, currentY + 15, {
-    fontSize: PDF_CONFIG.fonts.small.size,
-    color: PDF_CONFIG.colors.lightText,
-    align: 'center'
-  });
-  
-  // Separator line
-  currentY += 15;
-  doc.setDrawColor(PDF_CONFIG.colors.border[0], PDF_CONFIG.colors.border[1], PDF_CONFIG.colors.border[2]);
-  doc.setLineWidth(1);
-  doc.line(margins.left, currentY, pageWidth - margins.right, currentY);
-  
-  currentY += 25;
-  
-  // === VEHICLE INFORMATION ===
-  currentY = addSection(doc, "VEHICLE INFORMATION", currentY, PDF_CONFIG.colors.primary);
-  currentY += 10;
+  // === MAIN CONTENT (Left Column) ===
+  // Vehicle Information Table
+  currentY = addCompactSection(doc, "VEHICLE DETAILS", currentY) + 5;
+  currentY = addTableRow(doc, "ITEM", "VALUE", currentY, false, true);
   
   if (selectedVehicle) {
-    currentY = addTableRow(doc, "Make", selectedVehicle.make, currentY);
-    currentY = addTableRow(doc, "Model", selectedVehicle.model, currentY);
+    currentY = addTableRow(doc, "Make & Model", `${selectedVehicle.make} ${selectedVehicle.model}`, currentY);
     currentY = addTableRow(doc, "Body Type", selectedVehicle.bodyType || 'N/A', currentY);
     currentY = addTableRow(doc, "Fuel Type", selectedVehicle.fuelType || 'N/A', currentY);
   }
   
   currentY = addTableRow(doc, "Engine Size", `${engineSize}cc`, currentY);
-  currentY = addTableRow(doc, "Year of Manufacture", yearOfManufacture.toString(), currentY);
+  currentY = addTableRow(doc, "Year", yearOfManufacture.toString(), currentY);
   const vehicleAge = new Date().getFullYear() - yearOfManufacture + 1;
-  currentY = addTableRow(doc, "Vehicle Age", `${vehicleAge} years`, currentY);
+  currentY = addTableRow(doc, "Age", `${vehicleAge} years`, currentY);
   currentY = addTableRow(doc, "Import Type", isDirectImport ? 'Direct Import' : 'Previously Registered', currentY);
   
-  currentY += 15;
+  currentY += 8;
   
-  // === VALUATION ===
-  currentY = addSection(doc, "VEHICLE VALUATION", currentY, PDF_CONFIG.colors.secondary);
-  currentY += 10;
-  
-  currentY = addTableRow(doc, "Current Retail Price (CRSP)", formatCurrency(result.currentRetailPrice), currentY);
-  currentY = addTableRow(doc, "Depreciation Rate", `${(result.depreciationRate * 100).toFixed(1)}%`, currentY);
-  currentY = addTableRow(doc, "Depreciated Price", formatCurrency(result.depreciatedPrice), currentY);
+  // Valuation Table
+  currentY = addCompactSection(doc, "VALUATION", currentY) + 5;
+  currentY = addTableRow(doc, "COMPONENT", "AMOUNT (KES)", currentY, false, true);
+  currentY = addTableRow(doc, "CRSP Value", formatCurrency(result.currentRetailPrice), currentY);
+  currentY = addTableRow(doc, `Depreciation (${(result.depreciationRate * 100).toFixed(0)}%)`, 
+    `-${formatCurrency(result.currentRetailPrice - result.depreciatedPrice)}`, currentY);
   currentY = addTableRow(doc, "Customs Value", formatCurrency(result.customsValue), currentY, true);
   
-  currentY += 15;
+  currentY += 8;
   
-  // === TAX BREAKDOWN ===
-  currentY = addSection(doc, "TAX BREAKDOWN", currentY, PDF_CONFIG.colors.accent);
-  currentY += 10;
-  
+  // Tax Breakdown Table
+  currentY = addCompactSection(doc, "TAX BREAKDOWN", currentY) + 5;
+  currentY = addTableRow(doc, "TAX TYPE", "AMOUNT (KES)", currentY, false, true);
   currentY = addTableRow(doc, "Import Duty", formatCurrency(result.importDuty), currentY);
   currentY = addTableRow(doc, "Excise Duty", formatCurrency(result.exciseDuty), currentY);
   currentY = addTableRow(doc, "VAT (16%)", formatCurrency(result.vat), currentY);
   
   if (isDirectImport) {
-    currentY = addTableRow(doc, "Railway Development Levy (2%)", formatCurrency(result.rdl), currentY);
-    currentY = addTableRow(doc, "Import Declaration Fee (2.5%)", formatCurrency(result.idfFees), currentY);
+    currentY = addTableRow(doc, "RDL (2%)", formatCurrency(result.rdl), currentY);
+    currentY = addTableRow(doc, "IDF (2.5%)", formatCurrency(result.idfFees), currentY);
   }
   
-  currentY = addTableRow(doc, "Total Taxes", formatCurrency(result.totalTaxes), currentY, true);
-  currentY = addTableRow(doc, "Registration Fees (Est.)", formatCurrency(result.registrationFees || 0), currentY);
+  currentY = addTableRow(doc, "Registration Fees", formatCurrency(result.registrationFees || 0), currentY);
   currentY = addTableRow(doc, "TOTAL PAYABLE", formatCurrency(result.totalPayable), currentY, true);
   
-  currentY += 20;
+  // === GARIYANGU FEATURES SIDEBAR (Right Column) ===
+  let sidebarY = margins.top + PDF_CONFIG.logo.height + 10;
   
-  // === FOOTER ===
-  // Disclaimer
-  addText(doc, "DISCLAIMER", margins.left, currentY, {
-    fontSize: PDF_CONFIG.fonts.small.size,
+  // Sidebar background
+  doc.setFillColor(PDF_CONFIG.colors.background[0], PDF_CONFIG.colors.background[1], PDF_CONFIG.colors.background[2]);
+  doc.rect(sidebarX - 5, sidebarY - 5, sidebarWidth + 10, pageHeight - sidebarY - margins.bottom, 'F');
+  
+  // Gariyangu Features Header
+  addText(doc, "GARIYANGU FEATURES", sidebarX, sidebarY, {
+    fontSize: PDF_CONFIG.fonts.heading.size,
     fontStyle: 'bold',
-    color: PDF_CONFIG.colors.dark
+    color: PDF_CONFIG.colors.primary
+  });
+  sidebarY += 15;
+  
+  // Features list
+  const features = [
+    "✓ AI-Powered Vehicle Search",
+    "✓ Real-time Market Pricing", 
+    "✓ Import Cost Calculator",
+    "✓ Duty Calculator (KRA Compliant)",
+    "✓ Vehicle History Reports",
+    "✓ Expert Concierge Service",
+    "✓ Financing Options",
+    "✓ Inspection Services"
+  ];
+  
+  features.forEach(feature => {
+    addText(doc, feature, sidebarX, sidebarY, {
+      fontSize: PDF_CONFIG.fonts.small.size + 1,
+      color: PDF_CONFIG.colors.text
+    });
+    sidebarY += 10;
   });
   
-  currentY += 8;
-  const disclaimerText = "This calculation is based on current KRA rates and regulations. Actual charges may vary. " +
-    "Please consult with KRA or licensed clearing agents for official assessment.";
+  sidebarY += 10;
   
-  // Word wrap disclaimer
-  const words = disclaimerText.split(' ');
+  // Contact Information
+  addText(doc, "CONTACT US", sidebarX, sidebarY, {
+    fontSize: PDF_CONFIG.fonts.heading.size,
+    fontStyle: 'bold',
+    color: PDF_CONFIG.colors.primary
+  });
+  sidebarY += 12;
+  
+  const contactInfo = [
+    "📱 +254 736 272719",
+    "📧 support@gariyangu.co.ke",
+    "🌐 www.gariyangu.co.ke",
+    "",
+    "WhatsApp: +254 736 272719",
+    "Available 24/7"
+  ];
+  
+  contactInfo.forEach(info => {
+    if (info) {
+      addText(doc, info, sidebarX, sidebarY, {
+        fontSize: PDF_CONFIG.fonts.small.size + 1,
+        color: PDF_CONFIG.colors.text
+      });
+    }
+    sidebarY += 8;
+  });
+  
+  sidebarY += 10;
+  
+  // Call to Action
+  addText(doc, "READY TO IMPORT?", sidebarX, sidebarY, {
+    fontSize: PDF_CONFIG.fonts.heading.size,
+    fontStyle: 'bold',
+    color: PDF_CONFIG.colors.accent
+  });
+  sidebarY += 12;
+  
+  const ctaText = "Get expert help with vehicle imports from Japan, UK, Dubai & more. Our team handles everything from sourcing to delivery.";
+  
+  // Word wrap CTA text
+  const words = ctaText.split(' ');
   let line = '';
   for (const word of words) {
     const testLine = line + word + ' ';
-    const textWidth = doc.getStringUnitWidth(testLine) * PDF_CONFIG.fonts.small.size / doc.internal.scaleFactor;
-    if (textWidth > (pageWidth - margins.left - margins.right) && line !== '') {
-      addText(doc, line.trim(), margins.left, currentY, {
-        fontSize: PDF_CONFIG.fonts.small.size,
-        color: PDF_CONFIG.colors.lightText
+    const textWidth = doc.getStringUnitWidth(testLine) * (PDF_CONFIG.fonts.small.size + 1) / doc.internal.scaleFactor;
+    if (textWidth > sidebarWidth && line !== '') {
+      addText(doc, line.trim(), sidebarX, sidebarY, {
+        fontSize: PDF_CONFIG.fonts.small.size + 1,
+        color: PDF_CONFIG.colors.text
       });
-      currentY += 10;
+      sidebarY += 8;
       line = word + ' ';
     } else {
       line = testLine;
     }
   }
   if (line.trim()) {
-    addText(doc, line.trim(), margins.left, currentY, {
-      fontSize: PDF_CONFIG.fonts.small.size,
-      color: PDF_CONFIG.colors.lightText
+    addText(doc, line.trim(), sidebarX, sidebarY, {
+      fontSize: PDF_CONFIG.fonts.small.size + 1,
+      color: PDF_CONFIG.colors.text
     });
   }
   
-  // Footer with page info
-  const footerY = doc.internal.pageSize.height - 20;
-  addText(doc, "Generated by Gariyangu - Kenya's Car Marketplace", pageWidth / 2, footerY, {
+  // Bottom disclaimer
+  const footerY = pageHeight - margins.bottom - 8;
+  addText(doc, "Disclaimer: Calculations based on current KRA rates. Actual charges may vary.", 
+    margins.left, footerY, {
     fontSize: PDF_CONFIG.fonts.small.size,
-    color: PDF_CONFIG.colors.lightText,
-    align: 'center'
+    color: PDF_CONFIG.colors.lightText
   });
   
   // Save the PDF
@@ -297,96 +311,49 @@ export function generateImportCostPDF(
 ) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
+  const pageHeight = doc.internal.pageSize.height;
   const margins = PDF_CONFIG.margins;
   let currentY = margins.top;
   
-  // === HEADER SECTION ===
-  // Add proportional logo at top left
+  // Split page into two columns: 70% for report, 30% for Gariyangu features
+  const mainContentWidth = (pageWidth - margins.left - margins.right) * 0.68;
+  const sidebarX = margins.left + mainContentWidth + 10;
+  const sidebarWidth = (pageWidth - margins.left - margins.right) * 0.28;
+  
+  // === COMPACT HEADER ===
   doc.addImage(gariyanGuLogo, 'PNG', margins.left, currentY, PDF_CONFIG.logo.width, PDF_CONFIG.logo.height);
   
-  // Company info next to logo
-  const logoRightX = margins.left + PDF_CONFIG.logo.width + PDF_CONFIG.logo.margin;
-  currentY = addText(doc, "Kenya's Car Marketplace", logoRightX, currentY + 8, {
-    fontSize: PDF_CONFIG.fonts.subtitle.size,
-    fontStyle: PDF_CONFIG.fonts.subtitle.style,
+  addText(doc, "IMPORT COST ESTIMATE", margins.left + PDF_CONFIG.logo.width + 8, currentY + 8, {
+    fontSize: PDF_CONFIG.fonts.title.size,
+    fontStyle: PDF_CONFIG.fonts.title.style,
     color: PDF_CONFIG.colors.primary
   });
   
-  currentY = addText(doc, "Professional Vehicle Import Services", logoRightX, currentY + 6, {
+  addText(doc, new Date().toLocaleDateString('en-KE'), margins.left + PDF_CONFIG.logo.width + 8, currentY + 18, {
     fontSize: PDF_CONFIG.fonts.small.size,
     color: PDF_CONFIG.colors.lightText
   });
   
-  // Contact info (right-aligned)
-  addText(doc, "Contact: +254 736 272719", pageWidth - margins.right, margins.top + 8, {
-    fontSize: PDF_CONFIG.fonts.small.size,
-    color: PDF_CONFIG.colors.lightText,
-    align: 'right'
-  });
+  currentY += PDF_CONFIG.logo.height + 10;
   
-  addText(doc, "support@gariyangu.com", pageWidth - margins.right, margins.top + 16, {
-    fontSize: PDF_CONFIG.fonts.small.size,
-    color: PDF_CONFIG.colors.lightText,
-    align: 'right'
-  });
-  
-  currentY = margins.top + PDF_CONFIG.logo.height + 20;
-  
-  // === DOCUMENT TITLE ===
-  currentY = addText(doc, "VEHICLE IMPORT COST ESTIMATE", pageWidth / 2, currentY, {
-    fontSize: PDF_CONFIG.fonts.title.size,
-    fontStyle: PDF_CONFIG.fonts.title.style,
-    color: PDF_CONFIG.colors.primary,
-    align: 'center'
-  });
-  
-  currentY = addText(doc, "Complete Import Cost Breakdown", pageWidth / 2, currentY + 8, {
-    fontSize: PDF_CONFIG.fonts.body.size,
-    color: PDF_CONFIG.colors.lightText,
-    align: 'center'
-  });
-  
-  // Date and report info
-  const currentDate = new Date().toLocaleDateString('en-KE', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-  
-  currentY = addText(doc, `Generated: ${currentDate}`, pageWidth / 2, currentY + 15, {
-    fontSize: PDF_CONFIG.fonts.small.size,
-    color: PDF_CONFIG.colors.lightText,
-    align: 'center'
-  });
-  
-  // Separator line
-  currentY += 15;
-  doc.setDrawColor(PDF_CONFIG.colors.border[0], PDF_CONFIG.colors.border[1], PDF_CONFIG.colors.border[2]);
-  doc.setLineWidth(1);
-  doc.line(margins.left, currentY, pageWidth - margins.right, currentY);
-  
-  currentY += 25;
-  
-  // === VEHICLE INFORMATION ===
-  currentY = addSection(doc, "VEHICLE DETAILS", currentY, PDF_CONFIG.colors.primary);
-  currentY += 10;
+  // === MAIN CONTENT (Left Column) ===
+  // Vehicle Information Table
+  currentY = addCompactSection(doc, "VEHICLE DETAILS", currentY) + 5;
+  currentY = addTableRow(doc, "ITEM", "VALUE", currentY, false, true);
   
   if (vehicleData) {
-    currentY = addTableRow(doc, "Make", vehicleData.make || 'Manual Entry', currentY);
-    currentY = addTableRow(doc, "Model", vehicleData.model || 'Manual Entry', currentY);
+    currentY = addTableRow(doc, "Make & Model", `${vehicleData.make || 'Manual'} ${vehicleData.model || 'Entry'}`, currentY);
     currentY = addTableRow(doc, "Engine Size", `${vehicleData.engineCapacity}cc`, currentY);
     currentY = addTableRow(doc, "Year", vehicleData.year?.toString() || 'N/A', currentY);
   }
   
-  currentY += 15;
+  currentY += 8;
   
-  // === COST BREAKDOWN ===
-  currentY = addSection(doc, "IMPORT COST BREAKDOWN", currentY, PDF_CONFIG.colors.secondary);
-  currentY += 10;
+  // Import Cost Breakdown Table
+  currentY = addCompactSection(doc, "COST BREAKDOWN", currentY) + 5;
+  currentY = addTableRow(doc, "COST COMPONENT", "AMOUNT", currentY, false, true);
   
-  if (estimateData.cifAmount) {
+  if (estimateData.cifAmount && estimateData.currency) {
     currentY = addTableRow(doc, `CIF Price (${estimateData.currency})`, 
       estimateData.cifAmount.toLocaleString(), currentY);
   }
@@ -408,7 +375,7 @@ export function generateImportCostPDF(
   }
   
   if (estimateData.serviceFeeAmount) {
-    currentY = addTableRow(doc, `Service Fee (${estimateData.serviceFeePercentage}%)`, 
+    currentY = addTableRow(doc, `Service Fee (${estimateData.serviceFeePercentage || 0}%)`, 
       formatCurrency(estimateData.serviceFeeAmount), currentY);
   }
   
@@ -416,31 +383,112 @@ export function generateImportCostPDF(
     currentY = addTableRow(doc, "TOTAL COST", formatCurrency(estimateData.totalPayable), currentY, true);
   }
   
-  currentY += 20;
+  // === GARIYANGU FEATURES SIDEBAR (Right Column) ===
+  let sidebarY = margins.top + PDF_CONFIG.logo.height + 10;
   
-  // === FOOTER ===
-  // Disclaimer
-  addText(doc, "DISCLAIMER", margins.left, currentY, {
-    fontSize: PDF_CONFIG.fonts.small.size,
+  // Sidebar background
+  doc.setFillColor(PDF_CONFIG.colors.background[0], PDF_CONFIG.colors.background[1], PDF_CONFIG.colors.background[2]);
+  doc.rect(sidebarX - 5, sidebarY - 5, sidebarWidth + 10, pageHeight - sidebarY - margins.bottom, 'F');
+  
+  // Gariyangu Features Header
+  addText(doc, "GARIYANGU SERVICES", sidebarX, sidebarY, {
+    fontSize: PDF_CONFIG.fonts.heading.size,
     fontStyle: 'bold',
-    color: PDF_CONFIG.colors.dark
+    color: PDF_CONFIG.colors.primary
+  });
+  sidebarY += 15;
+  
+  // Import services list
+  const services = [
+    "✓ Vehicle Sourcing (Japan/UK/Dubai)",
+    "✓ Import Documentation",
+    "✓ Shipping & Logistics", 
+    "✓ KRA Duty Clearance",
+    "✓ Vehicle Inspection",
+    "✓ Registration Services",
+    "✓ Financing Assistance",
+    "✓ Warranty & After-sales"
+  ];
+  
+  services.forEach(service => {
+    addText(doc, service, sidebarX, sidebarY, {
+      fontSize: PDF_CONFIG.fonts.small.size + 1,
+      color: PDF_CONFIG.colors.text
+    });
+    sidebarY += 10;
   });
   
-  currentY += 8;
-  const disclaimerText = "This is an estimate based on current rates and may vary. " +
-    "Additional costs may apply. Contact us for accurate quotation.";
+  sidebarY += 10;
   
-  addText(doc, disclaimerText, margins.left, currentY, {
+  // Contact Information
+  addText(doc, "CONTACT US", sidebarX, sidebarY, {
+    fontSize: PDF_CONFIG.fonts.heading.size,
+    fontStyle: 'bold',
+    color: PDF_CONFIG.colors.primary
+  });
+  sidebarY += 12;
+  
+  const contactInfo = [
+    "📱 +254 736 272719",
+    "📧 support@gariyangu.co.ke",
+    "🌐 www.gariyangu.co.ke",
+    "",
+    "WhatsApp: +254 736 272719",
+    "Available 24/7"
+  ];
+  
+  contactInfo.forEach(info => {
+    if (info) {
+      addText(doc, info, sidebarX, sidebarY, {
+        fontSize: PDF_CONFIG.fonts.small.size + 1,
+        color: PDF_CONFIG.colors.text
+      });
+    }
+    sidebarY += 8;
+  });
+  
+  sidebarY += 10;
+  
+  // Call to Action
+  addText(doc, "IMPORT WITH CONFIDENCE", sidebarX, sidebarY, {
+    fontSize: PDF_CONFIG.fonts.heading.size,
+    fontStyle: 'bold',
+    color: PDF_CONFIG.colors.accent
+  });
+  sidebarY += 12;
+  
+  const ctaText = "Let our experts handle your vehicle import from start to finish. We provide transparent pricing, professional service, and complete peace of mind.";
+  
+  // Word wrap CTA text
+  const words = ctaText.split(' ');
+  let line = '';
+  for (const word of words) {
+    const testLine = line + word + ' ';
+    const textWidth = doc.getStringUnitWidth(testLine) * (PDF_CONFIG.fonts.small.size + 1) / doc.internal.scaleFactor;
+    if (textWidth > sidebarWidth && line !== '') {
+      addText(doc, line.trim(), sidebarX, sidebarY, {
+        fontSize: PDF_CONFIG.fonts.small.size + 1,
+        color: PDF_CONFIG.colors.text
+      });
+      sidebarY += 8;
+      line = word + ' ';
+    } else {
+      line = testLine;
+    }
+  }
+  if (line.trim()) {
+    addText(doc, line.trim(), sidebarX, sidebarY, {
+      fontSize: PDF_CONFIG.fonts.small.size + 1,
+      color: PDF_CONFIG.colors.text
+    });
+  }
+  
+  // Bottom disclaimer
+  const footerY = pageHeight - margins.bottom - 8;
+  addText(doc, "Disclaimer: Estimate based on current rates. Actual costs may vary.", 
+    margins.left, footerY, {
     fontSize: PDF_CONFIG.fonts.small.size,
     color: PDF_CONFIG.colors.lightText
-  });
-  
-  // Footer with page info
-  const footerY = doc.internal.pageSize.height - 20;
-  addText(doc, "Generated by Gariyangu - Kenya's Car Marketplace", pageWidth / 2, footerY, {
-    fontSize: PDF_CONFIG.fonts.small.size,
-    color: PDF_CONFIG.colors.lightText,
-    align: 'center'
   });
   
   // Save the PDF

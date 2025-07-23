@@ -351,31 +351,35 @@ The platform now features a sophisticated role-based navigation system that dyna
 
 ## Changelog
 
-**COMPLETED CLEAN PDF REDESIGN WITH PROPORTIONAL LOGOS - January 23, 2025:**
-- **Problem Solved**: User requested clean and tidy PDF reports with proportional logos for professional appearance
-- **Complete PDF System Redesign**: 
-  - Created new `pdf-generator-new.ts` with modern, clean PDF generation architecture
-  - Implemented professional configuration system with Gariyangu brand colors (purple-pink palette)
-  - Added proportional logo sizing (45x30px) maintaining proper aspect ratios
-  - Structured clean layout with organized sections and proper spacing
-- **Enhanced Document Structure**:
-  - Professional header with proportional company logo and contact information
-  - Clean document titles with proper typography hierarchy
-  - Organized sections with color-coded backgrounds (primary, secondary, accent colors)
-  - Modern table-style data presentation with proper alignment and spacing
-  - Professional footer with branding and disclaimers
+**COMPREHENSIVE ONE-PAGE PDF REDESIGN WITH GARIYANGU SHOWCASE - January 23, 2025:**
+- **Problem Solved**: User requested one-page PDF format with reduced white space, thin table borders, and dedicated Gariyangu marketing section
+- **Complete One-Page Architecture**: 
+  - Redesigned both duty and import cost calculators as compact one-page reports
+  - Split layout: 70% main content + 30% Gariyangu features sidebar
+  - Reduced margins from 25px to 15px and minimized white space throughout
+  - Compact logo sizing (35x23px) for space optimization
+- **Professional Table Design**:
+  - Replaced separator lines with thin-bordered tables (0.3px borders)
+  - Added table headers with Gariyangu purple background and white text
+  - Organized data in clean table format with alternating backgrounds
+  - Compact row heights (10px) for maximum information density
+- **Gariyangu Marketing Integration**:
+  - Dedicated 1/4 page sidebar showcasing platform features and services
+  - Contact information prominently displayed: +254 736 272719, support@gariyangu.co.ke, www.gariyangu.co.ke
+  - Call-to-action sections for import services and concierge offerings
+  - Feature lists highlighting AI search, pricing tools, financing, and inspection services
+- **Enhanced User Experience**:
+  - All critical calculation data visible on single page
+  - No scrolling required for complete report viewing
+  - Professional marketing integration without compromising data clarity
+  - Comprehensive contact options for immediate customer engagement
 - **Technical Implementation**:
-  - Updated both Duty Calculator and Import Cost Calculator to use new PDF generator
-  - Replaced legacy `generateDutyCalculationPDF` with clean implementation
-  - Updated `generateImportEstimatePDF` usage in importation estimator with new `generateImportCostPDF` function
-  - Added proper data mapping between old and new PDF generator interfaces
-- **Design Improvements**:
-  - Consistent Gariyangu brand colors throughout PDFs (#740a72 purple, #b10573 purple-pink, #ee0074 bright pink)
-  - Clean typography with appropriate font sizes and styles
-  - Professional spacing and margins for print-ready documents
-  - Color-coded section headers for better visual organization
-- **User Experience**: Both calculators now generate clean, professional PDF reports with proportional logos and modern design
-- **Result**: Complete transformation from cluttered PDF layout to clean, professional documents ready for business use
+  - Updated `generateDutyCalculationPDF` and `generateImportCostPDF` functions
+  - Implemented column-based layout system with automatic text wrapping
+  - Added proper data mapping for both calculators with backward compatibility
+  - Clean build verification and LSP error resolution
+- **Marketing Benefits**: Every PDF report now serves as effective marketing material showcasing Gariyangu's comprehensive automotive services
+- **Result**: Professional one-page reports combining essential calculation data with powerful marketing presence
 
 **INLINE PAYSTACK PAYMENT SYSTEM IMPLEMENTATION - January 23, 2025:**
 - **Problem Solved**: User requested inline payment system to avoid external redirects and improve user experience

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,6 +31,37 @@ export default function UnifiedBillingDashboard() {
   const [topupAmount, setTopupAmount] = useState('');
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  // Check for payment success on page load
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    const reference = urlParams.get('reference');
+    
+    if (paymentStatus === 'success' && reference) {
+      // Verify the payment was successful
+      apiRequest('POST', '/api/payments/verify', { 
+        paystackReference: reference 
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          toast({
+            title: "Payment Successful!",
+            description: "Your subscription has been activated successfully.",
+          });
+          
+          // Clear URL parameters and refresh data
+          window.history.replaceState({}, document.title, '/billing');
+          queryClient.invalidateQueries({ queryKey: ['/api/unified-billing/account-summary'] });
+          queryClient.invalidateQueries({ queryKey: ['/api/unified-billing/product-access'] });
+        }
+      })
+      .catch(error => {
+        console.error('Payment verification error:', error);
+      });
+    }
+  }, [toast, queryClient]);
 
   // Fetch account summary
   const { data: accountSummary, isLoading: accountLoading } = useQuery({
@@ -100,23 +131,63 @@ export default function UnifiedBillingDashboard() {
         billingType 
       });
       
-      console.log('Raw response:', response);
-      
-      // Parse the response JSON
       const data = await response.json();
       
-      console.log('Payment response data:', data);
-      
       if (data.success && data.paymentUrl) {
-        toast({
-          title: "Redirecting to Payment",
-          description: "You will be redirected to Paystack to complete your subscription payment.",
-        });
-        
-        // Small delay to show the message
-        setTimeout(() => {
-          window.location.href = data.paymentUrl;
+        // Open Paystack payment in popup window for inline handling
+        const paymentWindow = window.open(
+          data.paymentUrl,
+          'paystack-payment',
+          'width=500,height=700,scrollbars=yes,resizable=yes'
+        );
+
+        // Poll for payment completion
+        const pollPayment = setInterval(async () => {
+          // Check if popup was closed
+          if (paymentWindow?.closed) {
+            clearInterval(pollPayment);
+            
+            // Verify payment after popup closes
+            try {
+              const verifyResponse = await apiRequest('POST', '/api/payments/verify', { 
+                paystackReference: data.reference 
+              });
+              const verifyData = await verifyResponse.json();
+              
+              if (verifyData.success) {
+                toast({
+                  title: "Subscription Activated!",
+                  description: "Your subscription has been successfully activated.",
+                });
+                
+                // Refresh the data to show updated subscription
+                window.location.reload();
+              } else {
+                toast({
+                  title: "Payment Verification Failed",
+                  description: "Please check your subscription status or contact support.",
+                  variant: "destructive",
+                });
+              }
+            } catch (error) {
+              console.error('Payment verification error:', error);
+              toast({
+                title: "Verification Error",
+                description: "Please refresh the page to check your subscription status.",
+                variant: "destructive",
+              });
+            }
+          }
         }, 2000);
+
+        // Cleanup polling after 10 minutes (safety measure)
+        setTimeout(() => {
+          clearInterval(pollPayment);
+          if (paymentWindow && !paymentWindow.closed) {
+            paymentWindow.close();
+          }
+        }, 600000);
+        
       } else {
         throw new Error(data.error || 'No payment URL received');
       }

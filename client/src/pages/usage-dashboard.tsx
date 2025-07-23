@@ -5,6 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
   Calculator, 
   Banknote, 
@@ -13,7 +14,10 @@ import {
   TrendingUp, 
   AlertTriangle,
   CheckCircle,
-  Info
+  Info,
+  Infinity,
+  Clock,
+  Activity
 } from 'lucide-react';
 import { Link } from 'wouter';
 
@@ -267,92 +271,146 @@ export default function UsageDashboard() {
         )}
       </div>
 
-      {/* Usage Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {getFeatureTypesForPlan().map((feature) => {
-          const usage: UsageLimits = usageData?.[feature.key] || { 
-            allowed: false, 
-            currentUsage: 0, 
-            limit: 0, 
-            plan: 'Unknown' 
-          };
-          
-          const status = getUsageStatus(usage.currentUsage || 0, usage.limit);
-          const percentage = getUsagePercentage(usage.currentUsage || 0, usage.limit);
-          const IconComponent = feature.icon;
+      {/* Usage Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Features</p>
+                <p className="text-2xl font-bold">{getFeatureTypesForPlan().length}</p>
+              </div>
+              <Activity className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Plan Status</p>
+                <p className="text-2xl font-bold">{isSubscribed ? 'Active' : 'Free'}</p>
+              </div>
+              <CheckCircle className={`h-8 w-8 ${isSubscribed ? 'text-green-500' : 'text-gray-400'}`} />
+            </div>
+          </CardContent>
+        </Card>
 
-          return (
-            <Card key={feature.key} className="relative">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <IconComponent className="h-5 w-5" />
-                    <CardTitle className="text-lg">{feature.name}</CardTitle>
-                  </div>
-                  <Badge variant={status === 'exceeded' ? 'destructive' : status === 'warning' ? 'secondary' : 'default'}>
-                    {status === 'unlimited' ? 'Unlimited' : 
-                     status === 'exceeded' ? 'Exceeded' :
-                     status === 'warning' ? 'Warning' : 'Good'}
-                  </Badge>
-                </div>
-                <CardDescription>{feature.description}</CardDescription>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                {/* Usage Numbers */}
-                <div className="flex items-center justify-between text-sm">
-                  <span>Current Usage</span>
-                  <span className={`font-semibold ${getStatusColor(status)}`}>
-                    {(usage.currentUsage || 0).toLocaleString()}
-                    {usage.limit && ` / ${usage.limit.toLocaleString()}`}
-                  </span>
-                </div>
-
-                {/* Progress Bar */}
-                {usage.limit !== null ? (
-                  <div className="space-y-2">
-                    <Progress 
-                      value={percentage} 
-                      className="h-2"
-                    />
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>0</span>
-                      <span>{usage.limit.toLocaleString()}</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-purple-600">
-                    <CheckCircle className="h-4 w-4" />
-                    <span className="text-sm font-medium">Unlimited usage</span>
-                  </div>
-                )}
-
-                {/* Status Message */}
-                {status === 'exceeded' && (
-                  <div className="flex items-center gap-2 text-red-600 text-sm">
-                    <AlertTriangle className="h-4 w-4" />
-                    <span>Usage limit exceeded</span>
-                  </div>
-                )}
-
-                {status === 'warning' && usage.limit && (
-                  <div className="flex items-center gap-2 text-yellow-600 text-sm">
-                    <AlertTriangle className="h-4 w-4" />
-                    <span>{usage.limit - (usage.currentUsage || 0)} remaining</span>
-                  </div>
-                )}
-
-                {status === 'safe' && usage.limit && (
-                  <div className="flex items-center gap-2 text-green-600 text-sm">
-                    <CheckCircle className="h-4 w-4" />
-                    <span>{usage.limit - (usage.currentUsage || 0)} remaining</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Usage This Month</p>
+                <p className="text-2xl font-bold">
+                  {Object.values(usageData || {}).reduce((total: number, feature: any) => {
+                    return total + (feature?.currentUsage || 0);
+                  }, 0)}
+                </p>
+              </div>
+              <Clock className="h-8 w-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Feature Usage Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Feature Usage Details
+          </CardTitle>
+          <CardDescription>
+            Detailed breakdown of your feature usage and limits for {currentPlan} Plan
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Feature</TableHead>
+                <TableHead>Usage</TableHead>
+                <TableHead>Limit</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Progress</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {getFeatureTypesForPlan().map((feature) => {
+                const usage: UsageLimits = usageData?.[feature.key] || { 
+                  allowed: false, 
+                  currentUsage: 0, 
+                  limit: 0, 
+                  plan: 'Unknown' 
+                };
+                
+                const status = getUsageStatus(usage.currentUsage || 0, usage.limit);
+                const percentage = getUsagePercentage(usage.currentUsage || 0, usage.limit);
+                const IconComponent = feature.icon;
+
+                return (
+                  <TableRow key={feature.key}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <IconComponent className="h-4 w-4 text-gray-500" />
+                        <div>
+                          <div className="font-medium">{feature.name}</div>
+                          <div className="text-sm text-gray-500">{feature.description}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-mono font-medium">
+                        {(usage.currentUsage || 0).toLocaleString()}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      {usage.limit !== null ? (
+                        <span className="font-mono">{usage.limit.toLocaleString()}</span>
+                      ) : (
+                        <div className="flex items-center gap-1 text-purple-600">
+                          <Infinity className="h-4 w-4" />
+                          <span className="font-medium">Unlimited</span>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={
+                          status === 'exceeded' ? 'destructive' : 
+                          status === 'warning' ? 'secondary' : 
+                          status === 'unlimited' ? 'default' : 'outline'
+                        }
+                        className={status === 'unlimited' ? 'bg-purple-50 text-purple-700 border-purple-200' : ''}
+                      >
+                        {status === 'unlimited' ? 'Unlimited' : 
+                         status === 'exceeded' ? 'Exceeded' :
+                         status === 'warning' ? 'Warning' : 'Active'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="w-32">
+                      {usage.limit !== null ? (
+                        <div className="space-y-1">
+                          <Progress value={percentage} className="h-2" />
+                          <div className="text-xs text-gray-500">
+                            {Math.max(0, usage.limit - (usage.currentUsage || 0))} remaining
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-purple-600">
+                          <CheckCircle className="h-4 w-4" />
+                          <span className="text-xs font-medium">No limits</span>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* Upgrade Prompt for Free Users */}
       {!isSubscribed && (

@@ -185,11 +185,11 @@ export class UnifiedBillingService {
       // Get current subscription
       const subscription = await this.getUserSubscription(userId);
       
-      // Get account credits (if applicable)
+      // Get account credits (if applicable)  
       const creditsResult = await pool.query(`
         SELECT COALESCE(SUM(amount), 0) as total_credits
         FROM account_credit_transactions 
-        WHERE user_id = $1 AND type = 'credit'
+        WHERE account_id = $1 AND type = 'credit'
       `, [userId]);
 
       const totalCredits = parseFloat(creditsResult.rows[0]?.total_credits || '0');
@@ -212,14 +212,15 @@ export class UnifiedBillingService {
   /**
    * Check user's product access
    */
-  static async getProductAccess(userId: string) {
+  static async getUserProductAccess(userId: string) {
     try {
       const subscription = await this.getUserSubscription(userId);
       
       return {
         hasActiveSubscription: !!subscription,
         planName: subscription?.subscription?.subscription_type || 'Free Plan',
-        accessLevel: subscription ? 'premium' : 'basic'
+        accessLevel: subscription ? 'premium' : 'basic',
+        products: []
       };
     } catch (error) {
       console.error('Error checking product access:', error);

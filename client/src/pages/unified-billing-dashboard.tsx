@@ -349,10 +349,15 @@ export default function UnifiedBillingDashboard() {
                     <div className="space-y-2">
                       <h4 className="font-medium">Features:</h4>
                       <ul className="space-y-1">
-                        {plan.features?.map((feature: string, index: number) => (
+                        {plan.features?.map((feature: any, index: number) => (
                           <li key={index} className="flex items-center gap-2 text-sm">
                             <CheckCircle className="h-4 w-4 text-green-500" />
-                            {feature}
+                            <span>{feature.name}</span>
+                            {feature.limit && feature.limit !== 'unlimited' && (
+                              <Badge variant="outline" className="ml-auto text-xs">
+                                {feature.limit}
+                              </Badge>
+                            )}
                           </li>
                         ))}
                       </ul>

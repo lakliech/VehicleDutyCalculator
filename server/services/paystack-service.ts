@@ -33,6 +33,7 @@ export class PaystackService {
     transactionType: 'purchase' | 'subscription' | 'credit_purchase';
     description?: string;
     callbackUrl?: string;
+    redirectUrl?: string;
     metadata?: Record<string, any>;
     channels?: string[];
   }) {
@@ -40,12 +41,11 @@ export class PaystackService {
     
     try {
       // Initialize payment with Paystack
-      const response = await this.paystack.transaction.initialize({
+      const paystackData: any = {
         reference,
         amount: params.amount * 100, // Convert to kobo
         email: params.email,
         currency: params.currency || 'KES',
-        callback_url: params.callbackUrl,
         channels: params.channels || ['card', 'mobile_money', 'ussd', 'bank_transfer'],
         metadata: {
           ...params.metadata,
@@ -55,7 +55,19 @@ export class PaystackService {
           entity_id: params.entityId,
           transaction_type: params.transactionType
         }
-      });
+      };
+
+      // Add callback URL if provided (for webhook notifications)
+      if (params.callbackUrl) {
+        paystackData.callback_url = params.callbackUrl;
+      }
+
+      // Add redirect URL if provided (where user gets redirected after payment)
+      if (params.redirectUrl) {
+        paystackData.redirect_url = params.redirectUrl;
+      }
+
+      const response = await this.paystack.transaction.initialize(paystackData);
 
       if (!response.status) {
         throw new Error(response.message || 'Payment initialization failed');

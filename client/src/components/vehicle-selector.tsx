@@ -164,6 +164,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
       };
 
       setManualVehicleData(manualData);
+      console.log('Calling onManualVehicleData with:', manualData);
       if (onManualVehicleData) {
         onManualVehicleData(manualData);
       }
@@ -190,6 +191,15 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
 
   // Auto-calculate proration when all required fields are provided
   useEffect(() => {
+    console.log('Proration check:', {
+      isManualEntry,
+      manualMake,
+      manualModel,
+      manualEngine,
+      selectedReferenceVehicle: !!selectedReferenceVehicle,
+      shouldCalculate: isManualEntry && manualMake && manualModel && manualEngine && selectedReferenceVehicle
+    });
+    
     if (isManualEntry && manualMake && manualModel && manualEngine && selectedReferenceVehicle) {
       calculateProration();
     }

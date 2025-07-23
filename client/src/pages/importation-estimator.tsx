@@ -164,15 +164,24 @@ export default function ImportationEstimator() {
 
   // Auto-populate vehicle details when manual vehicle data is available
   React.useEffect(() => {
+    console.log('Manual vehicle data effect triggered:', manualVehicleData);
     if (manualVehicleData) {
       // Clear previous results when new manual vehicle data is available
       setEstimateResult(null);
       setShowResults(false);
       
       // Update form with manual vehicle details
+      console.log('Setting form values from manual data:', {
+        make: manualVehicleData.make,
+        model: manualVehicleData.model,
+        engineCapacity: manualVehicleData.engineCapacity
+      });
       form.setValue("make", manualVehicleData.make);
       form.setValue("model", manualVehicleData.model);
       form.setValue("engineCapacity", manualVehicleData.engineCapacity);
+      
+      // Trigger validation to clear errors
+      form.trigger(["make", "model", "engineCapacity"]);
     }
   }, [manualVehicleData, form]);
 
@@ -312,6 +321,7 @@ export default function ImportationEstimator() {
                             setManualVehicleData(null); // Clear manual data when database vehicle selected
                           }}
                           onManualVehicleData={(data) => {
+                            console.log('Manual vehicle data received in parent callback:', data);
                             // Clear results immediately when manual vehicle data changes
                             if (data !== manualVehicleData) {
                               setEstimateResult(null);

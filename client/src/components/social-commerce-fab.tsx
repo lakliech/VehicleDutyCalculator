@@ -59,7 +59,7 @@ export function SocialCommerceFAB() {
   ];
 
   return (
-    <div className="fixed bottom-6 right-20 md:right-24 z-50">
+    <div className="fixed bottom-6 right-20 md:right-24 z-[60]">
       {/* Expanded Menu */}
       {isExpanded && (
         <>
@@ -137,8 +137,11 @@ export function SocialCommerceFAB() {
       
       {/* FAB Button */}
       <Button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="h-14 w-14 rounded-full shadow-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 hover:from-purple-700 hover:via-pink-700 hover:to-red-700 border-0 relative overflow-hidden group"
+        onClick={() => {
+          console.log("Social Commerce FAB clicked, current state:", isExpanded);
+          setIsExpanded(!isExpanded);
+        }}
+        className="h-14 w-14 rounded-full shadow-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 hover:from-purple-700 hover:via-pink-700 hover:to-red-700 border-0 relative overflow-hidden group cursor-pointer"
       >
         {/* Pulse Animation */}
         <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 animate-ping opacity-20"></div>

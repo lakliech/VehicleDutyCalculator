@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { generateDutyCalculationPDF } from "@/lib/pdf-generator";
 import { dutyCalculationSchema, type DutyCalculation, type DutyResult, type VehicleReference, type ManualVehicleData, type Trailer, type HeavyMachinery } from "@shared/schema";
@@ -24,6 +25,7 @@ import { VehicleCategorySelector } from "@/components/vehicle-category-selector"
 import { TrailerSelector } from "@/components/trailer-selector";
 import { HeavyMachinerySelector } from "@/components/heavy-machinery-selector";
 import { ModuleNavigation } from "@/components/module-navigation";
+import { AuthForms } from "@/components/auth-forms";
 import gariyangu from "@assets/gylogo_1752064168868.png";
 import { 
   Calculator, 
@@ -118,6 +120,7 @@ const vehicleCategoryInfo = {
 
 export default function DutyCalculator() {
   const { toast } = useToast();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [calculationResult, setCalculationResult] = useState<DutyResult | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
 
@@ -128,6 +131,7 @@ export default function DutyCalculator() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedTrailer, setSelectedTrailer] = useState<Trailer | null>(null);
   const [selectedMachinery, setSelectedMachinery] = useState<HeavyMachinery | null>(null);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
   
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
@@ -489,6 +493,17 @@ export default function DutyCalculator() {
   });
 
   const onSubmit = (data: DutyCalculation) => {
+    // Check authentication first
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to calculate vehicle import duties",
+        variant: "destructive",
+      });
+      setShowAuthDialog(true);
+      return;
+    }
+
     // Validate all required fields are selected based on category
     const currentCategory = form.getValues('vehicleCategory');
     
@@ -1049,6 +1064,36 @@ export default function DutyCalculator() {
           </div>
         </div>
       </main>
+
+      {/* Authentication Dialog */}
+      {showAuthDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Authentication Required</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAuthDialog(false)}
+              >
+                ×
+              </Button>
+            </div>
+            <p className="text-gray-600 mb-4">
+              Please sign in to calculate vehicle import duties and access all features.
+            </p>
+            <AuthForms 
+              onAuthSuccess={(user) => {
+                setShowAuthDialog(false);
+                toast({
+                  title: "Welcome back!",
+                  description: "You can now calculate import duties",
+                });
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

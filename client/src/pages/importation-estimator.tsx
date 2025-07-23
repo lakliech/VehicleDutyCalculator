@@ -360,7 +360,7 @@ export default function ImportationEstimator() {
                               setShowResults(false);
                             }
                             setSelectedVehicle(vehicle);
-                            setManualVehicleData(null); // Clear manual data when database vehicle selected
+                            // Don't clear manual data automatically - let user manually toggle
                           }}
                           onManualVehicleData={(data) => {
                             console.log('Manual vehicle data received in parent callback:', data);
@@ -371,7 +371,7 @@ export default function ImportationEstimator() {
                             }
                             console.log('Setting manualVehicleData state to:', data);
                             setManualVehicleData(data);
-                            setSelectedVehicle(null); // Clear database vehicle when manual data entered
+                            // Don't clear selected vehicle automatically - let user manually toggle
                           }}
                         />
                         

@@ -297,18 +297,12 @@ router.get('/usage-limits/:featureName', authenticateUser, async (req, res) => {
 
 /**
  * GET /api/unified-billing/usage-overview
- * Get usage overview for all features
+ * Get comprehensive usage overview for all features
  */
 router.get('/usage-overview', authenticateUser, async (req, res) => {
   try {
-    const features = ['duty_calculation', 'valuation', 'import_estimate', 'api_call', 'listing'];
-    const usageData: { [key: string]: any } = {};
-    
-    for (const feature of features) {
-      usageData[feature] = await UnifiedBillingService.checkUsageLimits(req.user.id, feature);
-    }
-    
-    res.json(usageData);
+    const usageOverview = await UnifiedBillingService.getUserUsageOverview(req.user.id);
+    res.json(usageOverview);
   } catch (error) {
     console.error('Error fetching usage overview:', error);
     res.status(500).json({ error: 'Failed to fetch usage overview' });

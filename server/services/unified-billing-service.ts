@@ -75,13 +75,16 @@ export class UnifiedBillingService {
       const subscription = await this.getUserSubscription(userId);
       
       if (subscription && subscription.subscription.status === 'active') {
-        // Subscriber has unlimited access to most features
+        // Get current usage for display purposes
+        const currentUsage = await this.getCurrentUsage(userId, featureName);
+        
+        // Subscriber has unlimited access based on their plan
         return {
           allowed: true,
-          currentUsage: 0,
+          currentUsage,
           limit: null, // Unlimited for subscribers
           remaining: null,
-          plan: subscription.plan.name
+          plan: subscription.plan.name || 'Subscribed Plan'
         };
       } else {
         // Free tier limits
@@ -101,7 +104,7 @@ export class UnifiedBillingService {
           currentUsage,
           limit,
           remaining: Math.max(0, limit - currentUsage),
-          plan: 'Free'
+          plan: 'Free Plan'
         };
       }
     } catch (error) {
@@ -142,35 +145,45 @@ export class UnifiedBillingService {
   }
 
   /**
-   * Track feature usage
+   * Track feature usage with subscription validation
    */
   static async trackUsage(userId: string, featureName: string, count = 1) {
     try {
       const now = new Date().toISOString();
       const usageDate = now.split('T')[0];
 
+      // Check if user is allowed to use this feature
+      const limits = await this.checkUsageLimits(userId, featureName);
+      
+      if (!limits.allowed && limits.limit !== null) {
+        console.log(`Usage blocked: ${userId} has exceeded limits for ${featureName}`);
+        throw new Error(`Usage limit exceeded for ${featureName}. Please upgrade your plan.`);
+      }
+
       await pool.query(`
         INSERT INTO usage_tracking (user_id, feature_type, usage_count, usage_date, created_at)
         VALUES ($1, $2, $3, $4, $5)
       `, [userId, featureName, count, usageDate, now]);
       
-      console.log(`Tracked usage: ${userId} used ${featureName} ${count} times`);
+      console.log(`Tracked usage: ${userId} used ${featureName} ${count} times (Plan: ${limits.plan})`);
     } catch (error) {
       console.error('Error tracking usage:', error);
+      throw error;
     }
   }
 
   /**
-   * Get user's current subscription
+   * Get user's current subscription with feature details
    */
   static async getUserSubscription(userId: string) {
     try {
       // Check for user subscription in user_product_subscriptions table
       const result = await pool.query(`
-        SELECT ups.*, p.name as plan_name, p.base_price 
+        SELECT ups.*, p.name as plan_name, p.base_price, p.description as plan_description
         FROM user_product_subscriptions ups
         LEFT JOIN products p ON ups.product_id = p.id
         WHERE ups.user_id = $1 AND ups.status = 'active'
+        ORDER BY ups.created_at DESC
         LIMIT 1
       `, [userId]);
 
@@ -179,15 +192,28 @@ export class UnifiedBillingService {
       }
 
       const subscription = result.rows[0];
+      
+      // Get associated features for this subscription plan
+      const featuresResult = await pool.query(`
+        SELECT sf.name, sf.description, pfa.limit_value, pfa.is_included
+        FROM product_feature_associations pfa
+        JOIN system_features sf ON pfa.feature_id = sf.id
+        WHERE pfa.product_id = $1 AND pfa.is_included = true
+        ORDER BY pfa.sort_order
+      `, [subscription.product_id]);
+
       return {
         subscription: {
           ...subscription,
-          subscription_type: subscription.plan_name || 'Free Plan'
+          subscription_type: subscription.plan_name || 'Subscribed Plan',
+          status: 'active'
         },
         plan: {
           id: subscription.product_id,
           name: subscription.plan_name,
-          basePrice: parseFloat(subscription.base_price || '0')
+          description: subscription.plan_description,
+          basePrice: parseFloat(subscription.base_price || '0'),
+          features: featuresResult.rows
         }
       };
     } catch (error) {
@@ -472,6 +498,42 @@ export class UnifiedBillingService {
         planName: 'Free Plan',
         accessLevel: 'basic'
       };
+    }
+  }
+
+  /**
+   * Get comprehensive usage overview for all features
+   */
+  static async getUserUsageOverview(userId: string) {
+    try {
+      const features = ['duty_calculation', 'valuation', 'import_estimate', 'api_call', 'listing'];
+      const usageData: { [key: string]: any } = {};
+      
+      // Get user subscription info
+      const subscription = await this.getUserSubscription(userId);
+      
+      for (const feature of features) {
+        const limits = await this.checkUsageLimits(userId, feature);
+        usageData[feature] = {
+          ...limits,
+          subscriptionPlan: subscription?.plan?.name || 'Free Plan',
+          subscriptionFeatures: subscription?.plan?.features || []
+        };
+      }
+      
+      // Add overall subscription info
+      usageData.subscriptionInfo = {
+        planName: subscription?.plan?.name || 'Free Plan',
+        planId: subscription?.plan?.id || null,
+        isActive: subscription?.subscription?.status === 'active',
+        features: subscription?.plan?.features || [],
+        basePrice: subscription?.plan?.basePrice || 0
+      };
+      
+      return usageData;
+    } catch (error) {
+      console.error('Error fetching user usage overview:', error);
+      return {};
     }
   }
 }

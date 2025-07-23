@@ -120,10 +120,8 @@ export function generateDutyCalculationPDF(
   const margins = PDF_CONFIG.margins;
   let currentY = margins.top;
   
-  // Split page into two columns: 70% for report, 30% for Gariyangu features
-  const mainContentWidth = (pageWidth - margins.left - margins.right) * 0.68;
-  const sidebarX = margins.left + mainContentWidth + 10;
-  const sidebarWidth = (pageWidth - margins.left - margins.right) * 0.28;
+  // Use full page width for content
+  const mainContentWidth = pageWidth - margins.left - margins.right;
   
   // === COMPACT HEADER ===
   doc.addImage(gariyanGuLogo, 'PNG', margins.left, currentY, PDF_CONFIG.logo.width, PDF_CONFIG.logo.height);
@@ -185,111 +183,20 @@ export function generateDutyCalculationPDF(
   currentY = addTableRow(doc, "Registration Fees", formatCurrency(result.registrationFees || 0), currentY, mainContentWidth, margins.left);
   currentY = addTableRow(doc, "TOTAL PAYABLE", formatCurrency(result.totalPayable), currentY, mainContentWidth, margins.left, true);
   
-  // === GARIYANGU FEATURES SIDEBAR (Right Column) ===
-  let sidebarY = margins.top + PDF_CONFIG.logo.height + 10;
+  // Bottom footer with platform description and disclaimer
+  const footerY = pageHeight - margins.bottom - 25;
   
-  // Sidebar background
-  doc.setFillColor(PDF_CONFIG.colors.background[0], PDF_CONFIG.colors.background[1], PDF_CONFIG.colors.background[2]);
-  doc.rect(sidebarX - 5, sidebarY - 5, sidebarWidth + 10, pageHeight - sidebarY - margins.bottom, 'F');
-  
-  // Gariyangu Features Header
-  addText(doc, "GARIYANGU FEATURES", sidebarX, sidebarY, {
-    fontSize: PDF_CONFIG.fonts.heading.size,
-    fontStyle: 'bold',
-    color: PDF_CONFIG.colors.primary
-  });
-  sidebarY += 15;
-  
-  // Features list
-  const features = [
-    "✓ AI-Powered Vehicle Search",
-    "✓ Real-time Market Pricing", 
-    "✓ Import Cost Calculator",
-    "✓ Duty Calculator (KRA Compliant)",
-    "✓ Vehicle History Reports",
-    "✓ Expert Concierge Service",
-    "✓ Financing Options",
-    "✓ Inspection Services"
-  ];
-  
-  features.forEach(feature => {
-    addText(doc, feature, sidebarX, sidebarY, {
-      fontSize: PDF_CONFIG.fonts.small.size + 1,
-      color: PDF_CONFIG.colors.text
-    });
-    sidebarY += 10;
-  });
-  
-  sidebarY += 10;
-  
-  // Contact Information
-  addText(doc, "CONTACT US", sidebarX, sidebarY, {
-    fontSize: PDF_CONFIG.fonts.heading.size,
-    fontStyle: 'bold',
-    color: PDF_CONFIG.colors.primary
-  });
-  sidebarY += 12;
-  
-  const contactInfo = [
-    "📱 +254 736 272719",
-    "📧 support@gariyangu.co.ke",
-    "🌐 www.gariyangu.co.ke",
-    "",
-    "WhatsApp: +254 736 272719",
-    "Available 24/7"
-  ];
-  
-  contactInfo.forEach(info => {
-    if (info) {
-      addText(doc, info, sidebarX, sidebarY, {
-        fontSize: PDF_CONFIG.fonts.small.size + 1,
-        color: PDF_CONFIG.colors.text
-      });
-    }
-    sidebarY += 8;
-  });
-  
-  sidebarY += 10;
-  
-  // Call to Action
-  addText(doc, "READY TO IMPORT?", sidebarX, sidebarY, {
-    fontSize: PDF_CONFIG.fonts.heading.size,
-    fontStyle: 'bold',
-    color: PDF_CONFIG.colors.accent
-  });
-  sidebarY += 12;
-  
-  const ctaText = "Get expert help with vehicle imports from Japan, UK, Dubai & more. Our team handles everything from sourcing to delivery.";
-  
-  // Word wrap CTA text within sidebar width
-  const maxWidth = sidebarWidth * 0.85; // Use 85% of sidebar width for text wrapping
-  const words = ctaText.split(' ');
-  let line = '';
-  for (const word of words) {
-    const testLine = line + word + ' ';
-    const textWidth = doc.getStringUnitWidth(testLine) * (PDF_CONFIG.fonts.small.size + 1) / doc.internal.scaleFactor;
-    if (textWidth > maxWidth && line !== '') {
-      addText(doc, line.trim(), sidebarX, sidebarY, {
-        fontSize: PDF_CONFIG.fonts.small.size + 1,
-        color: PDF_CONFIG.colors.text
-      });
-      sidebarY += 8;
-      line = word + ' ';
-    } else {
-      line = testLine;
-    }
-  }
-  if (line.trim()) {
-    addText(doc, line.trim(), sidebarX, sidebarY, {
-      fontSize: PDF_CONFIG.fonts.small.size + 1,
-      color: PDF_CONFIG.colors.text
-    });
-  }
-  
-  // Bottom disclaimer
-  const footerY = pageHeight - margins.bottom - 8;
-  addText(doc, "Disclaimer: Calculations based on current KRA rates. Actual charges may vary.", 
+  // Platform description
+  addText(doc, "Kenya's leading automotive marketplace platform, revolutionizing how people buy, sell, and manage vehicles with cutting-edge technology and official government integration.", 
     margins.left, footerY, {
+    fontSize: PDF_CONFIG.fonts.small.size + 1,
+    fontStyle: 'bold',
+    color: PDF_CONFIG.colors.primary
+  });
+  
+  // Disclaimer
+  addText(doc, "Disclaimer: Calculations based on current KRA rates. Actual charges may vary.", 
+    margins.left, footerY + 12, {
     fontSize: PDF_CONFIG.fonts.small.size,
     color: PDF_CONFIG.colors.lightText
   });
@@ -313,10 +220,8 @@ export function generateImportCostPDF(
   const margins = PDF_CONFIG.margins;
   let currentY = margins.top;
   
-  // Split page into two columns: 70% for report, 30% for Gariyangu features
-  const mainContentWidth = (pageWidth - margins.left - margins.right) * 0.68;
-  const sidebarX = margins.left + mainContentWidth + 10;
-  const sidebarWidth = (pageWidth - margins.left - margins.right) * 0.28;
+  // Use full page width for content
+  const mainContentWidth = pageWidth - margins.left - margins.right;
   
   // === COMPACT HEADER ===
   doc.addImage(gariyanGuLogo, 'PNG', margins.left, currentY, PDF_CONFIG.logo.width, PDF_CONFIG.logo.height);
@@ -381,111 +286,20 @@ export function generateImportCostPDF(
     currentY = addTableRow(doc, "TOTAL COST", formatCurrency(estimateData.totalPayable), currentY, mainContentWidth, margins.left, true);
   }
   
-  // === GARIYANGU FEATURES SIDEBAR (Right Column) ===
-  let sidebarY = margins.top + PDF_CONFIG.logo.height + 10;
+  // Bottom footer with platform description and disclaimer
+  const footerY = pageHeight - margins.bottom - 25;
   
-  // Sidebar background
-  doc.setFillColor(PDF_CONFIG.colors.background[0], PDF_CONFIG.colors.background[1], PDF_CONFIG.colors.background[2]);
-  doc.rect(sidebarX - 5, sidebarY - 5, sidebarWidth + 10, pageHeight - sidebarY - margins.bottom, 'F');
-  
-  // Gariyangu Features Header
-  addText(doc, "GARIYANGU SERVICES", sidebarX, sidebarY, {
-    fontSize: PDF_CONFIG.fonts.heading.size,
-    fontStyle: 'bold',
-    color: PDF_CONFIG.colors.primary
-  });
-  sidebarY += 15;
-  
-  // Import services list
-  const services = [
-    "✓ Vehicle Sourcing (Japan/UK/Dubai)",
-    "✓ Import Documentation",
-    "✓ Shipping & Logistics", 
-    "✓ KRA Duty Clearance",
-    "✓ Vehicle Inspection",
-    "✓ Registration Services",
-    "✓ Financing Assistance",
-    "✓ Warranty & After-sales"
-  ];
-  
-  services.forEach(service => {
-    addText(doc, service, sidebarX, sidebarY, {
-      fontSize: PDF_CONFIG.fonts.small.size + 1,
-      color: PDF_CONFIG.colors.text
-    });
-    sidebarY += 10;
-  });
-  
-  sidebarY += 10;
-  
-  // Contact Information
-  addText(doc, "CONTACT US", sidebarX, sidebarY, {
-    fontSize: PDF_CONFIG.fonts.heading.size,
-    fontStyle: 'bold',
-    color: PDF_CONFIG.colors.primary
-  });
-  sidebarY += 12;
-  
-  const contactInfo = [
-    "📱 +254 736 272719",
-    "📧 support@gariyangu.co.ke",
-    "🌐 www.gariyangu.co.ke",
-    "",
-    "WhatsApp: +254 736 272719",
-    "Available 24/7"
-  ];
-  
-  contactInfo.forEach(info => {
-    if (info) {
-      addText(doc, info, sidebarX, sidebarY, {
-        fontSize: PDF_CONFIG.fonts.small.size + 1,
-        color: PDF_CONFIG.colors.text
-      });
-    }
-    sidebarY += 8;
-  });
-  
-  sidebarY += 10;
-  
-  // Call to Action
-  addText(doc, "IMPORT WITH CONFIDENCE", sidebarX, sidebarY, {
-    fontSize: PDF_CONFIG.fonts.heading.size,
-    fontStyle: 'bold',
-    color: PDF_CONFIG.colors.accent
-  });
-  sidebarY += 12;
-  
-  const ctaText = "Let our experts handle your vehicle import from start to finish. We provide transparent pricing, professional service, and complete peace of mind.";
-  
-  // Word wrap CTA text within sidebar width
-  const maxWidth = sidebarWidth * 0.85; // Use 85% of sidebar width for text wrapping
-  const words = ctaText.split(' ');
-  let line = '';
-  for (const word of words) {
-    const testLine = line + word + ' ';
-    const textWidth = doc.getStringUnitWidth(testLine) * (PDF_CONFIG.fonts.small.size + 1) / doc.internal.scaleFactor;
-    if (textWidth > maxWidth && line !== '') {
-      addText(doc, line.trim(), sidebarX, sidebarY, {
-        fontSize: PDF_CONFIG.fonts.small.size + 1,
-        color: PDF_CONFIG.colors.text
-      });
-      sidebarY += 8;
-      line = word + ' ';
-    } else {
-      line = testLine;
-    }
-  }
-  if (line.trim()) {
-    addText(doc, line.trim(), sidebarX, sidebarY, {
-      fontSize: PDF_CONFIG.fonts.small.size + 1,
-      color: PDF_CONFIG.colors.text
-    });
-  }
-  
-  // Bottom disclaimer
-  const footerY = pageHeight - margins.bottom - 8;
-  addText(doc, "Disclaimer: Estimate based on current rates. Actual costs may vary.", 
+  // Platform description
+  addText(doc, "Kenya's leading automotive marketplace platform, revolutionizing how people buy, sell, and manage vehicles with cutting-edge technology and official government integration.", 
     margins.left, footerY, {
+    fontSize: PDF_CONFIG.fonts.small.size + 1,
+    fontStyle: 'bold',
+    color: PDF_CONFIG.colors.primary
+  });
+  
+  // Disclaimer
+  addText(doc, "Disclaimer: Estimate based on current rates. Actual costs may vary.", 
+    margins.left, footerY + 12, {
     fontSize: PDF_CONFIG.fonts.small.size,
     color: PDF_CONFIG.colors.lightText
   });

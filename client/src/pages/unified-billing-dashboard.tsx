@@ -69,6 +69,9 @@ export default function UnifiedBillingDashboard() {
     queryFn: () => apiRequest('GET', '/api/unified-billing/account-summary').then(res => res.json())
   });
 
+  // Debug logging
+  console.log('Frontend accountSummary data:', accountSummary);
+
   // Fetch subscription plans
   const { data: plans, isLoading: plansLoading } = useQuery({
     queryKey: ['/api/unified-billing/plans'],
@@ -365,6 +368,11 @@ export default function UnifiedBillingDashboard() {
                   <p className="text-xs text-gray-600">
                     {accountSummary?.subscription ? 'Active subscription' : 'No active subscription'}
                   </p>
+                  {accountSummary?.subscription && (
+                    <p className="text-xs text-purple-600 mt-1">
+                      Valid until {formatDate(accountSummary.subscription.subscription.current_period_end)}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 

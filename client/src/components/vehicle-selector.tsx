@@ -126,7 +126,8 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     queryKey: [`/api/vehicle-references/proration-references`, manualMake],
     queryFn: async () => {
       if (!manualMake) return [];
-      const response = await fetch(`/api/vehicle-references/proration-references?make=${encodeURIComponent(manualMake)}`);
+      const trimmedMake = manualMake.trim();
+      const response = await fetch(`/api/vehicle-references/proration-references?make=${encodeURIComponent(trimmedMake)}`);
       if (!response.ok) throw new Error('Failed to fetch reference vehicles');
       return response.json();
     },

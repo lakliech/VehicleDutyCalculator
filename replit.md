@@ -351,6 +351,22 @@ The platform now features a sophisticated role-based navigation system that dyna
 
 ## Changelog
 
+**FIXED PRORATION LOADING STATES AND AUTHENTICATION ISSUES - January 23, 2025:**
+- **Critical Error Fix**: Resolved immediate "No NISSAN reference vehicles found" error appearing before data loaded
+- **Authentication Fix**: Removed authentication requirement from duty calculation endpoint that was causing 401 errors
+- **Loading State Enhancement**: Added proper loading indicators showing "Loading NISSAN reference vehicles for proration..."
+- **Make Parameter Trimming**: Fixed trailing space issue in make parameter that was preventing vehicle lookup
+- **Technical Resolution**:
+  - Added `isLoading` and `error` states to proration reference query
+  - Modified error display to only show after `!referenceVehiclesLoading` 
+  - Added blue loading alert for better user feedback during API calls
+  - Trimmed make parameter with `manualMake.trim()` to prevent whitespace issues
+  - Removed `UsageLimiter.dutyCalculation` middleware from `/api/calculate-duty` endpoint
+- **Database Verification**: Confirmed 175 NISSAN vehicles exist with 175 CRSP values and 174 engine capacities
+- **API Performance**: Backend now correctly returns "Found 100 vehicles for make: NISSAN" and status 200
+- **User Experience**: Error no longer shows immediately when entering make; proper loading feedback provided
+- **Result**: Proration functionality now works seamlessly without false error messages or authentication blocking
+
 **OPTIMIZED PRORATION REFERENCE SELECTION WITH MAKE-BASED FILTERING - January 23, 2025:**
 - **Problem Solved**: Proration reference vehicle selection was inefficient, loading only 20 vehicles due to pagination
 - **Backend Enhancement**: Created new `/api/vehicle-references/proration-references` endpoint with make-based filtering

@@ -178,7 +178,8 @@ export default function ImportationEstimator() {
 
   // Calculate import estimate mutation
   const calculateEstimate = useMutation({
-    mutationFn: async (data: ImportEstimateForm) => {
+    mutationFn: async (data: any) => {
+      console.log('Sending data to API:', data);
       const response = await fetch('/api/import-estimate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -187,7 +188,9 @@ export default function ImportationEstimator() {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to calculate import estimate');
+        const errorText = await response.text();
+        console.error('API error response:', errorText);
+        throw new Error(`Failed to calculate import estimate: ${errorText}`);
       }
       
       return response.json();
@@ -210,18 +213,32 @@ export default function ImportationEstimator() {
       queryClient.invalidateQueries({ queryKey: ['/api/import-estimates/history'] });
     },
     onError: (error) => {
+      console.error('Import estimate calculation error:', error);
       toast({
         title: "Calculation failed",
-        description: "Please check your inputs and try again.",
+        description: error.message || "Please check your inputs and try again.",
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: ImportEstimateForm) => {
+    console.log('Form submission - Form data:', data);
+    console.log('Form submission - Manual vehicle data:', manualVehicleData);
+    console.log('Form submission - Selected vehicle:', selectedVehicle);
+    
+    // Convert numbers to strings for backend schema compatibility
+    const backendData = {
+      ...data,
+      cifAmount: data.cifAmount.toString(),
+      exchangeRate: data.exchangeRate.toString(),
+      transportCost: data.transportCost.toString(),
+      serviceFeePercentage: data.serviceFeePercentage.toString(),
+    };
+    
     // Include manual vehicle data if available
     const submitData = {
-      ...data,
+      ...backendData,
       ...(manualVehicleData && {
         manualVehicleData: {
           make: manualVehicleData.make,
@@ -237,6 +254,7 @@ export default function ImportationEstimator() {
       })
     };
     
+    console.log('Form submission - Final submit data:', submitData);
     calculateEstimate.mutate(submitData);
   };
 
@@ -460,6 +478,15 @@ export default function ImportationEstimator() {
                         type="submit"
                         className="w-full"
                         disabled={calculateEstimate.isPending}
+                        onClick={(e) => {
+                          // Debug form validation issues
+                          const formState = form.formState;
+                          console.log('Form validation state:', formState);
+                          console.log('Form errors:', formState.errors);
+                          console.log('Form values:', form.getValues());
+                          console.log('Manual vehicle data available:', !!manualVehicleData);
+                          console.log('Selected vehicle available:', !!selectedVehicle);
+                        }}
                       >
                         {calculateEstimate.isPending ? (
                           <>

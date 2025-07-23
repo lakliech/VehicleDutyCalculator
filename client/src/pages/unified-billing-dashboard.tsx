@@ -100,7 +100,14 @@ export default function UnifiedBillingDashboard() {
         billingType 
       });
       
-      if (response.paymentUrl) {
+      console.log('Raw response:', response);
+      
+      // Parse the response JSON
+      const data = await response.json();
+      
+      console.log('Payment response data:', data);
+      
+      if (data.success && data.paymentUrl) {
         toast({
           title: "Redirecting to Payment",
           description: "You will be redirected to Paystack to complete your subscription payment.",
@@ -108,10 +115,10 @@ export default function UnifiedBillingDashboard() {
         
         // Small delay to show the message
         setTimeout(() => {
-          window.location.href = response.paymentUrl;
+          window.location.href = data.paymentUrl;
         }, 2000);
       } else {
-        throw new Error('No payment URL received');
+        throw new Error(data.error || 'No payment URL received');
       }
     } catch (error: any) {
       console.error('Subscription error:', error);

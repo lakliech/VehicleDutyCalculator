@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FloatingAd } from "@/components/floating-ad";
+import { SocialCommerceFAB } from "@/components/social-commerce-fab";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { 
@@ -22,9 +23,7 @@ import {
   Sparkles,
   Star,
   User,
-  Video,
-  Users,
-  Award
+
 } from "lucide-react";
 
 // Enhanced tool structure with extra visibility features
@@ -118,31 +117,6 @@ const PROFESSIONAL_TOOLS = [
     description: "Chassis number verification",
     icon: Shield,
     color: "text-cyan-600"
-  }
-];
-
-// New Social Commerce Tools section
-const SOCIAL_COMMERCE_TOOLS = [
-  {
-    href: "/live-streaming",
-    title: "Live Streaming",
-    description: "Watch live vehicle demos & interact with sellers",
-    icon: Video,
-    color: "text-red-600"
-  },
-  {
-    href: "/group-buying",
-    title: "Group Buying",
-    description: "Join group purchases for bulk discounts",
-    icon: Users,
-    color: "text-blue-600"
-  },
-  {
-    href: "/influencer-hub",
-    title: "Influencer Hub",
-    description: "Expert reviews & trusted recommendations",
-    icon: Award,
-    color: "text-purple-600"
   }
 ];
 
@@ -323,50 +297,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Social Commerce Tools Section */}
-      <section className="py-12 bg-gradient-to-r from-pink-50 via-purple-50 to-indigo-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">
-              Social Commerce Features
-            </h2>
-            <p className="text-base text-gray-600 max-w-2xl mx-auto">
-              Connect, collaborate, and discover vehicles through live interactions, group buying, and trusted influencer recommendations
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {SOCIAL_COMMERCE_TOOLS.map((tool) => {
-              const IconComponent = tool.icon;
-              return (
-                <Link key={tool.href} href={tool.href}>
-                  <Card className="group cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 h-full bg-white overflow-hidden">
-                    <CardContent className="p-8 text-center">
-                      <div className={`w-16 h-16 mx-auto mb-6 rounded-2xl bg-gray-100 group-hover:bg-gradient-to-br group-hover:from-purple-100 group-hover:to-pink-100 flex items-center justify-center group-hover:scale-110 transition-all duration-500`}>
-                        <IconComponent className={`h-8 w-8 ${tool.color} group-hover:text-purple-600 transition-colors duration-300`} />
-                      </div>
-                      
-                      <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-purple-700 transition-colors duration-300">
-                        {tool.title}
-                      </h3>
-                      
-                      <p className="text-sm text-gray-600 leading-relaxed mb-6">
-                        {tool.description}
-                      </p>
-                      
-                      <div className="flex items-center justify-center text-purple-600 group-hover:text-purple-700 font-semibold">
-                        <span>Explore Now</span>
-                        <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       {/* Professional Tools - Compact Grid */}
       <section className="py-10 bg-gradient-to-r from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4">
@@ -476,6 +406,7 @@ export default function Home() {
       </section>
       {/* Floating Ads */}
       <FloatingAd />
+      <SocialCommerceFAB />
     </div>
   );
 }

@@ -566,6 +566,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     passport.authenticate('google', { failureRedirect: '/?error=auth_failed' }),
     async (req: Request, res: Response) => {
       try {
+        console.log('OAuth callback - user authenticated:', {
+          userId: req.user?.id,
+          userEmail: req.user?.email,
+          sessionID: req.sessionID,
+          isAuthenticated: req.isAuthenticated?.(),
+          sessionPassport: req.session?.passport
+        });
+
         // Ensure session is properly saved with Promise-based approach
         await new Promise<void>((resolve, reject) => {
           req.session.save((err) => {
@@ -573,13 +581,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.error('Session save error:', err);
               reject(err);
             } else {
+              console.log('Session saved successfully');
               resolve();
             }
           });
         });
         
         // Add slight delay to ensure session is fully persisted
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // Get returnUrl from state parameter
         const state = req.query.state as string;
@@ -611,8 +620,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       hasUser: !!req.user,
       sessionID: req.sessionID,
       session: req.session ? Object.keys(req.session) : 'no session',
+      sessionPassport: req.session?.passport,
       cookies: req.headers.cookie ? 'has cookies' : 'no cookies',
-      sessionCookie: req.headers.cookie?.includes('connect.sid') ? 'session cookie found' : 'no session cookie'
+      sessionCookie: req.headers.cookie?.includes('gariyangu.sid') ? 'session cookie found' : 'no session cookie'
     });
     
     // Check for session-based authentication (both Google OAuth and username/password)

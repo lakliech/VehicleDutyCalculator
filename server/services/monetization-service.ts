@@ -6,6 +6,7 @@ import {
   revenueSharing, type SubscriptionPlan, type UserSubscription,
   type BillingTransaction, type UsageTracking as UsageTrackingType
 } from '../../shared/monetization-schema';
+import { userProductSubscriptions } from '../../shared/product-catalog-schema';
 import { eq, and, gte, lte, desc, sum, count } from 'drizzle-orm';
 import { startOfMonth, endOfMonth, addMonths } from 'date-fns';
 
@@ -33,15 +34,21 @@ export class MonetizationService {
    * Get user's current subscription
    */
   static async getUserSubscription(userId: string): Promise<UserSubscription | null> {
-    const subscriptions = await db.select()
-      .from(userSubscriptions)
-      .where(and(
-        eq(userSubscriptions.userId, userId),
-        eq(userSubscriptions.status, 'active')
-      ))
-      .limit(1);
+    try {
+      // Check if we have any subscriptions for this user
+      const subscriptions = await db.select()
+        .from(userProductSubscriptions)
+        .where(and(
+          eq(userProductSubscriptions.userId, userId),
+          eq(userProductSubscriptions.status, 'active')
+        ))
+        .limit(1);
 
-    return subscriptions[0] || null;
+      return subscriptions[0] || null;
+    } catch (error) {
+      console.error('Error fetching user subscription:', error);
+      return null; // Return null instead of throwing to allow usage limiter to continue
+    }
   }
 
   /**

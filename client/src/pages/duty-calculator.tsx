@@ -18,7 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
-import { generateDutyCalculationPDF } from "@/lib/pdf-generator";
+import { generateDutyCalculationPDF } from "@/lib/pdf-generator-new";
 import { dutyCalculationSchema, type DutyCalculation, type DutyResult, type VehicleReference, type ManualVehicleData, type Trailer, type HeavyMachinery } from "@shared/schema";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { VehicleCategorySelector } from "@/components/vehicle-category-selector";

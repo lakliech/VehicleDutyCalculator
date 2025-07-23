@@ -17,8 +17,30 @@ import { useToast } from "@/hooks/use-toast";
 import { ModuleNavigation } from "@/components/module-navigation";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { queryClient } from "@/lib/queryClient";
-import { generateImportEstimatePDF, type ImportEstimateResult } from "@/lib/pdf-generator";
+import { generateImportCostPDF } from "@/lib/pdf-generator-new";
 import React from "react";
+
+// Interface for backward compatibility
+interface ImportEstimateResult {
+  vehicleInfo: {
+    make: string;
+    model: string;
+    year: number;
+    engineCapacity: number;
+  };
+  breakdown: {
+    exchangeRate: number;
+    cifAmount: number;
+    cifCurrency: string;
+    cifKes: number;
+    dutyPayable: number;
+    clearingCharges: number;
+    transportCost: number;
+    serviceFeePercentage: number;
+    serviceFeeAmount: number;
+    totalPayable: number;
+  };
+}
 
 // Form schema for import estimation
 const importEstimateFormSchema = z.object({
@@ -116,12 +138,27 @@ export default function ImportationEstimator() {
   const handleDownloadPDF = () => {
     if (!estimateResult) return;
     
-    const pdfData: ImportEstimateResult = {
-      vehicleInfo: estimateResult.vehicleInfo,
-      breakdown: estimateResult.breakdown
+    // Prepare data for new PDF generator format
+    const estimateData = {
+      cifAmount: estimateResult.breakdown.cifAmount,
+      currency: estimateResult.breakdown.cifCurrency,
+      cifKes: estimateResult.breakdown.cifKes,
+      dutyAmount: estimateResult.breakdown.dutyPayable,
+      clearingCharges: estimateResult.breakdown.clearingCharges,
+      transportCost: estimateResult.breakdown.transportCost,
+      serviceFeePercentage: estimateResult.breakdown.serviceFeePercentage,
+      serviceFeeAmount: estimateResult.breakdown.serviceFeeAmount,
+      totalPayable: estimateResult.breakdown.totalPayable
     };
     
-    generateImportEstimatePDF(pdfData);
+    const vehicleData = {
+      make: estimateResult.vehicleInfo.make,
+      model: estimateResult.vehicleInfo.model,
+      engineCapacity: estimateResult.vehicleInfo.engineCapacity,
+      year: estimateResult.vehicleInfo.year
+    };
+    
+    generateImportCostPDF(estimateData, vehicleData);
     
     toast({
       title: "PDF Downloaded",

@@ -2,6 +2,112 @@ import jsPDF from 'jspdf';
 import type { DutyResult, VehicleReference } from '@shared/schema';
 import gariyanGuLogo from '@assets/gylogo_1752064168868.png';
 
+// Clean, professional PDF styling configuration
+const PDF_CONFIG = {
+  margins: { left: 25, right: 25, top: 30, bottom: 30 },
+  colors: {
+    primary: [116, 10, 114],    // #740a72 - Gariyangu purple
+    secondary: [177, 5, 115],   // #b10573 - purple-pink
+    accent: [238, 0, 116],      // #ee0074 - bright pink
+    dark: [56, 16, 114],        // #381072 - dark purple
+    text: [51, 51, 51],         // #333333 - dark gray
+    lightText: [107, 114, 128], // #6b7280 - light gray
+    border: [229, 231, 235],    // #e5e7eb - very light gray
+    background: [249, 250, 251] // #f9fafb - light background
+  },
+  fonts: {
+    title: { size: 20, style: 'bold' },
+    subtitle: { size: 14, style: 'bold' },
+    heading: { size: 12, style: 'bold' },
+    body: { size: 10, style: 'normal' },
+    small: { size: 8, style: 'normal' }
+  },
+  logo: {
+    width: 45,   // Proportional logo size
+    height: 30,  // Maintain aspect ratio
+    margin: 10
+  }
+};
+
+// Helper functions for clean PDF generation
+const formatCurrency = (amount: number) => {
+  return `KES ${amount.toLocaleString('en-KE', { 
+    minimumFractionDigits: 2, 
+    maximumFractionDigits: 2 
+  })}`;
+};
+
+const addText = (doc: jsPDF, text: string, x: number, y: number, options: any = {}) => {
+  const { fontSize = 10, fontStyle = 'normal', color = PDF_CONFIG.colors.text, align = 'left' } = options;
+  
+  doc.setFont("helvetica", fontStyle);
+  doc.setFontSize(fontSize);
+  doc.setTextColor(color[0], color[1], color[2]);
+  
+  if (align === 'center') {
+    const pageWidth = doc.internal.pageSize.width;
+    const textWidth = doc.getStringUnitWidth(text) * fontSize / doc.internal.scaleFactor;
+    x = (pageWidth - textWidth) / 2;
+  } else if (align === 'right') {
+    const textWidth = doc.getStringUnitWidth(text) * fontSize / doc.internal.scaleFactor;
+    x = x - textWidth;
+  }
+  
+  doc.text(text, x, y);
+  return y + fontSize * 0.5; // Return next line position
+};
+
+const addSection = (doc: jsPDF, title: string, y: number, backgroundColor?: number[]) => {
+  const pageWidth = doc.internal.pageSize.width;
+  const margins = PDF_CONFIG.margins;
+  
+  // Background rectangle for section headers
+  if (backgroundColor) {
+    doc.setFillColor(backgroundColor[0], backgroundColor[1], backgroundColor[2]);
+    doc.rect(margins.left - 5, y - 8, pageWidth - margins.left - margins.right + 10, 16, 'F');
+  }
+  
+  return addText(doc, title, margins.left, y, {
+    fontSize: PDF_CONFIG.fonts.heading.size,
+    fontStyle: PDF_CONFIG.fonts.heading.style,
+    color: backgroundColor ? [255, 255, 255] : PDF_CONFIG.colors.primary
+  });
+};
+
+const addTableRow = (doc: jsPDF, label: string, value: string, y: number, isTotal: boolean = false) => {
+  const margins = PDF_CONFIG.margins;
+  const pageWidth = doc.internal.pageSize.width;
+  const contentWidth = pageWidth - margins.left - margins.right;
+  
+  // Add subtle background for total rows
+  if (isTotal) {
+    doc.setFillColor(PDF_CONFIG.colors.background[0], PDF_CONFIG.colors.background[1], PDF_CONFIG.colors.background[2]);
+    doc.rect(margins.left - 5, y - 8, contentWidth + 10, 14, 'F');
+  }
+  
+  // Add border line
+  doc.setDrawColor(PDF_CONFIG.colors.border[0], PDF_CONFIG.colors.border[1], PDF_CONFIG.colors.border[2]);
+  doc.setLineWidth(0.5);
+  doc.line(margins.left, y + 5, margins.left + contentWidth, y + 5);
+  
+  // Label
+  addText(doc, label, margins.left, y, {
+    fontSize: PDF_CONFIG.fonts.body.size,
+    fontStyle: isTotal ? 'bold' : 'normal',
+    color: isTotal ? PDF_CONFIG.colors.primary : PDF_CONFIG.colors.text
+  });
+  
+  // Value (right-aligned)
+  addText(doc, value, margins.left + contentWidth, y, {
+    fontSize: PDF_CONFIG.fonts.body.size,
+    fontStyle: isTotal ? 'bold' : 'normal',
+    color: isTotal ? PDF_CONFIG.colors.primary : PDF_CONFIG.colors.text,
+    align: 'right'
+  });
+  
+  return y + 16;
+};
+
 export function generateDutyCalculationPDF(
   result: DutyResult,
   selectedVehicle: VehicleReference | null,
@@ -11,87 +117,75 @@ export function generateDutyCalculationPDF(
 ) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
-  const marginLeft = 20;
-  const marginRight = 20;
-  const contentWidth = pageWidth - marginLeft - marginRight;
+  const margins = PDF_CONFIG.margins;
+  // === HEADER SECTION ===
+  // Add proportional logo at top left
+  doc.addImage(gariyanGuLogo, 'PNG', margins.left, currentY, PDF_CONFIG.logo.width, PDF_CONFIG.logo.height);
   
-  // Modern color scheme (New Gariyangu brand colors)
-  const primaryColor = [116, 10, 114]; // #740a72 - medium purple
-  const secondaryColor = [177, 5, 115]; // #b10573 - purple-pink
-  const accentColor = [238, 0, 116]; // #ee0074 - bright pink
-  const darkColor = [56, 16, 114]; // #381072 - dark purple
-  const lightGray = [156, 163, 175];
+  // Company info next to logo
+  const logoRightX = margins.left + PDF_CONFIG.logo.width + PDF_CONFIG.logo.margin;
+  currentY = addText(doc, "Kenya's Car Marketplace", logoRightX, currentY + 8, {
+    fontSize: PDF_CONFIG.fonts.subtitle.size,
+    fontStyle: PDF_CONFIG.fonts.subtitle.style,
+    color: PDF_CONFIG.colors.primary
+  });
   
-  // Helper function to format currency
-  const formatCurrency = (amount: number) => {
-    return `KES ${amount.toLocaleString('en-KE', { 
-      minimumFractionDigits: 2, 
-      maximumFractionDigits: 2 
-    })}`;
-  };
-
-  // Helper function to add centered text
-  const addCenteredText = (text: string, y: number, fontSize: number = 12, fontStyle: string = "normal") => {
-    doc.setFont("helvetica", fontStyle);
-    doc.setFontSize(fontSize);
-    const textWidth = doc.getStringUnitWidth(text) * fontSize / doc.internal.scaleFactor;
-    const x = (pageWidth - textWidth) / 2;
-    doc.text(text, x, y);
-  };
-
-  // Add white header background
-  doc.setFillColor(255, 255, 255);
-  doc.rect(0, 0, pageWidth, 35, 'F');
-
-  // Add Gariyangu Logo (larger)
-  const logoWidth = 50;
-  const logoHeight = 20;
-  const logoX = marginLeft;
-  doc.addImage(gariyanGuLogo, 'PNG', logoX, 7, logoWidth, logoHeight);
+  currentY = addText(doc, "Professional Vehicle Import Services", logoRightX, currentY + 6, {
+    fontSize: PDF_CONFIG.fonts.small.size,
+    color: PDF_CONFIG.colors.lightText
+  });
   
-  // Add call-to-action text in header (compact)
-  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.text("Do you wish to import a car? Contact: 0736 272719", logoX + logoWidth + 10, 14);
-  doc.setFontSize(7);
-  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-  doc.text("Japan • UK • South Africa • Dubai • Australia • Singapore • Thailand", logoX + logoWidth + 10, 22);
+  // Contact info (right-aligned)
+  addText(doc, "Contact: +254 736 272719", pageWidth - margins.right, margins.top + 8, {
+    fontSize: PDF_CONFIG.fonts.small.size,
+    color: PDF_CONFIG.colors.lightText,
+    align: 'right'
+  });
   
-  // Reset text color
-  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  addText(doc, "support@gariyangu.com", pageWidth - margins.right, margins.top + 16, {
+    fontSize: PDF_CONFIG.fonts.small.size,
+    color: PDF_CONFIG.colors.lightText,
+    align: 'right'
+  });
   
-  // Title with modern styling (compact)
-  doc.setFont("helvetica", "bold");
-  addCenteredText("KENYA MOTOR VEHICLE DUTY CALCULATION", 43, 15, "bold");
+  currentY = margins.top + PDF_CONFIG.logo.height + 20;
   
-  // Subtitle
-  doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-  addCenteredText("Kenya Revenue Authority (KRA) Import Duty Assessment", 51, 9);
+  // === DOCUMENT TITLE ===
+  currentY = addText(doc, "KENYA MOTOR VEHICLE DUTY CALCULATION", pageWidth / 2, currentY, {
+    fontSize: PDF_CONFIG.fonts.title.size,
+    fontStyle: PDF_CONFIG.fonts.title.style,
+    color: PDF_CONFIG.colors.primary,
+    align: 'center'
+  });
   
-  // Date with modern styling (compact)
+  currentY = addText(doc, "Official KRA Import Duty Assessment Report", pageWidth / 2, currentY + 8, {
+    fontSize: PDF_CONFIG.fonts.body.size,
+    color: PDF_CONFIG.colors.lightText,
+    align: 'center'
+  });
+  
+  // Date and report info
   const currentDate = new Date().toLocaleDateString('en-KE', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   });
-  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-  doc.setFontSize(8);
-  doc.text(`Report Date: ${currentDate}`, marginLeft, 60);
   
-  // Modern line separator (compact)
-  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.setLineWidth(0.8);
-  doc.line(marginLeft, 63, pageWidth - marginRight, 63);
+  currentY = addText(doc, `Generated: ${currentDate}`, pageWidth / 2, currentY + 15, {
+    fontSize: PDF_CONFIG.fonts.small.size,
+    color: PDF_CONFIG.colors.lightText,
+    align: 'center'
+  });
   
-  let yPosition = 73;
+  // Separator line
+  currentY += 15;
+  doc.setDrawColor(PDF_CONFIG.colors.border[0], PDF_CONFIG.colors.border[1], PDF_CONFIG.colors.border[2]);
+  doc.setLineWidth(1);
+  doc.line(margins.left, currentY, pageWidth - margins.right, currentY);
   
-  // Vehicle Information Section with modern card-like styling (compact)
-  doc.setFillColor(248, 250, 252); // Light background
-  doc.roundedRect(marginLeft, yPosition - 3, contentWidth, 65, 2, 2, 'F');
-  
-  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.setFont("helvetica", "bold");
+  currentY += 20;
   doc.setFontSize(11);
   doc.text("VEHICLE INFORMATION", marginLeft + 3, yPosition + 7);
   yPosition += 12;

@@ -1,0 +1,26 @@
+importation-estimator.tsx:357 Manual vehicle data received in parent callback: null
+importation-estimator.tsx:363 Setting manualVehicleData state to: null
+vehicle-selector.tsx:315 Manual entry mode toggled: true
+vehicle-selector.tsx:194 Proration check: {isManualEntry: true, manualMake: '', manualModel: '', manualEngine: '', selectedReferenceVehicle: false, …}
+vehicle-selector.tsx:194 Proration check: {isManualEntry: true, manualMake: 'NISSAN', manualModel: '', manualEngine: '', selectedReferenceVehicle: false, …}
+vehicle-selector.tsx:194 Proration check: {isManualEntry: true, manualMake: 'NISSAN', manualModel: 'NOTE', manualEngine: '', selectedReferenceVehicle: false, …}
+vehicle-selector.tsx:194 Proration check: {isManualEntry: true, manualMake: 'NISSAN', manualModel: 'NOTE', manualEngine: '1', selectedReferenceVehicle: false, …}
+vehicle-selector.tsx:194 Proration check: {isManualEntry: true, manualMake: 'NISSAN', manualModel: 'NOTE', manualEngine: '11', selectedReferenceVehicle: false, …}
+vehicle-selector.tsx:194 Proration check: {isManualEntry: true, manualMake: 'NISSAN', manualModel: 'NOTE', manualEngine: '119', selectedReferenceVehicle: false, …}
+vehicle-selector.tsx:194 Proration check: {isManualEntry: true, manualMake: 'NISSAN', manualModel: 'NOTE', manualEngine: '1190', selectedReferenceVehicle: false, …}
+vehicle-selector.tsx:194 Proration check: {isManualEntry: true, manualMake: 'NISSAN', manualModel: 'NOTE', manualEngine: '1190', selectedReferenceVehicle: true, …}
+vehicle-selector.tsx:167 Calling onManualVehicleData with: {make: 'NISSAN', model: 'NOTE', engineCapacity: 1190, referenceVehicle: {…}, proratedCrsp: 1507333}
+importation-estimator.tsx:357 Manual vehicle data received in parent callback: {make: 'NISSAN', model: 'NOTE', engineCapacity: 1190, referenceVehicle: {…}, proratedCrsp: 1507333}
+importation-estimator.tsx:363 Setting manualVehicleData state to: {make: 'NISSAN', model: 'NOTE', engineCapacity: 1190, referenceVehicle: {…}, proratedCrsp: 1507333}
+importation-estimator.tsx:530 Form validation state: {defaultValues: {…}, …}
+importation-estimator.tsx:531 Form errors: {}
+importation-estimator.tsx:532 Form values: {make: '', model: '', year: 2018, engineCapacity: 0, cifCurrency: 'USD', …}
+importation-estimator.tsx:533 Manual vehicle data available: false
+importation-estimator.tsx:534 Selected vehicle available: false
+importation-estimator.tsx:542 ❌ No vehicle data - triggering form validation
+importation-estimator.tsx:530 Form validation state: {defaultValues: {…}, …}
+importation-estimator.tsx:531 Form errors: {make: {…}, model: {…}, engineCapacity: {…}}engineCapacity: {message: 'Number must be greater than or equal to 1', type: 'too_small', ref: undefined}make: {message: 'Make is required', type: 'too_small', ref: undefined}model: {message: 'Model is required', type: 'too_small', ref: undefined}[[Prototype]]: Objectconstructor: ƒ Object()hasOwnProperty: ƒ hasOwnProperty()isPrototypeOf: ƒ isPrototypeOf()propertyIsEnumerable: ƒ propertyIsEnumerable()toLocaleString: ƒ toLocaleString()toString: ƒ toString()valueOf: ƒ valueOf()__defineGetter__: ƒ __defineGetter__()__defineSetter__: ƒ __defineSetter__()__lookupGetter__: ƒ __lookupGetter__()__lookupSetter__: ƒ __lookupSetter__()__proto__: (...)get __proto__: ƒ __proto__()set __proto__: ƒ __proto__()
+importation-estimator.tsx:532 Form values: {make: '', model: '', year: 2018, engineCapacity: 0, cifCurrency: 'USD', …}
+importation-estimator.tsx:533 Manual vehicle data available: false
+importation-estimator.tsx:534 Selected vehicle available: false
+importation-estimator.tsx:542 ❌ No vehicle data - triggering form validation

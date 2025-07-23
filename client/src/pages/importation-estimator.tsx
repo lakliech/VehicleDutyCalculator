@@ -219,14 +219,19 @@ export default function ImportationEstimator() {
       return response.json();
     },
     onSuccess: (data) => {
+      console.log('✅ API Success - received data:', data);
+      
       // Clear previous results first to force refresh
       setEstimateResult(null);
       setShowResults(false);
+      console.log('🧹 Cleared previous results');
       
       // Set new results after brief delay to ensure UI refresh
       setTimeout(() => {
+        console.log('⏰ Setting new results after delay:', data);
         setEstimateResult(data);
         setShowResults(true);
+        console.log('✅ Results state updated - should now display');
       }, 100);
       
       toast({
@@ -604,6 +609,10 @@ export default function ImportationEstimator() {
 
             {/* Results Panel */}
             <div className="space-y-6">
+              {(() => {
+                console.log('🔍 Render check - showResults:', showResults, 'estimateResult:', !!estimateResult);
+                return null;
+              })()}
               {showResults && estimateResult ? (
                 <Card>
                   <CardHeader>

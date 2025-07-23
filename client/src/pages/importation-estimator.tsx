@@ -169,26 +169,18 @@ export default function ImportationEstimator() {
 
   // Auto-populate vehicle details when manual vehicle data is available
   React.useEffect(() => {
-    console.log('Manual vehicle data effect triggered:', manualVehicleData);
     if (manualVehicleData) {
       // Clear previous results when new manual vehicle data is available
       setEstimateResult(null);
       setShowResults(false);
       
       // Update form with manual vehicle details
-      console.log('Setting form values from manual data:', {
-        make: manualVehicleData.make,
-        model: manualVehicleData.model,
-        engineCapacity: manualVehicleData.engineCapacity
-      });
       form.setValue("make", manualVehicleData.make);
       form.setValue("model", manualVehicleData.model);
       form.setValue("engineCapacity", manualVehicleData.engineCapacity);
       
       // Trigger validation to clear errors
       form.trigger(["make", "model", "engineCapacity"]);
-    } else {
-      console.log('Manual vehicle data cleared, resetting form fields');
     }
   }, [manualVehicleData, form]);
 
@@ -328,13 +320,11 @@ export default function ImportationEstimator() {
                             setManualVehicleData(null); // Clear manual data when database vehicle selected
                           }}
                           onManualVehicleData={(data) => {
-                            console.log('Manual vehicle data received in parent callback:', data);
                             // Clear results immediately when manual vehicle data changes
                             if (data !== manualVehicleData) {
                               setEstimateResult(null);
                               setShowResults(false);
                             }
-                            console.log('Setting manualVehicleData state to:', data);
                             setManualVehicleData(data);
                             setSelectedVehicle(null); // Clear database vehicle when manual data entered
                           }}
@@ -496,15 +486,7 @@ export default function ImportationEstimator() {
                         type="submit"
                         className="w-full"
                         disabled={calculateEstimate.isPending}
-                        onClick={(e) => {
-                          // Debug form validation issues
-                          const formState = form.formState;
-                          console.log('Form validation state:', formState);
-                          console.log('Form errors:', formState.errors);
-                          console.log('Form values:', form.getValues());
-                          console.log('Manual vehicle data available:', !!manualVehicleData);
-                          console.log('Selected vehicle available:', !!selectedVehicle);
-                        }}
+
                       >
                         {calculateEstimate.isPending ? (
                           <>

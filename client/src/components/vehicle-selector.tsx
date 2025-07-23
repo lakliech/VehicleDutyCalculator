@@ -227,7 +227,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
         onManualVehicleData(null);
       }
     }
-  }, [isManualEntry]);
+  }, [isManualEntry, onVehicleSelect, onManualVehicleData]);
 
   useEffect(() => {
     if (vehicleDetails.length === 1) {

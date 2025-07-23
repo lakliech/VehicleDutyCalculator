@@ -605,8 +605,16 @@ export default function UnifiedBillingDashboard() {
               <CardContent>
                 {billingHistory && billingHistory.length > 0 ? (
                   <div className="space-y-3">
-                    {billingHistory.map((transaction: any, index: number) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    {billingHistory
+                      .filter((transaction: any, index: number, self: any[]) => 
+                        // Remove duplicates based on reference or paystackReference
+                        index === self.findIndex(t => 
+                          t.reference === transaction.reference || 
+                          (t.paystackReference && t.paystackReference === transaction.paystackReference)
+                        )
+                      )
+                      .map((transaction: any) => (
+                      <div key={transaction.id || transaction.reference} className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-gray-100 rounded-lg">
                             <Receipt className="h-4 w-4" />
@@ -614,14 +622,19 @@ export default function UnifiedBillingDashboard() {
                           <div>
                             <p className="font-medium">{transaction.description || 'Payment'}</p>
                             <p className="text-sm text-gray-600">
-                              {formatDate(transaction.createdAt)} • {transaction.method}
+                              {formatDate(transaction.createdAt)} • {transaction.method || 'card'}
+                              {transaction.provider && ` • ${transaction.provider}`}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Ref: {transaction.paystackReference || transaction.reference}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
                           <p className="font-medium">{formatAmount(transaction.amount)}</p>
                           <Badge 
-                            variant={transaction.status === 'completed' ? 'default' : 'secondary'}
+                            variant={transaction.status === 'completed' ? 'default' : 
+                                   transaction.status === 'pending' ? 'secondary' : 'destructive'}
                           >
                             {transaction.status}
                           </Badge>

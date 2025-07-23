@@ -204,10 +204,12 @@ router.get('/account-summary', authenticateUser, async (req, res) => {
 router.get('/billing-history', authenticateUser, async (req, res) => {
   try {
     const { limit = 20 } = req.query;
+    console.log('Fetching billing history for user:', req.user.id, 'limit:', limit);
     const history = await UnifiedBillingService.getBillingHistory(
       req.user.id, 
       parseInt(limit as string)
     );
+    console.log('Billing history results:', history.length, 'transactions');
     res.json(history);
   } catch (error) {
     console.error('Error fetching billing history:', error);

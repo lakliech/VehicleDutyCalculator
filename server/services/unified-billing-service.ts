@@ -262,20 +262,51 @@ export class UnifiedBillingService {
   }
 
   /**
-   * Get user's billing history
+   * Get user's billing history with deduplication
    */
-  static async getBillingHistory(userId: string) {
+  static async getBillingHistory(userId: string, limit: number = 20) {
     try {
       const result = await pool.query(`
-        SELECT pt.*, p.name as product_name 
+        SELECT DISTINCT ON (pt.reference) 
+          pt.id,
+          pt.reference,
+          pt.paystack_reference,
+          pt.amount,
+          pt.currency,
+          pt.status,
+          pt.method,
+          pt.type,
+          pt.description,
+          pt.provider,
+          pt.created_at,
+          pt.paid_at,
+          pt.processed_at,
+          p.name as product_name
         FROM payment_transactions pt
-        LEFT JOIN products p ON pt.reference LIKE '%' || p.id || '%'
-        WHERE pt.user_id = $1
-        ORDER BY pt.created_at DESC
-        LIMIT 50
-      `, [userId]);
+        LEFT JOIN products p ON pt.product_id = p.id
+        WHERE pt.user_id = $1 
+          AND pt.status IN ('completed', 'pending', 'failed')
+        ORDER BY pt.reference, pt.created_at DESC
+        LIMIT $2
+      `, [userId, limit]);
 
-      return result.rows;
+      // Format the results
+      return result.rows.map(row => ({
+        id: row.id,
+        reference: row.reference,
+        paystackReference: row.paystack_reference,
+        amount: parseFloat(row.amount),
+        currency: row.currency,
+        status: row.status,
+        method: row.method || 'card',
+        type: row.type,
+        description: row.description,
+        provider: row.provider,
+        productName: row.product_name,
+        createdAt: row.created_at,
+        paidAt: row.paid_at,
+        processedAt: row.processed_at
+      }));
     } catch (error) {
       console.error('Error fetching billing history:', error);
       return [];

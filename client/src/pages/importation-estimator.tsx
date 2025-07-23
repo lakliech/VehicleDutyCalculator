@@ -294,13 +294,9 @@ export default function ImportationEstimator() {
       console.log('📝 Final form data with manual overrides:', finalData);
     }
     
-    // Convert numbers to strings for backend schema compatibility
+    // Use data as numbers directly - schema will handle conversion
     const backendData = {
       ...finalData,
-      cifAmount: finalData.cifAmount.toString(),
-      exchangeRate: finalData.exchangeRate.toString(),
-      transportCost: finalData.transportCost.toString(),
-      serviceFeePercentage: finalData.serviceFeePercentage.toString(),
     };
     
     // Include manual vehicle data if available

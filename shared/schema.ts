@@ -1910,11 +1910,14 @@ export const importEstimateSchema = createInsertSchema(importEstimates).omit({
   totalPayable: true,
 }).extend({
   vehicleCategory: z.string().optional(),
-  // Transform numbers to strings for decimal fields
-  cifAmount: z.number().transform(val => val.toString()),
-  exchangeRate: z.number().transform(val => val.toString()),
-  transportCost: z.number().optional().transform(val => val?.toString() || "0"),
-  serviceFeePercentage: z.number().transform(val => val.toString()),
+  // Accept both strings and numbers, convert to numbers for processing
+  cifAmount: z.union([z.string(), z.number()]).transform(val => typeof val === 'string' ? parseFloat(val) : val),
+  exchangeRate: z.union([z.string(), z.number()]).transform(val => typeof val === 'string' ? parseFloat(val) : val),
+  transportCost: z.union([z.string(), z.number()]).optional().transform(val => {
+    if (!val) return 0;
+    return typeof val === 'string' ? parseFloat(val) : val;
+  }),
+  serviceFeePercentage: z.union([z.string(), z.number()]).transform(val => typeof val === 'string' ? parseFloat(val) : val),
 });
 
 export const clearingChargeSchema = createInsertSchema(clearingCharges).omit({

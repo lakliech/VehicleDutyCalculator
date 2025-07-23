@@ -5128,9 +5128,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Using default clearing charges:', clearingChargeAmount, 'KES');
       }
 
-      // Convert CIF to KES - parse from string  
-      const cifAmountNum = parseFloat(estimateData.cifAmount);
-      const exchangeRateNum = parseFloat(estimateData.exchangeRate);
+      // Convert CIF to KES - values are now numbers from schema
+      const cifAmountNum = estimateData.cifAmount;
+      const exchangeRateNum = estimateData.exchangeRate;
       const cifKes = cifAmountNum * exchangeRateNum;
 
       // Handle CRSP value - check for manual vehicle data first
@@ -5210,8 +5210,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Duty (from CRSP):', dutyResult.totalPayable, '← Calculated using CRSP value (includes registration fees)');
       console.log('Clearing Charges:', clearingChargeAmount, '← Fixed based on vehicle category');
       
-      const transportCostNum = parseFloat(estimateData.transportCost || "0");
-      const serviceFeePercentageNum = parseFloat(estimateData.serviceFeePercentage);
+      const transportCostNum = estimateData.transportCost || 0;
+      const serviceFeePercentageNum = estimateData.serviceFeePercentage;
       console.log('Transport Cost:', transportCostNum, '← User input');
       
       // Base cost without service fee - use totalPayable to match duty calculator exactly
@@ -5230,10 +5230,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         year: estimateData.year,
         engineCapacity: estimateData.engineCapacity,
         cifCurrency: estimateData.cifCurrency,
-        cifAmount: estimateData.cifAmount,
-        exchangeRate: estimateData.exchangeRate,
-        transportCost: estimateData.transportCost || "0",
-        serviceFeePercentage: estimateData.serviceFeePercentage,
+        cifAmount: estimateData.cifAmount.toString(),
+        exchangeRate: estimateData.exchangeRate.toString(),
+        transportCost: (estimateData.transportCost || 0).toString(),
+        serviceFeePercentage: estimateData.serviceFeePercentage.toString(),
         customerName: estimateData.customerName,
         customerEmail: estimateData.customerEmail,
         customerPhone: estimateData.customerPhone,

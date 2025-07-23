@@ -122,7 +122,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
 
   // Search for reference vehicles for proration (manual entry mode)
   // Filter by make to get relevant reference vehicles for better efficiency
-  const { data: referenceVehicles = [] } = useQuery<VehicleReference[]>({
+  const { data: referenceVehicles = [], isLoading: referenceVehiclesLoading, error: referenceVehiclesError } = useQuery<VehicleReference[]>({
     queryKey: [`/api/vehicle-references/proration-references`, manualMake],
     queryFn: async () => {
       if (!manualMake) return [];
@@ -398,11 +398,21 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
           )}
 
           {/* No reference vehicles found */}
-          {isManualEntry && manualMake && referenceVehicles.length === 0 && (
+          {isManualEntry && manualMake && !referenceVehiclesLoading && referenceVehicles.length === 0 && (
             <Alert className="p-3 bg-yellow-50 border-yellow-200">
               <AlertCircle className="h-4 w-4 text-yellow-600" />
               <AlertDescription className="text-sm text-yellow-800 ml-2">
                 No {manualMake} reference vehicles found in database. Try a different make or contact support if this is unexpected.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Loading reference vehicles */}
+          {isManualEntry && manualMake && referenceVehiclesLoading && (
+            <Alert className="p-3 bg-blue-50 border-blue-200">
+              <AlertCircle className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-sm text-blue-800 ml-2">
+                Loading {manualMake} reference vehicles for proration...
               </AlertDescription>
             </Alert>
           )}

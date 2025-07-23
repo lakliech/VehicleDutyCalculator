@@ -2778,8 +2778,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/vehicle-references/proration-references", async (req, res) => {
     try {
       const make = req.query.make as string;
+      console.log(`Proration reference request - make: "${make}"`);
       
       if (!make) {
+        console.log("No make parameter provided");
         return res.status(400).json({ error: "Make parameter is required" });
       }
       
@@ -2800,6 +2802,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .orderBy(vehicleReferences.model, vehicleReferences.engineCapacity)
         .limit(100);
       
+      console.log(`Found ${vehicles.length} vehicles for make: ${make}`);
       res.json(vehicles);
     } catch (error) {
       console.error("Error fetching proration reference vehicles:", error);

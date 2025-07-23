@@ -23,10 +23,11 @@ interface SubscriptionPlan {
   id: number;
   name: string;
   description: string;
-  priceKes: string;
-  billingCycle: string;
-  features: string[];
-  limits: {
+  basePrice: number;
+  billingType: string;
+  monthly_price?: number;
+  features?: string[];
+  limits?: {
     maxListings?: number;
     calculationsPerMonth?: number;
     valuationsPerMonth?: number;
@@ -138,40 +139,34 @@ export default function SubscriptionManagement() {
     cancelAtPeriodEnd: false
   };
 
-  // Fetch subscription plans with fallback to demo data
-  const { data: plans = demoPlans, isLoading: plansLoading } = useQuery({
-    queryKey: ['/api/monetization/subscription-plans'],
-    queryFn: () => fetch('/api/monetization/subscription-plans').then(r => {
+  // Fetch subscription plans from products table
+  const { data: plans = [], isLoading: plansLoading } = useQuery({
+    queryKey: ['/api/unified-billing/plans'],
+    queryFn: () => fetch('/api/unified-billing/plans').then(r => {
       if (!r.ok) throw new Error('Failed to fetch');
       return r.json();
     }),
-    retry: false,
-    staleTime: 0,
-    onError: () => {
-      console.log('Using demo subscription plans data');
-    }
+    retry: 1,
+    staleTime: 300000, // 5 minutes
   });
 
-  // Fetch user's current subscription with fallback to demo data
-  const { data: currentSubscription = demoSubscription, isLoading: subscriptionLoading } = useQuery({
-    queryKey: ['/api/monetization/my-subscription'],
-    queryFn: () => fetch('/api/monetization/my-subscription', {
+  // Fetch user's current subscription from products table
+  const { data: currentSubscription, isLoading: subscriptionLoading } = useQuery({
+    queryKey: ['/api/unified-billing/my-subscription'],
+    queryFn: () => fetch('/api/unified-billing/my-subscription', {
       credentials: 'include'
     }).then(r => {
       if (!r.ok) throw new Error('Failed to fetch');
       return r.json();
     }),
-    retry: false,
-    staleTime: 0,
-    onError: () => {
-      console.log('Using demo subscription data');
-    }
+    retry: 1,
+    staleTime: 60000, // 1 minute
   });
 
   // Subscribe mutation
   const subscribeMutation = useMutation({
     mutationFn: (planId: number) => 
-      fetch('/api/monetization/subscribe', {
+      fetch('/api/unified-billing/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -182,7 +177,8 @@ export default function SubscriptionManagement() {
         title: "Subscription Created",
         description: "Your subscription has been created successfully!"
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/monetization/my-subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/unified-billing/my-subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/unified-billing/plans'] });
     },
     onError: () => {
       toast({
@@ -219,8 +215,9 @@ export default function SubscriptionManagement() {
     cancelMutation.mutate(immediately);
   };
 
-  const formatPrice = (price: string) => {
-    return `KES ${parseFloat(price).toLocaleString()}`;
+  const formatPrice = (price: number | string) => {
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    return `KES ${numPrice.toLocaleString()}`;
   };
 
   const getPlanIcon = (planName: string) => {
@@ -341,8 +338,8 @@ export default function SubscriptionManagement() {
                 <CardTitle className="text-2xl">{plan.name}</CardTitle>
                 <CardDescription className="min-h-[3rem]">{plan.description}</CardDescription>
                 <div className="text-center py-4">
-                  <div className="text-4xl font-bold">{formatPrice(plan.priceKes)}</div>
-                  <div className="text-gray-600">per {plan.billingCycle === 'monthly' ? 'month' : 'year'}</div>
+                  <div className="text-4xl font-bold">{formatPrice(plan.monthly_price || plan.basePrice)}</div>
+                  <div className="text-gray-600">per {plan.billingType === 'per_period' ? 'month' : 'month'}</div>
                 </div>
               </CardHeader>
 

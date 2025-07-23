@@ -100,19 +100,14 @@ router.get('/product-access', authenticateUser, async (req, res) => {
  */
 router.post('/subscribe', authenticateUser, async (req, res) => {
   try {
-    const { planId, billingType } = req.body;
+    const { planId } = req.body;
     
-    if (!planId || !billingType) {
-      return res.status(400).json({ error: 'Plan ID and billing type required' });
+    if (!planId) {
+      return res.status(400).json({ error: 'Plan ID required' });
     }
 
-    const paymentData = await UnifiedBillingService.createSubscription(
-      req.user.id, 
-      planId, 
-      billingType
-    );
-
-    res.json(paymentData);
+    const result = await UnifiedBillingService.subscribeUserToPlan(req.user.id, planId);
+    res.json(result);
   } catch (error) {
     console.error('Error creating subscription:', error);
     res.status(500).json({ error: 'Failed to create subscription' });
@@ -120,26 +115,18 @@ router.post('/subscribe', authenticateUser, async (req, res) => {
 });
 
 /**
- * POST /api/unified-billing/verify-subscription
- * Verify subscription payment
+ * POST /api/unified-billing/cancel
+ * Cancel user subscription
  */
-router.post('/verify-subscription', authenticateUser, async (req, res) => {
+router.post('/cancel', authenticateUser, async (req, res) => {
   try {
-    const { paymentRef } = req.body;
+    const { immediately = false } = req.body;
     
-    if (!paymentRef) {
-      return res.status(400).json({ error: 'Payment reference required' });
-    }
-
-    const subscription = await UnifiedBillingService.processSubscriptionPayment(
-      paymentRef, 
-      req.user.id
-    );
-
-    res.json(subscription);
+    const result = await UnifiedBillingService.cancelUserSubscription(req.user.id, immediately);
+    res.json(result);
   } catch (error) {
-    console.error('Error verifying subscription payment:', error);
-    res.status(500).json({ error: 'Failed to verify subscription payment' });
+    console.error('Error cancelling subscription:', error);
+    res.status(500).json({ error: 'Failed to cancel subscription' });
   }
 });
 

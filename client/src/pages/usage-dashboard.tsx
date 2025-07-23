@@ -25,7 +25,84 @@ interface UsageLimits {
   plan: string;
 }
 
-const featureTypes = [
+// Feature mapping from system features to dashboard features
+const featureMapping: { [key: string]: { key: string; name: string; description: string; icon: any } } = {
+  'Duty estimator': {
+    key: 'duty_calculation',
+    name: 'Duty Calculations',
+    description: 'Import duty and tax calculations',
+    icon: Calculator
+  },
+  'Basic valuation': {
+    key: 'valuation',
+    name: 'Vehicle Valuations',
+    description: 'Market value assessments',
+    icon: Banknote
+  },
+  'Import cost calculator': {
+    key: 'import_estimate',
+    name: 'Import Estimates',
+    description: 'Complete import cost calculations',
+    icon: Import
+  },
+  'Unlimited calculations': {
+    key: 'api_call',
+    name: 'API Calls',
+    description: 'Programmatic access to services',
+    icon: Zap
+  },
+  'Unlimited listings': {
+    key: 'listing',
+    name: 'Vehicle Listings',
+    description: 'Active marketplace listings',
+    icon: TrendingUp
+  },
+  'Active Listings': {
+    key: 'listing',
+    name: 'Vehicle Listings',
+    description: 'Active marketplace listings',
+    icon: TrendingUp
+  },
+  '"Verified" badge': {
+    key: 'verification',
+    name: 'Verified Badge',
+    description: 'Premium verification status',
+    icon: CheckCircle
+  },
+  'AI pricing insights': {
+    key: 'ai_insights',
+    name: 'AI Pricing Insights',
+    description: 'AI-powered market insights',
+    icon: Zap
+  },
+  'Lead management tools': {
+    key: 'lead_management',
+    name: 'Lead Management',
+    description: 'Customer lead tracking',
+    icon: TrendingUp
+  },
+  'Competitor benchmarking': {
+    key: 'competitor_analysis',
+    name: 'Competitor Analysis',
+    description: 'Market competitor insights',
+    icon: TrendingUp
+  },
+  'Standard support': {
+    key: 'support',
+    name: 'Standard Support',
+    description: 'Customer support access',
+    icon: Info
+  },
+  'Basic analytics': {
+    key: 'analytics',
+    name: 'Basic Analytics',
+    description: 'Usage and performance metrics',
+    icon: TrendingUp
+  }
+};
+
+// Default feature types for free users or fallback
+const defaultFeatureTypes = [
   {
     key: 'duty_calculation',
     name: 'Duty Calculations',
@@ -88,6 +165,28 @@ export default function UsageDashboard() {
     retry: 1,
   });
 
+  // Generate feature types based on subscription plan
+  const getFeatureTypesForPlan = () => {
+    if (!usageData?.subscriptionInfo?.features) {
+      return defaultFeatureTypes;
+    }
+
+    const planFeatures: any[] = [];
+    const usedKeys = new Set();
+
+    // Map system features to dashboard features
+    usageData.subscriptionInfo.features.forEach((feature: any) => {
+      const mappedFeature = featureMapping[feature.name];
+      if (mappedFeature && !usedKeys.has(mappedFeature.key)) {
+        planFeatures.push(mappedFeature);
+        usedKeys.add(mappedFeature.key);
+      }
+    });
+
+    // If no mapped features found, return default
+    return planFeatures.length > 0 ? planFeatures : defaultFeatureTypes;
+  };
+
   const getUsagePercentage = (current: number, limit: number | null): number => {
     if (limit === null) return 0; // Unlimited
     return Math.min((current / limit) * 100, 100);
@@ -117,7 +216,7 @@ export default function UsageDashboard() {
         <div className="animate-pulse space-y-6">
           <div className="h-8 bg-gray-200 rounded w-1/3"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featureTypes.map((_, i) => (
+            {defaultFeatureTypes.map((_, i) => (
               <div key={i} className="h-48 bg-gray-200 rounded"></div>
             ))}
           </div>
@@ -170,7 +269,7 @@ export default function UsageDashboard() {
 
       {/* Usage Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {featureTypes.map((feature) => {
+        {getFeatureTypesForPlan().map((feature) => {
           const usage: UsageLimits = usageData?.[feature.key] || { 
             allowed: false, 
             currentUsage: 0, 

@@ -19,7 +19,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { generateDutyCalculationPDF } from "@/lib/pdf-generator-new";
-
 import { dutyCalculationSchema, type DutyCalculation, type DutyResult, type VehicleReference, type ManualVehicleData, type Trailer, type HeavyMachinery } from "@shared/schema";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { VehicleCategorySelector } from "@/components/vehicle-category-selector";
@@ -133,7 +132,7 @@ export default function DutyCalculator() {
   const [selectedTrailer, setSelectedTrailer] = useState<Trailer | null>(null);
   const [selectedMachinery, setSelectedMachinery] = useState<HeavyMachinery | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-
+  
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
     defaultValues: {
@@ -152,7 +151,7 @@ export default function DutyCalculator() {
       // Determine which CRSP value to use (current CRSP_KES has priority over CRSP2020)
       let crspValue = 0;
       let usedCrsp2020 = false;
-
+      
       if (vehicle.crspKes) {
         crspValue = typeof vehicle.crspKes === 'string' ? parseFloat(vehicle.crspKes) : vehicle.crspKes;
         usedCrsp2020 = false;
@@ -160,14 +159,14 @@ export default function DutyCalculator() {
         crspValue = typeof vehicle.crsp2020 === 'string' ? parseFloat(vehicle.crsp2020) : vehicle.crsp2020;
         usedCrsp2020 = true;
       }
-
+      
       if (crspValue > 0) {
         form.setValue('vehicleValue', crspValue);
-
+        
         // Store information about CRSP source for display
         (vehicle as any).usedCrsp2020 = usedCrsp2020;
       }
-
+      
       // Set engine size from selected vehicle
       if (vehicle.engineCapacity) {
         form.setValue('engineSize', vehicle.engineCapacity);
@@ -180,7 +179,7 @@ export default function DutyCalculator() {
           form.setValue('engineSize', 1500); // Set reasonable default
         }
       }
-
+      
       // Auto-fill fuel type if available
       if (vehicle.fuelType) {
         const fuelMap: Record<string, string> = {
@@ -210,7 +209,7 @@ export default function DutyCalculator() {
       // Use prorated CRSP value
       form.setValue("vehicleValue", data.proratedCrsp);
       form.setValue("engineSize", data.engineCapacity);
-
+      
       // Note: Category should already be selected in Step 1
 
       // Show notification about proration
@@ -220,7 +219,7 @@ export default function DutyCalculator() {
         variant: "default",
       });
     }
-
+    
     setCategoryConflict(null);
   };
 
@@ -260,10 +259,10 @@ export default function DutyCalculator() {
       setManualEngineSize(null);
       setManualVehicleData(null);
       setCategoryConflict(null);
-
+      
       // Update form category
-      form.setValue('vehicleCategory', selectedCategory as any);
-
+      form.setValue('vehicleCategory', selectedCategory);
+      
       // Show notification about category filter
       const categoryNames: Record<string, string> = {
         'under1500cc': 'Under 1500cc',
@@ -278,7 +277,7 @@ export default function DutyCalculator() {
         'specialPurpose': 'Special Purpose',
         'heavyMachinery': 'Heavy Machinery'
       };
-
+      
       if (selectedCategory !== 'trailer' && selectedCategory !== 'heavyMachinery') {
         toast({
           title: "Vehicle Filter Applied",
@@ -317,7 +316,7 @@ export default function DutyCalculator() {
       console.log('Conflict detected:', conflictMsg);
       return false;
     }
-
+    
     if (category === 'over1500cc' && engineCapacity) {
       if (engineCapacity < 1500) {
         const conflictMsg = `Vehicle has ${engineCapacity}cc engine, which is under 1500cc`;
@@ -332,7 +331,7 @@ export default function DutyCalculator() {
         return false;
       }
     }
-
+    
     if (category === 'largeEngine' && engineCapacity && fuelType) {
       if (fuelType === 'petrol' && engineCapacity < 3000) {
         const conflictMsg = `Petrol vehicles need >3000cc for Large Engine category (current: ${engineCapacity}cc)`;
@@ -347,7 +346,7 @@ export default function DutyCalculator() {
         return false;
       }
     }
-
+    
     // CRITICAL: Electric category validation
     if (category === 'electric' && fuelType && fuelType !== 'electric') {
       const conflictMsg = `Vehicle fuel type is "${fuelType}", not electric. Cannot select Electric category for non-electric vehicles.`;
@@ -363,7 +362,7 @@ export default function DutyCalculator() {
       console.log('ELECTRIC VEHICLE CONFLICT:', conflictMsg);
       return false;
     }
-
+    
     // Specialized vehicle category validation
     if (category === 'motorcycle' && bodyType && !bodyType.includes('motorcycle') && !bodyType.includes('bike')) {
       const conflictMsg = `Vehicle appears to be a ${bodyType}, not a motorcycle`;
@@ -396,11 +395,11 @@ export default function DutyCalculator() {
         return false;
       }
     }
-
+    
     if ((category === 'schoolBus' || category === 'ambulance') && vehicleData.model) {
       const modelLower = vehicleData.model.toLowerCase();
       const bodyLower = bodyType || '';
-
+      
       if (category === 'schoolBus' && !modelLower.includes('bus') && !bodyLower.includes('bus')) {
         const conflictMsg = `School Bus category requires a bus vehicle, not "${vehicleData.model}"`;
         setCategoryConflict(conflictMsg);
@@ -425,7 +424,7 @@ export default function DutyCalculator() {
         return false;
       }
     }
-
+    
     console.log('No conflicts detected for category:', category);
     setCategoryConflict(null);
     return true;
@@ -433,7 +432,7 @@ export default function DutyCalculator() {
 
   // Watch for category changes and validate
   const currentCategory = form.watch('vehicleCategory');
-
+  
   useEffect(() => {
     console.log('Category changed:', currentCategory, 'validating...');
     validateCategorySelection(currentCategory);
@@ -455,7 +454,7 @@ export default function DutyCalculator() {
     if (yearOfManufacture > 0) {
       const currentYear = new Date().getFullYear();
       const minAllowedYear = currentYear - (isDirectImport ? 8 : 20);
-
+      
       if (yearOfManufacture < minAllowedYear) {
         setYearOfManufacture(0); // Reset to unselected state
       }
@@ -472,13 +471,13 @@ export default function DutyCalculator() {
       if (selectedVehicle && (selectedVehicle as any).usedCrsp2020) {
         result.usedCrsp2020 = true;
       }
-
+      
       setCalculationResult(result);
-
+      
       // Show appropriate toast based on CRSP source
       const baseMessage = `Total payable: KES ${result.totalPayable.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (includes estimated registration fees)`;
       const crspMessage = result.usedCrsp2020 ? " - Based on 2020 CRSP values" : "";
-
+      
       toast({
         title: "Calculation Complete",
         description: baseMessage + crspMessage,
@@ -507,7 +506,7 @@ export default function DutyCalculator() {
 
     // Validate all required fields are selected based on category
     const currentCategory = form.getValues('vehicleCategory');
-
+    
     if (currentCategory === 'trailer') {
       if (!selectedTrailer) {
         toast({
@@ -555,10 +554,10 @@ export default function DutyCalculator() {
     // Check for category conflicts before submitting
     // CRITICAL: Enhanced category conflict validation - prevent submission with conflicts
     console.log('Checking for conflicts before submission:', { categoryConflict, currentCategory: form.getValues('vehicleCategory') });
-
+    
     // Re-validate the current selection to catch any missed conflicts
     const isValid = validateCategorySelection(form.getValues('vehicleCategory'));
-
+    
     if (categoryConflict || !isValid) {
       console.log('BLOCKING SUBMISSION due to category conflict:', categoryConflict);
       toast({
@@ -582,7 +581,7 @@ export default function DutyCalculator() {
     // Add fuel type from selected vehicle
     const fuelType = selectedVehicle?.fuelType?.toLowerCase();
     const validFuelTypes = ["petrol", "diesel", "electric", "hybrid", "other"];
-
+    
     const submissionData = {
       ...data,
       fuelType: fuelType && validFuelTypes.includes(fuelType) ? fuelType as "petrol" | "diesel" | "electric" | "hybrid" | "other" : undefined,
@@ -623,7 +622,7 @@ export default function DutyCalculator() {
     <div className="bg-gradient-to-br from-purple-50 via-white to-cyan-50">
       {/* Module Navigation */}
       <ModuleNavigation />
-
+      
       {/* Page Header */}
       <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -663,7 +662,7 @@ export default function DutyCalculator() {
                         </div>
                         <p className="text-sm text-purple-700">All fields required <span className="text-red-500">*</span></p>
                       </div>
-
+                      
                       {/* Step 1: Category Selection */}
                       <div>
                         <Label className="text-sm font-medium text-gray-700 mb-2">Step 1: Vehicle Category <span className="text-red-500">*</span></Label>
@@ -671,7 +670,7 @@ export default function DutyCalculator() {
                           value={selectedCategory}
                           onValueChange={(category) => {
                             setSelectedCategory(category);
-                            form.setValue('vehicleCategory', category as any);
+                            form.setValue('vehicleCategory', category);
                             // Reset other selections when category changes
                             setSelectedVehicle(null);
                             setSelectedTrailer(null);
@@ -721,7 +720,7 @@ export default function DutyCalculator() {
                             <Label className="text-sm font-medium text-gray-700 mb-2">
                               Step 3: Select {selectedCategory === "trailer" ? "Trailer" : selectedCategory === "heavyMachinery" ? "Equipment" : "Vehicle"} <span className="text-red-500">*</span>
                             </Label>
-
+                            
                             {selectedCategory === "trailer" ? (
                               <TrailerSelector
                                 onTrailerSelect={(trailer) => {
@@ -742,7 +741,7 @@ export default function DutyCalculator() {
                               />
                             ) : (
                               <>
-
+                                
                                 <VehicleSelector 
                                   onVehicleSelect={handleVehicleSelect} 
                                   onManualVehicleData={handleManualVehicleData}
@@ -771,7 +770,7 @@ export default function DutyCalculator() {
                                     const currentYear = new Date().getFullYear();
                                     const isDirectImport = form.watch('isDirectImport');
                                     const yearRange = isDirectImport ? 8 : 20;
-
+                                    
                                     return Array.from({ length: yearRange }, (_, i) => currentYear - yearRange + 1 + i).map((year) => (
                                       <SelectItem key={year} value={year.toString()}>
                                         {year}
@@ -821,12 +820,12 @@ export default function DutyCalculator() {
                       )}
 
                       {/* Discontinuation Warning - Only for Direct Import */}
-                      {selectedVehicle && selectedVehicle.discontinuationYear && form.watch('isDirectImport') === true && (
+                      {selectedVehicle && selectedVehicle.discontinuationYear && form.watch('importType') === 'direct' && (
                         (() => {
                           const currentYear = new Date().getFullYear();
                           const yearsSinceDiscontinuation = currentYear - selectedVehicle.discontinuationYear;
                           const isImportRestricted = yearsSinceDiscontinuation > 8;
-
+                          
                           return (
                             <Alert variant={isImportRestricted ? "destructive" : "default"} className={isImportRestricted ? "border-red-200 bg-red-50" : "border-orange-200 bg-orange-50"}>
                               <AlertCircle className={`h-4 w-4 ${isImportRestricted ? "text-red-600" : "text-orange-600"}`} />
@@ -879,13 +878,13 @@ export default function DutyCalculator() {
                       className="w-full bg-purple-600 hover:bg-purple-700"
                       disabled={
                         calculateDutyMutation.isPending || 
-                        (selectedVehicle?.discontinuationYear && form.watch('isDirectImport') === true && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
-                        !!categoryConflict
+                        (selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
+                        categoryConflict
                       }
                     >
                       {calculateDutyMutation.isPending ? (
                         <>Calculating...</>
-                      ) : selectedVehicle?.discontinuationYear && form.watch('isDirectImport') === true && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8 ? (
+                      ) : selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8 ? (
                         <>
                           <AlertCircle className="h-4 w-4 mr-2" />
                           Cannot Import (Discontinued)
@@ -910,7 +909,6 @@ export default function DutyCalculator() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span>Calculation Results</span>
-                    <div className="flex gap-2">
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -930,24 +928,8 @@ export default function DutyCalculator() {
                       }}
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      PDF
+                      Download PDF
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      title="Print/Save as PDF"
-                      onClick={() => {
-                        window.print();
-                        toast({
-                          title: "Print Dialog Opened",
-                          description: "Use browser print to save as PDF or print directly.",
-                        });
-                      }}
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Print
-                    </Button>
-                  </div>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">

@@ -351,32 +351,31 @@ The platform now features a sophisticated role-based navigation system that dyna
 
 ## Changelog
 
-**PDF LAYOUT REDESIGN WITH SIMPLIFIED FOOTER APPROACH - January 23, 2025:**
-- **Problem Solved**: User requested removal of right sidebar and replacement with bottom footer content showcasing platform description
-- **Complete Layout Transformation**: 
-  - Removed 70/30 split layout and sidebar content from both PDF generators
-  - Redesigned to use full page width for main content tables
-  - Simplified footer approach with platform description and disclaimer
-- **Enhanced Content Layout**:
-  - Full-width tables (thin 0.3px borders) utilizing entire page space
-  - Tables properly constrained to page margins without column conflicts
-  - All calculation data displayed in clean tabular format with headers
-  - Compact row heights (10px) for efficient space utilization
-- **Platform Footer Integration**:
-  - Added bottom footer with Kenya's leading automotive marketplace platform description
-  - Professional tagline: "revolutionizing how people buy, sell, and manage vehicles with cutting-edge technology and official government integration"
-  - Footer positioned 25px from bottom with bold primary color styling
-  - Standard disclaimer maintained below platform description
+**COMPLETED CLEAN PDF REDESIGN WITH PROPORTIONAL LOGOS - January 23, 2025:**
+- **Problem Solved**: User requested clean and tidy PDF reports with proportional logos for professional appearance
+- **Complete PDF System Redesign**: 
+  - Created new `pdf-generator-new.ts` with modern, clean PDF generation architecture
+  - Implemented professional configuration system with Gariyangu brand colors (purple-pink palette)
+  - Added proportional logo sizing (45x30px) maintaining proper aspect ratios
+  - Structured clean layout with organized sections and proper spacing
+- **Enhanced Document Structure**:
+  - Professional header with proportional company logo and contact information
+  - Clean document titles with proper typography hierarchy
+  - Organized sections with color-coded backgrounds (primary, secondary, accent colors)
+  - Modern table-style data presentation with proper alignment and spacing
+  - Professional footer with branding and disclaimers
 - **Technical Implementation**:
-  - Updated both `generateDutyCalculationPDF` and `generateImportCostPDF` functions
-  - Removed all sidebar variables (sidebarX, sidebarWidth, sidebarY) causing LSP errors
-  - Fixed table rendering to use full page width with proper content constraints
-  - Clean build verification with no compilation errors
-- **User Experience Benefits**:
-  - Maximum space utilization for calculation data display
-  - Clean, professional PDF layout without distracting sidebar content
-  - Focused presentation with essential platform branding at bottom
-- **Result**: Streamlined PDF reports with full-width content display and concise platform footer branding
+  - Updated both Duty Calculator and Import Cost Calculator to use new PDF generator
+  - Replaced legacy `generateDutyCalculationPDF` with clean implementation
+  - Updated `generateImportEstimatePDF` usage in importation estimator with new `generateImportCostPDF` function
+  - Added proper data mapping between old and new PDF generator interfaces
+- **Design Improvements**:
+  - Consistent Gariyangu brand colors throughout PDFs (#740a72 purple, #b10573 purple-pink, #ee0074 bright pink)
+  - Clean typography with appropriate font sizes and styles
+  - Professional spacing and margins for print-ready documents
+  - Color-coded section headers for better visual organization
+- **User Experience**: Both calculators now generate clean, professional PDF reports with proportional logos and modern design
+- **Result**: Complete transformation from cluttered PDF layout to clean, professional documents ready for business use
 
 **INLINE PAYSTACK PAYMENT SYSTEM IMPLEMENTATION - January 23, 2025:**
 - **Problem Solved**: User requested inline payment system to avoid external redirects and improve user experience

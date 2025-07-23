@@ -2,9 +2,9 @@ import jsPDF from 'jspdf';
 import type { DutyResult, VehicleReference } from '@shared/schema';
 import gariyanGuLogo from '@assets/gylogo_1752064168868.png';
 
-// Compact one-page PDF styling configuration
+// Clean, professional PDF styling configuration
 const PDF_CONFIG = {
-  margins: { left: 15, right: 15, top: 15, bottom: 15 },
+  margins: { left: 25, right: 25, top: 30, bottom: 30 },
   colors: {
     primary: [116, 10, 114],    // #740a72 - Gariyangu purple
     secondary: [177, 5, 115],   // #b10573 - purple-pink
@@ -12,20 +12,20 @@ const PDF_CONFIG = {
     dark: [56, 16, 114],        // #381072 - dark purple
     text: [51, 51, 51],         // #333333 - dark gray
     lightText: [107, 114, 128], // #6b7280 - light gray
-    border: [200, 200, 200],    // Thin gray borders
-    background: [248, 250, 252] // #f8fafc - subtle background
+    border: [229, 231, 235],    // #e5e7eb - very light gray
+    background: [249, 250, 251] // #f9fafb - light background
   },
   fonts: {
-    title: { size: 16, style: 'bold' },
-    subtitle: { size: 12, style: 'bold' },
-    heading: { size: 10, style: 'bold' },
-    body: { size: 9, style: 'normal' },
-    small: { size: 7, style: 'normal' }
+    title: { size: 20, style: 'bold' },
+    subtitle: { size: 14, style: 'bold' },
+    heading: { size: 12, style: 'bold' },
+    body: { size: 10, style: 'normal' },
+    small: { size: 8, style: 'normal' }
   },
   logo: {
-    width: 35,   // Compact logo size
-    height: 23,  // Maintain aspect ratio
-    margin: 8
+    width: 45,   // Proportional logo size
+    height: 30,  // Maintain aspect ratio
+    margin: 10
   }
 };
 
@@ -57,54 +57,55 @@ const addText = (doc: jsPDF, text: string, x: number, y: number, options: any = 
   return y + fontSize * 0.5; // Return next line position
 };
 
-const addCompactSection = (doc: jsPDF, title: string, y: number) => {
+const addSection = (doc: jsPDF, title: string, y: number, backgroundColor?: number[]) => {
+  const pageWidth = doc.internal.pageSize.width;
   const margins = PDF_CONFIG.margins;
+  
+  // Background rectangle for section headers
+  if (backgroundColor) {
+    doc.setFillColor(backgroundColor[0], backgroundColor[1], backgroundColor[2]);
+    doc.rect(margins.left - 5, y - 8, pageWidth - margins.left - margins.right + 10, 16, 'F');
+  }
   
   return addText(doc, title, margins.left, y, {
     fontSize: PDF_CONFIG.fonts.heading.size,
     fontStyle: PDF_CONFIG.fonts.heading.style,
-    color: PDF_CONFIG.colors.primary
+    color: backgroundColor ? [255, 255, 255] : PDF_CONFIG.colors.primary
   });
 };
 
-const addTableRow = (doc: jsPDF, label: string, value: string, y: number, contentWidth: number, startX: number, isTotal: boolean = false, isHeader: boolean = false) => {
-  const rowHeight = 10;
+const addTableRow = (doc: jsPDF, label: string, value: string, y: number, isTotal: boolean = false) => {
+  const margins = PDF_CONFIG.margins;
+  const pageWidth = doc.internal.pageSize.width;
+  const contentWidth = pageWidth - margins.left - margins.right;
   
-  // Table borders (thin)
-  doc.setDrawColor(PDF_CONFIG.colors.border[0], PDF_CONFIG.colors.border[1], PDF_CONFIG.colors.border[2]);
-  doc.setLineWidth(0.3);
-  
-  // Background for headers and totals
-  if (isHeader) {
-    doc.setFillColor(PDF_CONFIG.colors.primary[0], PDF_CONFIG.colors.primary[1], PDF_CONFIG.colors.primary[2]);
-    doc.rect(startX, y - 6, contentWidth, rowHeight, 'FD');
-  } else if (isTotal) {
+  // Add subtle background for total rows
+  if (isTotal) {
     doc.setFillColor(PDF_CONFIG.colors.background[0], PDF_CONFIG.colors.background[1], PDF_CONFIG.colors.background[2]);
-    doc.rect(startX, y - 6, contentWidth, rowHeight, 'FD');
-  } else {
-    // Regular row with border only
-    doc.rect(startX, y - 6, contentWidth, rowHeight, 'D');
+    doc.rect(margins.left - 5, y - 8, contentWidth + 10, 14, 'F');
   }
   
-  // Text color
-  const textColor = isHeader ? [255, 255, 255] : (isTotal ? PDF_CONFIG.colors.primary : PDF_CONFIG.colors.text);
+  // Add border line
+  doc.setDrawColor(PDF_CONFIG.colors.border[0], PDF_CONFIG.colors.border[1], PDF_CONFIG.colors.border[2]);
+  doc.setLineWidth(0.5);
+  doc.line(margins.left, y + 5, margins.left + contentWidth, y + 5);
   
   // Label
-  addText(doc, label, startX + 2, y, {
-    fontSize: PDF_CONFIG.fonts.small.size + 1,
-    fontStyle: (isTotal || isHeader) ? 'bold' : 'normal',
-    color: textColor
+  addText(doc, label, margins.left, y, {
+    fontSize: PDF_CONFIG.fonts.body.size,
+    fontStyle: isTotal ? 'bold' : 'normal',
+    color: isTotal ? PDF_CONFIG.colors.primary : PDF_CONFIG.colors.text
   });
   
   // Value (right-aligned)
-  addText(doc, value, startX + contentWidth - 2, y, {
-    fontSize: PDF_CONFIG.fonts.small.size + 1,
-    fontStyle: (isTotal || isHeader) ? 'bold' : 'normal',
-    color: textColor,
+  addText(doc, value, margins.left + contentWidth, y, {
+    fontSize: PDF_CONFIG.fonts.body.size,
+    fontStyle: isTotal ? 'bold' : 'normal',
+    color: isTotal ? PDF_CONFIG.colors.primary : PDF_CONFIG.colors.text,
     align: 'right'
   });
   
-  return y + rowHeight;
+  return y + 16;
 };
 
 export function generateDutyCalculationPDF(
@@ -116,89 +117,169 @@ export function generateDutyCalculationPDF(
 ) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
-  const pageHeight = doc.internal.pageSize.height;
   const margins = PDF_CONFIG.margins;
   let currentY = margins.top;
   
-  // Use full page width for content
-  const mainContentWidth = pageWidth - margins.left - margins.right;
-  
-  // === COMPACT HEADER ===
+  // === HEADER SECTION ===
+  // Add proportional logo at top left
   doc.addImage(gariyanGuLogo, 'PNG', margins.left, currentY, PDF_CONFIG.logo.width, PDF_CONFIG.logo.height);
   
-  addText(doc, "DUTY CALCULATION REPORT", margins.left + PDF_CONFIG.logo.width + 8, currentY + 8, {
+  // Company info next to logo
+  const logoRightX = margins.left + PDF_CONFIG.logo.width + PDF_CONFIG.logo.margin;
+  currentY = addText(doc, "Kenya's Car Marketplace", logoRightX, currentY + 8, {
+    fontSize: PDF_CONFIG.fonts.subtitle.size,
+    fontStyle: PDF_CONFIG.fonts.subtitle.style,
+    color: PDF_CONFIG.colors.primary
+  });
+  
+  currentY = addText(doc, "Professional Vehicle Import Services", logoRightX, currentY + 6, {
+    fontSize: PDF_CONFIG.fonts.small.size,
+    color: PDF_CONFIG.colors.lightText
+  });
+  
+  // Contact info (right-aligned)
+  addText(doc, "Contact: +254 736 272719", pageWidth - margins.right, margins.top + 8, {
+    fontSize: PDF_CONFIG.fonts.small.size,
+    color: PDF_CONFIG.colors.lightText,
+    align: 'right'
+  });
+  
+  addText(doc, "support@gariyangu.com", pageWidth - margins.right, margins.top + 16, {
+    fontSize: PDF_CONFIG.fonts.small.size,
+    color: PDF_CONFIG.colors.lightText,
+    align: 'right'
+  });
+  
+  currentY = margins.top + PDF_CONFIG.logo.height + 20;
+  
+  // === DOCUMENT TITLE ===
+  currentY = addText(doc, "MOTOR VEHICLE DUTY CALCULATION", pageWidth / 2, currentY, {
     fontSize: PDF_CONFIG.fonts.title.size,
     fontStyle: PDF_CONFIG.fonts.title.style,
-    color: PDF_CONFIG.colors.primary
+    color: PDF_CONFIG.colors.primary,
+    align: 'center'
   });
   
-  addText(doc, new Date().toLocaleDateString('en-KE'), margins.left + PDF_CONFIG.logo.width + 8, currentY + 18, {
+  currentY = addText(doc, "Official KRA Import Duty Assessment Report", pageWidth / 2, currentY + 8, {
+    fontSize: PDF_CONFIG.fonts.body.size,
+    color: PDF_CONFIG.colors.lightText,
+    align: 'center'
+  });
+  
+  // Date and report info
+  const currentDate = new Date().toLocaleDateString('en-KE', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  
+  currentY = addText(doc, `Generated: ${currentDate}`, pageWidth / 2, currentY + 15, {
     fontSize: PDF_CONFIG.fonts.small.size,
-    color: PDF_CONFIG.colors.lightText
+    color: PDF_CONFIG.colors.lightText,
+    align: 'center'
   });
   
-  currentY += PDF_CONFIG.logo.height + 10;
+  // Separator line
+  currentY += 15;
+  doc.setDrawColor(PDF_CONFIG.colors.border[0], PDF_CONFIG.colors.border[1], PDF_CONFIG.colors.border[2]);
+  doc.setLineWidth(1);
+  doc.line(margins.left, currentY, pageWidth - margins.right, currentY);
   
-  // === MAIN CONTENT (Left Column) ===
-  // Vehicle Information Table
-  currentY = addCompactSection(doc, "VEHICLE DETAILS", currentY) + 5;
-  currentY = addTableRow(doc, "ITEM", "VALUE", currentY, mainContentWidth, margins.left, false, true);
+  currentY += 25;
+  
+  // === VEHICLE INFORMATION ===
+  currentY = addSection(doc, "VEHICLE INFORMATION", currentY, PDF_CONFIG.colors.primary);
+  currentY += 10;
   
   if (selectedVehicle) {
-    currentY = addTableRow(doc, "Make & Model", `${selectedVehicle.make} ${selectedVehicle.model}`, currentY, mainContentWidth, margins.left);
-    currentY = addTableRow(doc, "Body Type", selectedVehicle.bodyType || 'N/A', currentY, mainContentWidth, margins.left);
-    currentY = addTableRow(doc, "Fuel Type", selectedVehicle.fuelType || 'N/A', currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, "Make", selectedVehicle.make, currentY);
+    currentY = addTableRow(doc, "Model", selectedVehicle.model, currentY);
+    currentY = addTableRow(doc, "Body Type", selectedVehicle.bodyType || 'N/A', currentY);
+    currentY = addTableRow(doc, "Fuel Type", selectedVehicle.fuelType || 'N/A', currentY);
   }
   
-  currentY = addTableRow(doc, "Engine Size", `${engineSize}cc`, currentY, mainContentWidth, margins.left);
-  currentY = addTableRow(doc, "Year", yearOfManufacture.toString(), currentY, mainContentWidth, margins.left);
+  currentY = addTableRow(doc, "Engine Size", `${engineSize}cc`, currentY);
+  currentY = addTableRow(doc, "Year of Manufacture", yearOfManufacture.toString(), currentY);
   const vehicleAge = new Date().getFullYear() - yearOfManufacture + 1;
-  currentY = addTableRow(doc, "Age", `${vehicleAge} years`, currentY, mainContentWidth, margins.left);
-  currentY = addTableRow(doc, "Import Type", isDirectImport ? 'Direct Import' : 'Previously Registered', currentY, mainContentWidth, margins.left);
+  currentY = addTableRow(doc, "Vehicle Age", `${vehicleAge} years`, currentY);
+  currentY = addTableRow(doc, "Import Type", isDirectImport ? 'Direct Import' : 'Previously Registered', currentY);
   
-  currentY += 8;
+  currentY += 15;
   
-  // Valuation Table
-  currentY = addCompactSection(doc, "VALUATION", currentY) + 5;
-  currentY = addTableRow(doc, "COMPONENT", "AMOUNT (KES)", currentY, mainContentWidth, margins.left, false, true);
-  currentY = addTableRow(doc, "CRSP Value", formatCurrency(result.currentRetailPrice), currentY, mainContentWidth, margins.left);
-  currentY = addTableRow(doc, `Depreciation (${(result.depreciationRate * 100).toFixed(0)}%)`, 
-    `-${formatCurrency(result.currentRetailPrice - result.depreciatedPrice)}`, currentY, mainContentWidth, margins.left);
-  currentY = addTableRow(doc, "Customs Value", formatCurrency(result.customsValue), currentY, mainContentWidth, margins.left, true);
+  // === VALUATION ===
+  currentY = addSection(doc, "VEHICLE VALUATION", currentY, PDF_CONFIG.colors.secondary);
+  currentY += 10;
   
-  currentY += 8;
+  currentY = addTableRow(doc, "Current Retail Price (CRSP)", formatCurrency(result.currentRetailPrice), currentY);
+  currentY = addTableRow(doc, "Depreciation Rate", `${(result.depreciationRate * 100).toFixed(1)}%`, currentY);
+  currentY = addTableRow(doc, "Depreciated Price", formatCurrency(result.depreciatedPrice), currentY);
+  currentY = addTableRow(doc, "Customs Value", formatCurrency(result.customsValue), currentY, true);
   
-  // Tax Breakdown Table
-  currentY = addCompactSection(doc, "TAX BREAKDOWN", currentY) + 5;
-  currentY = addTableRow(doc, "TAX TYPE", "AMOUNT (KES)", currentY, mainContentWidth, margins.left, false, true);
-  currentY = addTableRow(doc, "Import Duty", formatCurrency(result.importDuty), currentY, mainContentWidth, margins.left);
-  currentY = addTableRow(doc, "Excise Duty", formatCurrency(result.exciseDuty), currentY, mainContentWidth, margins.left);
-  currentY = addTableRow(doc, "VAT (16%)", formatCurrency(result.vat), currentY, mainContentWidth, margins.left);
+  currentY += 15;
+  
+  // === TAX BREAKDOWN ===
+  currentY = addSection(doc, "TAX BREAKDOWN", currentY, PDF_CONFIG.colors.accent);
+  currentY += 10;
+  
+  currentY = addTableRow(doc, "Import Duty", formatCurrency(result.importDuty), currentY);
+  currentY = addTableRow(doc, "Excise Duty", formatCurrency(result.exciseDuty), currentY);
+  currentY = addTableRow(doc, "VAT (16%)", formatCurrency(result.vat), currentY);
   
   if (isDirectImport) {
-    currentY = addTableRow(doc, "RDL (2%)", formatCurrency(result.rdl), currentY, mainContentWidth, margins.left);
-    currentY = addTableRow(doc, "IDF (2.5%)", formatCurrency(result.idfFees), currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, "Railway Development Levy (2%)", formatCurrency(result.rdl), currentY);
+    currentY = addTableRow(doc, "Import Declaration Fee (2.5%)", formatCurrency(result.idfFees), currentY);
   }
   
-  currentY = addTableRow(doc, "Registration Fees", formatCurrency(result.registrationFees || 0), currentY, mainContentWidth, margins.left);
-  currentY = addTableRow(doc, "TOTAL PAYABLE", formatCurrency(result.totalPayable), currentY, mainContentWidth, margins.left, true);
+  currentY = addTableRow(doc, "Total Taxes", formatCurrency(result.totalTaxes), currentY, true);
+  currentY = addTableRow(doc, "Registration Fees (Est.)", formatCurrency(result.registrationFees || 0), currentY);
+  currentY = addTableRow(doc, "TOTAL PAYABLE", formatCurrency(result.totalPayable), currentY, true);
   
-  // Bottom footer with platform description and disclaimer
-  const footerY = pageHeight - margins.bottom - 25;
+  currentY += 20;
   
-  // Platform description
-  addText(doc, "Kenya's leading automotive marketplace platform, revolutionizing how people buy, sell, and manage vehicles with cutting-edge technology and official government integration.", 
-    margins.left, footerY, {
-    fontSize: PDF_CONFIG.fonts.small.size + 1,
+  // === FOOTER ===
+  // Disclaimer
+  addText(doc, "DISCLAIMER", margins.left, currentY, {
+    fontSize: PDF_CONFIG.fonts.small.size,
     fontStyle: 'bold',
-    color: PDF_CONFIG.colors.primary
+    color: PDF_CONFIG.colors.dark
   });
   
-  // Disclaimer
-  addText(doc, "Disclaimer: Calculations based on current KRA rates. Actual charges may vary.", 
-    margins.left, footerY + 12, {
+  currentY += 8;
+  const disclaimerText = "This calculation is based on current KRA rates and regulations. Actual charges may vary. " +
+    "Please consult with KRA or licensed clearing agents for official assessment.";
+  
+  // Word wrap disclaimer
+  const words = disclaimerText.split(' ');
+  let line = '';
+  for (const word of words) {
+    const testLine = line + word + ' ';
+    const textWidth = doc.getStringUnitWidth(testLine) * PDF_CONFIG.fonts.small.size / doc.internal.scaleFactor;
+    if (textWidth > (pageWidth - margins.left - margins.right) && line !== '') {
+      addText(doc, line.trim(), margins.left, currentY, {
+        fontSize: PDF_CONFIG.fonts.small.size,
+        color: PDF_CONFIG.colors.lightText
+      });
+      currentY += 10;
+      line = word + ' ';
+    } else {
+      line = testLine;
+    }
+  }
+  if (line.trim()) {
+    addText(doc, line.trim(), margins.left, currentY, {
+      fontSize: PDF_CONFIG.fonts.small.size,
+      color: PDF_CONFIG.colors.lightText
+    });
+  }
+  
+  // Footer with page info
+  const footerY = doc.internal.pageSize.height - 20;
+  addText(doc, "Generated by Gariyangu - Kenya's Car Marketplace", pageWidth / 2, footerY, {
     fontSize: PDF_CONFIG.fonts.small.size,
-    color: PDF_CONFIG.colors.lightText
+    color: PDF_CONFIG.colors.lightText,
+    align: 'center'
   });
   
   // Save the PDF
@@ -216,92 +297,150 @@ export function generateImportCostPDF(
 ) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
-  const pageHeight = doc.internal.pageSize.height;
   const margins = PDF_CONFIG.margins;
   let currentY = margins.top;
   
-  // Use full page width for content
-  const mainContentWidth = pageWidth - margins.left - margins.right;
-  
-  // === COMPACT HEADER ===
+  // === HEADER SECTION ===
+  // Add proportional logo at top left
   doc.addImage(gariyanGuLogo, 'PNG', margins.left, currentY, PDF_CONFIG.logo.width, PDF_CONFIG.logo.height);
   
-  addText(doc, "IMPORT COST ESTIMATE", margins.left + PDF_CONFIG.logo.width + 8, currentY + 8, {
-    fontSize: PDF_CONFIG.fonts.title.size,
-    fontStyle: PDF_CONFIG.fonts.title.style,
+  // Company info next to logo
+  const logoRightX = margins.left + PDF_CONFIG.logo.width + PDF_CONFIG.logo.margin;
+  currentY = addText(doc, "Kenya's Car Marketplace", logoRightX, currentY + 8, {
+    fontSize: PDF_CONFIG.fonts.subtitle.size,
+    fontStyle: PDF_CONFIG.fonts.subtitle.style,
     color: PDF_CONFIG.colors.primary
   });
   
-  addText(doc, new Date().toLocaleDateString('en-KE'), margins.left + PDF_CONFIG.logo.width + 8, currentY + 18, {
+  currentY = addText(doc, "Professional Vehicle Import Services", logoRightX, currentY + 6, {
     fontSize: PDF_CONFIG.fonts.small.size,
     color: PDF_CONFIG.colors.lightText
   });
   
-  currentY += PDF_CONFIG.logo.height + 10;
+  // Contact info (right-aligned)
+  addText(doc, "Contact: +254 736 272719", pageWidth - margins.right, margins.top + 8, {
+    fontSize: PDF_CONFIG.fonts.small.size,
+    color: PDF_CONFIG.colors.lightText,
+    align: 'right'
+  });
   
-  // === MAIN CONTENT (Left Column) ===
-  // Vehicle Information Table
-  currentY = addCompactSection(doc, "VEHICLE DETAILS", currentY) + 5;
-  currentY = addTableRow(doc, "ITEM", "VALUE", currentY, mainContentWidth, margins.left, false, true);
+  addText(doc, "support@gariyangu.com", pageWidth - margins.right, margins.top + 16, {
+    fontSize: PDF_CONFIG.fonts.small.size,
+    color: PDF_CONFIG.colors.lightText,
+    align: 'right'
+  });
+  
+  currentY = margins.top + PDF_CONFIG.logo.height + 20;
+  
+  // === DOCUMENT TITLE ===
+  currentY = addText(doc, "VEHICLE IMPORT COST ESTIMATE", pageWidth / 2, currentY, {
+    fontSize: PDF_CONFIG.fonts.title.size,
+    fontStyle: PDF_CONFIG.fonts.title.style,
+    color: PDF_CONFIG.colors.primary,
+    align: 'center'
+  });
+  
+  currentY = addText(doc, "Complete Import Cost Breakdown", pageWidth / 2, currentY + 8, {
+    fontSize: PDF_CONFIG.fonts.body.size,
+    color: PDF_CONFIG.colors.lightText,
+    align: 'center'
+  });
+  
+  // Date and report info
+  const currentDate = new Date().toLocaleDateString('en-KE', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  
+  currentY = addText(doc, `Generated: ${currentDate}`, pageWidth / 2, currentY + 15, {
+    fontSize: PDF_CONFIG.fonts.small.size,
+    color: PDF_CONFIG.colors.lightText,
+    align: 'center'
+  });
+  
+  // Separator line
+  currentY += 15;
+  doc.setDrawColor(PDF_CONFIG.colors.border[0], PDF_CONFIG.colors.border[1], PDF_CONFIG.colors.border[2]);
+  doc.setLineWidth(1);
+  doc.line(margins.left, currentY, pageWidth - margins.right, currentY);
+  
+  currentY += 25;
+  
+  // === VEHICLE INFORMATION ===
+  currentY = addSection(doc, "VEHICLE DETAILS", currentY, PDF_CONFIG.colors.primary);
+  currentY += 10;
   
   if (vehicleData) {
-    currentY = addTableRow(doc, "Make & Model", `${vehicleData.make || 'Manual'} ${vehicleData.model || 'Entry'}`, currentY, mainContentWidth, margins.left);
-    currentY = addTableRow(doc, "Engine Size", `${vehicleData.engineCapacity}cc`, currentY, mainContentWidth, margins.left);
-    currentY = addTableRow(doc, "Year", vehicleData.year?.toString() || 'N/A', currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, "Make", vehicleData.make || 'Manual Entry', currentY);
+    currentY = addTableRow(doc, "Model", vehicleData.model || 'Manual Entry', currentY);
+    currentY = addTableRow(doc, "Engine Size", `${vehicleData.engineCapacity}cc`, currentY);
+    currentY = addTableRow(doc, "Year", vehicleData.year?.toString() || 'N/A', currentY);
   }
   
-  currentY += 8;
+  currentY += 15;
   
-  // Import Cost Breakdown Table
-  currentY = addCompactSection(doc, "COST BREAKDOWN", currentY) + 5;
-  currentY = addTableRow(doc, "COST COMPONENT", "AMOUNT", currentY, mainContentWidth, margins.left, false, true);
+  // === COST BREAKDOWN ===
+  currentY = addSection(doc, "IMPORT COST BREAKDOWN", currentY, PDF_CONFIG.colors.secondary);
+  currentY += 10;
   
-  if (estimateData.cifAmount && estimateData.currency) {
+  if (estimateData.cifAmount) {
     currentY = addTableRow(doc, `CIF Price (${estimateData.currency})`, 
-      estimateData.cifAmount.toLocaleString(), currentY, mainContentWidth, margins.left);
+      estimateData.cifAmount.toLocaleString(), currentY);
   }
   
   if (estimateData.cifKes) {
-    currentY = addTableRow(doc, "CIF Price (KES)", formatCurrency(estimateData.cifKes), currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, "CIF Price (KES)", formatCurrency(estimateData.cifKes), currentY);
   }
   
   if (estimateData.dutyAmount) {
-    currentY = addTableRow(doc, "Duty & Taxes", formatCurrency(estimateData.dutyAmount), currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, "Duty & Taxes", formatCurrency(estimateData.dutyAmount), currentY);
   }
   
   if (estimateData.clearingCharges) {
-    currentY = addTableRow(doc, "Clearing Charges", formatCurrency(estimateData.clearingCharges), currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, "Clearing Charges", formatCurrency(estimateData.clearingCharges), currentY);
   }
   
   if (estimateData.transportCost) {
-    currentY = addTableRow(doc, "Transport Cost", formatCurrency(estimateData.transportCost), currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, "Transport Cost", formatCurrency(estimateData.transportCost), currentY);
   }
   
   if (estimateData.serviceFeeAmount) {
-    currentY = addTableRow(doc, `Service Fee (${estimateData.serviceFeePercentage || 0}%)`, 
-      formatCurrency(estimateData.serviceFeeAmount), currentY, mainContentWidth, margins.left);
+    currentY = addTableRow(doc, `Service Fee (${estimateData.serviceFeePercentage}%)`, 
+      formatCurrency(estimateData.serviceFeeAmount), currentY);
   }
   
   if (estimateData.totalPayable) {
-    currentY = addTableRow(doc, "TOTAL COST", formatCurrency(estimateData.totalPayable), currentY, mainContentWidth, margins.left, true);
+    currentY = addTableRow(doc, "TOTAL COST", formatCurrency(estimateData.totalPayable), currentY, true);
   }
   
-  // Bottom footer with platform description and disclaimer
-  const footerY = pageHeight - margins.bottom - 25;
+  currentY += 20;
   
-  // Platform description
-  addText(doc, "Kenya's leading automotive marketplace platform, revolutionizing how people buy, sell, and manage vehicles with cutting-edge technology and official government integration.", 
-    margins.left, footerY, {
-    fontSize: PDF_CONFIG.fonts.small.size + 1,
+  // === FOOTER ===
+  // Disclaimer
+  addText(doc, "DISCLAIMER", margins.left, currentY, {
+    fontSize: PDF_CONFIG.fonts.small.size,
     fontStyle: 'bold',
-    color: PDF_CONFIG.colors.primary
+    color: PDF_CONFIG.colors.dark
   });
   
-  // Disclaimer
-  addText(doc, "Disclaimer: Estimate based on current rates. Actual costs may vary.", 
-    margins.left, footerY + 12, {
+  currentY += 8;
+  const disclaimerText = "This is an estimate based on current rates and may vary. " +
+    "Additional costs may apply. Contact us for accurate quotation.";
+  
+  addText(doc, disclaimerText, margins.left, currentY, {
     fontSize: PDF_CONFIG.fonts.small.size,
     color: PDF_CONFIG.colors.lightText
+  });
+  
+  // Footer with page info
+  const footerY = doc.internal.pageSize.height - 20;
+  addText(doc, "Generated by Gariyangu - Kenya's Car Marketplace", pageWidth / 2, footerY, {
+    fontSize: PDF_CONFIG.fonts.small.size,
+    color: PDF_CONFIG.colors.lightText,
+    align: 'center'
   });
   
   // Save the PDF

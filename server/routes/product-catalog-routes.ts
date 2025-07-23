@@ -37,7 +37,9 @@ const requireAuth = (req: any, res: any, next: any) => {
 
 const requireAdmin = (req: any, res: any, next: any) => {
   console.log('Admin check:', { hasUser: !!req.user, roleId: req.user?.roleId });
-  if (!req.user || req.user.roleId !== 3) {
+  // Allow Admin (3), Super Admin (5), and Legacy Superadmin (4) roles
+  const adminRoles = [3, 4, 5];
+  if (!req.user || !adminRoles.includes(req.user.roleId)) {
     console.log('Admin access denied - insufficient permissions');
     return res.status(403).json({ error: 'Admin access required' });
   }

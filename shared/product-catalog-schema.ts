@@ -116,7 +116,7 @@ export const userProductSubscriptions = pgTable('user_product_subscriptions', {
 export const featureUsage = pgTable('feature_usage', {
   id: serial('id').primaryKey(),
   subscriptionId: integer('subscription_id').references(() => userProductSubscriptions.id),
-  featureId: integer('feature_id').references(() => productFeatures.id),
+  featureId: integer('feature_id').references(() => systemFeatures.id),
   usageCount: integer('usage_count').default(0),
   lastUsed: timestamp('last_used'),
   resetDate: timestamp('reset_date'), // When usage count resets based on billing cycle

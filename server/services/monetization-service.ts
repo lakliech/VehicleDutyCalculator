@@ -33,18 +33,31 @@ export class MonetizationService {
   /**
    * Get user's current subscription
    */
-  static async getUserSubscription(userId: string): Promise<UserSubscription | null> {
+  static async getUserSubscription(userId: string): Promise<any | null> {
     try {
-      // Check if we have any subscriptions for this user
-      const subscriptions = await db.select()
-        .from(userProductSubscriptions)
-        .where(and(
-          eq(userProductSubscriptions.userId, userId),
-          eq(userProductSubscriptions.status, 'active')
-        ))
-        .limit(1);
+      // Check if we have any subscriptions for this user - use raw SQL to match actual database structure
+      const result = await db.execute(sql`
+        SELECT ups.*, p.name as plan_name, p.base_price 
+        FROM user_product_subscriptions ups
+        LEFT JOIN products p ON ups.product_id = p.id
+        WHERE ups.user_id = ${userId} AND ups.status = 'active'
+        LIMIT 1
+      `);
 
-      return subscriptions[0] || null;
+      if (result.rows.length === 0) {
+        console.log('No active subscription found for user:', userId);
+        return null;
+      }
+
+      const subscription = result.rows[0] as any;
+      console.log('Found subscription for user:', userId, subscription);
+      
+      // Return subscription data with planId for compatibility
+      return {
+        ...subscription,
+        planId: subscription.product_id, // Map product_id to planId for compatibility
+        userId: subscription.user_id
+      };
     } catch (error) {
       console.error('Error fetching user subscription:', error);
       return null; // Return null instead of throwing to allow usage limiter to continue

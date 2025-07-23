@@ -14,7 +14,7 @@ const authenticateUser = (req: any, res: any, next: any) => {
 
 /**
  * POST /api/payment/subscribe
- * Initialize subscription payment and handle the complete flow
+ * Initialize subscription payment - follows same pattern as /api/payments/initialize
  */
 router.post('/subscribe', authenticateUser, async (req, res) => {
   try {
@@ -22,11 +22,11 @@ router.post('/subscribe', authenticateUser, async (req, res) => {
     const userId = req.user.id;
     const userEmail = req.user.email;
 
-    if (!planId) {
-      return res.status(400).json({ error: 'Plan ID is required' });
+    if (!planId || !userEmail) {
+      return res.status(400).json({ error: 'Plan ID and email are required' });
     }
 
-    // Initialize subscription payment
+    // Use UnifiedBillingService which internally uses paystack-service
     const paymentResult = await UnifiedBillingService.initializeSubscriptionPayment(
       userId, 
       userEmail, 
@@ -43,7 +43,7 @@ router.post('/subscribe', authenticateUser, async (req, res) => {
 
 /**
  * GET /api/payment/verify/:reference
- * Verify payment and complete subscription
+ * Verify payment and complete subscription - follows same pattern as /api/payments/verify
  */
 router.get('/verify/:reference', authenticateUser, async (req, res) => {
   try {
@@ -51,10 +51,10 @@ router.get('/verify/:reference', authenticateUser, async (req, res) => {
     const userId = req.user.id;
 
     if (!reference) {
-      return res.status(400).json({ error: 'Payment reference required' });
+      return res.status(400).json({ error: 'Payment reference is required' });
     }
 
-    // Verify payment with Paystack
+    // Use same paystack service as other payment routes
     const verification = await paystackService.verifyPayment(reference);
     
     if (!verification.success) {
@@ -69,7 +69,7 @@ router.get('/verify/:reference', authenticateUser, async (req, res) => {
     const planId = parseInt(metadata.plan_id);
     const billingType = metadata.billing_type;
 
-    // Complete subscription
+    // Complete subscription using UnifiedBillingService
     const subscription = await UnifiedBillingService.completeSubscription(
       userId, 
       planId, 
@@ -90,7 +90,7 @@ router.get('/verify/:reference', authenticateUser, async (req, res) => {
 
 /**
  * GET /api/payment/success
- * Handle successful payment redirect from Paystack
+ * Handle successful payment redirect from Paystack - follows same pattern as basic listing flow
  */
 router.get('/success', async (req, res) => {
   try {
@@ -101,7 +101,7 @@ router.get('/success', async (req, res) => {
       return res.redirect('/billing?error=missing_reference');
     }
 
-    // Verify the payment
+    // Verify payment using same service as other routes
     const verification = await paystackService.verifyPayment(paymentRef as string);
     
     if (!verification.success) {
@@ -112,9 +112,10 @@ router.get('/success', async (req, res) => {
     const metadata = verification.data.metadata;
     const userId = metadata.user_id || verification.data.customer?.customer_code;
 
+    // Handle subscription payments
     if (userId && metadata.plan_id && metadata.billing_type) {
       try {
-        // Complete the subscription
+        // Complete subscription using same service as above
         await UnifiedBillingService.completeSubscription(
           userId,
           parseInt(metadata.plan_id),
@@ -122,58 +123,19 @@ router.get('/success', async (req, res) => {
           paymentRef as string
         );
 
-        // Redirect to success page with proper parameters
+        // Redirect to subscription success page with verification flag
         return res.redirect(`/subscription-success?reference=${paymentRef}&status=success&verified=true`);
       } catch (error) {
         console.error('Error completing subscription after payment:', error);
-        // Redirect to billing page with error for failed subscription completion
         return res.redirect(`/billing?error=subscription_completion_failed&reference=${paymentRef}`);
       }
     }
 
-    // For other payment types, redirect to general success
+    // For other payment types (like basic listings), redirect to general success
     return res.redirect(`/payment-success?reference=${paymentRef}&status=success`);
   } catch (error: any) {
     console.error('Error handling payment success:', error);
     return res.redirect('/billing?error=processing_failed');
-  }
-});
-
-/**
- * POST /api/payment/webhook
- * Handle Paystack webhooks for automatic subscription completion
- */
-router.post('/webhook', async (req, res) => {
-  try {
-    const event = req.body;
-
-    // Verify webhook signature (optional but recommended)
-    const signature = req.headers['x-paystack-signature'];
-    
-    if (event.event === 'charge.success') {
-      const { reference, metadata, customer } = event.data;
-      
-      if (metadata && metadata.subscription_type === 'new_subscription') {
-        const userId = metadata.user_id;
-        const planId = parseInt(metadata.plan_id);
-        const billingType = metadata.billing_type;
-
-        // Complete subscription automatically
-        await UnifiedBillingService.completeSubscription(
-          userId,
-          planId,
-          billingType,
-          reference
-        );
-
-        console.log(`Subscription automatically completed for user ${userId}`);
-      }
-    }
-
-    res.status(200).json({ message: 'Webhook processed successfully' });
-  } catch (error: any) {
-    console.error('Error processing webhook:', error);
-    res.status(500).json({ error: 'Webhook processing failed' });
   }
 });
 

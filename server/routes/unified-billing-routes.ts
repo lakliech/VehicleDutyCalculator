@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { UnifiedBillingService } from '../services/unified-billing-service';
+import { paystackService } from '../services/paystack-service';
 import { storage } from '../storage';
 
 const router = Router();
@@ -96,21 +97,69 @@ router.get('/product-access', authenticateUser, async (req, res) => {
 
 /**
  * POST /api/unified-billing/subscribe
- * Create new subscription
+ * Initialize subscription payment
  */
 router.post('/subscribe', authenticateUser, async (req, res) => {
   try {
-    const { planId } = req.body;
+    const { planId, billingType = 'monthly' } = req.body;
     
     if (!planId) {
       return res.status(400).json({ error: 'Plan ID required' });
     }
 
-    const result = await UnifiedBillingService.subscribeUserToPlan(req.user.id, planId);
+    if (!req.user?.email) {
+      return res.status(400).json({ error: 'User email is required' });
+    }
+
+    const result = await UnifiedBillingService.initializeSubscriptionPayment(
+      req.user.id, 
+      req.user.email, 
+      planId, 
+      billingType
+    );
     res.json(result);
   } catch (error) {
-    console.error('Error creating subscription:', error);
-    res.status(500).json({ error: 'Failed to create subscription' });
+    console.error('Error initializing subscription payment:', error);
+    res.status(500).json({ error: 'Failed to initialize subscription payment' });
+  }
+});
+
+/**
+ * POST /api/unified-billing/verify-payment
+ * Verify subscription payment and complete subscription
+ */
+router.post('/verify-payment', authenticateUser, async (req, res) => {
+  try {
+    const { reference } = req.body;
+    
+    if (!reference) {
+      return res.status(400).json({ error: 'Payment reference required' });
+    }
+
+    // Verify payment with Paystack
+    const verification = await paystackService.verifyPayment(reference);
+    
+    if (!verification.success) {
+      return res.status(400).json({ error: 'Payment verification failed' });
+    }
+
+    // Extract subscription metadata
+    const metadata = verification.data.metadata;
+    const planId = metadata.plan_id;
+    const billingType = metadata.billing_type;
+
+    // Complete subscription
+    const result = await UnifiedBillingService.completeSubscription(
+      req.user.id, 
+      planId, 
+      billingType, 
+      reference
+    );
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error verifying subscription payment:', error);
+    res.status(500).json({ error: 'Failed to verify payment' });
   }
 });
 

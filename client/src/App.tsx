@@ -53,6 +53,7 @@ import MyWishlists from "@/pages/my-wishlists";
 import MyMessages from "@/pages/my-messages";
 import Messages from "@/pages/messages";
 import SubscriptionManagement from "@/pages/subscription-management";
+import SubscriptionSuccess from "@/pages/subscription-success";
 import UsageDashboard from "@/pages/usage-dashboard";
 import BillingDashboard from "@/pages/billing-dashboard";
 import UnifiedBillingDashboard from "@/pages/unified-billing-dashboard";
@@ -163,6 +164,7 @@ function Router() {
               <SubscriptionManagement />
             </ProtectedRoute>
           </Route>
+          <Route path="/subscription-success" component={SubscriptionSuccess} />
           <Route path="/usage-dashboard">
             <ProtectedRoute>
               <UsageDashboard />

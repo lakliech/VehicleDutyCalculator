@@ -1,4 +1,5 @@
 import { pool } from '../db';
+import { paystackService } from './paystack-service';
 
 /**
  * Unified Billing Service - Simple service for subscription plans
@@ -130,6 +131,95 @@ export class UnifiedBillingService {
       return { success: true, plan };
     } catch (error) {
       console.error('Error subscribing user to plan:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Initialize subscription payment with Paystack
+   */
+  static async initializeSubscriptionPayment(userId: string, userEmail: string, planId: number, billingType: string = 'monthly') {
+    try {
+      // Get plan details
+      const planResult = await pool.query(`
+        SELECT * FROM products WHERE id = $1 AND category_id = 2 AND is_active = true
+      `, [planId]);
+
+      if (planResult.rows.length === 0) {
+        throw new Error('Subscription plan not found');
+      }
+
+      const plan = planResult.rows[0];
+      const amount = parseFloat(plan.base_price);
+      
+      // Calculate final amount based on billing type
+      const finalAmount = billingType === 'yearly' ? amount * 10 : amount; // 10x for yearly (17% discount already applied)
+
+      // Initialize payment with Paystack
+      const paymentResult = await paystackService.initializePayment({
+        userId,
+        amount: finalAmount,
+        currency: 'KES',
+        email: userEmail,
+        transactionType: 'subscription',
+        description: `Subscription to ${plan.name} - ${billingType} billing`,
+        metadata: {
+          plan_id: planId,
+          plan_name: plan.name,
+          billing_type: billingType,
+          subscription_type: 'new_subscription'
+        },
+        callbackUrl: `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/subscription-success`
+      });
+
+      return {
+        success: true,
+        paymentUrl: paymentResult.paymentUrl,
+        reference: paymentResult.reference,
+        plan: {
+          id: plan.id,
+          name: plan.name,
+          amount: finalAmount,
+          billingType
+        }
+      };
+    } catch (error) {
+      console.error('Error initializing subscription payment:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Complete subscription after successful payment
+   */
+  static async completeSubscription(userId: string, planId: number, billingType: string, paymentReference: string) {
+    try {
+      // Calculate subscription period
+      const endDate = new Date();
+      if (billingType === 'yearly') {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      } else {
+        endDate.setMonth(endDate.getMonth() + 1);
+      }
+
+      // Cancel any existing active subscriptions
+      await pool.query(`
+        UPDATE user_product_subscriptions 
+        SET status = 'cancelled', current_period_end = NOW()
+        WHERE user_id = $1 AND status = 'active'
+      `, [userId]);
+
+      // Create new subscription
+      const result = await pool.query(`
+        INSERT INTO user_product_subscriptions 
+        (user_id, product_id, status, subscription_type, current_period_start, current_period_end, next_billing_date, payment_reference)
+        VALUES ($1, $2, 'active', $3, NOW(), $4, $4, $5)
+        RETURNING *
+      `, [userId, planId, billingType, endDate.toISOString(), paymentReference]);
+
+      return { success: true, subscription: result.rows[0] };
+    } catch (error) {
+      console.error('Error completing subscription:', error);
       throw error;
     }
   }

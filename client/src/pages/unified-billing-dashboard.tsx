@@ -77,25 +77,7 @@ export default function UnifiedBillingDashboard() {
     }
   });
 
-  // Subscribe mutation
-  const subscribeMutation = useMutation({
-    mutationFn: ({ planId, billingType }: { planId: number, billingType: string }) =>
-      apiRequest('POST', '/api/unified-billing/subscribe', { planId, billingType }).then(res => res.json()),
-    onSuccess: (data) => {
-      window.open(data.authorization_url, '_blank');
-      toast({
-        title: "Subscription Payment Initiated",
-        description: "Please complete the payment to activate your subscription."
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Subscription Failed",
-        description: "Failed to initiate subscription. Please try again.",
-        variant: "destructive"
-      });
-    }
-  });
+
 
   const handleTopup = () => {
     const amount = parseFloat(topupAmount);
@@ -110,8 +92,35 @@ export default function UnifiedBillingDashboard() {
     topupMutation.mutate(amount);
   };
 
-  const handleSubscribe = (planId: number, billingType: string) => {
-    subscribeMutation.mutate({ planId, billingType });
+  const handleSubscribe = async (planId: number, billingType: string) => {
+    try {
+      // Initialize subscription payment
+      const response = await apiRequest("POST", "/api/unified-billing/subscribe", { 
+        planId, 
+        billingType 
+      });
+      
+      if (response.paymentUrl) {
+        toast({
+          title: "Redirecting to Payment",
+          description: "You will be redirected to Paystack to complete your subscription payment.",
+        });
+        
+        // Small delay to show the message
+        setTimeout(() => {
+          window.location.href = response.paymentUrl;
+        }, 2000);
+      } else {
+        throw new Error('No payment URL received');
+      }
+    } catch (error: any) {
+      console.error('Subscription error:', error);
+      toast({
+        title: "Subscription Error",
+        description: error.message || "Failed to initialize subscription. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -371,7 +380,7 @@ export default function UnifiedBillingDashboard() {
                       <Button 
                         className="w-full"
                         onClick={() => handleSubscribe(plan.id, 'monthly')}
-                        disabled={subscribeMutation.isPending}
+                        disabled={false}
                       >
                         Subscribe Monthly
                       </Button>
@@ -379,7 +388,7 @@ export default function UnifiedBillingDashboard() {
                         variant="outline"
                         className="w-full"
                         onClick={() => handleSubscribe(plan.id, 'yearly')}
-                        disabled={subscribeMutation.isPending}
+                        disabled={false}
                       >
                         Subscribe Yearly (Save 17%)
                       </Button>

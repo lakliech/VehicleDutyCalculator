@@ -200,17 +200,30 @@ function AuthenticatedAdminDashboard() {
     errors: string[];
   } | null>(null);
 
+  // State for vehicle references pagination and search
+  const [vehicleSearchTerm, setVehicleSearchTerm] = useState("");
+  const [vehiclePage, setVehiclePage] = useState(1);
+  const vehicleLimit = 20;
+
   // Queries for fetching data with authentication
-  const { data: vehicleReferences = [], isLoading: vehiclesLoading } = useQuery<VehicleReference[]>({
-    queryKey: ["/api/admin/vehicle-references"],
+  const { data: vehicleReferencesResponse, isLoading: vehiclesLoading } = useQuery({
+    queryKey: ["/api/admin/vehicle-references", vehiclePage, vehicleSearchTerm],
     queryFn: async () => {
-      const response = await fetch("/api/admin/vehicle-references", {
+      const searchParams = new URLSearchParams({
+        page: vehiclePage.toString(),
+        limit: vehicleLimit.toString(),
+        ...(vehicleSearchTerm && { search: vehicleSearchTerm })
+      });
+      const response = await fetch(`/api/admin/vehicle-references?${searchParams}`, {
         headers: getAuthHeaders(),
       });
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
       return response.json();
     },
   });
+
+  const vehicleReferences = vehicleReferencesResponse?.data || [];
+  const vehiclePagination = vehicleReferencesResponse?.pagination;
 
   const { data: taxRates = [], isLoading: taxRatesLoading } = useQuery<TaxRate[]>({
     queryKey: ["/api/admin/tax-rates"],
@@ -927,6 +940,10 @@ function AuthenticatedAdminDashboard() {
               isLoading={vehiclesLoading}
               onAdd={addVehicleMutation.mutate}
               formatCurrency={formatCurrency}
+              searchTerm={vehicleSearchTerm}
+              onSearchChange={setVehicleSearchTerm}
+              pagination={vehiclePagination}
+              onPageChange={setVehiclePage}
             />
           </TabsContent>
 
@@ -1073,17 +1090,31 @@ function VehicleReferencesTab({
   vehicleReferences, 
   isLoading, 
   onAdd, 
-  formatCurrency 
+  formatCurrency,
+  searchTerm,
+  onSearchChange,
+  pagination,
+  onPageChange
 }: {
   vehicleReferences: VehicleReference[];
   isLoading: boolean;
   onAdd: (data: VehicleReferenceForm) => void;
   formatCurrency: (amount: string | number) => string;
+  searchTerm: string;
+  onSearchChange: (search: string) => void;
+  pagination?: {
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+  onPageChange: (page: number) => void;
 }) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<VehicleReference | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -1138,18 +1169,13 @@ function VehicleReferencesTab({
     setIsAddDialogOpen(false);
   };
 
-  const filteredVehicles = vehicleReferences.filter(vehicle =>
-    vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Car className="h-5 w-5" />
-            Vehicle References ({vehicleReferences.length})
+            Vehicle References ({pagination?.totalCount || 0})
           </CardTitle>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
@@ -1361,12 +1387,19 @@ function VehicleReferencesTab({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <Input
-            placeholder="Search vehicles..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-sm"
-          />
+          <div className="flex items-center justify-between">
+            <Input
+              placeholder="Search by make, model, or engine capacity..."
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="max-w-sm"
+            />
+            {pagination && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                Page {pagination.page} of {pagination.totalPages} ({pagination.totalCount} vehicles)
+              </div>
+            )}
+          </div>
           <div className="rounded-md border max-h-96 overflow-auto">
             <Table>
               <TableHeader>
@@ -1388,10 +1421,16 @@ function VehicleReferencesTab({
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center">Loading...</TableCell>
+                    <TableCell colSpan={12} className="text-center">Loading...</TableCell>
+                  </TableRow>
+                ) : vehicleReferences.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={12} className="text-center text-gray-500">
+                      {searchTerm ? `No vehicles found matching "${searchTerm}"` : "No vehicles found"}
+                    </TableCell>
                   </TableRow>
                 ) : (
-                  filteredVehicles.slice(0, 100).map((vehicle) => (
+                  vehicleReferences.map((vehicle) => (
                     <TableRow key={vehicle.id}>
                       <TableCell className="font-medium">{vehicle.make}</TableCell>
                       <TableCell>{vehicle.model}</TableCell>
@@ -1474,8 +1513,33 @@ function VehicleReferencesTab({
               </TableBody>
             </Table>
           </div>
-          {filteredVehicles.length > 100 && (
-            <p className="text-sm text-gray-500">Showing first 100 results. Use search to narrow down.</p>
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => onPageChange(pagination.page - 1)}
+                  disabled={!pagination.hasPrev}
+                >
+                  Previous
+                </Button>
+                <span className="text-sm text-gray-600">
+                  Page {pagination.page} of {pagination.totalPages}
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => onPageChange(pagination.page + 1)}
+                  disabled={!pagination.hasNext}
+                >
+                  Next
+                </Button>
+              </div>
+              <div className="text-sm text-gray-500">
+                Showing {(pagination.page - 1) * pagination.limit + 1} to {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of {pagination.totalCount} vehicles
+              </div>
+            </div>
           )}
         </div>
       </CardContent>

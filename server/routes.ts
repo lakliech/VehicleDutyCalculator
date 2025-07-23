@@ -2591,12 +2591,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all vehicle references for admin
   app.get("/api/admin/vehicle-references", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {
-      const results = await db
-        .select()
-        .from(vehicleReferences)
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const search = req.query.search as string || '';
+      const offset = (page - 1) * limit;
+
+      let query = db.select().from(vehicleReferences);
+      
+      // Add search functionality
+      if (search) {
+        const searchTerm = `%${search.toLowerCase()}%`;
+        query = query.where(
+          or(
+            sql`LOWER(${vehicleReferences.make}) LIKE ${searchTerm}`,
+            sql`LOWER(${vehicleReferences.model}) LIKE ${searchTerm}`,
+            sql`CAST(${vehicleReferences.engineCapacity} AS TEXT) LIKE ${searchTerm}`
+          )
+        );
+      }
+
+      // Get total count for pagination
+      const totalCountQuery = db.select({ count: sql<number>`count(*)` }).from(vehicleReferences);
+      if (search) {
+        const searchTerm = `%${search.toLowerCase()}%`;
+        totalCountQuery.where(
+          or(
+            sql`LOWER(${vehicleReferences.make}) LIKE ${searchTerm}`,
+            sql`LOWER(${vehicleReferences.model}) LIKE ${searchTerm}`,
+            sql`CAST(${vehicleReferences.engineCapacity} AS TEXT) LIKE ${searchTerm}`
+          )
+        );
+      }
+
+      const [{ count: totalCount }] = await totalCountQuery;
+      
+      // Execute main query with pagination
+      const results = await query
         .orderBy(vehicleReferences.make, vehicleReferences.model)
-        .limit(1000);
-      res.json(results);
+        .limit(limit)
+        .offset(offset);
+
+      const totalPages = Math.ceil(totalCount / limit);
+
+      res.json({
+        data: results,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1
+        },
+        search
+      });
     } catch (error) {
       console.error("Failed to fetch vehicle references:", error);
       res.status(500).json({ error: "Failed to fetch vehicle references" });

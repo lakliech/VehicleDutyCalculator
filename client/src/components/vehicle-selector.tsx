@@ -121,15 +121,16 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   });
 
   // Search for reference vehicles for proration (manual entry mode)
-  // Allow any vehicle model for proration, not just same make
+  // Filter by make to get relevant reference vehicles for better efficiency
   const { data: referenceVehicles = [] } = useQuery<VehicleReference[]>({
-    queryKey: [`/api/vehicle-references/search`, 'reference-all'],
+    queryKey: [`/api/vehicle-references/proration-references`, manualMake],
     queryFn: async () => {
-      const response = await fetch(`/api/vehicle-references/search`);
+      if (!manualMake) return [];
+      const response = await fetch(`/api/vehicle-references/proration-references?make=${encodeURIComponent(manualMake)}`);
       if (!response.ok) throw new Error('Failed to fetch reference vehicles');
       return response.json();
     },
-    enabled: isManualEntry,
+    enabled: isManualEntry && !!manualMake,
   });
 
   // Calculate proration when manual entry is complete
@@ -358,10 +359,10 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
           {referenceVehicles.length > 0 && (
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-2">
-                Select Reference Vehicle for Proration <span className="text-red-500">*</span>
+                Select Reference Vehicle for Proration ({manualMake} models) <span className="text-red-500">*</span>
               </Label>
               <p className="text-xs text-gray-600 mb-2">
-                Choose any vehicle from the database to calculate prorated CRSP value. The system will use this vehicle's CRSP and engine capacity to calculate your vehicle's estimated value.
+                Choose a {manualMake} vehicle from the database to calculate prorated CRSP value. The system will use this vehicle's CRSP and engine capacity to calculate your vehicle's estimated value.
               </p>
               <Select
                 value={selectedReferenceVehicle?.id?.toString() || ""}
@@ -371,7 +372,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a reference vehicle..." />
+                  <SelectValue placeholder={`Select a ${manualMake} reference vehicle...`} />
                 </SelectTrigger>
                 <SelectContent>
                   {referenceVehicles
@@ -390,18 +391,18 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
               </Select>
               {referenceVehicles.length > 0 && (
                 <p className="text-xs text-gray-500 mt-1">
-                  Found {referenceVehicles.filter(v => v.engineCapacity && v.engineCapacity > 0 && (v.crspKes || v.crsp2020)).length} valid reference vehicles for proration
+                  Found {referenceVehicles.filter(v => v.engineCapacity && v.engineCapacity > 0 && (v.crspKes || v.crsp2020)).length} valid {manualMake} reference vehicles for proration
                 </p>
               )}
             </div>
           )}
 
           {/* No reference vehicles found */}
-          {isManualEntry && referenceVehicles.length === 0 && (
-            <Alert className="p-3 bg-red-50 border-red-200">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-sm text-red-800 ml-2">
-                No reference vehicles available for proration calculation. Database may be empty.
+          {isManualEntry && manualMake && referenceVehicles.length === 0 && (
+            <Alert className="p-3 bg-yellow-50 border-yellow-200">
+              <AlertCircle className="h-4 w-4 text-yellow-600" />
+              <AlertDescription className="text-sm text-yellow-800 ml-2">
+                No {manualMake} reference vehicles found in database. Try a different make or contact support if this is unexpected.
               </AlertDescription>
             </Alert>
           )}

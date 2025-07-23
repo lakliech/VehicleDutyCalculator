@@ -351,6 +351,22 @@ The platform now features a sophisticated role-based navigation system that dyna
 
 ## Changelog
 
+**OPTIMIZED PRORATION REFERENCE SELECTION WITH MAKE-BASED FILTERING - January 23, 2025:**
+- **Problem Solved**: Proration reference vehicle selection was inefficient, loading only 20 vehicles due to pagination
+- **Backend Enhancement**: Created new `/api/vehicle-references/proration-references` endpoint with make-based filtering
+- **Efficient Filtering**: New endpoint filters by vehicle make and returns up to 100 relevant reference vehicles
+- **Improved Performance**: Reduced query time and memory usage by filtering at database level instead of client-side
+- **Enhanced User Experience**: 
+  - Reference vehicle selector now shows "({make} models)" to clarify filtering
+  - Updated placeholder text to reflect make-based selection
+  - Improved error messages when no reference vehicles found for specific make
+  - Better feedback showing count of available reference vehicles
+- **Technical Implementation**:
+  - Database query filters by make, valid CRSP values, and engine capacity
+  - Results ordered by model and engine capacity for logical selection
+  - Graceful error handling when make parameter missing or no vehicles found
+- **Result**: Much more efficient proration calculations with relevant reference vehicles loaded quickly
+
 **ENHANCED PRORATION LOGIC FOR DUTY COMPUTATION - January 23, 2025:**
 - **Problem Solved**: Removed strict filtering that limited users to same-make vehicles for proration calculations
 - **Backend Enhancement**: Modified `/api/vehicle-references/search` endpoint to allow any vehicle model for reference calculations

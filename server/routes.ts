@@ -2774,6 +2774,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get reference vehicles for proration (filtered by make, more results for user selection)
+  app.get("/api/vehicle-references/proration-references", async (req, res) => {
+    try {
+      const make = req.query.make as string;
+      
+      if (!make) {
+        return res.status(400).json({ error: "Make parameter is required" });
+      }
+      
+      // Get up to 100 vehicles from the specified make with valid CRSP values
+      const vehicles = await db
+        .select()
+        .from(vehicleReferences)
+        .where(
+          and(
+            eq(vehicleReferences.make, make),
+            or(
+              isNotNull(vehicleReferences.crspKes),
+              isNotNull(vehicleReferences.crsp2020)
+            ),
+            isNotNull(vehicleReferences.engineCapacity)
+          )
+        )
+        .orderBy(vehicleReferences.model, vehicleReferences.engineCapacity)
+        .limit(100);
+      
+      res.json(vehicles);
+    } catch (error) {
+      console.error("Error fetching proration reference vehicles:", error);
+      res.status(500).json({ error: "Failed to fetch proration reference vehicles" });
+    }
+  });
+
   // Get all tax rates
   app.get("/api/admin/tax-rates", authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req, res) => {
     try {

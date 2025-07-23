@@ -187,6 +187,8 @@ export default function ImportationEstimator() {
       
       // Trigger validation to clear errors
       form.trigger(["make", "model", "engineCapacity"]);
+    } else {
+      console.log('Manual vehicle data cleared, resetting form fields');
     }
   }, [manualVehicleData, form]);
 
@@ -332,6 +334,7 @@ export default function ImportationEstimator() {
                               setEstimateResult(null);
                               setShowResults(false);
                             }
+                            console.log('Setting manualVehicleData state to:', data);
                             setManualVehicleData(data);
                             setSelectedVehicle(null); // Clear database vehicle when manual data entered
                           }}

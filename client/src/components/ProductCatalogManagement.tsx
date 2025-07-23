@@ -168,10 +168,19 @@ export default function ProductCatalogManagement() {
   });
 
   // Fetch products
-  const { data: products = [], isLoading: productsLoading } = useQuery({
+  const { data: productsResponse = [], isLoading: productsLoading, error: productsError } = useQuery({
     queryKey: ['/api/products/admin/products'],
-    queryFn: () => fetch('/api/products/admin/products').then(res => res.json())
+    queryFn: async () => {
+      const res = await fetch('/api/products/admin/products');
+      if (!res.ok) {
+        throw new Error(`Failed to fetch products: ${res.status}`);
+      }
+      return res.json();
+    }
   });
+
+  // Ensure products is always an array
+  const products = Array.isArray(productsResponse) ? productsResponse : [];
 
   // Fetch all features for selection
   const { data: allFeatures = [], isError: allFeaturesError } = useQuery({
@@ -892,6 +901,15 @@ export default function ProductCatalogManagement() {
             <CardContent>
               {productsLoading ? (
                 <div className="text-center py-4">Loading products...</div>
+              ) : productsError ? (
+                <div className="text-center py-4 text-red-600">
+                  <AlertCircle className="h-5 w-5 mx-auto mb-2" />
+                  Error loading products: {(productsError as Error).message}
+                </div>
+              ) : products.length === 0 ? (
+                <div className="text-center py-4 text-gray-500">
+                  No products found. Create your first product to get started.
+                </div>
               ) : (
                 <Table>
                   <TableHeader>

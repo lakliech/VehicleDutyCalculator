@@ -64,6 +64,37 @@ router.post('/initialize', authenticateUser, async (req, res) => {
 });
 
 /**
+ * Subscribe to plan
+ */
+router.post('/subscribe', authenticateUser, async (req, res) => {
+  try {
+    const { planId, billingType = 'monthly' } = req.body;
+    
+    if (!req.user?.email) {
+      return res.status(400).json({ error: 'User email is required' });
+    }
+
+    if (!planId) {
+      return res.status(400).json({ error: 'Plan ID is required' });
+    }
+
+    // Use UnifiedBillingService to handle subscription payment initialization
+    const { UnifiedBillingService } = await import('../services/unified-billing-service');
+    const result = await UnifiedBillingService.initializeSubscriptionPayment(
+      req.user.id,
+      req.user.email,
+      planId,
+      billingType
+    );
+
+    res.json(result);
+  } catch (error) {
+    console.error('Subscription payment error:', error);
+    res.status(500).json({ error: 'Subscription payment failed' });
+  }
+});
+
+/**
  * Top up account credits
  */
 router.post('/topup', authenticateUser, async (req, res) => {
@@ -100,6 +131,29 @@ router.post('/verify', authenticateUser, async (req, res) => {
     
     const result = await paystackService.verifyPayment(data.paystackReference);
     
+    // Handle subscription completion if subscription metadata exists
+    if (result.success && result.transaction && result.data.metadata?.plan_id) {
+      try {
+        const metadata = result.data.metadata;
+        const { UnifiedBillingService } = await import('../services/unified-billing-service');
+        const subscription = await UnifiedBillingService.completeSubscription(
+          req.user.id,
+          parseInt(metadata.plan_id),
+          metadata.billing_type,
+          data.paystackReference
+        );
+        
+        return res.json({
+          success: true,
+          subscription,
+          message: 'Subscription activated successfully'
+        });
+      } catch (error) {
+        console.error('Error completing subscription:', error);
+        return res.status(500).json({ error: 'Failed to complete subscription' });
+      }
+    }
+
     // If payment is successful and there's listing data, create the listing
     if (result.success && result.transaction && req.body.listingData) {
       const listingData = req.body.listingData;

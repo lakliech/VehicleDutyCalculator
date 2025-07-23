@@ -169,7 +169,7 @@ export class UnifiedBillingService {
           billing_type: billingType,
           subscription_type: 'new_subscription'
         },
-        redirectUrl: `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/api/payment/success`
+        redirectUrl: `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/subscription-success`
       });
 
       return {

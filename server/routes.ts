@@ -9931,14 +9931,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   app.use('/api/unified-billing', unifiedBillingRoutes.default);
   console.log('Payment routes registered successfully');
   
-  // Unified Payment Handler
-  try {
-    const paymentHandler = await import('./routes/payment-handler');
-    app.use('/api/payment', paymentHandler.default);
-    console.log("Payment handler routes registered successfully");
-  } catch (error) {
-    console.error('Error loading payment handler routes:', error);
-  }
+  // Payment handler removed - using existing payment-routes instead
 
   // ========================================
   // VEHICLE REFERENCE ENDPOINTS

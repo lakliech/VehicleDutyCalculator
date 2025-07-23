@@ -38,7 +38,9 @@ export default function SubscriptionSuccess() {
         }
 
         // Verify payment with backend using new unified API
-        const response = await apiRequest('GET', `/api/payment/verify/${reference}`, {});
+        const response = await apiRequest('POST', `/api/payments/verify`, { 
+          paystackReference: reference 
+        });
 
         const data = await response.json();
         

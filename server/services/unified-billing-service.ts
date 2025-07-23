@@ -22,10 +22,16 @@ export class UnifiedBillingService {
       const planIds = plansResult.rows.map(plan => plan.id);
       
       const featuresResult = await pool.query(`
-        SELECT product_id, name, description, limit_value, limit_type 
-        FROM product_features 
-        WHERE product_id = ANY($1) AND is_included = true
-        ORDER BY product_id, sort_order, name
+        SELECT 
+          pfa.product_id,
+          f.name,
+          f.description,
+          pfa.limit_value,
+          f.limit_type
+        FROM product_feature_associations pfa
+        JOIN system_features f ON pfa.feature_id = f.id
+        WHERE pfa.product_id = ANY($1) AND pfa.is_included = true
+        ORDER BY pfa.product_id, pfa.sort_order, f.name
       `, [planIds]);
 
       // Group features by product_id

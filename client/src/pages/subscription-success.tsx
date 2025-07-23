@@ -20,9 +20,21 @@ export default function SubscriptionSuccess() {
         // Extract payment reference from URL
         const urlParams = new URLSearchParams(window.location.search);
         const reference = urlParams.get('reference');
+        const verified = urlParams.get('verified');
         
         if (!reference) {
           throw new Error('Payment reference not found');
+        }
+
+        // If already verified by server redirect, skip verification
+        if (verified === 'true') {
+          setVerificationStatus('success');
+          setIsVerifying(false);
+          toast({
+            title: "Subscription Activated",
+            description: "Your subscription has been successfully activated!",
+          });
+          return;
         }
 
         // Verify payment with backend using new unified API
@@ -140,6 +152,12 @@ export default function SubscriptionSuccess() {
           )}
 
           <div className="space-y-2 pt-4">
+            <Button 
+              onClick={() => navigate('/billing')}
+              className="w-full bg-purple-600 hover:bg-purple-700"
+            >
+              Go to Billing Dashboard
+            </Button>
             <Button 
               onClick={() => navigate('/billing')}
               className="w-full"

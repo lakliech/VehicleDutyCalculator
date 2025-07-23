@@ -122,11 +122,12 @@ router.get('/success', async (req, res) => {
           paymentRef as string
         );
 
-        // Redirect to success page
-        return res.redirect(`/subscription-success?reference=${paymentRef}&status=success`);
+        // Redirect to success page with proper parameters
+        return res.redirect(`/subscription-success?reference=${paymentRef}&status=success&verified=true`);
       } catch (error) {
         console.error('Error completing subscription after payment:', error);
-        return res.redirect(`/subscription-success?reference=${paymentRef}&status=error`);
+        // Redirect to billing page with error for failed subscription completion
+        return res.redirect(`/billing?error=subscription_completion_failed&reference=${paymentRef}`);
       }
     }
 

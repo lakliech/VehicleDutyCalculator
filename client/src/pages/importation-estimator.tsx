@@ -237,6 +237,23 @@ export default function ImportationEstimator() {
     },
     onError: (error) => {
       console.error('Import estimate calculation error:', error);
+      
+      // Check if it's a usage limit error
+      if (error.message && error.message.includes('Usage limit exceeded')) {
+        toast({
+          title: "Usage Limit Reached",
+          description: "You've reached your import estimate limit. Upgrade to Premium for unlimited calculations.",
+          variant: "destructive",
+        });
+        
+        // Redirect to billing page after short delay
+        setTimeout(() => {
+          window.location.href = '/billing';
+        }, 2000);
+        
+        return;
+      }
+      
       toast({
         title: "Calculation failed",
         description: error.message || "Please check your inputs and try again.",
@@ -526,6 +543,17 @@ export default function ImportationEstimator() {
                           />
                         </div>
                       </div>
+
+                      {/* Usage Limit Notice */}
+                      <Alert className="border-blue-200 bg-blue-50">
+                        <Info className="h-4 w-4 text-blue-600" />
+                        <AlertDescription className="text-blue-800">
+                          <strong>Free Plan:</strong> 2 import estimates per month. 
+                          <a href="/billing" className="underline ml-1 font-medium hover:text-blue-900">
+                            Upgrade to Premium
+                          </a> for unlimited calculations and advanced features.
+                        </AlertDescription>
+                      </Alert>
 
                       <Button
                         type="button"

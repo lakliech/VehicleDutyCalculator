@@ -66,6 +66,16 @@ export function Navigation() {
           <div className="flex items-center space-x-6">
             {/* Navigation Menu */}
             <nav className="hidden md:flex items-center space-x-6">
+              <Link href="/live-streaming" className="text-sm font-medium text-red-600 hover:text-red-700 transition-colors">
+                Live Streaming
+              </Link>
+              <Link href="/group-buying" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                Group Buying
+              </Link>
+              <Link href="/influencer-hub" className="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors">
+                Influencer Hub
+              </Link>
+              <div className="w-px h-6 bg-gray-300"></div>
               <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
                 About Us
               </Link>
@@ -146,6 +156,24 @@ export function Navigation() {
                       <Link href="/usage-dashboard" className="flex items-center px-3 py-2 text-sm hover:bg-gray-50 transition-colors">
                         <BarChart3 className="mr-2 h-4 w-4" />
                         <span>Usage Dashboard</span>
+                      </Link>
+                      
+                      {/* Social Commerce Features */}
+                      <div className="border-t border-gray-200 my-1"></div>
+                      <div className="px-3 py-2">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Social Commerce</p>
+                      </div>
+                      <Link href="/live-streaming" className="flex items-center px-3 py-2 text-sm hover:bg-red-50 transition-colors text-red-600">
+                        <MessageSquareText className="mr-2 h-4 w-4" />
+                        <span>Live Streaming</span>
+                      </Link>
+                      <Link href="/group-buying" className="flex items-center px-3 py-2 text-sm hover:bg-blue-50 transition-colors text-blue-600">
+                        <Users className="mr-2 h-4 w-4" />
+                        <span>Group Buying</span>
+                      </Link>
+                      <Link href="/influencer-hub" className="flex items-center px-3 py-2 text-sm hover:bg-purple-50 transition-colors text-purple-600">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Influencer Hub</span>
                       </Link>
                       
                       {/* Separator */}

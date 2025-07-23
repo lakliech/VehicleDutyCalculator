@@ -48,6 +48,11 @@ type ImportEstimateForm = z.infer<typeof importEstimateFormSchema>;
 export default function ImportationEstimator() {
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [manualVehicleData, setManualVehicleData] = useState<any>(null);
+  
+  // Debug log state changes
+  React.useEffect(() => {
+    console.log('manualVehicleData state changed:', manualVehicleData);
+  }, [manualVehicleData]);
   const [showResults, setShowResults] = useState(false);
   const [estimateResult, setEstimateResult] = useState<any>(null);
   const { toast } = useToast();

@@ -311,7 +311,10 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
         <div className="flex items-center space-x-2">
           <Switch
             checked={isManualEntry}
-            onCheckedChange={setIsManualEntry}
+            onCheckedChange={(checked) => {
+              console.log('Manual entry mode toggled:', checked);
+              setIsManualEntry(checked);
+            }}
             id="manual-entry-toggle"
           />
           <Label htmlFor="manual-entry-toggle" className="text-sm font-medium cursor-pointer">

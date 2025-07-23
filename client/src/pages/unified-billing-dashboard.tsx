@@ -124,6 +124,9 @@ export default function UnifiedBillingDashboard() {
 
   const formatAmount = (amount: string | number) => {
     const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (isNaN(num) || num === null || num === undefined) {
+      return 'KES 0';
+    }
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency: 'KES',
@@ -338,10 +341,10 @@ export default function UnifiedBillingDashboard() {
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <div className="text-2xl font-bold text-purple-600">
-                        {formatAmount(plan.monthlyPrice)}/month
+                        {formatAmount(plan.basePrice || plan.monthly_price || 0)}/month
                       </div>
                       <div className="text-sm text-gray-600">
-                        or {formatAmount(plan.yearlyPrice)}/year
+                        or {formatAmount((plan.basePrice || plan.monthly_price || 0) * 10)}/year (Save 17%)
                       </div>
                     </div>
 

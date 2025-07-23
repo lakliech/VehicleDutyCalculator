@@ -26,64 +26,58 @@ export class UnifiedBillingService {
    * Get all subscription plans with included products
    */
   static async getSubscriptionPlans() {
-    const plans = await db.select()
-      .from(subscriptionPlans)
-      .where(eq(subscriptionPlans.isActive, true))
-      .orderBy(subscriptionPlans.sortOrder);
+    try {
+      const plans = await db.select()
+        .from(subscriptionPlans)
+        .where(eq(subscriptionPlans.isActive, true))
+        .orderBy(subscriptionPlans.sortOrder);
 
-    // Get products for each plan
-    const plansWithProducts = await Promise.all(plans.map(async (plan) => {
-      if (plan.productIds && plan.productIds.length > 0) {
-        const planProducts = await db.select()
-          .from(products)
-          .where(and(
-            inArray(products.id, plan.productIds),
-            eq(products.isActive, true)
-          ));
-        
-        return { ...plan, products: planProducts };
-      }
-      return { ...plan, products: [] };
-    }));
-
-    return plansWithProducts;
+      // Return plans with basic structure expected by frontend
+      return plans.map(plan => ({
+        ...plan,
+        monthly_price: plan.priceKes, // Map priceKes to expected monthly_price
+        products: []
+      }));
+    } catch (error) {
+      console.error('Error fetching subscription plans:', error);
+      return [];
+    }
   }
 
   /**
    * Get user's current subscription with full details
    */
   static async getUserSubscription(userId: string) {
-    const subscriptions = await db.select({
-      subscription: userSubscriptions,
-      plan: subscriptionPlans
-    })
-    .from(userSubscriptions)
-    .leftJoin(subscriptionPlans, eq(userSubscriptions.planId, subscriptionPlans.id))
-    .where(and(
-      eq(userSubscriptions.userId, userId),
-      eq(userSubscriptions.status, 'active'),
-      gte(userSubscriptions.currentPeriodEnd, new Date())
-    ))
-    .limit(1);
+    try {
+      const subscriptions = await db.select({
+        subscription: userSubscriptions,
+        plan: subscriptionPlans
+      })
+      .from(userSubscriptions)
+      .leftJoin(subscriptionPlans, eq(userSubscriptions.planId, subscriptionPlans.id))
+      .where(and(
+        eq(userSubscriptions.userId, userId),
+        eq(userSubscriptions.status, 'active'),
+        gte(userSubscriptions.endDate, new Date())
+      ))
+      .limit(1);
 
-    if (subscriptions.length === 0) return null;
+      if (subscriptions.length === 0) return null;
 
-    const { subscription, plan } = subscriptions[0];
-    
-    if (!plan) return { subscription, plan: null, products: [] };
-
-    // Get products included in the plan
-    let planProducts = [];
-    if (plan.productIds && plan.productIds.length > 0) {
-      planProducts = await db.select()
-        .from(products)
-        .where(and(
-          inArray(products.id, plan.productIds),
-          eq(products.isActive, true)
-        ));
+      const { subscription, plan } = subscriptions[0];
+      
+      return { 
+        subscription: {
+          ...subscription,
+          subscription_type: plan?.name || 'Unknown'
+        }, 
+        plan, 
+        products: [] 
+      };
+    } catch (error) {
+      console.error('Error fetching user subscription:', error);
+      return null;
     }
-
-    return { subscription, plan, products: planProducts };
   }
 
   /**
@@ -220,38 +214,54 @@ export class UnifiedBillingService {
    * Get user account summary
    */
   static async getAccountSummary(userId: string) {
-    // Get account info
-    const accounts = await db.select()
-      .from(userAccounts)
-      .where(eq(userAccounts.userId, userId))
-      .limit(1);
+    try {
+      // Get account info
+      const accounts = await db.select()
+        .from(userAccounts)
+        .where(eq(userAccounts.userId, userId))
+        .limit(1);
 
-    let account = accounts[0];
-    if (!account) {
-      // Create account if doesn't exist
-      const newAccount = await db.insert(userAccounts).values({
-        userId,
-        balance: '0.00',
-        status: 'active'
-      }).returning();
-      account = newAccount[0];
+      let account = accounts[0];
+      if (!account) {
+        // Create account if doesn't exist with proper account number
+        const accountCount = await db.select().from(userAccounts);
+        const accountNumber = `ACC${String(accountCount.length + 1).padStart(6, '0')}`;
+        
+        const newAccount = await db.insert(userAccounts).values({
+          userId,
+          accountNumber,
+          creditBalance: 0,
+          totalEarned: 0,
+          totalSpent: 0,
+          accountType: 'standard',
+          status: 'active'
+        }).returning();
+        account = newAccount[0];
+      }
+
+      // Get subscription info
+      const subscription = await this.getUserSubscription(userId);
+
+      // Get recent transactions
+      const recentTransactions = await db.select()
+        .from(paymentTransactions)
+        .where(eq(paymentTransactions.userId, userId))
+        .orderBy(desc(paymentTransactions.createdAt))
+        .limit(5);
+
+      return {
+        account,
+        subscription,
+        recentTransactions
+      };
+    } catch (error) {
+      console.error('Error fetching account summary:', error);
+      return {
+        account: null,
+        subscription: null,
+        recentTransactions: []
+      };
     }
-
-    // Get subscription info
-    const subscription = await this.getUserSubscription(userId);
-
-    // Get recent transactions
-    const recentTransactions = await db.select()
-      .from(paymentTransactions)
-      .where(eq(paymentTransactions.userId, userId))
-      .orderBy(desc(paymentTransactions.createdAt))
-      .limit(5);
-
-    return {
-      account,
-      subscription,
-      recentTransactions
-    };
   }
 
   /**

@@ -40,24 +40,16 @@ export class PaystackService {
     const reference = `pay_${randomUUID()}`;
     
     try {
-      // Initialize payment with Paystack - only send essential data
+      // Initialize payment with Paystack - exact format from curl example
       const paystackData: any = {
-        reference,
-        amount: params.amount * 100, // Convert to kobo
         email: params.email,
-        currency: params.currency || 'KES',
-        channels: params.channels || ['card', 'mobile_money', 'ussd', 'bank_transfer'],
-        metadata: {
-          // Only send essential metadata to Paystack
-          user_id: params.userId,
-          transaction_type: params.transactionType,
-          // Include only necessary custom metadata
-          ...(params.metadata && {
-            plan_id: params.metadata.plan_id,
-            billing_type: params.metadata.billing_type
-          })
-        }
+        amount: (params.amount * 100).toString() // Convert to kobo as string like in example
       };
+
+      // Only add essential fields to match the simple curl format
+      if (params.currency && params.currency !== 'NGN') {
+        paystackData.currency = params.currency;
+      }
 
       // Add callback URL if provided (for webhook notifications)
       if (params.callbackUrl) {

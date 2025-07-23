@@ -212,13 +212,13 @@ export class UnifiedBillingService {
         WHERE user_id = $1 AND status = 'active'
       `, [userId]);
 
-      // Create new subscription
+      // Create new subscription (without payment_reference column that doesn't exist)
       const result = await pool.query(`
         INSERT INTO user_product_subscriptions 
-        (user_id, product_id, status, subscription_type, current_period_start, current_period_end, next_billing_date, payment_reference)
-        VALUES ($1, $2, 'active', $3, NOW(), $4, $4, $5)
+        (user_id, product_id, status, subscription_type, current_period_start, current_period_end, next_billing_date)
+        VALUES ($1, $2, 'active', $3, NOW(), $4, $4)
         RETURNING *
-      `, [userId, planId, billingType, endDate.toISOString(), paymentReference]);
+      `, [userId, planId, billingType, endDate.toISOString()]);
 
       return { success: true, subscription: result.rows[0] };
     } catch (error) {

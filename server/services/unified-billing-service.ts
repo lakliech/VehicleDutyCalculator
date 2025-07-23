@@ -1,8 +1,8 @@
 import { db } from '../db';
 import { 
   products,
-  subscriptionPlans, 
-  userSubscriptions, 
+  productCategories,
+  userProductSubscriptions, 
   userProductAccess,
   appUsers,
   paymentTransactions,
@@ -23,20 +23,24 @@ export class UnifiedBillingService {
   // ========================================
 
   /**
-   * Get all subscription plans with included products
+   * Get all subscription plans from products table
    */
   static async getSubscriptionPlans() {
     try {
+      // Get subscription plans from products table (category_id = 2)
       const plans = await db.select()
-        .from(subscriptionPlans)
-        .where(eq(subscriptionPlans.isActive, true))
-        .orderBy(subscriptionPlans.sortOrder);
+        .from(products)
+        .where(and(
+          eq(products.categoryId, 2), // Subscription Plans category
+          eq(products.isActive, true)
+        ))
+        .orderBy(products.sortOrder);
 
-      // Return plans with basic structure expected by frontend
+      // Return plans with structure expected by frontend
       return plans.map(plan => ({
         ...plan,
-        monthly_price: plan.priceKes, // Map priceKes to expected monthly_price
-        products: []
+        monthly_price: plan.basePrice, // Map basePrice to expected monthly_price
+        features: [], // Will be populated from product features if needed
       }));
     } catch (error) {
       console.error('Error fetching subscription plans:', error);
@@ -50,29 +54,29 @@ export class UnifiedBillingService {
   static async getUserSubscription(userId: string) {
     try {
       const subscriptions = await db.select({
-        subscription: userSubscriptions,
-        plan: subscriptionPlans
+        subscription: userProductSubscriptions,
+        product: products
       })
-      .from(userSubscriptions)
-      .leftJoin(subscriptionPlans, eq(userSubscriptions.planId, subscriptionPlans.id))
+      .from(userProductSubscriptions)
+      .leftJoin(products, eq(userProductSubscriptions.productId, products.id))
       .where(and(
-        eq(userSubscriptions.userId, userId),
-        eq(userSubscriptions.status, 'active'),
-        gte(userSubscriptions.endDate, new Date())
+        eq(userProductSubscriptions.userId, userId),
+        eq(userProductSubscriptions.status, 'active'),
+        gte(userProductSubscriptions.endDate, new Date())
       ))
       .limit(1);
 
       if (subscriptions.length === 0) return null;
 
-      const { subscription, plan } = subscriptions[0];
+      const { subscription, product } = subscriptions[0];
       
       return { 
         subscription: {
           ...subscription,
-          subscription_type: plan?.name || 'Unknown'
+          subscription_type: product?.name || 'Free Plan'
         }, 
-        plan, 
-        products: [] 
+        plan: product, 
+        products: product ? [product] : [] 
       };
     } catch (error) {
       console.error('Error fetching user subscription:', error);

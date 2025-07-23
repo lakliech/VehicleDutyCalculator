@@ -9930,6 +9930,15 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   const unifiedBillingRoutes = await import('./routes/unified-billing-routes');
   app.use('/api/unified-billing', unifiedBillingRoutes.default);
   console.log('Payment routes registered successfully');
+  
+  // Unified Payment Handler
+  try {
+    const paymentHandler = await import('./routes/payment-handler');
+    app.use('/api/payment', paymentHandler.default);
+    console.log("Payment handler routes registered successfully");
+  } catch (error) {
+    console.error('Error loading payment handler routes:', error);
+  }
 
   // ========================================
   // VEHICLE REFERENCE ENDPOINTS

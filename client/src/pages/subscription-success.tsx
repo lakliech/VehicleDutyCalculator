@@ -25,14 +25,14 @@ export default function SubscriptionSuccess() {
           throw new Error('Payment reference not found');
         }
 
-        // Verify payment with backend
-        const response = await apiRequest('POST', '/api/unified-billing/verify-payment', {
-          reference
-        });
+        // Verify payment with backend using new unified API
+        const response = await apiRequest('GET', `/api/payment/verify/${reference}`, {});
 
-        if (response.success) {
+        const data = await response.json();
+        
+        if (data.success) {
           setVerificationStatus('success');
-          setSubscriptionDetails(response.subscription);
+          setSubscriptionDetails(data.subscription);
           toast({
             title: "Subscription Activated",
             description: "Your subscription has been successfully activated!",

@@ -215,33 +215,19 @@ export class PaystackService {
       throw new Error('Product ID required for subscription payment');
     }
 
-    // Activate or extend subscription
-    const subscription = await storage.getUserProductSubscription(transaction.userId, transaction.productId);
-    if (subscription) {
-      // Extend existing subscription
-      const endDate = new Date(subscription.endDate || subscription.createdAt);
-      const billing = await storage.getProductPricing(transaction.productId);
-      const newEndDate = new Date(endDate.getTime() + (billing?.billingCycle || 30) * 24 * 60 * 60 * 1000);
-      
-      await storage.updateUserProductSubscription(subscription.id, {
-        endDate: newEndDate,
-        isActive: true,
-        autoRenew: true
-      });
-    } else {
-      // Create new subscription
-      const billing = await storage.getProductPricing(transaction.productId);
-      const endDate = new Date(Date.now() + (billing?.billingCycle || 30) * 24 * 60 * 60 * 1000);
-      
-      await storage.createUserProductSubscription({
-        userId: transaction.userId,
-        productId: transaction.productId,
-        pricingId: billing?.id,
-        endDate,
-        isActive: true,
-        autoRenew: true
-      });
-    }
+    // Use UnifiedBillingService to complete subscription
+    const { UnifiedBillingService } = await import('./unified-billing-service');
+    
+    // Extract billing type from metadata
+    const metadata = transaction.metadata as any;
+    const billingType = metadata?.billing_type || 'monthly';
+    
+    await UnifiedBillingService.completeSubscription(
+      transaction.userId,
+      transaction.productId,
+      billingType,
+      transaction.reference
+    );
   }
 
   /**

@@ -134,59 +134,102 @@ export default function UnifiedBillingDashboard() {
       const data = await response.json();
       
       if (data.success && data.paymentUrl) {
-        // Open Paystack payment in popup window for inline handling
-        const paymentWindow = window.open(
-          data.paymentUrl,
-          'paystack-payment',
-          'width=500,height=700,scrollbars=yes,resizable=yes'
-        );
-
-        // Poll for payment completion
-        const pollPayment = setInterval(async () => {
-          // Check if popup was closed
-          if (paymentWindow?.closed) {
-            clearInterval(pollPayment);
-            
-            // Verify payment after popup closes
-            try {
-              const verifyResponse = await apiRequest('POST', '/api/payments/verify', { 
-                paystackReference: data.reference 
-              });
-              const verifyData = await verifyResponse.json();
-              
-              if (verifyData.success) {
-                toast({
-                  title: "Subscription Activated!",
-                  description: "Your subscription has been successfully activated.",
+        // Use Paystack inline payment for better UX
+        const PaystackPop = (window as any).PaystackPop;
+        
+        if (PaystackPop) {
+          const handler = PaystackPop.setup({
+            key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_b8a851b5094eaffe1dce62a01e505d6d8c9c9e7c',
+            email: data.customerEmail || 'user@example.com',
+            amount: data.plan.amount * 100, // Paystack expects amount in kobo
+            currency: 'NGN',
+            ref: data.reference,
+            callback: async function(response: any) {
+              // Payment successful, verify on server
+              try {
+                const verifyResponse = await apiRequest('POST', '/api/payments/verify', { 
+                  paystackReference: response.reference 
                 });
+                const verifyData = await verifyResponse.json();
                 
-                // Refresh the data to show updated subscription
-                window.location.reload();
-              } else {
+                if (verifyData.success) {
+                  toast({
+                    title: "Subscription Activated!",
+                    description: "Your subscription has been successfully activated.",
+                  });
+                  
+                  // Refresh the data to show updated subscription
+                  queryClient.invalidateQueries({ queryKey: ['/api/unified-billing/account-summary'] });
+                  queryClient.invalidateQueries({ queryKey: ['/api/unified-billing/product-access'] });
+                } else {
+                  throw new Error('Payment verification failed');
+                }
+              } catch (error) {
+                console.error('Payment verification error:', error);
                 toast({
-                  title: "Payment Verification Failed",
-                  description: "Please check your subscription status or contact support.",
+                  title: "Verification Error",
+                  description: "Payment successful but verification failed. Please contact support.",
                   variant: "destructive",
                 });
               }
-            } catch (error) {
-              console.error('Payment verification error:', error);
+            },
+            onClose: function() {
               toast({
-                title: "Verification Error",
-                description: "Please refresh the page to check your subscription status.",
+                title: "Payment Cancelled",
+                description: "You cancelled the payment process.",
                 variant: "destructive",
               });
             }
-          }
-        }, 2000);
+          });
+          
+          handler.openIframe();
+        } else {
+          // Fallback to popup window if Paystack inline is not available
+          const paymentWindow = window.open(
+            data.paymentUrl,
+            'paystack-payment',
+            'width=500,height=700,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no'
+          );
 
-        // Cleanup polling after 10 minutes (safety measure)
-        setTimeout(() => {
-          clearInterval(pollPayment);
-          if (paymentWindow && !paymentWindow.closed) {
-            paymentWindow.close();
+          if (!paymentWindow || paymentWindow.closed || typeof paymentWindow.closed === 'undefined') {
+            // Final fallback: redirect to payment page
+            window.location.href = data.paymentUrl;
+            return;
           }
-        }, 600000);
+
+          // Poll for payment completion
+          const pollPayment = setInterval(async () => {
+            if (paymentWindow?.closed) {
+              clearInterval(pollPayment);
+              
+              try {
+                const verifyResponse = await apiRequest('POST', '/api/payments/verify', { 
+                  paystackReference: data.reference 
+                });
+                const verifyData = await verifyResponse.json();
+                
+                if (verifyData.success) {
+                  toast({
+                    title: "Subscription Activated!",
+                    description: "Your subscription has been successfully activated.",
+                  });
+                  
+                  queryClient.invalidateQueries({ queryKey: ['/api/unified-billing/account-summary'] });
+                  queryClient.invalidateQueries({ queryKey: ['/api/unified-billing/product-access'] });
+                }
+              } catch (error) {
+                console.error('Payment verification error:', error);
+              }
+            }
+          }, 2000);
+
+          setTimeout(() => {
+            clearInterval(pollPayment);
+            if (paymentWindow && !paymentWindow.closed) {
+              paymentWindow.close();
+            }
+          }, 600000);
+        }
         
       } else {
         throw new Error(data.error || 'No payment URL received');

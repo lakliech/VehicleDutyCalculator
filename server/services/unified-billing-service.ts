@@ -176,6 +176,7 @@ export class UnifiedBillingService {
         success: true,
         paymentUrl: paymentResult.paymentUrl,
         reference: paymentResult.reference,
+        customerEmail: userEmail,
         plan: {
           id: plan.id,
           name: plan.name,

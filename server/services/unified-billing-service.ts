@@ -161,13 +161,15 @@ export class UnifiedBillingService {
         amount: finalAmount,
         currency: 'KES',
         email: userEmail,
+        productId: planId, // Add productId for PaystackService compatibility
         transactionType: 'subscription',
         description: `Subscription to ${plan.name} - ${billingType} billing`,
         metadata: {
           plan_id: planId,
           plan_name: plan.name,
           billing_type: billingType,
-          subscription_type: 'new_subscription'
+          subscription_type: 'new_subscription',
+          product_id: planId // Also add to metadata for backward compatibility
         },
         redirectUrl: `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/billing?payment=success`
       });

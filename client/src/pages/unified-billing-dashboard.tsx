@@ -132,26 +132,38 @@ export default function UnifiedBillingDashboard() {
       });
       
       const data = await response.json();
+      console.log('Subscribe response data:', data);
+      
+      // Validate we have required data for inline payment
+      if (!data.customerEmail) {
+        toast({
+          title: "Configuration Error",
+          description: "Customer email is missing. Please refresh and try again.",
+          variant: "destructive",
+        });
+        return;
+      }
       
       if (data.success && data.paymentUrl) {
         // Use Paystack inline payment for better UX
         const PaystackPop = (window as any).PaystackPop;
         
         if (PaystackPop) {
-          const handler = PaystackPop.setup({
-            key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_b8a851b5094eaffe1dce62a01e505d6d8c9c9e7c',
-            email: data.customerEmail || 'user@example.com',
+          const paymentConfig = {
+            key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+            email: data.customerEmail,
             amount: data.plan.amount * 100, // Paystack expects amount in kobo
-            currency: 'NGN',
+            currency: 'KES',
             ref: data.reference,
-            callback: async function(response: any) {
+            callback: function(response: any) {
               // Payment successful, verify on server
-              try {
-                const verifyResponse = await apiRequest('POST', '/api/payments/verify', { 
-                  paystackReference: response.reference 
-                });
-                const verifyData = await verifyResponse.json();
-                
+              console.log('Payment successful:', response);
+              
+              apiRequest('POST', '/api/payments/verify', { 
+                paystackReference: response.reference 
+              })
+              .then(res => res.json())
+              .then(verifyData => {
                 if (verifyData.success) {
                   toast({
                     title: "Subscription Activated!",
@@ -164,14 +176,15 @@ export default function UnifiedBillingDashboard() {
                 } else {
                   throw new Error('Payment verification failed');
                 }
-              } catch (error) {
+              })
+              .catch(error => {
                 console.error('Payment verification error:', error);
                 toast({
                   title: "Verification Error",
                   description: "Payment successful but verification failed. Please contact support.",
                   variant: "destructive",
                 });
-              }
+              });
             },
             onClose: function() {
               toast({
@@ -180,8 +193,10 @@ export default function UnifiedBillingDashboard() {
                 variant: "destructive",
               });
             }
-          });
+          };
           
+          console.log('Paystack config:', paymentConfig);
+          const handler = PaystackPop.setup(paymentConfig);
           handler.openIframe();
         } else {
           // Fallback to popup window if Paystack inline is not available

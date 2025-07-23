@@ -350,9 +350,10 @@ export class UnifiedBillingService {
 
       // Get account credits (if applicable)  
       const creditsResult = await pool.query(`
-        SELECT COALESCE(SUM(amount), 0) as total_credits
-        FROM account_credit_transactions 
-        WHERE account_id = $1 AND type = 'credit'
+        SELECT COALESCE(SUM(act.amount), 0) as total_credits
+        FROM account_credit_transactions act
+        INNER JOIN user_accounts ua ON act.account_id = ua.id
+        WHERE ua.user_id = $1 AND act.type = 'credit'
       `, [userId]);
 
       const totalCredits = parseFloat(creditsResult.rows[0]?.total_credits || '0');

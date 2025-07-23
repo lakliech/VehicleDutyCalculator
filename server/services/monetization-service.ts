@@ -335,20 +335,25 @@ export class MonetizationService {
    * Get current month usage for feature
    */
   private static async getCurrentUsage(userId: string, featureType: string): Promise<number> {
-    const now = new Date();
-    const periodStart = startOfMonth(now);
-    const periodEnd = endOfMonth(now);
+    try {
+      const now = new Date();
+      const periodStart = startOfMonth(now);
+      const periodEnd = endOfMonth(now);
 
-    const result = await db.select({ total: sum(usageTracking.usageCount) })
-      .from(usageTracking)
-      .where(and(
-        eq(usageTracking.userId, userId),
-        eq(usageTracking.featureType, featureType),
-        gte(usageTracking.periodStart, periodStart),
-        lte(usageTracking.periodEnd, periodEnd)
-      ));
+      const result = await db.select({ total: sum(usageTracking.usageCount) })
+        .from(usageTracking)
+        .where(and(
+          eq(usageTracking.userId, userId),
+          eq(usageTracking.featureType, featureType),
+          gte(usageTracking.usageDate, periodStart.toISOString().split('T')[0]),
+          lte(usageTracking.usageDate, periodEnd.toISOString().split('T')[0])
+        ));
 
-    return parseInt(result[0]?.total || '0');
+      return parseInt(result[0]?.total || '0');
+    } catch (error) {
+      console.error('Error fetching current usage:', error);
+      return 0; // Return 0 to allow usage when there's an error
+    }
   }
 
   /**

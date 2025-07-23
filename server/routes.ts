@@ -2216,8 +2216,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // For proration reference vehicles (make only search), ensure vehicles have CRSP values and engine capacity
-      if (make && !model && !engineCapacity) {
+      // For proration reference vehicles, ensure vehicles have CRSP values and engine capacity
+      // Remove make-only restriction to allow any model for proration
+      if (!model && !engineCapacity) {
         whereConditions.push(sql`(${vehicleReferences.crspKes} IS NOT NULL OR ${vehicleReferences.crsp2020} IS NOT NULL)`);
         whereConditions.push(sql`${vehicleReferences.engineCapacity} IS NOT NULL`);
       }

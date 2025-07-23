@@ -351,6 +351,18 @@ The platform now features a sophisticated role-based navigation system that dyna
 
 ## Changelog
 
+**ENHANCED PRORATION LOGIC FOR DUTY COMPUTATION - January 23, 2025:**
+- **Problem Solved**: Removed strict filtering that limited users to same-make vehicles for proration calculations
+- **Backend Enhancement**: Modified `/api/vehicle-references/search` endpoint to allow any vehicle model for reference calculations
+- **Frontend Enhancement**: Updated vehicle selector to fetch all available vehicles instead of restricting by make
+- **User Experience**: Users can now select any vehicle from the database as reference for CRSP proration
+- **Technical Implementation**:
+  - Removed make-only restriction in server-side vehicle search endpoint
+  - Updated frontend query to fetch all reference vehicles regardless of make
+  - Enhanced UI messaging to clarify users can pick any vehicle model
+  - Improved error handling for empty reference vehicle scenarios
+- **Result**: More flexible and accurate proration calculations using any suitable reference vehicle from database
+
 **SOCIAL COMMERCE FLOATING ACTION BUTTON IMPLEMENTATION - January 23, 2025:**
 - **Problem Solved**: Replaced social commerce tiles with modern floating action button for better homepage UX
 - **Floating Button Features**:

@@ -121,14 +121,15 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   });
 
   // Search for reference vehicles for proration (manual entry mode)
+  // Allow any vehicle model for proration, not just same make
   const { data: referenceVehicles = [] } = useQuery<VehicleReference[]>({
-    queryKey: [`/api/vehicle-references/search`, manualMake, 'reference'],
+    queryKey: [`/api/vehicle-references/search`, 'reference-all'],
     queryFn: async () => {
-      const response = await fetch(`/api/vehicle-references/search?make=${manualMake}`);
+      const response = await fetch(`/api/vehicle-references/search`);
       if (!response.ok) throw new Error('Failed to fetch reference vehicles');
       return response.json();
     },
-    enabled: isManualEntry && !!manualMake,
+    enabled: isManualEntry,
   });
 
   // Calculate proration when manual entry is complete
@@ -360,7 +361,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
                 Select Reference Vehicle for Proration <span className="text-red-500">*</span>
               </Label>
               <p className="text-xs text-gray-600 mb-2">
-                Choose a vehicle from the database to calculate prorated CRSP value
+                Choose any vehicle from the database to calculate prorated CRSP value. The system will use this vehicle's CRSP and engine capacity to calculate your vehicle's estimated value.
               </p>
               <Select
                 value={selectedReferenceVehicle?.id?.toString() || ""}
@@ -396,11 +397,11 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
           )}
 
           {/* No reference vehicles found */}
-          {manualMake && referenceVehicles.length === 0 && (
+          {isManualEntry && referenceVehicles.length === 0 && (
             <Alert className="p-3 bg-red-50 border-red-200">
               <AlertCircle className="h-4 w-4 text-red-600" />
               <AlertDescription className="text-sm text-red-800 ml-2">
-                No reference vehicles found for {manualMake}. Cannot calculate prorated CRSP value.
+                No reference vehicles available for proration calculation. Database may be empty.
               </AlertDescription>
             </Alert>
           )}

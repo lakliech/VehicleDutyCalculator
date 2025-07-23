@@ -236,6 +236,13 @@ export class PaystackService {
    * Process subscription payment
    */
   private async processSubscriptionPayment(transaction: PaymentTransaction) {
+    console.log('Processing subscription payment:', {
+      transactionId: transaction.id,
+      userId: transaction.userId,
+      productId: transaction.productId,
+      metadata: transaction.metadata
+    });
+
     if (!transaction.productId) {
       throw new Error('Product ID required for subscription payment');
     }
@@ -247,12 +254,21 @@ export class PaystackService {
     const metadata = transaction.metadata as any;
     const billingType = metadata?.billing_type || 'monthly';
     
-    await UnifiedBillingService.completeSubscription(
+    console.log('Completing subscription with:', {
+      userId: transaction.userId,
+      productId: transaction.productId,
+      billingType,
+      reference: transaction.reference
+    });
+
+    const result = await UnifiedBillingService.completeSubscription(
       transaction.userId,
       transaction.productId,
       billingType,
       transaction.reference
     );
+
+    console.log('Subscription completion result:', result);
   }
 
   /**

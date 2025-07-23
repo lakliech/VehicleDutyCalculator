@@ -71,6 +71,8 @@ export class UnifiedBillingService {
    */
   static async getUserSubscription(userId: string) {
     try {
+      console.log('Getting user subscription for:', userId);
+
       // Check for user subscription in user_product_subscriptions table
       const result = await pool.query(`
         SELECT ups.*, p.name as plan_name, p.base_price 
@@ -80,12 +82,18 @@ export class UnifiedBillingService {
         LIMIT 1
       `, [userId]);
 
+      console.log('Subscription query result:', {
+        rowCount: result.rows.length,
+        rows: result.rows
+      });
+
       if (result.rows.length === 0) {
+        console.log('No active subscription found for user:', userId);
         return null;
       }
 
       const subscription = result.rows[0];
-      return {
+      const subscriptionData = {
         subscription: {
           ...subscription,
           subscription_type: subscription.plan_name || 'Free Plan'
@@ -96,6 +104,9 @@ export class UnifiedBillingService {
           basePrice: parseFloat(subscription.base_price || '0')
         }
       };
+
+      console.log('Returning subscription data:', subscriptionData);
+      return subscriptionData;
     } catch (error) {
       console.error('Error fetching user subscription:', error);
       return null;
@@ -203,6 +214,8 @@ export class UnifiedBillingService {
    */
   static async completeSubscription(userId: string, planId: number, billingType: string, paymentReference: string) {
     try {
+      console.log('Completing subscription for user:', userId, 'plan:', planId, 'billing:', billingType);
+
       // Calculate subscription period
       const endDate = new Date();
       if (billingType === 'yearly') {
@@ -211,20 +224,30 @@ export class UnifiedBillingService {
         endDate.setMonth(endDate.getMonth() + 1);
       }
 
+      console.log('Subscription period:', {
+        start: new Date().toISOString(),
+        end: endDate.toISOString()
+      });
+
       // Cancel any existing active subscriptions
-      await pool.query(`
+      const cancelResult = await pool.query(`
         UPDATE user_product_subscriptions 
         SET status = 'cancelled', current_period_end = NOW()
         WHERE user_id = $1 AND status = 'active'
+        RETURNING id
       `, [userId]);
 
-      // Create new subscription (without payment_reference column that doesn't exist)
+      console.log('Cancelled existing subscriptions:', cancelResult.rowCount);
+
+      // Create new subscription
       const result = await pool.query(`
         INSERT INTO user_product_subscriptions 
         (user_id, product_id, status, subscription_type, current_period_start, current_period_end, next_billing_date)
         VALUES ($1, $2, 'active', $3, NOW(), $4, $4)
         RETURNING *
       `, [userId, planId, billingType, endDate.toISOString()]);
+
+      console.log('Created new subscription:', result.rows[0]);
 
       return { success: true, subscription: result.rows[0] };
     } catch (error) {
@@ -318,9 +341,13 @@ export class UnifiedBillingService {
    */
   static async getAccountSummary(userId: string) {
     try {
+      console.log('Getting account summary for user:', userId);
+
       // Get current subscription
       const subscription = await this.getUserSubscription(userId);
       
+      console.log('Account summary - subscription data:', subscription);
+
       // Get account credits (if applicable)  
       const creditsResult = await pool.query(`
         SELECT COALESCE(SUM(amount), 0) as total_credits
@@ -330,11 +357,14 @@ export class UnifiedBillingService {
 
       const totalCredits = parseFloat(creditsResult.rows[0]?.total_credits || '0');
 
-      return {
+      const summary = {
         subscription,
         totalCredits,
         accountStatus: subscription ? 'active' : 'free'
       };
+
+      console.log('Final account summary:', summary);
+      return summary;
     } catch (error) {
       console.error('Error fetching account summary:', error);
       return {

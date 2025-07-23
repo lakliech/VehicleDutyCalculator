@@ -125,8 +125,8 @@ export default function UnifiedBillingDashboard() {
 
   const handleSubscribe = async (planId: number, billingType: string) => {
     try {
-      // Initialize subscription payment using new unified API
-      const response = await apiRequest("POST", "/api/payments/subscribe", { 
+      // Initialize subscription payment using unified billing API
+      const response = await apiRequest("POST", "/api/unified-billing/subscribe", { 
         planId, 
         billingType 
       });

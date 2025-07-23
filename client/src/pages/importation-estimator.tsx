@@ -47,6 +47,7 @@ type ImportEstimateForm = z.infer<typeof importEstimateFormSchema>;
 
 export default function ImportationEstimator() {
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const [manualVehicleData, setManualVehicleData] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);
   const [estimateResult, setEstimateResult] = useState<any>(null);
   const { toast } = useToast();
@@ -161,6 +162,20 @@ export default function ImportationEstimator() {
     }
   }, [selectedVehicle, form]);
 
+  // Auto-populate vehicle details when manual vehicle data is available
+  React.useEffect(() => {
+    if (manualVehicleData) {
+      // Clear previous results when new manual vehicle data is available
+      setEstimateResult(null);
+      setShowResults(false);
+      
+      // Update form with manual vehicle details
+      form.setValue("make", manualVehicleData.make);
+      form.setValue("model", manualVehicleData.model);
+      form.setValue("engineCapacity", manualVehicleData.engineCapacity);
+    }
+  }, [manualVehicleData, form]);
+
   // Calculate import estimate mutation
   const calculateEstimate = useMutation({
     mutationFn: async (data: ImportEstimateForm) => {
@@ -204,7 +219,25 @@ export default function ImportationEstimator() {
   });
 
   const onSubmit = (data: ImportEstimateForm) => {
-    calculateEstimate.mutate(data);
+    // Include manual vehicle data if available
+    const submitData = {
+      ...data,
+      ...(manualVehicleData && {
+        manualVehicleData: {
+          make: manualVehicleData.make,
+          model: manualVehicleData.model,
+          engineCapacity: manualVehicleData.engineCapacity,
+          proratedCrsp: manualVehicleData.proratedCrsp,
+          referenceVehicle: manualVehicleData.referenceVehicle
+        }
+      }),
+      ...(selectedVehicle && {
+        vehicleId: selectedVehicle.id,
+        crspValue: selectedVehicle.crspKes || selectedVehicle.crsp2020
+      })
+    };
+    
+    calculateEstimate.mutate(submitData);
   };
 
   const formatCurrency = (amount: number) => {
@@ -258,6 +291,16 @@ export default function ImportationEstimator() {
                               setShowResults(false);
                             }
                             setSelectedVehicle(vehicle);
+                            setManualVehicleData(null); // Clear manual data when database vehicle selected
+                          }}
+                          onManualVehicleData={(data) => {
+                            // Clear results immediately when manual vehicle data changes
+                            if (data !== manualVehicleData) {
+                              setEstimateResult(null);
+                              setShowResults(false);
+                            }
+                            setManualVehicleData(data);
+                            setSelectedVehicle(null); // Clear database vehicle when manual data entered
                           }}
                         />
                         

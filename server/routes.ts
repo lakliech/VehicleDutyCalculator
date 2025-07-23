@@ -5133,23 +5133,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const exchangeRateNum = parseFloat(estimateData.exchangeRate);
       const cifKes = cifAmountNum * exchangeRateNum;
 
-      // Get CRSP value from vehicle reference table for duty calculation
-      const vehicleRef = await db
-        .select()
-        .from(vehicleReferences)
-        .where(
-          and(
-            eq(vehicleReferences.make, estimateData.make),
-            eq(vehicleReferences.model, estimateData.model),
-            eq(vehicleReferences.engineCapacity, estimateData.engineCapacity)
-          )
-        )
-        .limit(1);
-
+      // Handle CRSP value - check for manual vehicle data first
       let crspValue = 0;
-      if (vehicleRef.length > 0) {
-        // Use current CRSP if available, fallback to CRSP2020
-        crspValue = vehicleRef[0].crspKes || vehicleRef[0].crsp2020 || 0;
+      
+      // Check if manual vehicle data with proration is provided
+      if (req.body.manualVehicleData && req.body.manualVehicleData.proratedCrsp) {
+        crspValue = parseFloat(req.body.manualVehicleData.proratedCrsp);
+        console.log('Using prorated CRSP from manual vehicle data:', crspValue);
+      } else if (req.body.crspValue) {
+        // Direct CRSP value from selected vehicle
+        crspValue = parseFloat(req.body.crspValue);
+        console.log('Using CRSP from selected vehicle:', crspValue);
+      } else {
+        // Fallback: Get CRSP value from vehicle reference table for duty calculation
+        const vehicleRef = await db
+          .select()
+          .from(vehicleReferences)
+          .where(
+            and(
+              eq(vehicleReferences.make, estimateData.make),
+              eq(vehicleReferences.model, estimateData.model),
+              eq(vehicleReferences.engineCapacity, estimateData.engineCapacity)
+            )
+          )
+          .limit(1);
+
+        if (vehicleRef.length > 0) {
+          // Use current CRSP if available, fallback to CRSP2020
+          crspValue = vehicleRef[0].crspKes || vehicleRef[0].crsp2020 || 0;
+          console.log('Using CRSP from database lookup:', crspValue);
+        }
       }
 
       if (crspValue === 0) {

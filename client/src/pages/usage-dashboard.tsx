@@ -1,8 +1,10 @@
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Calculator, 
   Banknote, 
@@ -10,14 +12,17 @@ import {
   Zap, 
   TrendingUp, 
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  Info
 } from 'lucide-react';
+import { Link } from 'wouter';
 
 interface UsageLimits {
   allowed: boolean;
   currentUsage: number;
   limit: number | null;
   remaining?: number | null;
+  plan: string;
 }
 
 const featureTypes = [
@@ -54,35 +59,34 @@ const featureTypes = [
 ];
 
 export default function UsageDashboard() {
-  // Demo usage data for demonstration
-  const demoUsageData = {
-    duty_calculation: { allowed: true, currentUsage: 47, limit: 500 },
-    valuation: { allowed: true, currentUsage: 23, limit: 200 },
-    import_estimate: { allowed: true, currentUsage: 8, limit: 100 },
-    api_call: { allowed: true, currentUsage: 1247, limit: 10000 },
-    listing: { allowed: true, currentUsage: 12, limit: null } // Unlimited
-  };
-
-  // Fetch usage limits for all features with fallback to demo data
-  const usageQueries = featureTypes.map(feature => 
-    useQuery({
-      queryKey: ['/api/monetization/usage-limits', feature.key],
-      queryFn: () => 
-        fetch(`/api/monetization/usage-limits/${feature.key}`, {
-          credentials: 'include'
-        }).then(r => {
-          if (!r.ok) throw new Error('Failed to fetch');
-          return r.json();
-        }),
-      retry: false,
-      staleTime: 0,
-      onError: () => {
-        console.log(`Using demo data for ${feature.key}`);
+  // Fetch real usage data from unified billing system
+  const { data: usageData, isLoading, error } = useQuery({
+    queryKey: ['/api/unified-billing/usage-overview'],
+    queryFn: async () => {
+      const response = await fetch('/api/unified-billing/usage-overview', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch usage data');
       }
-    })
-  );
+      return response.json();
+    },
+    retry: 2,
+    staleTime: 60000, // Cache for 1 minute
+  });
 
-  const isLoading = usageQueries.some(query => query.isLoading);
+  // Fetch account summary to get subscription info
+  const { data: accountSummary } = useQuery({
+    queryKey: ['/api/unified-billing/account-summary'],
+    queryFn: async () => {
+      const response = await fetch('/api/unified-billing/account-summary', {
+        credentials: 'include'
+      });
+      if (!response.ok) return null;
+      return response.json();
+    },
+    retry: 1,
+  });
 
   const getUsagePercentage = (current: number, limit: number | null): number => {
     if (limit === null) return 0; // Unlimited
@@ -107,16 +111,6 @@ export default function UsageDashboard() {
     }
   };
 
-  const getProgressColor = (status: string): string => {
-    switch (status) {
-      case 'safe': return 'bg-green-500';
-      case 'warning': return 'bg-yellow-500';
-      case 'exceeded': return 'bg-red-500';
-      case 'unlimited': return 'bg-purple-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
@@ -132,21 +126,58 @@ export default function UsageDashboard() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load usage data. Please try refreshing the page or contact support if the issue persists.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  const currentPlan = accountSummary?.subscription?.plan?.name || 'Free';
+  const isSubscribed = accountSummary?.subscription?.subscription?.status === 'active';
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Header */}
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold">Usage Dashboard</h1>
-        <p className="text-gray-600">
-          Monitor your feature usage and subscription limits
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Usage Dashboard</h1>
+            <p className="text-gray-600">
+              Monitor your feature usage and subscription limits
+            </p>
+          </div>
+          <Badge variant={isSubscribed ? "default" : "secondary"} className="text-sm px-3 py-1">
+            {currentPlan} Plan
+          </Badge>
+        </div>
+
+        {!isSubscribed && (
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              You're currently on the Free plan with limited usage. <Link href="/billing" className="underline font-medium">Upgrade your subscription</Link> for unlimited access.
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
       {/* Usage Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {featureTypes.map((feature, index) => {
-          const query = usageQueries[index];
-          const usage: UsageLimits = query.data || demoUsageData[feature.key as keyof typeof demoUsageData] || { allowed: true, currentUsage: 0, limit: null };
+        {featureTypes.map((feature) => {
+          const usage: UsageLimits = usageData?.[feature.key] || { 
+            allowed: false, 
+            currentUsage: 0, 
+            limit: 0, 
+            plan: 'Unknown' 
+          };
+          
           const status = getUsageStatus(usage.currentUsage || 0, usage.limit);
           const percentage = getUsagePercentage(usage.currentUsage || 0, usage.limit);
           const IconComponent = feature.icon;
@@ -215,7 +246,7 @@ export default function UsageDashboard() {
                 {status === 'safe' && usage.limit && (
                   <div className="flex items-center gap-2 text-green-600 text-sm">
                     <CheckCircle className="h-4 w-4" />
-                    <span>{usage.limit - usage.currentUsage} remaining</span>
+                    <span>{usage.limit - (usage.currentUsage || 0)} remaining</span>
                   </div>
                 )}
               </CardContent>
@@ -224,19 +255,41 @@ export default function UsageDashboard() {
         })}
       </div>
 
-      {/* Upgrade Prompt */}
-      <Card className="bg-gradient-to-r from-purple-50 to-cyan-50">
-        <CardContent className="text-center p-8">
-          <TrendingUp className="h-12 w-12 mx-auto mb-4 text-purple-600" />
-          <h3 className="text-xl font-bold mb-2">Need Higher Limits?</h3>
-          <p className="text-gray-600 mb-4">
-            Upgrade your subscription to unlock higher usage limits and premium features.
-          </p>
-          <Button className="bg-purple-600 hover:bg-purple-700">
-            View Subscription Plans
-          </Button>
-        </CardContent>
-      </Card>
+      {/* Upgrade Prompt for Free Users */}
+      {!isSubscribed && (
+        <Card className="bg-gradient-to-r from-purple-50 to-cyan-50">
+          <CardContent className="text-center p-8">
+            <TrendingUp className="h-12 w-12 mx-auto mb-4 text-purple-600" />
+            <h3 className="text-xl font-bold mb-2">Need Higher Limits?</h3>
+            <p className="text-gray-600 mb-4">
+              Upgrade your subscription to unlock unlimited usage for all features and premium capabilities.
+            </p>
+            <Link href="/billing">
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                View Subscription Plans
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Plan Benefits for Subscribers */}
+      {isSubscribed && (
+        <Card className="bg-gradient-to-r from-green-50 to-blue-50">
+          <CardContent className="text-center p-8">
+            <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-600" />
+            <h3 className="text-xl font-bold mb-2">You're All Set!</h3>
+            <p className="text-gray-600 mb-4">
+              Your {currentPlan} subscription gives you unlimited access to all features. Keep exploring!
+            </p>
+            <Link href="/billing">
+              <Button variant="outline">
+                Manage Subscription
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

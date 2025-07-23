@@ -67,6 +67,100 @@ export class UnifiedBillingService {
   }
 
   /**
+   * Check usage limits for a specific feature
+   */
+  static async checkUsageLimits(userId: string, featureName: string) {
+    try {
+      // Get current subscription
+      const subscription = await this.getUserSubscription(userId);
+      
+      if (subscription && subscription.subscription.status === 'active') {
+        // Subscriber has unlimited access to most features
+        return {
+          allowed: true,
+          currentUsage: 0,
+          limit: null, // Unlimited for subscribers
+          remaining: null,
+          plan: subscription.plan.name
+        };
+      } else {
+        // Free tier limits
+        const freeLimits: { [key: string]: number } = {
+          'duty_calculation': 3,
+          'valuation': 2, 
+          'import_estimate': 2,
+          'api_call': 100,
+          'listing': 1
+        };
+        
+        const limit = freeLimits[featureName] || 0;
+        const currentUsage = await this.getCurrentUsage(userId, featureName);
+        
+        return {
+          allowed: currentUsage < limit,
+          currentUsage,
+          limit,
+          remaining: Math.max(0, limit - currentUsage),
+          plan: 'Free'
+        };
+      }
+    } catch (error) {
+      console.error('Error checking usage limits:', error);
+      return {
+        allowed: false,
+        currentUsage: 0,
+        limit: 0,
+        remaining: 0,
+        plan: 'Unknown'
+      };
+    }
+  }
+
+  /**
+   * Get current month usage for a feature
+   */
+  private static async getCurrentUsage(userId: string, featureName: string): Promise<number> {
+    try {
+      const now = new Date();
+      const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+      const result = await pool.query(`
+        SELECT COALESCE(SUM(usage_count), 0) as total
+        FROM usage_tracking 
+        WHERE user_id = $1 
+        AND feature_type = $2
+        AND usage_date >= $3
+        AND usage_date <= $4
+      `, [userId, featureName, periodStart.toISOString().split('T')[0], periodEnd.toISOString().split('T')[0]]);
+
+      return parseInt(result.rows[0]?.total || '0');
+    } catch (error) {
+      console.error('Error fetching current usage:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Track feature usage
+   */
+  static async trackUsage(userId: string, featureName: string, count = 1) {
+    try {
+      const now = new Date().toISOString();
+      const usageDate = now.split('T')[0];
+
+      await pool.query(`
+        INSERT INTO usage_tracking (user_id, feature_type, usage_count, usage_date, created_at)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [userId, featureName, count, usageDate, now]);
+      
+      console.log(`Tracked usage: ${userId} used ${featureName} ${count} times`);
+    } catch (error) {
+      console.error('Error tracking usage:', error);
+    }
+  }
+
+  /**
    * Get user's current subscription
    */
   static async getUserSubscription(userId: string) {

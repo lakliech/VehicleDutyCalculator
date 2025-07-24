@@ -351,6 +351,24 @@ The platform now features a sophisticated role-based navigation system that dyna
 
 ## Changelog
 
+**ECOSYSTEM REGISTRATION FORM STEP VALIDATION IMPLEMENTED - January 24, 2025:**
+- **Problem Solved**: User reported Next button not working on step 1 of ecosystem registration form
+- **Step Validation Implementation**: 
+  - Added async form validation before proceeding to next step
+  - Step 1: Validates businessName, contactPerson, phoneNumber are filled before advancing
+  - Step 2: Validates at least one category is selected before advancing
+  - Step 3: Validates county and area are selected before advancing
+- **Form Structure Improvements**:
+  - Added missing Contact Person and Phone Number fields to step 1 as required fields
+  - Removed duplicate contact fields from step 3 to avoid confusion
+  - Enhanced user feedback with toast notifications for validation errors
+- **Database Methods Completed**:
+  - Added missing `getAllSubcategories()` method to DatabaseStorage interface and implementation
+  - Added `addProviderSubcategoryService()` method for linking providers to subcategories
+  - Fixed TypeScript compilation issues in storage methods
+- **User Experience**: Form now properly validates each step before allowing progression with clear error messages
+- **Technical Achievement**: Complete progressive disclosure registration system with proper step-by-step validation
+
 **ECOSYSTEM DIRECTORY FULLY OPERATIONAL WITH KENYAN LOCATIONS - January 24, 2025:**
 - **Problem Solved**: User requested ecosystem directory use Kenyan_locations table for location filtering
 - **Confirmed Implementation**: Ecosystem directory already correctly using Kenyan_locations table through existing API endpoints

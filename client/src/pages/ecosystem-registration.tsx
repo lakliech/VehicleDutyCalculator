@@ -193,7 +193,40 @@ export default function EcosystemRegistration() {
     }
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
+    // Validate current step before proceeding
+    if (currentStep === 1) {
+      const isValid = await form.trigger(['businessName', 'contactPerson', 'phoneNumber']);
+      if (!isValid) {
+        toast({
+          title: "Required Fields Missing",
+          description: "Please fill in all required fields before proceeding.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else if (currentStep === 2) {
+      const isValid = await form.trigger(['categoryIds']);
+      if (!isValid || selectedCategories.length === 0) {
+        toast({
+          title: "Category Selection Required",
+          description: "Please select at least one category before proceeding.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else if (currentStep === 3) {
+      const isValid = await form.trigger(['county', 'area']);
+      if (!isValid) {
+        toast({
+          title: "Location Required",
+          description: "Please select your county and area before proceeding.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     }
@@ -277,6 +310,34 @@ export default function EcosystemRegistration() {
                           <FormLabel>Business Name *</FormLabel>
                           <FormControl>
                             <Input placeholder="Your business name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="contactPerson"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Contact Person *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Full name of contact person" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="phoneNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., 0722123456" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -459,36 +520,6 @@ export default function EcosystemRegistration() {
                 {/* Step 3: Contact & Location */}
                 {currentStep === 3 && (
                   <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="contactPerson"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Contact Person *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Primary contact name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="phoneNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Phone Number *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="+254..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField
                         control={form.control}

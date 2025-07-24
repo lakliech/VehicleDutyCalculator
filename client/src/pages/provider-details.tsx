@@ -165,7 +165,7 @@ export default function ProviderDetails() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section with Cover Image */}
-      <div className="relative h-64 bg-gradient-to-r from-[#740a72] to-[#b10573]">
+      <div className="relative h-64 bg-white">
         {provider.bannerImageUrl && (
           <img 
             src={provider.bannerImageUrl} 

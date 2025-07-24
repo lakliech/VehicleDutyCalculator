@@ -3486,7 +3486,10 @@ export class DatabaseStorage implements IStorage {
       conditions.push(
         or(
           ilike(serviceProviders.businessName, `%${filters.searchTerm}%`),
-          ilike(serviceProviders.description, `%${filters.searchTerm}%`)
+          ilike(serviceProviders.description, `%${filters.searchTerm}%`),
+          ilike(serviceProviders.county, `%${filters.searchTerm}%`),
+          ilike(serviceProviders.area, `%${filters.searchTerm}%`),
+          ilike(serviceProviders.specificLocation, `%${filters.searchTerm}%`)
         )
       );
     }

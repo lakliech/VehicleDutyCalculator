@@ -165,7 +165,7 @@ export default function ProviderDetails() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section with Cover Image */}
-      <div className="relative h-64 bg-gradient-to-r from-green-600 to-blue-600">
+      <div className="relative h-64 bg-gradient-to-r from-[#740a72] to-[#b10573]">
         {provider.bannerImageUrl && (
           <img 
             src={provider.bannerImageUrl} 
@@ -173,7 +173,6 @@ export default function ProviderDetails() {
             className="w-full h-full object-cover"
           />
         )}
-        <div className="absolute inset-0 bg-black bg-opacity-40" />
         
         {/* Back Button */}
         <div className="absolute top-4 left-4">
@@ -204,7 +203,7 @@ export default function ProviderDetails() {
                         className="w-24 h-24 rounded-xl object-cover border-4 border-white shadow-lg"
                       />
                     ) : (
-                      <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-blue-600 rounded-xl flex items-center justify-center border-4 border-white shadow-lg">
+                      <div className="w-24 h-24 bg-gradient-to-br from-[#740a72] to-[#b10573] rounded-xl flex items-center justify-center border-4 border-white shadow-lg">
                         <span className="text-2xl font-bold text-white">
                           {provider.businessName.charAt(0)}
                         </span>
@@ -219,7 +218,7 @@ export default function ProviderDetails() {
                         <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
                           {provider.businessName}
                           {provider.isVerified && (
-                            <Badge className="bg-green-600 hover:bg-green-700">
+                            <Badge className="bg-[#740a72] hover:bg-[#b10573]">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Verified
                             </Badge>
@@ -255,7 +254,7 @@ export default function ProviderDetails() {
 
                         {/* Location */}
                         <div className="flex items-center text-gray-600 mb-4">
-                          <MapPin className="w-4 h-4 mr-2 text-green-600" />
+                          <MapPin className="w-4 h-4 mr-2 text-[#740a72]" />
                           <span className="font-medium">{provider.area}, {provider.county}</span>
                           {provider.specificLocation && (
                             <span className="text-sm ml-2">• {provider.specificLocation}</span>
@@ -273,7 +272,7 @@ export default function ProviderDetails() {
                     <div className="flex flex-wrap gap-3 mt-6">
                       {provider.phoneNumbers.length > 0 && (
                         <Button 
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          className="bg-[#740a72] hover:bg-[#b10573] text-white"
                           onClick={() => handleCall(provider.phoneNumbers[0])}
                         >
                           <Phone className="w-4 h-4 mr-2" />
@@ -283,7 +282,7 @@ export default function ProviderDetails() {
                       {(provider.whatsappNumber || provider.phoneNumbers[0]) && (
                         <Button 
                           variant="outline" 
-                          className="border-green-500 text-green-600 hover:bg-green-50"
+                          className="border-[#740a72] text-[#740a72] hover:bg-[#740a72] hover:text-white"
                           onClick={() => handleWhatsApp(provider.whatsappNumber || provider.phoneNumbers[0])}
                         >
                           <MessageCircle className="w-4 h-4 mr-2" />
@@ -292,12 +291,16 @@ export default function ProviderDetails() {
                       )}
                       <Button 
                         variant="outline"
+                        className="border-[#b10573] text-[#b10573] hover:bg-[#b10573] hover:text-white"
                         onClick={() => handleDirections(provider)}
                       >
                         <Navigation className="w-4 h-4 mr-2" />
                         Get Directions
                       </Button>
-                      <Button variant="outline">
+                      <Button 
+                        variant="outline"
+                        className="border-[#ee0074] text-[#ee0074] hover:bg-[#ee0074] hover:text-white"
+                      >
                         <Calendar className="w-4 h-4 mr-2" />
                         Book Appointment
                       </Button>
@@ -330,7 +333,7 @@ export default function ProviderDetails() {
                       groups[category].push(service);
                       return groups;
                     }, {})).map(([category, services]: [string, any]) => (
-                      <div key={category} className="border-l-4 border-green-500 pl-4">
+                      <div key={category} className="border-l-4 border-[#740a72] pl-4">
                         <h3 className="font-semibold text-lg text-gray-900 mb-3 flex items-center">
                           <ServiceCategoryIcon category={category} />
                           {category}
@@ -347,7 +350,7 @@ export default function ProviderDetails() {
                                 </div>
                                 <div className="text-right ml-4">
                                   {service.priceRange && (
-                                    <span className="text-green-600 font-semibold text-sm">
+                                    <span className="text-[#740a72] font-semibold text-sm">
                                       {service.priceRange}
                                     </span>
                                   )}
@@ -378,9 +381,9 @@ export default function ProviderDetails() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {provider.isVerified && (
-                    <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                      <Shield className="w-5 h-5 text-green-600" />
-                      <span className="text-green-800 font-medium">GariYangu Verified Business</span>
+                    <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
+                      <Shield className="w-5 h-5 text-[#740a72]" />
+                      <span className="text-[#740a72] font-medium">GariYangu Verified Business</span>
                     </div>
                   )}
                   {provider.yearsInBusiness && provider.yearsInBusiness >= 5 && (

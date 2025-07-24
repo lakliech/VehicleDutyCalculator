@@ -3413,6 +3413,7 @@ export class DatabaseStorage implements IStorage {
     area?: string;
     searchTerm?: string;
     isVerified?: boolean;
+    sortBy?: 'relevance' | 'rating' | 'views' | 'newest';
     page?: number;
     limit?: number;
   }): Promise<{ providers: ServiceProvider[]; total: number }> {
@@ -3504,8 +3505,22 @@ export class DatabaseStorage implements IStorage {
     const limit = filters?.limit || 20;
     const offset = (page - 1) * limit;
 
-    // Apply ordering, limit and offset
-    query = query.limit(limit).offset(offset);
+    // Determine sort order based on sortBy parameter
+    const getSortOrder = (sortBy?: string) => {
+      switch (sortBy) {
+        case 'rating':
+          return [desc(serviceProviders.rating), desc(serviceProviders.reviewCount), desc(serviceProviders.isVerified)];
+        case 'views':
+          return [desc(serviceProviders.viewCount), desc(serviceProviders.isVerified)];
+        case 'newest':
+          return [desc(serviceProviders.createdAt)];
+        case 'relevance':
+        default:
+          return [desc(serviceProviders.isVerified), desc(serviceProviders.rating), desc(serviceProviders.viewCount)];
+      }
+    };
+
+    const sortOrder = getSortOrder(filters?.sortBy);
     
     // When using joins, we need to handle the query differently
     if (filters?.categoryId || filters?.subcategoryId) {
@@ -3553,15 +3568,17 @@ export class DatabaseStorage implements IStorage {
       }
       
       const providers = await groupedQuery
-        .orderBy(desc(serviceProviders.isVerified), desc(serviceProviders.createdAt))
+        .orderBy(...sortOrder)
         .limit(limit)
         .offset(offset);
       
       return { providers, total: count };
     } else {
-      // Without joins, use the simple query
+      // Without joins, use the simple query with proper ordering and pagination
       const providers = await query
-        .orderBy(desc(serviceProviders.isVerified), desc(serviceProviders.createdAt));
+        .orderBy(...sortOrder)
+        .limit(limit)
+        .offset(offset);
       
       return { providers, total: count };
     }

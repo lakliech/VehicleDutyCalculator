@@ -7,8 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useCallback, useMemo } from "react";
 import { 
   Search, 
   MapPin, 
@@ -32,7 +36,18 @@ import {
   Clock,
   DollarSign,
   Calendar,
-  CheckCircle
+  CheckCircle,
+  Grid3X3,
+  List,
+  Filter,
+  SortAsc,
+  ShieldCheck,
+  ArrowUpDown,
+  Loader2,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal
 } from "lucide-react";
 
 interface ServiceCategory {
@@ -106,13 +121,17 @@ const iconMap = {
 
 export default function Ecosystem() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
-  const [selectedCounty, setSelectedCounty] = useState<string>("");
-  const [selectedArea, setSelectedArea] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
+  const [selectedCounty, setSelectedCounty] = useState<string>("all");
+  const [selectedArea, setSelectedArea] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProvider, setSelectedProvider] = useState<ServiceProvider | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortBy, setSortBy] = useState<'relevance' | 'rating' | 'views' | 'newest'>('relevance');
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -125,7 +144,7 @@ export default function Ecosystem() {
   // Fetch subcategories when category is selected
   const { data: subcategories, isLoading: subcategoriesLoading } = useQuery({
     queryKey: [`/api/ecosystem/categories/${selectedCategory}/subcategories`],
-    enabled: !!selectedCategory
+    enabled: selectedCategory && selectedCategory !== "all"
   });
 
   // Fetch Kenya counties for location filtering
@@ -136,21 +155,27 @@ export default function Ecosystem() {
   // Fetch areas when county is selected
   const { data: areas } = useQuery({
     queryKey: [`/api/kenyan-counties/${selectedCounty}/areas`],
-    enabled: !!selectedCounty
+    enabled: selectedCounty && selectedCounty !== "all"
   });
 
-  // Search providers with filters
-  const { data: providersData, isLoading: providersLoading, refetch: refetchProviders } = useQuery({
-    queryKey: ['/api/ecosystem/providers', {
-      searchTerm,
-      categoryId: selectedCategory ? parseInt(selectedCategory) : undefined,
-      subcategoryId: selectedSubcategory ? parseInt(selectedSubcategory) : undefined,
-      county: selectedCounty,
-      area: selectedArea,
-      page: currentPage,
-      limit: 20
-    }],
-    enabled: true
+  // Search providers with filters - optimized for large datasets
+  const queryParams = useMemo(() => ({
+    searchTerm: searchTerm.trim(),
+    categoryId: selectedCategory && selectedCategory !== "all" ? parseInt(selectedCategory) : undefined,
+    subcategoryId: selectedSubcategory && selectedSubcategory !== "all" ? parseInt(selectedSubcategory) : undefined,
+    county: selectedCounty && selectedCounty !== "all" ? selectedCounty : undefined,
+    area: selectedArea && selectedArea !== "all" ? selectedArea : undefined,
+    page: currentPage,
+    limit: itemsPerPage,
+    sortBy,
+    isVerified: verifiedOnly ? true : undefined
+  }), [searchTerm, selectedCategory, selectedSubcategory, selectedCounty, selectedArea, currentPage, itemsPerPage, sortBy, verifiedOnly]);
+
+  const { data: providersData, isLoading: providersLoading, refetch: refetchProviders, isFetching } = useQuery({
+    queryKey: ['/api/ecosystem/providers', queryParams],
+    enabled: true,
+    staleTime: 1000 * 60 * 2, // 2 minutes cache for better performance
+    refetchOnWindowFocus: false
   });
 
   // Fetch ecosystem statistics
@@ -182,31 +207,50 @@ export default function Ecosystem() {
 
   // Reset subcategory when category changes
   useEffect(() => {
-    setSelectedSubcategory("");
+    setSelectedSubcategory("all");
   }, [selectedCategory]);
 
   // Reset area when county changes
   useEffect(() => {
-    setSelectedArea("");
+    setSelectedArea("all");
   }, [selectedCounty]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedCategory, selectedSubcategory, selectedCounty, selectedArea]);
+  }, [searchTerm, selectedCategory, selectedSubcategory, selectedCounty, selectedArea, sortBy, verifiedOnly]);
 
-  const handleSearch = () => {
-    refetchProviders();
-  };
-
-  const clearFilters = () => {
-    setSearchTerm("");
-    setSelectedCategory("");
-    setSelectedSubcategory("");
-    setSelectedCounty("");
-    setSelectedArea("");
+  const handleSearch = useCallback(() => {
     setCurrentPage(1);
-  };
+    refetchProviders();
+  }, [refetchProviders]);
+
+  const clearFilters = useCallback(() => {
+    setSearchTerm("");
+    setSelectedCategory("all");
+    setSelectedSubcategory("all");
+    setSelectedCounty("all");
+    setSelectedArea("all");
+    setSortBy('relevance');
+    setVerifiedOnly(false);
+    setCurrentPage(1);
+  }, []);
+
+  const debouncedSearch = useCallback(
+    debounce((term: string) => {
+      setSearchTerm(term);
+    }, 300),
+    []
+  );
+
+  // Debounce function for search optimization
+  function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {
+    let timeoutId: NodeJS.Timeout;
+    return ((...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(null, args), delay);
+    }) as T;
+  }
 
   const handleViewDetails = (provider: ServiceProvider) => {
     setSelectedProvider(provider);
@@ -227,6 +271,170 @@ export default function Ecosystem() {
         variant: "destructive",
       });
     }
+  };
+
+  // Render provider card based on view mode
+  const renderProviderCard = (provider: ServiceProvider) => {
+    if (viewMode === 'list') {
+      return (
+        <Card key={provider.id} className="hover:shadow-md transition-shadow duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-4 flex-1">
+                {provider.logoUrl && (
+                  <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+                    <img 
+                      src={provider.logoUrl} 
+                      alt={`${provider.businessName} logo`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900">{provider.businessName}</h3>
+                    {provider.isVerified && (
+                      <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Verified
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-gray-600 text-sm mb-2 line-clamp-2">{provider.description}</p>
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3 h-3" />
+                      {provider.area}, {provider.county}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Eye className="w-3 h-3" />
+                      {provider.totalViews || provider.viewCount || 0} views
+                    </span>
+                    {provider.averageRating && (
+                      <span className="flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                        {provider.averageRating.toFixed(1)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => handleCall(provider)}
+                  disabled={!provider.phoneNumbers?.[0]}
+                >
+                  <Phone className="w-4 h-4 mr-1" />
+                  Call
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => handleViewDetails(provider)}
+                >
+                  <Eye className="w-4 h-4 mr-1" />
+                  Details
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    // Grid view (default)
+    return (
+      <Card key={provider.id} className="hover:shadow-lg transition-shadow duration-200">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              {provider.logoUrl && (
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+                  <img 
+                    src={provider.logoUrl} 
+                    alt={`${provider.businessName} logo`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  {provider.businessName}
+                  {provider.isVerified && (
+                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Verified
+                    </Badge>
+                  )}
+                </CardTitle>
+                <CardDescription className="mt-1 line-clamp-2">
+                  {provider.description}
+                </CardDescription>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2 text-sm">
+            {/* Location */}
+            <div className="flex items-center gap-2 text-gray-600">
+              <MapPin className="w-4 h-4" />
+              <span>{provider.area}, {provider.county}</span>
+            </div>
+
+            {/* Contact */}
+            <div className="flex items-center gap-2 text-gray-600">
+              <Phone className="w-4 h-4" />
+              <span>{formatPhoneNumber(provider.phoneNumbers[0])}</span>
+            </div>
+
+            {/* Rating and Stats */}
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center gap-4 text-xs text-gray-500">
+                <span className="flex items-center gap-1">
+                  <Eye className="w-3 h-3" />
+                  {provider.totalViews || provider.viewCount || 0}
+                </span>
+                {provider.averageRating && (
+                  <span className="flex items-center gap-1">
+                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                    {provider.averageRating.toFixed(1)}
+                  </span>
+                )}
+              </div>
+              {provider.priceRange && (
+                <Badge variant="outline" className="text-xs">
+                  {provider.priceRange}
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-2 mt-4">
+            <Button 
+              size="sm" 
+              className="flex-1 bg-green-600 hover:bg-green-700"
+              onClick={() => handleCall(provider)}
+              disabled={!provider.phoneNumbers?.[0]}
+            >
+              <Phone className="w-4 h-4 mr-1" />
+              Call
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="flex-1"
+              onClick={() => handleViewDetails(provider)}
+            >
+              <Eye className="w-4 h-4 mr-1" />
+              View Details
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
   };
 
   const formatPhoneNumber = (phone: string) => {
@@ -254,7 +462,7 @@ export default function Ecosystem() {
 
   const providers = (providersData as any)?.providers || [];
   const totalProviders = parseInt((providersData as any)?.total || '0');
-  const totalPages = Math.ceil(totalProviders / 20);
+  const totalPages = Math.ceil(totalProviders / itemsPerPage);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
@@ -327,32 +535,71 @@ export default function Ecosystem() {
           </Card>
         </div>
 
-        {/* Search and Filters */}
+        {/* Enhanced Search and Filters */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="w-5 h-5" />
-              Find Service Providers
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
-              {/* Search Input */}
-              <div className="md:col-span-2">
-                <Input
-                  placeholder="Search providers, services..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                />
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <CardTitle className="flex items-center gap-2">
+                <Search className="w-5 h-5" />
+                Find Service Providers
+              </CardTitle>
+              <div className="flex items-center gap-4">
+                {/* View Mode Toggle */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={viewMode === 'grid' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setViewMode('grid')}
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                  >
+                    <List className="w-4 h-4" />
+                  </Button>
+                </div>
+                {/* Verified Only Toggle */}
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="verified-only"
+                    checked={verifiedOnly}
+                    onCheckedChange={setVerifiedOnly}
+                  />
+                  <Label htmlFor="verified-only" className="text-sm flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3" />
+                    Verified Only
+                  </Label>
+                </div>
               </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Main Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search providers, services, locations..."
+                className="pl-10"
+                defaultValue={searchTerm}
+                onChange={(e) => debouncedSearch(e.target.value)}
+              />
+              {isFetching && (
+                <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
+              )}
+            </div>
 
+            {/* Filters Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {/* Category Filter */}
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
                   {(categories as any)?.map((category: ServiceCategory) => (
                     <SelectItem key={category.id} value={category.id.toString()}>
                       {category.name}
@@ -368,9 +615,10 @@ export default function Ecosystem() {
                 disabled={!selectedCategory || subcategoriesLoading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Subcategory" />
+                  <SelectValue placeholder="All Subcategories" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All Subcategories</SelectItem>
                   {(subcategories as any)?.map((subcategory: ServiceSubcategory) => (
                     <SelectItem key={subcategory.id} value={subcategory.id.toString()}>
                       {subcategory.name}
@@ -382,9 +630,10 @@ export default function Ecosystem() {
               {/* County Filter */}
               <Select value={selectedCounty} onValueChange={setSelectedCounty}>
                 <SelectTrigger>
-                  <SelectValue placeholder="County" />
+                  <SelectValue placeholder="All Counties" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All Counties</SelectItem>
                   {(counties as any)?.map((county: string) => (
                     <SelectItem key={county} value={county}>
                       {county}
@@ -400,9 +649,10 @@ export default function Ecosystem() {
                 disabled={!selectedCounty}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Area" />
+                  <SelectValue placeholder="All Areas" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All Areas</SelectItem>
                   {(areas as any)?.map((area: string) => (
                     <SelectItem key={area} value={area}>
                       {area}
@@ -410,16 +660,65 @@ export default function Ecosystem() {
                   ))}
                 </SelectContent>
               </Select>
+
+              {/* Sort By */}
+              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">
+                    <div className="flex items-center gap-2">
+                      <ArrowUpDown className="w-3 h-3" />
+                      Relevance
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="rating">
+                    <div className="flex items-center gap-2">
+                      <Star className="w-3 h-3" />
+                      Rating
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="views">
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-3 h-3" />
+                      Most Views
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="newest">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-3 h-3" />
+                      Newest
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Items per page */}
+              <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(parseInt(value))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="20">20 per page</SelectItem>
+                  <SelectItem value="50">50 per page</SelectItem>
+                  <SelectItem value="100">100 per page</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={handleSearch} className="bg-purple-600 hover:bg-purple-700">
-                <Search className="w-4 h-4 mr-2" />
-                Search
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={clearFilters} className="flex items-center gap-2">
+                <RefreshCw className="w-4 h-4" />
+                Clear All Filters
               </Button>
-              <Button variant="outline" onClick={clearFilters}>
-                Clear Filters
-              </Button>
+              {(searchTerm || selectedCategory || selectedCounty || verifiedOnly) && (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Filter className="w-4 h-4" />
+                  Filters applied
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -464,145 +763,157 @@ export default function Ecosystem() {
           </div>
         )}
 
-        {/* Providers Results */}
+        {/* Enhanced Providers Results with Scalable Design */}
         <div>
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Service Providers
-              {totalProviders > 0 && (
-                <span className="text-lg font-normal text-gray-600 ml-2">
-                  ({totalProviders} found)
-                </span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Service Providers
+                {totalProviders > 0 && (
+                  <span className="text-lg font-normal text-gray-600 ml-2">
+                    ({totalProviders} found)
+                  </span>
+                )}
+              </h2>
+              {isFetching && (
+                <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Searching providers...
+                </div>
               )}
-            </h2>
+            </div>
+            
+            {/* Results Controls */}
+            {totalProviders > 0 && (
+              <div className="flex items-center gap-4">
+                <div className="text-sm text-gray-600">
+                  Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalProviders)} of {totalProviders}
+                </div>
+              </div>
+            )}
           </div>
 
           {providersLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-64" />
+            <div className={viewMode === 'grid' 
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
+              : "space-y-4"
+            }>
+              {Array.from({ length: itemsPerPage }).map((_, i) => (
+                <Skeleton key={i} className={viewMode === 'grid' ? "h-64" : "h-32"} />
               ))}
             </div>
           ) : providers.length === 0 ? (
             <Card>
-              <CardContent className="p-8 text-center">
+              <CardContent className="p-12 text-center">
                 <div className="text-gray-500">
-                  <Users className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-medium mb-2">No providers found</h3>
-                  <p>Try adjusting your search criteria or browse by category.</p>
+                  <Users className="w-20 h-20 mx-auto mb-4 opacity-50" />
+                  <h3 className="text-xl font-medium mb-2">No providers found</h3>
+                  <p className="text-gray-400 mb-4">
+                    Try adjusting your search criteria or clearing filters to see more results.
+                  </p>
+                  {(searchTerm || selectedCategory !== "all" || selectedCounty !== "all") && (
+                    <Button variant="outline" onClick={clearFilters}>
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Clear All Filters
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {providers.map((provider: ServiceProvider) => (
-                  <Card key={provider.id} className="hover:shadow-lg transition-shadow duration-200">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle className="text-lg flex items-center gap-2">
-                            {provider.businessName}
-                            {provider.isVerified && (
-                              <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
-                                Verified
-                              </Badge>
-                            )}
-                          </CardTitle>
-                          <CardDescription className="mt-1">
-                            {provider.description}
-                          </CardDescription>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 text-sm">
-                        {/* Location */}
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <MapPin className="w-4 h-4" />
-                          <span>{provider.area}, {provider.county}</span>
-                        </div>
-
-                        {/* Contact */}
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Phone className="w-4 h-4" />
-                          <span>{provider.phoneNumbers[0]}</span>
-                        </div>
-
-                        {/* Services */}
-                        {provider.services && (
-                          <div className="text-gray-600">
-                            <span className="font-medium">Services:</span> {provider.services}
-                          </div>
-                        )}
-
-                        {/* Rating and Stats */}
-                        <div className="flex items-center justify-between pt-2">
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <span className="flex items-center gap-1">
-                              <Eye className="w-3 h-3" />
-                              {provider.totalViews}
-                            </span>
-                            {provider.averageRating && (
-                              <span className="flex items-center gap-1">
-                                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                                {provider.averageRating.toFixed(1)}
-                              </span>
-                            )}
-                          </div>
-                          {provider.priceRange && (
-                            <Badge variant="outline" className="text-xs">
-                              {provider.priceRange}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2 mt-4">
-                        <Button 
-                          size="sm" 
-                          className="flex-1 bg-green-600 hover:bg-green-700"
-                          onClick={() => handleCall(provider)}
-                          disabled={!provider.phoneNumbers?.[0]}
-                        >
-                          <Phone className="w-4 h-4 mr-1" />
-                          Call
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="flex-1"
-                          onClick={() => handleViewDetails(provider)}
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View Details
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+              {/* Dynamic Grid/List View */}
+              <div className={viewMode === 'grid' 
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+                : "space-y-4"
+              }>
+                {providers.map((provider: ServiceProvider) => renderProviderCard(provider))}
               </div>
 
-              {/* Pagination */}
+              {/* Enhanced Pagination */}
               {totalPages > 1 && (
-                <div className="flex justify-center gap-2 mt-8">
-                  <Button
-                    variant="outline"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(prev => prev - 1)}
-                  >
-                    Previous
-                  </Button>
-                  <span className="flex items-center px-4 text-sm text-gray-600">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(prev => prev + 1)}
-                  >
-                    Next
-                  </Button>
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t">
+                  <div className="text-sm text-gray-600">
+                    Page {currentPage} of {totalPages} pages
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(1)}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="w-4 h-4 -ml-1" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(prev => prev - 1)}
+                    >
+                      <ChevronLeft className="w-4 h-4 mr-1" />
+                      Previous
+                    </Button>
+                    
+                    {/* Page Numbers */}
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        const pageNum = currentPage <= 3 
+                          ? i + 1 
+                          : currentPage >= totalPages - 2 
+                            ? totalPages - 4 + i 
+                            : currentPage - 2 + i;
+                        
+                        if (pageNum < 1 || pageNum > totalPages) return null;
+                        
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={currentPage === pageNum ? "default" : "outline"}
+                            size="sm"
+                            className="w-8 h-8 p-0"
+                            onClick={() => setCurrentPage(pageNum)}
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+                      {totalPages > 5 && currentPage < totalPages - 2 && (
+                        <>
+                          <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-8 h-8 p-0"
+                            onClick={() => setCurrentPage(totalPages)}
+                          >
+                            {totalPages}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(prev => prev + 1)}
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(totalPages)}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-4 h-4 -ml-1" />
+                    </Button>
+                  </div>
                 </div>
               )}
             </>

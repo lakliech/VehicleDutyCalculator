@@ -46,8 +46,9 @@ const searchProvidersSchema = z.object({
   area: z.string().optional(),
   searchTerm: z.string().optional(),
   isVerified: z.boolean().optional(),
+  sortBy: z.enum(['relevance', 'rating', 'views', 'newest']).default('relevance'),
   page: z.number().int().min(1).default(1),
-  limit: z.number().int().min(1).max(50).default(20)
+  limit: z.number().int().min(1).max(100).default(20)
 });
 
 // Get all service categories

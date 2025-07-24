@@ -42,6 +42,7 @@ import GroupBuying from "@/pages/group-buying";
 import InfluencerHub from "@/pages/influencer-hub";
 import Ecosystem from "@/pages/ecosystem";
 import EcosystemRegistrationBasic from "@/pages/ecosystem-registration-basic";
+import ProviderDetails from "@/pages/provider-details";
 
 import AdminListingDetails from "@/pages/admin-listing-details";
 import AdminUsers from "@/pages/admin-users";
@@ -121,6 +122,7 @@ function Router() {
           <Route path="/influencer-hub" component={InfluencerHub} />
           <Route path="/ecosystem" component={Ecosystem} />
           <Route path="/ecosystem/register" component={EcosystemRegistrationBasic} />
+          <Route path="/provider/:id" component={ProviderDetails} />
           <Route path="/dashboard">
             <ProtectedRoute>
               <Dashboard />

@@ -3648,10 +3648,7 @@ export class DatabaseStorage implements IStorage {
   // Provider reviews methods
   async createProviderReview(reviewData: InsertProviderReview & { userId?: string }): Promise<ProviderReview> {
     const [review] = await db.insert(providerReviews)
-      .values({
-        ...reviewData,
-        reviewedAt: new Date()
-      })
+      .values(reviewData)
       .returning();
     return review;
   }
@@ -3659,7 +3656,7 @@ export class DatabaseStorage implements IStorage {
   async getProviderReviews(providerId: number, limit?: number): Promise<ProviderReview[]> {
     let query = db.select().from(providerReviews)
       .where(eq(providerReviews.providerId, providerId))
-      .orderBy(desc(providerReviews.reviewedAt));
+      .orderBy(desc(providerReviews.createdAt));
     
     if (limit) {
       query = query.limit(limit);

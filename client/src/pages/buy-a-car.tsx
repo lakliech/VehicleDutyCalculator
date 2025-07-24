@@ -467,7 +467,7 @@ export default function BuyACar() {
                 Mobile Mode
               </Badge>
             </div>
-            <SwipeInterface cars={listings} />
+            <SwipeInterface vehicles={listings} />
           </div>
         ) : (
           <div className="space-y-6">

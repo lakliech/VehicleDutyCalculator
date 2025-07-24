@@ -72,9 +72,7 @@ export function Navigation() {
               <Link href="/group-buying" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
                 Group Buying
               </Link>
-              <Link href="/influencer-hub" className="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors">
-                Influencer Hub
-              </Link>
+              
               <Link href="/ecosystem" className="text-sm font-medium text-green-600 hover:text-green-700 transition-colors">
                 Ecosystem
               </Link>

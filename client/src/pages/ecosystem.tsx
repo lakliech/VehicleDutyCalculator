@@ -177,8 +177,8 @@ export default function Ecosystem() {
     return <IconComponent className="w-6 h-6" />;
   };
 
-  const providers = providersData?.providers || [];
-  const totalProviders = providersData?.total || 0;
+  const providers = (providersData as any)?.providers || [];
+  const totalProviders = parseInt((providersData as any)?.total || '0');
   const totalPages = Math.ceil(totalProviders / 20);
 
   return (
@@ -278,7 +278,7 @@ export default function Ecosystem() {
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories?.map((category: ServiceCategory) => (
+                  {(categories as any)?.map((category: ServiceCategory) => (
                     <SelectItem key={category.id} value={category.id.toString()}>
                       {category.name}
                     </SelectItem>
@@ -296,7 +296,7 @@ export default function Ecosystem() {
                   <SelectValue placeholder="Subcategory" />
                 </SelectTrigger>
                 <SelectContent>
-                  {subcategories?.map((subcategory: ServiceSubcategory) => (
+                  {(subcategories as any)?.map((subcategory: ServiceSubcategory) => (
                     <SelectItem key={subcategory.id} value={subcategory.id.toString()}>
                       {subcategory.name}
                     </SelectItem>
@@ -310,7 +310,7 @@ export default function Ecosystem() {
                   <SelectValue placeholder="County" />
                 </SelectTrigger>
                 <SelectContent>
-                  {counties?.map((county: string) => (
+                  {(counties as any)?.map((county: string) => (
                     <SelectItem key={county} value={county}>
                       {county}
                     </SelectItem>
@@ -328,7 +328,7 @@ export default function Ecosystem() {
                   <SelectValue placeholder="Area" />
                 </SelectTrigger>
                 <SelectContent>
-                  {areas?.map((area: string) => (
+                  {(areas as any)?.map((area: string) => (
                     <SelectItem key={area} value={area}>
                       {area}
                     </SelectItem>
@@ -361,7 +361,7 @@ export default function Ecosystem() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {categories?.map((category: ServiceCategory) => (
+                {(categories as any)?.map((category: ServiceCategory) => (
                   <Card 
                     key={category.id} 
                     className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"

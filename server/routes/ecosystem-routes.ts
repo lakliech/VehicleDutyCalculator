@@ -264,6 +264,24 @@ router.put("/providers/:id", async (req, res) => {
   }
 });
 
+// Log provider view
+router.post("/providers/:id/view", async (req, res) => {
+  try {
+    const providerId = parseInt(req.params.id);
+    if (isNaN(providerId)) {
+      return res.status(400).json({ error: "Invalid provider ID" });
+    }
+
+    // Increment view count
+    await storage.incrementProviderViews(providerId);
+
+    res.json({ success: true, message: "View logged successfully" });
+  } catch (error) {
+    console.error("Failed to log provider view:", error);
+    res.status(500).json({ error: "Failed to log view" });
+  }
+});
+
 // Log provider contact
 router.post("/providers/:id/contact", async (req, res) => {
   try {

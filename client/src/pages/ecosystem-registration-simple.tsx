@@ -429,35 +429,44 @@ export default function EcosystemRegistrationSimple() {
 
             {/* Navigation Buttons */}
             <div className="flex justify-between pt-6">
-              <Button
+              <button
                 type="button"
-                variant="outline"
-                onClick={prevStep}
+                onClick={() => {
+                  console.log("PREVIOUS CLICKED");
+                  alert("Previous clicked");
+                  prevStep();
+                }}
                 disabled={currentStep === 1}
+                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Previous
-              </Button>
+                ← Previous
+              </button>
 
               {currentStep < steps.length ? (
-                <Button
+                <button
                   type="button"
-                  onClick={nextStep}
-                  className="bg-purple-600 hover:bg-purple-700"
+                  onClick={() => {
+                    console.log("NEXT CLICKED - STEP:", currentStep);
+                    alert("Next clicked! Current step: " + currentStep);
+                    setCurrentStep(currentStep + 1);
+                  }}
+                  className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium"
                 >
-                  Next
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                  Next ({currentStep}/{steps.length}) →
+                </button>
               ) : (
-                <Button
+                <button
                   type="button"
-                  onClick={handleSubmit}
+                  onClick={() => {
+                    console.log("SUBMIT CLICKED");
+                    alert("Submit clicked");
+                    handleSubmit();
+                  }}
                   disabled={registerMutation.isPending}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium disabled:opacity-50"
                 >
-                  {registerMutation.isPending ? "Registering..." : "Complete Registration"}
-                  <CheckCircle className="w-4 h-4 ml-2" />
-                </Button>
+                  {registerMutation.isPending ? "Registering..." : "Complete Registration ✓"}
+                </button>
               )}
             </div>
           </CardContent>

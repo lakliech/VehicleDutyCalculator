@@ -32,6 +32,7 @@ import {
 import { SwipeInterface } from '@/components/swipe-interface';
 import { ModuleNavigation } from '@/components/module-navigation';
 import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'wouter';
 
 interface CarListing {
   id: number;
@@ -68,6 +69,7 @@ interface SmartSearchFilters {
 
 export default function BuyACar() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [smartSearchLoading, setSmartSearchLoading] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<SmartSearchFilters>({});
@@ -233,74 +235,98 @@ export default function BuyACar() {
 
   // Car Card Component
   const CarCard = ({ car }: { car: CarListing }) => (
-    <Card className="hover:shadow-lg transition-shadow duration-300">
-      <div className="relative">
-        <img
-          src={car.images[0] || '/placeholder-car.jpg'}
-          alt={`${car.make} ${car.model}`}
-          className="w-full h-48 object-cover rounded-t-lg"
-        />
-        <Button
-          variant="ghost"
-          size="sm"
-          className="absolute top-2 right-2 bg-white/80 hover:bg-white/90"
-        >
-          <Heart className="h-4 w-4" />
-        </Button>
-        {car.isVerifiedDealer && (
-          <Badge className="absolute top-2 left-2 bg-green-500">
-            Verified Dealer
-          </Badge>
-        )}
+    <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group">
+      {/* Clickable container for the main card content */}
+      <div onClick={() => setLocation(`/car/${car.id}`)} className="relative">
+        <div className="relative">
+          <img
+            src={car.images[0] || '/placeholder-car.jpg'}
+            alt={`${car.make} ${car.model}`}
+            className="w-full h-48 object-cover rounded-t-lg group-hover:brightness-95 transition-all duration-300"
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2 bg-white/80 hover:bg-white/90 z-10"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent navigation when clicking favorite
+              // Add favorite functionality here if needed
+            }}
+          >
+            <Heart className="h-4 w-4" />
+          </Button>
+          {car.isVerifiedDealer && (
+            <Badge className="absolute top-2 left-2 bg-green-500">
+              Verified Dealer
+            </Badge>
+          )}
+        </div>
+
+        <CardContent className="p-4">
+          <div className="space-y-3">
+            <div>
+              <h3 className="font-semibold text-lg group-hover:text-purple-600 transition-colors duration-300">
+                {car.year} {car.make} {car.model}
+              </h3>
+              <p className="text-2xl font-bold text-purple-600">
+                KES {car.price.toLocaleString()}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-1">
+                <Gauge className="h-4 w-4" />
+                {car.mileage.toLocaleString()} km
+              </div>
+              <div className="flex items-center gap-1">
+                <Fuel className="h-4 w-4" />
+                {car.fuelType}
+              </div>
+              <div className="flex items-center gap-1">
+                <Settings className="h-4 w-4" />
+                {car.transmission}
+              </div>
+              <div className="flex items-center gap-1">
+                <MapPin className="h-4 w-4" />
+                {car.location}
+              </div>
+            </div>
+          </div>
+        </CardContent>
       </div>
 
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          <div>
-            <h3 className="font-semibold text-lg">
-              {car.year} {car.make} {car.model}
-            </h3>
-            <p className="text-2xl font-bold text-purple-600">
-              KES {car.price.toLocaleString()}
-            </p>
+      {/* Action buttons outside the clickable area */}
+      <div className="px-4 pb-4">
+        <div className="flex items-center justify-between pt-2">
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              className="bg-purple-600 hover:bg-purple-700"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent navigation when clicking action buttons
+                // Add message functionality here if needed
+              }}
+            >
+              <MessageCircle className="h-4 w-4 mr-1" />
+              Message
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent navigation when clicking action buttons
+                // Add call functionality here if needed
+              }}
+            >
+              <Phone className="h-4 w-4 mr-1" />
+              Call
+            </Button>
           </div>
-
-          <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-            <div className="flex items-center gap-1">
-              <Gauge className="h-4 w-4" />
-              {car.mileage.toLocaleString()} km
-            </div>
-            <div className="flex items-center gap-1">
-              <Fuel className="h-4 w-4" />
-              {car.fuelType}
-            </div>
-            <div className="flex items-center gap-1">
-              <Settings className="h-4 w-4" />
-              {car.transmission}
-            </div>
-            <div className="flex items-center gap-1">
-              <MapPin className="h-4 w-4" />
-              {car.location}
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-2">
-            <div className="flex gap-2">
-              <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                <MessageCircle className="h-4 w-4 mr-1" />
-                Message
-              </Button>
-              <Button size="sm" variant="outline">
-                <Phone className="h-4 w-4 mr-1" />
-                Call
-              </Button>
-            </div>
-            <div className="text-xs text-gray-500">
-              {car.viewCount} views
-            </div>
+          <div className="text-xs text-gray-500">
+            {car.viewCount} views
           </div>
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 

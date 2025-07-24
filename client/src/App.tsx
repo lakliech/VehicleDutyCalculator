@@ -87,7 +87,7 @@ function Router() {
           <Route path="/transfer-cost" component={TransferCost} />
           <Route path="/mycars-worth" component={MyCarsWorth} />
           <Route path="/buy-a-car" component={BuyACar} />
-          <Route path="/car-details/:id" component={CarDetails} />
+          <Route path="/car/:id" component={CarDetails} />
           <Route path="/dealers" component={Dealers} />
           <Route path="/dealer/:userId" component={DealerProfile} />
           <Route path="/dealer-registration" component={DealerRegistration} />

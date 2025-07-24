@@ -115,8 +115,10 @@ export default function EcosystemRegistrationSimple() {
   };
 
   const nextStep = () => {
+    console.log("nextStep called, current step:", currentStep);
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
+      console.log("Moving to step:", currentStep + 1);
     }
   };
 

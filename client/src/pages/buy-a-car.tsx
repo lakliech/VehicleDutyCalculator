@@ -1,32 +1,36 @@
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { useLocation } from 'wouter';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { ModuleNavigation } from '@/components/module-navigation';
-import { SwipeInterface } from '@/components/swipe-interface';
-import { apiRequest, queryClient } from '@/lib/queryClient';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Search, 
-  Sparkles, 
-  Grid, 
-  Smartphone, 
-  Car, 
-  Phone, 
-  MessageCircle, 
-  Heart, 
-  Share2, 
+  Filter, 
   MapPin, 
+  Calendar, 
   Fuel, 
-  Settings, 
-  Gauge,
+  Gauge, 
+  Users, 
+  Star,
+  Heart,
+  MessageCircle,
+  Phone,
+  Mail,
+  Sparkles,
+  AlertTriangle,
+  Smartphone,
+  Grid,
+  Car,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Settings
 } from 'lucide-react';
+import { SwipeInterface } from '@/components/swipe-interface';
+import { ModuleNavigation } from '@/components/module-navigation';
+import { useToast } from '@/hooks/use-toast';
 
 interface CarListing {
   id: number;
@@ -49,528 +53,515 @@ interface CarListing {
   isVerifiedDealer?: boolean;
 }
 
-interface CarFilters {
-  search: string;
-  make: string[];
-  model: string[];
-  minPrice: number;
-  maxPrice: number;
-  fuelType: string[];
-  transmission: string[];
-  bodyType: string[];
-  minYear: number;
-  maxYear: number;
-  minMileage: number;
-  maxMileage: number;
-  doors: string[];
-  color: string[];
-  features: string[];
-  sortBy: string;
+interface SmartSearchFilters {
+  make?: string;
+  model?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minYear?: number;
+  maxYear?: number;
+  fuelType?: string;
+  transmission?: string;
+  bodyType?: string;
 }
 
 export default function BuyACar() {
   const { toast } = useToast();
-  const [location] = useLocation();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [smartSearchLoading, setSmartSearchLoading] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState<SmartSearchFilters>({});
+  const [isMobile, setIsMobile] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [filters, setFilters] = useState<CarFilters>({
-    search: '',
-    make: [],
-    model: [],
-    minPrice: 0,
-    maxPrice: 10000000,
-    fuelType: [],
-    transmission: [],
-    bodyType: [],
-    minYear: 2000,
-    maxYear: new Date().getFullYear(),
-    minMileage: 0,
-    maxMileage: 200000,
-    doors: [],
-    color: [],
-    features: [],
-    sortBy: 'recommended'
-  });
+  const [priceRange, setPriceRange] = useState({ min: '', max: '' });
+  const [yearRange, setYearRange] = useState({ min: '', max: '' });
+  const [selectedMake, setSelectedMake] = useState('');
+  const [selectedFuelType, setSelectedFuelType] = useState('');
+  const [selectedTransmission, setSelectedTransmission] = useState('');
 
-  // Handle URL parameters from smart search
+  // Mobile detection
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const checkMobile = () => {
+      const isMobileDevice = window.innerWidth <= 768 || 
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(isMobileDevice);
+    };
     
-    if (params.toString()) {
-      const newFilters = { ...filters };
-      
-      if (params.get('maxPrice')) newFilters.maxPrice = parseInt(params.get('maxPrice')!);
-      if (params.get('minPrice')) newFilters.minPrice = parseInt(params.get('minPrice')!);
-      if (params.get('make')) newFilters.make = params.get('make')!.split(',');
-      if (params.get('model')) newFilters.model = params.get('model')!.split(',');
-      if (params.get('fuelType')) newFilters.fuelType = params.get('fuelType')!.split(',');
-      if (params.get('transmission')) newFilters.transmission = params.get('transmission')!.split(',');
-      if (params.get('bodyType')) newFilters.bodyType = params.get('bodyType')!.split(',');
-      if (params.get('minYear')) newFilters.minYear = parseInt(params.get('minYear')!);
-      if (params.get('maxYear')) newFilters.maxYear = parseInt(params.get('maxYear')!);
-      
-      setFilters(newFilters);
-      
-      // Clear URL parameters after loading them
-      window.history.replaceState({}, '', '/buy-a-car');
-    }
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Fetch car listings
-  const { data: listings, isLoading: listingsLoading } = useQuery({
-    queryKey: ['car-listings', filters, currentPage],
+  // Fetch car listings with filters
+  const { data: listings = [], isLoading, error } = useQuery({
+    queryKey: ['/api/vehicles/active', appliedFilters, currentPage],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: currentPage.toString(),
-        limit: '12',
-        ...Object.entries(filters).reduce((acc, [key, value]) => {
-          if (Array.isArray(value) && value.length > 0) {
-            acc[key] = value.join(',');
-          } else if (value !== null && value !== undefined && value !== '' && value !== 0) {
-            acc[key] = value.toString();
-          }
-          return acc;
-        }, {} as Record<string, string>)
+        limit: isMobile ? '10' : '12',
+        ...Object.fromEntries(
+          Object.entries(appliedFilters).filter(([_, value]) => value !== undefined && value !== '')
+        )
       });
-
-      const response = await fetch(`/api/car-listings?${params}`);
-      const data = await response.json();
-      return data;
+      
+      const response = await fetch(`/api/vehicles/active?${params}`, {
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch car listings');
+      }
+      
+      return response.json();
     },
+    retry: 2,
+    staleTime: 60000,
   });
 
-  const handleFilterChange = (key: keyof CarFilters, value: any) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-    setCurrentPage(1);
-  };
-
-  const handleSmartSearch = async (query: string) => {
-    try {
-      const response = await apiRequest('POST', '/api/smart-search-parse', { query });
-      const data = await response.json();
-      
-      const { filters: aiFilters, explanation } = data;
-      
-      // Apply AI-extracted filters
-      const newFilters = {
-        ...filters,
-        maxPrice: aiFilters.maxPrice ?? filters.maxPrice,
-        minPrice: aiFilters.minPrice ?? filters.minPrice,
-        make: aiFilters.make?.length > 0 ? aiFilters.make : filters.make,
-        model: aiFilters.model?.length > 0 ? aiFilters.model : filters.model,
-        fuelType: aiFilters.fuelType?.length > 0 ? aiFilters.fuelType : filters.fuelType,
-        transmission: aiFilters.transmission?.length > 0 ? aiFilters.transmission : filters.transmission,
-        bodyType: aiFilters.bodyType?.length > 0 ? aiFilters.bodyType : filters.bodyType,
-        minYear: aiFilters.minYear ?? filters.minYear,
-        maxYear: aiFilters.maxYear ?? filters.maxYear,
-      };
-      
-      setFilters(newFilters);
-      setCurrentPage(1);
-      queryClient.invalidateQueries({ queryKey: ['car-listings'] });
-      
+  // Smart search function
+  const handleSmartSearch = async () => {
+    if (!searchTerm.trim()) {
       toast({
-        title: "Smart Search Applied",
-        description: explanation || "Filters applied successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Search Error",
-        description: "Unable to process your search",
+        title: "Empty Search",
+        description: "Please enter a search query to use smart search.",
         variant: "destructive",
       });
+      return;
+    }
+
+    setSmartSearchLoading(true);
+    
+    try {
+      const response = await fetch('/api/smart-search-parse', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ query: searchTerm }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Smart search failed');
+      }
+
+      const result = await response.json();
+      console.log('Smart search result:', result);
+
+      if (result.filters && Object.keys(result.filters).length > 0) {
+        setAppliedFilters(result.filters);
+        setSearchTerm(''); // Clear search after applying filters
+        toast({
+          title: "Smart Search Applied",
+          description: `Found filters: ${Object.keys(result.filters).join(', ')}`,
+        });
+      } else {
+        toast({
+          title: "No Filters Found",
+          description: "Try a more specific search like 'budget 700k toyota' or 'honda automatic under 2M'",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Smart search error:', error);
+      toast({
+        title: "Smart Search Error",
+        description: "Failed to parse your search. Please try again or use manual filters.",
+        variant: "destructive",
+      });
+    } finally {
+      setSmartSearchLoading(false);
     }
   };
 
-  const handleAddToFavorites = (carId: number) => {
+  // Handle Enter key for smart search
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSmartSearch();
+    }
+  };
+
+  // Apply manual filters
+  const applyManualFilters = () => {
+    const filters: SmartSearchFilters = {};
+    
+    if (selectedMake) filters.make = selectedMake;
+    if (selectedFuelType) filters.fuelType = selectedFuelType;
+    if (selectedTransmission) filters.transmission = selectedTransmission;
+    if (priceRange.min) filters.minPrice = parseInt(priceRange.min);
+    if (priceRange.max) filters.maxPrice = parseInt(priceRange.max);
+    if (yearRange.min) filters.minYear = parseInt(yearRange.min);
+    if (yearRange.max) filters.maxYear = parseInt(yearRange.max);
+
+    setAppliedFilters(filters);
+    setCurrentPage(1);
     toast({
-      title: "Added to Favorites",
-      description: "Car has been added to your favorites list",
+      title: "Filters Applied",
+      description: "Updated search results with your filters.",
     });
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
-      minimumFractionDigits: 0,
-    }).format(amount);
+  // Clear all filters
+  const clearFilters = () => {
+    setAppliedFilters({});
+    setSelectedMake('');
+    setSelectedFuelType('');
+    setSelectedTransmission('');
+    setPriceRange({ min: '', max: '' });
+    setYearRange({ min: '', max: '' });
+    setCurrentPage(1);
   };
 
+  // Car Card Component
   const CarCard = ({ car }: { car: CarListing }) => (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <div className="aspect-video bg-gray-200 relative">
-        {car.images && car.images.length > 0 ? (
-          <img
-            src={car.images[0]}
-            alt={`${car.make} ${car.model}`}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Car className="h-12 w-12 text-gray-400" />
-          </div>
+    <Card className="hover:shadow-lg transition-shadow duration-300">
+      <div className="relative">
+        <img
+          src={car.images[0] || '/placeholder-car.jpg'}
+          alt={`${car.make} ${car.model}`}
+          className="w-full h-48 object-cover rounded-t-lg"
+        />
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute top-2 right-2 bg-white/80 hover:bg-white/90"
+        >
+          <Heart className="h-4 w-4" />
+        </Button>
+        {car.isVerifiedDealer && (
+          <Badge className="absolute top-2 left-2 bg-green-500">
+            Verified Dealer
+          </Badge>
         )}
-        
-        <div className="absolute top-2 right-2">
-          <Button
-            size="sm"
-            variant="secondary"
-            className="bg-white/90 hover:bg-white"
-            onClick={() => handleAddToFavorites(car.id)}
-          >
-            <Heart className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
-      
+
       <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
+        <div className="space-y-3">
           <div>
             <h3 className="font-semibold text-lg">
-              {car.make} {car.model}
+              {car.year} {car.make} {car.model}
             </h3>
-            <p className="text-sm text-gray-600">{car.year}</p>
+            <p className="text-2xl font-bold text-purple-600">
+              KES {car.price.toLocaleString()}
+            </p>
           </div>
-          <div className="text-right">
-            <div className="text-xl font-bold text-purple-600">
-              {formatCurrency(car.price)}
+
+          <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-1">
+              <Gauge className="h-4 w-4" />
+              {car.mileage.toLocaleString()} km
+            </div>
+            <div className="flex items-center gap-1">
+              <Fuel className="h-4 w-4" />
+              {car.fuelType}
+            </div>
+            <div className="flex items-center gap-1">
+              <Settings className="h-4 w-4" />
+              {car.transmission}
+            </div>
+            <div className="flex items-center gap-1">
+              <MapPin className="h-4 w-4" />
+              {car.location}
             </div>
           </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
-          <div className="flex items-center gap-1">
-            <Gauge className="h-4 w-4" />
-            {car.mileage?.toLocaleString()} km
-          </div>
-          <div className="flex items-center gap-1">
-            <Fuel className="h-4 w-4" />
-            {car.fuelType}
-          </div>
-          <div className="flex items-center gap-1">
-            <Settings className="h-4 w-4" />
-            {car.transmission}
-          </div>
-          <div className="flex items-center gap-1">
-            <MapPin className="h-4 w-4" />
-            {car.location}
-          </div>
-        </div>
-        
-        {car.features && car.features.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
-            {car.features.slice(0, 3).map((feature, i) => (
-              <Badge key={i} variant="outline" className="text-xs">
-                {feature}
-              </Badge>
-            ))}
-            {car.features.length > 3 && (
-              <Badge variant="outline" className="text-xs">
-                +{car.features.length - 3} more
-              </Badge>
-            )}
-          </div>
-        )}
-        
-        {/* Dealer Information */}
-        {car.dealerName && (
-          <div className="flex items-center gap-2 mb-3 p-2 bg-gray-50 rounded-lg">
-            {car.dealerLogoUrl ? (
-              <img 
-                src={car.dealerLogoUrl} 
-                alt={`${car.dealerName} logo`}
-                className="w-8 h-8 rounded-full object-cover border"
-              />
-            ) : (
-              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                <span className="text-purple-600 font-semibold text-xs">
-                  {car.dealerName.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
-            <div className="flex-1">
-              <div className="flex items-center gap-1">
-                <span className="text-sm font-medium text-gray-900">{car.dealerName}</span>
-                {car.isVerifiedDealer && (
-                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
-                    ✓ Verified
-                  </Badge>
-                )}
-              </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <div className="flex gap-2">
+              <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                <MessageCircle className="h-4 w-4 mr-1" />
+                Message
+              </Button>
+              <Button size="sm" variant="outline">
+                <Phone className="h-4 w-4 mr-1" />
+                Call
+              </Button>
+            </div>
+            <div className="text-xs text-gray-500">
+              {car.viewCount} views
             </div>
           </div>
-        )}
-        
-        <div className="flex gap-2 mt-4">
-          <Button className="flex-1 bg-purple-600 hover:bg-purple-700">
-            View Details
-          </Button>
-          <Button variant="outline" size="sm" className="px-3">
-            <Phone className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" className="px-3">
-            <MessageCircle className="h-4 w-4" />
-          </Button>
         </div>
       </CardContent>
     </Card>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-cyan-50">
+    <div className="min-h-screen bg-gray-50">
       <ModuleNavigation />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Buy a Car
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover quality pre-owned and new vehicles from trusted dealers across Kenya
-          </p>
+          <h1 className="text-3xl font-bold mb-2">Find Your Perfect Car</h1>
+          <p className="text-gray-600">Discover thousands of verified vehicles from trusted dealers</p>
         </div>
 
-        <Tabs defaultValue="smart-search" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="smart-search" className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              Smart Search
-            </TabsTrigger>
-            <TabsTrigger value="browse-all" className="flex items-center gap-2">
-              <Grid className="h-4 w-4" />
-              Browse All
-            </TabsTrigger>
-            <TabsTrigger value="swipe-mode" className="flex items-center gap-2">
-              <Smartphone className="h-4 w-4" />
-              Swipe Mode
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Smart Search Tab */}
-          <TabsContent value="smart-search" className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold mb-4">AI-Powered Car Search</h3>
-              
-              <div className="flex flex-col md:flex-row gap-4 mb-6">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Try: 'budget 700k suzuki', 'honda crv automatic under 2M', 'toyota corolla 2018-2020 petrol'"
-                    className="pl-10"
-                    value={filters.search}
-                    onChange={(e) => handleFilterChange('search', e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        const query = filters.search.trim() || 'budget 730000';
-                        handleSmartSearch(query);
-                      }
-                    }}
-                  />
-                </div>
-                <Button 
-                  onClick={() => {
-                    const query = filters.search.trim() || 'budget 730000';
-                    handleSmartSearch(query);
-                  }}
-                  className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  Smart Search
-                </Button>
-              </div>
-
-              <div className="mb-4 p-3 bg-gray-50 rounded-lg text-sm">
-                <p><strong>Debug:</strong> Found {listings?.total || 0} cars | Current filters: maxPrice={filters.maxPrice}</p>
-              </div>
-
-              {listingsLoading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin h-8 w-8 border-2 border-purple-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-                  <p className="text-gray-600">Searching cars...</p>
-                </div>
-              ) : listings?.cars?.length > 0 ? (
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-600">Found {listings.total} cars matching your search</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {listings.cars.map((car: CarListing) => (
-                      <CarCard key={car.id} car={car} />
-                    ))}
+        {/* Smart Search Section */}
+        <Card className="mb-8 border-purple-200 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-cyan-50">
+            <CardTitle className="flex items-center gap-2 text-purple-800">
+              <Sparkles className="h-5 w-5" />
+              AI-Powered Smart Search
+            </CardTitle>
+            <CardDescription>
+              Try: "budget 700k suzuki", "honda crv automatic under 2M", or "toyota corolla 2018-2020 petrol"
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Describe what you're looking for..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="text-base"
+              />
+              <Button 
+                onClick={handleSmartSearch}
+                disabled={smartSearchLoading}
+                className="bg-purple-600 hover:bg-purple-700 min-w-[120px]"
+              >
+                {smartSearchLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Searching...
                   </div>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Start Your Search</h3>
-                  <p className="text-gray-600 mb-4">Use natural language to find your perfect car</p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {['budget 700k suzuki', 'honda crv automatic', 'toyota under 1M'].map((example) => (
-                      <Button
-                        key={example}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          handleFilterChange('search', example);
-                          handleSmartSearch(example);
-                        }}
-                      >
-                        {example}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              )}
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Smart Search
+                  </>
+                )}
+              </Button>
             </div>
-          </TabsContent>
-
-          {/* Browse All Tab */}
-          <TabsContent value="browse-all" className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold mb-4">Browse All Cars</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                  <Input
-                    placeholder="Search by make, model..."
-                    value={filters.search}
-                    onChange={(e) => handleFilterChange('search', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Min Price</label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={filters.minPrice || ''}
-                    onChange={(e) => handleFilterChange('minPrice', parseInt(e.target.value) || 0)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Max Price</label>
-                  <Input
-                    type="number"
-                    placeholder="10000000"
-                    value={filters.maxPrice || ''}
-                    onChange={(e) => handleFilterChange('maxPrice', parseInt(e.target.value) || 10000000)}
-                  />
-                </div>
-                <div className="flex items-end">
+            
+            {/* Applied Filters Display */}
+            {Object.keys(appliedFilters).length > 0 && (
+              <div className="mt-4 p-4 bg-purple-50 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-purple-800">Active Filters:</h4>
                   <Button
                     variant="outline"
-                    onClick={() => setFilters({
-                      search: '',
-                      make: [],
-                      model: [],
-                      minPrice: 0,
-                      maxPrice: 10000000,
-                      fuelType: [],
-                      transmission: [],
-                      bodyType: [],
-                      minYear: 2000,
-                      maxYear: new Date().getFullYear(),
-                      minMileage: 0,
-                      maxMileage: 200000,
-                      doors: [],
-                      color: [],
-                      features: [],
-                      sortBy: 'recommended'
-                    })}
-                    className="w-full"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="text-purple-600 border-purple-200"
                   >
-                    Clear Filters
+                    Clear All
                   </Button>
                 </div>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(appliedFilters).map(([key, value]) => (
+                    <Badge key={key} variant="secondary" className="bg-purple-100 text-purple-700">
+                      {key}: {value?.toString()}
+                    </Badge>
+                  ))}
+                </div>
               </div>
+            )}
+          </CardContent>
+        </Card>
 
-              {listingsLoading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin h-8 w-8 border-2 border-purple-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading cars...</p>
-                </div>
-              ) : listings?.cars?.length > 0 ? (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm text-gray-600">
-                      Showing {((currentPage - 1) * 12) + 1} to {Math.min(currentPage * 12, listings.total)} of {listings.total} cars
-                    </p>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {listings.cars.map((car: CarListing) => (
-                      <CarCard key={car.id} car={car} />
-                    ))}
-                  </div>
-
-                  {listings.totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        disabled={currentPage === 1}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                        Previous
-                      </Button>
-                      
-                      <span className="px-4 py-2 text-sm">
-                        Page {currentPage} of {listings.totalPages}
-                      </span>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(p => Math.min(listings.totalPages, p + 1))}
-                        disabled={currentPage === listings.totalPages}
-                      >
-                        Next
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Car className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No cars found</h3>
-                  <p className="text-gray-600">Try adjusting your filters or search terms</p>
-                </div>
-              )}
+        {/* Manual Filters Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Filter className="h-5 w-5" />
+                Advanced Filters
+              </CardTitle>
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className="lg:hidden"
+              >
+                {showFilters ? 'Hide' : 'Show'} Filters
+              </Button>
             </div>
-          </TabsContent>
+          </CardHeader>
+          <CardContent className={`space-y-4 ${!showFilters && 'hidden lg:block'}`}>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <Select value={selectedMake} onValueChange={setSelectedMake}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Make" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Toyota">Toyota</SelectItem>
+                  <SelectItem value="Honda">Honda</SelectItem>
+                  <SelectItem value="Nissan">Nissan</SelectItem>
+                  <SelectItem value="Mercedes">Mercedes</SelectItem>
+                  <SelectItem value="BMW">BMW</SelectItem>
+                </SelectContent>
+              </Select>
 
-          {/* Swipe Mode Tab */}
-          <TabsContent value="swipe-mode" className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="text-center mb-6">
-                <h3 className="text-lg font-semibold mb-2">Swipe to Find Your Perfect Car</h3>
-                <p className="text-gray-600">Swipe right to like, left to pass. Find cars you love quickly!</p>
-              </div>
-              
-              {listings?.cars?.length > 0 ? (
-                <SwipeInterface
-                  vehicles={listings.cars}
-                  onSwipeLeft={(car) => {
-                    // User passed on this car
-                  }}
-                  onSwipeRight={(car) => {
-                    handleAddToFavorites(car.id);
-                    toast({
-                      title: "Car Liked!",
-                      description: `Added ${car.make} ${car.model} to your favorites`,
-                    });
-                  }}
+              <Select value={selectedFuelType} onValueChange={setSelectedFuelType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Fuel Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="petrol">Petrol</SelectItem>
+                  <SelectItem value="diesel">Diesel</SelectItem>
+                  <SelectItem value="hybrid">Hybrid</SelectItem>
+                  <SelectItem value="electric">Electric</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedTransmission} onValueChange={setSelectedTransmission}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Transmission" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="automatic">Automatic</SelectItem>
+                  <SelectItem value="manual">Manual</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Min Price"
+                  value={priceRange.min}
+                  onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
+                  type="number"
                 />
-              ) : (
-                <div className="text-center py-12">
-                  <Smartphone className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Loading cars...</h3>
-                  <p className="text-gray-600">Get ready to swipe through available cars</p>
-                </div>
-              )}
+                <Input
+                  placeholder="Max Price"
+                  value={priceRange.max}
+                  onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
+                  type="number"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Min Year"
+                  value={yearRange.min}
+                  onChange={(e) => setYearRange({ ...yearRange, min: e.target.value })}
+                  type="number"
+                />
+                <Input
+                  placeholder="Max Year"
+                  value={yearRange.max}
+                  onChange={(e) => setYearRange({ ...yearRange, max: e.target.value })}
+                  type="number"
+                />
+              </div>
             </div>
-          </TabsContent>
-        </Tabs>
+
+            <div className="flex gap-2">
+              <Button onClick={applyManualFilters} className="bg-purple-600 hover:bg-purple-700">
+                Apply Filters
+              </Button>
+              <Button variant="outline" onClick={clearFilters}>
+                Clear All
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Mobile Swipe Mode or Desktop Grid */}
+        {isMobile ? (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Smartphone className="h-5 w-5 text-purple-600" />
+              <h2 className="text-xl font-semibold">Swipe to Browse</h2>
+              <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                Mobile Mode
+              </Badge>
+            </div>
+            <SwipeInterface cars={listings} />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Results Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Grid className="h-5 w-5 text-purple-600" />
+                <h2 className="text-xl font-semibold">Latest Listings</h2>
+                <Badge variant="outline">{listings.length} cars found</Badge>
+              </div>
+              <Select defaultValue="newest">
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="price-low">Price: Low to High</SelectItem>
+                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  <SelectItem value="mileage">Lowest Mileage</SelectItem>
+                  <SelectItem value="year">Newest Year</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Car Listings Grid */}
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="h-80 bg-gray-200 rounded-lg animate-pulse"></div>
+                ))}
+              </div>
+            ) : error ? (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Failed to load car listings. Please try refreshing the page.
+                </AlertDescription>
+              </Alert>
+            ) : listings.length === 0 ? (
+              <div className="text-center py-12">
+                <Car className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">No cars found</h3>
+                <p className="text-gray-500 mb-4">
+                  Try adjusting your filters or search terms
+                </p>
+                <Button onClick={clearFilters} variant="outline">
+                  Clear Filters
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {listings.map((car: CarListing) => (
+                  <CarCard key={car.id} car={car} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {!isMobile && listings.length > 0 && (
+          <div className="flex items-center justify-center gap-2 mt-8">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Previous
+            </Button>
+            
+            <div className="flex gap-1">
+              {[...Array(Math.min(5, Math.ceil(listings.length / 12)))].map((_, i) => (
+                <Button
+                  key={i}
+                  variant={currentPage === i + 1 ? "default" : "outline"}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className="w-10"
+                >
+                  {i + 1}
+                </Button>
+              ))}
+            </div>
+
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={listings.length < 12}
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -41,7 +41,7 @@ import LiveStreaming from "@/pages/live-streaming";
 import GroupBuying from "@/pages/group-buying";
 import InfluencerHub from "@/pages/influencer-hub";
 import Ecosystem from "@/pages/ecosystem";
-import EcosystemRegistrationSimple from "@/pages/ecosystem-registration-simple";
+import EcosystemRegistrationBasic from "@/pages/ecosystem-registration-basic";
 
 import AdminListingDetails from "@/pages/admin-listing-details";
 import AdminUsers from "@/pages/admin-users";
@@ -120,7 +120,7 @@ function Router() {
           <Route path="/group-buying" component={GroupBuying} />
           <Route path="/influencer-hub" component={InfluencerHub} />
           <Route path="/ecosystem" component={Ecosystem} />
-          <Route path="/ecosystem/register" component={EcosystemRegistrationSimple} />
+          <Route path="/ecosystem/register" component={EcosystemRegistrationBasic} />
           <Route path="/dashboard">
             <ProtectedRoute>
               <Dashboard />

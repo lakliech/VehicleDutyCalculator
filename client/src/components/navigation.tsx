@@ -75,6 +75,9 @@ export function Navigation() {
               <Link href="/influencer-hub" className="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors">
                 Influencer Hub
               </Link>
+              <Link href="/ecosystem" className="text-sm font-medium text-green-600 hover:text-green-700 transition-colors">
+                Ecosystem
+              </Link>
               <div className="w-px h-6 bg-gray-300"></div>
               <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
                 About Us

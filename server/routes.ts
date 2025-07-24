@@ -10100,6 +10100,15 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     console.error("Failed to load concierge routes:", error);
   }
 
+  // Register ecosystem routes
+  try {
+    const ecosystemRoutes = await import("./routes/ecosystem-routes");
+    app.use("/api/ecosystem", ecosystemRoutes.default);
+    console.log("Ecosystem routes registered successfully");
+  } catch (error) {
+    console.error("Failed to load ecosystem routes:", error);
+  }
+
   const httpServer = createServer(app);
 
   return httpServer;

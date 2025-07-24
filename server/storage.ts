@@ -14,7 +14,11 @@ import {
   type AdminNote, type InsertAdminNote, type UserWarning, type InsertUserWarning,
   type AdminTemplate, type InsertAdminTemplate,
   type FavoriteListing, type SavedSearch, type CarComparison,
-  type AutoFlagRule, type FlagCountTracking, type AutomatedActionsLog, type SellerReputationTracking
+  type AutoFlagRule, type FlagCountTracking, type AutomatedActionsLog, type SellerReputationTracking,
+  serviceCategories, serviceSubcategories, serviceProviders, providerServices, providerReviews, ecosystemSearches, providerContacts,
+  type ServiceCategory, type ServiceSubcategory, type ServiceProvider, type InsertServiceProvider,
+  type ProviderService, type InsertProviderService, type ProviderReview, type InsertProviderReview,
+  type EcosystemSearch, type ProviderContact
 } from "@shared/schema";
 import { 
   userAccounts, paymentTransactions, accountCreditTransactions, paymentSchedules, userProductSubscriptions 
@@ -257,6 +261,56 @@ export interface IStorage {
   getSmartRecommendations(listingId: number): Promise<any[]>;
   createSmartRecommendation(recommendation: any): Promise<any>;
   getCarListingById(id: number): Promise<CarListing | null>;
+
+  // Automotive Ecosystem methods
+  getAllServiceCategories(): Promise<ServiceCategory[]>;
+  getActiveServiceCategories(): Promise<ServiceCategory[]>;
+  createServiceCategory(categoryData: Omit<ServiceCategory, 'id' | 'createdAt'>): Promise<ServiceCategory>;
+  
+  getSubcategoriesByCategory(categoryId: number): Promise<ServiceSubcategory[]>;
+  createServiceSubcategory(subcategoryData: Omit<ServiceSubcategory, 'id' | 'createdAt'>): Promise<ServiceSubcategory>;
+  
+  // Service provider methods
+  createServiceProvider(providerData: InsertServiceProvider & { userId?: string }): Promise<ServiceProvider>;
+  getServiceProvider(id: number): Promise<ServiceProvider | null>;
+  getServiceProviders(filters?: {
+    categoryId?: number;
+    subcategoryId?: number;
+    county?: string;
+    area?: string;
+    searchTerm?: string;
+    isVerified?: boolean;
+    page?: number;
+    limit?: number;
+  }): Promise<{ providers: ServiceProvider[]; total: number }>;
+  updateServiceProvider(id: number, updates: Partial<ServiceProvider>): Promise<ServiceProvider>;
+  deleteServiceProvider(id: number): Promise<void>;
+  
+  // Provider services methods
+  addProviderService(serviceData: InsertProviderService): Promise<ProviderService>;
+  getProviderServices(providerId: number): Promise<(ProviderService & { subcategory: ServiceSubcategory })[]>;
+  removeProviderService(id: number): Promise<void>;
+  
+  // Provider reviews methods
+  createProviderReview(reviewData: InsertProviderReview & { userId?: string }): Promise<ProviderReview>;
+  getProviderReviews(providerId: number, limit?: number): Promise<ProviderReview[]>;
+  approveProviderReview(reviewId: number): Promise<void>;
+  rejectProviderReview(reviewId: number): Promise<void>;
+  
+  // Search and analytics methods
+  logEcosystemSearch(searchData: Omit<EcosystemSearch, 'id' | 'searchedAt'>): Promise<void>;
+  getPopularSearches(limit?: number): Promise<{ searchTerm: string; count: number }[]>;
+  logProviderContact(contactData: Omit<ProviderContact, 'id' | 'contactedAt'>): Promise<void>;
+  incrementProviderViews(providerId: number): Promise<void>;
+  incrementProviderContacts(providerId: number): Promise<void>;
+  
+  getEcosystemStats(): Promise<{
+    totalProviders: number;
+    verifiedProviders: number;
+    totalCategories: number;
+    totalReviews: number;
+    averageRating: number;
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -3292,6 +3346,264 @@ export class DatabaseStorage implements IStorage {
       .where(eq(paymentTransactions.id, transactionId))
       .returning();
     return transaction;
+  }
+
+  // Automotive Ecosystem methods implementation
+  async getAllServiceCategories(): Promise<ServiceCategory[]> {
+    return await db.select().from(serviceCategories).orderBy(serviceCategories.sortOrder);
+  }
+
+  async getActiveServiceCategories(): Promise<ServiceCategory[]> {
+    return await db.select().from(serviceCategories)
+      .where(eq(serviceCategories.isActive, true))
+      .orderBy(serviceCategories.sortOrder);
+  }
+
+  async createServiceCategory(categoryData: Omit<ServiceCategory, 'id' | 'createdAt'>): Promise<ServiceCategory> {
+    const [category] = await db.insert(serviceCategories)
+      .values({
+        ...categoryData,
+        createdAt: new Date()
+      })
+      .returning();
+    return category;
+  }
+
+  async getSubcategoriesByCategory(categoryId: number): Promise<ServiceSubcategory[]> {
+    return await db.select().from(serviceSubcategories)
+      .where(eq(serviceSubcategories.categoryId, categoryId))
+      .orderBy(serviceSubcategories.sortOrder);
+  }
+
+  async createServiceSubcategory(subcategoryData: Omit<ServiceSubcategory, 'id' | 'createdAt'>): Promise<ServiceSubcategory> {
+    const [subcategory] = await db.insert(serviceSubcategories)
+      .values({
+        ...subcategoryData,
+        createdAt: new Date()
+      })
+      .returning();
+    return subcategory;
+  }
+
+  // Service provider methods
+  async createServiceProvider(providerData: InsertServiceProvider & { userId?: string }): Promise<ServiceProvider> {
+    const [provider] = await db.insert(serviceProviders)
+      .values({
+        ...providerData,
+        registeredAt: new Date()
+      })
+      .returning();
+    return provider;
+  }
+
+  async getServiceProvider(id: number): Promise<ServiceProvider | null> {
+    const [provider] = await db.select().from(serviceProviders)
+      .where(eq(serviceProviders.id, id));
+    return provider || null;
+  }
+
+  async getServiceProviders(filters?: {
+    categoryId?: number;
+    subcategoryId?: number;
+    county?: string;
+    area?: string;
+    searchTerm?: string;
+    isVerified?: boolean;
+    page?: number;
+    limit?: number;
+  }): Promise<{ providers: ServiceProvider[]; total: number }> {
+    let query = db.select().from(serviceProviders);
+    let countQuery = db.select({ count: sql<number>`count(*)` }).from(serviceProviders);
+
+    const conditions = [];
+
+    if (filters?.categoryId) {
+      conditions.push(eq(serviceProviders.categoryId, filters.categoryId));
+    }
+    if (filters?.subcategoryId) {
+      conditions.push(eq(serviceProviders.subcategoryId, filters.subcategoryId));
+    }
+    if (filters?.county) {
+      conditions.push(eq(serviceProviders.county, filters.county));
+    }
+    if (filters?.area) {
+      conditions.push(eq(serviceProviders.area, filters.area));
+    }
+    if (filters?.isVerified !== undefined) {
+      conditions.push(eq(serviceProviders.isVerified, filters.isVerified));
+    }
+    if (filters?.searchTerm) {
+      conditions.push(
+        or(
+          ilike(serviceProviders.businessName, `%${filters.searchTerm}%`),
+          ilike(serviceProviders.description, `%${filters.searchTerm}%`),
+          ilike(serviceProviders.services, `%${filters.searchTerm}%`)
+        )
+      );
+    }
+
+    if (conditions.length > 0) {
+      const whereClause = and(...conditions);
+      query = query.where(whereClause);
+      countQuery = countQuery.where(whereClause);
+    }
+
+    // Get total count
+    const [{ count }] = await countQuery;
+
+    // Apply pagination
+    const page = filters?.page || 1;
+    const limit = filters?.limit || 20;
+    const offset = (page - 1) * limit;
+
+    const providers = await query
+      .orderBy(desc(serviceProviders.isVerified), desc(serviceProviders.registeredAt))
+      .limit(limit)
+      .offset(offset);
+
+    return { providers, total: count };
+  }
+
+  async updateServiceProvider(id: number, updates: Partial<ServiceProvider>): Promise<ServiceProvider> {
+    const [provider] = await db.update(serviceProviders)
+      .set(updates)
+      .where(eq(serviceProviders.id, id))
+      .returning();
+    return provider;
+  }
+
+  async deleteServiceProvider(id: number): Promise<void> {
+    await db.delete(serviceProviders).where(eq(serviceProviders.id, id));
+  }
+
+  // Provider services methods
+  async addProviderService(serviceData: InsertProviderService): Promise<ProviderService> {
+    const [service] = await db.insert(providerServices)
+      .values(serviceData)
+      .returning();
+    return service;
+  }
+
+  async getProviderServices(providerId: number): Promise<(ProviderService & { subcategory: ServiceSubcategory })[]> {
+    return await db.select({
+      id: providerServices.id,
+      providerId: providerServices.providerId,
+      subcategoryId: providerServices.subcategoryId,
+      customServiceName: providerServices.customServiceName,
+      price: providerServices.price,
+      description: providerServices.description,
+      isActive: providerServices.isActive,
+      subcategory: serviceSubcategories
+    })
+    .from(providerServices)
+    .leftJoin(serviceSubcategories, eq(providerServices.subcategoryId, serviceSubcategories.id))
+    .where(eq(providerServices.providerId, providerId));
+  }
+
+  async removeProviderService(id: number): Promise<void> {
+    await db.delete(providerServices).where(eq(providerServices.id, id));
+  }
+
+  // Provider reviews methods
+  async createProviderReview(reviewData: InsertProviderReview & { userId?: string }): Promise<ProviderReview> {
+    const [review] = await db.insert(providerReviews)
+      .values({
+        ...reviewData,
+        reviewedAt: new Date()
+      })
+      .returning();
+    return review;
+  }
+
+  async getProviderReviews(providerId: number, limit?: number): Promise<ProviderReview[]> {
+    let query = db.select().from(providerReviews)
+      .where(eq(providerReviews.providerId, providerId))
+      .orderBy(desc(providerReviews.reviewedAt));
+    
+    if (limit) {
+      query = query.limit(limit);
+    }
+    return await query;
+  }
+
+  async approveProviderReview(reviewId: number): Promise<void> {
+    await db.update(providerReviews)
+      .set({ isApproved: true })
+      .where(eq(providerReviews.id, reviewId));
+  }
+
+  async rejectProviderReview(reviewId: number): Promise<void> {
+    await db.update(providerReviews)
+      .set({ isApproved: false })
+      .where(eq(providerReviews.id, reviewId));
+  }
+
+  // Search and analytics methods
+  async logEcosystemSearch(searchData: Omit<EcosystemSearch, 'id' | 'searchedAt'>): Promise<void> {
+    await db.insert(ecosystemSearches).values({
+      ...searchData,
+      searchedAt: new Date()
+    });
+  }
+
+  async getPopularSearches(limit: number = 10): Promise<{ searchTerm: string; count: number }[]> {
+    const results = await db.select({
+      searchTerm: ecosystemSearches.searchTerm,
+      count: sql<number>`count(*)`
+    })
+    .from(ecosystemSearches)
+    .groupBy(ecosystemSearches.searchTerm)
+    .orderBy(desc(sql`count(*)`))
+    .limit(limit);
+
+    return results;
+  }
+
+  async logProviderContact(contactData: Omit<ProviderContact, 'id' | 'contactedAt'>): Promise<void> {
+    await db.insert(providerContacts).values({
+      ...contactData,
+      contactedAt: new Date()
+    });
+  }
+
+  async incrementProviderViews(providerId: number): Promise<void> {
+    await db.update(serviceProviders)
+      .set({ 
+        totalViews: sql`${serviceProviders.totalViews} + 1` 
+      })
+      .where(eq(serviceProviders.id, providerId));
+  }
+
+  async incrementProviderContacts(providerId: number): Promise<void> {
+    await db.update(serviceProviders)
+      .set({ 
+        totalContacts: sql`${serviceProviders.totalContacts} + 1` 
+      })
+      .where(eq(serviceProviders.id, providerId));
+  }
+
+  async getEcosystemStats(): Promise<{
+    totalProviders: number;
+    verifiedProviders: number;
+    totalCategories: number;
+    totalReviews: number;
+    averageRating: number;
+  }> {
+    const [totalProviders] = await db.select({ count: sql<number>`count(*)` }).from(serviceProviders);
+    const [verifiedProviders] = await db.select({ count: sql<number>`count(*)` })
+      .from(serviceProviders)
+      .where(eq(serviceProviders.isVerified, true));
+    const [totalCategories] = await db.select({ count: sql<number>`count(*)` }).from(serviceCategories);
+    const [totalReviews] = await db.select({ count: sql<number>`count(*)` }).from(providerReviews);
+    const [avgRating] = await db.select({ avg: sql<number>`avg(${providerReviews.rating})` }).from(providerReviews);
+
+    return {
+      totalProviders: totalProviders.count,
+      verifiedProviders: verifiedProviders.count,
+      totalCategories: totalCategories.count,
+      totalReviews: totalReviews.count,
+      averageRating: Number(avgRating.avg) || 0
+    };
   }
 }
 

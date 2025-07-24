@@ -40,6 +40,8 @@ import Dealers from "@/pages/dealers";
 import LiveStreaming from "@/pages/live-streaming";
 import GroupBuying from "@/pages/group-buying";
 import InfluencerHub from "@/pages/influencer-hub";
+import Ecosystem from "@/pages/ecosystem";
+import EcosystemRegistration from "@/pages/ecosystem-registration";
 
 import AdminListingDetails from "@/pages/admin-listing-details";
 import AdminUsers from "@/pages/admin-users";
@@ -117,6 +119,8 @@ function Router() {
           <Route path="/live-streaming" component={LiveStreaming} />
           <Route path="/group-buying" component={GroupBuying} />
           <Route path="/influencer-hub" component={InfluencerHub} />
+          <Route path="/ecosystem" component={Ecosystem} />
+          <Route path="/ecosystem/register" component={EcosystemRegistration} />
           <Route path="/dashboard">
             <ProtectedRoute>
               <Dashboard />

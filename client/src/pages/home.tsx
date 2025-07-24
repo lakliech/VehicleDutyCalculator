@@ -23,6 +23,7 @@ import {
   Sparkles,
   Star,
   User,
+  Building2
 
 } from "lucide-react";
 
@@ -117,6 +118,13 @@ const PROFESSIONAL_TOOLS = [
     description: "Chassis number verification",
     icon: Shield,
     color: "text-cyan-600"
+  },
+  { 
+    href: "/ecosystem", 
+    title: "Automotive Ecosystem", 
+    description: "Directory of automotive businesses",
+    icon: Building2,
+    color: "text-emerald-600"
   }
 ];
 

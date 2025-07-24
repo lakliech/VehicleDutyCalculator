@@ -2783,3 +2783,188 @@ export type ConciergeAdvisor = typeof conciergeAdvisors.$inferSelect;
 export type InsertConciergeAdvisor = z.infer<typeof conciergeAdvisorSchema>;
 export type ConciergePackage = typeof conciergePackages.$inferSelect;
 export type InsertConciergePackage = z.infer<typeof conciergePackageSchema>;
+
+// ===============================
+// AUTOMOTIVE ECOSYSTEM PLATFORM
+// ===============================
+
+// Service Categories - Main categories from the ecosystem document (11 categories)
+export const serviceCategories = pgTable("service_categories", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  icon: varchar("icon", { length: 50 }), // Icon name for UI
+  sortOrder: integer("sort_order").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Service Subcategories - Specific services within each category
+export const serviceSubcategories = pgTable("service_subcategories", {
+  id: serial("id").primaryKey(),
+  categoryId: integer("category_id").references(() => serviceCategories.id).notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  sortOrder: integer("sort_order").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Service Providers - Individual businesses or persons offering services
+export const serviceProviders = pgTable("service_providers", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id), // Link to user account if registered
+  businessName: varchar("business_name", { length: 200 }).notNull(),
+  contactPersonName: varchar("contact_person_name", { length: 100 }),
+  businessType: varchar("business_type", { length: 50 }).notNull(), // 'individual', 'business', 'company'
+  
+  // Contact Information
+  phoneNumbers: json("phone_numbers").$type<string[]>().default([]),
+  email: varchar("email", { length: 100 }),
+  website: varchar("website", { length: 200 }),
+  whatsappNumber: varchar("whatsapp_number", { length: 20 }),
+  
+  // Location Information
+  county: varchar("county", { length: 50 }).notNull(),
+  area: varchar("area", { length: 100 }).notNull(),
+  specificLocation: text("specific_location"), // Detailed address/directions
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  
+  // Business Details
+  description: text("description"),
+  businessHours: json("business_hours").$type<{
+    monday?: { open: string; close: string; closed?: boolean };
+    tuesday?: { open: string; close: string; closed?: boolean };
+    wednesday?: { open: string; close: string; closed?: boolean };
+    thursday?: { open: string; close: string; closed?: boolean };
+    friday?: { open: string; close: string; closed?: boolean };
+    saturday?: { open: string; close: string; closed?: boolean };
+    sunday?: { open: string; close: string; closed?: boolean };
+  }>(),
+  yearsInBusiness: integer("years_in_business"),
+  licenseNumber: varchar("license_number", { length: 100 }),
+  
+  // Media
+  logoUrl: varchar("logo_url", { length: 500 }),
+  bannerImageUrl: varchar("banner_image_url", { length: 500 }),
+  galleryImages: json("gallery_images").$type<string[]>().default([]),
+  
+  // Status and Verification
+  isVerified: boolean("is_verified").default(false),
+  verificationDate: timestamp("verification_date"),
+  verificationNotes: text("verification_notes"),
+  isActive: boolean("is_active").default(true),
+  isApproved: boolean("is_approved").default(false),
+  
+  // Analytics
+  viewCount: integer("view_count").default(0),
+  contactCount: integer("contact_count").default(0),
+  rating: decimal("rating", { precision: 3, scale: 2 }).default('0.00'),
+  reviewCount: integer("review_count").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Provider Services - Many-to-many relationship between providers and subcategories
+export const providerServices = pgTable("provider_services", {
+  id: serial("id").primaryKey(),
+  providerId: integer("provider_id").references(() => serviceProviders.id).notNull(),
+  subcategoryId: integer("subcategory_id").references(() => serviceSubcategories.id).notNull(),
+  isPrimary: boolean("is_primary").default(false), // Primary service of the provider
+  description: text("description"), // Specific description for this service
+  priceRange: varchar("price_range", { length: 100 }), // e.g., "KES 500 - 2,000"
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Provider Reviews and Ratings
+export const providerReviews = pgTable("provider_reviews", {
+  id: serial("id").primaryKey(),
+  providerId: integer("provider_id").references(() => serviceProviders.id).notNull(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id),
+  reviewerName: varchar("reviewer_name", { length: 100 }), // For non-registered users
+  rating: integer("rating").notNull(), // 1-5 stars
+  reviewText: text("review_text"),
+  serviceUsed: varchar("service_used", { length: 200 }), // What service was reviewed
+  isVerified: boolean("is_verified").default(false), // Verified purchase/service
+  isApproved: boolean("is_approved").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Search History and Analytics
+export const ecosystemSearches = pgTable("ecosystem_searches", {
+  id: serial("id").primaryKey(),
+  searchTerm: varchar("search_term", { length: 200 }),
+  categoryId: integer("category_id").references(() => serviceCategories.id),
+  subcategoryId: integer("subcategory_id").references(() => serviceSubcategories.id),
+  location: varchar("location", { length: 100 }),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id),
+  resultsCount: integer("results_count").default(0),
+  searchedAt: timestamp("searched_at").defaultNow(),
+});
+
+// Provider Contact Logs
+export const providerContacts = pgTable("provider_contacts", {
+  id: serial("id").primaryKey(),
+  providerId: integer("provider_id").references(() => serviceProviders.id).notNull(),
+  userId: varchar("user_id", { length: 255 }).references(() => appUsers.id),
+  contactMethod: varchar("contact_method", { length: 50 }).notNull(), // 'phone', 'email', 'whatsapp', 'website'
+  contactedAt: timestamp("contacted_at").defaultNow(),
+});
+
+// Ecosystem schemas
+export const serviceProviderSchema = createInsertSchema(serviceProviders).omit({
+  id: true,
+  userId: true,
+  isVerified: true,
+  verificationDate: true,
+  verificationNotes: true,
+  isApproved: true,
+  viewCount: true,
+  contactCount: true,
+  rating: true,
+  reviewCount: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  businessName: z.string().min(2, "Business name must be at least 2 characters"),
+  businessType: z.enum(["individual", "business", "company"]),
+  county: z.string().min(1, "County is required"),
+  area: z.string().min(1, "Area is required"),
+  phoneNumbers: z.array(z.string()).min(1, "At least one phone number is required"),
+  email: z.string().email().optional(),
+  description: z.string().min(10, "Description must be at least 10 characters").optional(),
+});
+
+export const providerReviewSchema = createInsertSchema(providerReviews).omit({
+  id: true,
+  userId: true,
+  isVerified: true,
+  isApproved: true,
+  createdAt: true,
+}).extend({
+  rating: z.number().min(1).max(5),
+  reviewText: z.string().min(10, "Review must be at least 10 characters"),
+  reviewerName: z.string().min(2, "Name must be at least 2 characters"),
+});
+
+// Type definitions for the ecosystem
+export type ServiceCategory = typeof serviceCategories.$inferSelect;
+export type InsertServiceCategory = typeof serviceCategories.$inferInsert;
+
+export type ServiceSubcategory = typeof serviceSubcategories.$inferSelect;
+export type InsertServiceSubcategory = typeof serviceSubcategories.$inferInsert;
+
+export type ServiceProvider = typeof serviceProviders.$inferSelect;
+export type InsertServiceProvider = z.infer<typeof serviceProviderSchema>;
+
+export type ProviderService = typeof providerServices.$inferSelect;
+export type InsertProviderService = typeof providerServices.$inferInsert;
+
+export type ProviderReview = typeof providerReviews.$inferSelect;
+export type InsertProviderReview = z.infer<typeof providerReviewSchema>;
+
+export type EcosystemSearch = typeof ecosystemSearches.$inferSelect;
+export type ProviderContact = typeof providerContacts.$inferSelect;

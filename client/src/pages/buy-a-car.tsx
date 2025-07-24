@@ -27,7 +27,11 @@ import {
   Car,
   ChevronLeft,
   ChevronRight,
-  Settings
+  Settings,
+  Share2,
+  GitCompare,
+  CreditCard,
+  Bookmark
 } from 'lucide-react';
 import { SwipeInterface } from '@/components/swipe-interface';
 import { ModuleNavigation } from '@/components/module-navigation';
@@ -70,6 +74,8 @@ interface SmartSearchFilters {
 export default function BuyACar() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const [favorites, setFavorites] = useState<Set<number>>(new Set());
+  const [compareList, setCompareList] = useState<Set<number>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
   const [smartSearchLoading, setSmartSearchLoading] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<SmartSearchFilters>({});
@@ -233,102 +239,221 @@ export default function BuyACar() {
     setCurrentPage(1);
   };
 
+  // Action button handlers
+  const handleAddToFavorites = (carId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(carId)) {
+      newFavorites.delete(carId);
+      toast({
+        title: "Removed from favorites",
+        description: "Vehicle removed from your favorites list.",
+      });
+    } else {
+      newFavorites.add(carId);
+      toast({
+        title: "Added to favorites",
+        description: "Vehicle added to your favorites list.",
+      });
+    }
+    setFavorites(newFavorites);
+  };
+
+  const handleAddToComparison = (carId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newCompareList = new Set(compareList);
+    if (newCompareList.has(carId)) {
+      newCompareList.delete(carId);
+      toast({
+        title: "Removed from comparison",
+        description: "Vehicle removed from comparison list.",
+      });
+    } else if (newCompareList.size >= 3) {
+      toast({
+        title: "Comparison limit reached",
+        description: "You can only compare up to 3 vehicles at once.",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      newCompareList.add(carId);
+      toast({
+        title: "Added to comparison",
+        description: "Vehicle added to comparison list.",
+      });
+    }
+    setCompareList(newCompareList);
+  };
+
+  const handleShare = (car: CarListing, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (navigator.share) {
+      navigator.share({
+        title: `${car.year} ${car.make} ${car.model}`,
+        text: `Check out this ${car.year} ${car.make} ${car.model} for KES ${car.price.toLocaleString()}`,
+        url: `${window.location.origin}/car/${car.id}`,
+      });
+    } else {
+      navigator.clipboard.writeText(`${window.location.origin}/car/${car.id}`);
+      toast({
+        title: "Link copied",
+        description: "Vehicle link copied to clipboard.",
+      });
+    }
+  };
+
+  const handleCallSeller = (phoneNumber: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(`tel:${phoneNumber}`, '_self');
+  };
+
+  const handleMessageSeller = (car: CarListing, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Navigate to car details with message intent
+    setLocation(`/car/${car.id}#message`);
+  };
+
+  const handleFinanceOptions = (car: CarListing, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Navigate to car details with financial services tab
+    setLocation(`/car/${car.id}#financial`);
+  };
+
   // Car Card Component
-  const CarCard = ({ car }: { car: CarListing }) => (
-    <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group">
-      {/* Clickable container for the main card content */}
-      <div onClick={() => setLocation(`/car/${car.id}`)} className="relative">
-        <div className="relative">
-          <img
-            src={car.images[0] || '/placeholder-car.jpg'}
-            alt={`${car.make} ${car.model}`}
-            className="w-full h-48 object-cover rounded-t-lg group-hover:brightness-95 transition-all duration-300"
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="absolute top-2 right-2 bg-white/80 hover:bg-white/90 z-10"
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent navigation when clicking favorite
-              // Add favorite functionality here if needed
-            }}
-          >
-            <Heart className="h-4 w-4" />
-          </Button>
-          {car.isVerifiedDealer && (
-            <Badge className="absolute top-2 left-2 bg-green-500">
-              Verified Dealer
-            </Badge>
-          )}
-        </div>
-
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            <div>
-              <h3 className="font-semibold text-lg group-hover:text-purple-600 transition-colors duration-300">
-                {car.year} {car.make} {car.model}
-              </h3>
-              <p className="text-2xl font-bold text-purple-600">
-                KES {car.price.toLocaleString()}
-              </p>
+  const CarCard = ({ car }: { car: CarListing }) => {
+    const isFavorite = favorites.has(car.id);
+    const isInComparison = compareList.has(car.id);
+    
+    return (
+      <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group">
+        {/* Clickable container for the main card content */}
+        <div onClick={() => setLocation(`/car/${car.id}`)} className="relative">
+          <div className="relative">
+            <img
+              src={car.images[0] || '/placeholder-car.jpg'}
+              alt={`${car.make} ${car.model}`}
+              className="w-full h-48 object-cover rounded-t-lg group-hover:brightness-95 transition-all duration-300"
+            />
+            
+            {/* Top action buttons */}
+            <div className="absolute top-2 right-2 flex gap-1 z-10">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`bg-white/80 hover:bg-white/90 p-2 ${isFavorite ? 'text-red-500' : 'text-gray-600'}`}
+                onClick={(e) => handleAddToFavorites(car.id, e)}
+              >
+                <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`bg-white/80 hover:bg-white/90 p-2 ${isInComparison ? 'text-blue-500' : 'text-gray-600'}`}
+                onClick={(e) => handleAddToComparison(car.id, e)}
+              >
+                <GitCompare className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="bg-white/80 hover:bg-white/90 p-2 text-gray-600"
+                onClick={(e) => handleShare(car, e)}
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-              <div className="flex items-center gap-1">
-                <Gauge className="h-4 w-4" />
-                {car.mileage.toLocaleString()} km
-              </div>
-              <div className="flex items-center gap-1">
-                <Fuel className="h-4 w-4" />
-                {car.fuelType}
-              </div>
-              <div className="flex items-center gap-1">
-                <Settings className="h-4 w-4" />
-                {car.transmission}
-              </div>
-              <div className="flex items-center gap-1">
-                <MapPin className="h-4 w-4" />
-                {car.location}
-              </div>
+            {/* Badges */}
+            <div className="absolute top-2 left-2 flex flex-col gap-1">
+              {car.isVerifiedDealer && (
+                <Badge className="bg-green-500 text-xs">
+                  Verified Dealer
+                </Badge>
+              )}
+              {/* Finance Available Badge - you can add logic to check if financing is available */}
+              <Badge className="bg-blue-500 text-xs">
+                <CreditCard className="h-3 w-3 mr-1" />
+                Finance Available
+              </Badge>
             </div>
           </div>
-        </CardContent>
-      </div>
 
-      {/* Action buttons outside the clickable area */}
-      <div className="px-4 pb-4">
-        <div className="flex items-center justify-between pt-2">
-          <div className="flex gap-2">
-            <Button 
-              size="sm" 
-              className="bg-purple-600 hover:bg-purple-700"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent navigation when clicking action buttons
-                // Add message functionality here if needed
-              }}
-            >
-              <MessageCircle className="h-4 w-4 mr-1" />
-              Message
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent navigation when clicking action buttons
-                // Add call functionality here if needed
-              }}
-            >
-              <Phone className="h-4 w-4 mr-1" />
-              Call
-            </Button>
-          </div>
-          <div className="text-xs text-gray-500">
-            {car.viewCount} views
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              <div>
+                <h3 className="font-semibold text-lg group-hover:text-purple-600 transition-colors duration-300">
+                  {car.year} {car.make} {car.model}
+                </h3>
+                <p className="text-2xl font-bold text-purple-600">
+                  KES {car.price.toLocaleString()}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-1">
+                  <Gauge className="h-4 w-4" />
+                  {car.mileage.toLocaleString()} km
+                </div>
+                <div className="flex items-center gap-1">
+                  <Fuel className="h-4 w-4" />
+                  {car.fuelType}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Settings className="h-4 w-4" />
+                  {car.transmission}
+                </div>
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-4 w-4" />
+                  {car.location}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </div>
+
+        {/* Action buttons section */}
+        <div className="px-4 pb-4 border-t bg-gray-50/50">
+          <div className="flex items-center justify-between pt-3">
+            {/* Primary action buttons */}
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                className="bg-purple-600 hover:bg-purple-700 text-xs px-3"
+                onClick={(e) => handleMessageSeller(car, e)}
+              >
+                <MessageCircle className="h-3 w-3 mr-1" />
+                Message
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="text-xs px-3"
+                onClick={(e) => handleCallSeller(car.phoneNumber, e)}
+              >
+                <Phone className="h-3 w-3 mr-1" />
+                Call
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="text-xs px-3 text-blue-600 border-blue-200 hover:bg-blue-50"
+                onClick={(e) => handleFinanceOptions(car, e)}
+              >
+                <CreditCard className="h-3 w-3 mr-1" />
+                Finance
+              </Button>
+            </div>
+
+            {/* View count */}
+            <div className="text-xs text-gray-500 flex items-center gap-1">
+              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+              {car.viewCount} views
+            </div>
           </div>
         </div>
-      </div>
-    </Card>
-  );
+      </Card>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -597,6 +722,24 @@ export default function BuyACar() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Comparison Counter */}
+        {compareList.size > 0 && (
+          <div className="fixed bottom-6 right-6 z-50">
+            <Button 
+              className="bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg"
+              onClick={() => {
+                toast({
+                  title: "Comparison feature",
+                  description: `You have ${compareList.size} vehicles selected for comparison.`,
+                });
+              }}
+            >
+              <GitCompare className="h-4 w-4 mr-2" />
+              Compare ({compareList.size})
+            </Button>
           </div>
         )}
 

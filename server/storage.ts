@@ -3701,7 +3701,7 @@ export class DatabaseStorage implements IStorage {
   async incrementProviderViews(providerId: number): Promise<void> {
     await db.update(serviceProviders)
       .set({ 
-        totalViews: sql`${serviceProviders.totalViews} + 1` 
+        viewCount: sql`${serviceProviders.viewCount} + 1` 
       })
       .where(eq(serviceProviders.id, providerId));
   }
@@ -3709,7 +3709,7 @@ export class DatabaseStorage implements IStorage {
   async incrementProviderContacts(providerId: number): Promise<void> {
     await db.update(serviceProviders)
       .set({ 
-        totalContacts: sql`${serviceProviders.totalContacts} + 1` 
+        contactCount: sql`${serviceProviders.contactCount} + 1` 
       })
       .where(eq(serviceProviders.id, providerId));
   }

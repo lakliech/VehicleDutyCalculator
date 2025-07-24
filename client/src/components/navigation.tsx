@@ -66,17 +66,6 @@ export function Navigation() {
           <div className="flex items-center space-x-6">
             {/* Navigation Menu */}
             <nav className="hidden md:flex items-center space-x-6">
-              <Link href="/live-streaming" className="text-sm font-medium text-red-600 hover:text-red-700 transition-colors">
-                Live Streaming
-              </Link>
-              <Link href="/group-buying" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
-                Group Buying
-              </Link>
-              
-              <Link href="/ecosystem" className="text-sm font-medium text-green-600 hover:text-green-700 transition-colors">
-                Ecosystem
-              </Link>
-              <div className="w-px h-6 bg-gray-300"></div>
               <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors">
                 About Us
               </Link>

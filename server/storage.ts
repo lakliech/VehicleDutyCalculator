@@ -268,6 +268,7 @@ export interface IStorage {
   createServiceCategory(categoryData: Omit<ServiceCategory, 'id' | 'createdAt'>): Promise<ServiceCategory>;
   
   getSubcategoriesByCategory(categoryId: number): Promise<ServiceSubcategory[]>;
+  getAllSubcategories(): Promise<ServiceSubcategory[]>;
   createServiceSubcategory(subcategoryData: Omit<ServiceSubcategory, 'id' | 'createdAt'>): Promise<ServiceSubcategory>;
   
   // Service provider methods
@@ -288,6 +289,7 @@ export interface IStorage {
   
   // Provider services methods
   addProviderService(serviceData: InsertProviderService): Promise<ProviderService>;
+  addProviderSubcategoryService(data: { providerId: number; subcategoryId: number }): Promise<void>;
   getProviderServices(providerId: number): Promise<(ProviderService & { subcategory: ServiceSubcategory })[]>;
   removeProviderService(id: number): Promise<void>;
   
@@ -3385,6 +3387,11 @@ export class DatabaseStorage implements IStorage {
     return subcategory;
   }
 
+  async getAllSubcategories(): Promise<ServiceSubcategory[]> {
+    return await db.select().from(serviceSubcategories)
+      .orderBy(serviceSubcategories.categoryId, serviceSubcategories.sortOrder);
+  }
+
   // Service provider methods
   async createServiceProvider(providerData: InsertServiceProvider & { userId?: string }): Promise<ServiceProvider> {
     const [provider] = await db.insert(serviceProviders)
@@ -3578,6 +3585,15 @@ export class DatabaseStorage implements IStorage {
       .values(serviceData)
       .returning();
     return service;
+  }
+
+  async addProviderSubcategoryService(data: { providerId: number; subcategoryId: number }): Promise<void> {
+    await db.insert(providerServices)
+      .values({
+        providerId: data.providerId,
+        subcategoryId: data.subcategoryId,
+        isActive: true
+      });
   }
 
   async getProviderServices(providerId: number): Promise<(ProviderService & { subcategory: ServiceSubcategory })[]> {

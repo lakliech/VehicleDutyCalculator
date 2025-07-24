@@ -4,25 +4,27 @@ import { z } from "zod";
 
 const router = Router();
 
-// Validation schemas
-const createProviderSchema = z.object({
+// Progressive disclosure registration schema - starts light, expands later
+const progressiveRegistrationSchema = z.object({
   businessName: z.string().min(2, "Business name must be at least 2 characters"),
-  description: z.string().optional(),
-  categoryId: z.number().int().positive(),
-  subcategoryId: z.number().int().positive().optional(),
+  shortDescription: z.string().max(300, "Description must be under 300 characters").optional(),
   contactPerson: z.string().min(2, "Contact person name required"),
   phoneNumber: z.string().min(10, "Valid phone number required"),
   email: z.string().email("Valid email required").optional(),
-  website: z.string().url("Valid website URL required").optional(),
-  county: z.string().min(2, "County required"),
-  area: z.string().min(2, "Area required"),
-  address: z.string().optional(),
-  services: z.string().optional(),
+  county: z.string().min(1, "County required"),
+  area: z.string().min(1, "Area required"),
+  categoryIds: z.array(z.string()).min(1, "Please select at least one category"),
+  subcategoryIds: z.array(z.string()).optional(),
+  yearsInOperation: z.string().optional(),
   priceRange: z.string().optional(),
-  operatingHours: z.string().optional(),
-  socialMediaLinks: z.string().optional(),
+  servicesOffered: z.string().optional(),
+  workingHours: z.string().optional(),
+  website: z.string().url("Valid website URL required").optional(),
+  logoUrl: z.string().optional(),
+  bannerUrl: z.string().optional(),
   businessRegistrationNumber: z.string().optional(),
-  yearsInBusiness: z.number().int().min(0).optional()
+  kraPin: z.string().optional(),
+  verificationDocumentUrl: z.string().optional(),
 });
 
 const createReviewSchema = z.object({
@@ -69,6 +71,17 @@ router.get("/categories/:categoryId/subcategories", async (req, res) => {
   } catch (error) {
     console.error("Failed to fetch subcategories:", error);
     res.status(500).json({ error: "Failed to fetch subcategories" });
+  }
+});
+
+// Get all subcategories (for progressive disclosure)
+router.get("/subcategories/all", async (req, res) => {
+  try {
+    const subcategories = await storage.getAllSubcategories();
+    res.json(subcategories);
+  } catch (error) {
+    console.error("Failed to fetch all subcategories:", error);
+    res.status(500).json({ error: "Failed to fetch all subcategories" });
   }
 });
 
@@ -147,30 +160,79 @@ router.get("/providers/:id", async (req, res) => {
   }
 });
 
-// Register new service provider
-router.post("/providers", async (req, res) => {
+// Progressive disclosure registration endpoint
+router.post("/register", async (req, res) => {
   try {
-    const validatedData = createProviderSchema.parse(req.body);
+    const validatedData = progressiveRegistrationSchema.parse(req.body);
     
     // Check if user is authenticated (optional for now)
     const userId = req.user?.id || null;
 
+    // Create the service provider with progressive disclosure approach
     const provider = await storage.createServiceProvider({
-      ...validatedData,
+      businessName: validatedData.businessName,
+      description: validatedData.shortDescription || '',
+      contactPerson: validatedData.contactPerson,
+      phoneNumber: validatedData.phoneNumber,
+      email: validatedData.email || '',
+      website: validatedData.website || '',
+      county: validatedData.county,
+      area: validatedData.area,
+      address: `${validatedData.area}, ${validatedData.county}`,
+      services: validatedData.servicesOffered || '',
+      priceRange: validatedData.priceRange || '',
+      operatingHours: validatedData.workingHours || '',
+      businessRegistrationNumber: validatedData.businessRegistrationNumber || '',
+      yearsInBusiness: validatedData.yearsInOperation ? parseInt(validatedData.yearsInOperation) : 0,
+      logoUrl: validatedData.logoUrl || '',
+      bannerUrl: validatedData.bannerUrl || '',
+      kraPin: validatedData.kraPin || '',
+      verificationDocumentUrl: validatedData.verificationDocumentUrl || '',
       userId,
-      businessType: 'business', // Default type
-      phoneNumbers: [validatedData.phoneNumber], // Convert single phone to array
+      businessType: 'business',
+      phoneNumbers: [validatedData.phoneNumber],
       totalViews: 0,
-      totalContacts: 0
+      totalContacts: 0,
+      isVerified: false // Starts unverified for manual review
     });
 
-    res.status(201).json(provider);
+    // Handle multiple categories and subcategories
+    for (const categoryId of validatedData.categoryIds) {
+      await storage.addProviderService({
+        providerId: provider.id,
+        serviceCategory: parseInt(categoryId),
+        isMainService: true
+      });
+    }
+
+    if (validatedData.subcategoryIds && validatedData.subcategoryIds.length > 0) {
+      for (const subcategoryId of validatedData.subcategoryIds) {
+        await storage.addProviderSubcategoryService({
+          providerId: provider.id,
+          subcategoryId: parseInt(subcategoryId)
+        });
+      }
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Registration successful! We'll review your information and contact you soon.",
+      provider: {
+        id: provider.id,
+        businessName: provider.businessName,
+        county: provider.county,
+        area: provider.area
+      }
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Invalid provider data", details: error.errors });
+      return res.status(400).json({ 
+        error: "Invalid registration data", 
+        details: error.errors 
+      });
     }
-    console.error("Failed to create provider:", error);
-    res.status(500).json({ error: "Failed to create provider" });
+    console.error("Failed to register provider:", error);
+    res.status(500).json({ error: "Failed to register provider" });
   }
 });
 

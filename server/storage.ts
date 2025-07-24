@@ -3621,11 +3621,20 @@ export class DatabaseStorage implements IStorage {
       id: providerServices.id,
       providerId: providerServices.providerId,
       subcategoryId: providerServices.subcategoryId,
-      customServiceName: providerServices.customServiceName,
-      price: providerServices.price,
+      isPrimary: providerServices.isPrimary,
       description: providerServices.description,
+      priceRange: providerServices.priceRange,
       isActive: providerServices.isActive,
-      subcategory: serviceSubcategories
+      createdAt: providerServices.createdAt,
+      subcategory: {
+        id: serviceSubcategories.id,
+        categoryId: serviceSubcategories.categoryId,
+        name: serviceSubcategories.name,
+        description: serviceSubcategories.description,
+        sortOrder: serviceSubcategories.sortOrder,
+        isActive: serviceSubcategories.isActive,
+        createdAt: serviceSubcategories.createdAt
+      }
     })
     .from(providerServices)
     .leftJoin(serviceSubcategories, eq(providerServices.subcategoryId, serviceSubcategories.id))

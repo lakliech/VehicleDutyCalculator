@@ -266,10 +266,12 @@ export interface IStorage {
   getAllServiceCategories(): Promise<ServiceCategory[]>;
   getActiveServiceCategories(): Promise<ServiceCategory[]>;
   createServiceCategory(categoryData: Omit<ServiceCategory, 'id' | 'createdAt'>): Promise<ServiceCategory>;
+  updateServiceCategory(id: number, updates: Partial<ServiceCategory>): Promise<ServiceCategory>;
   
   getSubcategoriesByCategory(categoryId: number): Promise<ServiceSubcategory[]>;
   getAllSubcategories(): Promise<ServiceSubcategory[]>;
   createServiceSubcategory(subcategoryData: Omit<ServiceSubcategory, 'id' | 'createdAt'>): Promise<ServiceSubcategory>;
+  updateServiceSubcategory(id: number, updates: Partial<ServiceSubcategory>): Promise<ServiceSubcategory>;
   
   // Service provider methods
   createServiceProvider(providerData: InsertServiceProvider & { userId?: string }): Promise<ServiceProvider>;
@@ -3371,6 +3373,17 @@ export class DatabaseStorage implements IStorage {
     return category;
   }
 
+  async updateServiceCategory(id: number, updates: Partial<ServiceCategory>): Promise<ServiceCategory> {
+    const [category] = await db.update(serviceCategories)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(serviceCategories.id, id))
+      .returning();
+    return category;
+  }
+
   async getSubcategoriesByCategory(categoryId: number): Promise<ServiceSubcategory[]> {
     return await db.select().from(serviceSubcategories)
       .where(eq(serviceSubcategories.categoryId, categoryId))
@@ -3383,6 +3396,17 @@ export class DatabaseStorage implements IStorage {
         ...subcategoryData,
         createdAt: new Date()
       })
+      .returning();
+    return subcategory;
+  }
+
+  async updateServiceSubcategory(id: number, updates: Partial<ServiceSubcategory>): Promise<ServiceSubcategory> {
+    const [subcategory] = await db.update(serviceSubcategories)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })  
+      .where(eq(serviceSubcategories.id, id))
       .returning();
     return subcategory;
   }

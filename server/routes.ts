@@ -10109,6 +10109,15 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     console.error("Failed to load ecosystem routes:", error);
   }
 
+  // Register admin ecosystem routes
+  try {
+    const adminEcosystemRoutes = await import("./routes/admin-ecosystem-routes");
+    app.use("/api/admin/ecosystem", adminEcosystemRoutes.default);
+    console.log("Admin ecosystem routes registered successfully");
+  } catch (error) {
+    console.error("Failed to load admin ecosystem routes:", error);
+  }
+
   // Register upload routes
   try {
     const uploadRoutes = await import("./routes/upload-routes");

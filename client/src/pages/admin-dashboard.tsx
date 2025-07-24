@@ -69,6 +69,7 @@ import {
 import { z } from "zod";
 import ProductCatalogManagement from "@/components/ProductCatalogManagement";
 import RoleManagementTab from "@/components/admin/RoleManagementTab";
+import AdminEcosystemManagement from "@/components/admin/AdminEcosystemManagement";
 import type { 
   VehicleReference, 
   TaxRate, 
@@ -750,7 +751,7 @@ function AuthenticatedAdminDashboard() {
                       <span className="hidden sm:inline">Flagging</span>
                     </TabsTrigger>
                   </TabsList>
-                  <TabsList className="grid w-full grid-cols-3">
+                  <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="advertisements" className="flex items-center gap-2">
                       <Monitor className="h-4 w-4" />
                       <span className="hidden sm:inline">Advertisements</span>
@@ -762,6 +763,10 @@ function AuthenticatedAdminDashboard() {
                     <TabsTrigger value="product-catalog" className="flex items-center gap-2">
                       <Package className="h-4 w-4" />
                       <span className="hidden sm:inline">Product Catalog</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="ecosystem" className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4" />
+                      <span className="hidden sm:inline">Ecosystem</span>
                     </TabsTrigger>
                   </TabsList>
                 </div>
@@ -777,6 +782,11 @@ function AuthenticatedAdminDashboard() {
           {/* Product Catalog Tab */}
           <TabsContent value="product-catalog">
             <ProductCatalogManagement />
+          </TabsContent>
+
+          {/* Ecosystem Management Tab */}
+          <TabsContent value="ecosystem">
+            <AdminEcosystemManagement />
           </TabsContent>
 
           {/* Listings Management Tab */}

@@ -770,36 +770,39 @@ export default function EcosystemRegistration() {
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="flex justify-between pt-6">
+                <div className="flex justify-between pt-6 relative z-10">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={prevStep}
                     disabled={currentStep === 1}
+                    className="relative z-20"
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Previous
                   </Button>
 
                   {currentStep < steps.length ? (
-                    <Button
+                    <button
                       type="button"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        console.log("RAW BUTTON CLICKED!");
                         alert("Next button clicked! Step: " + currentStep);
                         nextStep();
                       }}
-                      className="bg-purple-600 hover:bg-purple-700"
+                      className="relative z-20 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md flex items-center gap-2"
+                      style={{ minHeight: '40px', cursor: 'pointer' }}
                     >
                       Next (Step {currentStep})
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                   ) : (
                     <Button
                       type="submit"
                       disabled={registerMutation.isPending}
-                      className="bg-green-600 hover:bg-green-700"
+                      className="bg-green-600 hover:bg-green-700 relative z-20"
                     >
                       {registerMutation.isPending ? "Registering..." : "Complete Registration"}
                       <CheckCircle className="w-4 h-4 ml-2" />

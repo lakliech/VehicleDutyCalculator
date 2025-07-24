@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
@@ -75,9 +76,9 @@ export default function BuyACar() {
   const [currentPage, setCurrentPage] = useState(1);
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [yearRange, setYearRange] = useState({ min: '', max: '' });
-  const [selectedMake, setSelectedMake] = useState('');
-  const [selectedFuelType, setSelectedFuelType] = useState('');
-  const [selectedTransmission, setSelectedTransmission] = useState('');
+  const [selectedMake, setSelectedMake] = useState('all');
+  const [selectedFuelType, setSelectedFuelType] = useState('all');
+  const [selectedTransmission, setSelectedTransmission] = useState('all');
 
   // Mobile detection
   useEffect(() => {
@@ -203,9 +204,9 @@ export default function BuyACar() {
   const applyManualFilters = () => {
     const filters: SmartSearchFilters = {};
     
-    if (selectedMake) filters.make = selectedMake;
-    if (selectedFuelType) filters.fuelType = selectedFuelType;
-    if (selectedTransmission) filters.transmission = selectedTransmission;
+    if (selectedMake && selectedMake !== 'all') filters.make = selectedMake;
+    if (selectedFuelType && selectedFuelType !== 'all') filters.fuelType = selectedFuelType;
+    if (selectedTransmission && selectedTransmission !== 'all') filters.transmission = selectedTransmission;
     if (priceRange.min) filters.minPrice = parseInt(priceRange.min);
     if (priceRange.max) filters.maxPrice = parseInt(priceRange.max);
     if (yearRange.min) filters.minYear = parseInt(yearRange.min);
@@ -222,9 +223,9 @@ export default function BuyACar() {
   // Clear all filters
   const clearFilters = () => {
     setAppliedFilters({});
-    setSelectedMake('');
-    setSelectedFuelType('');
-    setSelectedTransmission('');
+    setSelectedMake('all');
+    setSelectedFuelType('all');
+    setSelectedTransmission('all');
     setPriceRange({ min: '', max: '' });
     setYearRange({ min: '', max: '' });
     setCurrentPage(1);
@@ -379,101 +380,131 @@ export default function BuyACar() {
           </CardContent>
         </Card>
 
-        {/* Manual Filters Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Filter className="h-5 w-5" />
-                Advanced Filters
-              </CardTitle>
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden"
-              >
-                {showFilters ? 'Hide' : 'Show'} Filters
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className={`space-y-4 ${!showFilters && 'hidden lg:block'}`}>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              <Select value={selectedMake} onValueChange={setSelectedMake}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Make" />
-                </SelectTrigger>
-                <SelectContent>
-                  {filterOptions?.makes?.map((make: string) => (
-                    <SelectItem key={make} value={make}>{make}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        {/* Main Content with Sidebar Layout */}
+        <div className="flex gap-8">
+          {/* Left Sidebar - Advanced Filters */}
+          <div className="w-80 flex-shrink-0">
+            <Card className="border-purple-200 sticky top-4">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <Filter className="h-5 w-5 text-purple-600" />
+                  <h3 className="text-lg font-semibold text-gray-900">Advanced Filters</h3>
+                </div>
+                
+                <div className="space-y-6">
+                  {/* Price Range */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-gray-700">Price Range (KES)</Label>
+                    <div className="space-y-2">
+                      <Input
+                        placeholder="Minimum price"
+                        value={priceRange.min}
+                        onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
+                        type="number"
+                        className="text-sm"
+                      />
+                      <Input
+                        placeholder="Maximum price"
+                        value={priceRange.max}
+                        onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
+                        type="number"
+                        className="text-sm"
+                      />
+                    </div>
+                  </div>
 
-              <Select value={selectedFuelType} onValueChange={setSelectedFuelType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Fuel Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {filterOptions?.fuelTypes?.map((fuel: string) => (
-                    <SelectItem key={fuel} value={fuel}>{fuel.charAt(0).toUpperCase() + fuel.slice(1)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  {/* Year Range */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-gray-700">Year Range</Label>
+                    <div className="space-y-2">
+                      <Input
+                        placeholder="From year"
+                        value={yearRange.min}
+                        onChange={(e) => setYearRange(prev => ({ ...prev, min: e.target.value }))}
+                        type="number"
+                        className="text-sm"
+                      />
+                      <Input
+                        placeholder="To year"
+                        value={yearRange.max}
+                        onChange={(e) => setYearRange(prev => ({ ...prev, max: e.target.value }))}
+                        type="number"
+                        className="text-sm"
+                      />
+                    </div>
+                  </div>
 
-              <Select value={selectedTransmission} onValueChange={setSelectedTransmission}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Transmission" />
-                </SelectTrigger>
-                <SelectContent>
-                  {filterOptions?.transmissions?.map((transmission: string) => (
-                    <SelectItem key={transmission} value={transmission}>{transmission.charAt(0).toUpperCase() + transmission.slice(1)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  {/* Make Filter */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-gray-700">Make</Label>
+                    <Select value={selectedMake} onValueChange={setSelectedMake}>
+                      <SelectTrigger className="text-sm">
+                        <SelectValue placeholder="Any Make" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Any Make</SelectItem>
+                        {filterOptions?.makes?.map((make: string) => (
+                          <SelectItem key={make} value={make}>{make}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Min Price"
-                  value={priceRange.min}
-                  onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
-                  type="number"
-                />
-                <Input
-                  placeholder="Max Price"
-                  value={priceRange.max}
-                  onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
-                  type="number"
-                />
-              </div>
+                  {/* Fuel Type Filter */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-gray-700">Fuel Type</Label>
+                    <Select value={selectedFuelType} onValueChange={setSelectedFuelType}>
+                      <SelectTrigger className="text-sm">
+                        <SelectValue placeholder="Any Fuel" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Any Fuel</SelectItem>
+                        {filterOptions?.fuelTypes?.map((fuel: string) => (
+                          <SelectItem key={fuel} value={fuel}>{fuel.charAt(0).toUpperCase() + fuel.slice(1)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Min Year"
-                  value={yearRange.min}
-                  onChange={(e) => setYearRange({ ...yearRange, min: e.target.value })}
-                  type="number"
-                />
-                <Input
-                  placeholder="Max Year"
-                  value={yearRange.max}
-                  onChange={(e) => setYearRange({ ...yearRange, max: e.target.value })}
-                  type="number"
-                />
-              </div>
-            </div>
+                  {/* Transmission Filter */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-gray-700">Transmission</Label>
+                    <Select value={selectedTransmission} onValueChange={setSelectedTransmission}>
+                      <SelectTrigger className="text-sm">
+                        <SelectValue placeholder="Any Transmission" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Any Transmission</SelectItem>
+                        {filterOptions?.transmissions?.map((transmission: string) => (
+                          <SelectItem key={transmission} value={transmission}>{transmission.charAt(0).toUpperCase() + transmission.slice(1)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-            <div className="flex gap-2">
-              <Button onClick={applyManualFilters} className="bg-purple-600 hover:bg-purple-700">
-                Apply Filters
-              </Button>
-              <Button variant="outline" onClick={clearFilters}>
-                Clear All
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+                <div className="flex flex-col gap-3 mt-6">
+                  <Button 
+                    onClick={applyManualFilters}
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                  >
+                    Apply Filters
+                  </Button>
+                  <Button 
+                    onClick={clearFilters}
+                    variant="outline"
+                    className="w-full border-purple-200 text-purple-700 hover:bg-purple-50"
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Mobile Swipe Mode or Desktop Grid */}
+          {/* Main Content Area */}
+          <div className="flex-1 min-w-0">
+            {/* Mobile Swipe Mode or Desktop Grid */}
         {isMobile ? (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
@@ -578,6 +609,8 @@ export default function BuyACar() {
             </Button>
           </div>
         )}
+          </div>
+        </div>
       </div>
     </div>
   );

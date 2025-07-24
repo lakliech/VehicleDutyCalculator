@@ -10,7 +10,7 @@ const progressiveRegistrationSchema = z.object({
   shortDescription: z.string().max(300, "Description must be under 300 characters").optional(),
   contactPerson: z.string().min(2, "Contact person name required"),
   phoneNumber: z.string().min(10, "Valid phone number required"),
-  email: z.string().email("Valid email required").optional(),
+  email: z.string().email("Valid email required").optional().or(z.literal("")),
   county: z.string().min(1, "County required"),
   area: z.string().min(1, "Area required"),
   categoryIds: z.array(z.string()).min(1, "Please select at least one category"),
@@ -19,7 +19,7 @@ const progressiveRegistrationSchema = z.object({
   priceRange: z.string().optional(),
   servicesOffered: z.string().optional(),
   workingHours: z.string().optional(),
-  website: z.string().url("Valid website URL required").optional(),
+  website: z.string().url("Valid website URL required").optional().or(z.literal("")),
   logoUrl: z.string().optional(),
   bannerUrl: z.string().optional(),
   businessRegistrationNumber: z.string().optional(),
@@ -163,6 +163,7 @@ router.get("/providers/:id", async (req, res) => {
 // Progressive disclosure registration endpoint
 router.post("/register", async (req, res) => {
   try {
+    console.log("Registration request received:", JSON.stringify(req.body, null, 2));
     const validatedData = progressiveRegistrationSchema.parse(req.body);
     
     // Check if user is authenticated (optional for now)

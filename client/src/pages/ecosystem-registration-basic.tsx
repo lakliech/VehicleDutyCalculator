@@ -124,6 +124,7 @@ export default function EcosystemRegistrationBasic() {
       return;
     }
 
+    console.log("Submitting registration data:", JSON.stringify(formData, null, 2));
     registerMutation.mutate(formData);
   };
 

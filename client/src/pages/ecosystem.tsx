@@ -121,7 +121,7 @@ export default function Ecosystem() {
 
   // Fetch areas when county is selected
   const { data: areas } = useQuery({
-    queryKey: ['/api/kenyan-counties', selectedCounty, 'areas'],
+    queryKey: [`/api/kenyan-counties/${selectedCounty}/areas`],
     enabled: !!selectedCounty
   });
 

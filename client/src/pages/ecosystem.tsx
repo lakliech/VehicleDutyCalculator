@@ -72,29 +72,38 @@ interface ServiceSubcategory {
 
 interface ServiceProvider {
   id: number;
+  userId?: string;
   businessName: string;
-  description?: string;
-  categoryId: number;
-  subcategoryId?: number;
-  contactPerson: string;
+  contactPersonName?: string;
+  businessType: string;
   phoneNumbers: string[];
   email?: string;
   website?: string;
+  whatsappNumber?: string;
   county: string;
   area: string;
-  address?: string;
-  services?: string;
-  priceRange?: string;
-  operatingHours?: string;
-  socialMediaLinks?: string;
-  businessRegistrationNumber?: string;
+  specificLocation?: string;
+  latitude?: number;
+  longitude?: number;
+  description?: string;
+  businessHours?: any;
   yearsInBusiness?: number;
+  licenseNumber?: string;
+  logoUrl?: string;
+  bannerImageUrl?: string;
+  galleryImages?: any;
   isVerified: boolean;
-  totalViews: number;
-  totalContacts: number;
-  averageRating?: number;
-  totalReviews?: number;
-  registeredAt: string;
+  verificationDate?: string;
+  verificationNotes?: string;
+  isActive: boolean;
+  isApproved?: boolean;
+  viewCount: number;
+  contactCount: number;
+  rating?: number;
+  reviewCount?: number;
+  createdAt: string;
+  updatedAt?: string;
+  averageRating: number;
 }
 
 interface EcosystemStats {
@@ -144,7 +153,7 @@ export default function Ecosystem() {
   // Fetch subcategories when category is selected
   const { data: subcategories, isLoading: subcategoriesLoading } = useQuery({
     queryKey: [`/api/ecosystem/categories/${selectedCategory}/subcategories`],
-    enabled: selectedCategory && selectedCategory !== "all"
+    enabled: Boolean(selectedCategory && selectedCategory !== "all")
   });
 
   // Fetch Kenya counties for location filtering
@@ -155,21 +164,31 @@ export default function Ecosystem() {
   // Fetch areas when county is selected
   const { data: areas } = useQuery({
     queryKey: [`/api/kenyan-counties/${selectedCounty}/areas`],
-    enabled: selectedCounty && selectedCounty !== "all"
+    enabled: Boolean(selectedCounty && selectedCounty !== "all")
   });
 
   // Search providers with filters - optimized for large datasets
-  const queryParams = useMemo(() => ({
-    searchTerm: searchTerm.trim(),
-    categoryId: selectedCategory && selectedCategory !== "all" ? parseInt(selectedCategory) : undefined,
-    subcategoryId: selectedSubcategory && selectedSubcategory !== "all" ? parseInt(selectedSubcategory) : undefined,
-    county: selectedCounty && selectedCounty !== "all" ? selectedCounty : undefined,
-    area: selectedArea && selectedArea !== "all" ? selectedArea : undefined,
-    page: currentPage,
-    limit: itemsPerPage,
-    sortBy,
-    isVerified: verifiedOnly ? true : undefined
-  }), [searchTerm, selectedCategory, selectedSubcategory, selectedCounty, selectedArea, currentPage, itemsPerPage, sortBy, verifiedOnly]);
+  const queryParams = useMemo(() => {
+    const params = {
+      searchTerm: searchTerm.trim(),
+      categoryId: selectedCategory && selectedCategory !== "all" ? parseInt(selectedCategory) : undefined,
+      subcategoryId: selectedSubcategory && selectedSubcategory !== "all" ? parseInt(selectedSubcategory) : undefined,
+      county: selectedCounty && selectedCounty !== "all" ? selectedCounty : undefined,
+      area: selectedArea && selectedArea !== "all" ? selectedArea : undefined,
+      page: currentPage,
+      limit: itemsPerPage,
+      sortBy,
+      isVerified: verifiedOnly ? true : undefined
+    };
+    
+    // Remove undefined values to clean the query
+    const cleanedParams = Object.fromEntries(
+      Object.entries(params).filter(([_, value]) => value !== undefined && value !== "")
+    );
+    
+    console.log("Query params:", cleanedParams);
+    return cleanedParams;
+  }, [searchTerm, selectedCategory, selectedSubcategory, selectedCounty, selectedArea, currentPage, itemsPerPage, sortBy, verifiedOnly]);
 
   const { data: providersData, isLoading: providersLoading, refetch: refetchProviders, isFetching } = useQuery({
     queryKey: ['/api/ecosystem/providers', queryParams],

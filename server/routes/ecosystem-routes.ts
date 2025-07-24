@@ -92,6 +92,8 @@ router.get("/subcategories/all", async (req, res) => {
 // Search service providers
 router.get("/providers", async (req, res) => {
   try {
+    console.log("Raw query params:", req.query);
+    
     const validatedQuery = searchProvidersSchema.parse({
       ...req.query,
       categoryId: req.query.categoryId ? parseInt(req.query.categoryId as string) : undefined,
@@ -100,6 +102,8 @@ router.get("/providers", async (req, res) => {
       limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
       isVerified: req.query.isVerified === 'true' ? true : req.query.isVerified === 'false' ? false : undefined
     });
+    
+    console.log("Validated query:", validatedQuery);
 
     // Log search for analytics
     if (validatedQuery.searchTerm) {

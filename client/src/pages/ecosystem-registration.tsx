@@ -194,10 +194,23 @@ export default function EcosystemRegistration() {
   };
 
   const nextStep = async () => {
+    console.log("nextStep called, currentStep:", currentStep);
+    
     // Validate current step before proceeding
     if (currentStep === 1) {
+      const formValues = form.getValues();
+      console.log("Step 1 form values:", { 
+        businessName: formValues.businessName, 
+        contactPerson: formValues.contactPerson, 
+        phoneNumber: formValues.phoneNumber 
+      });
+      
       const isValid = await form.trigger(['businessName', 'contactPerson', 'phoneNumber']);
+      console.log("Step 1 validation result:", isValid);
+      
       if (!isValid) {
+        const errors = form.formState.errors;
+        console.log("Form errors:", errors);
         toast({
           title: "Required Fields Missing",
           description: "Please fill in all required fields before proceeding.",
@@ -206,6 +219,7 @@ export default function EcosystemRegistration() {
         return;
       }
     } else if (currentStep === 2) {
+      console.log("Step 2 selectedCategories:", selectedCategories);
       const isValid = await form.trigger(['categoryIds']);
       if (!isValid || selectedCategories.length === 0) {
         toast({
@@ -227,6 +241,7 @@ export default function EcosystemRegistration() {
       }
     }
 
+    console.log("Validation passed, moving to next step");
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     }

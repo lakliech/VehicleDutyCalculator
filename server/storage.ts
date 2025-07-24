@@ -3388,10 +3388,7 @@ export class DatabaseStorage implements IStorage {
   // Service provider methods
   async createServiceProvider(providerData: InsertServiceProvider & { userId?: string }): Promise<ServiceProvider> {
     const [provider] = await db.insert(serviceProviders)
-      .values({
-        ...providerData,
-        registeredAt: new Date()
-      })
+      .values(providerData)
       .returning();
     return provider;
   }
@@ -3412,16 +3409,61 @@ export class DatabaseStorage implements IStorage {
     page?: number;
     limit?: number;
   }): Promise<{ providers: ServiceProvider[]; total: number }> {
-    let query = db.select().from(serviceProviders);
-    let countQuery = db.select({ count: sql<number>`count(*)` }).from(serviceProviders);
+    let query = db.select({
+      id: serviceProviders.id,
+      userId: serviceProviders.userId,
+      businessName: serviceProviders.businessName,
+      contactPersonName: serviceProviders.contactPersonName,
+      businessType: serviceProviders.businessType,
+      phoneNumbers: serviceProviders.phoneNumbers,
+      email: serviceProviders.email,
+      website: serviceProviders.website,
+      whatsappNumber: serviceProviders.whatsappNumber,
+      county: serviceProviders.county,
+      area: serviceProviders.area,
+      specificLocation: serviceProviders.specificLocation,
+      latitude: serviceProviders.latitude,
+      longitude: serviceProviders.longitude,
+      description: serviceProviders.description,
+      businessHours: serviceProviders.businessHours,
+      yearsInBusiness: serviceProviders.yearsInBusiness,
+      licenseNumber: serviceProviders.licenseNumber,
+      logoUrl: serviceProviders.logoUrl,
+      bannerImageUrl: serviceProviders.bannerImageUrl,
+      galleryImages: serviceProviders.galleryImages,
+      isVerified: serviceProviders.isVerified,
+      verificationDate: serviceProviders.verificationDate,
+      verificationNotes: serviceProviders.verificationNotes,
+      isActive: serviceProviders.isActive,
+      isApproved: serviceProviders.isApproved,
+      viewCount: serviceProviders.viewCount,
+      contactCount: serviceProviders.contactCount,
+      rating: serviceProviders.rating,
+      reviewCount: serviceProviders.reviewCount,
+      createdAt: serviceProviders.createdAt,
+      updatedAt: serviceProviders.updatedAt,
+    }).from(serviceProviders);
+    
+    let countQuery = db.select({ count: sql<number>`count(distinct ${serviceProviders.id})` }).from(serviceProviders);
+
+    // Handle category/subcategory filtering through joins
+    if (filters?.categoryId || filters?.subcategoryId) {
+      query = query
+        .leftJoin(providerServices, eq(serviceProviders.id, providerServices.providerId))
+        .leftJoin(serviceSubcategories, eq(providerServices.subcategoryId, serviceSubcategories.id));
+      
+      countQuery = countQuery
+        .leftJoin(providerServices, eq(serviceProviders.id, providerServices.providerId))
+        .leftJoin(serviceSubcategories, eq(providerServices.subcategoryId, serviceSubcategories.id));
+    }
 
     const conditions = [];
 
     if (filters?.categoryId) {
-      conditions.push(eq(serviceProviders.categoryId, filters.categoryId));
+      conditions.push(eq(serviceSubcategories.categoryId, filters.categoryId));
     }
     if (filters?.subcategoryId) {
-      conditions.push(eq(serviceProviders.subcategoryId, filters.subcategoryId));
+      conditions.push(eq(providerServices.subcategoryId, filters.subcategoryId));
     }
     if (filters?.county) {
       conditions.push(eq(serviceProviders.county, filters.county));
@@ -3436,8 +3478,7 @@ export class DatabaseStorage implements IStorage {
       conditions.push(
         or(
           ilike(serviceProviders.businessName, `%${filters.searchTerm}%`),
-          ilike(serviceProviders.description, `%${filters.searchTerm}%`),
-          ilike(serviceProviders.services, `%${filters.searchTerm}%`)
+          ilike(serviceProviders.description, `%${filters.searchTerm}%`)
         )
       );
     }
@@ -3456,13 +3497,67 @@ export class DatabaseStorage implements IStorage {
     const limit = filters?.limit || 20;
     const offset = (page - 1) * limit;
 
-    const providers = await query
-      .orderBy(desc(serviceProviders.isVerified))
-      .orderBy(desc(serviceProviders.registeredAt))
-      .limit(limit)
-      .offset(offset);
-
-    return { providers, total: count };
+    // Apply ordering, limit and offset
+    query = query.limit(limit).offset(offset);
+    
+    // When using joins, we need to handle the query differently
+    if (filters?.categoryId || filters?.subcategoryId) {
+      // With joins, we need to group by provider to avoid duplicates
+      const groupedQuery = db.select({
+        id: serviceProviders.id,
+        userId: serviceProviders.userId,
+        businessName: serviceProviders.businessName,
+        contactPersonName: serviceProviders.contactPersonName,
+        businessType: serviceProviders.businessType,
+        phoneNumbers: serviceProviders.phoneNumbers,
+        email: serviceProviders.email,
+        website: serviceProviders.website,
+        whatsappNumber: serviceProviders.whatsappNumber,
+        county: serviceProviders.county,
+        area: serviceProviders.area,
+        specificLocation: serviceProviders.specificLocation,
+        latitude: serviceProviders.latitude,
+        longitude: serviceProviders.longitude,
+        description: serviceProviders.description,
+        businessHours: serviceProviders.businessHours,
+        yearsInBusiness: serviceProviders.yearsInBusiness,
+        licenseNumber: serviceProviders.licenseNumber,
+        logoUrl: serviceProviders.logoUrl,
+        bannerImageUrl: serviceProviders.bannerImageUrl,
+        galleryImages: serviceProviders.galleryImages,
+        isVerified: serviceProviders.isVerified,
+        verificationDate: serviceProviders.verificationDate,
+        verificationNotes: serviceProviders.verificationNotes,
+        isActive: serviceProviders.isActive,
+        isApproved: serviceProviders.isApproved,
+        viewCount: serviceProviders.viewCount,
+        contactCount: serviceProviders.contactCount,
+        rating: serviceProviders.rating,
+        reviewCount: serviceProviders.reviewCount,
+        createdAt: serviceProviders.createdAt,
+        updatedAt: serviceProviders.updatedAt,
+      })
+      .from(serviceProviders)
+      .leftJoin(providerServices, eq(serviceProviders.id, providerServices.providerId))
+      .leftJoin(serviceSubcategories, eq(providerServices.subcategoryId, serviceSubcategories.id));
+      
+      if (conditions.length > 0) {
+        groupedQuery.where(and(...conditions));
+      }
+      
+      const providers = await groupedQuery
+        .orderBy(desc(serviceProviders.isVerified), desc(serviceProviders.createdAt))
+        .limit(limit)
+        .offset(offset);
+      
+      return { providers, total: count };
+    } else {
+      // Without joins, use the simple query
+      const providers = await query
+        .orderBy(desc(serviceProviders.isVerified), desc(serviceProviders.createdAt));
+      
+      return { providers, total: count };
+    }
   }
 
   async updateServiceProvider(id: number, updates: Partial<ServiceProvider>): Promise<ServiceProvider> {

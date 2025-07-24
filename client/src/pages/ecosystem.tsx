@@ -110,7 +110,7 @@ export default function Ecosystem() {
 
   // Fetch subcategories when category is selected
   const { data: subcategories, isLoading: subcategoriesLoading } = useQuery({
-    queryKey: ['/api/ecosystem/categories', selectedCategory, 'subcategories'],
+    queryKey: [`/api/ecosystem/categories/${selectedCategory}/subcategories`],
     enabled: !!selectedCategory
   });
 
@@ -310,9 +310,9 @@ export default function Ecosystem() {
                   <SelectValue placeholder="County" />
                 </SelectTrigger>
                 <SelectContent>
-                  {counties?.map((county: any) => (
-                    <SelectItem key={county.county} value={county.county}>
-                      {county.county}
+                  {counties?.map((county: string) => (
+                    <SelectItem key={county} value={county}>
+                      {county}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -328,9 +328,9 @@ export default function Ecosystem() {
                   <SelectValue placeholder="Area" />
                 </SelectTrigger>
                 <SelectContent>
-                  {areas?.map((area: any) => (
-                    <SelectItem key={area.area} value={area.area}>
-                      {area.area}
+                  {areas?.map((area: string) => (
+                    <SelectItem key={area} value={area}>
+                      {area}
                     </SelectItem>
                   ))}
                 </SelectContent>

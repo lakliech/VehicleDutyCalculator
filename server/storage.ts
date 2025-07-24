@@ -3457,7 +3457,8 @@ export class DatabaseStorage implements IStorage {
     const offset = (page - 1) * limit;
 
     const providers = await query
-      .orderBy(desc(serviceProviders.isVerified), desc(serviceProviders.registeredAt))
+      .orderBy(desc(serviceProviders.isVerified))
+      .orderBy(desc(serviceProviders.registeredAt))
       .limit(limit)
       .offset(offset);
 

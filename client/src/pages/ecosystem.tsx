@@ -278,7 +278,6 @@ export default function Ecosystem() {
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
                   {categories?.map((category: ServiceCategory) => (
                     <SelectItem key={category.id} value={category.id.toString()}>
                       {category.name}
@@ -297,7 +296,6 @@ export default function Ecosystem() {
                   <SelectValue placeholder="Subcategory" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Subcategories</SelectItem>
                   {subcategories?.map((subcategory: ServiceSubcategory) => (
                     <SelectItem key={subcategory.id} value={subcategory.id.toString()}>
                       {subcategory.name}
@@ -312,7 +310,6 @@ export default function Ecosystem() {
                   <SelectValue placeholder="County" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Counties</SelectItem>
                   {counties?.map((county: any) => (
                     <SelectItem key={county.county} value={county.county}>
                       {county.county}
@@ -331,7 +328,6 @@ export default function Ecosystem() {
                   <SelectValue placeholder="Area" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Areas</SelectItem>
                   {areas?.map((area: any) => (
                     <SelectItem key={area.area} value={area.area}>
                       {area.area}

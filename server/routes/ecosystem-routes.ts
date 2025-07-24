@@ -197,21 +197,25 @@ router.post("/register", async (req, res) => {
       isVerified: false // Starts unverified for manual review
     });
 
-    // Handle multiple categories and subcategories
-    for (const categoryId of validatedData.categoryIds) {
-      await storage.addProviderService({
-        providerId: provider.id,
-        serviceCategory: parseInt(categoryId),
-        isMainService: true
-      });
-    }
-
+    // Handle subcategories - if subcategories are selected, use them
+    // If no subcategories, we'll get the first subcategory for each selected category
     if (validatedData.subcategoryIds && validatedData.subcategoryIds.length > 0) {
       for (const subcategoryId of validatedData.subcategoryIds) {
         await storage.addProviderSubcategoryService({
           providerId: provider.id,
           subcategoryId: parseInt(subcategoryId)
         });
+      }
+    } else if (validatedData.categoryIds && validatedData.categoryIds.length > 0) {
+      // If no specific subcategories selected, get first subcategory for each category
+      for (const categoryId of validatedData.categoryIds) {
+        const subcategories = await storage.getSubcategoriesByCategory(parseInt(categoryId));
+        if (subcategories && subcategories.length > 0) {
+          await storage.addProviderSubcategoryService({
+            providerId: provider.id,
+            subcategoryId: subcategories[0].id
+          });
+        }
       }
     }
 

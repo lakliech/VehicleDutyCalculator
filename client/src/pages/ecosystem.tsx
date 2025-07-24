@@ -192,6 +192,25 @@ export default function Ecosystem() {
 
   const { data: providersData, isLoading: providersLoading, refetch: refetchProviders, isFetching } = useQuery({
     queryKey: ['/api/ecosystem/providers', queryParams],
+    queryFn: async () => {
+      const searchParams = new URLSearchParams();
+      
+      // Add non-empty parameters to the URL
+      Object.entries(queryParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          searchParams.append(key, value.toString());
+        }
+      });
+      
+      const url = `/api/ecosystem/providers?${searchParams.toString()}`;
+      console.log("API URL:", url);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    },
     enabled: true,
     staleTime: 1000 * 60 * 2, // 2 minutes cache for better performance
     refetchOnWindowFocus: false
@@ -327,7 +346,7 @@ export default function Ecosystem() {
                     </span>
                     <span className="flex items-center gap-1">
                       <Eye className="w-3 h-3" />
-                      {provider.totalViews || provider.viewCount || 0} views
+                      {provider.viewCount || 0} views
                     </span>
                     {provider.averageRating && (
                       <span className="flex items-center gap-1">
@@ -414,7 +433,7 @@ export default function Ecosystem() {
               <div className="flex items-center gap-4 text-xs text-gray-500">
                 <span className="flex items-center gap-1">
                   <Eye className="w-3 h-3" />
-                  {provider.totalViews || provider.viewCount || 0}
+                  {provider.viewCount || 0}
                 </span>
                 {provider.averageRating && (
                   <span className="flex items-center gap-1">
@@ -423,11 +442,7 @@ export default function Ecosystem() {
                   </span>
                 )}
               </div>
-              {provider.priceRange && (
-                <Badge variant="outline" className="text-xs">
-                  {provider.priceRange}
-                </Badge>
-              )}
+              {/* Price range not available in current schema */}
             </div>
           </div>
 
@@ -1013,39 +1028,30 @@ export default function Ecosystem() {
                       <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
                       <div>
                         <div className="font-medium">{selectedProvider.area}, {selectedProvider.county}</div>
-                        {selectedProvider.address && (
-                          <div className="text-gray-600 text-sm">{selectedProvider.address}</div>
+                        {selectedProvider.specificLocation && (
+                          <div className="text-gray-600 text-sm">{selectedProvider.specificLocation}</div>
                         )}
                       </div>
                     </div>
                   </div>
 
                   {/* Services */}
-                  {selectedProvider.services && (
+                  {selectedProvider.description && (
                     <div>
                       <h3 className="text-lg font-semibold mb-3">Services Offered</h3>
-                      <p className="text-gray-700">{selectedProvider.services}</p>
+                      <p className="text-gray-700">{selectedProvider.description}</p>
                     </div>
                   )}
 
                   {/* Business Details */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {selectedProvider.priceRange && (
-                      <div>
-                        <h4 className="font-medium mb-1 flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-gray-500" />
-                          Price Range
-                        </h4>
-                        <Badge variant="outline">{selectedProvider.priceRange}</Badge>
-                      </div>
-                    )}
-                    {selectedProvider.operatingHours && (
+                    {selectedProvider.businessHours && (
                       <div>
                         <h4 className="font-medium mb-1 flex items-center gap-2">
                           <Clock className="w-4 h-4 text-gray-500" />
                           Operating Hours
                         </h4>
-                        <p className="text-sm text-gray-600">{selectedProvider.operatingHours}</p>
+                        <p className="text-sm text-gray-600">{JSON.stringify(selectedProvider.businessHours)}</p>
                       </div>
                     )}
                     {selectedProvider.yearsInBusiness && (
@@ -1057,10 +1063,10 @@ export default function Ecosystem() {
                         <p className="text-sm text-gray-600">{selectedProvider.yearsInBusiness} years</p>
                       </div>
                     )}
-                    {selectedProvider.businessRegistrationNumber && (
+                    {selectedProvider.licenseNumber && (
                       <div>
-                        <h4 className="font-medium mb-1">Business Registration</h4>
-                        <p className="text-sm text-gray-600">{selectedProvider.businessRegistrationNumber}</p>
+                        <h4 className="font-medium mb-1">License Number</h4>
+                        <p className="text-sm text-gray-600">{selectedProvider.licenseNumber}</p>
                       </div>
                     )}
                   </div>
@@ -1070,11 +1076,11 @@ export default function Ecosystem() {
                     <h3 className="text-lg font-semibold mb-3">Statistics</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600">{selectedProvider.totalViews}</div>
+                        <div className="text-2xl font-bold text-blue-600">{selectedProvider.viewCount || 0}</div>
                         <div className="text-xs text-gray-500">Total Views</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">{selectedProvider.totalContacts}</div>
+                        <div className="text-2xl font-bold text-green-600">{selectedProvider.contactCount || 0}</div>
                         <div className="text-xs text-gray-500">Total Contacts</div>
                       </div>
                       {selectedProvider.averageRating && (
@@ -1086,9 +1092,9 @@ export default function Ecosystem() {
                           <div className="text-xs text-gray-500">Average Rating</div>
                         </div>
                       )}
-                      {selectedProvider.totalReviews && (
+                      {selectedProvider.reviewCount && (
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-purple-600">{selectedProvider.totalReviews}</div>
+                          <div className="text-2xl font-bold text-purple-600">{selectedProvider.reviewCount}</div>
                           <div className="text-xs text-gray-500">Total Reviews</div>
                         </div>
                       )}
@@ -1097,7 +1103,7 @@ export default function Ecosystem() {
 
                   {/* Registration Date */}
                   <div className="text-sm text-gray-500 border-t pt-4">
-                    Registered on {formatDate(selectedProvider.registeredAt)}
+                    Registered on {formatDate(selectedProvider.createdAt)}
                   </div>
 
                   {/* Action Buttons */}

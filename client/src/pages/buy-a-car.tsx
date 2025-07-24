@@ -92,9 +92,24 @@ export default function BuyACar() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Fetch filter options
+  const { data: filterOptions } = useQuery({
+    queryKey: ['/api/car-listing-filters'],
+    queryFn: async () => {
+      const response = await fetch('/api/car-listing-filters', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch filter options');
+      }
+      return response.json();
+    },
+    staleTime: 300000, // Cache for 5 minutes
+  });
+
   // Fetch car listings with filters
-  const { data: listings = [], isLoading, error } = useQuery({
-    queryKey: ['/api/vehicles/active', appliedFilters, currentPage],
+  const { data: listingsResponse, isLoading, error } = useQuery({
+    queryKey: ['/api/car-listings', appliedFilters, currentPage],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: currentPage.toString(),
@@ -104,7 +119,7 @@ export default function BuyACar() {
         )
       });
       
-      const response = await fetch(`/api/vehicles/active?${params}`, {
+      const response = await fetch(`/api/car-listings?${params}`, {
         credentials: 'include'
       });
       
@@ -117,6 +132,9 @@ export default function BuyACar() {
     retry: 2,
     staleTime: 60000,
   });
+
+  // Extract cars from response - API returns { cars: [...] }
+  const listings = listingsResponse?.cars || [];
 
   // Smart search function
   const handleSmartSearch = async () => {
@@ -385,11 +403,9 @@ export default function BuyACar() {
                   <SelectValue placeholder="Make" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Toyota">Toyota</SelectItem>
-                  <SelectItem value="Honda">Honda</SelectItem>
-                  <SelectItem value="Nissan">Nissan</SelectItem>
-                  <SelectItem value="Mercedes">Mercedes</SelectItem>
-                  <SelectItem value="BMW">BMW</SelectItem>
+                  {filterOptions?.makes?.map((make: string) => (
+                    <SelectItem key={make} value={make}>{make}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
@@ -398,10 +414,9 @@ export default function BuyACar() {
                   <SelectValue placeholder="Fuel Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="petrol">Petrol</SelectItem>
-                  <SelectItem value="diesel">Diesel</SelectItem>
-                  <SelectItem value="hybrid">Hybrid</SelectItem>
-                  <SelectItem value="electric">Electric</SelectItem>
+                  {filterOptions?.fuelTypes?.map((fuel: string) => (
+                    <SelectItem key={fuel} value={fuel}>{fuel.charAt(0).toUpperCase() + fuel.slice(1)}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
@@ -410,8 +425,9 @@ export default function BuyACar() {
                   <SelectValue placeholder="Transmission" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="automatic">Automatic</SelectItem>
-                  <SelectItem value="manual">Manual</SelectItem>
+                  {filterOptions?.transmissions?.map((transmission: string) => (
+                    <SelectItem key={transmission} value={transmission}>{transmission.charAt(0).toUpperCase() + transmission.slice(1)}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 

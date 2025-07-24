@@ -194,56 +194,54 @@ export default function EcosystemRegistration() {
   };
 
   const nextStep = async () => {
-    console.log("nextStep called, currentStep:", currentStep);
-    
-    // Validate current step before proceeding
-    if (currentStep === 1) {
-      const formValues = form.getValues();
-      console.log("Step 1 form values:", { 
-        businessName: formValues.businessName, 
-        contactPerson: formValues.contactPerson, 
-        phoneNumber: formValues.phoneNumber 
-      });
-      
-      const isValid = await form.trigger(['businessName', 'contactPerson', 'phoneNumber']);
-      console.log("Step 1 validation result:", isValid);
-      
-      if (!isValid) {
-        const errors = form.formState.errors;
-        console.log("Form errors:", errors);
-        toast({
-          title: "Required Fields Missing",
-          description: "Please fill in all required fields before proceeding.",
-          variant: "destructive",
-        });
-        return;
+    try {
+      // For step 1, validate required fields
+      if (currentStep === 1) {
+        const values = form.getValues();
+        if (!values.businessName || !values.contactPerson || !values.phoneNumber) {
+          toast({
+            title: "Required Fields Missing",
+            description: "Please fill in Business Name, Contact Person, and Phone Number.",
+            variant: "destructive",
+          });
+          return;
+        }
+      } 
+      // For step 2, validate category selection
+      else if (currentStep === 2) {
+        if (selectedCategories.length === 0) {
+          toast({
+            title: "Category Selection Required",
+            description: "Please select at least one category before proceeding.",
+            variant: "destructive",
+          });
+          return;
+        }
+      } 
+      // For step 3, validate location
+      else if (currentStep === 3) {
+        const values = form.getValues();
+        if (!values.county || !values.area) {
+          toast({
+            title: "Location Required",
+            description: "Please select your county and area before proceeding.",
+            variant: "destructive",
+          });
+          return;
+        }
       }
-    } else if (currentStep === 2) {
-      console.log("Step 2 selectedCategories:", selectedCategories);
-      const isValid = await form.trigger(['categoryIds']);
-      if (!isValid || selectedCategories.length === 0) {
-        toast({
-          title: "Category Selection Required",
-          description: "Please select at least one category before proceeding.",
-          variant: "destructive",
-        });
-        return;
-      }
-    } else if (currentStep === 3) {
-      const isValid = await form.trigger(['county', 'area']);
-      if (!isValid) {
-        toast({
-          title: "Location Required",
-          description: "Please select your county and area before proceeding.",
-          variant: "destructive",
-        });
-        return;
-      }
-    }
 
-    console.log("Validation passed, moving to next step");
-    if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
+      // Move to next step
+      if (currentStep < steps.length) {
+        setCurrentStep(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error("Error in nextStep:", error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -786,7 +784,10 @@ export default function EcosystemRegistration() {
                   {currentStep < steps.length ? (
                     <Button
                       type="button"
-                      onClick={nextStep}
+                      onClick={() => {
+                        console.log("Next button clicked!");
+                        nextStep();
+                      }}
                       className="bg-purple-600 hover:bg-purple-700"
                     >
                       Next

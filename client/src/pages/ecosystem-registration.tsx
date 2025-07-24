@@ -784,13 +784,15 @@ export default function EcosystemRegistration() {
                   {currentStep < steps.length ? (
                     <Button
                       type="button"
-                      onClick={() => {
-                        console.log("Next button clicked!");
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        alert("Next button clicked! Step: " + currentStep);
                         nextStep();
                       }}
                       className="bg-purple-600 hover:bg-purple-700"
                     >
-                      Next
+                      Next (Step {currentStep})
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   ) : (

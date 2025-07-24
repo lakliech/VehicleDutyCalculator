@@ -10109,6 +10109,15 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     console.error("Failed to load ecosystem routes:", error);
   }
 
+  // Register upload routes
+  try {
+    const uploadRoutes = await import("./routes/upload-routes");
+    app.use("/api/upload", uploadRoutes.default);
+    console.log("Upload routes registered successfully");
+  } catch (error) {
+    console.error("Failed to load upload routes:", error);
+  }
+
   const httpServer = createServer(app);
 
   return httpServer;

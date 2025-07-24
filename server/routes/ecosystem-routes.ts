@@ -25,6 +25,9 @@ const progressiveRegistrationSchema = z.object({
   businessRegistrationNumber: z.string().optional(),
   kraPin: z.string().optional(),
   verificationDocumentUrl: z.string().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  address: z.string().optional(),
 });
 
 const createReviewSchema = z.object({
@@ -173,28 +176,25 @@ router.post("/register", async (req, res) => {
     const provider = await storage.createServiceProvider({
       businessName: validatedData.businessName,
       description: validatedData.shortDescription || '',
-      contactPerson: validatedData.contactPerson,
-      phoneNumber: validatedData.phoneNumber,
+      contactPersonName: validatedData.contactPerson,
+      businessType: 'business',
+      phoneNumbers: [validatedData.phoneNumber],
       email: validatedData.email || '',
       website: validatedData.website || '',
       county: validatedData.county,
       area: validatedData.area,
-      address: `${validatedData.area}, ${validatedData.county}`,
-      services: validatedData.servicesOffered || '',
-      priceRange: validatedData.priceRange || '',
-      operatingHours: validatedData.workingHours || '',
-      businessRegistrationNumber: validatedData.businessRegistrationNumber || '',
-      yearsInBusiness: validatedData.yearsInOperation ? parseInt(validatedData.yearsInOperation) : 0,
-      logoUrl: validatedData.logoUrl || '',
-      bannerUrl: validatedData.bannerUrl || '',
-      kraPin: validatedData.kraPin || '',
-      verificationDocumentUrl: validatedData.verificationDocumentUrl || '',
+      specificLocation: validatedData.address || `${validatedData.area}, ${validatedData.county}`,
+      latitude: validatedData.latitude ? validatedData.latitude.toString() : null,
+      longitude: validatedData.longitude ? validatedData.longitude.toString() : null,
+      logoUrl: validatedData.logoUrl || null,
+      yearsInBusiness: validatedData.yearsInOperation ? parseInt(validatedData.yearsInOperation.replace(/[^0-9]/g, '')) : null,
+      licenseNumber: validatedData.businessRegistrationNumber || null,
       userId,
-      businessType: 'business',
-      phoneNumbers: [validatedData.phoneNumber],
-      totalViews: 0,
-      totalContacts: 0,
-      isVerified: false // Starts unverified for manual review
+      isVerified: false,
+      viewCount: 0,
+      contactCount: 0,
+      rating: null,
+      reviewCount: 0
     });
 
     // Handle subcategories - if subcategories are selected, use them

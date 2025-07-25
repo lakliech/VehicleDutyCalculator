@@ -101,6 +101,49 @@ export default function BuyACar() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Parse URL parameters on component mount for smart search
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const filters: SmartSearchFilters = {};
+    
+    if (urlParams.get('maxPrice')) filters.maxPrice = parseInt(urlParams.get('maxPrice')!);
+    if (urlParams.get('minPrice')) filters.minPrice = parseInt(urlParams.get('minPrice')!);
+    if (urlParams.get('make')) filters.make = urlParams.get('make')!;
+    if (urlParams.get('model')) filters.model = urlParams.get('model')!;
+    if (urlParams.get('fuelType')) filters.fuelType = urlParams.get('fuelType')!;
+    if (urlParams.get('transmission')) filters.transmission = urlParams.get('transmission')!;
+    if (urlParams.get('bodyType')) filters.bodyType = urlParams.get('bodyType')!;
+    if (urlParams.get('minYear')) filters.minYear = parseInt(urlParams.get('minYear')!);
+    if (urlParams.get('maxYear')) filters.maxYear = parseInt(urlParams.get('maxYear')!);
+    
+    // Apply URL filters if any exist
+    if (Object.keys(filters).length > 0) {
+      setAppliedFilters(filters);
+      
+      // Update the manual filter form fields to reflect the smart search filters
+      if (filters.make) setSelectedMake(filters.make);
+      if (filters.fuelType) setSelectedFuelType(filters.fuelType);
+      if (filters.transmission) setSelectedTransmission(filters.transmission);
+      if (filters.minPrice || filters.maxPrice) {
+        setPriceRange({
+          min: filters.minPrice?.toString() || '',
+          max: filters.maxPrice?.toString() || ''
+        });
+      }
+      if (filters.minYear || filters.maxYear) {
+        setYearRange({
+          min: filters.minYear?.toString() || '',
+          max: filters.maxYear?.toString() || ''
+        });
+      }
+      
+      toast({
+        title: "Smart Search Applied",
+        description: "Filters from your search have been applied.",
+      });
+    }
+  }, []);
+
   // Fetch filter options
   const { data: filterOptions } = useQuery({
     queryKey: ['/api/car-listing-filters'],
@@ -758,7 +801,7 @@ export default function BuyACar() {
             <div className="flex gap-1">
               {[...Array(Math.min(5, Math.ceil(listings.length / 12)))].map((_, i) => (
                 <Button
-                  key={i}
+                  key={`page-${i + 1}`}
                   variant={currentPage === i + 1 ? "default" : "outline"}
                   onClick={() => setCurrentPage(i + 1)}
                   className="w-10"

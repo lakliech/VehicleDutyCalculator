@@ -85,8 +85,17 @@ export default function BuyACar() {
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [yearRange, setYearRange] = useState({ min: '', max: '' });
   const [selectedMake, setSelectedMake] = useState('all');
+  const [selectedModel, setSelectedModel] = useState('all');
   const [selectedFuelType, setSelectedFuelType] = useState('all');
   const [selectedTransmission, setSelectedTransmission] = useState('all');
+  const [selectedBodyType, setSelectedBodyType] = useState('all');
+  const [selectedLocation, setSelectedLocation] = useState('all');
+  const [selectedColor, setSelectedColor] = useState('all');
+  const [selectedDrive, setSelectedDrive] = useState('all');
+  const [mileageRange, setMileageRange] = useState({ min: '', max: '' });
+  const [engineSizeRange, setEngineSizeRange] = useState({ min: '', max: '' });
+  const [seatsRange, setSeatsRange] = useState({ min: '', max: '' });
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
 
   // Mobile detection
   useEffect(() => {
@@ -122,8 +131,10 @@ export default function BuyACar() {
       
       // Update the manual filter form fields to reflect the smart search filters
       if (filters.make) setSelectedMake(filters.make);
+      if (filters.model) setSelectedModel(filters.model);
       if (filters.fuelType) setSelectedFuelType(filters.fuelType);
       if (filters.transmission) setSelectedTransmission(filters.transmission);
+      if (filters.bodyType) setSelectedBodyType(filters.bodyType);
       if (filters.minPrice || filters.maxPrice) {
         setPriceRange({
           min: filters.minPrice?.toString() || '',
@@ -256,8 +267,10 @@ export default function BuyACar() {
     const filters: SmartSearchFilters = {};
     
     if (selectedMake && selectedMake !== 'all') filters.make = selectedMake;
+    if (selectedModel && selectedModel !== 'all') filters.model = selectedModel;
     if (selectedFuelType && selectedFuelType !== 'all') filters.fuelType = selectedFuelType;
     if (selectedTransmission && selectedTransmission !== 'all') filters.transmission = selectedTransmission;
+    if (selectedBodyType && selectedBodyType !== 'all') filters.bodyType = selectedBodyType;
     if (priceRange.min) filters.minPrice = parseInt(priceRange.min);
     if (priceRange.max) filters.maxPrice = parseInt(priceRange.max);
     if (yearRange.min) filters.minYear = parseInt(yearRange.min);
@@ -275,10 +288,19 @@ export default function BuyACar() {
   const clearFilters = () => {
     setAppliedFilters({});
     setSelectedMake('all');
+    setSelectedModel('all'); 
     setSelectedFuelType('all');
     setSelectedTransmission('all');
+    setSelectedBodyType('all');
+    setSelectedLocation('all');
+    setSelectedColor('all');
+    setSelectedDrive('all');
     setPriceRange({ min: '', max: '' });
     setYearRange({ min: '', max: '' });
+    setMileageRange({ min: '', max: '' });
+    setEngineSizeRange({ min: '', max: '' });
+    setSeatsRange({ min: '', max: '' });
+    setSelectedFeatures([]);
     setCurrentPage(1);
   };
 
@@ -579,64 +601,22 @@ export default function BuyACar() {
           {/* Left Sidebar - Advanced Filters */}
           <div className="w-80 flex-shrink-0">
             <Card className="border-purple-200 sticky top-4">
-              <CardContent className="p-6">
+              <CardContent className="p-6 max-h-[80vh] overflow-y-auto">
                 <div className="flex items-center gap-2 mb-6">
                   <Filter className="h-5 w-5 text-purple-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">Advanced Filters</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Filter cars</h3>
                 </div>
                 
                 <div className="space-y-6">
-                  {/* Price Range */}
+                  {/* Make */}
                   <div className="space-y-3">
-                    <Label className="text-sm font-medium text-gray-700">Price Range (KES)</Label>
-                    <div className="space-y-2">
-                      <Input
-                        placeholder="Minimum price"
-                        value={priceRange.min}
-                        onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
-                        type="number"
-                        className="text-sm"
-                      />
-                      <Input
-                        placeholder="Maximum price"
-                        value={priceRange.max}
-                        onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
-                        type="number"
-                        className="text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Year Range */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium text-gray-700">Year Range</Label>
-                    <div className="space-y-2">
-                      <Input
-                        placeholder="From year"
-                        value={yearRange.min}
-                        onChange={(e) => setYearRange(prev => ({ ...prev, min: e.target.value }))}
-                        type="number"
-                        className="text-sm"
-                      />
-                      <Input
-                        placeholder="To year"
-                        value={yearRange.max}
-                        onChange={(e) => setYearRange(prev => ({ ...prev, max: e.target.value }))}
-                        type="number"
-                        className="text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Make Filter */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium text-gray-700">Make</Label>
+                    <Label className="text-sm font-semibold text-gray-900">Make</Label>
                     <Select value={selectedMake} onValueChange={setSelectedMake}>
-                      <SelectTrigger className="text-sm">
-                        <SelectValue placeholder="Any Make" />
+                      <SelectTrigger className="text-sm h-10">
+                        <SelectValue placeholder="Any make" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">Any Make</SelectItem>
+                        <SelectItem value="all">Any make</SelectItem>
                         {filterOptions?.makes?.map((make: string) => (
                           <SelectItem key={make} value={make}>{make}</SelectItem>
                         ))}
@@ -644,15 +624,99 @@ export default function BuyACar() {
                     </Select>
                   </div>
 
-                  {/* Fuel Type Filter */}
+                  {/* Model */}
                   <div className="space-y-3">
-                    <Label className="text-sm font-medium text-gray-700">Fuel Type</Label>
-                    <Select value={selectedFuelType} onValueChange={setSelectedFuelType}>
-                      <SelectTrigger className="text-sm">
-                        <SelectValue placeholder="Any Fuel" />
+                    <Label className="text-sm font-semibold text-gray-900">Model</Label>
+                    <Select value={selectedModel} onValueChange={setSelectedModel}>
+                      <SelectTrigger className="text-sm h-10">
+                        <SelectValue placeholder="Any model" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">Any Fuel</SelectItem>
+                        <SelectItem value="all">Any model</SelectItem>
+                        {filterOptions?.models?.map((model: string) => (
+                          <SelectItem key={model} value={model}>{model}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Price Range */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-gray-900">Price (KES)</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        placeholder="Min"
+                        value={priceRange.min}
+                        onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
+                        type="number"
+                        className="text-sm h-10"
+                      />
+                      <Input
+                        placeholder="Max"
+                        value={priceRange.max}
+                        onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
+                        type="number"
+                        className="text-sm h-10"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Year of Manufacture */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-gray-900">Year of manufacture</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        placeholder="From"
+                        value={yearRange.min}
+                        onChange={(e) => setYearRange(prev => ({ ...prev, min: e.target.value }))}
+                        type="number"
+                        className="text-sm h-10"
+                      />
+                      <Input
+                        placeholder="To"
+                        value={yearRange.max}
+                        onChange={(e) => setYearRange(prev => ({ ...prev, max: e.target.value }))}
+                        type="number"
+                        className="text-sm h-10"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Mileage */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-gray-900">Mileage (km)</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        placeholder="Min km"
+                        value={mileageRange.min}
+                        onChange={(e) => setMileageRange(prev => ({ ...prev, min: e.target.value }))}
+                        type="number"
+                        className="text-sm h-10"
+                      />
+                      <Input
+                        placeholder="Max km"
+                        value={mileageRange.max}
+                        onChange={(e) => setMileageRange(prev => ({ ...prev, max: e.target.value }))}
+                        type="number"
+                        className="text-sm h-10"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Fuel Type */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-gray-900">Fuel type</Label>
+                    <Select value={selectedFuelType} onValueChange={setSelectedFuelType}>
+                      <SelectTrigger className="text-sm h-10">
+                        <SelectValue placeholder="Any fuel type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Any fuel type</SelectItem>
+                        <SelectItem value="petrol">Petrol</SelectItem>
+                        <SelectItem value="diesel">Diesel</SelectItem>
+                        <SelectItem value="electric">Electric</SelectItem>
+                        <SelectItem value="hybrid">Hybrid</SelectItem>
+                        <SelectItem value="plug-in hybrid">Plug-in hybrid</SelectItem>
                         {filterOptions?.fuelTypes?.map((fuel: string) => (
                           <SelectItem key={fuel} value={fuel}>{fuel.charAt(0).toUpperCase() + fuel.slice(1)}</SelectItem>
                         ))}
@@ -660,36 +724,169 @@ export default function BuyACar() {
                     </Select>
                   </div>
 
-                  {/* Transmission Filter */}
+                  {/* Features */}
                   <div className="space-y-3">
-                    <Label className="text-sm font-medium text-gray-700">Transmission</Label>
+                    <Label className="text-sm font-semibold text-gray-900">Features</Label>
+                    <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto">
+                      {['Air Conditioning', 'Bluetooth', 'Parking Sensors', 'Reversing Camera', 'Cruise Control', 'Sunroof', 'Leather Seats', 'GPS Navigation'].map((feature) => (
+                        <div key={feature} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={feature}
+                            checked={selectedFeatures.includes(feature)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedFeatures([...selectedFeatures, feature]);
+                              } else {
+                                setSelectedFeatures(selectedFeatures.filter(f => f !== feature));
+                              }
+                            }}
+                            className="rounded border-gray-300"
+                          />
+                          <label htmlFor={feature} className="text-sm text-gray-700">{feature}</label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Transmission */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-gray-900">Transmission</Label>
                     <Select value={selectedTransmission} onValueChange={setSelectedTransmission}>
-                      <SelectTrigger className="text-sm">
-                        <SelectValue placeholder="Any Transmission" />
+                      <SelectTrigger className="text-sm h-10">
+                        <SelectValue placeholder="Any transmission" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">Any Transmission</SelectItem>
+                        <SelectItem value="all">Any transmission</SelectItem>
+                        <SelectItem value="manual">Manual</SelectItem>
+                        <SelectItem value="automatic">Automatic</SelectItem>
+                        <SelectItem value="cvt">CVT</SelectItem>
                         {filterOptions?.transmissions?.map((transmission: string) => (
                           <SelectItem key={transmission} value={transmission}>{transmission.charAt(0).toUpperCase() + transmission.slice(1)}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* Location */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-gray-900">Location</Label>
+                    <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                      <SelectTrigger className="text-sm h-10">
+                        <SelectValue placeholder="Any location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Any location</SelectItem>
+                        <SelectItem value="nairobi">Nairobi</SelectItem>
+                        <SelectItem value="mombasa">Mombasa</SelectItem>
+                        <SelectItem value="kisumu">Kisumu</SelectItem>
+                        <SelectItem value="nakuru">Nakuru</SelectItem>
+                        <SelectItem value="eldoret">Eldoret</SelectItem>
+                        {filterOptions?.locations?.map((location: string) => (
+                          <SelectItem key={location} value={location}>{location}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Seats */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-gray-900">Seats</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        placeholder="Min seats"
+                        value={seatsRange.min}
+                        onChange={(e) => setSeatsRange(prev => ({ ...prev, min: e.target.value }))}
+                        type="number"
+                        className="text-sm h-10"
+                      />
+                      <Input
+                        placeholder="Max seats"
+                        value={seatsRange.max}
+                        onChange={(e) => setSeatsRange(prev => ({ ...prev, max: e.target.value }))}
+                        type="number"
+                        className="text-sm h-10"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Drive */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-gray-900">Drive</Label>
+                    <Select value={selectedDrive} onValueChange={setSelectedDrive}>
+                      <SelectTrigger className="text-sm h-10">
+                        <SelectValue placeholder="Any drive" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Any drive</SelectItem>
+                        <SelectItem value="fwd">Front wheel drive</SelectItem>
+                        <SelectItem value="rwd">Rear wheel drive</SelectItem>
+                        <SelectItem value="awd">All wheel drive</SelectItem>
+                        <SelectItem value="4wd">4 wheel drive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Engine Size */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-gray-900">Engine size (L)</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        placeholder="Min L"
+                        value={engineSizeRange.min}
+                        onChange={(e) => setEngineSizeRange(prev => ({ ...prev, min: e.target.value }))}
+                        type="number"
+                        step="0.1"
+                        className="text-sm h-10"
+                      />
+                      <Input
+                        placeholder="Max L"
+                        value={engineSizeRange.max}
+                        onChange={(e) => setEngineSizeRange(prev => ({ ...prev, max: e.target.value }))}
+                        type="number"
+                        step="0.1"
+                        className="text-sm h-10"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Color */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-gray-900">Color</Label>
+                    <Select value={selectedColor} onValueChange={setSelectedColor}>
+                      <SelectTrigger className="text-sm h-10">
+                        <SelectValue placeholder="Any color" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Any color</SelectItem>
+                        <SelectItem value="white">White</SelectItem>
+                        <SelectItem value="black">Black</SelectItem>
+                        <SelectItem value="silver">Silver</SelectItem>
+                        <SelectItem value="grey">Grey</SelectItem>
+                        <SelectItem value="blue">Blue</SelectItem>
+                        <SelectItem value="red">Red</SelectItem>
+                        <SelectItem value="green">Green</SelectItem>
+                        <SelectItem value="yellow">Yellow</SelectItem>
+                        <SelectItem value="brown">Brown</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
-                <div className="flex flex-col gap-3 mt-6">
+                <div className="flex flex-col gap-3 mt-6 pt-4 border-t">
                   <Button 
                     onClick={applyManualFilters}
-                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    className="w-full bg-purple-600 hover:bg-purple-700 h-11"
                   >
-                    Apply Filters
+                    Show results
                   </Button>
                   <Button 
                     onClick={clearFilters}
                     variant="outline"
-                    className="w-full border-purple-200 text-purple-700 hover:bg-purple-50"
+                    className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 h-11"
                   >
-                    Clear All
+                    Clear all filters
                   </Button>
                 </div>
               </CardContent>

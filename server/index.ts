@@ -85,8 +85,15 @@ app.use((req, res, next) => {
   } else if (req.path.startsWith('/api/car-listings') || 
              req.path.startsWith('/api/vehicle-references') ||
              req.path.startsWith('/api/car-listing-filters')) {
-    // Cache API responses for 5 minutes
-    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+    // Skip caching if clear parameter is present
+    if (req.query.clear === 'true') {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    } else {
+      // Cache API responses for 5 minutes
+      res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+    }
   } else if (req.path.startsWith('/api/')) {
     // Default API cache for 1 minute (but not auth routes)
     res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');

@@ -3780,26 +3780,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get filter options for car listings
+  // Get filter options for car listings - Simplified without cache issues
   app.get('/api/car-listing-filters', async (req: Request, res: Response) => {
     try {
-      const cacheKey = CacheKeys.carFilters('all');
+      console.log('🔍 Fetching fresh filter options from database...');
       
-      // Check cache first
-      const cached = await CacheService.get(cacheKey);
-      if (cached) {
-        return res.json(cached);
-      }
-
-      // Query actual database for filter options including years
-      const [makesResult, modelsResult, fuelTypesResult, transmissionsResult, bodyTypesResult, yearsResult] = await Promise.all([
-        db.selectDistinct({ make: carListings.make }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.make), ne(carListings.make, ''))),
-        db.selectDistinct({ model: carListings.model }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.model), ne(carListings.model, ''))),
-        db.selectDistinct({ fuelType: carListings.fuelType }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.fuelType), ne(carListings.fuelType, ''))),
-        db.selectDistinct({ transmission: carListings.transmission }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.transmission), ne(carListings.transmission, ''))),
-        db.selectDistinct({ bodyType: carListings.bodyType }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.bodyType), ne(carListings.bodyType, ''))),
-        db.selectDistinct({ year: carListings.year }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.year)))
-      ]);
+      // Sequential queries to avoid Promise.all issues
+      const makesResult = await db.selectDistinct({ make: carListings.make })
+        .from(carListings)
+        .where(and(eq(carListings.status, 'active'), isNotNull(carListings.make), ne(carListings.make, '')));
+        
+      const modelsResult = await db.selectDistinct({ model: carListings.model })
+        .from(carListings)
+        .where(and(eq(carListings.status, 'active'), isNotNull(carListings.model), ne(carListings.model, '')));
+        
+      const yearsResult = await db.selectDistinct({ year: carListings.year })
+        .from(carListings)
+        .where(and(eq(carListings.status, 'active'), isNotNull(carListings.year)));
+        
+      const fuelTypesResult = await db.selectDistinct({ fuelType: carListings.fuelType })
+        .from(carListings)
+        .where(and(eq(carListings.status, 'active'), isNotNull(carListings.fuelType), ne(carListings.fuelType, '')));
+        
+      const transmissionsResult = await db.selectDistinct({ transmission: carListings.transmission })
+        .from(carListings)
+        .where(and(eq(carListings.status, 'active'), isNotNull(carListings.transmission), ne(carListings.transmission, '')));
+        
+      const bodyTypesResult = await db.selectDistinct({ bodyType: carListings.bodyType })
+        .from(carListings)
+        .where(and(eq(carListings.status, 'active'), isNotNull(carListings.bodyType), ne(carListings.bodyType, '')));
+      
+      console.log('📊 Database results:', {
+        makes: makesResult.length,
+        models: modelsResult.length, 
+        years: yearsResult.length,
+        sampleYears: yearsResult.slice(0, 5).map(r => r.year)
+      });
 
       const filterOptions = {
         makes: makesResult.map(r => r.make).filter(make => make && make.trim()).sort(),
@@ -3812,12 +3828,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         features: ['Navigation', 'Bluetooth', 'Cruise Control', 'Parking Sensors', 'Sunroof', 'Leather Seats', 'Alloy Wheels', 'Reverse Camera', '4WD', 'AWD']
       };
 
-      // Cache filter options for 1 hour (they don't change often)
-      await CacheService.set(cacheKey, filterOptions, { ttl: 3600 });
-
+      console.log('✅ Returning fresh filter options:', {
+        makes: filterOptions.makes.length,
+        years: filterOptions.years.length,
+        sampleYears: filterOptions.years.slice(0, 5)
+      });
       res.json(filterOptions);
     } catch (error) {
-      console.error('Failed to fetch filter options:', error);
+      console.error('❌ Failed to fetch filter options:', error);
       res.status(500).json({ error: 'Failed to fetch filter options' });
     }
   });

@@ -93,8 +93,8 @@ export default function BuyACar() {
   const [selectedColor, setSelectedColor] = useState('all');
   const [selectedDrive, setSelectedDrive] = useState('all');
   const [mileageRange, setMileageRange] = useState({ min: '', max: '' });
-  const [engineSizeRange, setEngineSizeRange] = useState({ min: '', max: '' });
-  const [seatsRange, setSeatsRange] = useState({ min: '', max: '' });
+  const [selectedEngineSize, setSelectedEngineSize] = useState('all');
+  const [selectedSeats, setSelectedSeats] = useState('all');
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
 
   // Mobile detection
@@ -168,6 +168,21 @@ export default function BuyACar() {
       return response.json();
     },
     staleTime: 300000, // Cache for 5 minutes
+  });
+
+  // Fetch Kenyan counties for location filter
+  const { data: kenyanCounties, isLoading: countiesLoading } = useQuery({
+    queryKey: ['/api/kenyan-counties'],
+    queryFn: async () => {
+      const response = await fetch('/api/kenyan-counties', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch counties');
+      }
+      return response.json();
+    },
+    staleTime: 3600000, // Cache for 1 hour
   });
 
   // Fetch models based on selected make
@@ -343,8 +358,8 @@ export default function BuyACar() {
     setPriceRange({ min: '', max: '' });
     setYearRange({ min: '', max: '' });
     setMileageRange({ min: '', max: '' });
-    setEngineSizeRange({ min: '', max: '' });
-    setSeatsRange({ min: '', max: '' });
+    setSelectedEngineSize('all');
+    setSelectedSeats('all');
     setSelectedFeatures([]);
     setCurrentPage(1);
   };
@@ -727,7 +742,17 @@ export default function BuyACar() {
                     <div className="grid grid-cols-2 gap-2">
                       <Select
                         value={yearRange.min || 'all'}
-                        onValueChange={(value) => setYearRange(prev => ({ ...prev, min: value === 'all' ? 'all' : value }))}
+                        onValueChange={(value) => {
+                          setYearRange(prev => {
+                            const newMin = value === 'all' ? 'all' : value;
+                            const newMax = prev.max;
+                            // If max is set and new min is greater than max, reset max to "all"
+                            if (newMax !== 'all' && newMin !== 'all' && parseInt(newMin) > parseInt(newMax)) {
+                              return { min: newMin, max: 'all' };
+                            }
+                            return { ...prev, min: newMin };
+                          });
+                        }}
                       >
                         <SelectTrigger className="text-sm h-10">
                           <SelectValue placeholder="From year" />
@@ -741,14 +766,28 @@ export default function BuyACar() {
                       </Select>
                       <Select
                         value={yearRange.max || 'all'}
-                        onValueChange={(value) => setYearRange(prev => ({ ...prev, max: value === 'all' ? 'all' : value }))}
+                        onValueChange={(value) => {
+                          setYearRange(prev => {
+                            const newMax = value === 'all' ? 'all' : value;
+                            const newMin = prev.min;
+                            // If min is set and new max is less than min, reset min to "all"
+                            if (newMin !== 'all' && newMax !== 'all' && parseInt(newMax) < parseInt(newMin)) {
+                              return { min: 'all', max: newMax };
+                            }
+                            return { ...prev, max: newMax };
+                          });
+                        }}
                       >
                         <SelectTrigger className="text-sm h-10">
                           <SelectValue placeholder="To year" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">Any year</SelectItem>
-                          {filterOptions?.years?.map((year: number) => (
+                          {filterOptions?.years?.filter((year: number) => {
+                            // Only show years >= min year if min is selected
+                            if (yearRange.min === 'all') return true;
+                            return year >= parseInt(yearRange.min);
+                          }).map((year: number) => (
                             <SelectItem key={`max-${year}`} value={year.toString()}>{year}</SelectItem>
                           ))}
                         </SelectContent>
@@ -851,13 +890,10 @@ export default function BuyACar() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Any location</SelectItem>
-                        <SelectItem value="nairobi">Nairobi</SelectItem>
-                        <SelectItem value="mombasa">Mombasa</SelectItem>
-                        <SelectItem value="kisumu">Kisumu</SelectItem>
-                        <SelectItem value="nakuru">Nakuru</SelectItem>
-                        <SelectItem value="eldoret">Eldoret</SelectItem>
-                        {filterOptions?.locations?.map((location: string) => (
-                          <SelectItem key={location} value={location}>{location}</SelectItem>
+                        {countiesLoading ? (
+                          <SelectItem value="loading" disabled>Loading counties...</SelectItem>
+                        ) : kenyanCounties?.map((county: string) => (
+                          <SelectItem key={county} value={county.toLowerCase()}>{county}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -866,22 +902,22 @@ export default function BuyACar() {
                   {/* Seats */}
                   <div className="space-y-3">
                     <Label className="text-sm font-semibold text-gray-900">Seats</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Input
-                        placeholder="Min seats"
-                        value={seatsRange.min}
-                        onChange={(e) => setSeatsRange(prev => ({ ...prev, min: e.target.value }))}
-                        type="number"
-                        className="text-sm h-10"
-                      />
-                      <Input
-                        placeholder="Max seats"
-                        value={seatsRange.max}
-                        onChange={(e) => setSeatsRange(prev => ({ ...prev, max: e.target.value }))}
-                        type="number"
-                        className="text-sm h-10"
-                      />
-                    </div>
+                    <Select value={selectedSeats} onValueChange={setSelectedSeats}>
+                      <SelectTrigger className="text-sm h-10">
+                        <SelectValue placeholder="Any seats" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Any</SelectItem>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="4">4</SelectItem>
+                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="6">6</SelectItem>
+                        <SelectItem value="7">7</SelectItem>
+                        <SelectItem value="8">8</SelectItem>
+                        <SelectItem value="9">9</SelectItem>
+                        <SelectItem value="10+">Above 10</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Drive */}
@@ -904,24 +940,30 @@ export default function BuyACar() {
                   {/* Engine Size */}
                   <div className="space-y-3">
                     <Label className="text-sm font-semibold text-gray-900">Engine size (L)</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Input
-                        placeholder="Min L"
-                        value={engineSizeRange.min}
-                        onChange={(e) => setEngineSizeRange(prev => ({ ...prev, min: e.target.value }))}
-                        type="number"
-                        step="0.1"
-                        className="text-sm h-10"
-                      />
-                      <Input
-                        placeholder="Max L"
-                        value={engineSizeRange.max}
-                        onChange={(e) => setEngineSizeRange(prev => ({ ...prev, max: e.target.value }))}
-                        type="number"
-                        step="0.1"
-                        className="text-sm h-10"
-                      />
-                    </div>
+                    <Select value={selectedEngineSize} onValueChange={setSelectedEngineSize}>
+                      <SelectTrigger className="text-sm h-10">
+                        <SelectValue placeholder="Any engine size" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Any engine size</SelectItem>
+                        <SelectItem value="1.0">1.0L</SelectItem>
+                        <SelectItem value="1.2">1.2L</SelectItem>
+                        <SelectItem value="1.3">1.3L</SelectItem>
+                        <SelectItem value="1.4">1.4L</SelectItem>
+                        <SelectItem value="1.5">1.5L</SelectItem>
+                        <SelectItem value="1.6">1.6L</SelectItem>
+                        <SelectItem value="1.8">1.8L</SelectItem>
+                        <SelectItem value="2.0">2.0L</SelectItem>
+                        <SelectItem value="2.2">2.2L</SelectItem>
+                        <SelectItem value="2.4">2.4L</SelectItem>
+                        <SelectItem value="2.5">2.5L</SelectItem>
+                        <SelectItem value="2.7">2.7L</SelectItem>
+                        <SelectItem value="3.0">3.0L</SelectItem>
+                        <SelectItem value="3.5">3.5L</SelectItem>
+                        <SelectItem value="4.0">4.0L</SelectItem>
+                        <SelectItem value="4.0+">Above 4.0L</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Color */}

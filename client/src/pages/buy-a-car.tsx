@@ -155,27 +155,19 @@ export default function BuyACar() {
     }
   }, []);
 
-  // Fetch filter options with cache bypass and logging
+  // Fetch filter options
   const { data: filterOptions, isLoading: filtersLoading, error: filtersError } = useQuery({
     queryKey: ['/api/car-listing-filters'],
     queryFn: async () => {
-      console.log('🔄 Fetching filter options...');
-      const response = await fetch('/api/car-listing-filters?clear=true', {
-        credentials: 'include',
-        cache: 'no-cache'
+      const response = await fetch('/api/car-listing-filters', {
+        credentials: 'include'
       });
       if (!response.ok) {
         throw new Error('Failed to fetch filter options');
       }
-      const data = await response.json();
-      console.log('📝 Filter options received:', data);
-      console.log('📊 Makes count:', data.makes?.length);
-      console.log('📅 Years count:', data.years?.length);
-      console.log('🔢 Years data:', data.years);
-      return data;
+      return response.json();
     },
-    retry: 3,
-    staleTime: 60000, // Reduced cache time for testing
+    staleTime: 300000, // Cache for 5 minutes
   });
 
   // Fetch models based on selected make
@@ -223,6 +215,14 @@ export default function BuyACar() {
 
   // Extract cars from response - API returns { cars: [...] }
   const listings = listingsResponse?.cars || [];
+  
+  // Debug current listings and applied filters
+  console.log('🚗 Current listings count:', listings.length);
+  console.log('🎯 Applied filters:', appliedFilters);
+  console.log('📄 Current page:', currentPage);
+  if (listings.length > 0) {
+    console.log('🔍 Car IDs in listings:', listings.map((car: any) => car.id));
+  }
 
   // Smart search function
   const handleSmartSearch = async () => {
@@ -301,6 +301,7 @@ export default function BuyACar() {
     if (yearRange.min && yearRange.min !== 'all') filters.minYear = parseInt(yearRange.min);
     if (yearRange.max && yearRange.max !== 'all') filters.maxYear = parseInt(yearRange.max);
 
+    console.log('🔧 Applying manual filters:', filters);
     setAppliedFilters(filters);
     setCurrentPage(1);
     toast({
@@ -308,6 +309,25 @@ export default function BuyACar() {
       description: "Updated search results with your filters.",
     });
   };
+
+  // Auto-apply filters whenever selections change
+  useEffect(() => {
+    const filters: SmartSearchFilters = {};
+    
+    if (selectedMake && selectedMake !== 'all') filters.make = selectedMake;
+    if (selectedModel && selectedModel !== 'all') filters.model = selectedModel;
+    if (selectedFuelType && selectedFuelType !== 'all') filters.fuelType = selectedFuelType;
+    if (selectedTransmission && selectedTransmission !== 'all') filters.transmission = selectedTransmission;
+    if (selectedBodyType && selectedBodyType !== 'all') filters.bodyType = selectedBodyType;
+    if (priceRange.min) filters.minPrice = parseInt(priceRange.min);
+    if (priceRange.max) filters.maxPrice = parseInt(priceRange.max);
+    if (yearRange.min && yearRange.min !== 'all') filters.minYear = parseInt(yearRange.min);
+    if (yearRange.max && yearRange.max !== 'all') filters.maxYear = parseInt(yearRange.max);
+
+    console.log('🔄 Auto-applying filters:', filters);
+    setAppliedFilters(filters);
+    setCurrentPage(1);
+  }, [selectedMake, selectedModel, selectedFuelType, selectedTransmission, selectedBodyType, priceRange, yearRange]);
 
   // Clear all filters
   const clearFilters = () => {
@@ -1011,9 +1031,10 @@ export default function BuyACar() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {listings.map((car: CarListing) => (
-                  <CarCard key={car.id} car={car} />
-                ))}
+                {listings.map((car: CarListing) => {
+                  console.log('🏷️ Rendering car with ID:', car.id);
+                  return <CarCard key={`car-${car.id}`} car={car} />;
+                })}
               </div>
             )}
           </div>

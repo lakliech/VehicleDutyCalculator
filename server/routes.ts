@@ -3631,20 +3631,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let dbListings;
       try {
 
-        dbListings = await db
+        // First get the listings without dealer join to avoid duplicates
+        const basicListings = await db
           .select({
             listing: carListings,
-            dealerName: sql<string>`dealer_profiles.dealer_name`,
-            dealerLogoUrl: sql<string>`dealer_profiles.logo_url`,
-            isVerifiedDealer: sql<boolean>`dealer_profiles.is_verified`,
           })
           .from(carListings)
           .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
-          .leftJoin(sql`dealer_profiles`, sql`dealer_profiles.user_id = ${carListings.sellerId}`)
           .where(and(...whereConditions))
           .orderBy(orderBy)
           .limit(limitNum)
           .offset(offset);
+
+        // Then get dealer info separately if needed
+        const sellerIds = basicListings.map(row => row.listing.sellerId);
+        const dealerInfo = sellerIds.length > 0 ? await db
+          .select({
+            userId: sql<string>`user_id`,
+            dealerName: sql<string>`dealer_name`,
+            logoUrl: sql<string>`logo_url`,
+            isVerified: sql<boolean>`is_verified`,
+          })
+          .from(sql`dealer_profiles`)
+          .where(sql`user_id IN (${sellerIds.join(',')})`) : [];
+
+        // Combine the results
+        dbListings = basicListings.map(row => {
+          const dealer = dealerInfo.find(d => d.userId === row.listing.sellerId);
+          return {
+            listing: row.listing,
+            dealerName: dealer?.dealerName || null,
+            dealerLogoUrl: dealer?.logoUrl || null,
+            isVerifiedDealer: dealer?.isVerified || false,
+          };
+        });
         console.log('✅ Car listings query successful, found:', dbListings.length);
       } catch (queryError) {
         console.error('❌ Error executing car listings query:', queryError);

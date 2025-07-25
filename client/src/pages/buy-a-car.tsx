@@ -155,19 +155,27 @@ export default function BuyACar() {
     }
   }, []);
 
-  // Fetch filter options
-  const { data: filterOptions } = useQuery({
+  // Fetch filter options with cache bypass and logging
+  const { data: filterOptions, isLoading: filtersLoading, error: filtersError } = useQuery({
     queryKey: ['/api/car-listing-filters'],
     queryFn: async () => {
-      const response = await fetch('/api/car-listing-filters', {
-        credentials: 'include'
+      console.log('🔄 Fetching filter options...');
+      const response = await fetch('/api/car-listing-filters?clear=true', {
+        credentials: 'include',
+        cache: 'no-cache'
       });
       if (!response.ok) {
         throw new Error('Failed to fetch filter options');
       }
-      return response.json();
+      const data = await response.json();
+      console.log('📝 Filter options received:', data);
+      console.log('📊 Makes count:', data.makes?.length);
+      console.log('📅 Years count:', data.years?.length);
+      console.log('🔢 Years data:', data.years);
+      return data;
     },
-    staleTime: 300000, // Cache for 5 minutes
+    retry: 3,
+    staleTime: 60000, // Reduced cache time for testing
   });
 
   // Fetch models based on selected make

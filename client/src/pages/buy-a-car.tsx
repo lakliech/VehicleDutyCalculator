@@ -83,7 +83,7 @@ export default function BuyACar() {
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
-  const [yearRange, setYearRange] = useState({ min: '', max: '' });
+  const [yearRange, setYearRange] = useState({ min: 'all', max: 'all' });
   const [selectedMake, setSelectedMake] = useState('all');
   const [selectedModel, setSelectedModel] = useState('all');
   const [selectedFuelType, setSelectedFuelType] = useState('all');
@@ -143,8 +143,8 @@ export default function BuyACar() {
       }
       if (filters.minYear || filters.maxYear) {
         setYearRange({
-          min: filters.minYear?.toString() || '',
-          max: filters.maxYear?.toString() || ''
+          min: filters.minYear?.toString() || 'all',
+          max: filters.maxYear?.toString() || 'all'
         });
       }
       
@@ -290,8 +290,8 @@ export default function BuyACar() {
     if (selectedBodyType && selectedBodyType !== 'all') filters.bodyType = selectedBodyType;
     if (priceRange.min) filters.minPrice = parseInt(priceRange.min);
     if (priceRange.max) filters.maxPrice = parseInt(priceRange.max);
-    if (yearRange.min) filters.minYear = parseInt(yearRange.min);
-    if (yearRange.max) filters.maxYear = parseInt(yearRange.max);
+    if (yearRange.min && yearRange.min !== 'all') filters.minYear = parseInt(yearRange.min);
+    if (yearRange.max && yearRange.max !== 'all') filters.maxYear = parseInt(yearRange.max);
 
     setAppliedFilters(filters);
     setCurrentPage(1);
@@ -698,30 +698,30 @@ export default function BuyACar() {
                     <Label className="text-sm font-semibold text-gray-900">Year of manufacture</Label>
                     <div className="grid grid-cols-2 gap-2">
                       <Select
-                        value={yearRange.min}
-                        onValueChange={(value) => setYearRange(prev => ({ ...prev, min: value }))}
+                        value={yearRange.min || 'all'}
+                        onValueChange={(value) => setYearRange(prev => ({ ...prev, min: value === 'all' ? 'all' : value }))}
                       >
                         <SelectTrigger className="text-sm h-10">
                           <SelectValue placeholder="From year" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Any year</SelectItem>
+                          <SelectItem value="all">Any year</SelectItem>
                           {filterOptions?.years?.map((year: number) => (
-                            <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                            <SelectItem key={`min-${year}`} value={year.toString()}>{year}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                       <Select
-                        value={yearRange.max}
-                        onValueChange={(value) => setYearRange(prev => ({ ...prev, max: value }))}
+                        value={yearRange.max || 'all'}
+                        onValueChange={(value) => setYearRange(prev => ({ ...prev, max: value === 'all' ? 'all' : value }))}
                       >
                         <SelectTrigger className="text-sm h-10">
                           <SelectValue placeholder="To year" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Any year</SelectItem>
+                          <SelectItem value="all">Any year</SelectItem>
                           {filterOptions?.years?.map((year: number) => (
-                            <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                            <SelectItem key={`max-${year}`} value={year.toString()}>{year}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>

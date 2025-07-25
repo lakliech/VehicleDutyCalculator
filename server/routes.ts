@@ -3791,13 +3791,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(cached);
       }
 
-      // Query actual database for filter options
-      const [makesResult, modelsResult, fuelTypesResult, transmissionsResult, bodyTypesResult] = await Promise.all([
+      // Query actual database for filter options including years
+      const [makesResult, modelsResult, fuelTypesResult, transmissionsResult, bodyTypesResult, yearsResult] = await Promise.all([
         db.selectDistinct({ make: carListings.make }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.make), ne(carListings.make, ''))),
         db.selectDistinct({ model: carListings.model }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.model), ne(carListings.model, ''))),
         db.selectDistinct({ fuelType: carListings.fuelType }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.fuelType), ne(carListings.fuelType, ''))),
         db.selectDistinct({ transmission: carListings.transmission }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.transmission), ne(carListings.transmission, ''))),
-        db.selectDistinct({ bodyType: carListings.bodyType }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.bodyType), ne(carListings.bodyType, '')))
+        db.selectDistinct({ bodyType: carListings.bodyType }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.bodyType), ne(carListings.bodyType, ''))),
+        db.selectDistinct({ year: carListings.year }).from(carListings).where(and(eq(carListings.status, 'active'), isNotNull(carListings.year)))
       ]);
 
       const filterOptions = {
@@ -3806,6 +3807,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fuelTypes: fuelTypesResult.map(r => r.fuelType).filter(fuel => fuel && fuel.trim()).sort(),
         transmissions: transmissionsResult.map(r => r.transmission).filter(trans => trans && trans.trim()).sort(),
         bodyTypes: bodyTypesResult.map(r => r.bodyType).filter(body => body && body.trim()).sort(),
+        years: yearsResult.map(r => r.year).filter(year => year && year > 1990).sort((a, b) => b - a), // Newest first
         colors: ['Black', 'White', 'Grey', 'Silver', 'Red', 'Blue', 'Green', 'Yellow', 'Brown', 'Other'],
         features: ['Navigation', 'Bluetooth', 'Cruise Control', 'Parking Sensors', 'Sunroof', 'Leather Seats', 'Alloy Wheels', 'Reverse Camera', '4WD', 'AWD']
       };
@@ -3817,6 +3819,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Failed to fetch filter options:', error);
       res.status(500).json({ error: 'Failed to fetch filter options' });
+    }
+  });
+
+  // Get models filtered by make
+  app.get('/api/car-listing-filters/models/:make', async (req: Request, res: Response) => {
+    try {
+      const { make } = req.params;
+      const cacheKey = CacheKeys.carFilters(`models-${make}`);
+      
+      // Check cache first
+      const cached = await CacheService.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+
+      // Query models for specific make
+      const modelsResult = await db
+        .selectDistinct({ model: carListings.model })
+        .from(carListings)
+        .where(and(
+          eq(carListings.status, 'active'),
+          eq(carListings.make, make),
+          isNotNull(carListings.model),
+          ne(carListings.model, '')
+        ));
+
+      const models = modelsResult
+        .map(r => r.model)
+        .filter(model => model && model.trim())
+        .sort();
+
+      // Cache models for specific make for 1 hour
+      await CacheService.set(cacheKey, models, { ttl: 3600 });
+
+      res.json(models);
+    } catch (error) {
+      console.error('Failed to fetch models for make:', error);
+      res.status(500).json({ error: 'Failed to fetch models' });
     }
   });
 

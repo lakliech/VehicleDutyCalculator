@@ -170,6 +170,23 @@ export default function BuyACar() {
     staleTime: 300000, // Cache for 5 minutes
   });
 
+  // Fetch models based on selected make
+  const { data: modelsForMake, isLoading: modelsLoading } = useQuery({
+    queryKey: ['/api/car-listing-filters/models', selectedMake],
+    queryFn: async () => {
+      if (selectedMake === 'all') return [];
+      const response = await fetch(`/api/car-listing-filters/models/${encodeURIComponent(selectedMake)}`, {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch models');
+      }
+      return response.json();
+    },
+    enabled: selectedMake !== 'all',
+    staleTime: 300000, // Cache for 5 minutes
+  });
+
   // Fetch car listings with filters
   const { data: listingsResponse, isLoading, error } = useQuery({
     queryKey: ['/api/car-listings', appliedFilters, currentPage],
@@ -611,7 +628,14 @@ export default function BuyACar() {
                   {/* Make */}
                   <div className="space-y-3">
                     <Label className="text-sm font-semibold text-gray-900">Make</Label>
-                    <Select value={selectedMake} onValueChange={setSelectedMake}>
+                    <Select 
+                      value={selectedMake} 
+                      onValueChange={(value) => {
+                        setSelectedMake(value);
+                        // Reset model when make changes
+                        setSelectedModel('all');
+                      }}
+                    >
                       <SelectTrigger className="text-sm h-10">
                         <SelectValue placeholder="Any make" />
                       </SelectTrigger>
@@ -627,13 +651,21 @@ export default function BuyACar() {
                   {/* Model */}
                   <div className="space-y-3">
                     <Label className="text-sm font-semibold text-gray-900">Model</Label>
-                    <Select value={selectedModel} onValueChange={setSelectedModel}>
+                    <Select 
+                      value={selectedModel} 
+                      onValueChange={setSelectedModel}
+                      disabled={selectedMake === 'all' || modelsLoading}
+                    >
                       <SelectTrigger className="text-sm h-10">
-                        <SelectValue placeholder="Any model" />
+                        <SelectValue placeholder={
+                          selectedMake === 'all' ? "Select make first" : 
+                          modelsLoading ? "Loading models..." :
+                          "Any model"
+                        } />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Any model</SelectItem>
-                        {filterOptions?.models?.map((model: string) => (
+                        {selectedMake !== 'all' && modelsForMake?.map((model: string) => (
                           <SelectItem key={model} value={model}>{model}</SelectItem>
                         ))}
                       </SelectContent>
@@ -665,20 +697,34 @@ export default function BuyACar() {
                   <div className="space-y-3">
                     <Label className="text-sm font-semibold text-gray-900">Year of manufacture</Label>
                     <div className="grid grid-cols-2 gap-2">
-                      <Input
-                        placeholder="From"
+                      <Select
                         value={yearRange.min}
-                        onChange={(e) => setYearRange(prev => ({ ...prev, min: e.target.value }))}
-                        type="number"
-                        className="text-sm h-10"
-                      />
-                      <Input
-                        placeholder="To"
+                        onValueChange={(value) => setYearRange(prev => ({ ...prev, min: value }))}
+                      >
+                        <SelectTrigger className="text-sm h-10">
+                          <SelectValue placeholder="From year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Any year</SelectItem>
+                          {filterOptions?.years?.map((year: number) => (
+                            <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select
                         value={yearRange.max}
-                        onChange={(e) => setYearRange(prev => ({ ...prev, max: e.target.value }))}
-                        type="number"
-                        className="text-sm h-10"
-                      />
+                        onValueChange={(value) => setYearRange(prev => ({ ...prev, max: value }))}
+                      >
+                        <SelectTrigger className="text-sm h-10">
+                          <SelectValue placeholder="To year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Any year</SelectItem>
+                          {filterOptions?.years?.map((year: number) => (
+                            <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 

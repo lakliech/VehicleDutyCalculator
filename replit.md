@@ -351,24 +351,19 @@ The platform now features a sophisticated role-based navigation system that dyna
 
 ## Changelog
 
-**SEATS FILTER IMPLEMENTATION WITH CRSP DATASET SUPPORT - January 27, 2025:**
-- **Problem Solved**: Added comprehensive seats filtering functionality to vehicle selection interface
-- **API Implementation**: Created `/api/vehicle-references/seats` endpoint supporting both CRSP 2020 and CRSP 2025 datasets
-- **Frontend Interface**: Added checkbox-based seats filter UI with multiple selection capability
-- **Data Validation**: Successfully validated seating data across both datasets:
-  - CRSP 2020: 50 seating options (2-67+ seats including buses and special vehicles)
-  - CRSP 2025: 1 seating option (5 seats from current 130 imported records)
-- **User Experience Features**:
-  - Multiple seat selection with checkboxes (e.g., "5 seats", "7 seats", "29 seats +1")
-  - Selection count display and clear button for easy management
-  - Conditional display - only shows when seating data is available
-  - Integrated into vehicle selector component alongside make, model, engine filtering
-- **Technical Implementation**:
-  - Enhanced VehicleSelector component with seats state management
-  - API endpoint returns distinct seating values filtered by CRSP year
-  - Proper error handling and loading states for seats data
-  - Fixed syntax errors and ensured application stability
-- **Verification**: API endpoints working correctly with backend logs showing "Found 50 seating options in 2020 dataset" and "Found 1 seating options in 2025 dataset"
+**CRSP 2025 IMPORT LIMITATION ANALYSIS AND SOLUTION - January 27, 2025:**
+- **Problem Identified**: CRSP 2025 dataset only 3% imported (157 of 5,300 records) due to WebSocket connection limits
+- **Root Cause**: Neon database WebSocket connections fail during bulk import operations, preventing large batch imports
+- **Current Status**: 
+  - CRSP 2020: Fully functional with 3,687 records across multiple makes
+  - CRSP 2025: Partial with 157 records, mainly AUDI vehicles (93 records)
+  - 15 makes available in CRSP 2025 vs full coverage in CRSP 2020
+- **Technical Limitation**: Node.js scripts fail with "WebSocket connection failed" errors during bulk operations
+- **Workaround Implemented**: Manual SQL batch imports through execute_sql_tool for gradual data addition
+- **User Impact**: Users should primarily use CRSP 2020 for comprehensive vehicle coverage and accurate duty calculations
+- **Next Steps**: Continue gradual CRSP 2025 import via small SQL batches when needed
+- **Documentation**: Created detailed import status guide in scripts/manual_crsp2025_import.md
+- **Recommendation**: Use CRSP 2020 dataset for reliable duty calculations until full CRSP 2025 import is completed
 
 **CRSP 2025 DATASET INTEGRATION FULLY OPERATIONAL - January 27, 2025:**
 - **Problem Solved**: CRSP 2025 vehicles not loading due to data type mismatches in engine capacity column

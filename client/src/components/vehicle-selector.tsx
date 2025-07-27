@@ -65,13 +65,20 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     onVehicleSelect(null);
   };
 
-  // Fetch all makes (filtered by category if provided)
+  // Fetch all makes (filtered by category and CRSP year if provided)
   const { data: makes = [], isLoading: makesLoading } = useQuery<string[]>({
-    queryKey: ["/api/vehicle-references/makes", categoryFilter],
+    queryKey: ["/api/vehicle-references/makes", categoryFilter, selectedCrspYear],
     queryFn: async () => {
       let url = "/api/vehicle-references/makes";
+      const params = [];
       if (categoryFilter) {
-        url += `?category=${categoryFilter}`;
+        params.push(`category=${categoryFilter}`);
+      }
+      if (selectedCrspYear) {
+        params.push(`crspYear=${selectedCrspYear}`);
+      }
+      if (params.length > 0) {
+        url += `?${params.join('&')}`;
       }
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch makes');
@@ -79,15 +86,22 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     },
   });
 
-  // Fetch models for selected make (filtered by category if provided)
+  // Fetch models for selected make (filtered by category and CRSP year if provided)
   const { data: models = [], isLoading: modelsLoading } = useQuery<{
     model: string;
   }[]>({
-    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models`, categoryFilter],
+    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models`, categoryFilter, selectedCrspYear],
     queryFn: async () => {
       let url = `/api/vehicle-references/makes/${selectedMake}/models`;
+      const params = [];
       if (categoryFilter) {
-        url += `?category=${categoryFilter}`;
+        params.push(`category=${categoryFilter}`);
+      }
+      if (selectedCrspYear) {
+        params.push(`crspYear=${selectedCrspYear}`);
+      }
+      if (params.length > 0) {
+        url += `?${params.join('&')}`;
       }
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch models');

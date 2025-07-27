@@ -136,6 +136,20 @@ function getEngineCapacityFilter(category: string) {
   }
 }
 
+// Helper function to get engine capacity filter for CRSP 2025 based on category
+function getEngineCapacityFilter2025(category: string) {
+  switch (category) {
+    case 'under1500cc':
+      return sql`${vehicleReferences2025.engineCapacity} < 1500 AND ${vehicleReferences2025.engineCapacity} IS NOT NULL`;
+    case 'over1500cc':
+      return sql`${vehicleReferences2025.engineCapacity} >= 1500 AND ${vehicleReferences2025.engineCapacity} < 3000 AND ${vehicleReferences2025.engineCapacity} IS NOT NULL`;
+    case 'largeEngine':
+      return sql`${vehicleReferences2025.engineCapacity} >= 2500 AND ${vehicleReferences2025.engineCapacity} IS NOT NULL`;
+    default:
+      return null;
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Session middleware with MemoryStore
   const MemoryStoreSession = MemoryStore(session);
@@ -2512,25 +2526,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all distinct makes (with optional category filtering)
+  // Get all distinct makes (with optional category filtering and CRSP year support)
   app.get("/api/vehicle-references/makes", async (req, res) => {
     try {
-      const { category } = req.query;
+      const { category, crspYear } = req.query;
+      const selectedCrspYear = crspYear === '2025' ? '2025' : '2020';
       
-      let query = db
-        .selectDistinct({ make: vehicleReferences.make })
-        .from(vehicleReferences)
-        .orderBy(vehicleReferences.make);
-      
-      // Apply category filtering based on engine capacity
-      if (category && typeof category === 'string') {
-        const engineFilter = getEngineCapacityFilter(category);
-        if (engineFilter) {
-          query = query.where(engineFilter);
+      let query;
+      if (selectedCrspYear === '2025') {
+        // Query CRSP 2025 table
+        query = db
+          .selectDistinct({ make: vehicleReferences2025.make })
+          .from(vehicleReferences2025)
+          .orderBy(vehicleReferences2025.make);
+          
+        // Apply category filtering based on engine capacity for CRSP 2025
+        if (category && typeof category === 'string') {
+          const engineFilter = getEngineCapacityFilter2025(category);
+          if (engineFilter) {
+            query = query.where(engineFilter);
+          }
+        }
+      } else {
+        // Query CRSP 2020 table
+        query = db
+          .selectDistinct({ make: vehicleReferences.make })
+          .from(vehicleReferences)
+          .orderBy(vehicleReferences.make);
+        
+        // Apply category filtering based on engine capacity for CRSP 2020
+        if (category && typeof category === 'string') {
+          const engineFilter = getEngineCapacityFilter(category);
+          if (engineFilter) {
+            query = query.where(engineFilter);
+          }
         }
       }
       
       const results = await query;
+      console.log(`Found ${results.length} makes in ${selectedCrspYear} dataset for category: ${category || 'all'}`);
       res.json(results.map(r => r.make));
     } catch (error) {
       console.error("Failed to fetch vehicle makes:", error);
@@ -2540,30 +2574,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get models for a specific make (with optional category filtering)
+  // Get models for a specific make (with optional category filtering and CRSP year support)
   app.get("/api/vehicle-references/makes/:make/models", async (req, res) => {
     try {
       const { make } = req.params;
-      const { category } = req.query;
+      const { category, crspYear } = req.query;
+      const selectedCrspYear = crspYear === '2025' ? '2025' : '2020';
       
-      let whereConditions = [sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`];
-      
-      // Apply category filtering based on engine capacity
-      if (category && typeof category === 'string') {
-        const engineFilter = getEngineCapacityFilter(category);
-        if (engineFilter) {
-          whereConditions.push(engineFilter);
+      let results;
+      if (selectedCrspYear === '2025') {
+        // Query CRSP 2025 table
+        let whereConditions = [sql`LOWER(${vehicleReferences2025.make}) = LOWER(${make})`];
+        
+        // Apply category filtering based on engine capacity for CRSP 2025
+        if (category && typeof category === 'string') {
+          const engineFilter = getEngineCapacityFilter2025(category);
+          if (engineFilter) {
+            whereConditions.push(engineFilter);
+          }
         }
+        
+        results = await db
+          .selectDistinct({ 
+            model: vehicleReferences2025.model
+          })
+          .from(vehicleReferences2025)
+          .where(sql.join(whereConditions, sql` AND `))
+          .orderBy(vehicleReferences2025.model);
+      } else {
+        // Query CRSP 2020 table
+        let whereConditions = [sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`];
+        
+        // Apply category filtering based on engine capacity for CRSP 2020
+        if (category && typeof category === 'string') {
+          const engineFilter = getEngineCapacityFilter(category);
+          if (engineFilter) {
+            whereConditions.push(engineFilter);
+          }
+        }
+        
+        results = await db
+          .selectDistinct({ 
+            model: vehicleReferences.model
+          })
+          .from(vehicleReferences)
+          .where(sql.join(whereConditions, sql` AND `))
+          .orderBy(vehicleReferences.model);
       }
       
-      const results = await db
-        .selectDistinct({ 
-          model: vehicleReferences.model
-        })
-        .from(vehicleReferences)
-        .where(sql.join(whereConditions, sql` AND `))
-        .orderBy(vehicleReferences.model);
-        
+      console.log(`Found ${results.length} models for ${make} in ${selectedCrspYear} dataset for category: ${category || 'all'}`);
       res.json(results);
     } catch (error) {
       console.error("Failed to fetch models for make:", error);

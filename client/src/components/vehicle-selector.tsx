@@ -189,7 +189,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
       console.log('📋 Vehicle details response:', data.map((v: any) => ({id: v.id, make: v.make, model: v.model})));
       return data;
     },
-    enabled: !isManualEntry && !!selectedMake && !!selectedModel && !!selectedDriveConfig && (!!selectedEngineSize || (useManualEngine && !!manualEngineSize)),
+    enabled: !isManualEntry && !!selectedMake && !!selectedModel && !!selectedDriveConfig,
   });
 
   // Search for reference vehicles for proration (manual entry mode)
@@ -254,8 +254,10 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   // Check if we need manual engine input when engine sizes load
   useEffect(() => {
     if (!isManualEntry && !engineSizesLoading && engineSizes.length === 0 && selectedModel) {
+      console.log('🔧 No engine sizes found, enabling manual engine input');
       setUseManualEngine(true);
     } else if (engineSizes.length > 0) {
+      console.log('✅ Engine sizes found:', engineSizes);
       setUseManualEngine(false);
       setManualEngineSize("");
     }
@@ -306,7 +308,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   useEffect(() => {
     console.log('🔍 VehicleSelector useEffect triggered:', {
       vehicleDetailsLength: vehicleDetails.length,
-      vehicleDetails: vehicleDetails.map(v => ({id: v.id, make: v.make, model: v.model})),
+      vehicleDetails: vehicleDetails.map(v => ({id: v.id, make: v.make, model: v.model, engineCapacity: v.engineCapacity})),
       useManualEngine,
       manualEngineSize,
       selectedMake,
@@ -315,7 +317,9 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     
     if (vehicleDetails.length === 1) {
       const vehicle = vehicleDetails[0];
-      console.log('✅ Single vehicle found, selecting:', {id: vehicle.id, make: vehicle.make, model: vehicle.model});
+      console.log('✅ Single vehicle found, selecting:', {id: vehicle.id, make: vehicle.make, model: vehicle.model, engineCapacity: vehicle.engineCapacity});
+      
+      // Always select the vehicle, regardless of engine status
       // If using manual engine size, add it to the vehicle object
       if (useManualEngine && manualEngineSize) {
         const vehicleWithEngine = {
@@ -325,6 +329,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
         setSelectedVehicle(vehicleWithEngine);
         onVehicleSelect(vehicleWithEngine);
       } else {
+        // Select vehicle even if engine capacity is null/undefined
         setSelectedVehicle(vehicle);
         onVehicleSelect(vehicle);
       }

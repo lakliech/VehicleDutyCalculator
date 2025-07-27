@@ -140,11 +140,13 @@ function getEngineCapacityFilter(category: string) {
 function getEngineCapacityFilter2025(category: string) {
   switch (category) {
     case 'under1500cc':
-      return sql`${vehicleReferences2025.engineCapacity} < 1500 AND ${vehicleReferences2025.engineCapacity} IS NOT NULL`;
+      return sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND ${vehicleReferences2025.engineCapacity} != '' AND ${vehicleReferences2025.engineCapacity} ~ '^[0-9]+$' AND ${vehicleReferences2025.engineCapacity}::integer < 1500`;
     case 'over1500cc':
-      return sql`${vehicleReferences2025.engineCapacity} >= 1500 AND ${vehicleReferences2025.engineCapacity} < 3000 AND ${vehicleReferences2025.engineCapacity} IS NOT NULL`;
+      return sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND ${vehicleReferences2025.engineCapacity} != '' AND ${vehicleReferences2025.engineCapacity} ~ '^[0-9]+$' AND ${vehicleReferences2025.engineCapacity}::integer >= 1500 AND ${vehicleReferences2025.engineCapacity}::integer < 3000`;
     case 'largeEngine':
-      return sql`${vehicleReferences2025.engineCapacity} >= 2500 AND ${vehicleReferences2025.engineCapacity} IS NOT NULL`;
+      return sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND ${vehicleReferences2025.engineCapacity} != '' AND ${vehicleReferences2025.engineCapacity} ~ '^[0-9]+$' AND ${vehicleReferences2025.engineCapacity}::integer >= 2500`;
+    case 'electric':
+      return sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND (${vehicleReferences2025.engineCapacity} = 'EV' OR ${vehicleReferences2025.engineCapacity} LIKE '%kWh%')`;
     default:
       return null;
   }

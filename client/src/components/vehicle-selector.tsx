@@ -291,8 +291,18 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
 
 
   useEffect(() => {
+    console.log('🔍 VehicleSelector useEffect triggered:', {
+      vehicleDetailsLength: vehicleDetails.length,
+      vehicleDetails: vehicleDetails.map(v => ({id: v.id, make: v.make, model: v.model})),
+      useManualEngine,
+      manualEngineSize,
+      selectedMake,
+      selectedModel
+    });
+    
     if (vehicleDetails.length === 1) {
       const vehicle = vehicleDetails[0];
+      console.log('✅ Single vehicle found, selecting:', {id: vehicle.id, make: vehicle.make, model: vehicle.model});
       // If using manual engine size, add it to the vehicle object
       if (useManualEngine && manualEngineSize) {
         const vehicleWithEngine = {
@@ -306,6 +316,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
         onVehicleSelect(vehicle);
       }
     } else if (vehicleDetails.length === 0 && selectedMake && selectedModel && useManualEngine && manualEngineSize) {
+      console.log('🔧 No vehicle details but manual engine, searching...');
       // For vehicles without engine capacity in DB, find by make and model only
       const searchQuery = `/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}`;
       fetch(searchQuery)
@@ -321,6 +332,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
           }
         });
     } else {
+      console.log('❌ Clearing vehicle selection - conditions not met');
       setSelectedVehicle(null);
       onVehicleSelect(null);
     }

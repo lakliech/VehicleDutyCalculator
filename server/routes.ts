@@ -2479,9 +2479,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { make, model } = req.params;
       const { category } = req.query;
       
+      // Use flexible model matching to handle variations in model names
       let whereConditions = [
         sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`,
-        sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`,
+        sql`LOWER(${vehicleReferences.model}) LIKE LOWER(${`%${model}%`})`,
         sql`${vehicleReferences.driveConfiguration} IS NOT NULL`
       ];
       

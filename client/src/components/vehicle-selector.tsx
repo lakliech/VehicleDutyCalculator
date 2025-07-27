@@ -71,13 +71,18 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   const { data: driveConfigs = [], isLoading: driveConfigsLoading } = useQuery<string[]>({
     queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives`, categoryFilter],
     queryFn: async () => {
-      let url = `/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives`;
+      // Properly encode the model name for URL
+      const encodedModel = encodeURIComponent(selectedModel);
+      let url = `/api/vehicle-references/makes/${selectedMake}/models/${encodedModel}/drives`;
       if (categoryFilter) {
         url += `?category=${categoryFilter}`;
       }
+      console.log('Fetching drives from:', url);
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch drive configurations');
-      return response.json();
+      const data = await response.json();
+      console.log('Drive configurations received:', data);
+      return data;
     },
     enabled: !!selectedMake && !!selectedModel,
   });
@@ -86,7 +91,9 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   const { data: engineSizes = [], isLoading: engineSizesLoading } = useQuery<number[]>({
     queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives/${selectedDriveConfig}/engines`, categoryFilter],
     queryFn: async () => {
-      let url = `/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/engines`;
+      // Properly encode the model name for URL
+      const encodedModel = encodeURIComponent(selectedModel);
+      let url = `/api/vehicle-references/makes/${selectedMake}/models/${encodedModel}/engines`;
       if (selectedDriveConfig) {
         url += `?driveConfig=${selectedDriveConfig}`;
         if (categoryFilter) {
@@ -143,8 +150,8 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     setIsCalculatingProration(true);
     
     try {
-      const referenceCrsp = selectedReferenceVehicle.crspKes || selectedReferenceVehicle.crsp2020 || 0;
-      const referenceEngineCapacity = selectedReferenceVehicle.engineCapacity || 0;
+      const referenceCrsp = Number(selectedReferenceVehicle.crspKes || selectedReferenceVehicle.crsp2020 || 0);
+      const referenceEngineCapacity = Number(selectedReferenceVehicle.engineCapacity || 0);
       const manualEngineCapacity = parseInt(manualEngine);
 
       let proratedCrsp = referenceCrsp;
@@ -160,7 +167,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
         model: manualModel,
         engineCapacity: manualEngineCapacity,
         referenceVehicle: selectedReferenceVehicle,
-        proratedCrsp: proratedCrsp
+        proratedCrsp: Number(proratedCrsp)
       };
 
       setManualVehicleData(manualData);

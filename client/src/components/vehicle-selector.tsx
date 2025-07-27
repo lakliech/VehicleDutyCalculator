@@ -172,9 +172,22 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
       if (categoryFilter) {
         url += `&category=${categoryFilter}`;
       }
+      console.log('🔍 Fetching vehicle details from:', url);
+      console.log('🔍 Query enabled conditions:', {
+        isManualEntry,
+        selectedMake: !!selectedMake,
+        selectedModel: !!selectedModel,
+        selectedDriveConfig: !!selectedDriveConfig,
+        selectedEngineSize: !!selectedEngineSize,
+        useManualEngine,
+        manualEngineSize: !!manualEngineSize,
+        queryEnabled: !isManualEntry && !!selectedMake && !!selectedModel && !!selectedDriveConfig && (!!selectedEngineSize || (useManualEngine && !!manualEngineSize))
+      });
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch vehicle details');
-      return response.json();
+      const data = await response.json();
+      console.log('📋 Vehicle details response:', data.map((v: any) => ({id: v.id, make: v.make, model: v.model})));
+      return data;
     },
     enabled: !isManualEntry && !!selectedMake && !!selectedModel && !!selectedDriveConfig && (!!selectedEngineSize || (useManualEngine && !!manualEngineSize)),
   });

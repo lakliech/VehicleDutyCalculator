@@ -516,10 +516,22 @@ export default function DutyCalculator() {
     });
     
     // Check authentication first
+    console.log('🔍 Auth state:', { isAuthenticated, isLoading, user: !!user });
+    
+    if (isLoading) {
+      console.log('⏳ Authentication still loading, waiting...');
+      toast({
+        title: "Please Wait",
+        description: "Checking authentication status...",
+        variant: "default",
+      });
+      return;
+    }
+    
     if (!isAuthenticated) {
       console.log('❌ Authentication failed');
       toast({
-        title: "Authentication Required",
+        title: "Authentication Required", 
         description: "Please sign in to calculate vehicle import duties",
         variant: "destructive",
       });
@@ -531,9 +543,17 @@ export default function DutyCalculator() {
 
     // Validate all required fields are selected based on category
     const currentCategory = form.getValues('vehicleCategory');
+    console.log('🔍 Validating category requirements:', { 
+      currentCategory, 
+      selectedVehicle: !!selectedVehicle,
+      selectedTrailer: !!selectedTrailer,
+      selectedMachinery: !!selectedMachinery,
+      manualVehicleData: !!manualVehicleData
+    });
     
     if (currentCategory === 'trailer') {
       if (!selectedTrailer) {
+        console.log('❌ Missing trailer selection');
         toast({
           title: "Trailer Required",
           description: "Please select a trailer from the database",
@@ -543,6 +563,7 @@ export default function DutyCalculator() {
       }
     } else if (currentCategory === 'heavyMachinery') {
       if (!selectedMachinery) {
+        console.log('❌ Missing machinery selection');
         toast({
           title: "Heavy Machinery Required",
           description: "Please select heavy machinery from the database",
@@ -553,18 +574,23 @@ export default function DutyCalculator() {
     } else {
       // Regular vehicle categories
       if (!selectedVehicle && !manualVehicleData) {
+        console.log('❌ Missing vehicle selection');
         toast({
           title: "Vehicle Required",
-          description: "Please select a vehicle from the database or use manual entry",
+          description: "Please select a vehicle from the database or enable manual entry",
           variant: "destructive",
         });
         return;
       }
     }
+    
+    console.log('✅ Category requirements validated');
 
     // Year validation (only for regular vehicles, not for trailers/machinery that may not need it)
     if (currentCategory !== 'trailer' && currentCategory !== 'heavyMachinery') {
+      console.log('🔍 Validating year:', { yearOfManufacture, vehicleAge: form.getValues('vehicleAge') });
       if (!yearOfManufacture || yearOfManufacture === 0) {
+        console.log('❌ Missing year of manufacture');
         toast({
           title: "Year Required", 
           description: "Please select the year of manufacture",
@@ -573,6 +599,8 @@ export default function DutyCalculator() {
         return;
       }
     }
+    
+    console.log('✅ Year validation passed');
 
     // Category validation is now handled in the main validation above
 

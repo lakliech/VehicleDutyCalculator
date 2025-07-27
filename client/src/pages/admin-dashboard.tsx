@@ -70,7 +70,6 @@ import { z } from "zod";
 import ProductCatalogManagement from "@/components/ProductCatalogManagement";
 import RoleManagementTab from "@/components/admin/RoleManagementTab";
 import AdminEcosystemManagement from "@/components/admin/AdminEcosystemManagement";
-import SimpleCrspManagement from "@/pages/admin/simple-crsp-management";
 import type { 
   VehicleReference, 
   TaxRate, 
@@ -695,10 +694,6 @@ function AuthenticatedAdminDashboard() {
                     </TabsTrigger>
                   </TabsList>
                   <TabsList className="grid grid-cols-4">
-                    <TabsTrigger value="crsp-management" className="flex items-center gap-1">
-                      <Calculator className="h-4 w-4" />
-                      <span className="hidden lg:inline">CRSP 2025</span>
-                    </TabsTrigger>
                     <TabsTrigger value="processing-fees" className="flex items-center gap-1">
                       <Calculator className="h-4 w-4" />
                       <span className="hidden lg:inline">Fees</span>
@@ -1007,11 +1002,6 @@ function AuthenticatedAdminDashboard() {
               isLoading={taxRatesLoading}
               onUpdate={updateTaxRateMutation.mutate}
             />
-          </TabsContent>
-
-          {/* CRSP Management Tab */}
-          <TabsContent value="crsp-management">
-            <SimpleCrspManagement />
           </TabsContent>
 
           {/* Processing Fees Tab */}

@@ -85,8 +85,6 @@ export const vehicleReferences = pgTable("vehicle_references", {
   id: serial("id").primaryKey(),
   make: text("make").notNull(),
   model: text("model").notNull(),
-  modelNumber: text("model_number"), // Model identification number from CRSP2025
-  transmission: text("transmission"), // AT/MT transmission type
   engineCapacity: integer("engine_capacity"),
   bodyType: text("body_type"),
   driveConfiguration: text("drive_configuration"),
@@ -95,7 +93,6 @@ export const vehicleReferences = pgTable("vehicle_references", {
   gvw: text("gvw"),
   crspKes: decimal("crsp_kes", { precision: 12, scale: 2 }),
   crsp2020: decimal("crsp_2020", { precision: 12, scale: 2 }),
-  crsp2025: decimal("crsp_2025", { precision: 12, scale: 2 }), // New CRSP 2025 values
   discontinuationYear: integer("discontinuation_year"),
   createdAt: text("created_at").default("now()").notNull(),
 });

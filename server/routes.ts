@@ -3,7 +3,6 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import paymentRoutes from "./routes/payment-routes";
 import dealerRoutes from "./routes/dealer-routes";
-import { registerCrspRoutes } from "./routes/crsp-routes";
 import { 
   appUsers,
   carListings,
@@ -2479,11 +2478,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { make, model } = req.params;
       const { category } = req.query;
       
-      // Use flexible model matching to handle variations in model names and URL decoding
-      const decodedModel = decodeURIComponent(model).trim();
       let whereConditions = [
         sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`,
-        sql`LOWER(${vehicleReferences.model}) LIKE LOWER(${`%${decodedModel}%`})`,
+        sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`,
         sql`${vehicleReferences.driveConfiguration} IS NOT NULL`
       ];
       
@@ -2540,15 +2537,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { make, model } = req.params;
       const { category, driveConfig } = req.query;
       
-      // Use flexible model matching to handle variations in model names and URL decoding
-      const decodedModel = decodeURIComponent(model).trim();
       let whereConditions = [
         sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`,
-        sql`(
-          LOWER(${vehicleReferences.model}) LIKE LOWER(${`%${decodedModel}%`}) OR
-          LOWER(${vehicleReferences.model}) = LOWER(${decodedModel}) OR
-          LOWER(REPLACE(${vehicleReferences.model}, '  ', ' ')) LIKE LOWER(${`%${decodedModel.replace(/\s+/g, ' ')}%`})
-        )`,
+        sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`,
         sql`${vehicleReferences.engineCapacity} IS NOT NULL`
       ];
       
@@ -2805,7 +2796,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Get up to 100 vehicles from the specified make with valid CRSP values
-      // Now includes CRSP 2025 in the search criteria with priority
       const vehicles = await db
         .select()
         .from(vehicleReferences)
@@ -2813,7 +2803,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           and(
             eq(vehicleReferences.make, make),
             or(
-              isNotNull(vehicleReferences.crsp_2025),
               isNotNull(vehicleReferences.crspKes),
               isNotNull(vehicleReferences.crsp2020)
             ),
@@ -5248,10 +5237,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .limit(1);
 
         if (vehicleRef.length > 0) {
-          // Use CRSP 2025 first, then current CRSP, then fallback to CRSP2020
-          crspValue = vehicleRef[0].crsp_2025 || vehicleRef[0].crspKes || vehicleRef[0].crsp2020 || 0;
-          console.log('Using CRSP from database lookup:', crspValue, 
-            `(source: ${vehicleRef[0].crsp_2025 ? 'CRSP2025' : vehicleRef[0].crspKes ? 'current' : 'CRSP2020'})`);
+          // Use current CRSP if available, fallback to CRSP2020
+          crspValue = vehicleRef[0].crspKes || vehicleRef[0].crsp2020 || 0;
+          console.log('Using CRSP from database lookup:', crspValue);
         }
       }
 
@@ -10215,14 +10203,6 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     console.log("Upload routes registered successfully");
   } catch (error) {
     console.error("Failed to load upload routes:", error);
-  }
-
-  // Register CRSP management routes
-  try {
-    registerCrspRoutes(app);
-    console.log("CRSP routes registered successfully");
-  } catch (error) {
-    console.error("Failed to load CRSP routes:", error);
   }
 
   const httpServer = createServer(app);

@@ -882,7 +882,7 @@ export default function DutyCalculator() {
                       )}
 
                       {/* Discontinuation Warning - Only for Direct Import */}
-                      {selectedVehicle && selectedVehicle.discontinuationYear && form.watch('importType') === 'direct' && (
+                      {selectedVehicle && selectedVehicle.discontinuationYear && form.watch('isDirectImport') === true && (
                         (() => {
                           const currentYear = new Date().getFullYear();
                           const yearsSinceDiscontinuation = currentYear - selectedVehicle.discontinuationYear;
@@ -959,7 +959,7 @@ export default function DutyCalculator() {
                       className="w-full bg-purple-600 hover:bg-purple-700"
                       disabled={
                         calculateDutyMutation.isPending || 
-                        (selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
+                        (selectedVehicle?.discontinuationYear && form.watch('isDirectImport') === true && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
                         categoryConflict ||
                         (!selectedVehicle && !manualVehicleData && !selectedTrailer && !selectedMachinery) ||
                         (yearOfManufacture === 0 && selectedCategory !== 'trailer' && selectedCategory !== 'heavyMachinery')
@@ -967,7 +967,7 @@ export default function DutyCalculator() {
                     >
                       {calculateDutyMutation.isPending ? (
                         <>Calculating...</>
-                      ) : selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8 ? (
+                      ) : selectedVehicle?.discontinuationYear && form.watch('isDirectImport') === true && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8 ? (
                         <>
                           <AlertCircle className="h-4 w-4 mr-2" />
                           Cannot Import (Discontinued)

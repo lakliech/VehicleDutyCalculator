@@ -1,0 +1,500 @@
+    'TRUCK',
+    '1190',
+    2,
+    'GASOLINE',
+    1951051
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'SCRUM TRUCK KC',
+    'EBD-DG16T',
+    '3AT',
+    '2WD',
+    '658',
+    'TRUCK',
+    '1160',
+    2,
+    'GASOLINE',
+    1733280
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'SCRUM VAN  BUSTER',
+    '5BD-DG17V',
+    '4AT',
+    '2WD',
+    '658',
+    'VAN',
+    '1370',
+    4,
+    'GASOLINE',
+    2802136
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'SCRUM VAN BUSTER',
+    'HBD-DG17V',
+    '4AT',
+    '2WD',
+    '658',
+    'VAN',
+    '1360',
+    4,
+    'GASOLINE',
+    2379725
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'SCRUM VAN BUSTER',
+    '5BD-DG17V',
+    '4AT',
+    '2WD',
+    '658',
+    'VAN',
+    '1370',
+    4,
+    'GASOLINE',
+    2802136
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'SCRUM WAGON PZ TURBO SPECIAL',
+    '3BA-DG17W',
+    '4AT',
+    '4WD',
+    '658',
+    'WAGON',
+    '1200',
+    4,
+    'GASOLINE',
+    3637666
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'SCRUM WAGON PZ TURBO SPECIAL',
+    'ABA-DG17W',
+    '4AT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1190',
+    4,
+    'GASOLINE',
+    3191821
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'SCRUM WAGON PZ TURBO SPECIAL',
+    '3DA-DG17W',
+    '6AT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1190',
+    4,
+    'GASOLINE',
+    3191821
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'SCRUM WAGON PZ TURBO SPECIAL',
+    '3BA-DG17W',
+    '4AT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1200',
+    4,
+    'GASOLINE',
+    3593223
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'SCRUM WAGON PZ-S',
+    '3BA-DG17W',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1220',
+    4,
+    'GASOLINE',
+    3922102
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'SCRUMWAGON PZ TURBO SPECIAL',
+    '3BA-DG17W',
+    '2WD',
+    '4AT',
+    '658',
+    'WAGON',
+    '1200',
+    4,
+    'GASOLINE',
+    3637666
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'TITAN',
+    '2RG-LHR88A',
+    '6AMT',
+    '2WD',
+    '2999',
+    'TRUCK',
+    '3915',
+    3,
+    'DIESEL',
+    8194193
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'TITAN',
+    '2RG-LLR88AR',
+    '6AMT',
+    '2WD',
+    '2999',
+    'TRUCK',
+    '4675',
+    3,
+    'DIESEL',
+    10649926
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'TITAN',
+    'TRG-LLR85AR',
+    '6AT',
+    '2WD',
+    '2999',
+    'TRUCK',
+    '4605',
+    3,
+    'DIESEL',
+    9176907
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'TITAN DUMP',
+    'TRG-LJR85AD',
+    '6AMT',
+    '4WD',
+    '2999',
+    'TRUCK',
+    '4885',
+    3,
+    'DIESEL',
+    9115882
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A180',
+    NULL,
+    'AT',
+    '2WD',
+    '1300',
+    'SEDAN',
+    NULL,
+    4,
+    'GASOLINE',
+    5931058
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A180 EDITION 1',
+    '5BA-177084',
+    'AT',
+    '2WD',
+    '1300',
+    'HATCHBACK',
+    NULL,
+    5,
+    'GASOLINE',
+    10662111
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A180 STYLE',
+    NULL,
+    'AT',
+    '2WD',
+    '1300',
+    'HATCHBACK',
+    NULL,
+    5,
+    'GASOLINE',
+    8538649
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A180 STYLE',
+    NULL,
+    'AT',
+    '2WD',
+    '1300',
+    'SEDAN',
+    NULL,
+    4,
+    'GASOLINE',
+    7109502
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A180 STYLE AMG LEATHER EXCLUSIVE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '1300',
+    'HATCHBACK',
+    NULL,
+    5,
+    'GASOLINE',
+    7798629
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A180 STYLE AMG LEATHER EXCLUSIVE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '1300',
+    'SEDAN',
+    NULL,
+    4,
+    'GASOLINE',
+    7719421
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A180 STYLE AMG LINE',
+    NULL,
+    'AT',
+    '2WD',
+    '1400',
+    'HATCHBACK',
+    NULL,
+    5,
+    'GASOLINE',
+    10179964
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A180 STYLE AMG LINE',
+    NULL,
+    'AT',
+    '2WD',
+    '1300',
+    'SEDAN',
+    NULL,
+    4,
+    'GASOLINE',
+    9580689
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A200D',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'DIESEL',
+    7646406
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A200D',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    4,
+    'DIESEL',
+    9024358
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A200D AMG LINE',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'DIESEL',
+    7647153
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A200D AMG LINE',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    4,
+    'DIESEL',
+    7265503
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A200D AMG LINE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'DIESEL',
+    6603061
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS A200D AMG LINE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    4,
+    'DIESEL',
+    6830369
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS SEDAN',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    5,
+    'DIESEL',
+    8875460
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS SEDAN',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    5,
+    'DIESEL',
+    8194407
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS SEDAN A180 SEDAN',
+    NULL,
+    'AT',
+    '2WD',
+    '1400',
+    'SEDAN',
+    NULL,
+    4,
+    'GASOLINE',
+    9183973
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS SEDAN A180 SEDAN AMG LINE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '1300',
+    'SEDAN',
+    NULL,
+    4,
+    'GASOLINE',
+    6724173
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS SEDAN A180 STYLE SEDAN AMG LEATHER EXCLUSIVE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '1300',
+    'SEDAN',
+    NULL,
+    4,
+    'GASOLINE',
+    11107491
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS SEDAN A180 STYLE SEDAN AMG LINE',
+    NULL,
+    'AT',
+    '2WD',
+    '1300',
+    'SEDAN',
+    NULL,
+    4,
+    'GASOLINE',
+    8893388
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS SEDAN A200D SEDAN',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    4,
+    'DIESEL',
+    6561538
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'A-CLASS SEDAN A200D SEDAN AMG LEATHER EXCLUSIVE PACKAGE',

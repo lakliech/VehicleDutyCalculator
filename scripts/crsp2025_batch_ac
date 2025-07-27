@@ -1,0 +1,500 @@
+    'WAUZZZ4G9JN02',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    11481750
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A7 SPORTBACK 40TDI QUATTRO S LINE PACKAGE',
+    'WAUZZZF28LN05',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    13158961
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A7 SPORTBACK 45TFSI QUATTRO',
+    'WAUZZZF24PN03',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    16791411
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A7 SPORTBACK 45TFSI QUATTRO S LINE PACKAGE',
+    'WAUZZZF28LN07',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    15831281
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A7 SPORTBACK 55 TFSI QUATTRO 1ST EDITION',
+    'AAA-F2DLZS',
+    'AT',
+    '4WD',
+    '3000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'HYBRID',
+    20322540
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A7 SPORTBACK 55 TFSI QUATTRO S LINE',
+    'WAUZZZF24KN05',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'HYBRID',
+    16967967
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A8',
+    'WAUZZZF85JN01',
+    'AT',
+    '4WD',
+    '4000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'HYBRID',
+    19975006
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A8 55TFSI QUATTRO',
+    'WAUZZZF81NN00',
+    'AT',
+    '4WD',
+    '3000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    18588387
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A8 60TFSI E QUATTRO',
+    'WAUZZZF81PN01',
+    'AT',
+    '4WD',
+    '3000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    23583181
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A8 60TFSI QUATTRO',
+    'WAUZZZF82KN00',
+    'AT',
+    '4WD',
+    '4000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'HYBRID',
+    16130015
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'E-TRON 50 QUATTRO ADVANCED',
+    'WAUZZZGE8MB01',
+    'AT',
+    '4WD',
+    'EV',
+    'WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    14782195
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'E-TRON 50 QUATTRO S LINE',
+    'ZAA-GEEASB',
+    'AT',
+    '4WD',
+    'EV',
+    'WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    18322333
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'E-TRON 55 QUATTRO S LINE',
+    'ZAA-GEEAS',
+    'AT',
+    '4WD',
+    'EV',
+    'WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    13338081
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'E-TRON S SPORTBACK',
+    'ZAA-GEEAV',
+    'AT',
+    '4WD',
+    'EV',
+    'WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    14807525
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q2 1.0TFSI SPORT',
+    'ABA-GACHZ',
+    'AT',
+    '2WD',
+    '990',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    7262085
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q2 1.4 TFSI CYLINDER ON DEMAND SPORT',
+    'ABA-GACZE',
+    'AT',
+    '2WD',
+    '1400',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    8950454
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q2 30TFSI SPORT',
+    'WAUZZZGA4LA03',
+    'AT',
+    '2WD',
+    '990',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    8069536
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q2 35TFSI ADVANCED',
+    'WAUZZZGAXNA04',
+    'AT',
+    '2WD',
+    '1500',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    6205980
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q2 HASHTAG BLACK ELEGANCE',
+    'WAUZZZGA5KA07',
+    'AT',
+    '2WD',
+    '1000',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    6631020
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q2 HASHTAG CONTRAST STYLING',
+    'WAUZZZGA7LA00',
+    'AT',
+    '2WD',
+    '1000',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    6849238
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q3 2.0TFSI QUATTRO 180PS',
+    'ABA-8UCULB',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    7526719
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q3 35 TDI QUATTRO ADVANCED',
+    'WAUZZZF39M105',
+    'AT',
+    '2WD',
+    '1500',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    9475761
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q3 35 TDI QUATTRO S LINE',
+    '3DA-F3DFGF',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    10395171
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q3 35 TFSI ADVANCED',
+    'WAUZZZF3XL112',
+    'AT',
+    '2WD',
+    '1500',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    8502532
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q3 35 TFSI S LINE',
+    '3AA-F3DFY',
+    'AT',
+    '2WD',
+    '1500',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    7239799
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q3 SPORTBACK 35 TDI QUATTRO S LINE',
+    'WAUZZZF32P102',
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    9483641
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q3 SPORTBACK 35 TFSI',
+    'WAUZZZF37N105',
+    'AT',
+    '2WD',
+    '1500',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    7683302
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q3 SPORTBACK 35 TFSI S LINE',
+    'WAUZZZF35N110',
+    'AT',
+    '2WD',
+    '1500',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    10078751
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q3 SPORTBACK HIGH STYLE',
+    'WAUZZZF39R104',
+    'AT',
+    '2WD',
+    '1500',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    8696148
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q4 E-TRON 40 E-TRON',
+    'WAUZZZFZ5PP07',
+    'AT',
+    '2WD',
+    'EV',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    8565779
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q4 E-TRON 40 E-TRON ADVANCED',
+    'WAUZZZFZ6NP05',
+    'AT',
+    '2WD',
+    'EV',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    8381784
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q4 E-TRON 40 E-TRON S LINE',
+    'WAUZZZFZ7PP07',
+    'AT',
+    '2WD',
+    'EV',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9026243
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q4 SPORTBACK E-TRON',
+    'WAUZZZFZ6PP07',
+    'AT',
+    '2WD',
+    'EV',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    8565779
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q4 SPORTBACK E-TRON 40 E-TRON ADVANCED',
+    'WAUZZZFZ2NP05',
+    'AT',
+    '2WD',
+    'EV',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    10995001
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q4 SPORTBACK E-TRON 40 E-TRON ADVANCED',
+    'ZAA-FZEBJ',
+    'AT',
+    '2WD',
+    'EV',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    7293471
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'Q4 SPORTBACK E-TRON 40 E-TRON S LINE',
+    'WAUZZZFZ6PP07',
+    'AT',
+    '2WD',
+    'EV',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9026243
+);

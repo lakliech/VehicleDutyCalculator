@@ -1,0 +1,500 @@
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    9026879
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 45TFSI QUATTRO ADVANCED',
+    'WAUZZZF41NA00',
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    8242398
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 45TFSI QUATTRO S-LINE',
+    'WAUZZZF48MA02',
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    10058141
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 45TFSI QUATTRO SPORT S LINE PACKAGE',
+    'WAUZZZF42KA04',
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    9321458
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 ALLROAD QUATTRO',
+    '8WDDWA',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'HYBRID',
+    9847057
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 ALLROAD QUATTRO ABSOLUTE',
+    'ABA-8WCYRA',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    10883478
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 ALLROAD QUATTRO BASE GRADE',
+    'WAUZZZF48PA08',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    11549975
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 AVANT 1.4TFSI TUXEDO STYLE',
+    'ABA-8WCVN',
+    'AT',
+    '2WD',
+    '1400',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    9680753
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 AVANT 35 TDI ADVANCED',
+    'WAUZZZF49PA00',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'HYBRID',
+    7576148
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 AVANT 35 TDI S-LINE',
+    'WAUZZZF43RA04',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    8797707
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 AVANT 35 TFSI SPORT',
+    'WAUZZZF47KA03',
+    'AT',
+    '2WD',
+    '1400',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    8051262
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 AVANT 45 TFSI QUATTRO MEISTERSTUECK',
+    'WAUZZZF48KA09',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    9630110
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 AVANT BLACK STYLE PLUS',
+    'WAUZZZF47PA05',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    9981246
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A4 BLACK STYLE PLUS',
+    'WAUZZZF40PA03',
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    8795860
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A5 45TFSI QUATTRO SPORT',
+    'DBA-F5CYRF',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    8564512
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A5 CABRIOLET 2.0TFSI QUATTRO SPORT',
+    'ABA-F5CYRC',
+    'AT',
+    '4WD',
+    '2000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    19275565
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A5 SPORTBACK 40TFSI SPORT',
+    'WAUZZZF56KA09',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    9819147
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A5 SPORTBACK 45TFSI QUATTRO S LINE',
+    'WAUZZZF5XMA04',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    15353810
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A5 SPORTBACK 45TFSI QUATTRO SPORT',
+    'WAUZZZF56KA06',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    15687217
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A5 SPORTBACK BLACK STYLE PLUS',
+    'WAUZZZF58PA03',
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10221881
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A5 SPORTBACK S LINE COMPETITION PLUS',
+    '3AA-F5DDWL',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    14027834
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 2.0 TFSI QUATTRO S LINE PACKAGE',
+    'WAUZZZ4GXJN00',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    10653095
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 45 TFSI QUATTRO',
+    'WAUZZZF26LN02',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'HYBRID',
+    12511637
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 45 TFSI QUATTRO SPORT',
+    'WAUZZZF2XNN06',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    21151195
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 45 TFSI QUATTRO SPORT S LINE PACKAGE',
+    'WAUZZZF2XLN05',
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    12713340
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 45 TFSI QUATTRO SPORT S LINE PACKAGE',
+    'WAUZZZF29MN09',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'HYBRID',
+    10269928
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 55 TFSI QUATTRO DEBUT PACKAGE',
+    'WAUZZZF2XKN05',
+    'AT',
+    '4WD',
+    '3000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    11766864
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 55 TFSI QUATTRO S LINE',
+    'WAUZZZF21LN08',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'HYBRID',
+    9637732
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 AVANT',
+    'WAUZZZF21NN04',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    13009443
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 AVANT 40 TDI QUATTRO S LINE',
+    'WAUZZZF20LN06',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    15158159
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 AVANT 40 TDI QUATTRO SPORT',
+    'WAUZZZF28NN01',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    12679097
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 AVANT 40 TDI QUATTRO SPORT S LINE PACKAGE',
+    'WAUZZZF24MN06',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    16449334
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 AVANT 45 TFSI QUATTRO S LINE',
+    'WAUZZZF2XNN06',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    11542361
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 AVANT 45 TFSI QUATTRO SPORT',
+    'WAUZZZF23LN05',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    13682449
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A6 AVANT 45 TFSI QUATTRO SPORT S LINE PACKAGE',
+    'WAUZZZF24NN03',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    15983684
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A7 SPORTBACK',
+    'WAUZZZF28KN0226497',
+    'AT',
+    '4WD',
+    '3000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    15980246
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'A7 SPORTBACK 2.0 TFSI QUATTRO',

@@ -1,0 +1,500 @@
+    NULL,
+    'GASOLINE',
+    2374903
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '2008 GT',
+    'VR3USHNSSPJ77',
+    'AT',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    5441616
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    'E-2008 GT',
+    'VR3UKZKXZMJ55',
+    'AT',
+    '2WD',
+    'EV',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    3406258
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '308 GT HYBRID SPECIAL EDITION',
+    '3LA-P515G06H',
+    'AT',
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    6849034
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '508 SW ALLURE',
+    'VR3F45GFRLY00',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3083934
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '308 GT BLUE HDI',
+    'VF3LHAHWWHS24',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    2406988
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    'RIFTER DEBUT EDITION',
+    'VR3ECYHZRKJ83',
+    'AT',
+    '2WD',
+    '1500',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    3122404
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '408 ALLURE',
+    '3BA-P54HN05',
+    'AT',
+    '2WD',
+    '1200',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    4894997
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '2008 GT BLUE HDI',
+    'VR3UDYHZSNJ70',
+    'AT',
+    '2WD',
+    '1500',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'DIESEL',
+    4230347
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '308 ALLURE BLUE HDI',
+    'VR3FBYHZTNY58',
+    'AT',
+    '2WD',
+    '1500',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    4249116
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    'RIFTER GT',
+    'VR3ECYHZ3NJ71',
+    'AT',
+    '2WD',
+    '1500',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    4304262
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '308 GT BLUE HDI',
+    'VR3FBYHZTRY50',
+    'AT',
+    '2WD',
+    '1500',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    5751979
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '3008 BLUE HDI SPECIAL EDITION',
+    'LDA-P84AH01',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    2519918
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    'RIFTER',
+    'VR3ECYHZRKJ83',
+    'AT',
+    '2WD',
+    '1500',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    3373558
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '3008 ALLURE LED PACKAGE',
+    'VF3M45GZWJS14',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    2632637
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    'RIFTER ALLURE',
+    'VR3ECYHZRMJ84',
+    'AT',
+    '2WD',
+    '1500',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    3907987
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    'E-2008 GT LINE',
+    'ZAA-P24ZK01',
+    'AT',
+    '2WD',
+    'EV',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    3523410
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '3008 GT BLUE HDI',
+    'VF3MJEHZRKS26',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    3157180
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    'E-208 ALLURE',
+    'VR3UHZKXZLT00',
+    'AT',
+    '2WD',
+    'EV',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    4018612
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '408 GT',
+    'VR3FPHNSTPY54',
+    'AT',
+    '2WD',
+    '1200',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    6460939
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '508 GT BLUE HDI PREMIUM LEATHER EDITION',
+    'VR3FHEHZRLY03',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'DIESEL',
+    4052386
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '408',
+    'VR3FPHNSTPY62',
+    'AT',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    6490544
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '3008 GT',
+    'VF3M45GFUPS01',
+    'AT',
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    5742956
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '3008 GT BLUE HDI',
+    'VF3MJEHZRKS51',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    3708108
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '2008 GT DRIVE EDITION',
+    'VR3USHNSSMJ71',
+    'AT',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    4141727
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    'RIFTER LONG GT',
+    'VR3EBYHZ4RJ69',
+    'AT',
+    '2WD',
+    '1500',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    6653078
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '3008 CROSSCITY',
+    'ABA-P845G01',
+    'AT',
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3373963
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '508 GT BLUE HDI',
+    'VR3FHEHZRKY07',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    3889640
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '508 GT BLUE HDI PREMIUM LEATHER EDITION',
+    'VR3FHEHZRLY05',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'DIESEL',
+    5259574
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '3008 BLUE HDI CLEAN EDITION',
+    'LDA-P84AH01',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    3539452
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '508 GT LINE',
+    'VR3F45GFRKY21',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3990749
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '308 SW GT BLUE HDI',
+    'VR3FCYHZTNY57',
+    'AT',
+    '2WD',
+    '1500',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    5456515
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '2008 GT LINE',
+    '5BA-P24HN05',
+    'AT',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3189546
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '5008 GT LINE BLUE HDI',
+    'VF3MJEHZRLS07',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    4163627
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '508 GT',
+    'VR3F35GFTMY00',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    4695558
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '3008 GT BLUE HDI RED NAPPA',
+    'VF3MJEHZRMS17',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    4755506
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '508 SW GT LINE',
+    'VR3F45GFRKY21',
+    'AT',

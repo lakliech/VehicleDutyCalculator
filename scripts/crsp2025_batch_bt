@@ -1,0 +1,500 @@
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX4 STANDARD CAB (MWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    7808721
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX4 STANDARD CAB (MWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8781850
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX4 STANDARD CAB (SWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    7675217
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX4 STANDARD CAB (SWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8648346
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX4 STEEL TRAY (MWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    9269365
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX4 STEEL TRAY (MWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10242494
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX4 STEEL TRAY (SWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    9024438
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX4 STEEL TRAY (SWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    9997567
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX4 SUPER CAB (LWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8007880
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX4 SUPER CAB (LWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8981009
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX4 SUPER CAB (MWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    7963427
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX4 SUPER CAB (MWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8936556
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 (MWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    10164994
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 (MWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    11138124
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 (SWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    9770625
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 (SWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    10743608
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 CHILLER (MWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    11005351
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 CHILLER (SWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    10436681
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 CHILLER (SWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    11409810
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 FREEZER (MWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    11671699
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 FREEZER (SWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    11042054
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 FREEZER (SWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    12015183
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 PREMIUM FREEZER (MWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    12162578
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 PREMIUM FREEZER (SWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    11630756
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 PREMIUM FREEZER (SWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    12603885
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 PREMIUM PLUS FREEZER (MWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'TRUCK',
+    NULL,
+    NULL,
+    'DIESEL',
+    12473306
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 STANDARD CAB (LWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    7851419
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 STANDARD CAB (LWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8269038
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 STANDARD CAB (MWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    7808721
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 STANDARD CAB (MWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8781850
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 STANDARD CAB (SWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    7675217
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 STANDARD CAB (SWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8648346
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 STEEL TRAY (MWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    9269365
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 STEEL TRAY (MWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10242494
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 STEEL TRAY (SWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    9024438
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 STEEL TRAY (SWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,

@@ -1,0 +1,500 @@
+    'MINIVAN',
+    '1800',
+    6,
+    'GASOLINE',
+    5021765
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'FREED E:HEV AIR EX',
+    '6AA-GT5',
+    'CVT',
+    '2WD',
+    '1496',
+    'MINIVAN',
+    '1810',
+    6,
+    'GASOLINE',
+    5108954
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'FREED E:HEV CROSSTAR SLOPE',
+    '6AA-GT6',
+    'CVT',
+    '2WD',
+    '1496',
+    'MINIVAN',
+    '1860',
+    6,
+    'GASOLINE',
+    5524780
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'FREED G',
+    '5BA-GB5',
+    'CVT',
+    '2WD',
+    '1496',
+    'MINIVAN',
+    '1690',
+    6,
+    'GASOLINE',
+    4300106
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'FREED G',
+    'DBA-GB5',
+    'CVT',
+    '2WD',
+    '1496',
+    'MINIVAN',
+    '1680',
+    6,
+    'GASOLINE',
+    4024119
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'FREED G HONDA SENSING',
+    '6BA-GB5',
+    'CVT',
+    '2WD',
+    '1496',
+    'MINIVAN',
+    '1690',
+    6,
+    'GASOLINE',
+    4300106
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'FREED HYBRID G',
+    '6AA-GB7',
+    '7AT',
+    '2WD',
+    '1496',
+    'MINIVAN',
+    '1690',
+    4,
+    'GASOLINE',
+    4736556
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'FREED HYBRID G',
+    'DAA-GB7',
+    '7AT',
+    '2WD',
+    '1496',
+    'MINIVAN',
+    '1740',
+    6,
+    'GASOLINE',
+    3875079
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'FREED HYBRID MODULO X',
+    'DAA-GB7',
+    '7AT',
+    '2WD',
+    '1496',
+    'MINIVAN',
+    '1770',
+    6,
+    'GASOLINE',
+    4860800
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'FREED+ HYBRID G',
+    'DAA-GB7',
+    '7AT',
+    '2WD',
+    '1496',
+    'MINIVAN',
+    '1750',
+    6,
+    'GASOLINE',
+    4564021
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'FREED+ HYBRID G. HONDA SENSING',
+    '6AA-GB7',
+    'CVT',
+    '2WD',
+    '1496',
+    'MINIVAN',
+    '1760',
+    6,
+    'GASOLINE',
+    4831290
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'GRACE HYBRID DX',
+    'DAA-GM4',
+    'CVT',
+    '2WD',
+    '1496',
+    'SEDAN',
+    '1455',
+    5,
+    'GASOLINE',
+    3356786
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'GRACE HYBRID EX',
+    'DAA-GM4',
+    'CVT',
+    '2WD',
+    '1496',
+    'SEDAN',
+    '1465',
+    5,
+    'GASOLINE',
+    3653565
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'GRACE LX',
+    'DBA-GM6',
+    'CVT',
+    '2WD',
+    '1496',
+    'SEDAN',
+    '1385',
+    5,
+    'GASOLINE',
+    2746461
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'HONDA E',
+    'ZAA-ZC7',
+    '7AT',
+    '2WD',
+    '0',
+    'HATCHBACK',
+    '1760',
+    5,
+    'ELECTRIC',
+    7545223
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'HONDA E ADVANCE',
+    'ZAA-ZC7',
+    '7AT',
+    '2WD',
+    '0',
+    'HATCHBACK',
+    '1760',
+    4,
+    'ELECTRIC',
+    7608100
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'INSIGHT EX-BLACK STYLE',
+    '6AA-ZE4',
+    '7AT',
+    '2WD',
+    '1496',
+    'SEDAN',
+    '1665',
+    5,
+    'GASOLINE',
+    5633766
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'JADE HYBRID RS',
+    'DBA-FR4',
+    '7AT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '1725',
+    5,
+    'GASOLINE',
+    4500306
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'JADE HYBRID X',
+    'DAA-FR4',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '1840',
+    6,
+    'GASOLINE',
+    4533344
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'JADE RS',
+    'DBA-FR5',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '1840',
+    6,
+    'GASOLINE',
+    3927864
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'LEGEND HYBRID EX',
+    'DAA-KC2',
+    '7AT',
+    'AWD',
+    '3471',
+    'SEDAN',
+    '2285',
+    5,
+    'GASOLINE',
+    12355302
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'LEGEND HYBRID X',
+    'DAA-KC2',
+    'CVT',
+    '2WD',
+    '3471',
+    'SEDAN',
+    '2255',
+    5,
+    'GASOLINE',
+    11876741
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-B0X EX',
+    '6BA-JF3',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1150',
+    4,
+    'GASOLINE',
+    2781337
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX',
+    '6BA-JF5',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1130',
+    4,
+    'GASOLINE',
+    2764737
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX CUSTOM G',
+    'DBA-JF3',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1180',
+    4,
+    'GASOLINE',
+    3026473
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-Box Custom G.EX',
+    'DBA-JF3',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1180',
+    4,
+    'GASOLINE',
+    3026473
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX CUSTOM G.EX TURBO',
+    '6BA-JF3',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1180',
+    4,
+    'GASOLINE',
+    3043240
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX CUSTOM SLOPE',
+    '6BA-JF5',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1180',
+    4,
+    'GASOLINE',
+    3465772
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX EX',
+    '6BA-JF3',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1150',
+    4,
+    'GASOLINE',
+    2814536
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX G',
+    'DBA-JF3',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1150',
+    4,
+    'GASOLINE',
+    2478187
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX G',
+    '6BA-JF3',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1150',
+    4,
+    'GASOLINE',
+    2503337
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX G SLOPE L',
+    '6BA-JF3',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1160',
+    4,
+    'GASOLINE',
+    2848808
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX G SLOPE L',
+    'DBA-JF3',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1160',
+    4,
+    'GASOLINE',
+    2832041
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-Box G.EX',
+    'DBA-JF3',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1150',
+    4,
+    'GASOLINE',
+    2478187
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX G.L',
+    'DBA-JF1',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1140',
+    5,
+    'GASOLINE',
+    2406088
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX G-EX TURBO',
+    'DBA-JF3',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1180',
+    5,
+    'GASOLINE',
+    3026473
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX JOY TURBO',

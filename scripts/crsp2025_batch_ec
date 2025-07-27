@@ -1,0 +1,500 @@
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    7818989
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA BLACK EDITION HSP',
+    NULL,
+    '7AT',
+    '4WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    7848776
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA SL WARRIOR',
+    NULL,
+    '7AT',
+    '4WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    7848776
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA PRO-4X WARRIOR',
+    NULL,
+    '6AT',
+    '4WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    8265788
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA PRO-4X WARRIOR',
+    NULL,
+    '7AT',
+    '4WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    8593441
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN DIESEL/UD',
+    'TRUCKS KAZET',
+    'FBA2Y-58',
+    'AT',
+    '2WD',
+    '3000',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    7709834
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN DIESEL/UD',
+    'TRUCKS CONDOR',
+    'BRR90-700',
+    'MT',
+    '2WD',
+    '5200',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    12549773
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN DIESEL/UD',
+    'TRUCKS QUON',
+    'JNCMCG0D9PU07',
+    'MT',
+    '2WD',
+    '9900',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    30650868
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN DIESEL/UD',
+    'TRUCKS QUON',
+    'JNCMB02G3JU02',
+    'AT',
+    '2WD',
+    '10800',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    18051581
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN DIESEL/UD',
+    'TRUCKS QUON BASEGRADE',
+    'JNCMC90D6RU08',
+    'AT',
+    '2WD',
+    '12770',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    49709432
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN DIESEL/UD',
+    'TRUCKS QUON',
+    'JNCMC10GXSU10',
+    'AT',
+    '2WD',
+    '9900',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    26553914
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ASTRA 1.4',
+    NULL,
+    '6MT',
+    '2WD',
+    '1400',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3321158
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ASTRA 1.4 SPORTS TOURER',
+    NULL,
+    '6AT',
+    '4WD',
+    '1400',
+    'WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    3840089
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ASTRA 1.6 SELECT',
+    NULL,
+    '6MT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4415631
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ASTRA 1.6 SELECT SPORTS TOURER',
+    NULL,
+    '6AT',
+    '4WD',
+    '1600',
+    'WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    4585463
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ASTRA 1.6 SPORTS',
+    NULL,
+    '6AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3736303
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ASTRA CDTI',
+    NULL,
+    '6MT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'DIESEL',
+    4245799
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ASTRA CDTI SELECT',
+    NULL,
+    '6MT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'DIESEL',
+    4868516
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ASTRA CDTI SELECT SPORTS TOURER',
+    NULL,
+    '6AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    4981737
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ASTRA CDTI SPORTS TOURER',
+    NULL,
+    '6AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    4472241
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ASTRA GTC 1.4',
+    NULL,
+    '6MT',
+    '2WD',
+    '1400',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3736303
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ASTRA GTC 1.6 SPORT',
+    NULL,
+    '6MT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4925127
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ASTRA OPC',
+    NULL,
+    '6MT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    7019721
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'CORSA (BASE)',
+    NULL,
+    '5MT',
+    '2WD',
+    '1400',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3113586
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'CORSA COLOUR',
+    NULL,
+    '5MT',
+    '2WD',
+    '1400',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    2906013
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'CORSA ENJOY',
+    NULL,
+    '5MT',
+    '2WD',
+    '1400',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    2957907
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'CORSA OPC',
+    NULL,
+    '6MT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4642073
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'INSIGNIA (BASE)',
+    NULL,
+    '6AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    6340393
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'INSIGNIA CDTI',
+    NULL,
+    '6AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    6170561
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'INSIGNIA CDTI SELECT',
+    NULL,
+    '6AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    7246163
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'INSIGNIA CDTI SELECT SPORTS TOURER',
+    NULL,
+    '6AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    7529217
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'INSIGNIA CDTI SPORTS TOURER',
+    NULL,
+    '6AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    6453614
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'INSIGNIA OPC',
+    NULL,
+    '6AT',
+    '2WD',
+    '2800',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    11718405
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'INSIGNIA SELECT',
+    NULL,
+    '6AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    7019721
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'INSIGNIA SELECT SPORTS TOURER',
+    NULL,
+    '6AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    7868881
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'INSIGNIA SPORTS TOURER',
+    NULL,
+    '6AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    6680057
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'OPEL',
+    'ZAFIRA TOURER',

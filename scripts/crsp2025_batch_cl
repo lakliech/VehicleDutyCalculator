@@ -1,0 +1,500 @@
+    14523031
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE  T/C  5 DOOR 199PS LAFAYETTE EDITION',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    15046145
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE  T/C  5 DOOR 199PS R-DYNAMIC HSE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    17510167
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE  T/C  5 DOOR 199PS R-DYNAMIC SE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    16193709
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE  T/C  AWD 5 DOOR 199PS AUTOBIOGRAPHY',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    19099594
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE  T/C 5 DOOR  199PS BRONZE COLLECTION',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    15207431
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE  T/C 5 DOOR  199PS R-DYNAMIC HSE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    17464825
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE  T/C 5 DOOR 199PS AUTOBIOGRAPHY',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    19723740
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE  T/C 5 DOOR 199PS BRONZE COLLECTION',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    15841011
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE  T/C 5 DOOR 199PS R-DYNAMIC SE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    16239052
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE  T/C 5 DOOR 199PS S',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    14346530
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE  T/C DIESEL  5 DOOR  199PS S',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    14301187
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE 1999CC T/C DIESEL AWD 5 DOOR 199PS R-DYNAMIC SE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    16759123
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE T/C  5 DOOR 199PS',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    13342601
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE T/C  5 DOOR 199PS AUTOBIOGRAPHY',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    19144936
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE T/C  5 DOOR 199PS S',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    14916812
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER EVOQUE T/C DIESEL  5 DOOR 199PS R-DYNAMIC HSE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    18056409
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER VELAR  T/C   5 DOOR 199PS R-DYNAMIC HSE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    22075774
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER VELAR  T/C  5 DOOR  199PS R-DYNAMIC SE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    20282762
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER VELAR  T/C  5 DOOR  199PS S',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    18430714
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER VELAR  T/C  5 DOOR 199PS LIMITED EDITION',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    21401113
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER VELAR  T/C  5 DOOR 199PS R-DYNAMIC LE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    21919662
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER VELAR  T/C  5 DOOR 199PS R-DYNAMIC SE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    21331121
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER VELAR  T/C  5 DOOR 199PS S',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    18619692
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER VELAR  T/C 5 DOOR  199PS R-DYNAMIC HSE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    23187734
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER VELAR  T/C AWD 5 DOOR 199PS R-DYNAMIC LIMITED EDITION',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    20541733
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER VELAR T/C  5 DOOR 199PS R-DYNAMIC S',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    20910560
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER VELAR T/C 5 DOOR 199PS R-DYNAMIC HSE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    22063298
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER VELAR T/C 5 DOOR 199PS R-DYNAMIC SE',
+    NULL,
+    'AUT',
+    'AWD',
+    '1999',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    20471741
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'DISCOVERY SPORT  HSE',
+    NULL,
+    'AUT',
+    '4WD',
+    '2000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    12963732
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'DISCOVERY SPORT  HSE 286HP',
+    NULL,
+    'AUT',
+    '4WD',
+    '2000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    15124354
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'DISCOVERY SPORT  HSE LUXURY',
+    NULL,
+    'AUT',
+    '4WD',
+    '2000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    14299666
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'DISCOVERY SPORT  HSE LUXURY 286HP',
+    NULL,
+    'AUT',
+    '4WD',
+    '2000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    16189449
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'DISCOVERY SPORT  HSE R-DYNAMIC',
+    NULL,
+    'AUT',
+    '4WD',
+    '2000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    16067724
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'DISCOVERY SPORT  S',
+    NULL,
+    'AUT',
+    '4WD',
+    '2000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    12750713
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'DISCOVERY SPORT  S R- DYNAMIC',
+    NULL,
+    'AUT',
+    '4WD',
+    '2000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    13115888
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'DISCOVERY SPORT  SE',
+    NULL,
+    'AUT',
+    '4WD',
+    '2000',

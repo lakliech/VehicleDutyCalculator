@@ -1,0 +1,500 @@
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    16140782
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 N SRF (84.0KWH)',
+    'IONIQ 5 N SRF (84.0KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    16725683
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'INSTER  2WD (42KWH)',
+    'INSTER  2WD (42KWH)',
+    'AUT',
+    NULL,
+    '42',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    5702785
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'INSTER  2WD (49KWH)',
+    'INSTER  2WD (49KWH)',
+    'AUT',
+    NULL,
+    '49',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    6214573
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'INSTER  CROSS ROOF BASKET 2WD (49KWH)',
+    'INSTER  CROSS ROOF BASKET 2WD (49KWH)',
+    'AUT',
+    NULL,
+    '49',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    6580136
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'INSTER  CROSS SRF 2WD (49KWH)',
+    'INSTER  CROSS SRF 2WD (49KWH)',
+    'AUT',
+    NULL,
+    '49',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    6580136
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ  ELECTRIC ELITE',
+    'IONIQ  ELECTRIC ELITE',
+    'AUT',
+    NULL,
+    NULL,
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    7264958
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ  ELECTRIC PREMIUM',
+    'IONIQ  ELECTRIC PREMIUM',
+    'AUT',
+    NULL,
+    NULL,
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    7935157
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA ELECTRIC EXT RANGE',
+    'KONA ELECTRIC EXT RANGE',
+    'AUT',
+    NULL,
+    NULL,
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    8481065
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA ELECTRIC N LINE',
+    'KONA ELECTRIC N LINE',
+    'AUT',
+    NULL,
+    NULL,
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9065966
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA ELECTRIC PREMIUM EXT RANGE',
+    'KONA ELECTRIC PREMIUM EXT RANGE',
+    'AUT',
+    NULL,
+    NULL,
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9943317
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA ELECTRIC PREMIUM N LINE',
+    'KONA ELECTRIC PREMIUM N LINE',
+    'AUT',
+    NULL,
+    NULL,
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    10381993
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA ELECTRIC STD RANGE',
+    'KONA ELECTRIC STD RANGE',
+    'AUT',
+    NULL,
+    NULL,
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    7896164
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 LOUNGE',
+    'ZAA-NE2LRG',
+    'AT',
+    '2WD',
+    'EV',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9623136
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 LOUNGE',
+    'KMHKP81AUNU14',
+    'AT',
+    '2WD',
+    'EV',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    7750851
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 LOUNGE AWD',
+    'ZAA-NE4LRG',
+    'AT',
+    '4WD',
+    'EV',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9453482
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 LOUNGE AWD LIMITED EDITION',
+    'ZAA-NE4LRG',
+    'AT',
+    '4WD',
+    'EV',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    8882243
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 LOUNGE AWD LIMITED EDITION',
+    NULL,
+    'AT',
+    '2WD',
+    'EV',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    8248403
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 VOYAGE',
+    'ZAA-NE2LRG',
+    'AT',
+    '2WD',
+    'EV',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    7194339
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA LOUNGE TWO-TONE',
+    'ZAA-SX2LRG',
+    'AT',
+    '2WD',
+    'EV',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    7750851
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX BLADE',
+    NULL,
+    '6AT',
+    '2WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    11632736
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX EX (4WD)',
+    NULL,
+    '6MT',
+    '4WD',
+    '3000',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    7672366
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX LS-M (4WD)',
+    NULL,
+    '6MT',
+    '4WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    9586646
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX LS-M HI-RIDE (4WD)',
+    NULL,
+    '6AT',
+    '4WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    12041872
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX LS-T (4WD)',
+    NULL,
+    '6AT',
+    '4WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    11316567
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX LS-T HIGH-RIDE (2WD)',
+    NULL,
+    '6AT',
+    '2WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    9550606
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX LS-TERRAIN HI-RIDE (4WD)',
+    NULL,
+    '6AT',
+    '4WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    12568958
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX LS-U (2WD)',
+    NULL,
+    '6AT',
+    '2WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    11417479
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX LS-U (2WD) HIGH-RIDE',
+    NULL,
+    '6AT',
+    '2WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    8035287
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX LS-U (4WD)',
+    NULL,
+    '6AT',
+    '4WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    11129609
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX LS-U HI-RIDE (2WD)',
+    NULL,
+    '6AT',
+    '2WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    9203721
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX LS-U HI-RIDE (4WD)',
+    NULL,
+    '6MT',
+    '4WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    11393152
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX LS-U+ (4WD)',
+    NULL,
+    '6AT',
+    '4WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    9657088
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX SX (2WD)',
+    NULL,
+    '6AT',
+    '2WD',
+    '3000',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    7096003
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX SX (2WD) HIGH-RIDE',
+    NULL,
+    '6AT',
+    '2WD',
+    '1900',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    6231458
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX SX (4WD)',
+    NULL,
+    '6MT',
+    '4WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    9406446
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (

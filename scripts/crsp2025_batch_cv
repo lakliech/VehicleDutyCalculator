@@ -1,0 +1,500 @@
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SPORT S/C 525PS 5 DOOR AUTOBIOGRAPHY DYNAMIC',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    35328775
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SPORT S/C 525PS 5 DOOR DYNAMIC HSE',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    31108560
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SPORT S/C 575PS  5 DOOR SVR',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    41242388
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SPORT S/C 575PS  5 DOOR SVR CARBON EDITION',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    45455618
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SPORT S/C 575PS 5 DOOR SVR CARBON EDITION',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    45660344
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SUPER. AUTO.BIO. LWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    47143148
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SUPER. AUTO.BIO. SWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    49286018
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SUPERCHARGED',
+    NULL,
+    'AUT',
+    '4WD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    34251310
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SUPERCHARGED AUTOBIOGRAPHY',
+    NULL,
+    'AUT',
+    '4WD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    46482155
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SUPERCHARGED AUTOBIOGRAPHY LWB',
+    NULL,
+    'AUT',
+    '4WD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    48130517
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SUPERCHARGED AUTOBIOGRAPHY SV DYNAMIC',
+    NULL,
+    'AUT',
+    '4WD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    56372326
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER  S/C 565PS  5 DOOR LWB SVAUTOBIOGRAPHY',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    4,
+    'PETROL',
+    68492400
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SUPERCHARGED AUTOBIOGRAPHY SV LWB',
+    NULL,
+    'AUT',
+    '4WD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    65917989
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SUPERCHARGED LWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    36247476
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SV  AUTO.BIO. DYNAMIC SWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    59176189
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SV AUTO.BIO. LWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    69560868
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    30329857
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER TD6 DIESEL HSE SWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    31961736
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER TD6 DIESEL SWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    30230956
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'CT200H',
+    'DAA-ZWA10-AHXBB(L)',
+    'CVT',
+    '2WD',
+    '1797',
+    'HATCHBACK',
+    '1715',
+    5,
+    'GASOLINE',
+    7714059
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'CT200H VERSION L',
+    'DAA-ZWA10-AHXBB(L)',
+    'CVT',
+    '2WD',
+    '1797',
+    'HATCHBACK',
+    '1715',
+    5,
+    'GASOLINE',
+    7714059
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'CT200H VERSION L',
+    '6AA-ZWA10-AHXBB(L)',
+    'CVT',
+    '2WD',
+    '1797',
+    'HATCHBACK',
+    '1715',
+    5,
+    'GASOLINE',
+    7750050
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'ES300H',
+    '6AA-AXZH10-AEXGB',
+    'CVT',
+    '2WD',
+    '2487',
+    'SEDAN',
+    '1955',
+    5,
+    'GASOLINE',
+    9379777
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'ES300H',
+    '6AA-AXZH11-AEXGB',
+    '8AT',
+    '2WD',
+    '2487',
+    'SEDAN',
+    '1945',
+    5,
+    'GASOLINE',
+    9510919
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'ES300H',
+    '6AA-AXZH11-AEXGB',
+    'CVT',
+    '4WD',
+    '2487',
+    'SEDAN',
+    '1945',
+    5,
+    'GASOLINE',
+    10514408
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'ES300H ES300H F SPORT',
+    '6AA-AXZH11-AEXGB(F)',
+    'CVT',
+    '2WD',
+    '2487',
+    'SEDAN',
+    '1985',
+    5,
+    'GASOLINE',
+    11422629
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'ES300H F SPORT',
+    '6AA-AXZH10-AEXGB(F)',
+    'CVT',
+    '2WD',
+    '2487',
+    'SEDAN',
+    '1995',
+    5,
+    'GASOLINE',
+    10172208
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'ES300H F SPORT',
+    '6AA-AXZH11-AEXGB(F)',
+    'CVT',
+    '4WD',
+    '2487',
+    'SEDAN',
+    '1985',
+    5,
+    'GASOLINE',
+    11422629
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'ES300H F SPORT',
+    '6AA-AXZH11-AEXGB(F)',
+    'CVT',
+    '2WD',
+    '2487',
+    'SEDAN',
+    '1985',
+    5,
+    'GASOLINE',
+    10303231
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'ES300H VERSION L',
+    '6AA-AXH10-AEXGB(L)',
+    'CVT',
+    '2WD',
+    '2487',
+    'SEDAN',
+    '2005',
+    5,
+    'GASOLINE',
+    11288078
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'ES300H VERSION L',
+    '6AA-AXZH11-AEXGB(L)',
+    'CVT',
+    '2WD',
+    '2487',
+    'SEDAN',
+    '1995',
+    5,
+    'GASOLINE',
+    11321010
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'GS F',
+    'DBA-URL10-FEZRH',
+    'AT',
+    '2WD',
+    '4968',
+    'SEDAN',
+    '2105',
+    5,
+    'GASOLINE',
+    19421962
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'GS300 VERSION L',
+    'DBA-ARL10-BEZQT(L)',
+    '8AT',
+    '2WD',
+    '1998',
+    'SEDAN',
+    '1965',
+    5,
+    'GASOLINE',
+    10977574
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'GS300H VERSION L',
+    'DAA-AWL10-BEXQH(L)',
+    'CVT',
+    '2WD',
+    '2493',
+    'SEDAN',
+    '2045',
+    5,
+    'GASOLINE',
+    11596964
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'GS350 F Sport',
+    'DBA-GRL12-BEZQH(F)',
+    'AT',
+    '2WD',
+    '3456',
+    'SEDAN',
+    '1965',
+    5,
+    'GASOLINE',
+    13038215
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'GS350H F SPORT',
+    'DBA-GRL12-BEZQH(F)',
+    '8AT',
+    '2WD',
+    '3456',
+    'SEDAN',
+    '1965',

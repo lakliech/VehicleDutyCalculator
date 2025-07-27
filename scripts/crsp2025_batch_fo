@@ -1,0 +1,500 @@
+    NULL,
+    'DIESEL',
+    3243513
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'PASSAT TDI HIGHLINE',
+    'LDA-3CDFC',
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    3478660
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'PASSAT ALLTRACK TDI 4MOTION ADVANCE',
+    'LDA-3CDFCF',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    2965305
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'POLO GTI BASE GRADE',
+    'WVWZZZAWZJU04',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    2426197
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'THE BEETLE DESIGN',
+    'WVWZZZ16ZKM70',
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3873598
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'TIGUAN TDI 4MOTION R LINE',
+    'WVGZZZ5NZKW33',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    4437614
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'TIGUAN TDI 4MOTION R LINE',
+    'WVGZZZ5NZKW33',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    4437614
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'CARAVEL',
+    'WV2ZZZ7HZJH11',
+    'AT',
+    '2WD',
+    '2000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    11882960
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'PASSAT 2.0TSI R LINE',
+    'WVWZZZ3CZKE05',
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3625997
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'SHARAN TDI HIGHLINE',
+    '3DA-7NDLU',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    5751821
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'TIGUAN TDI 4MOTION HIGHLINE',
+    'WVGZZZ5NZKW34',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    3231903
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'TIGUAN TDI 4MOTION COMFORTLINE',
+    'WVGZZZ5NZKW91',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    2597597
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'TIGUAN TDI 4MOTION HIGHLINE',
+    'WVGZZZ5NZKW34',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    3231903
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'ARTEON TSI 4MOTION ELEGANCE',
+    'WVWZZZ3HZKE01',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    4036132
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'CALIFORNIA',
+    'WV2ZZZ7HZLH03',
+    'AT',
+    '4WD',
+    '2000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    21724740
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF TDI COMFORTLINE MEISTER',
+    'WVWZZZAUZLW10',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'DIESEL',
+    3696288
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF TDI HIGHLINE MEISTER',
+    'WVWZZZAUZLP00',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'DIESEL',
+    4179669
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF GTI PERFORMANCE',
+    'WVWZZZAUZLW12',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    5162897
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF GTI TCR',
+    '3BA-AUDNU',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    7563975
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF TOURAN TDI PREMIUM',
+    'LDA-1TDFG',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    3186520
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF VARIANT TDI HIGHLINE MEISTER',
+    'WVWZZZAUZLP55',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    3845735
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF VARIANT TDI COMFORTLINE MEISTER',
+    'AUDFG-WVWZZZAUZLP53',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    2893536
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'PASSAT VARIANT TDI HIGHLINE',
+    'WVWZZZ3CZKE05',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    2525828
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'T-ROC TDI STYLE DESIGN PACKAGE',
+    'WVGZZZA1ZLV15',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    3686156
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'T-ROC TDI R LINE',
+    'WVGZZZA1ZLV12',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    3524888
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'T-ROC TDI SPORT',
+    'WVGZZZA1ZLV15',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    3022297
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'THE BEETLE 2.0 R LINE MEISTER',
+    'ABA-16CPL',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    5710660
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'ARTEON TSI 4MOTION R LINE ADVANCE',
+    'WVWZZZ3HZNE00',
+    'AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    5281527
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF TDI STYLE',
+    '3DA-CDDTS',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'DIESEL',
+    3480982
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF R TSI 4MOTION',
+    '3BA-CDDNFF',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    7850838
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF R BASE GRADE',
+    'WVWZZZCD8PW11',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    8211580
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF R VARIANT',
+    '3BA-CDDNFV',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    7435003
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF TOURAN TDI HIGHLINE',
+    'WVGZZZ1TZMW02',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    4951603
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'GOLF TOURAN TDI COMFORTLINE',
+    'WVGZZZ1TZNW01',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    5281527
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'PASSAT TSI ELEGANCE ADVANCE',
+    'WVWZZZ3CZME12',
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    5323954
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'PASSAT VARIANT TDI ELEGANCE',
+    'WVWZZZ3CZME08',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    3404781
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'VOLKSWAGEN',
+    'T-ROC TDI STYLE',
+    'WVGZZZA1ZPV55',
+    'AT',

@@ -1,0 +1,500 @@
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    4292599
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    'RIFTER GT LINE FIRST LIMITED',
+    '3DA-K9PYH01',
+    'AT',
+    '2WD',
+    '1500',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    4304262
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '3008 GT BLUE HDI BLACK PACK',
+    '3DA-P84AH01',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    7757328
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '308 GTI BY SPORT',
+    'VF3L35GNHKS05',
+    'AT',
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3918981
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '5008 GT',
+    '5BA-P875G06',
+    'AT',
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    7837962
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '508 SW GT BLUE HDI',
+    'VR3FJEHZRKY17',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'DIESEL',
+    4417139
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '508 SW GT LINE',
+    'VR3F45GFRKY04',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3962253
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '408',
+    'VR3F3DGYTRY50',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    8047568
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '308 SW GT HYBRID',
+    'VR3F4DGYTPY54',
+    'AT',
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    8063610
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '5008 GT EXECUTIVE EDITION',
+    '5BA-P875G06',
+    'AT',
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    8065088
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '3008',
+    'VF3MJAHWWJS10',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    3535231
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '5008 GT BLUE HDI',
+    'VF3MJAHWWHL07',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    3571748
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '3008 GT EXECUTIVE EDITION',
+    '5BA-P845G06',
+    'AT',
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    8208625
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '5008 CROSSCITY BLUE HDI',
+    'VF3MJEHZRLS10',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    4679305
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '508 SW GT HYBRID',
+    '3LA-R85G06H',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    5281527
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '3008 GT HYBRID4',
+    'VF3M45GBUMS02',
+    'AT',
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    5341474
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '5008 GT BLUE HDI RED NAPPA',
+    'VF3MJEHZRMS20',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    6468239
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '408 GT HYBRID',
+    '3LA-P545G06H',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    7725243
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '508 GT HYBRID',
+    'VR3F4DGZTMY50',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    6613254
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PEUGEOT',
+    '2008 GT DEBUT EDITION',
+    'VR3USHNSSPJ84',
+    'AT',
+    '2WD',
+    '1200',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    4841399
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 BOXSTER',
+    NULL,
+    '6 MT',
+    '2WD',
+    '2000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'PETROL',
+    18251145
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 BOXSTER',
+    NULL,
+    '7 AT',
+    '2WD',
+    '2000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'PETROL',
+    18869874
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 BOXSTER GTS 4.0',
+    NULL,
+    '6 MT',
+    '4WD',
+    '4000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'PETROL',
+    28904402
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 BOXSTER GTS 4.0',
+    NULL,
+    '7 AT',
+    '4WD',
+    '4000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'PETROL',
+    29693236
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 BOXSTER S',
+    NULL,
+    '6 MT',
+    '4WD',
+    '2500',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'PETROL',
+    21763579
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 BOXSTER S',
+    NULL,
+    '7 AT',
+    '4WD',
+    '2500',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'PETROL',
+    22382308
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 BOXSTER STYLE EDITION',
+    NULL,
+    '6 MT',
+    '2WD',
+    '2000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'PETROL',
+    18818538
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 BOXSTER STYLE EDITION',
+    NULL,
+    '7 AT',
+    '2WD',
+    '2000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'PETROL',
+    19539938
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN',
+    NULL,
+    '6 MT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'PETROL',
+    17899902
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN',
+    NULL,
+    '7 AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'PETROL',
+    18507823
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN GT4 RS',
+    NULL,
+    '7 AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'PETROL',
+    49071624
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN GTS 4.0',
+    NULL,
+    '6 MT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'PETROL',
+    28523888
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN GTS 4.0',
+    NULL,
+    '7 AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'PETROL',
+    29312722
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN S',
+    NULL,
+    '6 MT',
+    '4WD',
+    '2500',
+    'COUPE',
+    NULL,
+    NULL,
+    'PETROL',
+    21425845
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN S',
+    NULL,
+    '7 AT',
+    '4WD',
+    '2500',
+    'COUPE',
+    NULL,
+    NULL,
+    'PETROL',
+    22044574
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN STYLE EDITION',
+    NULL,
+    '6 MT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'PETROL',
+    18467295
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (

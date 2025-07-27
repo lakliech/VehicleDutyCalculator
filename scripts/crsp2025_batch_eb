@@ -1,0 +1,500 @@
+    5093025
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'SERENA MULTIBED',
+    '5BA-FC28',
+    'CVT',
+    '4WD',
+    '1997',
+    'MINIVAN',
+    '1955',
+    5,
+    'GASOLINE',
+    6707039
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'SERENA V',
+    '5BA-FC28',
+    'CVT',
+    '2WD',
+    '1997',
+    'MINIVAN',
+    '1935',
+    5,
+    'GASOLINE',
+    6532207
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'SKYLINE 350GT HYBRID TYPE SP',
+    'DAA-HV37',
+    '7M-AT',
+    '2WD',
+    '3498',
+    'SEDAN',
+    '2085',
+    5,
+    'GASOLINE',
+    8631735
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'SKYLINE 400R',
+    '5BA-RV37',
+    '7M-AT',
+    '4WD',
+    '2997',
+    'SEDAN',
+    '2035',
+    5,
+    'GASOLINE',
+    10303596
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'SKYLINE 400R',
+    '5BA-RV37',
+    '7M-AT',
+    '2WD',
+    '2997',
+    'SEDAN',
+    '2035',
+    5,
+    'GASOLINE',
+    9825208
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'SKYLINE GT TYPE SP (HYBRID)',
+    '5AA-HV37',
+    '7MT-AT',
+    '2WD',
+    '3498',
+    'SEDAN',
+    '2115',
+    7,
+    'GASOLINE',
+    10328572
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'SKYLINE NISMO',
+    '5BA-RV37',
+    '7MT',
+    '4WD',
+    '2997',
+    'SEDAN',
+    '2015',
+    5,
+    'GASOLINE',
+    14793527
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'SYLPHY G',
+    'DBA-TB17',
+    'CVT',
+    '2WD',
+    '1798',
+    'SEDAN',
+    '1515',
+    5,
+    'GASOLINE',
+    3975215
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'SYLPHY X PASSENGER''S SWIVEL SEAT (2WD)',
+    'DBA-TB17',
+    'CVT',
+    '2WD',
+    '1798',
+    'SEDAN',
+    '1525',
+    5,
+    'GASOLINE',
+    3641618
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'TEANA XV NAVI AVM PACKAGE',
+    'DBA-L33',
+    'CVT',
+    '2WD',
+    '2488',
+    'SEDAN',
+    '1755',
+    5,
+    'GASOLINE',
+    5681623
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'TEANA XV NAVI AVM PACKAGE',
+    'DBA-L33',
+    'CVT',
+    '2WD',
+    '2498',
+    'SEDAN',
+    '1755',
+    5,
+    'GASOLINE',
+    5681623
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'VANETTE 16X-2R',
+    '3BA-M20',
+    'CVT',
+    '4WD',
+    '1597',
+    'MINIVAN',
+    '1625',
+    5,
+    'GASOLINE',
+    4073023
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'WINGROAD 15M',
+    'DBA-Y12',
+    'CVT',
+    '2WD',
+    '1498',
+    'WAGON',
+    '1495',
+    5,
+    'GASOLINE',
+    3135459
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'X-TRAIL 20X',
+    'DBA-NT32',
+    'CVT',
+    '4WD',
+    '1997',
+    'SUV',
+    '1815',
+    5,
+    'GASOLINE',
+    4455524
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'X-TRAIL 20X HYBRID',
+    'DAA-HNT32',
+    'CVT',
+    '4WD',
+    '1997',
+    'SUV',
+    '1915',
+    5,
+    'GASOLINE',
+    5010936
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'X-TRAIL 20XI',
+    'DBA-NT32',
+    'CVT',
+    '4WD',
+    '1997',
+    'SUV',
+    '1815',
+    5,
+    'GASOLINE',
+    5082546
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'X-TRAIL 20XI',
+    '5BA-NT32',
+    'CVT',
+    '4WD',
+    '1997',
+    'SUV',
+    '1845',
+    5,
+    'GASOLINE',
+    5459388
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'X-TRAIL 20XI HYBRID',
+    'DAA-NT32',
+    '6AMT',
+    '4WD',
+    '1997',
+    'SUV',
+    '1915',
+    5,
+    'GASOLINE',
+    5341040
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'X-TRAIL 20XI HYBRID',
+    'DBA-HNT32',
+    'CVT',
+    '4WD',
+    '1997',
+    'SUV',
+    '1915',
+    5,
+    'GASOLINE',
+    5088834
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'X-TRAIL 20XI X-TREAMER X',
+    'DBA-NT32',
+    'CVT',
+    '4WD',
+    '1997',
+    'SUV',
+    '1875',
+    5,
+    'GASOLINE',
+    5452681
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'X-TRAIL 20XI X-TREMER X',
+    'DBA-NT32',
+    'CVT',
+    '4WD',
+    '1997',
+    'SUV',
+    '1875',
+    5,
+    'GASOLINE',
+    6184638
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'X-TRAIL SLIDE UP SEAT 20X X-TREMER X (4WD 2ROW)',
+    'DBA-NT32',
+    'CVT',
+    '2WD',
+    '1997',
+    'SUV',
+    '1875',
+    5,
+    'GASOLINE',
+    5267683
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'X-TRAIL X E-4ORCE',
+    '6AA-SNT33',
+    'CVT',
+    '4WD',
+    '1497',
+    'SUV',
+    '2125',
+    5,
+    'GASOLINE',
+    6370516
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA SL',
+    NULL,
+    '6AT',
+    '2WD',
+    '2300',
+    'SINGLE CAB',
+    NULL,
+    5,
+    'DIESEL',
+    5268509
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA SL',
+    NULL,
+    '7AT',
+    '2WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    5361593
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA ST',
+    NULL,
+    '7AT',
+    '2WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    6076472
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA ST-X  CLOTH/NO SUNROOF',
+    NULL,
+    '7AT',
+    '2WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    6582844
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA ST',
+    NULL,
+    '6AT',
+    '4WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    6731777
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA ST-X  LEATHER/NO SUNROOF',
+    NULL,
+    '7AT',
+    '2WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    6761564
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA ST-X  LEATHER/SUNROOF',
+    NULL,
+    '7AT',
+    '2WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    6895604
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA PRO-4X',
+    NULL,
+    '6AT',
+    '4WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    7163683
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA ST-X  CLOTH/NO SUNROOF',
+    NULL,
+    '6AT',
+    '4WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    7178577
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA PRO-4X',
+    NULL,
+    '7AT',
+    '4WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    7223257
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA SL WARRIOR',
+    NULL,
+    '6AT',
+    '4WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    7536016
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA BLACK EDITION',
+    NULL,
+    '7AT',
+    '4WD',
+    '2300',
+    'DUAL CAB',
+    NULL,
+    4,
+    'DIESEL',
+    7789202
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'NISSAN',
+    'NAVARA ST-X  LEATHER/SUNROOF',
+    NULL,
+    '7AT',
+    '4WD',
+    '2300',

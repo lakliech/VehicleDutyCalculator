@@ -1,0 +1,500 @@
+    5,
+    'GASOLINE',
+    6733800
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 25S',
+    '6BA-KF5P',
+    'CVT',
+    'AWD',
+    '2488',
+    'SUV',
+    '1945',
+    5,
+    'GASOLINE',
+    6584394
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 25S  L PACKAGE',
+    '6BA-KF5P',
+    '6AT',
+    '2WD',
+    '2498',
+    'SUV',
+    '1865',
+    5,
+    'GASOLINE',
+    6735904
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 25S L PACKAGE',
+    '6BA-KF5P',
+    '6AT',
+    'AWD',
+    '2488',
+    'SUV',
+    '1945',
+    5,
+    'GASOLINE',
+    6584394
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 25S SPORTS APPEARANCE',
+    '6BA-KF5P',
+    '6AT',
+    '4WD',
+    '2488',
+    'SUV',
+    '1865',
+    5,
+    'GASOLINE',
+    7536806
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 25S SPORTS APPEARANCE',
+    '6BA-KF5P',
+    '6AT',
+    '2WD',
+    '2488',
+    'SUV',
+    '1865',
+    5,
+    'GASOLINE',
+    7536806
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 25T L PACKAGE',
+    '5BA-KF5P',
+    '6AT',
+    '2WD',
+    '2488',
+    'SUV',
+    '1895',
+    5,
+    'GASOLINE',
+    7395606
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 XD',
+    '3DA-KF2P',
+    '6AT',
+    '2WD',
+    '2188',
+    'SUV',
+    '1945',
+    5,
+    'DIESEL',
+    6586498
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 XD CX-5 XD L PACKAGE',
+    '3DA-KF2P',
+    '6AT',
+    '2WD',
+    '2188',
+    'SUV',
+    '1905',
+    5,
+    'DIESEL',
+    7407180
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 XD EXCLUSIVE MODE',
+    '3DA-KF2P',
+    '6AT',
+    '4WD',
+    '2188',
+    'SUV',
+    '1925',
+    5,
+    'DIESEL',
+    8404835
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 XD EXCLUSIVE MODE',
+    '3DA-KF2P',
+    '6AT',
+    '2WD',
+    '2188',
+    'SUV',
+    '1925',
+    5,
+    'DIESEL',
+    8404835
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 XD L PACKAGE',
+    '3DA-KF2P',
+    '6AT',
+    '2WD',
+    '2188',
+    'SUV',
+    '1905',
+    5,
+    'DIESEL',
+    6491804
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 XD L PACKAGE',
+    'LDA-KF2P',
+    '6AT',
+    '2WD',
+    '2188',
+    'SUV',
+    '1895',
+    5,
+    'DIESEL',
+    6428675
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-5 XD Passenger Lift-up',
+    'LDA-KF2P',
+    '6AT',
+    '2WD',
+    '2188',
+    'SUV',
+    '1935',
+    5,
+    'DIESEL',
+    6586498
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-6 XD L PACKAGE',
+    '3DA-KG2P',
+    '6AT',
+    '2WD',
+    '2188',
+    'SUV',
+    '2170',
+    5,
+    'DIESEL',
+    9221939
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-60 25S EXCLUSIVE MODE',
+    '5BA-KH5P',
+    '8AT',
+    '4WD',
+    '2488',
+    'SUV',
+    '1995',
+    5,
+    'GASOLINE',
+    8506683
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-60 25S EXCLUSIVE MODE',
+    '5BA-KH5P',
+    '8AT',
+    'AWD',
+    '2488',
+    'SUV',
+    '1725',
+    5,
+    'GASOLINE',
+    8090029
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-60 PHEV MODERN',
+    '5LA-KH5S3P',
+    '8AT',
+    'AWD',
+    '2488',
+    'SUV',
+    '2365',
+    5,
+    'GASOLINE',
+    13599120
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-60 XD EXCLUSIVE MODE',
+    '3DA-KH3P',
+    '8AT',
+    '4WD',
+    '3283',
+    'SUV',
+    '1685',
+    5,
+    'DIESEL',
+    10074691
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-60 XD EXCLUSIVE MODE',
+    '3BA-KH3P',
+    '8AT',
+    '2WD',
+    '3283',
+    'SUV',
+    '2115',
+    5,
+    'DIESEL',
+    10524677
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-60 XD HYBRID EXCLUSIVE MODERN',
+    '3CA-KH3R3P',
+    '8AT',
+    'AWD',
+    '3283',
+    'SUV',
+    '1655',
+    5,
+    'DIESEL',
+    11487147
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-60 XD HYBRID PREMIUM MODE',
+    '3CA-KH3R3P',
+    '8AT',
+    '4WD',
+    '3283',
+    'SUV',
+    '2215',
+    5,
+    'DIESEL',
+    12887104
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-60 XD HYBRID PREMIUM MODERN',
+    '3CA-KH3R3P',
+    '8AT',
+    'AWD',
+    '3283',
+    'SUV',
+    '1725',
+    5,
+    'DIESEL',
+    12437118
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-60 XD HYRBID EXCLUSIVE MODE',
+    '3CA-KH3R3P',
+    '8AT',
+    'AWD',
+    '1997',
+    'SUV',
+    '2185',
+    5,
+    'DIESEL',
+    11168639
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-60 XD PREMIUM SPORTS',
+    '3CA-KH3R3P',
+    '8AT',
+    'AWD',
+    '3283',
+    'SUV',
+    '2215',
+    5,
+    'DIESEL',
+    12887104
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-8 25ST L PACKAGE',
+    '5BA-KG5P',
+    '6AT',
+    '2WD',
+    '2488',
+    'SUV',
+    '2140',
+    6,
+    'GASOLINE',
+    8326765
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-8 25T EXCLUSIVE MODE',
+    '5BA-KG5P',
+    '6AT',
+    '4WD',
+    '2488',
+    'SUV',
+    '2140',
+    6,
+    'GASOLINE',
+    10147837
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-8 25T EXCLUSIVE MODE',
+    '5BA-KG5P',
+    '6AT',
+    '2WD',
+    '2488',
+    'SUV',
+    '2170',
+    6,
+    'GASOLINE',
+    10022840
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-8 25T L PACKAGE',
+    '5BA-KG5P',
+    '6AT',
+    'AWD',
+    '2488',
+    'SUV',
+    '2210',
+    6,
+    'GASOLINE',
+    8269948
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-8 XD EXCLUSIVE MODE',
+    '3DA-KG2P',
+    'AWD',
+    '6AT',
+    '2188',
+    'SUV',
+    '2170',
+    6,
+    'DIESEL',
+    10147837
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-8 XD L PACKAGE',
+    '3DA-KG2P',
+    '6AT',
+    '2WD',
+    '2188',
+    'SUV',
+    '1210',
+    6,
+    'GASOLINE',
+    9221939
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-8 XD L PACKAGE',
+    '3DA-KG2P',
+    '6AT',
+    '2WD',
+    '2188',
+    'SUV',
+    '2160',
+    6,
+    'DIESEL',
+    8482484
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-80 PHEV PREMIUM MODERN',
+    '5KA-KH5S3P',
+    '8AT',
+    'AWD',
+    '2488',
+    'SUV',
+    '2570',
+    6,
+    'GASOLINE',
+    14987966
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-80 PHEV PREMIUM SPORTS',
+    '5LA-KH5S3P',
+    '8AT',
+    'AWD',
+    '2488',
+    'SUV',
+    '2570',
+    6,
+    'GASOLINE',
+    14987966
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-80 XD EXECUTIVE',
+    '3DA-KL3P',
+    '8AT',
+    '2WD',
+    '3283',
+    'SUV',
+    '2330',
+    6,
+    'DIESEL',
+    11849636
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-80 XD-HYBRID EXECUTIVE MODERN',
+    '3CA-KL3R3P',
+    '8AT',
+    'AWD',
+    '3283',
+    'SUV',
+    '2420',
+    6,
+    'DIESEL',
+    13562084
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MAZDA',
+    'CX-3 XD L PACKAGE',
+    '3DA-DK8FW',
+    '6AT',

@@ -1,0 +1,500 @@
+    'HINO',
+    'DUTRO WIDE CAB SUPER LONG HIGH FLOOR',
+    'XZU720',
+    'MT',
+    '2WD',
+    '4000',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    17388632
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'DUTRO WIDE CAB SUPER LONG HIGH FLOOR',
+    'XZU720',
+    'MT',
+    '2WD',
+    '4000',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    20028737
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'MELPHA',
+    'RR2AJD',
+    'AT',
+    '2WD',
+    '5120',
+    'BUS',
+    NULL,
+    NULL,
+    'DIESEL',
+    73202697
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'MELPHA',
+    'RR2AJD',
+    'MT',
+    '2WD',
+    '5120',
+    'BUS',
+    NULL,
+    NULL,
+    'DIESEL',
+    58135946
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'PONCHO',
+    'HX9JHC',
+    'MT',
+    '2WD',
+    '5100',
+    'BUS',
+    NULL,
+    NULL,
+    'DIESEL',
+    41887591
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'PONCHO',
+    'HX9JHC',
+    'AT',
+    '2WD',
+    '5100',
+    'BUS',
+    NULL,
+    NULL,
+    'DIESEL',
+    41887591
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'PROFIA',
+    'FR1AH',
+    'MT',
+    '2WD',
+    '8600',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    52327626
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'PROFIA',
+    'FS1AG',
+    'MT',
+    '2WD',
+    '8600',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    34444042
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'PROFIA',
+    'FS1AG',
+    'MT',
+    '2WD',
+    '8860',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    47264801
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'PROFIA',
+    'FW1AH',
+    'MT',
+    '2WD',
+    '8900',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    89275149
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'PROFIA BASEGRADE',
+    'FR1AH',
+    'AT',
+    '2WD',
+    '8860',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    21973786
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'PROFIA BASEGRADE',
+    'FW1AH',
+    'AT',
+    '2WD',
+    '8860',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    50591648
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'PROFIA BASEGRADE',
+    'FW1AH',
+    'AT',
+    '2WD',
+    '8860',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    82293221
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'PROFIA BASEGRADE',
+    'FW1AH',
+    'MT',
+    '2WD',
+    '8860',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    34661720
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'PROFIA BASEGRADE',
+    'FW1AH',
+    'AT',
+    '2WD',
+    '9900',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    52342697
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER',
+    'FD2AB',
+    'MT',
+    '2WD',
+    '5100',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    31920907
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER',
+    'FD2AB',
+    'MT',
+    '2WD',
+    '5100',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    35355513
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER',
+    'FC2AB',
+    'MT',
+    '2WD',
+    '5100',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    15741919
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER',
+    'FD2AB',
+    'MT',
+    '2WD',
+    '5100',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    32251847
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER',
+    'FD2AB',
+    'MT',
+    '2WD',
+    '5100',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    32251847
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER',
+    'FD2AB',
+    'MT',
+    '2WD',
+    '5100',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    35179718
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER',
+    'FD2JKBA',
+    'MT',
+    '2WD',
+    '5100',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    27672032
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER',
+    'FX1AB',
+    'MT',
+    '2WD',
+    '5100',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    26107769
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER BASEGRADE',
+    'FD2AB',
+    'MT',
+    '2WD',
+    '5100',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    20850382
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER BASEGRADE',
+    'FE2AB',
+    'MT',
+    '2WD',
+    '5100',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    27545394
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER DUMP',
+    'FC2AB',
+    'MT',
+    '2WD',
+    '5100',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    36859254
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER DUMP',
+    'FC2AB',
+    'MT',
+    '2WD',
+    '5100',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    19908458
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER PRO',
+    'FE2AC',
+    'MT',
+    '2WD',
+    '5120',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    19888145
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RANGER PRO',
+    'FD2AB',
+    'MT',
+    '2WD',
+    '5200',
+    'TRK',
+    NULL,
+    NULL,
+    'DIESEL',
+    31562807
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RIESSE',
+    'GDB70',
+    'AT',
+    '2WD',
+    '2700',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    16316043
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RIESSE II',
+    'XZB70M',
+    'AT',
+    '2WD',
+    '4000',
+    'BUS',
+    NULL,
+    NULL,
+    'DIESEL',
+    35764379
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RIESSE II GX TURBO',
+    'XZB70',
+    'AT',
+    '2WD',
+    '4000',
+    'BUS',
+    NULL,
+    NULL,
+    'DIESEL',
+    45799860
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RIESSE II LX',
+    'XZB60',
+    'AT',
+    '2WD',
+    '4000',
+    'BUS',
+    NULL,
+    NULL,
+    'DIESEL',
+    68016797
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HINO',
+    'RIESSE II LX TURBO',
+    'XZB70',
+    'MT',
+    '2WD',
+    '4000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    34509741
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'ACCORD E:HEV',
+    '6AA-CY2',
+    'CVT',
+    '2WD',
+    '1993',
+    'SEDAN',
+    '1855',
+    5,
+    'GASOLINE',
+    9517810
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'ACCORD EX',
+    '6AA-CV3',
+    'CVT',
+    '2WD',
+    '1993',
+    'SEDAN',
+    '1835',
+    5,
+    'GASOLINE',

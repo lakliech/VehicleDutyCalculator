@@ -1,0 +1,500 @@
+    'AIR 2WD SR',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    7645196
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV5',
+    'EARTH AWD LR BLACK',
+    'Auto',
+    '4WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    8722553
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV5',
+    'EARTH AWD LR NOUGAT',
+    'Auto',
+    '4WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    8722553
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV5',
+    'GT-LINE AWD LR',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9665240
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV6',
+    'AIR RWD',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9775669
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV6',
+    'GT AWD',
+    'Auto',
+    '4WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    13411749
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV6',
+    'GT-LINE AWD',
+    'Auto',
+    '4WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    11795714
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV6',
+    'GT-LINE RWD',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    10718357
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV9',
+    'AIR',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    13062955
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV9',
+    'EARTH',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    14342317
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV9',
+    'GT LINE',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    16295027
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'K4',
+    'GT-LINE',
+    'Auto',
+    '2WD',
+    '1600',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    6578918
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'K4',
+    'S',
+    'Auto',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    4681301
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'K4',
+    'S SAFETY PACK',
+    'Auto',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    5002671
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'K4',
+    'SPORT',
+    'Auto',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    5385255
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'K4',
+    'SPORT+',
+    'Auto',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    5752536
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'NIRO',
+    'EV GT-LINE BLACK C PILLAR',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9744695
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'NIRO',
+    'EV GT-LINE BODY C PILLAR',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9744695
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'NIRO',
+    'EV GT-LINE GREY C PILLAR',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9744695
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'NIRO',
+    'EV S',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    8967651
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'NIRO',
+    'HEV GT-LINE BLK C PILLAR (HYB)',
+    'Auto',
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    7751156
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'NIRO',
+    'HEV GT-LINE BODY C PILL (HYB)',
+    'Auto',
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    7751156
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'NIRO',
+    'HEV S (HYBRID)',
+    'Auto',
+    '2WD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    6886516
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'OPTIMA',
+    'GT NAV (BLACK LEATHER)',
+    'Auto',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    6901819
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'OPTIMA',
+    'GT NAV (BLACK LEATHER) SUNROOF',
+    'Auto',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    7103824
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'OPTIMA',
+    'SI',
+    'Auto',
+    '2WD',
+    '2400',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    5117447
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'PICANTO',
+    'GT LINE (PE2)',
+    'Auto',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3334604
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'PICANTO',
+    'SPORT (PE2)',
+    'Auto',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3059144
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'PICANTO',
+    'GT LINE (PE2)',
+    'Auto',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3089750
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'PICANTO',
+    'SPORT (PE2)',
+    'Auto',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    2814290
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'RIO',
+    'GT-LINE',
+    'Auto',
+    '2WD',
+    '1000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4271552
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'RIO',
+    'S',
+    'Auto',
+    '2WD',
+    '1400',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3514036
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'RIO',
+    'S',
+    'MANUAL',
+    '2WD',
+    '1400',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3177362
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'RIO',
+    'SPORT',
+    'Auto',
+    '2WD',
+    '1400',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3829668
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'RIO',
+    'SPORT',
+    'MANUAL',
+    '2WD',
+    '1400',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3450910
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'SELTOS',
+    'GT-LINE (AWD) (SUNROOF)',
+    'Auto',
+    'AWD',
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    6958442
+);

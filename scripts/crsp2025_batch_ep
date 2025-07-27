@@ -1,0 +1,500 @@
+    9447686
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'G SERIES 460',
+    NULL,
+    'MT',
+    '6x4',
+    '5345',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    9447686
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'G SERIES 460 NG',
+    NULL,
+    'MT',
+    '6x4',
+    '5742',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    12234414
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'G SERIES G460',
+    NULL,
+    'MT',
+    '6x4',
+    '5742',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    11554724
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'G SERIES G460',
+    NULL,
+    'MT',
+    '6x4',
+    '5346',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    9447686
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'G SERIES G460 A6X4NZ',
+    NULL,
+    'MT',
+    '6x4',
+    '5330',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    10807066
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'G SERIES G460 XT',
+    NULL,
+    'MT',
+    '6x4',
+    '10951',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    13253949
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'G410',
+    NULL,
+    'MT',
+    '6x4',
+    '5466',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    19031311
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'G460',
+    NULL,
+    'MT',
+    '6x4',
+    '5345',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    9447686
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'G460 G-SERIES',
+    NULL,
+    'MT',
+    '6x4',
+    '5472',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    14273483
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'R SERIES',
+    NULL,
+    'MT',
+    '6x4',
+    '5346',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    10626800
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'R SERIES 410',
+    NULL,
+    'MT',
+    '4x2',
+    '10879',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    8088307
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'R SERIES 460',
+    NULL,
+    'MT',
+    '6x4',
+    '13000',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    6796897
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'R SERIES 500',
+    NULL,
+    'MT',
+    '6x4',
+    '5346',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    11702483
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'R SERIES 620',
+    NULL,
+    'MT',
+    '6x4',
+    '5330',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    10127376
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'R SERIES R500',
+    NULL,
+    'MT',
+    '6x4',
+    '5346',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    8088307
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'R SERIES R560 A6X4NZ V8',
+    NULL,
+    'MT',
+    '6x4',
+    '5346',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    14953173
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SCANIA',
+    'R460',
+    NULL,
+    'MT',
+    '6x4',
+    '5330',
+    NULL,
+    NULL,
+    NULL,
+    'DIESEL',
+    10807066
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SHACMAN',
+    'X3000 TRACTOR HEAD 6X4 385 HP',
+    'X3000',
+    'MT',
+    '6X4',
+    '10800',
+    'TRACTOR',
+    NULL,
+    NULL,
+    NULL,
+    9366490
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SHACMAN',
+    'X3000 TRACTOR HEAD 6X4 420 H',
+    'X3000',
+    'MT',
+    '6X4',
+    '10800',
+    'TRACTOR',
+    NULL,
+    NULL,
+    NULL,
+    9456552
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SHACMAN',
+    'F3000 TRUCK HEAD',
+    'FS3000',
+    'MT',
+    '6X4',
+    '10800',
+    'TRUCK',
+    NULL,
+    NULL,
+    NULL,
+    5583869
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SHACMAN',
+    'X3000 TRUCK TRACTOR',
+    'X3000',
+    'MT',
+    '6X4',
+    '10800',
+    'TRUCK',
+    NULL,
+    NULL,
+    NULL,
+    6574555
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SHACMAN',
+    'H3000 TRACTOR TRUCK',
+    'H3000',
+    'MT',
+    '6X4',
+    '10800',
+    'TRUCK',
+    NULL,
+    NULL,
+    NULL,
+    5763994
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SHACMAN',
+    'F3000 TIPPER TRUCK',
+    'F3000',
+    'MT',
+    '6X4',
+    '10800',
+    'TRUCK',
+    NULL,
+    NULL,
+    NULL,
+    7114930
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SHACMAN',
+    'H3000 DUMP TRUCK',
+    'H3000',
+    'MT',
+    '6X4',
+    '10800',
+    'TRUCK',
+    NULL,
+    NULL,
+    NULL,
+    7475179
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SHACMAN',
+    'X3000 TRACTOR',
+    'X3000',
+    'MT',
+    '6X4',
+    '10800',
+    'TRACTOR',
+    NULL,
+    NULL,
+    NULL,
+    6934805
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'ENYAQ RS',
+    'RS',
+    'AT',
+    '4WD',
+    NULL,
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    15128682
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'ENYAQ SPORTLINE',
+    NULL,
+    'AT',
+    '2WD',
+    NULL,
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    12606935
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'FABIA 110TSI MONTE CARLO EDITION 150',
+    '110TSI',
+    '7AT',
+    '4WD',
+    '1500',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    5594076
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'FABIA MONTE CARLO 110TSI',
+    '110TSI',
+    '7AT',
+    '4WD',
+    '1500',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    6553391
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'FABIA MONTE CARLO 110TSI',
+    '110TSI',
+    '7AT',
+    '2WD',
+    '1500',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    6553391
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'FABIA MONTE CARLO EDITION 150',
+    NULL,
+    '7AT',
+    '2WD',
+    '1500',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4922060
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'FABIA SELECT 85TSI',
+    '85TSI',
+    '7AT',
+    '2WD',
+    '1000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    5348055
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'FABIA SELECT 85TSI',
+    '85TSI',
+    '7AT',
+    '2WD',
+    '1000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    5348055
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KAMIQ MONTE CARLO 110TSI',
+    '110TSI',
+    '7AT',
+    '2WD',
+    '1500',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    7048734
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KAMIQ MONTE CARLO 110TSI',
+    '110TSI',
+    '7AT',
+    '2WD',
+    '1500',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    7048734
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KAMIQ RUNOUT 85TSI',
+    '85TSI',
+    '7AT',
+    '2WD',
+    '1000',

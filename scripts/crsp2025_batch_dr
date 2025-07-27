@@ -1,0 +1,500 @@
+    NULL,
+    'DIESEL',
+    9535005
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MINI',
+    'COOPER D PREMIUM PLUS PACKAGE CLASSIC TRIM',
+    'WMW22DJ0402U1',
+    'AT',
+    '2WD',
+    '1500',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    6376714
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MINI',
+    'COOPER S CLASSIC TRIM',
+    '22GD20-WMW22GD0902W2',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    6510351
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MINI',
+    'COOPER S CLUBMAN',
+    'WMWLV720902L4',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    8002420
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MINI',
+    'COOPER S CONVERTIBLE',
+    'WMWWJ520603G4',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    11658156
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MINI',
+    'COOPER S PREMIUM PLUS PACKAGE CLASSIC TRIM',
+    'WMWXR320X0TL9',
+    NULL,
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    7460755
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MINI',
+    'COOPER SD',
+    'WMWXT720802H1',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    4671585
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MINI',
+    'COOPER SD CLUBMAN',
+    '3DA-BB20M',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    9783028
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MINI',
+    'COOPER SD CROSSOVER ALL4',
+    '3DA-42BT20',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    10511619
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MINI',
+    'COUNTRYMAN D CLASSIC TRIM',
+    'WMW62GA0407N7',
+    'AT',
+    '2WD',
+    '1000',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    8427123
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MINI',
+    'JOHN COOPER WORKS',
+    'WMWXP92000TP2',
+    'AT',
+    '2WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    14148416
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'D:5 P',
+    '3DA-CV1W-LUXEZ',
+    '8AT',
+    '4WD',
+    '2267',
+    'MINVAN',
+    '1635',
+    8,
+    'DIESEL',
+    7817515
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELCA D:2 HYBRID MZ',
+    'DAA-MB36S-MBZBM',
+    'CVT',
+    '2WD',
+    '1242',
+    'MINVAN',
+    '1725',
+    5,
+    'GASOLINE',
+    3165640
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELCA D:5 P',
+    '3DA-CV1W-LUXFZ',
+    '8AT',
+    '4WD',
+    '2267',
+    'MINVAN',
+    '3115',
+    8,
+    'DIESEL',
+    8036536
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA  MINI G PREMIUM',
+    '5AA-B34A-HXTG',
+    'CVT',
+    '4WD',
+    '659',
+    'MINVAN',
+    '3115',
+    4,
+    'GASOLINE',
+    3901719
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:2',
+    '5AA-MB37S-MSVBJRM',
+    'CVT',
+    '4WD',
+    '1242',
+    'MINVAN',
+    '3115',
+    4,
+    'GASOLINE',
+    3591023
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:2',
+    '3DA-CV1W-LUHFZ',
+    '8AT',
+    '4WD',
+    '2267',
+    'MINVAN',
+    '3115',
+    4,
+    'DIESEL',
+    7690189
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:2',
+    '3DA-CV1W-LUHFZ',
+    '8AT',
+    '4WD',
+    '2267',
+    'MINVAN',
+    '2090',
+    7,
+    'DIESEL',
+    7550463
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:2 CUSTOM HYBRID MV',
+    '5AA-MB37S-MSVBJRM',
+    'CVT',
+    '4WD',
+    '1242',
+    'MINVAN',
+    '2570',
+    5,
+    'GASOLINE',
+    3720130
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:2 CUSTOM HYBRID MV',
+    '5AA-MB37S-MSVBJRM',
+    'CVT',
+    '2WD',
+    '1242',
+    'MINVAN',
+    '1350',
+    5,
+    'GASOLINE',
+    3720130
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:2 CUSTOM HYBRID SV',
+    'DAA-MB46S-MSVHRM',
+    '5AMT',
+    '2WD',
+    '1242',
+    'MINVAN',
+    '2160',
+    5,
+    'GASOLINE',
+    3569729
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'Delica D:2 Custom Hybrid SV Navi Package',
+    'DAA-MB46S-MSVHRN',
+    '5AMT',
+    '2WD',
+    '1242',
+    'MINVAN',
+    '2160',
+    5,
+    'GASOLINE',
+    3589849
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:2 GS',
+    '5AA-MB37S-MSVBJRM',
+    'CVT',
+    '2WD',
+    '1242',
+    'MINVAN',
+    '1150',
+    5,
+    'GASOLINE',
+    3591023
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:2 HYBRID MZ',
+    '5AA-MB37S-MBZBJ',
+    'CVT',
+    '4WD',
+    '1242',
+    'MINVAN',
+    '870',
+    5,
+    'GASOLINE',
+    3576268
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:2 HYBRID MZ',
+    '5AA-MB37S-MBZBJ',
+    'CVT',
+    '2WD',
+    '1242',
+    'MINVAN',
+    '870',
+    5,
+    'GASOLINE',
+    3576268
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'Delica D:2 Hybrid Mz Navi Package',
+    'DAA-MB36S-MBZBN',
+    'CVT',
+    '2WD',
+    '1242',
+    'MINVAN',
+    '870',
+    5,
+    'GASOLINE',
+    3321239
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:2 HYBRID XT',
+    '5AA-MB37S-MBZBJ',
+    'CVT',
+    '2WD',
+    '1242',
+    'MINVAN',
+    '870',
+    5,
+    'GASOLINE',
+    3447161
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'Delica D:3 G',
+    'DBA-BM20 WPBM',
+    '4AT',
+    '2WD',
+    '1597',
+    'MINVAN',
+    '920',
+    7,
+    'GASOLINE',
+    3405830
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:5',
+    '3DA-CV1W-LUHFZ',
+    'CVT',
+    '4WD',
+    '2267',
+    'MINVAN',
+    '1485',
+    7,
+    'DIESEL',
+    7690189
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:5',
+    '3DA-CV1W-LUHFZ',
+    '8AT',
+    '2WD',
+    '2267',
+    'MINVAN',
+    '1485',
+    7,
+    'DIESEL',
+    7524264
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:5',
+    '3DA-CV1W-LUXFZ',
+    'CVT',
+    '4WD',
+    '2267',
+    'MINVAN',
+    '3115',
+    8,
+    'GASOLINE',
+    7663816
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:5',
+    '3DA-CV1W-LUHFZ',
+    '8AT',
+    '4WD',
+    '2267',
+    'MINVAN',
+    '1485',
+    7,
+    'DIESEL',
+    7690189
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:5 D',
+    'DBA-CV5W-LTHHZ3',
+    'CVT',
+    '4WD',
+    '2359',
+    'MINVAN',
+    '1525',
+    7,
+    'GASOLINE',
+    5828335
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:5 D-POWER PACKAGE',
+    'LDA-CV1W-LLHFZ',
+    '6AT',
+    '4WD',
+    '2267',
+    'MINVAN',
+    '1515',
+    8,
+    'DEISEL',
+    5716554
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:5 D-PREMIUM',
+    'LDA-CV1W-LLXFZ',
+    '6AT',
+    '2WD',
+    '2267',
+    'MINVAN',
+    '1546',
+    8,
+    'DEISEL',
+    6558406
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:5 P',
+    '3DA-CV1W-LUXFZ',
+    '8AT',
+    '4WD',
+    '2267',
+    'MINVAN',
+    '1575',
+    8,
+    'DIESEL',
+    7817515
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'DELICA D:5 ROADEST G-POWER PACKAGE',
+    'DBA-CV2W-LTHH5',
+    'CVT',

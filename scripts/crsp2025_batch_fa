@@ -1,0 +1,500 @@
+    NULL,
+    'DIESEL',
+    11347862
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TATA',
+    'SIGNA 1618 TIPP LR',
+    NULL,
+    'MANUAL',
+    '4X2',
+    '5883',
+    'TIPPER',
+    '16200',
+    NULL,
+    'DIESEL',
+    5027798
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TATA',
+    'SIGNA LPT 25T8 (6X4) CAB / CHASSIS',
+    NULL,
+    'MANUAL',
+    '6X4',
+    '5883',
+    'TRUCK',
+    '25000',
+    NULL,
+    'DIESEL',
+    5069998
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TATA',
+    'TATA  407 DT DSLB',
+    NULL,
+    'MANUAL',
+    '2WD',
+    '2956',
+    'PICK UP',
+    '5400',
+    NULL,
+    'DIESEL',
+    2418304
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TATA',
+    'TATA DAEWOO  F8C6F(11051CC)',
+    NULL,
+    'MANUAL',
+    '6X4',
+    '11015',
+    'BUS',
+    NULL,
+    NULL,
+    'DIESEL',
+    9006240
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TATA',
+    'TATA INTRA  V20 AC BS-IV',
+    NULL,
+    'MANUAL',
+    '2WD',
+    '1396',
+    'PICK UP',
+    '2300',
+    NULL,
+    'DIESEL',
+    1540324
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TATA',
+    'TATA XENON',
+    NULL,
+    '6AT',
+    '2WD',
+    '2200',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    5195600
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TATA',
+    'TATA XENON',
+    NULL,
+    '5MT',
+    '2WD',
+    '2200',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    5856057
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TATA',
+    'TATA XENON/31  DC 4X4   ABS EV',
+    NULL,
+    'MANUAL',
+    '4WD',
+    '2956',
+    'PICK UP',
+    '3150',
+    NULL,
+    'DIESEL',
+    3242246
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TATA',
+    'TRAVELLER  AM8ULANCE',
+    NULL,
+    'MANUAL',
+    '2WD',
+    '2596',
+    'AMBULANCE',
+    '6780',
+    NULL,
+    'DI ESEL',
+    7496074
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TATA',
+    'TRAVELLER  BUS',
+    NULL,
+    'MAN UAL',
+    '2WD',
+    '2596',
+    'MINI BUS',
+    '6780',
+    NULL,
+    'DI ESEL',
+    5731931
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    '86 GT LIMITED',
+    '4BA-ZN6-H2L7',
+    '6AT',
+    '2WD',
+    '1998',
+    'COUPE',
+    '1480',
+    4,
+    'GASOLINE',
+    5257204
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    '86 GT LIMITED',
+    'DBA-ZN6-G2L7',
+    '6AT',
+    '2WD',
+    '1998',
+    'COUPE',
+    '1480',
+    4,
+    'GASOLINE',
+    5257204
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'AERAS/ESTIMA HYBRID AERAS',
+    'DAA-AHR20W-GFXSB(W)',
+    'CVT',
+    'AWD',
+    '2362',
+    'VAN',
+    '2405',
+    7,
+    'GASOLINE',
+    7570876
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALION A18 G PACKAGE',
+    'DBA-ZRT260-VTQBCXG',
+    'CVT',
+    '2WD',
+    '1797',
+    'SEDAN',
+    '1545',
+    5,
+    'GASOLINE',
+    3954256
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALLION A15 G PLUS',
+    '3BA-NZT260-CEXEK(J)',
+    'CVT',
+    '2WD',
+    '1496',
+    'SEDAN',
+    '1475',
+    5,
+    'GASOLINE',
+    3524152
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALLION A20',
+    'DBA-ZRT261-CEXGP(J)',
+    'CVT',
+    '2WD',
+    '1986',
+    'SEDAN',
+    '1545',
+    5,
+    'GASOLINE',
+    4287058
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALLION A20 "G-PLUS PACKAGE"',
+    'DBA-ZRT261-CEXGP',
+    'CVT',
+    '2WD',
+    '1986',
+    'SEDAN',
+    '1545',
+    5,
+    'GASOLINE',
+    4300638
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALLION A20 G-PLUS',
+    'DBA-ZRT261-CEXGP(J)',
+    'CVT',
+    '2WD',
+    '1986',
+    'SEDAN',
+    '1545',
+    5,
+    'GASOLINE',
+    4287058
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALPHARD EXECUTIVE LOUNGE (HYRID)',
+    '6AA-AAH45W-PFXVB',
+    'CVT',
+    '4WD',
+    '2487',
+    'VAN',
+    '2675',
+    7,
+    'GASOLINE',
+    15230172
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALPHARD EXECUTIVE LOUNGE S (HYBRID)',
+    '6AA-AYH30W-PFXZB',
+    'CVT',
+    '4WD',
+    '2493',
+    'VAN',
+    '2625',
+    7,
+    'GASOLINE',
+    13539483
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALPHARD G',
+    '6AA-AYH30W-PFQB(B)',
+    'CVT',
+    '4WD',
+    '2493',
+    'VAN',
+    '2575',
+    5,
+    'GASOLINE',
+    8744012
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALPHARD G F',
+    'DAA-AYH30W-PFXQB(B)',
+    'CVT',
+    '4WD',
+    '2493',
+    'VAN',
+    '2575',
+    7,
+    'GASOLINE',
+    8942486
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALPHARD HYBRID EXCLUSIVE LOUNGE S',
+    '6AA-AY30W-PFXZB',
+    'CVT',
+    '2WD',
+    '2493',
+    'VAN',
+    '2625',
+    5,
+    'GASOLINE',
+    13539483
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALPHARD HYBRID G',
+    'DAA-AYH30W-PFXQB(B)',
+    'CVT',
+    '4WD',
+    '2493',
+    'VAN',
+    '2575',
+    7,
+    'GASOLINE',
+    8977418
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALPHARD HYBRID G',
+    'DAA-AYH30W-PFQB(B)',
+    'CVT',
+    'AWD',
+    '2493',
+    'VAN',
+    '2565',
+    7,
+    'GASOLINE',
+    8690476
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALPHARD S',
+    'DBA-AGH30W-VTSCXSP',
+    'CVT',
+    'AWD',
+    '2493',
+    'VAN',
+    '2425',
+    7,
+    'GASOLINE',
+    6414482
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALPHARD S',
+    'DBA-AGH30W-VTSCXSP',
+    'CVT',
+    '2WD',
+    '2493',
+    'VAN',
+    '2425',
+    7,
+    'GASOLINE',
+    6671933
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ALPHARD S',
+    '3BA-AGH30W-VTSCXSP',
+    'CVT',
+    '2WD',
+    '2493',
+    'VAN',
+    '2425',
+    7,
+    'GASOLINE',
+    6836112
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'APLHARD WELCAB G',
+    '3BA-AGH40W-PFXQK-W',
+    'CVT',
+    '2WD',
+    '2493',
+    'VAN',
+    '2435',
+    7,
+    'GASOLINE',
+    8243855
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'AQUA CROSSOVER',
+    'DAA-NHP10H-AHXXB',
+    'CVT',
+    '2WD',
+    '1496',
+    'HATCHBACK',
+    '1375',
+    5,
+    'GASOLINE',
+    3212673
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'AQUA G',
+    '6AA-NHP10-AHXEB',
+    'CVT',
+    '2WD',
+    '1496',
+    'HATCHBACK',
+    '1365',
+    5,
+    'GASOLINE',
+    3241092
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'AQUA S',
+    'DAA-NHP10-VTUQXN',
+    'CVT',
+    '2WD',
+    '1496',
+    'HATCHBACK',
+    '1465',
+    5,
+    'GASOLINE',
+    4513720
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'AQUA S',
+    '6AA-NHP-VTUQXN',
+    'CVT',
+    '2WD',
+    '1496',
+    'HATCHBACK',
+    '1465',
+    5,
+    'GASOLINE',
+    4513720
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'AQUA WELCAB X',
+    '6AA-MXPK11-AHXNB(U)',
+    'CVT',
+    '2WD',
+    '1490',
+    'HATCHBACK',
+    '1395',
+    5,
+    'GASOLINE',
+    3635121
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'AQUA WELCAB X',
+    '6AA-MXPK11-VQQLXN',
+    'CVT',
+    '2WD',
+    '1490',
+    'HATCHBACK',
+    '1445',
+    5,
+    'GASOLINE',
+    3616677
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'AQUA WELCAB X',
+    '6AA-MXPK11-YVQQLXN',
+    'CVT',

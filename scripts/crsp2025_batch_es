@@ -1,0 +1,500 @@
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'IMPREZA STI SPORT',
+    '3BA-GT7',
+    'CVT',
+    'AWD',
+    '1995',
+    'SEDAN',
+    '1675',
+    5,
+    'GASOLINE',
+    4645901
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'JUSTY',
+    '5BA-M900F',
+    'CVT',
+    'AWD',
+    '996',
+    'HATCHBACK',
+    '1365',
+    5,
+    'GASOLINE',
+    2994615
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'JUSTY CUSTO, RS SMART ASSIST',
+    'DBA-M900F',
+    'CVT',
+    '2WD',
+    '996',
+    'HATCHBACK',
+    '1375',
+    5,
+    'GASOLINE',
+    3215942
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'JUSTY CUSTOM R',
+    'DBA-M900F',
+    'CVT',
+    '2WD',
+    '996',
+    'HATCHBACK',
+    '1355',
+    4,
+    'GASOLINE',
+    3014736
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'JUSTY CUSTOM R',
+    'DBA-M910F',
+    'CVT',
+    '4WD',
+    '996',
+    'HATCHBACK',
+    '1355',
+    4,
+    'GASOLINE',
+    3319898
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEGACY B4 LIMITED',
+    'DBA-BN9',
+    'CVT',
+    'AWD',
+    '2498',
+    'SEDAN',
+    '1815',
+    5,
+    'GASOLINE',
+    5239738
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEGACY OUBACK LIMITED',
+    'DBA-BS9',
+    'CVT',
+    'AWD',
+    '2498',
+    'SUV',
+    '1855',
+    5,
+    'GASOLINE',
+    5763712
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEGACY OUTBACK ACTIVE X BLACK',
+    '4BA-BT5',
+    'CVT',
+    'AWD',
+    '1795',
+    'SUV',
+    '1965',
+    5,
+    'GASOLINE',
+    7877073
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEGACY OUTBACK LIMITED',
+    '4BA-BT5',
+    'CVT',
+    'AWD',
+    '1795',
+    'SUV',
+    '1965',
+    5,
+    'GASOLINE',
+    7684949
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEGACY OUTBACK LIMITED',
+    'DBA-BS9',
+    'CVT',
+    'AWD',
+    '2498',
+    'SUV',
+    '1855',
+    5,
+    'GASOLINE',
+    5763712
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEGACY OUTBACK LIMITED',
+    '4BA-BS9',
+    'CVT',
+    'AWD',
+    '2498',
+    'SUV',
+    '1855',
+    5,
+    'GASOLINE',
+    5763712
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEGACY OUTBACK LIMITED EX',
+    '4BA-BT5',
+    'CVT',
+    'AWD',
+    '1795',
+    'SUV',
+    '1965',
+    5,
+    'GASOLINE',
+    7492826
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEGACY OUTBACK SELECTION',
+    '4BA-BT5',
+    'CVT',
+    'AWD',
+    '1795',
+    'SUV',
+    '1965',
+    5,
+    'GASOLINE',
+    7857861
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEGACY OUTBACK X-BREAK EX',
+    '4BA-BT5',
+    'CVT',
+    'AWD',
+    '1795',
+    'SUV',
+    '1955',
+    5,
+    'GASOLINE',
+    7243065
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORG 1.6GT-S EYESIGHT',
+    'DBA-VM4',
+    'CVT',
+    'AWD',
+    '1599',
+    'WAGON',
+    '1835',
+    5,
+    'GASOLINE',
+    4977751
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORG GT EX',
+    '4BA-VN5',
+    'CVT',
+    'AWD',
+    '1795',
+    'WAGON',
+    '1855',
+    5,
+    'GASOLINE',
+    6628269
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORG GT-H EX',
+    '4BA-VN5',
+    'CVT',
+    'AWD',
+    '1795',
+    'WAGON',
+    '1855',
+    5,
+    'GASOLINE',
+    6628269
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORG GT-S EYESIGHT',
+    'DBA-VM4',
+    'CVT',
+    'AWD',
+    '1599',
+    'WAGON',
+    '1835',
+    5,
+    'GASOLINE',
+    4977751
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORG LAYBACK LIMITED EX',
+    '4BA-VN5',
+    'CVT',
+    'AWD',
+    '1795',
+    'WAGON',
+    '1875',
+    5,
+    'GASOLINE',
+    6974091
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORG STI SMART EDITION',
+    '3BA-GU7',
+    'CVT',
+    'AWD',
+    '1995',
+    'WAGON',
+    '1715',
+    5,
+    'GASOLINE',
+    5533163
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORG STI SPORT 1.6TI SPORT EYE SIGHT',
+    'DBA-VM4',
+    'CVT',
+    'AWD',
+    '1599',
+    'WAGON',
+    '1835',
+    5,
+    'GASOLINE',
+    5533163
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORG STI SPORT 2.0 GT-S EYE SIGHT',
+    'DBA-VM4',
+    'CVT',
+    'AWD',
+    '1599',
+    'WAGON',
+    '1835',
+    5,
+    'GASOLINE',
+    5763712
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORG STI SPORT EX',
+    '5BA-VNH',
+    'CVT',
+    'AWD',
+    '2387',
+    'WAGON',
+    '1915',
+    5,
+    'GASOLINE',
+    8780055
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORG STI SPORT EX',
+    '4BA-VN5',
+    'CVT',
+    'AWD',
+    '1795',
+    'WAGON',
+    '155',
+    5,
+    'GASOLINE',
+    6497275
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORG STI SPORT EYESIGHT',
+    'DBA-VM4',
+    'CVT',
+    'AWD',
+    '1599',
+    'WAGON',
+    '1835',
+    5,
+    'GASOLINE',
+    5763712
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORG STI SPORT R EX',
+    '5BA-VNH',
+    'CVT',
+    'AWD',
+    '2387',
+    'WAGON',
+    '1905',
+    5,
+    'GASOLINE',
+    8338170
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'LEVORGLAYBACK LIMITED EX',
+    '4BA-VN5',
+    'CVT',
+    'AWD',
+    '1795',
+    'WAGON',
+    '1875',
+    5,
+    'GASOLINE',
+    6974091
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'PLEO PLUS G SMART ASSIST',
+    'DBA-LA350F',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '890',
+    4,
+    'GASOLINE',
+    1894689
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'PLEO PLUS G SMART ASSIST',
+    'DBA-LA360F',
+    'CVT',
+    '4WD',
+    '658',
+    'WAGON',
+    '960',
+    4,
+    'GASOLINE',
+    2095895
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'PLEO+ G',
+    '5BA-LA350F',
+    'CVT',
+    'AWD',
+    '658',
+    'WAGON',
+    '890',
+    5,
+    'GASOLINE',
+    1894689
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'PLEO+ G',
+    '5BA-LA350F',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '890',
+    5,
+    'GASOLINE',
+    1894689
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'PLEO+ G',
+    '5BA-LA360F',
+    'CVT',
+    '4WD',
+    '658',
+    'WAGON',
+    '890',
+    4,
+    'GASOLINE',
+    2095895
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'REX REV',
+    '5BA-A201F',
+    'CVT',
+    'AWD',
+    '1196',
+    'SUV',
+    '1155',
+    5,
+    'GASOLINE',
+    3640319
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'REX Z',
+    '5BA-A201F',
+    'CVT',
+    '2WD',
+    '1196',
+    'SUV',
+    '1255',
+    5,
+    'GASOLINE',
+    3791998
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'SAMBAR  VAN TRANSPORTER',
+    '3BD-S710B',
+    'CVT',
+    '4WD',
+    '658',
+    'VAN',
+    '1410',
+    4,
+    'GASOLINE',
+    2388482
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'SAMBAR TRUCK',
+    '3BD-S510J',
+    'CVT',
+    '4WD',
+    '658',
+    'TRUCK',
+    '1320',

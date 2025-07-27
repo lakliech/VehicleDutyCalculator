@@ -1,0 +1,500 @@
+    'SUZUKI',
+    'EVERY  PC',
+    'HBD-DA17V/EVBD-D2',
+    '4AT',
+    '2WD',
+    '658',
+    'VAN',
+    '1330',
+    4,
+    'GASOLINE',
+    1765582
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY  PC',
+    'HBD-DA17V/EVQN-H2',
+    '5AGS',
+    '2WD',
+    '658',
+    'VAN',
+    '1595',
+    4,
+    'GASOLINE',
+    2682746
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY  WAGON',
+    'ABA-DA17W/EHKD-R3',
+    '4AT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1040',
+    4,
+    'GASOLINE',
+    3227679
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY FOR WHEELCHAIR USER CAR',
+    '5BD-DA17V/EVQD-H4',
+    '4AT',
+    '2WD',
+    '658',
+    'VAN',
+    '1595',
+    4,
+    'GASOLINE',
+    2815206
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY PC',
+    'HBD-DA17V/EVBD-3',
+    '4AT',
+    '2WD',
+    '658',
+    'VAN',
+    '1910',
+    4,
+    'GASOLINE',
+    1765582
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY PC',
+    'HBD-DA17V/EVBD-3',
+    '4AT',
+    '2WD',
+    '658',
+    'VAN',
+    '1330',
+    4,
+    'DIESEL',
+    1765582
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY PC',
+    '5BD-DA17V/EVBD-4',
+    '4AT',
+    '2WD',
+    '658',
+    'VAN',
+    '1350',
+    4,
+    'GASOLINE',
+    1995628
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY PC',
+    '5BD-DA17V/EVBD-J5',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1350',
+    4,
+    'GASOLINE',
+    2176378
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY PC',
+    '5BD-DA17V/EVBE-6',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1370',
+    4,
+    NULL,
+    2489924
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY PC',
+    '5BD-DA17V/EVQD-H5',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1595',
+    4,
+    'GASOLINE',
+    2865508
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY PC',
+    'HBD-DA17V/EVQN-H2',
+    '5AGS',
+    '2WD',
+    '658',
+    'VAN',
+    '1595',
+    4,
+    NULL,
+    2682746
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON',
+    '3BA-DA17W/EHKD-R5',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1595',
+    4,
+    'GASOLINE',
+    3844749
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON',
+    '3BA-DA17W/EHKD-R4',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '900',
+    4,
+    'GASOLINE',
+    2429059
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON',
+    '3BA-DA17W/EHKD-RQ3',
+    '4AT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1595',
+    4,
+    'GASOLINE',
+    3227679
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON',
+    'ABA-DA17W/EHKD-R2',
+    '4AT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1595',
+    4,
+    'GASOLINE',
+    3177377
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON PZ',
+    '3BA-DA17W/EHKD-R5',
+    '4AT',
+    '4WD',
+    '658',
+    'WAGON',
+    '1040',
+    4,
+    'GASOLINE',
+    3306484
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON PZ',
+    '3BA-DA17W/EWDD-5',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1200',
+    4,
+    'GASOLINE',
+    2989753
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON PZ',
+    '3BA-DA17W/EWDE-6',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1220',
+    4,
+    'GASOLINE',
+    3205546
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON PZ',
+    '3BA-DA17W/EHKE-R6',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1130',
+    4,
+    'GASOLINE',
+    3640151
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON PZ',
+    '3BA-DA17W/EWDD-4',
+    'CVT',
+    '2WD',
+    '657',
+    'WAGON',
+    '1010',
+    4,
+    'GASOLINE',
+    2382949
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON PZ TURBO SPECIAL',
+    'ABA-DA17W/EWDD-3',
+    '4AT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1190',
+    4,
+    'GASOLINE',
+    2632444
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON PZ TURBO SPECIAL',
+    '3BA-DA17W/EWDD-Q3',
+    '4AT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1190',
+    4,
+    'GASOLINE',
+    2647535
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON PZ TURBO SPECIAL',
+    'ABA-DA17W/EWDD-2',
+    '4AT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1190',
+    4,
+    'GASOLINE',
+    2548609
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'EVERY WAGON PZ TURBO SPECIAL (STANDARD ROOF)',
+    '3BA-DA17W/EWDD-5',
+    '4AT',
+    '4WD',
+    '658',
+    'WAGON',
+    '1200',
+    4,
+    'GASOLINE',
+    2989753
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'FRONX',
+    '4AA-WDB3S/XBSK-ZN',
+    '6AT',
+    '2WD',
+    '1460',
+    'SUV',
+    '1345',
+    5,
+    'GASOLINE',
+    4260536
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'HUSTLER HYBRID X',
+    '5AA-MR92S/HBXB-2',
+    'CVT',
+    '4WD',
+    '657',
+    'HATCBACK',
+    '1040',
+    4,
+    'GASOLINE',
+    2578790
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'HUSTLER HYBRID X',
+    '5AA-MR92S/HBXB-2',
+    'CVT',
+    '2WD',
+    '657',
+    'HATCBACK',
+    '1040',
+    4,
+    'GASOLINE',
+    2580299
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'HUSTLER HYBRID X',
+    '5AA-MR92S/HBXB-3',
+    'CVT',
+    '2WD',
+    '657',
+    'HATCBACK',
+    '1040',
+    4,
+    'GASOLINE',
+    2803469
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'HUSTLER HYBRID X',
+    '5AA-MR92S/HBXB-J',
+    'CVT',
+    '2WD',
+    '657',
+    'HATCBACK',
+    '1040',
+    4,
+    'GASOLINE',
+    2545255
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'HUSTLER HYBRID X',
+    'SAA-MR92S/HBXB-JM',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCBACK',
+    '1040',
+    4,
+    'GASOLINE',
+    2858801
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'HUSTLER J',
+    'DAA-MR41S/HBJB-B2',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCBACK',
+    '1020',
+    4,
+    'GASOLINE',
+    2305485
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'HUSTLER TOUGH WILD TOUGH WILD',
+    '5AA-MR92S/HBFB-3',
+    'CVT',
+    '2WD',
+    '657',
+    'HATCBACK',
+    '1050',
+    4,
+    'GASOLINE',
+    2951021
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'HUSTLER X',
+    'DAA-MR41S/HBXB-2',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCBACK',
+    '1020',
+    4,
+    'GASOLINE',
+    2275783
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'IGNIS HYBRID MF',
+    '5AA-FF21S/PBFB-J4',
+    'CVT',
+    '4WD',
+    '1242',
+    'SUV',
+    '1155',
+    5,
+    'GASOLINE',
+    3131771
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'IGNIS HYBRID MF',
+    '5AA-FF21S/PBFB-J3',
+    'CVT',
+    '2WD',
+    '1242',
+    'SUV',
+    '1155',
+    5,
+    'GASOLINE',
+    3113327
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'IGNIS HYBRID MF',
+    '5AA-FF21S/PBFB-JM2',
+    'CVT',
+    '2WD',
+    '1242',
+    'SUV',
+    '1155',
+    5,
+    'GASOLINE',

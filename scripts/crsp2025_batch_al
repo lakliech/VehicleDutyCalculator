@@ -1,0 +1,500 @@
+    2,
+    'GASOLINE',
+    13313303
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X2 X DRIVE 18D M SPORT EDITION SUNRISE',
+    '3DA-YK20',
+    'AT',
+    '4WD',
+    '1500',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    10264895
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X2 X DRIVE 18D M SPORT X',
+    '3DA-YK20',
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    6909466
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X2 X DRIVE 20I',
+    'ABA-YH20',
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    6379347
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X2 X DRIVE 20I M SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    8862880
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X2 X DRIVE 20I M SPORT HI-LINE PACKAGE',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    11089379
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X2 X DRIVE 20I M SPORT HI-LINE PACKAGE',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    9084354
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X2 X DRIVE 20I M SPORT X',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    4,
+    'GASOLINE',
+    8449051
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X3',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    16799358
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X3 20 X DRIVE X LINE',
+    '3AA-32GP20',
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    16048045
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X3 M40D',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    15913952
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X3 M40D M SPORT EDITION',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'HYBRID',
+    17333210
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X3 MIDNIGHT EDITION',
+    'LDA-TX20',
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    15000127
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X3 X DRIVE 20D',
+    '3DA-UZ20',
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    14665106
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X3 X DRIVE 20D M SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    11022741
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X3 X DRIVE 20D M SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'HYBRID',
+    11154898
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X3 X DRIVE 20D X LINE',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'HYBRID',
+    11894078
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X3 X DRIVE 20D X LINE HI-LINE PACKAGE',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    11790518
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X3 X DRIVE 20I',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    9956530
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X3 X DRIVE 30E M SPORT EDITION JOY+',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    12917357
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X4 M40I',
+    'CBA-UJ30',
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    28302902
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X4 X DRIVE 20D M SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    13585960
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X4 X DRIVE 28I M SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'DIESEL',
+    10366439
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X4 X DRIVE 30I M SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '1500',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    14693330
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X5 LIMITED BLACK',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'PLUG-IN HYBRID',
+    17956847
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X5 LIMITED WHITE',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'HYBRID',
+    20305796
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X5 X DRIVE 35D',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    13115778
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X5 X DRIVE 35D EDITION X',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    22313505
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X5 X DRIVE 35D M-SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'PLUG-IN HYBRID',
+    19423727
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X5 X DRIVE 35D M-SPORT HI-LINE PACKAGE',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    15103164
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X5 X DRIVE 35D PLEASURE3 EDITION',
+    '3CA-JU8230A',
+    'AT',
+    '4WD',
+    '4400',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    20533492
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X5 X DRIVE 40D M-SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'HYBRID',
+    18759142
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X5 X DRIVE 45E',
+    '3LA-TA30',
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'HYBRID',
+    15358361
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X5 X DRIVE 50E M-SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'HYBRID',
+    21795426
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X5 X DRIVE 50I M-SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'PLUG-IN HYBRID',
+    20917300
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X6 M50I',
+    '3BA-CY44',
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'HYBRID',
+    21249744
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X6 X DRIVE 35D',
+    NULL,
+    'AT',

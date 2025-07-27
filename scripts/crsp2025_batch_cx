@@ -1,0 +1,500 @@
+    'AWD',
+    '3456',
+    'SEDAN',
+    '2675',
+    5,
+    'GASOLINE',
+    33934640
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'LS500H F SPORT',
+    '6AA-GVF50-AEVQH(F)',
+    'CVT',
+    '4WD',
+    '3456',
+    'SEDAN',
+    '2505',
+    5,
+    'GASOLINE',
+    25729210
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'LS500H F SPORT',
+    '6AA-GVF50-AEVQH(F)',
+    'CVT',
+    '2WD',
+    '3456',
+    'SEDAN',
+    '2505',
+    5,
+    'GASOLINE',
+    25729210
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'LS500H I PACKAGE',
+    '6AA-GVF50-AEVQH(I)',
+    'CVT',
+    '4WD',
+    '3456',
+    'SEDAN',
+    '2475',
+    5,
+    'GASOLINE',
+    26803088
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'LS500H I PACKAGE',
+    '6AA-GVF50-AEVQH(I)',
+    'CVT',
+    '2WD',
+    '3444',
+    'SEDAN',
+    '2465',
+    5,
+    'GASOLINE',
+    23390191
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'LS500H I PACKAGE',
+    'DAA-GVF50-AEVHQ(I)',
+    'CVT',
+    '2WD',
+    '3456',
+    'SEDAN',
+    '2495',
+    5,
+    'GASOLINE',
+    23964694
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'LS500H VERSION L',
+    '6AA-GVF50-AEVQH(L)',
+    'CVT',
+    '4WD',
+    '3456',
+    'SEDAN',
+    '2545',
+    5,
+    'GASOLINE',
+    28766162
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'LS500H VERSION L',
+    '6AA-GVF50-AEVQH(L)',
+    'CVT',
+    '2WD',
+    '3456',
+    'SEDAN',
+    '2575',
+    5,
+    'GASOLINE',
+    25509712
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'LS500H VERSION L',
+    'DAA-GVF50-AEVQH (L)',
+    'CVT',
+    '2WD',
+    '3456',
+    'SEDAN',
+    '2575',
+    5,
+    'GASOLINE',
+    25500060
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'LX570',
+    'DBA-URJ201W-GNZGK',
+    '8AT',
+    '4WD',
+    '5662',
+    'SUV',
+    '3170',
+    8,
+    'GASOLINE',
+    19474360
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'LX570',
+    '3BA-URJ201W-GNZGK',
+    '8AT',
+    '2WD',
+    '5662',
+    'SUV',
+    '3170',
+    8,
+    'GASOLINE',
+    19474360
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'LX600',
+    '3BA-VJA310W-GKULZ',
+    '10AT',
+    '4WD',
+    '3444',
+    'SUV',
+    '2975',
+    7,
+    'GASOLINE',
+    23578822
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'LX600',
+    '3BA-VJA310-GKULZ',
+    '10AT',
+    'AWD',
+    '3444',
+    'SUV',
+    '2975',
+    7,
+    'GASOLINE',
+    23578822
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX250',
+    '5BA-AAZA20-AWZLB',
+    '8AT',
+    '4WD',
+    '2487',
+    'SUV',
+    '1895',
+    5,
+    'GASOLINE',
+    7946936
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX250',
+    '5BA-AAZA20-AWZLB',
+    '8AT',
+    '2WD',
+    '2487',
+    'SUV',
+    '1895',
+    5,
+    'GASOLINE',
+    7946936
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX300',
+    'DBA-AGZ10-AWTLT',
+    '6AT',
+    '2WD',
+    '1998',
+    'SUV',
+    '1985',
+    5,
+    'GASOLINE',
+    7156213
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX300',
+    '3BA-AGZ10-AWTLT',
+    '6AT',
+    '2WD',
+    '1998',
+    'SUV',
+    '1985',
+    5,
+    'GASOLINE',
+    7218136
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX300H',
+    'DBA-AGZ10-AWTLT',
+    '6AT',
+    '2WD',
+    '1998',
+    'SUV',
+    '1985',
+    5,
+    'GASOLINE',
+    6848143
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX300H VERSION L',
+    '6AA-AYZ10-AWXLB(L)',
+    'CVT',
+    '2WD',
+    '2493',
+    'SUV',
+    '2065',
+    4,
+    'GASOLINE',
+    9307680
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX300H VERSION L',
+    'DAA-AYZ10-AWXLB(L)',
+    'CVT',
+    '2WD',
+    '2493',
+    'SUV',
+    '2065',
+    5,
+    'GASOLINE',
+    8866413
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX300H VERSION L',
+    'DAA-AYZ10-AWXLB(L)',
+    'CVT',
+    '2WD',
+    '2493',
+    'SUV',
+    '2065',
+    5,
+    'GASOLINE',
+    9245755
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX350 F SPORT',
+    '5BA-TAZA25-AWZLT(F)',
+    '8AT',
+    '4WD',
+    '2393',
+    'SUV',
+    '2055',
+    5,
+    'GASOLINE',
+    10629682
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX350 F SPORT',
+    '5BA-TAZA25-AWZLT(F)',
+    '8AT',
+    'AWD',
+    '2393',
+    'SUV',
+    '2055',
+    5,
+    'GASOLINE',
+    10462010
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX350H VERSION L',
+    '6AA-AAZH20-AWXLB(L)',
+    'CVT',
+    '4WD',
+    '2487',
+    'SUV',
+    '2035',
+    5,
+    'GASOLINE',
+    10786874
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX350H VERSION L',
+    '6AA-AAZH20-AWXLB(L)',
+    'CVT',
+    '2WD',
+    '2487',
+    'SUV',
+    '2035',
+    5,
+    'GASOLINE',
+    10619203
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX450H+ VERSION L',
+    '6LA-AAZH26-AWXLB(L)',
+    'CVT',
+    '4WD',
+    '2487',
+    'SUV',
+    '2295',
+    5,
+    'GASOLINE',
+    12741297
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'NX450H+ VERSION L',
+    '6LA-AAZH26-AWXLB(L)',
+    'CVT',
+    'AWD',
+    '2487',
+    'SUV',
+    '2285',
+    5,
+    'GASOLINE',
+    12470577
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'RC F',
+    '5BA-USC10-FCZRH',
+    '8AT',
+    '4WD',
+    '4968',
+    'COUPE',
+    '1990',
+    4,
+    'GASOLINE',
+    19843936
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'RC F',
+    '5BA-USC10-FCZRH',
+    '8AT',
+    '2WD',
+    '4968',
+    'COUPE',
+    '1990',
+    4,
+    'GASOLINE',
+    17834162
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'RC F',
+    '5BA-USC10-FCZRH',
+    '8AT',
+    '2WD',
+    '4968',
+    'COUPE',
+    '1990',
+    4,
+    'GASOLINE',
+    17868459
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'RC F',
+    'DBA-USC10-FCZRH',
+    'AT',
+    '2WD',
+    '4968',
+    'COUPE',
+    '2010',
+    4,
+    'GASOLINE',
+    16889423
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'RC200T',
+    'DBA-ASC10-RCZL(F)',
+    'AT',
+    '2WD',
+    '1998',
+    'COUPE',
+    '1900',
+    4,
+    'GASOLINE',
+    9428294
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'RC300 F SPORT',
+    '3BA-ASC10-RCZLZ(F)',
+    '8AT',
+    '4WD',
+    '1998',
+    'COUPE',
+    '1900',
+    4,
+    'GASOLINE',
+    11001703
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'RC300 F SPORT',
+    '3BA-ASC10-RCZLZ(F)',
+    '8AT',
+    '2WD',
+    '1998',
+    'COUPE',
+    '1900',
+    4,
+    'GASOLINE',
+    10001549
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'RC300 FSPORT',
+    'DBA-ASC10-RCZLZ(F)',
+    '8AT',
+    '2WD',
+    '1998',
+    'COUPE',
+    '1900',
+    4,
+    'GASOLINE',
+    9832596
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LEXUS',
+    'RC300H',
+    'DAA-AVC10-RCXLH(F)',
+    'CVT',
+    '2WD',
+    '2493',
+    'COUPE',
+    '1960',
+    4,
+    'GASOLINE',
+    10139864
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (

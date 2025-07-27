@@ -1,0 +1,500 @@
+    'WP1ZZZ9YZPDA2',
+    'AT',
+    '4WD',
+    '3000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    15969367
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'CAYENNE COUPE BASE GRADE',
+    'WP1ZZZ9YZRDA4',
+    'AT',
+    '4WD',
+    '3000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    20259815
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'CAYENNE COUPE',
+    'WP1ZZZ9YZRDA4',
+    'AT',
+    '4WD',
+    '3000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    17102841
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911 CARRERA',
+    '7BA-992SK1',
+    'AT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    35284443
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911 CARRERA GTS',
+    'WP0ZZZ99ZRS27',
+    'AT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    43039569
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911 CARRERA GTS',
+    'WP0ZZZ99ZRS27',
+    'MT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    37274226
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911 TARGA 4',
+    'WP0ZZZ99ZRS22',
+    'AT',
+    '4WD',
+    '3000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    40416780
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'CAYENNE E-HYBRID',
+    'WP1ZZZ9YZRDA2',
+    'AT',
+    '4WD',
+    '3000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    17960846
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911 CARRERA T',
+    'WP0ZZZ99ZSS20',
+    'MT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    36951891
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'CAYENNE PLATINUM EDITION',
+    'ABA-92ACEY',
+    'AT',
+    '4WD',
+    '3600',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    6258424
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911 SPORT CLASSIC',
+    'WP0ZZZ99ZPS25',
+    'MT',
+    '2WD',
+    '3700',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    124569559
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911GT2 RS',
+    'WP0ZZZ99ZKS15',
+    'AT',
+    '2WD',
+    '3800',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    81996793
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911 TURBO',
+    '3BA-992NE',
+    'AT',
+    '4WD',
+    '3800',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    46503292
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911 TURBO CABRIOLET',
+    'WP0ZZZ99ZPS26',
+    'AT',
+    '2WD',
+    '3800',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    56079769
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911 TURBO S CABRIOLET',
+    'WP0ZZZ99ZRS25',
+    'AT',
+    '4WD',
+    '3800',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    73514081
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'CAYENNE TURBO',
+    'WP1ZZZ9YZKDA9',
+    'AT',
+    '4WD',
+    '4000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    15423447
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'PANAMERA TURBO S E-HYBRID',
+    'ALA-G2J40A',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    17177469
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'PANAMERA TURBO SPORT TURISMO',
+    'WP0ZZZ97ZJL19',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    16160205
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'MACAN MACAN TURBO',
+    'WP1ZZZ95ZLLB7',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    11837523
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'PANAMERA TURBO',
+    'WP0ZZZ97ZJL14',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    15598964
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 SPYDER 718 SPYDER',
+    'WP0ZZZ98ZLS23',
+    'MT',
+    '2WD',
+    '4000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    21693128
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 SPYDER 718 SPYDER',
+    'WP0ZZZ98ZLS23',
+    'MT',
+    '2WD',
+    '4000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    23351351
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 SPYDER',
+    'WP0ZZZ98ZLS23',
+    'MT',
+    '2WD',
+    '4000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    21964214
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'CAYENNE GTS',
+    '3BA-E3M40',
+    'AT',
+    '4WD',
+    '4000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    13318850
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'CAYENNE COUPE CAYENNE TURBO COUPE',
+    'WP1ZZZ9YZLDA8',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    21948133
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'PANAMERA GTS',
+    '3BA-G2K40A',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    13494138
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'PANAMERA GTS SPORT TURISMO',
+    '3BA-G2K40A',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    24754568
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN 718 CAYMAN GTS 4.0',
+    'WP0ZZZ98ZMS27',
+    'MT',
+    '2WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    20334479
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'CAYENNE COUPE CAYENNE GTS COUPE',
+    'WP1ZZZ9YZMDA6',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    23590504
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN 718 CAYMAN GT4',
+    'WP0ZZZ98ZNS27',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    44047891
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN',
+    'WP0ZZZ98ZNS27',
+    'AT',
+    '2WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    39232428
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911GT3',
+    'WP0ZZZ99ZNS26',
+    'AT',
+    '2WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    52020363
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911GT3 TOURING PACKAGE',
+    'WP0ZZZ99ZPS26',
+    'MT',
+    '2WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    54826568
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'CAYENNE E-HYBRID PLATINUM EDITION',
+    '3LA-E3NF',
+    'AT',
+    '4WD',
+    '4000',
+    'WAGON',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    17738710
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'CAYENNE COUPE CAYENNE TURBO GT COUPE',
+    'WP1ZZZ9YZNDA5',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    45626396
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN 718 CAYMAN GT4 RS',
+    'WP0ZZZ98ZPS27',
+    'MT',
+    '2WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    39976998
+);

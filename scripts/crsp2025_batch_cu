@@ -1,0 +1,500 @@
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    39714443
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER  S/C 5 DOOR 525PS WESTMINSTER',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    38778173
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER  S/C 525PS  5 DOOR  VOGUE SE',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    39394858
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER  S/C 525PS  5 DOOR LWB  VOGUE SE',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    41050473
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER  SPORT SUPER. AUTO. BIO',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    32472728
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER  SPORT SUPER. AUTO.BIO.',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    32143055
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER  SPORT SUPER. DYNAMIC',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    28516659
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER  SPORT SUPER. HSE DYNAMIC',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    28846332
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER  SPORT SUPER. SVR',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    38077158
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER  SPORT SUPER. SVR',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    37747486
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER  SPORT SUPER. SVR CARBON EDITION',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    42857407
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER AUT.BIO SWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    47637656
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER FIFTY   LWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    51099216
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER FIFTY   SWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    48956346
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER HSE SWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    31697998
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER P525 HSE LWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    38505732
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER P525 HSE SWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    34928787
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER P525 WESTMINSTER LWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    38736503
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER P525 WESTMINSTER SWB',
+    NULL,
+    'AUT',
+    'FWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    37417813
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER S/C 5 DOOR  525PS WESTMINSTER',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    38982900
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER S/C 5 DOOR 525PS FIFTY',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    49661775
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER S/C 5 DOOR 525PS WESTMINSTER BLACK',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    39919169
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER S/C 525PS   5 DOOR  VOGUE SE',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    39599585
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER S/C 525PS  5 DOOR AUTOBIOGRAPHY',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    4,
+    'PETROL',
+    46966773
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER S/C 525PS  5 DOOR LWB AUTOBIOGRAPHY',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    4,
+    'PETROL',
+    49014698
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER S/C 525PS 5 DOOR AUTOBIOGRAPHY',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    4,
+    'PETROL',
+    47171500
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER S/C 525PS 5 DOOR VOGUE SE',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    41255199
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER S/C 565PS  5 DOOR DYNAMIC SVAUTOBIOGRAPHY',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    4,
+    'PETROL',
+    57928050
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER S/C 565PS  5 DOOR SVAUTOBIOGRAPHY DYNAMIC',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    4,
+    'PETROL',
+    59383932
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER S/C 565PS 5 DOOR SVAUTOBIOGRAPHY',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    4,
+    'PETROL',
+    68697127
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER S/C 565PS 5 DOOR SVAUTOBIOGRAPHY DYNAMIC BLACK',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    4,
+    'PETROL',
+    59588659
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SPORT  S/C 525PS  5 DOOR AUTO HSE DYNAMIC BLACK',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    31710321
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SPORT  S/C 525PS  5 DOOR AUTOBIOGRAPHY DYNAMIC',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    35124048
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SPORT  S/C 575PS  5 DOOR AUTO SVR',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    41037662
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SPORT S/C 525PS  5 DOOR DYNAMIC HSE',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    30903833
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'LANDROVER',
+    'RANGE ROVER SPORT S/C 525PS  5 DOOR HSE DYNAMIC BLACK',
+    NULL,
+    'AUT',
+    'AWD',
+    '5000',
+    'S/WAGON',
+    NULL,
+    5,
+    'PETROL',
+    31915047
+);

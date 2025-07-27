@@ -1,0 +1,500 @@
+    4712795
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'RVR G',
+    '5BA-GA4W-XTHZ',
+    'CVT',
+    '2WD',
+    '1798',
+    'WAGON',
+    '870',
+    5,
+    'GASOLINE',
+    4376732
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'RVR G',
+    'DBA-GA4W-XTHZ',
+    'CVT',
+    '2WD',
+    '1798',
+    'WAGON',
+    '870',
+    5,
+    'GASOLINE',
+    4104462
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'TOWN BOX',
+    '3BA-DS17W-LHCD5',
+    '4AT',
+    '2WD',
+    '658',
+    'MINVAN',
+    '870',
+    4,
+    'GASOLINE',
+    2982375
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'TOWN BOX G',
+    '3BA-DS17W-LHCD5',
+    '4AT',
+    '4WD',
+    '658',
+    'MINVAN',
+    '920',
+    4,
+    'GASOLINE',
+    2982375
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'TOWN BOX G',
+    '3BA-DS17W-LHCE',
+    'CVT',
+    '2WD',
+    '658',
+    'MINVAN',
+    '1485',
+    4,
+    'GASOLINE',
+    3222146
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'TOWN BOX G',
+    '3BA-DS17W-LHCD4',
+    'CVT',
+    '2WD',
+    '658',
+    'MINVAN',
+    '1485',
+    4,
+    'GASOLINE',
+    2942134
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'TOWN BOX G',
+    'ABA-DS17W-LHCSQ3',
+    '4AT',
+    '2WD',
+    '658',
+    'MINVAN',
+    '1485',
+    4,
+    'GASOLINE',
+    2612324
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'TOWN BOX G',
+    'ABA-DS17W-LHCD2',
+    '4AT',
+    '2WD',
+    '658',
+    'MINVAN',
+    '1525',
+    4,
+    'GASOLINE',
+    2498307
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI',
+    'TRITON GSR',
+    '3DF-LC2T-JLPRD',
+    '6AT',
+    '4WD',
+    '2439',
+    'D/CAB',
+    '1515',
+    5,
+    'DIESEL',
+    9433275
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER',
+    'FBAV0 -',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    7210621
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER',
+    'FEBM0-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    4,
+    'DIESEL',
+    12206973
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER',
+    'FBA60-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    7751206
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER',
+    'FBA20-',
+    'MT',
+    '2WD',
+    '2990',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    6378318
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER',
+    'FEA20-',
+    'AT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    5024999
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER',
+    'FEA2W-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    6157841
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER',
+    'FEB90-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    8020579
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER',
+    'FE73DY-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    5967913
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER',
+    'FEB50-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    7803532
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER',
+    'FBA30-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    8240241
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER',
+    'FDA00-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    7645876
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER ALL LOW FLOOR',
+    'FBA20-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    6666658
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER ALL LOW FLOOR',
+    'FBAV0-',
+    'AT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    8622560
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER ALL LOW FLOOR DUMP',
+    'FBA30-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    7361335
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER ALL LOW FLOOR DUMP',
+    'FBA60-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    7607036
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER ALL LOW FLOOR DUMP',
+    'FBA60-',
+    'AT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    7706879
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER BASEGRADE',
+    'FBA20-',
+    'AT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    4694823
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER DOUBLE CAB',
+    'FBA00-',
+    'AT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    4,
+    'DIESEL',
+    8220204
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER DOUBLE CAB',
+    'FDA00-',
+    'AT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    4,
+    'DIESEL',
+    13159564
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER DOUBLE CAB ALL LOW FLOOR',
+    'FBA20-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    4,
+    'DIESEL',
+    7161438
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER DOUBLE CAB ALL LOW FLOOR',
+    'FBA20-',
+    'AT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    4,
+    'DIESEL',
+    7226874
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER DOUBLE CAB LONG',
+    'FEB50-',
+    'AT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    4,
+    'DIESEL',
+    11937630
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER DOUBLE CAB LONG ALL LOW FLOOR',
+    'FBA00-',
+    'AT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    4,
+    'DIESEL',
+    9698771
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER DUMP',
+    'FBA30-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    9378149
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER DUMP',
+    'FEBM0-',
+    'MT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    14339221
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER DUMP',
+    'FBA60-',
+    'AT',
+    '2WD',
+    '3000',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    7475953
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MITSUBISHI FUSO',
+    'CANTER GUTS',
+    'SZ5F24-',
+    'MT',
+    '2WD',
+    '3000',

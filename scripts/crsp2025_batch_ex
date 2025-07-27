@@ -1,0 +1,500 @@
+    'MINIVAN',
+    '1265',
+    4,
+    'GASOLINE',
+    3187442
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SOLIO HYBRID MZ',
+    '5AA-MSA37S/FBZB-J',
+    'CVT',
+    '2WD',
+    '1242',
+    'MINIVAN',
+    '1275',
+    5,
+    'GASOLINE',
+    3391829
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SOLIO HYBRID MZ',
+    'DAA-MA36S/FBZB-J2',
+    'CVT',
+    '2WD',
+    '1242',
+    'MINIVAN',
+    '1225',
+    5,
+    'GASOLINE',
+    3034856
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SOLIO HYBRID SV',
+    '5AA-M47S/FBZH-J2',
+    '5AGS',
+    '2WD',
+    '1242',
+    'MINIVAN',
+    '1325',
+    5,
+    'GASOLINE',
+    3845549
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SOLIO HYBRID SZ',
+    '5AA-MA47S/FBZH-J2',
+    'CVT',
+    '4WD',
+    '1242',
+    'MINIVAN',
+    '1325',
+    5,
+    'GASOLINE',
+    3845549
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SOLIO HYBRID SV',
+    '5AA-MA47S/FSV-JR2',
+    '5AGS',
+    '2WD',
+    '1242',
+    'MINIVAN',
+    '1325',
+    5,
+    'GASOLINE',
+    3886125
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SOLIO HYBRID SZ',
+    'DAA-MA46S/FBZH-JM2',
+    '5AGS',
+    '2WD',
+    '1242',
+    'MINIVAN',
+    '1265',
+    5,
+    'GASOLINE',
+    3489246
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SOLIO HYBRID SZ',
+    'DAA-MAA46/FBZH',
+    '5AGS',
+    '2WD',
+    '1242',
+    'MINIVAN',
+    '1265',
+    4,
+    'GASOLINE',
+    3212673
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA',
+    'DAA-MK42S/ZBKB-JRA2',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '890',
+    4,
+    'GASOLINE',
+    2842627
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA BASE XF',
+    '5BD-MK33V/ZGXE-2',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1180',
+    4,
+    'GASOLINE',
+    2724161
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA BASE XF',
+    '5BD-MK33V/ZGXE',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1180',
+    4,
+    'GASOLINE',
+    2595054
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA CUSTOM HYBRID XS',
+    '5AA-MKA94S/ZSXB',
+    'CVT',
+    '2WD',
+    '657',
+    'VAN',
+    '1130',
+    4,
+    'GASOLINE',
+    3345720
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA CUSTOM  HYBRID XS',
+    '4AA-MK53S/ZTXB-J2',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1120',
+    4,
+    'GASOLINE',
+    3061516
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA CUSTOM HYBRID XS',
+    '4AA-MK53S/ZTXB-3',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1120',
+    4,
+    'GASOLINE',
+    3157592
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA CUSTOM HYBRID XS TURBO',
+    'DAA-MK53S/ZTXB-J',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1120',
+    4,
+    'GASOLINE',
+    2774965
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA CUSTOM XS TURBO',
+    'DAA-MK53S/ZTXB-J',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1120',
+    4,
+    'GASOLINE',
+    2774965
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA CUSTOM Z TURBO',
+    'DAA-MK42S/ZTZB-A',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1110',
+    4,
+    'GASOLINE',
+    2489401
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA GEAR HYBRID GEAR XZ TURBO',
+    'DAA-MK53S/ZTZB-J',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1110',
+    4,
+    'GASOLINE',
+    2699513
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA GEAR HYBRID XZ',
+    '5AA-MK94S/ZSZB',
+    'CVT',
+    '2WD',
+    '657',
+    'VAN',
+    '1120',
+    4,
+    'GASOLINE',
+    3273788
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA GEAR HYBRID XZ TURBO',
+    '4AA-MK53S/ZTZB-3',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1110',
+    4,
+    'GASOLINE',
+    3022952
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA GEAR HYBRID XZ TURBO',
+    '4AA-MK53S/ZTZB-JK2',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1110',
+    4,
+    'GASOLINE',
+    2820237
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA GEAR XZ',
+    '4AA-MK53S/ZTXB-J2',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1110',
+    4,
+    'GASOLINE',
+    2958398
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID',
+    '5AA-MK53A/ZBKB-JHR2',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1595',
+    4,
+    'GASOLINE',
+    2927546
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID X',
+    '5AA-MK53S/ZBXB-3',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1090',
+    4,
+    'GASOLINE',
+    2571077
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID X',
+    '5AA-MK53S/ZBKB-HR3',
+    '4AT',
+    '4WD',
+    '658',
+    'VAN',
+    '1595',
+    4,
+    'GASOLINE',
+    2940960
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID X',
+    '5AA-MKA94S/ZBXB',
+    'CVT',
+    '2WD',
+    '657',
+    'VAN',
+    '1100',
+    4,
+    'GASOLINE',
+    2858801
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID X',
+    '5BA-MK94S/ZBKB-R',
+    'CVT',
+    '2WD',
+    '657',
+    'VAN',
+    '1120',
+    4,
+    'GASOLINE',
+    3195821
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID X',
+    '5AA-MK53S/ZBXB-J2',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1090',
+    4,
+    'GASOLINE',
+    2556322
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID X',
+    '5A-MK53S/ZBKB-JHR2',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1020',
+    4,
+    'GASOLINE',
+    2772115
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID X',
+    '5AA-MK53S/ZBXB-JK2',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1090',
+    4,
+    'GASOLINE',
+    2458066
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID X',
+    'DAA-MK53S/ZBXB-J',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1090',
+    4,
+    'GASOLINE',
+    2280334
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID X',
+    'DAA-MK53S/ZBXB-J',
+    '4AT',
+    '2WD',
+    '658',
+    'VAN',
+    '1090',
+    4,
+    'GASOLINE',
+    2280334
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID X',
+    'DAA-MK53S/ZBKB-JHR',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1040',
+    4,
+    'GASOLINE',
+    2912456
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID X',
+    'DAA-MK53A/ZBKB-JHR',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1595',
+    4,
+    'GASOLINE',
+    2912456
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA HYBRID XS TURBO',
+    '4AA-MK53S/ZTXTB-JK2',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1120',
+    4,
+    'GASOLINE',
+    2929223
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SPACIA X',
+    'DAA-MK42S/ZBXB-JA2',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1070',
+    4,
+    'GASOLINE',
+    2270737
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SUPER CARRY X',

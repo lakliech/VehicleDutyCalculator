@@ -1,0 +1,500 @@
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    4704109
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KAMIQ SELECT 85TSI',
+    '85TSI',
+    '7AT',
+    '2WD',
+    '1000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    5430613
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KAMIQ SELECT 85TSI',
+    '85TSI',
+    '7AT',
+    '2WD',
+    '1000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    5430613
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KAMIQ SIGNATURE 110TSI',
+    '110TSI',
+    '7AT',
+    '2WD',
+    '1500',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    6538530
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KAMIQ STYLE 85TSI',
+    '85TSI',
+    '7AT',
+    '4WD',
+    '1000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    5485100
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KAROQ (BASE)',
+    NULL,
+    '8AT',
+    '4WD',
+    '1400',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    5957328
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KAROQ (BASE)',
+    NULL,
+    '8AT',
+    '2WD',
+    '1400',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    6602925
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KAROQ SPORTLINE  110TSI',
+    '110TSI',
+    '8AT',
+    '2WD',
+    '1400',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    7345940
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KAROQ SPORTLINE  110TSI',
+    '110TSI',
+    '8AT',
+    '2WD',
+    '1400',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    7593611
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KAROQ STYLE 110TSI',
+    '110TSI',
+    '8AT',
+    '2WD',
+    '1400',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    6738319
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KODIAQ RS  180TSI',
+    '180TSI',
+    '7AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    10838109
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KODIAQ RS  180TSI',
+    '180TSI',
+    '7AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    12715010
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KODIAQ SELECT',
+    NULL,
+    '7AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    9905063
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KODIAQ SPORTLINE',
+    NULL,
+    '7AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    10625562
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KODIAQ SPORTLINE  132TSI',
+    '132TSI',
+    '7AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    10409412
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'KODIAQ STYLE  132TSI',
+    '132TSI',
+    '7AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    9598851
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'OCTAVIA RS 180TSI',
+    '180TSI',
+    '7AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    8718040
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'OCTAVIA RS 180TSI',
+    '180TSI',
+    '7AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    8935991
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'OCTAVIA RS 180TSI',
+    '180TSI',
+    '7AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    9472763
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'OCTAVIA RS 195TSI',
+    '195TSI',
+    '7AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    9946491
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'OCTAVIA RS 195TSI',
+    '195TSI',
+    '7AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    10355375
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'OCTAVIA SELECT 110TSI',
+    '110TSI',
+    '8AT',
+    '4WD',
+    '1400',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    5812027
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'OCTAVIA SELECT 110TSI',
+    '110TSI',
+    '8AT',
+    '4WD',
+    '1400',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    6536879
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'OCTAVIA SPORTLINE 110TSI',
+    '110TSI',
+    '8AT',
+    '4WD',
+    '1400',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    7345940
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'OCTAVIA SPORTLINE 110TSI',
+    '110TSI',
+    '8AT',
+    '2WD',
+    '1400',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    6701993
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'OCTAVIA STYLE 110TSI',
+    '110TSI',
+    '8AT',
+    '4WD',
+    '1400',
+    'WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    6229766
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'OCTAVIA STYLE 110TSI',
+    '110TSI',
+    '8AT',
+    '4WD',
+    '1400',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    6701993
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'SCALA AMBITION 85TSI',
+    '85TSI',
+    '7AT',
+    '4WD',
+    '1000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4885735
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'SCALA MONTE CARLO 110TSI',
+    '110TSI',
+    '7AT',
+    '2WD',
+    '1500',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    6999199
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'SCALA MONTE CARLO 110TSI',
+    '110TSI',
+    '7AT',
+    '4WD',
+    '1500',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    6999199
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'SCALA SELECT 85TSI',
+    '85TSI',
+    '7AT',
+    '4WD',
+    '1000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL/ELECTRIC',
+    5364567
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'SCALA SELECT 85TSI',
+    '85TSI',
+    '7AT',
+    '2WD',
+    '1000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    5364567
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'SCALA SIGNATURE 110TSI',
+    '110TSI',
+    '7AT',
+    '4WD',
+    '1500',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    6284254
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'SUPERB SPORTLINE 206TSI',
+    '206TSI',
+    '7AT',
+    '4WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    11814386
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SKODA',
+    'SUPERB SPORTLINE 206TSI',
+    '206TSI',
+    '7AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    12120598
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'BRZ  GT',
+    'DBA-ZC6',
+    'CVT',
+    '4WD',
+    '1998',
+    'COUPE',
+    '1470',
+    4,
+    'GASOLINE',
+    5361999
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUBARU',
+    'BRZ S',

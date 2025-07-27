@@ -1,0 +1,500 @@
+    '2WD',
+    '658',
+    'VAN',
+    '200',
+    NULL,
+    'GASOLINE',
+    1253545
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CANBUS',
+    '3BA-LA800S-GBVF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1140',
+    4,
+    'GASOLINE',
+    2655918
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CANBUS G',
+    '5BA-LA800S-GBVF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1140',
+    4,
+    'GASOLINE',
+    2414471
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CANBUS G"MAKE SA" III',
+    'DBA-LAS8000S-GBVF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1140',
+    4,
+    'GASOLINE',
+    2397704
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CANBUS STRIPES G',
+    '5BA-LA850S-GBPF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1100',
+    4,
+    'GASOLINE',
+    2803469
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CANBUS THEORY G',
+    '5BA-LA850S-GBPZ',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1120',
+    4,
+    'GASOLINE',
+    3006352
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CANBUSV G',
+    '5BA-LA800S-GBVF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1140',
+    4,
+    'GASOLINE',
+    2414471
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CUSTOM RS',
+    '3BA-LA150S-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1070',
+    4,
+    'GASOLINE',
+    2523458
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CUSTOM RS',
+    'DBA-LA150S-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1070',
+    4,
+    'GASOLINE',
+    2523458
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CUSTOM RS"HYPER SA II"',
+    'DBA-LA150S-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1070',
+    4,
+    'GASOLINE',
+    2523458
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CUSTOM X',
+    '5BA-LA150S-GBVF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1100',
+    4,
+    'GASOLINE',
+    2538548
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CUSTOM X',
+    'DBA-LA150S-GBVF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1100',
+    4,
+    'GASOLINE',
+    2689453
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CUSTOM X"LIMITED SA III"',
+    'DBA-LA150S-GBVF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1100',
+    4,
+    'GASOLINE',
+    2959404
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE CUSTOM"SA III"',
+    '5BA-LA150S-GBVF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1100',
+    4,
+    'GASOLINE',
+    2538548
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE L',
+    '5BA-LA150S-GBMF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1090',
+    4,
+    'GASOLINE',
+    2203205
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE L',
+    'DBA-LA150S-GBMF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1090',
+    4,
+    'GASOLINE',
+    2203205
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE L "SA III"',
+    '5BA-LA650-GBMF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1090',
+    4,
+    'GASOLINE',
+    2206559
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE L"SA III"',
+    'DBA-LA150S-GBMF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1090',
+    4,
+    'GASOLINE',
+    2196498
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE RS',
+    '3BA-LA150S-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1070',
+    4,
+    'GASOLINE',
+    2775804
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE X',
+    '5BA-LA50S-GBGF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1040',
+    4,
+    'GASOLINE',
+    1978525
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE X',
+    'DBA-LA150S-GBGF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1040',
+    4,
+    'GASOLINE',
+    1978525
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'MOVE x"SA II"',
+    'DBA-LA150S-GBGF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1040',
+    4,
+    'GASOLINE',
+    1978525
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'ROCKY G',
+    '5BA-A200S-GBSV',
+    'CVT',
+    '2WD',
+    '996',
+    'WAGON',
+    '1255',
+    5,
+    'GASOLINE',
+    3356786
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'ROCKY G',
+    '5BA-A299S-GBSV',
+    'CVT',
+    '2WD',
+    '996',
+    'WAGON',
+    '1255',
+    5,
+    'GASOLINE',
+    3051623
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'ROCKY PREMIUM G',
+    '5BA-A201S-GBSF',
+    'CVT',
+    '2WD',
+    '1196',
+    'WAGON',
+    '1255',
+    5,
+    'GASOLINE',
+    3467449
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'ROCKY PREMIUM G HEV',
+    '5AA-A202S-GBSH',
+    'CVT',
+    '2WD',
+    '1196',
+    'WAGON',
+    '1345',
+    5,
+    'GASOLINE',
+    3935253
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'TAFT 2',
+    '2BA-LA900S-GBGF',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1050',
+    4,
+    'GASOLINE',
+    2489924
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'TAFT G',
+    '5BA-LA900S-GBGF',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1050',
+    4,
+    'GASOLINE',
+    2489924
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'TAFT G',
+    '6BA-LA900S-GBGF',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1050',
+    4,
+    'GASOLINE',
+    2263567
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'TANT X',
+    '6BA-LA650S-GBLF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '950',
+    4,
+    'GASOLINE',
+    2783349
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'TANTO',
+    '3BA-LA650S-GBLF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1170',
+    4,
+    'GASOLINE',
+    2800116
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'TANTO  SLOPER X',
+    'DBA-LA600S-GBLF',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1200',
+    4,
+    'GASOLINE',
+    2682746
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'TANTO CUSTOM RS',
+    '5BA-LA650S-GBMZ',
+    '4AT',
+    '2WD',
+    '658',
+    'VAN',
+    '1190',
+    4,
+    'GASOLINE',
+    3336665
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'TANTO CUSTOM RS',
+    '5BA-LA650S-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1180',
+    4,
+    'GASOLINE',
+    3403734
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'TANTO CUSTOM RS',
+    'DBA-LA600S-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1180',
+    4,
+    'GASOLINE',
+    2716280
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'DAIHATSU',
+    'TANTO CUSTOM RS "TOP EDITION SA II"',
+    'DBA-LA600S-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1180',
+    4,
+    'GASOLINE',
+    2716280
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (

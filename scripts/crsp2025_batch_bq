@@ -1,0 +1,500 @@
+    5200745
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 (BASE)',
+    '(BASE)',
+    'AUT',
+    NULL,
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3801857
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 (BASE)',
+    '(BASE)',
+    'MAN',
+    NULL,
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    3509406
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 (BASE)',
+    '(BASE)',
+    'AUT',
+    NULL,
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    4240532
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 ACTIVE',
+    'ACTIVE',
+    'AUT',
+    NULL,
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4021194
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 ELITE',
+    'ELITE',
+    'AUT',
+    NULL,
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4503738
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 ELITE',
+    'ELITE',
+    'AUT',
+    NULL,
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    4898546
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N',
+    'N',
+    'MAN',
+    NULL,
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    7311263
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N',
+    'N',
+    'AUT',
+    NULL,
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    7311263
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N PREMIUM',
+    'N PREMIUM',
+    'MAN',
+    NULL,
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    NULL,
+    7823051
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N PREMIUM',
+    'N PREMIUM',
+    'MAN',
+    NULL,
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    7194282
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N PREMIUM',
+    'N PREMIUM',
+    'AUT',
+    NULL,
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    NULL,
+    7823051
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N PREMIUM',
+    'N PREMIUM',
+    'MAN',
+    NULL,
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    7603713
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N PREMIUM',
+    'N PREMIUM',
+    'AUT',
+    NULL,
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    7603713
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N PREMIUM WITH SUNROOF',
+    'N PREMIUM WITH SUNROOF',
+    'MAN',
+    NULL,
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    8115501
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N PREMIUM WITH SUNROOF',
+    'N PREMIUM WITH SUNROOF',
+    'AUT',
+    NULL,
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    8115501
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N PREMIUM WITH SUNROOF',
+    'N PREMIUM WITH SUNROOF',
+    'MAN',
+    NULL,
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    7896164
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N PREMIUM WITH SUNROOF',
+    'N PREMIUM WITH SUNROOF',
+    'AUT',
+    NULL,
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    7896164
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 PREMIUM',
+    'PREMIUM',
+    'AUT',
+    NULL,
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    5629672
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I40 ACTIVE TOURER',
+    'ACTIVE TOURER',
+    'AUT',
+    NULL,
+    '2000',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    5307977
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I40 PREMIUM TOURER',
+    'PREMIUM TOURER',
+    'AUT',
+    NULL,
+    '2000',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    6594759
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA (BASE)',
+    'KONA (BASE)',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    4752321
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA PREMIUM',
+    'KONA PREMIUM',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    5775897
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA PREMIUM SUNROOF',
+    'KONA PREMIUM SUNROOF',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    5995235
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON (FWD)',
+    '(FWD)',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    5717407
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON ELITE (AWD)',
+    'ELITE (AWD)',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    6821408
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON ELITE N LINE (AWD)',
+    'ELITE N LINE (AWD)',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    7186971
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON HIGHLANDER (AWD)',
+    'HIGHLANDER (AWD)',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    7844985
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON HIGHLANDER (AWD) NO SRF',
+    'HIGHLANDER (AWD) NO SRF',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    7625647
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON HIGHLANDER (FWD)',
+    'HIGHLANDER (FWD)',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    6967633
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON HIGHLANDER (FWD) NO SRF',
+    'HIGHLANDER (FWD) NO SRF',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    6748295
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON HIGHLANDER N LINE (AWD)',
+    'HIGHLANDER N LINE (AWD)',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    8064323
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON HIGHLANDER N LINE (AWD) NO SRF',
+    'HIGHLANDER N LINE (AWD) NO SRF',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'DIESEL',
+    7844985
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON HIGHLANDER N LINE (FWD)',
+    'HIGHLANDER N LINE (FWD)',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    7186971
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON HIGHLANDER N LINE (FWD) NO SRF',
+    'HIGHLANDER N LINE (FWD) NO SRF',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    6967633
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON N LINE (FWD)',
+    'N LINE (FWD)',
+    'AUT',
+    NULL,
+    '2000',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    5797831
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON PREMIUM (AWD)',
+    'PREMIUM (AWD)',
+    'AUT',
+    NULL,
+    '2000',

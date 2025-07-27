@@ -1,0 +1,500 @@
+    5,
+    'ELECTRIC',
+    12987564
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'NOAH CROWN Z',
+    'ZBA-KZSM30-CEDGS',
+    'CVT',
+    '2WD',
+    '0',
+    'VAN',
+    '1645',
+    5,
+    'ELECTRIC',
+    12757016
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'NOAH G (HYBRID)',
+    '6AA-ZWR92W-APXGB',
+    'CVT',
+    '2WD',
+    '1797',
+    'VAN',
+    '2055',
+    7,
+    'GASOLINE',
+    6048404
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'NOAH HYBRID Si',
+    '6AA-ZWR80W-APXSB',
+    'CVT',
+    '2WD',
+    '1797',
+    'VAN',
+    '2005',
+    5,
+    'GASOLINE',
+    5846325
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'NOAH HYBRID Si',
+    'DAA-ZWR80W-APXSB',
+    'CVT',
+    '2WD',
+    '1797',
+    'VAN',
+    '2005',
+    7,
+    'GASOLINE',
+    5314841
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'NOAH S-Z (HYBRID)',
+    '6AA-ZWR90W-APXRB',
+    'CVT',
+    '2WD',
+    '1797',
+    'VAN',
+    '2055',
+    7,
+    'GASOLINE',
+    6409946
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'NOAH WELCAB G HYBRID',
+    '6AA-ZWR92W-APXGB',
+    'CVT',
+    '2WD',
+    '1797',
+    'VAN',
+    '2055',
+    5,
+    'GASOLINE',
+    6048404
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'NOAH WELCAB S-G HYBRID',
+    '6AA-ZWR90W-APXSB-W',
+    'CVT',
+    '2WD',
+    '1797',
+    'VAN',
+    '2065',
+    5,
+    'GASOLINE',
+    5976795
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'NOAH WELCAB X',
+    '6BA-MZRAW-VTRGAB',
+    'CVT',
+    '2WD',
+    '1986',
+    'VAN',
+    '2025',
+    7,
+    'GASOLINE',
+    5023162
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'NOAH X',
+    'DBA-ZRR80G-VTRFAE',
+    'CVT',
+    '2WD',
+    '1986',
+    'VAN',
+    '2025',
+    8,
+    'GASOLINE',
+    4665874
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'NOAH X',
+    '3BA-ZRR80G-VTRFAE',
+    'CVT',
+    '2WD',
+    '1986',
+    'VAN',
+    '2025',
+    7,
+    'GASOLINE',
+    4721004
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PASSO MODA',
+    '5BA-M700A-GBSE(G)',
+    'CVT',
+    '2WD',
+    '996',
+    'HATCHBACK',
+    '1185',
+    5,
+    'GASOLINE',
+    2632444
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PASSO MODA G',
+    '5BA-M700A-GBSE(G)',
+    '8AT',
+    '2WD',
+    '996',
+    'HATCHBACK',
+    '1185',
+    5,
+    'GASOLINE',
+    2632444
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PASSO MODA G',
+    '5BA-M700A-GBSE(G)',
+    'CVT',
+    '2WD',
+    '998',
+    'HATCHBACK',
+    '1185',
+    5,
+    'GASOLINE',
+    2632444
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PASSO X G PACKAGE',
+    'DBA-M700A-GBNE(G)',
+    'CVT',
+    '2WD',
+    '996',
+    'HATCHBACK',
+    '1185',
+    5,
+    'GASOLINE',
+    2253917
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS EPOCH G',
+    '5BA-LA350A-GBPF',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '890',
+    5,
+    'GASOLINE',
+    2065714
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS EPOCH G',
+    'DBA-LA350A-GBPF',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '890',
+    4,
+    'GASOLINE',
+    1877922
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS EPOCH G"SA "III',
+    '5BA-LA350A-GBPF',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '890',
+    4,
+    'GASOLINE',
+    2065714
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS EPOCH G"SA "III',
+    'DBA-LA350-GBPF',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '890',
+    4,
+    'GASOLINE',
+    1883871
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS G',
+    '5BA-LA350A-GBPF',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '890',
+    4,
+    'GASOLINE',
+    1877922
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS G TURBO',
+    '3BA-LA250A-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1060',
+    4,
+    'GASOLINE',
+    2355786
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS JOY  F G TURBO "SA III"',
+    '3BA-LA20A-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1069',
+    5,
+    'GASOLINE',
+    2590527
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS JOY C G',
+    'DBA-LA250A-GBGZ',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1060',
+    4,
+    'GASOLINE',
+    2355786
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS JOY C G TURBO"SA III"',
+    'DBA-LA250A-GBGZ',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1060',
+    4,
+    'GASOLINE',
+    2363249
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS JOY F G',
+    '3BA-LA250A-GBVZ(P)',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1060',
+    5,
+    'GASOLINE',
+    2702028
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS JOY F G',
+    'DBA-LA250A-GBGZ',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1060',
+    4,
+    'GASOLINE',
+    2355786
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS MEGA G',
+    'DBA-LA700A-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1240',
+    4,
+    'GASOLINE',
+    2598910
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS MEGA G TURBO',
+    '3BA-LA700A-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1240',
+    4,
+    'GASOLINE',
+    2598910
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS MEGA G TURBO "SA II"',
+    'DBA-LA700A-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1240',
+    4,
+    'GASOLINE',
+    2607143
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS MEGA TURBO "SA III"',
+    '3BA-LA700A-GBVZ',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1240',
+    5,
+    'GASOLINE',
+    2858801
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS TRUCK EXTRA',
+    'EBD-S510U-TMNF',
+    '5MT',
+    '4WD',
+    '658',
+    'TRUCK',
+    '1270',
+    2,
+    'DIESEL',
+    1827621
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS TRUCK EXTRA',
+    'EBD-S510U-TMNF',
+    '5MT',
+    '4WD',
+    '658',
+    'TRUCK',
+    '1270',
+    2,
+    'GASOLINE',
+    1827621
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS TRUCK EXTRA',
+    '3BD-S510U-TBNF',
+    'CVT',
+    '4WD',
+    '658',
+    'TRUCK',
+    '1320',
+    2,
+    'GASOLINE',
+    2250153
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS TRUCK EXTRA',
+    '3BD-S510U-TMNF',
+    '5MT',
+    '4WD',
+    '658',
+    'TRUCK',
+    '1270',
+    2,
+    'GASOLINE',
+    2038049
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS VAN',
+    '3BD-S321M-ZQGZ',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1270',
+    4,
+    'GASOLINE',
+    2129430
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS VAN',
+    'EBD-S321M-ZQGZ',
+    '4AT',
+    '2WD',
+    '658',
+    'VAN',
+    '1270',
+    4,
+    'DIESEL',
+    2112662
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'PIXIS VAN',
+    '3BDS700M-ZBGZ',
+    'CVT',

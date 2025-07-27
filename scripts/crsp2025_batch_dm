@@ -1,0 +1,500 @@
+    'MERCEDES',
+    'EQS EQS450+',
+    'ZAA-297123',
+    'AT',
+    '2WD',
+    'EV',
+    'SUV',
+    NULL,
+    5,
+    'ELECTRIC',
+    17503571
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'EQS EQS450+ AMG LINE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    'EV',
+    'SUV',
+    NULL,
+    5,
+    'ELECTRIC',
+    12425007
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'EQS SUV EQS450 4MATIC SUV AMG LINE PACKAGE',
+    NULL,
+    'AT',
+    '4WD',
+    'EV',
+    'SUV',
+    NULL,
+    5,
+    'ELECTRIC',
+    17177275
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'EQS SUV EQS580 4MATIC SUV SPORT',
+    'ZAA-296644',
+    'AT',
+    '4WD',
+    'EV',
+    'SUV',
+    NULL,
+    5,
+    'ELECTRIC',
+    22555342
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'G-CLASS G350D',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'WAGON',
+    NULL,
+    6,
+    'DIESEL',
+    28557822
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'G-CLASS G350D AMG LINE',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'WAGON',
+    NULL,
+    6,
+    'DIESEL',
+    46648571
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'G-CLASS G350D HERITAGE EDITION',
+    'LDA-463348',
+    'AT',
+    '4WD',
+    '3000',
+    'WAGON',
+    NULL,
+    6,
+    'DIESEL',
+    47409410
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'G-CLASS G400D',
+    '3DA-463350',
+    'AT',
+    '4WD',
+    '3000',
+    'WAGON',
+    NULL,
+    6,
+    'DIESEL',
+    47988202
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'G-CLASS G400D AMG LINE',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    38596700
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'G-CLASS G400D MANUFAKTUR EDITION',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    35230838
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'G-CLASS G450D LAUNCH EDITION',
+    '7CA-465310C',
+    'AT',
+    '4WD',
+    '3000',
+    'WAGON',
+    NULL,
+    5,
+    'DIESEL',
+    43249699
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'G-CLASS G550 AMG LINE',
+    NULL,
+    'AT',
+    '4WD',
+    '4000',
+    'WAGON',
+    NULL,
+    5,
+    'GASOLINE',
+    52522112
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLA-CLASS GLA180',
+    NULL,
+    'AT',
+    '2WD',
+    '1400',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    9709587
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLA-CLASS GLA180 AMG LINE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '1400',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    9579888
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLA-CLASS GLA200D 4MATIC',
+    '3DA-247713M',
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    12464918
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLA-CLASS GLA200D 4MATIC',
+    '3DA-247713M',
+    'AT',
+    '2WD',
+    '1400',
+    'SUV',
+    NULL,
+    7,
+    'GASOLINE',
+    8131078
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLA-CLASS GLA200D 4MATIC AMG LINE',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    12624092
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLA-CLASS GLA200D 4MATIC AMG LINE PACKAGE',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    7,
+    'DIESEL',
+    11688974
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLA-CLASS GLA220 4MATIC',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    7724209
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLA-CLASS GLA220 4MATIC',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    7,
+    'DIESEL',
+    9381165
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB180',
+    NULL,
+    'AT',
+    '4WD',
+    '1400',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    9303854
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB180',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    7,
+    'GASOLINE',
+    7152045
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB180 AMG LEATHER EXCLUSIVE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '1400',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    12040544
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB180 AMG LEATHER EXCLUSIVE PACKAGE',
+    NULL,
+    'AT',
+    '4WD',
+    '1400',
+    'SUV',
+    NULL,
+    7,
+    'GASOLINE',
+    7896790
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB180 AMG LINE',
+    NULL,
+    'AT',
+    '4WD',
+    '1400',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    13601477
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB180 AMG LINE',
+    NULL,
+    'AT',
+    '2WD',
+    '1400',
+    'SUV',
+    NULL,
+    7,
+    'GASOLINE',
+    10219598
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB180 AMG LINE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '1400',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    11948583
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB180 AMG LINE PACKAGE',
+    NULL,
+    'AT',
+    '4WD',
+    '1400',
+    'SUV',
+    NULL,
+    7,
+    'GASOLINE',
+    11544463
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB200D',
+    '3DA-247612M',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    9716752
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB200D',
+    '3DA-247612M',
+    'AT',
+    '2WD',
+    '1400',
+    'SUV',
+    NULL,
+    7,
+    'GASOLINE',
+    10141544
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB200D 4MATIC',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    13319402
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB200D 4MATIC',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    7,
+    'DIESEL',
+    8996993
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB200D 4MATIC AMG LEATHER EXCLUSIVE PACKAGE',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    7,
+    'DIESEL',
+    12332779
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB200D 4MATIC AMG LINE',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    7,
+    'DIESEL',
+    14253883
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB200D 4MATIC AMG LINE PACKAGE',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'SUV',
+    NULL,
+    7,
+    'DIESEL',
+    13329235
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'MERCEDES',
+    'GLB GLB200D 4MATIC EDITION BLACK STARS',
+    '3DA-247613M',
+    'AT',
+    '2WD',
+    '2000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',

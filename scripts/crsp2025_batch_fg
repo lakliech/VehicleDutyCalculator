@@ -1,0 +1,500 @@
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX Z',
+    '3DF-GUN125-DTTHX',
+    '6AT/CVT',
+    '4WD',
+    '2393',
+    'D/CAB',
+    '2875',
+    5,
+    'DIESEL',
+    6780221
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX Z',
+    'QDF-GUN125-DTTHH',
+    '6AT',
+    '4WD',
+    '2393',
+    'D/CAB',
+    '2855',
+    5,
+    'DIESEL',
+    6074603
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX Z',
+    'GDF-GUN125-DTTHH',
+    '6AT',
+    'AWD',
+    '2393',
+    'D/CAB',
+    '2855',
+    5,
+    'DIESEL',
+    6071068
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX Z',
+    'QDF-GUN125-DTTHH',
+    '6AT',
+    '4WD',
+    '2393',
+    'D/CAB',
+    '2855',
+    5,
+    'DIESEL',
+    6536049
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HYBRID F / VITZ HYBRID F',
+    'DAA-NHP130-VTPBXN',
+    'CVT',
+    '2WD',
+    '1496',
+    'HATCHBACK',
+    '1160',
+    5,
+    'GASOLINE',
+    3451521
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ISIS PLATANA "V-SELECTION" 2.0L',
+    'DBA-ZGM11W-AWXSP(U)',
+    'CVT',
+    '2WD',
+    '1986',
+    'VAN',
+    '1855',
+    7,
+    'GASOLINE',
+    4071271
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'JPN TAXI',
+    'DAA-NTP10-AHXGN(K)',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1685',
+    5,
+    'GASOLINE',
+    5432560
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'JPN TAXI',
+    'DAA-NTP10-AHXGN',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1685',
+    5,
+    'GASOLINE',
+    5432560
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'JPN TAXI',
+    '6AA-NTP10-AHXGN(K)',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1685',
+    5,
+    'GASOLINE',
+    5975817
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'JPN TAXI TAKUMI',
+    '6AA-NTP10-AHXGN',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1685',
+    5,
+    'GASOLINE',
+    5975817
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'JPN TAXI TAKUMI',
+    'DAA-NTP10-AHXGN',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1685',
+    5,
+    'GASOLINE',
+    5449769
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LAND CRUISER 200 VXR 1VD',
+    'VDJ200R-GNTVZ',
+    'AT',
+    '4WD',
+    '4500',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    20160000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LAND CRUISER PRADO TZ-G',
+    '3DA-GDJ151W-GKTZY',
+    '6AT/CVT',
+    '4WD',
+    '2754',
+    'SUV',
+    '2715',
+    7,
+    'DIESEL',
+    9681289
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LAND CRUISER PRADO TZ-G',
+    'LDA-GDJ151W-GKTZY',
+    '6AT',
+    '4WD',
+    '2754',
+    'SUV',
+    '2715',
+    7,
+    'DIESEL',
+    9367394
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LAND CRUISER PRADO TZ-G',
+    'LDA-GDJ151W-GKTZY',
+    '6AT',
+    'AWD',
+    '2754',
+    'SUV',
+    '2705',
+    7,
+    'DIESEL',
+    9397068
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LAND CRUISER ZX',
+    '3BA-VJA300W-GNUZZ',
+    '5MT',
+    '4WD',
+    '3444',
+    'SUV',
+    '2885',
+    7,
+    'GASOLINE',
+    13770032
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LAND CRUISER ZX',
+    '3BA-VJA300W-GNUZZ',
+    '10AT',
+    '4WD',
+    '3444',
+    'SUV',
+    '2885',
+    7,
+    'GASOLINE',
+    13770032
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LAND CRUISER ZX',
+    '3BA-VJA300W-GNUZZ',
+    'CVT',
+    '4WD',
+    '3444',
+    'SUV',
+    '2885',
+    5,
+    'GASOLINE',
+    13770032
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LAND CRUISER ZX',
+    '3BA-URJ202W-GNTVK',
+    '6AT',
+    '4WD',
+    '4608',
+    'SUV',
+    '3130',
+    8,
+    'GASOLINE',
+    11959178
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LAND CRUISER ZX',
+    'CBA-URJ202W-GNYVK',
+    '6AT',
+    '4WD',
+    '4608',
+    'SUV',
+    '3130',
+    8,
+    'GASOLINE',
+    11959178
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LAND CRUISER ZX',
+    'CBA-URJ202W-GNTVK',
+    '6AT',
+    'AWD',
+    '4608',
+    'SUV',
+    '3130',
+    8,
+    'GASOLINE',
+    11978139
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LANDCRUISER 79VD SINGLE CABIN E4',
+    'VDJ79R-TJMNYJ',
+    'MT',
+    '4WD',
+    '4500',
+    'S/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    6439508
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LANDCRUISER HARDTOP LX',
+    'VDJ76R-RKMNY',
+    '5MT',
+    '4WD',
+    '4500',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    11519792
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LITE ACE DX',
+    'DBF-S412-ZMRFJD',
+    '5MT',
+    '4WD',
+    '1495',
+    'VAN',
+    '2090',
+    2,
+    'GASOLINE',
+    2877855
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LITE ACE TRUCK DX',
+    'DBF-S402U-TQRFJD',
+    '4AT',
+    '2WD',
+    '1495',
+    'TRUCK',
+    '2050',
+    2,
+    'DIESEL',
+    2369200
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LITE ACE VAN',
+    'DBF-S412M-ZMRFJD',
+    '5MT',
+    '2WD',
+    '1495',
+    'VAN',
+    '2055',
+    5,
+    'GASOLINE',
+    2895689
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'LITE ACE VAN GL',
+    'DBF-S412M-ZMRFJD',
+    '5MT',
+    '4WD',
+    '1495',
+    'VAN',
+    '2090',
+    5,
+    'DIESEL',
+    2895689
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'MARK X',
+    'DBA-GRX133-AETTH',
+    '6AT',
+    '2WD',
+    '3456',
+    'SEDAN',
+    '1835',
+    5,
+    'GASOLINE',
+    6724680
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'MARK X 350RDS',
+    'DBA-GRX133-AETTH',
+    '5MT',
+    'AWD',
+    '3456',
+    'SEDAN',
+    '1835',
+    5,
+    'GASOLINE',
+    6745982
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'MARK X 350RDS',
+    'DBA-GR133-AETTH',
+    '6AT',
+    '2WD',
+    '3456',
+    'SEDAN',
+    '1835',
+    5,
+    'GASOLINE',
+    6724680
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'MIRAI',
+    'ZBA-JPD10-CEDSS',
+    'CVT',
+    '2WD',
+    '0',
+    'SEDAN',
+    '2070',
+    5,
+    'ELECTRIC',
+    10353164
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'MIRAI',
+    'ZBA-JPD10-CEDSS',
+    'CVT',
+    'AWD',
+    '3456',
+    'SEDAN',
+    '2070',
+    4,
+    'GASOLINE',
+    12678283
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'MIRAI',
+    'ZBA-JPD10-CEDSS',
+    'CVT',
+    '2WD',
+    '0',
+    'SEDAN',
+    '2070',
+    4,
+    'ELECTRIC',
+    10297832
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'MIRAI Z',
+    'ZBA-JPD20-CEDHS',
+    'CVT',
+    '4WD',
+    '2487',
+    'SEDAN',
+    '2205',
+    5,
+    'GASOLINE',
+    13797977
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'MIRAI Z',
+    'ZBA-JPD20-CEDHS',
+    'CVT',
+    '2WD',
+    '0',
+    'SEDAN',
+    '1645',
+    5,
+    'ELECTRIC',
+    12329733
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'MIRAI Z "ADVANCED DRIVE"',
+    'ZBA-JPD20-CEDHS(T)',
+    'CVT',
+    '2WD',
+    '0',
+    'SEDAN',
+    '2245',

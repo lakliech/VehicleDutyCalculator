@@ -1,0 +1,500 @@
+    9295748
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CAPTIVA',
+    NULL,
+    'AT',
+    '2WD',
+    '2400',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    5882081
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'COLORADO CREW CAB SHORT Z2',
+    NULL,
+    'AT',
+    '4WD',
+    '3600',
+    'D/CAB',
+    NULL,
+    NULL,
+    'GASOLINE',
+    9442632
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CAMARO CONVERTIBLE HERITAGE EDITION',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    18857431
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CAMARO SS',
+    NULL,
+    'AT',
+    '2WD',
+    '6200',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    11696762
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CAMARO ZL1',
+    NULL,
+    'MT',
+    '2WD',
+    '6500',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    22138610
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CAMARO LT RS',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    20575087
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CAMARO FINAL EDITION',
+    NULL,
+    'AT',
+    '2WD',
+    '6200',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    20500228
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CAMARO CONVERTIBLE',
+    '7BA-A1XC',
+    'AT',
+    '2WD',
+    '2000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    13801293
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CAMARO LT RS HERITAGE EDITION',
+    'ABA-A1XC',
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    20624771
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CAMARO LT RS',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    10208057
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CHEVELLE MARIBU',
+    NULL,
+    'AT',
+    '2WD',
+    '6200',
+    'S. WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    22634120
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CORVETTE 3LT',
+    NULL,
+    'AT',
+    '2WD',
+    '6200',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    22223054
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CORVETTE',
+    NULL,
+    'AT',
+    '2WD',
+    '6200',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    20018244
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CORVETTE CONVERTIBLE EDITION CERV I',
+    '7BA-Y2XC',
+    'AT',
+    '2WD',
+    '6200',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    10234666
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CORVETTE 2LT',
+    NULL,
+    'AT',
+    '2WD',
+    '6200',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    13646222
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CORVETTE CONVERTIBLE',
+    NULL,
+    'AT',
+    '2WD',
+    '6200',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    26090813
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CORVETTE Z06',
+    NULL,
+    'AT',
+    '2WD',
+    '5500',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    40506157
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CORVETTE 2LT',
+    NULL,
+    'AT',
+    '2WD',
+    '6200',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    26774508
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CORVETTE Z06 3LZ',
+    NULL,
+    'AT',
+    '2WD',
+    '5500',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    39450464
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CHEVY VAN',
+    NULL,
+    'AT',
+    '2WD',
+    '5700',
+    'VAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    7243404
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CAMARO 2SS',
+    NULL,
+    'AT',
+    NULL,
+    '6200',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    24518398
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CORVETTE STINGRAY',
+    NULL,
+    'ATM',
+    NULL,
+    '6200',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    50977981
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CORVETTE  E-RAY 3LZ',
+    NULL,
+    'ATM',
+    NULL,
+    '6200',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    59372297
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'CORVETTE STINGRAY',
+    NULL,
+    'ATM',
+    NULL,
+    '6200',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    46955705
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'SILVERADO 1500 LT Trail Boss',
+    NULL,
+    'ATM',
+    NULL,
+    '6200',
+    'D/CAB',
+    NULL,
+    NULL,
+    'GASOLINE',
+    29954717
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'SILVERADO 1500 LTZ Premium Tech Pack',
+    NULL,
+    'ATM',
+    NULL,
+    '6200',
+    'D/CAB',
+    NULL,
+    NULL,
+    'GASOLINE',
+    29654920
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'SILVERADO 2500 HD LTZ Premium',
+    NULL,
+    'ATM',
+    NULL,
+    '6200',
+    'D/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    26470712
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'SILVERADO 1500 LTZ Premium',
+    NULL,
+    'ATM',
+    NULL,
+    '6200',
+    'D/CAB',
+    NULL,
+    NULL,
+    'GASOLINE',
+    20747315
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'SILVERADO 1500 ZR2',
+    NULL,
+    'ATM',
+    NULL,
+    '6200',
+    'D/CAB',
+    NULL,
+    NULL,
+    'GASOLINE',
+    21939689
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'SILVERADO HD LTZ Premium (NB1)',
+    NULL,
+    'ATM',
+    NULL,
+    '6500',
+    'D/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    25914271
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHEVROLET',
+    'SILVERADO HD LTZ Premium (NB2)',
+    NULL,
+    'ATM',
+    NULL,
+    '6500',
+    'D/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    2591427
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CHRYSLER',
+    'CHRYSLER 300',
+    'ABA-LX36',
+    'AT',
+    '2WD',
+    '3600',
+    'SEDAN',
+    NULL,
+    5,
+    'GASOLINE',
+    2357346
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CITROEN',
+    'BERLINGO DEBUT EDITION',
+    NULL,
+    'AT',
+    '2WD',
+    '1500',
+    'VAN',
+    NULL,
+    7,
+    'DIESEL',
+    4415368
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CITROEN',
+    'BERLINGO FEEL',
+    NULL,
+    'MT',
+    '2WD',
+    '1200',
+    'VAN',
+    NULL,
+    7,
+    'GASOLINE',
+    7918185
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CITROEN',
+    'BERLINGO MAX BLUE HDI',
+    NULL,
+    'AT',
+    '2WD',
+    '1500',
+    'VAN',
+    NULL,
+    7,
+    'DIESEL',
+    6836295
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'CITROEN',
+    'BERLINGO SHINE',
+    '3DA-K9CYH01',
+    'AT',
+    '2WD',
+    '1500',

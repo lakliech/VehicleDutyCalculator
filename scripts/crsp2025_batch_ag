@@ -1,0 +1,500 @@
+    'BMW',
+    'BMW 3 SERIES 320D X DRIVE M-SPORT EDITION JOY+',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'GASOLINE',
+    7197027
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 3 SERIES 320D X DRIVE M-SPORT EDITION SHADOW',
+    '3DA-5V20',
+    'AT',
+    '4WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'DIESEL',
+    25733956
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 3 SERIES 320D X DRIVE M-SPORT HI-LINE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'DIESEL',
+    10411695
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 3 SERIES 320D X DRIVE TOURING M-SPORT',
+    NULL,
+    'AT',
+    '4WDD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'DIESEL',
+    18386794
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 3 SERIES 320i',
+    NULL,
+    'AT',
+    '4WDD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'DIESEL',
+    7565959
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 3 SERIES 320i HI-LINE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'DIESEL',
+    8872230
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 3 SERIES 320i M-SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'DIESEL',
+    7197027
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 3 SERIES 320I STYLE MEISTER',
+    'DBA-8A20',
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'DIESEL',
+    3393910
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 3 SERIES 330E M-SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'GASOLINE',
+    10889578
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 4 SERIES 420D X DRIVE GRAN COUPE M SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'GASOLINE',
+    27223580
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 4 SERIES 420D X DRIVE GRAN COUPE M SPORT HI-LINE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'GASOLINE',
+    25202133
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 4 SERIES 420I CABRIOLET M SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'GASOLINE',
+    29223206
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 4 SERIES 420i COUPE M SPORT',
+    '12AP20-CL6',
+    'AT',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    5,
+    'PLUG-IN HYBRID',
+    18027333
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 4 SERIES 420i GRAN COUPE IN STYLE SPORT',
+    'DBA-4D20',
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'DIESEL',
+    8683069
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 4 SERIES 420i GRAN COUPE LUXURY',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'DIESEL',
+    9688744
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 4 SERIES 420i GRAN COUPE M SPIRIT',
+    '4D20-BP2',
+    'AT',
+    '2WD',
+    '2000',
+    'CONVERTIBLE',
+    NULL,
+    2,
+    'GASOLINE',
+    9892208
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 4 SERIES 420i GRAN COUPE M SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    5763663
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 4 SERIES 420I GRAN COUPE M SPORT EDITION SHADOW',
+    '3BA-12AV20',
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    11063121
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 4 SERIES 420i GRAN COUPE M SPORT HI-LINE PACKAGE',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    8362241
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 4 SERIES M 440i X DRIVE COUPE',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    16297607
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 4 SERIES M440i X DRIVE GRAN COUPE',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    13687061
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 5 SERIES 523D M SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    5572168
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 5 SERIES 523D TOURING M-SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    7266178
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 5 SERIES 523D X DRIVE TOURING M-SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    14694405
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 6 SERIES 623D GRAN TURISMO M-SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    12818778
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 6 SERIES 630I GRAN TURISMO M-SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    20859296
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 6 SERIES 640i GRAN COUPE M-SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    15408197
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 6 SERIES 640I X DRIVE GRAN TURISMO M-SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    15683064
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 7 SERIES 740D X DRIVE EXCELLENCE',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    19952544
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 7 SERIES 740D X DRIVE M-SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    2,
+    'DIESEL',
+    13945332
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 7 SERIES 740E IPERFORMANCE M-SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '4400',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    9094067
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 7 SERIES 740E IPERFORMANCE M-SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    2,
+    'HYBRID',
+    16131759
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 7 SERIES 740i M-SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    2,
+    'HYBRID',
+    9947328
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 7 SERIES 740I M-SPORT THE FIRST EDITION',
+    '3AA-22EH30',
+    'AT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    2,
+    'DIESEL',
+    30638849
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 7 SERIES 740LI EXCELLENCE',
+    NULL,
+    'AT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    26817874
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 7 SERIES 745E LUXURY',
+    NULL,
+    'AT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',

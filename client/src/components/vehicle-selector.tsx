@@ -8,7 +8,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Car, Settings, Fuel, AlertCircle, Calculator, Database, Edit, Calendar } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Car, Settings, Fuel, AlertCircle, Calculator, Database, Edit, Calendar, Users } from "lucide-react";
 import type { VehicleReference, ManualVehicleData } from "@shared/schema";
 
 interface VehicleSelectorProps {
@@ -34,6 +35,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   const [manualEngineSize, setManualEngineSize] = useState<string>("");
   const [useManualEngine, setUseManualEngine] = useState<boolean>(false);
   const [selectedCrspYear, setSelectedCrspYear] = useState<string>("2020"); // Default to 2020
+  const [selectedSeats, setSelectedSeats] = useState<string[]>([]); // Multiple seats selection
   
   // Manual entry mode state
   const [isManualEntry, setIsManualEntry] = useState<boolean>(false);
@@ -50,6 +52,16 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     queryFn: async () => {
       const response = await fetch("/api/vehicle-references/crsp-years");
       if (!response.ok) throw new Error('Failed to fetch CRSP years');
+      return response.json();
+    },
+  });
+
+  // Fetch available seating options
+  const { data: availableSeats = [] } = useQuery<string[]>({
+    queryKey: ["/api/vehicle-references/seats", selectedCrspYear],
+    queryFn: async () => {
+      const response = await fetch(`/api/vehicle-references/seats?crspYear=${selectedCrspYear}`);
+      if (!response.ok) throw new Error('Failed to fetch seating options');
       return response.json();
     },
   });
@@ -270,6 +282,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
       setSelectedVehicle(null);
       setManualEngineSize("");
       setUseManualEngine(false);
+      setSelectedSeats([]);
       onVehicleSelect(null);
     } else {
       // Clear manual entry
@@ -278,11 +291,17 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
       setManualEngine("");
       setManualVehicleData(null);
       setSelectedReferenceVehicle(null);
+      setSelectedSeats([]);
       if (onManualVehicleData) {
         onManualVehicleData(null);
       }
     }
   }, [isManualEntry, onVehicleSelect, onManualVehicleData]);
+
+  // Clear seats selection when CRSP year changes
+  useEffect(() => {
+    setSelectedSeats([]);
+  }, [selectedCrspYear]);
 
   useEffect(() => {
     if (vehicleDetails.length === 1) {
@@ -706,6 +725,57 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
         </div>
         </div>
       )}
+
+      {!isManualEntry && availableSeats.length > 0 && (
+          <div className="col-span-full">
+            <Label className="flex items-center text-sm font-medium text-gray-700 mb-3">
+              <Users className="h-4 w-4 mr-2 text-green-600" />
+              Number of Seats (Optional)
+            </Label>
+            <div className="flex flex-wrap gap-3">
+              {availableSeats.map((seatCount) => (
+                <div key={seatCount} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`seats-${seatCount}`}
+                    checked={selectedSeats.includes(seatCount)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedSeats(prev => [...prev, seatCount]);
+                      } else {
+                        setSelectedSeats(prev => prev.filter(s => s !== seatCount));
+                      }
+                    }}
+                  />
+                  <Label 
+                    htmlFor={`seats-${seatCount}`} 
+                    className="text-sm cursor-pointer flex items-center space-x-1"
+                  >
+                    <Users className="h-3 w-3 text-gray-500" />
+                    <span>{seatCount} seats</span>
+                  </Label>
+                </div>
+              ))}
+            </div>
+            {selectedSeats.length > 0 && (
+              <div className="mt-2 flex items-center space-x-2">
+                <Badge variant="outline" className="text-xs">
+                  {selectedSeats.length === 1 
+                    ? `${selectedSeats[0]} seats selected` 
+                    : `${selectedSeats.length} seat options selected`
+                  }
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedSeats([])}
+                  className="text-xs h-6 px-2"
+                >
+                  Clear
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
 
       {selectedVehicle && (
         <Card className="bg-green-50 border-green-200">

@@ -1,0 +1,500 @@
+    '2WD',
+    '4000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    24213725
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'SQ8 BASE GRADE',
+    '3BA-F1DWRA',
+    'AT',
+    '4WD',
+    '4000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    23994443
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TT COUPE 2.0TFSI QUATTRO',
+    'ABA-FVCHHF',
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    10653095
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TT COUPE 40TFSI',
+    'TRUZZZFV1P100',
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    14755458
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TT COUPE 40TFSI S LINE PACKAGE',
+    'TRUZZZFV9N100',
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    12767752
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TT COUPE 45TFSI QUATTRO S LINE PACKAGE',
+    'TRUZZZFVXP100',
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    14022294
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TT COUPE FINAL EDITION',
+    '3BA-FVDNPF',
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    17021794
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TT COUPE S LINE DYNAMIC LIMITED',
+    'ABA-FVCJS',
+    'AT',
+    '2WD',
+    '1800',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    12494952
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TT COUPE S-LINE COMPETITION PLUS',
+    '3BA-FVDNPF',
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    14662581
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TT ROADSTER 45 TFSI QUATTRO S LINE PACKAGE',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    14373865
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TT ROADSTER FINAL EDITION',
+    'ABA-FVCHHF',
+    'AT',
+    '4WD',
+    '2000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    21858426
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TT ROADSTER FINAL EDITION',
+    'TRUZZZFV2L100',
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    19865936
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TT RS COUPE BASE GRADE',
+    NULL,
+    'AT',
+    '4WD',
+    '2500',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    35056186
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TTS COUPE',
+    'ABA-FVCJXF',
+    'AT',
+    '4WD',
+    '2000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    18857016
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TTS COUPE BASE GRADE',
+    '3BA-FVDNFF',
+    'AT',
+    '4WD',
+    '4000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    18315486
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'AUDI',
+    'TTS COUPE MEMORIAL EDITION',
+    '3BA-FVDNFF',
+    'AT',
+    '4WD',
+    '2000',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    15393433
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'BENTAYGA BASEGRADE',
+    NULL,
+    'AT',
+    '4WD',
+    '6000',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    63120742
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'BENTAYGA',
+    NULL,
+    'AT',
+    '2WD',
+    '6000',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    13646222
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'BENTAYGA AZURE',
+    '7BA-BADCU',
+    'AT',
+    '4WD',
+    '4000',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    10234666
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'BENTAYGA EWB AZURE',
+    NULL,
+    'AT',
+    '4WD',
+    '4000',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    53984287
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'BENTAYGA HYBRID',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'PLUG-IN HYBRID',
+    51820062
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'BENTAYGA S',
+    NULL,
+    'AT',
+    '4WD',
+    '4000',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    58655493
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'BENTAYGA V8',
+    NULL,
+    'AT',
+    '4WD',
+    '4000',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    66500997
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'CONTINENTAL GT',
+    NULL,
+    'AT',
+    '4WD',
+    '6000',
+    'CONVERTIBLE',
+    NULL,
+    4,
+    'GASOLINE',
+    23393523
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'CONTINENTAL GT CONVERTIBLE',
+    NULL,
+    'AT',
+    '4WD',
+    '4000',
+    'CONVERTIBLE',
+    NULL,
+    4,
+    'GASOLINE',
+    18194963
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'CONTINENTAL GT MULLINER CONVERTIBLE',
+    '7BA-BDDDB',
+    'AT',
+    '4WD',
+    '6000',
+    'CONVRTIBLE',
+    NULL,
+    4,
+    'GASOLINE',
+    86615497
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'CONTINENTAL GT SPEED COUPE',
+    NULL,
+    'AT',
+    '4WD',
+    '6000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    63644888
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'CONTINENTAL GT V8 AZURE',
+    '7BA-BCCVD',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    65662304
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'CONTINENTAL GT V8 COUPE',
+    NULL,
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    60965921
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'FLYING SPUR BASEGRADE',
+    NULL,
+    'AT',
+    '4WD',
+    '6000',
+    'SEDAN',
+    NULL,
+    5,
+    'GASOLINE',
+    45879743
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'FLYING SPUR S',
+    'ABA-BECYC',
+    'AT',
+    '4WD',
+    '4000',
+    'SEDAN',
+    NULL,
+    5,
+    'GASOLINE',
+    47852570
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'FLYING SPUR V8',
+    NULL,
+    'AT',
+    '4WD',
+    '4000',
+    'SEDAN',
+    NULL,
+    5,
+    'GASOLINE',
+    63164421
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'FLYING SPUR V8 AZURE',
+    NULL,
+    'AT',
+    '4WD',
+    '4000',
+    'SEDAN',
+    NULL,
+    5,
+    'GASOLINE',
+    53984287
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'FLYING SPUR V8 S',
+    NULL,
+    'AT',
+    '4WD',
+    '4000',
+    'SEDAN',
+    NULL,
+    5,
+    'GASOLINE',
+    58188373
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BENTLEY',
+    'MULSANNE SPEED',
+    NULL,
+    'AT',
+    '2WD',
+    '6800',
+    'COUPE',
+    NULL,
+    2,
+    'GASOLINE',
+    44387080
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'BMW 3 SERIES 320D X DRIVE M-SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    5,
+    'GASOLINE',
+    8039948
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (

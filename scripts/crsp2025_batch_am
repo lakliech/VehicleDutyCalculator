@@ -1,0 +1,500 @@
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'HYBRID',
+    24063792
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X6 X DRIVE 35D M SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    19913496
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X6 X DRIVE 35D M SPORT HI-LINE PACKAGE',
+    NULL,
+    'AT',
+    '4WD',
+    '4400',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    17871916
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X6 X DRIVE 35I M SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    25521775
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X7 M50I',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    30284518
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X7 M60I X DRIVE',
+    NULL,
+    'AT',
+    '4WD',
+    '4400',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    34832339
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X7 X DRIVE 35D DESIGN PURE EXCELLENCE',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'HYBRID',
+    30201475
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X7 X DRIVE 35D M SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '4400',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    25691637
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X7 X DRIVE 40D EXCELLENCE',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    21455702
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'X7 X DRIVE 40D M SPORT',
+    NULL,
+    'AT',
+    '4WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'GASOLINE',
+    27381764
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'Z4 M40I',
+    NULL,
+    'AT',
+    '2WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'DIESEL',
+    24466082
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'Z4 S DRIVE 20I',
+    NULL,
+    'AT',
+    '2WD',
+    '3000',
+    'CONVERTIBLE',
+    NULL,
+    2,
+    'GASOLINE',
+    15690028
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'Z4 S DRIVE 20I M-SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '3000',
+    'SUV',
+    NULL,
+    5,
+    'HYBRID',
+    12102672
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'Z4 S DRIVE 20I M-SPORT EDITION SUNRISE',
+    NULL,
+    'AT',
+    '2WD',
+    '2000',
+    'CONVERTIBLE',
+    NULL,
+    2,
+    'GASOLINE',
+    9640325
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BMW',
+    'Z4 S DRIVE 20I SPORT',
+    NULL,
+    'AT',
+    '2WD',
+    '4400',
+    'SUV',
+    NULL,
+    5,
+    'HYBRID',
+    15595951
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BRABUS',
+    '900',
+    'GLE 63 S COUPÉ',
+    'AT',
+    'AWD',
+    '4500',
+    'SUV',
+    NULL,
+    5,
+    'PETROL',
+    137672239
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BRABUS',
+    '900 DEEP BLUE',
+    'GLS 63 4MATIC',
+    'AT',
+    'AWD',
+    '4500',
+    'SUV',
+    NULL,
+    5,
+    'PETROL',
+    132479051
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BRABUS',
+    '900 MASTERPIECE BICHROMATIC',
+    'GLS 63 S 4MATIC',
+    'AT',
+    'AWD',
+    '4500',
+    'SUV',
+    NULL,
+    5,
+    'PETROL',
+    161576519
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BRABUS',
+    '900 ROCKET EDITION',
+    'GLE 63 S 4MATIC+',
+    'AT',
+    'AWD',
+    '4500',
+    'SUV',
+    NULL,
+    5,
+    'PETROL',
+    148207580
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BRABUS',
+    '900 SUPERBLACK',
+    'W463A',
+    'AT',
+    'AWD',
+    '4500',
+    'SUV',
+    NULL,
+    5,
+    'PETROL',
+    200060404
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BRABUS',
+    '900 SUPERBLACK',
+    'GLS 63 4MATIC+',
+    'AT',
+    'AWD',
+    '4500',
+    'SUV',
+    NULL,
+    5,
+    'PETROL',
+    144430865
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BRABUS',
+    '900 XLP',
+    'W463A',
+    'AT',
+    'AWD',
+    '4500',
+    'PICKUP',
+    NULL,
+    5,
+    'PETROL',
+    271393393
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'ATTO 3',
+    NULL,
+    'AT',
+    'FWD',
+    '60.5 kWh',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    14434329
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'TANG',
+    NULL,
+    'AT',
+    'AWD',
+    '86.4 kWh',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    27128484
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'DOLPHIN 60.4 KWH',
+    NULL,
+    'AT',
+    'FWD',
+    '60.5 kWh',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    10743922
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'SEAL 82.5 AWD EXCELLENCE',
+    NULL,
+    'AT',
+    'AWD',
+    '82.5 kWh',
+    'SEDAN',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    16606019
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'HAN',
+    NULL,
+    'AT',
+    'FWD',
+    '85.4 kWh',
+    'SEDAN',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    22477886
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'SEAL 82.5 RWD DESIGN',
+    NULL,
+    'AT',
+    'RWD',
+    '82.5 kWh',
+    'SEDAN',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    14651986
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'DOLPHIN 44.9 ACTIVE',
+    NULL,
+    'AT',
+    'FWD',
+    '44.9 kWh',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9766905
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'DOLPHIN 44.9 BOOST',
+    NULL,
+    'AT',
+    'FWD',
+    '44.9 kWh',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    10743922
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'SEALION 7 91.3 AWD EXCELLENCE',
+    NULL,
+    'AT',
+    'AWD',
+    '91.3 kWh',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    16809971
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'TANG FLAGSHIP',
+    NULL,
+    'AT',
+    'AWD',
+    '108.8 kWh',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    19837704
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'SEALION 7 82.5 RWD COMFORT',
+    NULL,
+    'AT',
+    'RWD',
+    '82.5 kWh',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    13675377
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'SEAL U 87 KWH DESIGN',
+    NULL,
+    'AT',
+    'FWD',
+    '87.0 kWh',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    12820488
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'SEAL U 71.8 COMFORT',
+    NULL,
+    'AT',
+    'FWD',
+    '71.8 kWh',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    11965599
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'BYD',
+    'SEALION 7 82.5 AWD DESIGN',
+    NULL,
+    'AT',
+    'AWD',
+    '82.5 kWh',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    15385156
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (

@@ -1,0 +1,500 @@
+    'FERRARI',
+    '296GTB',
+    'ZFF99SMJ00031',
+    'AT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    115541195
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    '296GTB BASE GRADE',
+    'ZFF99SMJ00030',
+    'AT',
+    '2WD',
+    '3000',
+    'COUPE',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    83395533
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    '296GTS',
+    'ZFF01SMJ00030',
+    'AT',
+    '2WD',
+    '3000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    105042277
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    '296GTS BASE GRADE',
+    'ZFF01SMJ00030',
+    'AT',
+    '2WD',
+    '3000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    139842845
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    '488 SPIDER',
+    'ZFF80AMC00023',
+    'AT',
+    '2WD',
+    '3900',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    169392520
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    '488 SPIDER BASE GRADE',
+    'ABA-F142B',
+    'AT',
+    '2WD',
+    '3900',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    174238385
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    '488PISTA BASE GRADE',
+    'ZFF90HMJ00024',
+    'AT',
+    '2WD',
+    '3900',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    294016007
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    '488PISTA SPIDER BASE GRADE',
+    'ZFF91HMJ00024',
+    'AT',
+    '2WD',
+    '3900',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    423927960
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    '812 SUPERFAST',
+    'ZFF83CMJ00024',
+    'AT',
+    '2WD',
+    '6500',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    196534655
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    '812 SUPERFAST BASE GRADE',
+    'ZFF83CMJ00023',
+    'AT',
+    '2WD',
+    '6500',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    202631589
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    '812 SUPERFAST BASE GRADE',
+    'ZFF83CMJ00024',
+    'AT',
+    '2WD',
+    '6500',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    187814215
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'F8 SPIDER',
+    '7BA-F142CE',
+    'AT',
+    '2WD',
+    '3900',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    164296935
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'F8 SPIDER BASE GRADE',
+    '7BA-F142CE',
+    'AT',
+    '2WD',
+    '3900',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    141719757
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'F8 TRIBUTO',
+    NULL,
+    'AT',
+    '2WD',
+    '3900',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    140056369
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'F8 TRIBUTO BASE GRADE',
+    'F142CE',
+    'AT',
+    '2WD',
+    '3900',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    139956759
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'GTC4 LUSSO',
+    'ABA-F151BME',
+    'AT',
+    '2WD',
+    '6300',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    135781588
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'GTC4 LUSSO BASE GRADE',
+    'ABA-F151BME',
+    'AT',
+    '2WD',
+    '3900',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    137250695
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'GTC4 LUSSO T',
+    'ABA-F151CME',
+    'AT',
+    '2WD',
+    '3900',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    82299063
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'PORTOFINO',
+    'ABA-F164BCA',
+    'AT',
+    '2WD',
+    '3900',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    125338998
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'PORTOFINO BASE GRADE',
+    'ZFF89FPC00024',
+    'AT',
+    '2WD',
+    '3900',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    119323201
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'PORTOFINO M',
+    '7BA-F164BCA',
+    'AT',
+    '2WD',
+    '3900',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    100060727
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'PORTOFINO M BASE GRADE',
+    '7BA-F164BCA',
+    'AT',
+    '2WD',
+    '3900',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    97775449
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'ROMA',
+    '7BA-F164BAA',
+    'AT',
+    '2WD',
+    '3900',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    115059092
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'ROMA BASE GRADE',
+    '7BA-F164BAA',
+    'AT',
+    '2WD',
+    '3900',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    87309181
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'SF90 SPIDER',
+    '7LA-173H',
+    'AT',
+    '2WD',
+    '4000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    182937832
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'SF90 SPIDER BASE GRADE',
+    '7LA-173H',
+    'AT',
+    '2WD',
+    '4000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    159893558
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'SF90 STRADALE',
+    '7LA-173H',
+    'AT',
+    '2WD',
+    '4000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    134740795
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FERRARI',
+    'SF90 STRADALE BASE GRADE',
+    '7LA-173H',
+    'AT',
+    '2WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    202349763
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FIAT',
+    '126 BASE GRADE',
+    'FIAT126A606',
+    'AT',
+    '2WD',
+    '600',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    4879707
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FIAT',
+    '500 1.2 POP',
+    'ZFA3120000JD8',
+    'AT',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    5270677
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FIAT',
+    '500 MIMOSA',
+    'ABA-31212',
+    'AT',
+    '2WD',
+    '1200',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    6511849
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FIAT',
+    '500 TWIN AIR CULT',
+    'ZFABF1B86NJG1',
+    'AT',
+    '2WD',
+    '900',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    6093650
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FIAT',
+    '500 TWIN AIR LOUNGE',
+    'ABA-31209',
+    'AT',
+    '2WD',
+    '900',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',
+    5938884
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FIAT',
+    '500 TWIN AIR POP',
+    'ZFA3120000JD8',
+    'AT',
+    '2WD',
+    '900',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    5608073
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FIAT',
+    '500C 1.2 DOLCEVITA',
+    '3BA-31212',
+    'AT',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    6771862
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'FIAT',
+    '500C 120TH TUXEDO',
+    'ABA-31212',
+    'AT',
+    '2WD',
+    '1200',
+    'SUV',
+    NULL,
+    NULL,
+    'GASOLINE',

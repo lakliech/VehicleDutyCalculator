@@ -1,0 +1,500 @@
+    '6BA-JF5',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1150',
+    4,
+    'GASOLINE',
+    3567046
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX L',
+    '6BA-JF3',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1170',
+    4,
+    'GASOLINE',
+    2930900
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX SLASH G',
+    'DBA-JF1',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1140',
+    4,
+    'GASOLINE',
+    2406088
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-BOX SLASH X',
+    'DBA-JF1',
+    'CVT',
+    '2WD',
+    '658',
+    'MINIVAN',
+    '1150',
+    4,
+    'GASOLINE',
+    2484025
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-ONE G.L',
+    'DBA-JG1',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1060',
+    4,
+    'GASOLINE',
+    2015165
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-ONE MODULO X',
+    'DBA-JG1',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1090',
+    4,
+    'GASOLINE',
+    2946674
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-ONE ORIGINAL',
+    '6BA-JG3',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1060',
+    4,
+    'GASOLINE',
+    2786870
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-ONE PREMIUM TOURER',
+    'DBA-JG1',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1090',
+    4,
+    'GASOLINE',
+    2480920
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-ONE PRMIUM',
+    'DBA-JG1',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1080',
+    4,
+    'GASOLINE',
+    2548609
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-ONE RS',
+    'DBA-JG1',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1080',
+    4,
+    'GASOLINE',
+    2702867
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-ONE SELECT',
+    'DBA-JG1',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1060',
+    4,
+    'GASOLINE',
+    2204882
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-ONE STANDARD',
+    'DBA-JG1',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1050',
+    4,
+    'GASOLINE',
+    2065714
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-ONE STANDARD. L',
+    'DBA-JG1',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCHBACK',
+    '1050',
+    4,
+    'GASOLINE',
+    2065714
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'NSX',
+    '5AA-NC1',
+    '6MT',
+    'AWD',
+    '3492',
+    'COUPE',
+    '1910',
+    2,
+    'GASOLINE',
+    36887756
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'NSX',
+    'CAA-NC1',
+    '9AT',
+    'AWD',
+    '3492',
+    'COUPE',
+    '1910',
+    2,
+    'GASOLINE',
+    39696257
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-VAN',
+    '5BD-JJ1',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1410',
+    4,
+    'GASOLINE',
+    2357128
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-VAN E (EV) E:L4',
+    'ZAB-JJ3',
+    'CVT',
+    '2WD',
+    '0',
+    'VAN',
+    '1540',
+    4,
+    'ELECTRIC',
+    4526128
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-VAN L',
+    '5BD-JJ1',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1410',
+    4,
+    'GASOLINE',
+    2532344
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-VAN L',
+    'GBD-JJ1',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1410',
+    4,
+    'GASOLINE',
+    2082482
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-VAN L',
+    '5BD-JJ1',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1410',
+    4,
+    'GASOLINE',
+    2357128
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-VAN L',
+    'HBD-JJ1',
+    'CVT',
+    '2WD',
+    '658',
+    'VAN',
+    '1410',
+    4,
+    'GASOLINE',
+    2082482
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-WGN  C',
+    'DBA-JH1',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1050',
+    5,
+    'GASOLINE',
+    1692243
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-WGN CUSTOM',
+    '6BA-JH3',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1090',
+    4,
+    'GASOLINE',
+    2582143
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-WGN Custom G.L',
+    'DBA-JH1',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1060',
+    4,
+    'GASOLINE',
+    2251147
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-WGN CUSTOM L',
+    '6BA-JH3',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1090',
+    4,
+    'GASOLINE',
+    2582143
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-WGN E:HEV HOME',
+    '6BA-JH3',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1070',
+    4,
+    'GASOLINE',
+    2427214
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-WGN G',
+    '6BA-JH3',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1090',
+    4,
+    'GASOLINE',
+    2213265
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-WGN G. HONDA SENSING',
+    '6BA-JH3',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1070',
+    4,
+    'GASOLINE',
+    2434592
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-WGN G.L',
+    'DBA-JH1',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1050',
+    4,
+    'GASOLINE',
+    1897174
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-WGN G.L PACKAGE',
+    'DBA-JH1',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1060',
+    4,
+    'GASOLINE',
+    2212335
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-WGN L',
+    '6BA-JH3',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1070',
+    4,
+    'GASOLINE',
+    2379260
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'N-WGN L HONDA SENSING',
+    '6BA-JH3',
+    'CVT',
+    '2WD',
+    '658',
+    'WAGON',
+    '1070',
+    4,
+    'GASOLINE',
+    2287041
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'Odssey Absolute X',
+    'DBA-RC1',
+    'CVT',
+    '2WD',
+    '2356',
+    'MINIVAN',
+    '2200',
+    8,
+    'GASOLINE',
+    5175050
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'ODSSEY E:HEV ABSOLUTE BLACK EDITION',
+    '6AA-RC5',
+    'CVT',
+    '2WD',
+    '1993',
+    'MINIVAN',
+    '2335',
+    7,
+    'GASOLINE',
+    9020209
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'ODSSEY G',
+    'DBA-RC1',
+    'CVT',
+    '2WD',
+    '2356',
+    'MINIVAN',
+    '2190',
+    8,
+    'GASOLINE',
+    4819267
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'Odssey G',
+    'DBA-RC1',
+    'CVT',
+    '2WD',
+    '2356',
+    'MINIVAN',
+    '2160',
+    8,
+    'GASOLINE',
+    5274670
+);

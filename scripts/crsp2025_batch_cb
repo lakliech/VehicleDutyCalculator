@@ -1,0 +1,500 @@
+    NULL,
+    'DIESEL',
+    11935412
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 50C21V H2 DRW (WB3520L)',
+    NULL,
+    '6MT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10607939
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 50C21V H2 DRW (WB4100)',
+    NULL,
+    '6MT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    11177770
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 50C21V H3 DRW (WB4100)',
+    NULL,
+    '6MT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    11747464
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 50C21V H3 DRW (WB4100L)',
+    NULL,
+    '6MT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    12317159
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 70C18V H3 DRW (WB4100)',
+    NULL,
+    '6MT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    12335668
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 70C18V H3 DRW (WB4100L)',
+    NULL,
+    '6MT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    12980487
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 70C21V H3 DRW (WB4100)',
+    NULL,
+    '6MT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    12717415
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 70C21V H3 DRW (WB4100L)',
+    NULL,
+    '6MT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    13362234
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 35S18V H1 SRW (WB3520)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    9525847
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 35S18V H2 SRW (WB3520L)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10175429
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 35S18V H2 SRW (WB4100)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10649721
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 35S21V H1 SRW (WB3520)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    9421053
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 35S21V H2 SRW (WB3520L)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10070636
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 35S21V H2 SRW (WB4100)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10649721
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 50C18V H2 DRW (WB3520L)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10847467
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 50C18V H2 DRW (WB4100)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    11417297
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 50C18V H3 DRW (WB4100)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    11986992
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 50C18V H3 DRW (WB4100L)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    12556686
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 50C21V H2 DRW (WB3520L)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    11229214
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 50C21V H2 DRW (WB4100)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    11799044
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 50C21V H3 DRW (WB4100)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    12368739
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 50C21V H3 DRW (WB4100L)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    12938433
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 70C18V H3 DRW (WB4100)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    12956942
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 70C18V H3 DRW (WB4100L)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    13601761
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 70C21V H3 DRW (WB4100)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    13338689
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'IVECO DAILY',
+    'E6 70C21V H3 DRW (WB4100L)',
+    NULL,
+    '8AT',
+    NULL,
+    '3000',
+    'VAN',
+    NULL,
+    NULL,
+    'DIESEL',
+    13983508
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JAC',
+    'HFC4251KR1',
+    'HFC4251KR1',
+    'AT',
+    '6×4',
+    '11600',
+    'TRUCK',
+    '33,800',
+    2,
+    'DIESEL',
+    8443350
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JAC',
+    'HFC4251KR1 4X2',
+    'HFC4251KR1',
+    'AT',
+    '4×2',
+    '11600',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    8021183
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JAC',
+    'HFC4251KR1 6X2',
+    'HFC4251KR1',
+    'AT',
+    '6×2',
+    '11600',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    8232266
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JAC',
+    'HFC4251KR1 8X4',
+    'HFC4251KR1',
+    'AT',
+    '8×4',
+    '11600',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    9287685
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JAC',
+    'HFC4251KR1 AUTO',
+    'HFC4251KR1',
+    'AT',
+    '6×4',
+    '11600',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    9498769
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JAC',
+    'HFC4251KR1 CNG',
+    'HFC4251KR1CNG',
+    'AT',
+    '6×4',
+    '11600',
+    'TRUCK',
+    NULL,
+    2,
+    'CNG',
+    9076601
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JAC',
+    'HFC4251KR1 DAYCAB',
+    'HFC4251KR1',
+    'AT',
+    '6×4',
+    '11600',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    8443350
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JAC',
+    'HFC4251KR1 EURO5',
+    'HFC4251KR1',
+    'AT',
+    '6×4',
+    '11600',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    8654434
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JAC',
+    'HFC4251KR1 EURO6',
+    'HFC4251KR1',
+    'AT',
+    '6×4',
+    '11600',
+    'TRUCK',
+    NULL,
+    2,
+    'DIESEL',
+    8865518
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JAC',
+    'HFC4251KR1 EV',
+    'HFC4251KR1EV',
+    'AT',

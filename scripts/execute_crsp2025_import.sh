@@ -1,32 +1,45 @@
 #!/bin/bash
 
-# Execute CRSP2025 SQL import in batches
-echo "Starting CRSP2025 data import..."
+echo "🚀 Starting CRSP 2025 batch import..."
 
-# Split the SQL file into individual batch files
-csplit -f batch_ -s scripts/crsp2025_inserts.sql '/-- Batch/' '{*}'
+# Get database URL from environment
+if [ -z "$DATABASE_URL" ]; then
+    echo "❌ DATABASE_URL not set"
+    exit 1
+fi
 
-# Execute each batch
-batch_count=0
-for batch_file in batch_*; do
-    if [ -s "$batch_file" ]; then
-        batch_count=$((batch_count + 1))
-        echo "Executing batch $batch_count..."
-        
-        # Extract the SQL statement from the batch file
-        sql_statement=$(grep -A 10000 "INSERT INTO" "$batch_file" | grep -B 10000 -m 1 "^;" | head -n -1)
-        
-        if [ ! -z "$sql_statement" ]; then
-            echo "$sql_statement;" > temp_batch.sql
-            # Here we would execute the SQL, but we'll do it manually for now
-            echo "Batch $batch_count prepared"
+# Count total batches
+TOTAL_BATCHES=$(ls scripts/crsp2025_batch_* | wc -l)
+echo "📊 Found $TOTAL_BATCHES batch files to import"
+
+# Import each batch file
+BATCH_COUNT=0
+for batch_file in scripts/crsp2025_batch_*; do
+    BATCH_COUNT=$((BATCH_COUNT + 1))
+    echo "📈 Processing batch $BATCH_COUNT/$TOTAL_BATCHES: $batch_file"
+    
+    # Execute the SQL batch using psql
+    if command -v psql &> /dev/null; then
+        psql "$DATABASE_URL" -f "$batch_file" -q
+        if [ $? -eq 0 ]; then
+            echo "✅ Batch $BATCH_COUNT completed successfully"
+        else
+            echo "❌ Batch $BATCH_COUNT failed"
+            exit 1
         fi
+    else
+        echo "❌ psql not found, cannot execute SQL batches"
+        exit 1
     fi
+    
+    # Small delay between batches
+    sleep 1
 done
 
-echo "Total batches prepared: $batch_count"
+echo "🎉 All batches imported successfully!"
+echo "🔍 Verifying import..."
 
-# Clean up
-rm batch_* temp_batch.sql 2>/dev/null
+# Verify the import
+psql "$DATABASE_URL" -c "SELECT COUNT(*) as total_records, COUNT(DISTINCT make) as unique_makes FROM vehicle_references_2025;" -q
 
-echo "Import preparation complete!"
+echo "✅ CRSP 2025 import completed!"

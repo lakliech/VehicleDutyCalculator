@@ -1,0 +1,500 @@
+    'TOYOTA',
+    'RAIZE Z HYBRID',
+    '5AA-A202A-GBSH',
+    'CVT',
+    '2WD',
+    '1196',
+    'SUV',
+    '1345',
+    5,
+    'GASOLINE',
+    3903395
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'RAV4 G',
+    '6BA-MXAA54-ANXGB',
+    'CVT',
+    '4WD',
+    '1986',
+    'SUV',
+    '1895',
+    5,
+    'GASOLINE',
+    5414396
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'RAV4 G Z PACKAGE',
+    '6BA-MXA54-ANXGB(A)',
+    'CVT',
+    '4WD',
+    '1986',
+    'SUV',
+    '1895',
+    5,
+    'GASOLINE',
+    5620969
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'RAV4 G Z PACKAGE HYBRID',
+    '6BA-MXAA54-ANXGB(A)',
+    'CVT',
+    '4WD',
+    '1986',
+    'SUV',
+    '1895',
+    5,
+    'GASOLINE',
+    6741796
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'RAV4 PHEV Z',
+    '6LA-AXAP54-ANXGB',
+    'CVT',
+    '4WD',
+    '2487',
+    'SUV',
+    '2195',
+    5,
+    'GASOLINE',
+    9838482
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'RAV4 PHV BLACK TONE',
+    '6LA-AXAP54-ANXGB',
+    'CVT',
+    '4WD',
+    '2487',
+    'SUV',
+    '2195',
+    5,
+    'GASOLINE',
+    9414063
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'RAV4 Z (PLUG-IN-HYBRID)',
+    '6LA-AXAP54-ANXGB',
+    'CVT',
+    '4WD',
+    '2487',
+    'SUV',
+    '2195',
+    5,
+    'GASOLINE',
+    9838482
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'REGIUSACE DX',
+    'CBF-TRH200V-SRTDK-G',
+    '6AT',
+    '2WD',
+    '1998',
+    'VAN',
+    '3105',
+    3,
+    'GASOLINE',
+    3825009
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'REGIUSACE MODERATE TEMPERATURE REFRIGERATING VAN',
+    'CBF-TRH200V-VTBPTK',
+    '6AT',
+    '2WD',
+    '1998',
+    'VAN',
+    '2985',
+    3,
+    'GASOLINE',
+    5538403
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'REGIUSACE MODERATING TEMP VAN',
+    'CBF-TRH200V-VTPTK',
+    '5MT',
+    '2WD',
+    '1998',
+    'VAN',
+    '2985',
+    3,
+    'DIESEL',
+    5538403
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'REGIUSACE VAN',
+    'CBF-TRH200K-VTASTL',
+    '6AT',
+    '2WD',
+    '1998',
+    'VAN',
+    '3185',
+    6,
+    'DIESEL',
+    4460065
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'REGIUSACE VAN DX',
+    'CBF-TRH200V-SRTDK-G',
+    '6AT',
+    '2WD',
+    '1998',
+    'VAN',
+    '3105',
+    6,
+    'DIESEL',
+    4055557
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'REGIUSACE VAN DX GL',
+    'CBF-TRH200V-SRTDK-G',
+    '6AT',
+    '2WD',
+    '1998',
+    'VAN',
+    '2100',
+    5,
+    'GASOLINE',
+    3889632
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ROOMY CUSTOM G-T',
+    '5BA-M900A-GBVJ',
+    'CVT',
+    '2WD',
+    '996',
+    'VAN',
+    '1385',
+    5,
+    'GASOLINE',
+    3447329
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ROOMY CUSTOM G-T',
+    '4BA-M900A-GBVJ',
+    'CVT',
+    '2WD',
+    '996',
+    'VAN',
+    '1385',
+    5,
+    'GASOLINE',
+    3447329
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ROOMY CUSTOM G-T',
+    'DBA-M900A-AGBVJ',
+    'CVT',
+    '2WD',
+    '996',
+    'VAN',
+    '1375',
+    5,
+    'GASOLINE',
+    3061290
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ROOMY G',
+    '5BA-M900A-VTPBEG',
+    'CVT',
+    '2WD',
+    '996',
+    'VAN',
+    '1455',
+    5,
+    'GASOLINE',
+    3485893
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ROOMY G-T',
+    'DBA-M900A-AGBVJ',
+    'CVT',
+    '2WD',
+    '996',
+    'VAN',
+    '1375',
+    5,
+    'GASOLINE',
+    3051623
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ROOMY WELCAB G',
+    '5BA-M900A-VTPBEG',
+    'CVT',
+    '2WD',
+    '996',
+    'VAN',
+    '1455',
+    5,
+    'GASOLINE',
+    3500983
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ROOMY X S',
+    'DBA-M900A-VTPBAM',
+    'CVT',
+    '2WD',
+    '996',
+    'VAN',
+    '1445',
+    5,
+    'GASOLINE',
+    3202528
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'RUMION  GLX',
+    'K15BR-HMPRKN',
+    '4AT',
+    '2WD',
+    '1500',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3369074
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'RUSH DUAL VVT-i URBAN',
+    'F800RE-GQGF',
+    '4AT',
+    '2WD',
+    '1500',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3276000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SAI G "A PACKAGE"',
+    'DAA-AZK10-BEXSB(A)',
+    '6AT',
+    'AWD',
+    '2362',
+    'SEDAN',
+    '1865',
+    5,
+    'GASOLINE',
+    7040305
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SIENTA',
+    '6AA-NHP170G-MWXUB',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1765',
+    5,
+    'GASOLINE',
+    4325928
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SIENTA G',
+    'DBA-NSP172G-MNXQB',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1635',
+    5,
+    'GASOLINE',
+    3994816
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SIENTA G CUERO',
+    '6AA-NHP170G-MWXUS',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1765',
+    7,
+    'GASOLINE',
+    3931899
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SIENTA G CUERP HYBRID',
+    '6AA-NHP170G-MWXUB',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1765',
+    7,
+    'GASOLINE',
+    3932662
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SIENTA HYBRID G',
+    'DAA-NHP170G-MWXQB',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1765',
+    7,
+    'GASOLINE',
+    3628593
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SIENTA WELCAB X',
+    '5BA-MXPC12G-MNXB-P',
+    'CVT',
+    '2WD',
+    '1490',
+    'VAN',
+    '1605',
+    5,
+    'GASOLINE',
+    3556315
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SIENTA WELCAB X (HYBRID)',
+    '6AA-MXPL12G-MNXNB',
+    'CVT',
+    '2WD',
+    '1490',
+    'VAN',
+    '1665',
+    5,
+    'GASOLINE',
+    4223648
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SIENTA X',
+    '5BA-MXPC12G-MNXNB-P',
+    'CVT',
+    '2WD',
+    '1490',
+    'VAN',
+    '1605',
+    5,
+    'GASOLINE',
+    3487570
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SIENTA X',
+    'DBA-NSP172G-MNXNB',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1635',
+    5,
+    'GASOLINE',
+    3571406
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SIENTA X',
+    '5BA-NSP170G-VQQKXN',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1745',
+    7,
+    'GASOLINE',
+    3209235
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SIENTA X',
+    '5BA-NSP172G-MNXNB',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1635',
+    5,
+    'GASOLINE',
+    3584819
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SIENTA Z HYBRID',
+    '6AA-MXPL10G-MWXUB',
+    'CVT',
+    '2WD',
+    '1490',
+    'VAN',
+    '1765',
+    7,
+    'GASOLINE',
+    4879244
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'SPADE G',
+    '5BA--NSP141-BEXGB',
+    'CVT',
+    '2WD',
+    '1496',
+    'VAN',
+    '1445',
+    5,
+    'GASOLINE',

@@ -1,0 +1,500 @@
+    'ISUZU',
+    'D-MAX SX LOW-RIDE (2WD)',
+    NULL,
+    '6MT',
+    '2WD',
+    '3000',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    6362450
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX X-RIDER (4WD)',
+    NULL,
+    '6AT',
+    '4WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    8772469
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX X-RIDER LIMITED EDITION (4WD)',
+    NULL,
+    '6MT',
+    '4WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    12244597
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX X-RUNNER LTD ED (4WD)',
+    NULL,
+    '6AT',
+    '4WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    10415566
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'D-MAX X-TERRAIN (4WD)',
+    NULL,
+    '6AT',
+    '4WD',
+    '3000',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    10394270
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FRD 110-240 (XLWB)',
+    NULL,
+    '6AT-MT',
+    '2WD',
+    '5200',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    16418660
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FRD 110-260 (LWB)',
+    NULL,
+    '6MT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    17023875
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FRD 110-260 (LWB) AW',
+    NULL,
+    '6AT-MT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    19051557
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FRR 110-240 (LWB)',
+    NULL,
+    '6AT-MT',
+    '2WD',
+    '5200',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    15577591
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FRR 110-240 (MLWB)',
+    NULL,
+    '6AT-MT',
+    '2WD',
+    '5200',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    15487768
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FRR 110-240 (MWB)',
+    NULL,
+    '6AT-MT',
+    '2WD',
+    '5200',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    15365283
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FRR 110-240 (SWB) PTO',
+    NULL,
+    '6MT',
+    '2WD',
+    '5200',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    14936175
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FRR 110-240 (XLWB)',
+    NULL,
+    '6AT-MT',
+    '2WD',
+    '5200',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    15670136
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FRR 110-260',
+    NULL,
+    '6AT-MT',
+    '2WD',
+    '7800',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    22572963
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FRR 110-260 (LWB)',
+    NULL,
+    '6AT-MT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    17840446
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FRR 110-260 (MWB)',
+    NULL,
+    '6AT-MT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    17676996
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FRR 110-260 (XLWB)',
+    NULL,
+    '6AT-MT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    17922103
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FSD 140/120-260 (LWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    21320264
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FSD 140/120-260 (LWB) AW',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    21810343
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FSR 120-260 (SWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    20327994
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FSR 120-260 DC',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    25118272
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FSR 140/120-240 (LWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '5200',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    19135664
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FSR 140/120-240 (SWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '5200',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    19071563
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FSR 140/120-260 (LWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    20571740
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FSR 140/120-260 (MWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    20408426
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FSR 140/120-260 (XLWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    20653533
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FSS 110-210 (4WD)',
+    NULL,
+    '6MT',
+    '4WD',
+    '5200',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    26855845
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FTR 150-260 (LWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    23734048
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FTR 150-260 (MLWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    23536710
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FTR 150-260 (MWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    23271324
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FTS 139-260 (4WD)',
+    NULL,
+    '6AT',
+    '4WD',
+    '7800',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    33400696
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FVD 165-260',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'DUAL CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    32661155
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FVD 165-300 (LWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    26843279
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FVD 165-300 (MLWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    26817557
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FVD 165-300 (MLWB) DC',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    32397459
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'ISUZU',
+    'FVL 240-300 (LWB)',
+    NULL,
+    '6AT',
+    '2WD',
+    '7800',
+    'SINGLE CAB',
+    NULL,
+    NULL,
+    'DIESEL',

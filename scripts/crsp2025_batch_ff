@@ -1,0 +1,500 @@
+    '3BA-TRH224W-VTNGTQ',
+    '6AT',
+    '4WD',
+    '2693',
+    'VAN',
+    '2820',
+    10,
+    'GASOLINE',
+    8842407
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE FINE TECH TOWER',
+    '3BA-TRH224W-VTNGTQ',
+    '6AT',
+    '2WD',
+    '2270',
+    'VAN',
+    '2820',
+    10,
+    'GASOLINE',
+    8773068
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE LOW TEMP REFRIGERATING    VAN',
+    '3DF-GDH201V-VTBTTB',
+    '6AT',
+    '2WD',
+    '2754',
+    'VAN',
+    '3235',
+    3,
+    'DIESEL',
+    8856904
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE LOW TEMPERATURE REFRIGERATING VAN',
+    '3DF-GDH201V-VTBTTB',
+    '6AT',
+    '2WD',
+    '2754',
+    'VAN',
+    '3265',
+    3,
+    'GASOLINE',
+    8951045
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE SCHOOL BUS',
+    '3BA-TRH219W-VTNHTD',
+    '6AT',
+    '4WD',
+    '2693',
+    'BUS',
+    '2580',
+    14,
+    'GASOLINE',
+    6692194
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE SCHOOL BUS',
+    '3BA-TRH219W-VTNHTD',
+    '6AT',
+    '4WD',
+    '2693',
+    'VAN',
+    '2580',
+    14,
+    'GASOLINE',
+    5933607
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE SCHOOL BUS',
+    'CBA-TRH219W-VTNHTD',
+    '6AT',
+    'AWD',
+    '2693',
+    'VAN',
+    '2580',
+    14,
+    'DIESEL',
+    5861520
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE VAN',
+    '3BF-TRH200K-VTASTL',
+    'CVT/6AT',
+    '2WD',
+    '1998',
+    'VAN',
+    '3185',
+    6,
+    'GASOLINE',
+    5380512
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE VAN',
+    '3DF-GDH201V-VTBTTB',
+    '6AT',
+    '2WD',
+    '2754',
+    'VAN',
+    '3265',
+    3,
+    'GASOLINE',
+    9049028
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE VAN',
+    '3DF-GDH211K-KRTEY',
+    'CVT',
+    '2WD',
+    '2754',
+    'VAN',
+    '3150',
+    5,
+    'GASOLINE',
+    6793495
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE VAN',
+    'QDF-KDH201C-SRPEY',
+    '4AT',
+    '2WD',
+    '2982',
+    'VAN',
+    '3030',
+    2,
+    'GASOLINE',
+    5467625
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE VAN',
+    'CBF-TRH200K-VTASTL',
+    '6AT',
+    '2WD',
+    '1998',
+    'VAN',
+    '3040',
+    6,
+    'GASOLINE',
+    4645901
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE VAN',
+    'QDF-QDH201V-SRTEY',
+    '6AT',
+    '2WD',
+    '2754',
+    'VAN',
+    '3105',
+    5,
+    'DIESEL',
+    5761965
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE VAN GL',
+    '3DF-GDH211K-KRTEY',
+    '6AT',
+    '2WD',
+    '2754',
+    'VAN',
+    '315',
+    5,
+    'DIESEL',
+    6687827
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE VAN GL',
+    'QDF-GDH201V-SRTEY',
+    '6AT',
+    '2WD',
+    '2754',
+    'VAN',
+    '3040',
+    5,
+    'DIESEL',
+    5761965
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE VAN MODERATE TEMPERATURE REFRIGERATING VAN',
+    '3BF-TRH200V-VTBPTK',
+    '6AT',
+    '2WD',
+    '1998',
+    'VAN',
+    '2985',
+    3,
+    'GASOLINE',
+    5785941
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE VAN VAN WITH LIFT',
+    '3BF-TRH200K-VTASTL',
+    '6AT',
+    '2WD',
+    '1998',
+    'VAN',
+    '3185',
+    6,
+    'GASOLINE',
+    5330560
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE WAGON',
+    '3BA-TRH224-LDTNK',
+    'CVT',
+    '2WD',
+    '2693',
+    'VAN',
+    '2590',
+    10,
+    'GASOLINE',
+    6513169
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE WAGON',
+    'CBA-TRH224W-LDTNK',
+    '6AT',
+    '2WD',
+    '2693',
+    'VAN',
+    '2590',
+    10,
+    'GASOLINE',
+    5831829
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE WAGON GRAND CABIN',
+    '3BA--TRH224W-LDTNK',
+    '6AT',
+    '2WD',
+    '2693',
+    'VAN',
+    '2590',
+    10,
+    'GASOLINE',
+    6513169
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE WAGON GRAND CABIN',
+    '3BA-TRH224W-LDTNK',
+    'CVT',
+    '2WD',
+    '2693',
+    'VAN',
+    '2590',
+    5,
+    'GASOLINE',
+    6463217
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE WAGON GRAND CABIN',
+    'CBA-TRH224W-LDTNK',
+    'CVT',
+    'AWD',
+    '2693',
+    'VAN',
+    '2590',
+    10,
+    'GASOLINE',
+    5713478
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE WAGON GRAND CABIN',
+    'CBA-TRH224W-LDTNK',
+    '6AT',
+    '2WD',
+    '2693',
+    'VAN',
+    '2590',
+    10,
+    'GASOLINE',
+    5831829
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE WELCAB DX',
+    '3BF-TRH200K-VTZYF',
+    '6AT',
+    '2WD',
+    '1998',
+    'VAN',
+    '2670',
+    5,
+    'GASOLINE',
+    6616043
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE WELCAB DX',
+    '3BF-TRH200K-VTZYBUW',
+    'CVT',
+    '2WD',
+    '1998',
+    'VAN',
+    '2690',
+    10,
+    'GASOLINE',
+    7171455
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX 2GD 4 S/CAB  STD-E4 (VEHICLE STABILITY CONTROL; AIRBAGS;  WITH AIR CONDITIONER)',
+    'GUN125R-BJFSXJ',
+    'MT',
+    '4WD',
+    '2400',
+    'S/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    4462500
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX 2GD D/CAB BASIC-E4 ( WITHOUT CENTRAL LOCKING)',
+    'GUN125R-DJFLXJ',
+    'MT',
+    '4WD',
+    '2400',
+    'D/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    4462500
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX 2GD D/CAB -E4 (FABRIC SEATS)',
+    'GUN126R-DJFHXJ',
+    'MT',
+    '4WD',
+    '2800',
+    'D/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    6589000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX 2GD D/CAB -E4 (LEATHER SEATS)',
+    'GUN126R-DJTHXJ',
+    'AT',
+    '4WD',
+    '2800',
+    'D/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    6951000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX 2GD D/CAB STD-E4 (INCLUDES CENTRAL LOCKING)',
+    'GUN125R-DJFLXJ',
+    'MT',
+    '4WD',
+    '2400',
+    'D/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    5712000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX 2GD S/CAB -E4 (WITH DIFF LOCK;  WITH AIR CONDITIONER; DRIVER & PASSANGER AIRBAGS)',
+    'GUN135R-BJFLXJ',
+    'MT',
+    '2WD',
+    '2400',
+    'S/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    3400000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX D/C GD-6 COMFORT PLUS TMT-E4*',
+    'GUN125R-DTFSX',
+    '6MT',
+    '4WD',
+    '2400',
+    'D/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    5240000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX D/C GD-6 COUNTRY TMT - E4',
+    'GUN125R-DTFLX',
+    '6MT',
+    '4WD',
+    '2400',
+    'D/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    4823839
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX D/CAB DELUXE 2GD  - E0',
+    'GUN125R-DNFSXN',
+    'MT',
+    '4WD',
+    '2400',
+    'D/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    5240000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX D/CAB DELUXE 2GD - E4',
+    'GUN125R-DNTSXN',
+    'AT',
+    '4WD',
+    '2400',
+    'D/CAB',
+    NULL,
+    NULL,
+    'DIESEL',
+    5712000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HILUX Z',
+    '3DF-GUN125-DTTHX',
+    '10AT',
+    '4WD',
+    '2393',
+    'D/CAB',
+    '2875',
+    5,
+    'DIESEL',
+    7112071
+);

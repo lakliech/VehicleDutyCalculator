@@ -1,0 +1,500 @@
+    '2WD',
+    '900',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3816658
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'TWINGO INTENS EDC EDITION FINALE',
+    '3BA-AHH4B',
+    'AT',
+    '2WD',
+    '900',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    4772516
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO ZEN',
+    'VF1KW14B3H076',
+    'AT',
+    '2WD',
+    '1200',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    1877467
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO 20 ANS',
+    'ABA-KWH5F1',
+    'AT',
+    '2WD',
+    '1200',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    2720518
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'CAPTUR INTENS LEATHER',
+    'VF12R021AJ077',
+    'AT',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    2100178
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO ESCAPADE',
+    'VF1KW14B3K079',
+    'AT',
+    '2WD',
+    '1200',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    2679110
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'LUTECIA LIMITED',
+    'VF15RBUODJ078',
+    'AT',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    1423531
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'LUTECIA GT LINE',
+    'ABA-RH5F1',
+    'AT',
+    '2WD',
+    '1200',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    1346714
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO COULEUR',
+    'VF1KW14B3K080',
+    'AT',
+    '2WD',
+    '1200',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3228438
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO PAYSAGE',
+    'VF1KW14B3K080',
+    'AT',
+    '2WD',
+    '1200',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3713333
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO LA POSTE',
+    'ABA-KWH5F1',
+    'AT',
+    '2WD',
+    '1200',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3373558
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO PANACHE',
+    'VE1KW14B3L081',
+    'AT',
+    '2WD',
+    '1200',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    2664405
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'LUTECIA INTENS',
+    '7BA-BJAH5H',
+    'AT',
+    '2WD',
+    '1300',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    2812234
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'CAPTUR INTENS TECH PACK',
+    'VF1RJB001L081',
+    'AT',
+    '2WD',
+    '1300',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'HYBRID',
+    2606744
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'CAPTUR INTENS',
+    'VF1RJB002M082',
+    'AT',
+    '2WD',
+    '1300',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3295193
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'LUTECIA INTENS TECH PACK',
+    'VF1RJA008M081',
+    'AT',
+    '2WD',
+    '1300',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3107698
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'LUTECIA INTENS PLUS',
+    'VF1RJA009M083',
+    'AT',
+    '2WD',
+    '1300',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    2930265
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO PREMIERE EDITION',
+    '3BA-KFKH5H',
+    'AT',
+    '2WD',
+    '1300',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    5037408
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'ARKANA SPORT LINE MILD HYBRID',
+    '7AA-LJLH5HH',
+    'AT',
+    '2WD',
+    '1300',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'HYBRID',
+    5038376
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO VARIETE(BLACK BUMPER SPECIFICATIONS)',
+    '3BA-KFKH5H',
+    'AT',
+    '2WD',
+    '1300',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    5269794
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'LUTECIA INTENS EDITION FINALE',
+    '3BA-BJAH5H',
+    'AT',
+    '2WD',
+    '1300',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3827494
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO',
+    'VF1KW32H25925',
+    'AT',
+    '2WD',
+    '1500',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    5633755
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO CREATIF',
+    '7DA-KFKK9K',
+    'AT',
+    '2WD',
+    '1500',
+    'WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    6047250
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'LUTECIA SPORT CHASSIS CUP',
+    'VF15RA63DH076',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    2453849
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'LUTECIA SPORT TROPHY FINAL EDITION',
+    'ABA-RM5M1',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3083934
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'MEGANE GT',
+    'ABA-BBM5M',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    3385361
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'CAPTUR E-TECH HYBRID LEATHER PACK',
+    '5AA-HJBH4MH',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'HYBRID',
+    5148122
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'CAPTUR E-TECH HYBRID',
+    '5AA-HJBH4MH',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'HYBRID',
+    4516770
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'LUTECIA E-TECH HYBRID LEATHER PACK',
+    '5AA-BJAH4MH',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'HYBRID',
+    4610069
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'ARKANA SPORT LINE E-TECH FULL HYBRID',
+    '7AA-LJLH4MH',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'HYBRID',
+    5001629
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'ARKANA E-TECH ENGINEERED',
+    '7AA-LJLH4MH',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'HYBRID',
+    5641424
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'LUTECIA E-TECH HYBRID',
+    '5AA-BJAH4MH',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'HYBRID',
+    3739771
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'LUTECIA SPORT TROPHY',
+    'VF15R930DH076',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    2039702
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'ARKANA ENTRACTE E-TECH FULL HYBRID',
+    '7AA-LJLH4MH',
+    'AT',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'HYBRID',
+    5385169
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'MEGANE SPORT TROPHY',
+    'VF1RFB008L081',
+    'AT',
+    '2WD',
+    '1800',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    6366708
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'MEGANE R.S.ULTIME',
+    'VF1RFB001P086',
+    'AT',
+    '2WD',
+    '1800',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'GASOLINE',
+    9675235
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (

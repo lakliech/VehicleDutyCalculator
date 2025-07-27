@@ -1,0 +1,500 @@
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN 718 CAYMAN GT4',
+    'WP0ZZZ98ZPS27',
+    'MT',
+    '2WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    25390703
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911GT3',
+    'WP0ZZZ99ZPS26',
+    'MT',
+    '2WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    55687613
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '911 911GT3RS',
+    'WP0ZZZ99ZPS27',
+    'AT',
+    '2WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    94912230
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'CAYENNE COUPE CAYENNE S COUPE',
+    '7BA-E3RM',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    27823819
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 BOXSTER 718 BOXSTER GTS 4.0',
+    'WP0ZZZ98ZRK22',
+    'MT',
+    '2WD',
+    '4000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    24435697
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 SPYDER 718 SPYDER RS',
+    'WP0ZZZ98ZRK23',
+    'AT',
+    '2WD',
+    '4000',
+    'CONVERTIBLE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    54220759
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'CAYENNE COUPE CAYENNE TURBO E-HYBRID COUPE',
+    'WP1ZZZ9YZRDA8',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'PLUG-IN HYBRID',
+    43697086
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'MACAN MACAN GTS',
+    'WP1ZZZ95ZRLB4',
+    'AT',
+    '4WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    22060473
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    '718 CAYMAN 718 CAYMAN GT4 RS',
+    '99999',
+    'AT',
+    '2WD',
+    '4000',
+    'COUPE',
+    NULL,
+    NULL,
+    'GASOLINE',
+    48831420
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'TAYCAN TAYCAN TURBO',
+    'ZAA-J1MC',
+    'AT',
+    '4WD',
+    'EV',
+    'COUPE',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    20930869
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'TAYCAN TAYCAN 4S',
+    'WP0ZZZY1ZMSA2',
+    'AT',
+    '4WD',
+    'EV',
+    'COUPE',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    11787671
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'TAYCAN TAYCAN TURBO S',
+    'WP0ZZZY1ZMSA5',
+    'AT',
+    '4WD',
+    'EV',
+    'COUPE',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    22491914
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'TAYCAN TAYCAN GTS',
+    'WP0ZZZY1ZRSA4',
+    'AT',
+    '4WD',
+    'EV',
+    'COUPE',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    20345047
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'TAYCAN CROSS TURISMO TAYCAN 4 CROSS TURISMO',
+    'WP0ZZZY1ZPSA5',
+    'AT',
+    '4WD',
+    'EV',
+    'COUPE',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    15984688
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'TAYCAN CROSS TURISMO TAYCAN TURBO CROSS TURISMO',
+    'WPOZZZY1ZSSA7',
+    'AT',
+    '4WD',
+    'EV',
+    'COUPE',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    32436656
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'MACAN ELECTRIC MACAN',
+    'ZAA-H2SA12',
+    'AT',
+    '2WD',
+    'EV',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    18264802
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'MACAN ELECTRIC MACAN 4',
+    'ZAA-H2SA22',
+    'AT',
+    '2WD',
+    'EV',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    17706777
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'TAYCAN CROSS TURISMO TAYCAN 4S CROSS TURISMO',
+    'WP0ZZZY1ZSSA6',
+    'AT',
+    '4WD',
+    'EV',
+    'COUPE',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    18405169
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'PORSCHE',
+    'TAYCAN TAYCAN',
+    'WP0ZZZY1ZPSA0',
+    'AT',
+    '2WD',
+    'WEV',
+    'COUPE',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    13318850
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'ARKANA ESPIRIT ALPINE',
+    NULL,
+    '7AT',
+    '2WD',
+    '1300',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    5572611
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'ARKANA INTENS',
+    NULL,
+    '7AT',
+    '2WD',
+    '1300',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    4658703
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'ARKANA R.S. LINE',
+    NULL,
+    '7AT',
+    '2WD',
+    '1300',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    5121849
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'ARKANA TECHNO',
+    NULL,
+    '7AT',
+    '2WD',
+    '1300',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    5077268
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'ARKANA ZEN',
+    NULL,
+    '7AT',
+    '2WD',
+    '1300',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    4209179
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'CAPTUR INTENS',
+    NULL,
+    '7AT',
+    '2WD',
+    '1300',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    4440752
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'CAPTUR LIFE',
+    NULL,
+    '7AT',
+    '2WD',
+    '1300',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    3664301
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'CAPTUR R.S. LINE',
+    NULL,
+    '7AT',
+    '2WD',
+    '1300',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    4685947
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'CAPTUR ZEN',
+    NULL,
+    '7AT',
+    '2WD',
+    '1300',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    3623436
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO E-TECH SWB EV45',
+    NULL,
+    'AT',
+    '2WD',
+    NULL,
+    'VAN',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    8374452
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO PETROL LWB',
+    NULL,
+    '7AT',
+    '2WD',
+    '1300',
+    'VAN',
+    NULL,
+    NULL,
+    'PETROL',
+    5447537
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO PETROL SWB',
+    NULL,
+    '6AT',
+    '2WD',
+    '1300',
+    'VAN',
+    NULL,
+    NULL,
+    'PETROL',
+    4828358
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KANGOO PETROL SWB',
+    NULL,
+    '7AT',
+    '4WD',
+    '1300',
+    'VAN',
+    NULL,
+    NULL,
+    'PETROL',
+    5199865
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KOLEOS INTENS',
+    NULL,
+    'CVT',
+    '2WD',
+    '2500',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    4799876
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KOLEOS LIFE',
+    NULL,
+    'CVT',
+    '2WD',
+    '2500',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    5066010
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KOLEOS LIFE',
+    NULL,
+    'CVT',
+    '2WD',
+    '2500',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    4472949
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'RENAULT',
+    'KOLEOS ZEN',
+    NULL,
+    'CVT',
+    '2WD',
+    '2500',
+    'SUV',
+    NULL,

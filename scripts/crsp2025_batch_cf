@@ -1,0 +1,500 @@
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    26560492
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JEEP',
+    'CHRYSLER WRANGLER UNLIMITED SAHARA LAUNCH EDITION',
+    'ABA-JL36L',
+    'AT',
+    '2WD',
+    '3600',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    27120172
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JEEP',
+    'CHRYSLER WRANGLER UNLIMITED SPORT',
+    '3BA-JL20L',
+    'AT',
+    '2WD',
+    '3600',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    14454161
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'JEEP',
+    'CHRYSLER WRANGLER UNLIMITED SPORT ALTITUDE',
+    '3BA-JL20L',
+    'AT',
+    '2WD',
+    '3600',
+    'WAGON',
+    NULL,
+    NULL,
+    'GASOLINE',
+    12248354
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'SPORT+ HEV',
+    'Auto',
+    '2WD',
+    '1598',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    10456791
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'GT-LINE HEV',
+    'Auto',
+    '2WD',
+    '1600',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    11685652
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'GT-LINE',
+    'Auto',
+    '4WD',
+    '2200',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    11180641
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'GT-LINE LITE',
+    'Auto',
+    '4WD',
+    '2200',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    10518005
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'S',
+    'Auto',
+    '4WD',
+    '2200',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    8038859
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'SPECIAL EDITION',
+    'Auto',
+    '4WD',
+    '2200',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    9670199
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'SPORT',
+    'Auto',
+    '4WD',
+    '2200',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    8941758
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'SPORT+',
+    'Auto',
+    '4WD',
+    '2200',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    9910461
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'GT-LINE',
+    'Auto',
+    '4WD',
+    '3500',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    11706526
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'GT-LINE LITE',
+    'Auto',
+    '4WD',
+    '3500',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    10990879
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'S',
+    'Auto',
+    '4WD',
+    '3500',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    8313401
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'SPECIAL EDITION',
+    'Auto',
+    '4WD',
+    '3500',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    10113261
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'SPORT',
+    'Auto',
+    '4WD',
+    '3500',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    9288533
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CARNIVAL',
+    'SPORT+',
+    'Auto',
+    '4WD',
+    '3500',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'PETROL',
+    10334732
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CERATO',
+    'GT',
+    'Auto',
+    '2WD',
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    5640821
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CERATO',
+    'S',
+    'Auto',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4141091
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CERATO',
+    'S SAFETY PACK',
+    'Auto',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4294125
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CERATO',
+    'SPORT',
+    'Auto',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4462462
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CERATO',
+    'SPORT+',
+    'Auto',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4929215
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CERATO',
+    'SPORT SAFETY PACK',
+    'Auto',
+    '2WD',
+    '2000',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4615496
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CERATO',
+    'GT',
+    'Auto',
+    '2WD',
+    '1600',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    5640821
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CERATO',
+    'S',
+    'Auto',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    4141091
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CERATO',
+    'S SAFETY PACK',
+    'Auto',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    4294125
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CERATO',
+    'SPORT',
+    'Auto',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    4462462
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CERATO',
+    'SPORT+',
+    'Auto',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    4929215
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'CERATO',
+    'SPORT SAFETY PACK',
+    'Auto',
+    '2WD',
+    '2000',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    4615496
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV3',
+    'AIR 2WD LR',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    7179912
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV3',
+    'AIR 2WD SR',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    6410275
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV3',
+    'EARTH 2WD LR SUBTLE GREY',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    7891641
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV3',
+    'EARTH 2WD LR WARM GREY',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    7891641
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV3',
+    'GT-LINE 2WD LR',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    8612123
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV5',
+    'AIR 2WD LR',
+    'Auto',
+    '2WD',
+    '0',
+    'SUV',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    8237742
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'KIA',
+    'EV5',

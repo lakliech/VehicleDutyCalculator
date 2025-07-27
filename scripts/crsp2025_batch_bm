@@ -1,0 +1,500 @@
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'Odssey G',
+    'DBA-RC21',
+    'CVT',
+    '2WD',
+    '2356',
+    'MINIVAN',
+    '2165',
+    7,
+    'GASOLINE',
+    5274670
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'Odssey Hybrid Absolute Sensing EX',
+    'DAA-RC4',
+    'CVT',
+    '2WD',
+    '1993',
+    'MINIVAN',
+    '2285',
+    7,
+    'GASOLINE',
+    6468813
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'ODYSSEY G',
+    'DBA-RC1',
+    'CVT',
+    '2WD',
+    '2356',
+    'MINIVAN',
+    '2205',
+    7,
+    'GASOLINE',
+    5623986
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'ODYSSEY G AERO',
+    '6BA-RC1',
+    'CVT',
+    '2WD',
+    '2356',
+    'MINIVAN',
+    '2190',
+    8,
+    'GASOLINE',
+    4626496
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'ODYSSEY G.AERO',
+    'DBA-RC1',
+    'CVT',
+    '2WD',
+    '2356',
+    'MINIVAN',
+    '2190',
+    5,
+    'GASOLINE',
+    4819267
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'Odyssey Hybrid',
+    'DAA-RC4',
+    'CVT',
+    '2WD',
+    '1993',
+    'MINIVAN',
+    '2245',
+    7,
+    'GASOLINE',
+    5896971
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'ODYSSEY HYBRID ABSOLUTE',
+    '6AA-RC4',
+    'CVT',
+    '2WD',
+    '1993',
+    'MINIVAN',
+    '2275',
+    7,
+    'GASOLINE',
+    6577075
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'ODYSSEY HYBRID ABSOLUTE EX',
+    '6AA-RC4',
+    'CVT',
+    '2WD',
+    '1993',
+    'MINIVAN',
+    '2275',
+    8,
+    'GASOLINE',
+    6711394
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'S660',
+    '3BA-JWS',
+    '6MT',
+    '2WD',
+    '658',
+    'CONVERTIBLE',
+    '940',
+    2,
+    'GASOLINE',
+    3537871
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'S660',
+    'DBA-JW5',
+    '6MT',
+    '2WD',
+    '658',
+    'CONVERTIBLE',
+    '940',
+    2,
+    'GASOLINE',
+    3393674
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'S669 MODULO X',
+    'DBA-JW5',
+    '6MT',
+    '2WD',
+    '658',
+    'CONVERTIBLE',
+    '940',
+    2,
+    'GASOLINE',
+    4424854
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'Shutte Hybrid Sensing (FF)',
+    'DAA-GP7',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '1515',
+    5,
+    'GASOLINE',
+    3834650
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'Shuttle Hybrid',
+    'DAA-GP7',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '1465',
+    5,
+    'GASOLINE',
+    3380260
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'SHUTTLE HYBRID Z',
+    '6AA-GP7',
+    '7AT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '1515',
+    5,
+    'GASOLINE',
+    3973817
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'SHUTTLE HYBRID Z',
+    'DAA-GP7',
+    '7AT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '1515',
+    5,
+    'GASOLINE',
+    3834650
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'SHUTTLE HYBRID Z HONDA SENSING',
+    '6AA-GP7',
+    '7AT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '1515',
+    5,
+    'GASOLINE',
+    4371199
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'ShuttleG Sensing (FF)',
+    'DBA-GK8',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '1405',
+    5,
+    'GASOLINE',
+    2748138
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN  SPADA',
+    '5BA-RP6',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '2175',
+    7,
+    'GASOLINE',
+    6103247
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN E:HEV SPADA',
+    '6AA-RP8',
+    'CVT',
+    '2WD',
+    '1993',
+    'WAGON',
+    '2225',
+    7,
+    'GASOLINE',
+    6359296
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN E:HEV SPADA',
+    '6AA-RP6',
+    'CVT',
+    '2WD',
+    '1993',
+    'WAGON',
+    '2225',
+    7,
+    'GASOLINE',
+    6724331
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN E:HEV SPADA G',
+    '6AA-RP5',
+    'CVT',
+    '2WD',
+    '1993',
+    'WAGON',
+    '2205',
+    7,
+    'GASOLINE',
+    5549931
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN G',
+    'DBA-RP1',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '2135',
+    7,
+    'GASOLINE',
+    5286686
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN G',
+    '6BA-RP1',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '2065',
+    7,
+    'GASOLINE',
+    4450005
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN G',
+    '66A-RP1',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '2135',
+    7,
+    'GASOLINE',
+    5293393
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN G. HONDA SENSING',
+    '6BA-RP1',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '2135',
+    7,
+    'GASOLINE',
+    5293393
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN G-EX',
+    'DBA-RP1',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '2065',
+    7,
+    'GASOLINE',
+    4443298
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN MODULO X',
+    'DBA-RP3',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '2085',
+    7,
+    'GASOLINE',
+    5308483
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN SPADA',
+    '5BA-RP6',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '2165',
+    7,
+    'GASOLINE',
+    5777964
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'Step WGN Spada',
+    'DBA-RP3',
+    'CVT',
+    '2WD',
+    '1496',
+    'WAGON',
+    '2065',
+    7,
+    'GASOLINE',
+    5179376
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN SPADA HYBRID G',
+    '6AA-RP5',
+    'CVT',
+    '2WD',
+    '1993',
+    'WAGON',
+    '2205',
+    7,
+    'GASOLINE',
+    5756726
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'STEP WGN SPADA HYBRID G.EX',
+    '6AA-RP5',
+    'CVT',
+    '2WD',
+    '1993',
+    'WAGON',
+    '2205',
+    7,
+    'GASOLINE',
+    5756726
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'VEZEL E:HEV Z',
+    '6AA-RV5',
+    'CVT',
+    '2WD',
+    '1496',
+    'SUV',
+    '1655',
+    5,
+    'GASOLINE',
+    4859962
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'VEZEL HYBRID RS',
+    'DAA-RU3',
+    '7AT',
+    '2WD',
+    '1496',
+    'SUV',
+    '1585',
+    5,
+    'GASOLINE',
+    4362567
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'VEZEL HYBRID RS HONDA SENSING',
+    '6AA-RU3',
+    '7AT',
+    '2WD',
+    '1496',
+    'SUV',
+    '1585',
+    5,
+    'GASOLINE',
+    4362567
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'WR-V Z+',
+    '5BA-DGS',
+    'CVT',
+    '2WD',
+    '1496',
+    'SUV',
+    '1505',
+    5,
+    'GASOLINE',
+    4173850
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HONDA',
+    'ZR-V  E:HEV',
+    '6AA-RZ4',
+    'CVT',
+    '2WD',
+    '1993',
+    'SUV',
+    '1835',

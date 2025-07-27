@@ -1,0 +1,500 @@
+    2887305
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'IGNIS HYBRID MZ',
+    'DAA-FF21S/PBZB-J',
+    'CVT',
+    '2WD',
+    '1242',
+    'SUV',
+    '1155',
+    5,
+    'GASOLINE',
+    2699513
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY SIERRA',
+    'ABA-JB43W/GWZJ-Y9',
+    '5MT',
+    '2WD',
+    '1328',
+    'SUV',
+    '1280',
+    4,
+    'GASOLINE',
+    2598733
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY SIERRA JC',
+    '3BA-JB74W/GJCU-J2',
+    '5MT',
+    '2WD',
+    '1460',
+    'SUV',
+    '1290',
+    4,
+    'GASOLINE',
+    3283010
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY SIERRA JC',
+    '3BA-JB74W/GJCU-J3',
+    '5MT',
+    '4WD',
+    '1460',
+    'SUV',
+    '1300',
+    4,
+    'GASOLINE',
+    3329120
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY SIERRA JC',
+    '3BA-JB74W/GJCU-4',
+    '5MT',
+    '4X4',
+    '1460',
+    'SUV',
+    '1300',
+    4,
+    'GASOLINE',
+    3495115
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY SIERRA JC',
+    '3BA-JB74W/GJCR-J',
+    '4AT',
+    '4WD',
+    '1460',
+    'SUV',
+    '1310',
+    4,
+    'GASOLINE',
+    3135459
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY SIERRA JC',
+    '3BA-JB84W/GJCR-J',
+    '6AT',
+    '4WD',
+    '1460',
+    'SUV',
+    '1310',
+    4,
+    'GASOLINE',
+    3135459
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY XC',
+    '3BA-JB64W/JXCU-J3',
+    '5MT',
+    '4WD',
+    '658',
+    'SUV',
+    '1260',
+    4,
+    'GASOLINE',
+    3024796
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY XC',
+    '3BA-JB64W/JXCU-J3',
+    '4AT',
+    '4WD',
+    '658',
+    'SUV',
+    '1260',
+    4,
+    'GASOLINE',
+    3024796
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY XC',
+    '3BA-JB64W/JXCU-4',
+    '5MT',
+    '4WD',
+    '658',
+    'SUV',
+    '1260',
+    4,
+    'GASOLINE',
+    3190791
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY XC',
+    '3BA-JB64W/JXCR-J',
+    '4AT',
+    '4WD',
+    '658',
+    'SUV',
+    '1040',
+    4,
+    'GASOLINE',
+    2858801
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY XC',
+    '3BA-JB64W/JXCR-J',
+    '4AT',
+    '2WD',
+    '658',
+    'SUV',
+    '1260',
+    4,
+    'GASOLINE',
+    3227679
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY XC',
+    '3BA-JB64W/JXCU-J2',
+    'CVT',
+    '2WD',
+    '657',
+    'SUV',
+    '1040',
+    4,
+    'GASOLINE',
+    2545255
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY XC',
+    'ABA-JB23W/JXCU-DT',
+    '5MT',
+    '2WD',
+    '658',
+    'SUV',
+    '1210',
+    4,
+    'GASOLINE',
+    2358203
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'JIMNY XC',
+    '3BA-JB64W/JXCR-J',
+    '4AT',
+    '4WD',
+    '658',
+    'SUV',
+    '1260',
+    4,
+    'GASOLINE',
+    2858801
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LANDY 2.0G',
+    'DAA-SGC27/LGBE-Q',
+    'CVT',
+    '2WD',
+    '1997',
+    'MINIVAN',
+    '2130',
+    8,
+    'GASOLINE',
+    4797854
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LANDY 2.0G',
+    '5AA-SGC27/LGBB-Q2',
+    'CVT',
+    '2WD',
+    '1997',
+    'MINIVAN',
+    '2140',
+    8,
+    'GASOLINE',
+    5009190
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LANDY HYBRID G',
+    '6AA-ZWR90C/LBGV',
+    'CVT',
+    '4WD',
+    '1797',
+    'MINIVAN',
+    '2035',
+    7,
+    'GASOLINE',
+    6026921
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LANDY HYBRID G',
+    '6AA-ZWR90C/LBGV',
+    'CVT',
+    '2WD',
+    '1797',
+    'MINIVAN',
+    '2035',
+    7,
+    'GASOLINE',
+    6026921
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LAPIN LC',
+    '5BA-HE33S/NSXE-5',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCBACK',
+    '900',
+    4,
+    'GASOLINE',
+    2720472
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LAPIN LC X',
+    '5BA-HE33S/NSXE-4',
+    'CVT',
+    '4WD',
+    '658',
+    'HATCBACK',
+    '900',
+    4,
+    'GASOLINE',
+    2591365
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LAPIN LC X',
+    '5BA-HE33S/NSXE-4',
+    '5MT',
+    '4WD',
+    '658',
+    'HATCBACK',
+    '900',
+    4,
+    'GASOLINE',
+    2591365
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LAPIN X',
+    '5BA-HE33S/NBXE-4',
+    'CVT',
+    '4WD',
+    '658',
+    'HATCBACK',
+    '900',
+    4,
+    'GASOLINE',
+    2508367
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LAPIN X',
+    '5BA-HE33S/NBXE-5',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCBACK',
+    '900',
+    4,
+    'GASOLINE',
+    2637475
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LAPIN X',
+    'DBA-HE33S/NBXE-2',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCBACK',
+    '900',
+    4,
+    'GASOLINE',
+    2191468
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LAPIN X',
+    '5BA-HE33S/NBXE-3',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCBACK',
+    '900',
+    4,
+    'GASOLINE',
+    2429059
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LAPIN X',
+    '5BA-HE33S/NBXE-M3',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCBACK',
+    '900',
+    4,
+    'GASOLINE',
+    2288718
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'LAPIN X',
+    'DBA-HE33S/NBXE',
+    'CVT',
+    '2WD',
+    '658',
+    'HATCBACK',
+    '900',
+    4,
+    'GASOLINE',
+    2157934
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'Pixis Deluxe',
+    'EBD-S321M-ZMDF',
+    '5MT',
+    '2WD',
+    '658',
+    'VAN',
+    '1360',
+    NULL,
+    '40',
+    1596873
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SAMBAR TRUCK TC',
+    '3BD-S510J',
+    '4WD',
+    'CVT',
+    '658',
+    'TRUCK',
+    '1320',
+    2,
+    NULL,
+    2351594
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SAMBAR VB',
+    'HBD-DA17V/EVBN-D2',
+    '5AGS',
+    '2WD',
+    '658',
+    'VAN',
+    '1320(1330)',
+    NULL,
+    '37',
+    1740431
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SOLIO BANDIT HYBRID MV',
+    '5AA-MA37S/FSVB-J',
+    'CVT',
+    '2WD',
+    '1242',
+    'MINIVAN',
+    '1275',
+    5,
+    'GASOLINE',
+    3364163
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SOLIO BANDIT HYBRID MV',
+    'DAA-MA36S/FSVB-JR2',
+    'CVT',
+    '2WD',
+    '1242',
+    'MINIVAN',
+    '1225',
+    5,
+    'GASOLINE',
+    3090188
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SOLIO BANDIT HYBRID SV',
+    '5AA-MA47S/FSVH-JR2',
+    'CVT',
+    '4X4',
+    '1242',
+    'MINIVAN',
+    '1325',
+    5,
+    'GASOLINE',
+    3886125
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SOLIO BANDIT HYBRID SV',
+    'DAA-MA46S/FSVH-JRM2',
+    '5AGS',
+    '2WD',
+    '1242',
+    'MINIVAN',
+    '1265',
+    5,
+    'GASOLINE',
+    3366846
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'SUZUKI',
+    'SOLIO BANDIT HYBRID SV',
+    'DAA-MA46S/FSVH',
+    '5AGS',
+    '2WD',
+    '1242',

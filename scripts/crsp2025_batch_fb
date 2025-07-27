@@ -1,0 +1,500 @@
+    '2WD',
+    '1496',
+    'HATCHBACK',
+    '1445',
+    5,
+    'GASOLINE',
+    3641828
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'AQUA X',
+    '6AA-MXPK11-VQQLXN',
+    'CVT',
+    '2WD',
+    '1490',
+    'HATCHBACK',
+    '1445',
+    5,
+    'GASOLINE',
+    3616677
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'AQUA Z',
+    '6AA-MXPK11-AHXEB',
+    'CVT',
+    '2WD',
+    '1490',
+    'HATCHBACK',
+    '1405',
+    5,
+    'GASOLINE',
+    4024119
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'AURIS HYBRID G PACKAGE',
+    'DAA-ZWE186H-BHXNB-V',
+    'CVT',
+    '2WD',
+    '1797',
+    'HATCHBACK',
+    '1675',
+    5,
+    'GASOLINE',
+    4595312
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'AVENSIS LI',
+    'DBA-ZRT272W-AWXGP',
+    'CVT',
+    '2WD',
+    '1986',
+    'SEDAN',
+    '1755',
+    5,
+    'GASOLINE',
+    4840607
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'BELTA GLX',
+    'K15BR-HEPRSKN',
+    '4AT',
+    '2WD',
+    '1500',
+    'SEDAN',
+    NULL,
+    NULL,
+    'GASOLINE',
+    2195000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'BZ4X',
+    'ZAA-YEAM15-MWDHS',
+    'CVT',
+    '2WD',
+    '0',
+    'SUV',
+    '1645',
+    5,
+    'ELECTRIC',
+    9990434
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'BZ4X Z',
+    'ZAA-YEAM15-MWDHS',
+    'CVT',
+    '4WD',
+    '0',
+    'SUV',
+    '2285',
+    5,
+    'ELECTRIC',
+    9990434
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'C+ POD',
+    'ZAZ-RMV12-AGDQS',
+    'CVT',
+    '2WD',
+    '0',
+    'HATCHBACK',
+    '800',
+    5,
+    'ELECTRIC',
+    2877245
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'C+ WALK S',
+    'ZEV11-ABDDSS',
+    'CVT',
+    '2WD',
+    '0',
+    'HATCHBACK',
+    '1645',
+    1,
+    'ELECTRIC',
+    776180
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'C+ WALK T',
+    'ZEV11-ABDHSS',
+    'CVT',
+    '2WD',
+    '0',
+    'HATCHBACK',
+    '1645',
+    1,
+    'ELECTRIC',
+    578216
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'C+POD G',
+    'ZAZ-RMV12-AGDQS',
+    'CVT',
+    '2WD',
+    '0',
+    'HATCHBACK',
+    '800',
+    1,
+    'ELECTRIC',
+    2637475
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'C+WALK T',
+    'ZEV11-ABDBSS',
+    'CVT',
+    '2WD',
+    '0',
+    'HATCHBACK',
+    '1645',
+    1,
+    'ELECTRIC',
+    544402
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CAMRY',
+    'DAA-AXVH70-AEXSB',
+    'CVT',
+    '2WD',
+    '2487',
+    'SEDAN',
+    '1875',
+    5,
+    'GASOLINE',
+    7065708
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CAMRY G "LEATHER PACKAGE"',
+    'DAA-AXVH70-AEXNB(L)',
+    'CVT',
+    'AWD',
+    '2487',
+    'SEDAN',
+    '1875',
+    5,
+    'GASOLINE',
+    6806955
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CAMRY WS',
+    '6AA-AXVH70-AEXSB(L)',
+    'CVT',
+    '2WD',
+    '2487',
+    'SEDAN',
+    '1875',
+    5,
+    'GASOLINE',
+    7831662
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CAMRY WS "LEATHER PACKAGE"',
+    '6AA-AXV70-AEXSB(L)',
+    'CVT',
+    '2WD',
+    '2487',
+    'SEDAN',
+    '1875',
+    5,
+    'GASOLINE',
+    7814196
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CAMRY WS LEATHER PACKAGE',
+    '6AA-AXVH70-AEXSB(L)',
+    'CVT',
+    '2WD',
+    '2487',
+    'SEDAN',
+    '1875',
+    5,
+    'GASOLINE',
+    7065708
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CAMRY WS LEATHER PACKAGE',
+    'DAA-AXVH70-AEXSB(L)',
+    'CVT',
+    '2WD',
+    '2487',
+    'SEDAN',
+    '1875',
+    5,
+    'GASOLINE',
+    6986318
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CENTURY',
+    '6AA-UWG60-AEXGH',
+    'CVT',
+    '4WD',
+    '4968',
+    'SEDAN',
+    '2645',
+    5,
+    'GASOLINE',
+    37877019
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CENTURY',
+    '6AA-UWG60-AEXGH',
+    'CVT',
+    '2WD',
+    '4968',
+    'SEDAN',
+    '2645',
+    5,
+    'GASOLINE',
+    34232955
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CENTURY',
+    'DAA-UWG60-AEXGH',
+    'CVT',
+    '2WD',
+    '4968',
+    'SEDAN',
+    '2645',
+    5,
+    'GASOLINE',
+    34232955
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CENTURY',
+    'DBA-GZG50-AETGK',
+    '6AT',
+    'AWD',
+    '4996',
+    'SEDAN',
+    '2345',
+    5,
+    'GASOLINE',
+    21968482
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CENTURY 3.5',
+    '6LA-GRG75-CNGB',
+    'CVT',
+    '4WD',
+    '2790',
+    'SEDAN',
+    '2790',
+    4,
+    'GASOLINE',
+    43664484
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CENTURY SEDAN',
+    '6AA-UWG60-AEXGH',
+    'CVT',
+    '4WD',
+    '4968',
+    'SEDAN',
+    '2645',
+    5,
+    'GASOLINE',
+    37877019
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CENTURY SEDAN 5.0L HYBRID',
+    '6AA-UWG60-AEXGH',
+    'CVT',
+    '2WD',
+    '2645',
+    'SEDAN',
+    '2645',
+    5,
+    'GASOLINE',
+    35071314
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'CENTURY V6 3.5L PLUG-IN HYBRID E-FOURADVANCED',
+    '6LA-GRG75-CNXGB',
+    'CVT',
+    '4WD',
+    '3456',
+    'SEDAN',
+    '2790',
+    4,
+    'GASOLINE',
+    47157643
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'C-HR G',
+    '6AA-ZYX11-AHXEB',
+    'CVT',
+    '2WD',
+    '1797',
+    'SUV',
+    '1715',
+    5,
+    'GASOLINE',
+    4755459
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'C-HR G',
+    'DAA-ZYX10-AHXEB',
+    'CVT',
+    '2WD',
+    '1797',
+    'SUV',
+    '1715',
+    5,
+    'GASOLINE',
+    4737111
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'C-HR S "GR SPORT" HYBRID',
+    '6AA-ZYX11-AHXNB(G)',
+    'CVT',
+    '2WD',
+    '1797',
+    'SUV',
+    '1725',
+    5,
+    'GASOLINE',
+    5492992
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'C-HR S GR SPORT',
+    '6AA-ZYX11-AHXNB(G)',
+    'CVT',
+    '2WD',
+    '1797',
+    'SUV',
+    '1725',
+    5,
+    'GASOLINE',
+    5510458
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'COASTER EX',
+    '2KG-XZB70-ZRTQH',
+    '6AT',
+    'AWD',
+    '4009',
+    'BUS',
+    '5515',
+    29,
+    'DIESEL',
+    14990891
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'COASTER EX',
+    'SDG-XZB70-ZRTQH',
+    '6AT',
+    '2WD',
+    '4009',
+    'VAN',
+    '5475',
+    29,
+    'DIESEL',
+    14292259
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'COASTER GX LONGBODY',
+    '2KG-GDB70-ZXTEY',
+    '6AT',
+    '2WD',
+    '2754',
+    'BUS',
+    '5050',
+    24,
+    'DIESEL',
+    14666027
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'COASTER GX LONGBODY',
+    '2KG-GDB70-ZXTEY',
+    '6AT',
+    '4WD',
+    '2754',
+    'BUS',
+    '5050',
+    24,
+    'DIESEL',
+    14711438
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'COASTER STANDARD  W/FOLDING DOOR',
+    'HZB70R-ZGMNS',
+    '5MT',
+    '2WD',
+    '4200',
+    'BUS',
+    NULL,
+    30,
+    'DIESEL',
+    6583500
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (

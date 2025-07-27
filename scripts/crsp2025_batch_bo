@@ -1,0 +1,500 @@
+    NULL,
+    '1600',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    7425806
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'ELANTRA SPORT PREMIUM (RED)',
+    'SPORT PREMIUM (RED)',
+    'MAN',
+    NULL,
+    '1600',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    6889646
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'ELANTRA SPORT PREMIUM (RED)',
+    'SPORT PREMIUM (RED)',
+    'AUT',
+    NULL,
+    '1600',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    7506230
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I20 N',
+    'N',
+    'MAN',
+    NULL,
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    5190996
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I20 N TTR',
+    'N TTR',
+    'MAN',
+    NULL,
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    5337222
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 ELITE HEV 1.6P DCT',
+    'ELITE HEV 1.6P DCT',
+    'AUT',
+    NULL,
+    '1600',
+    'SEDAN',
+    NULL,
+    NULL,
+    'HYBRID',
+    5483447
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 HEV 1.6P DCT',
+    'HEV 1.6P DCT',
+    'AUT',
+    NULL,
+    '1600',
+    'SEDAN',
+    NULL,
+    NULL,
+    'HYBRID',
+    4825433
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N LINE',
+    'N LINE',
+    'MAN',
+    NULL,
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4459870
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N LINE',
+    'N LINE',
+    'AUT',
+    NULL,
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'PETROL',
+    4752321
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N LINE',
+    'N LINE',
+    'AUT',
+    NULL,
+    '1600',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    5264109
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'I30 N LINE PREMIUM',
+    'N LINE PREMIUM',
+    'AUT',
+    NULL,
+    '1600',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    6068348
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ HYBRID PREMIUM',
+    'IONIQ HYBRID PREMIUM',
+    'AUT',
+    NULL,
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'HYBRID',
+    8069197
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ PLUG-IN HYBRID PREMIUM',
+    'IONIQ PLUG-IN HYBRID PREMIUM',
+    'AUT',
+    NULL,
+    '1600',
+    'HATCHBACK',
+    NULL,
+    NULL,
+    'HYBRID',
+    10213834
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA HYBRID',
+    'KONA HYBRID',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    5337222
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA HYBRID N LINE',
+    'KONA HYBRID N LINE',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    5922123
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA HYBRID PREMIUM',
+    'KONA HYBRID PREMIUM',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    6360798
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA HYBRID PREMIUM N LINE',
+    'KONA HYBRID PREMIUM N LINE',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    6799474
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA HYBRID PREMIUM N LINE SUNROOF',
+    'KONA HYBRID PREMIUM N LINE SUNROOF',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    7018812
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA HYBRID PREMIUM SUNROOF',
+    'KONA HYBRID PREMIUM SUNROOF',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    6580136
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA N LINE',
+    'KONA N LINE',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    5922123
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA PREMIUM N LINE',
+    'KONA PREMIUM N LINE',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    6799474
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'KONA PREMIUM N LINE SUNROOF',
+    'KONA PREMIUM N LINE SUNROOF',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    7018812
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'SANTA FE CALIGRAPHY (6 SEAT)',
+    'SANTA FE CALIGRAPHY (6 SEAT)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    11040006
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'SANTA FE CALIGRAPHY (6 SEAT)',
+    'SANTA FE CALIGRAPHY (6 SEAT)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    11083143
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'SANTA FE CALIGRAPHY (6 SEAT)',
+    'SANTA FE CALIGRAPHY (6 SEAT)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    11668044
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'SANTA FE CALIGRAPHY (7 SEAT)',
+    'SANTA FE CALIGRAPHY (7 SEAT)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    10966894
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'SANTA FE CALIGRAPHY (7 SEAT)',
+    'SANTA FE CALIGRAPHY (7 SEAT)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    11010030
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'SANTA FE CALIGRAPHY (7 SEAT)',
+    'SANTA FE CALIGRAPHY (7 SEAT)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    11010030
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'SANTA FE ELITE HEV (7 SEAT)',
+    'SANTA FE ELITE HEV (7 SEAT)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    9504641
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'SANTA FE HEV (2WD)',
+    'SANTA FE HEV (2WD)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    8115501
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'SANTA FE HEV (AWD)',
+    'SANTA FE HEV (AWD)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    8554177
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON ELITE (AWD)',
+    'TUCSON ELITE (AWD)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    7106547
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON ELITE (FWD)',
+    'TUCSON ELITE (FWD)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'PETROL',
+    6740984
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON ELITE HYBRID (AWD)',
+    'TUCSON ELITE HYBRID (AWD)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    7691448
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON ELITE HYBRID (FWD)',
+    'TUCSON ELITE HYBRID (FWD)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    7325885
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'TUCSON ELITE HYBRID N LINE (AWD)',
+    'TUCSON ELITE HYBRID N LINE (AWD)',
+    'AUT',
+    NULL,
+    '1600',
+    'SUV',
+    NULL,
+    NULL,
+    'HYBRID',
+    8057011
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (

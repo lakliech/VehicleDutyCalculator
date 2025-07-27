@@ -1,0 +1,500 @@
+    'MINIVAN',
+    '2045',
+    7,
+    'GASOLINE',
+    5547136
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ESTIMA AERAS SMART',
+    'DBA-ACR50W-GFXVK',
+    'CVT',
+    'AWD',
+    '2362',
+    'MINIVAN',
+    '2165',
+    7,
+    'GASOLINE',
+    5702328
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ESTIMA AERAS SMART',
+    'DBA-ACR50W-GFXVK',
+    'CVT',
+    '2WD',
+    '2362',
+    'MINIVAN',
+    '2165',
+    7,
+    'GASOLINE',
+    5684321
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ESTIMA HYBRID AERAS',
+    'DAA-AHR20W-GFSB',
+    'CVT',
+    '4WD',
+    '2362',
+    'MINIVAN',
+    '2405',
+    7,
+    'GASOLINE',
+    7546969
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ESTIMA HYBRID AERAS PREMIUM G',
+    'DAA-AHR20W-GFXB',
+    'CVT',
+    'AWD',
+    '2362',
+    'MINIVAN',
+    '2375',
+    7,
+    'GASOLINE',
+    7996002
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'ESTIMA HYBRID AERAS PREMIUM G',
+    'DAA-AHR20W-GFXZB',
+    'CVT',
+    '4WD',
+    '2362',
+    'MINIVAN',
+    '2375',
+    7,
+    'GASOLINE',
+    7970751
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'FJ Cruiser',
+    'CBA-GSJ15W-GKASK-A',
+    '5AT',
+    'AWD',
+    '3994',
+    'SUV',
+    '2215',
+    5,
+    'GASOLINE',
+    5857060
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'FORTUNER 1GD-E4',
+    'GUN156R-SNFSXN',
+    'MT',
+    '4WD',
+    '2800',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    7529000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'FORTUNER EXECUTIVE TMT -E4',
+    'GUN156R-SDTHX',
+    '6AT',
+    '4WD',
+    '2800',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    7592000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'FORTUNER GD- EXECUTIVE PLUS EURO 4',
+    'GUN156R-SJTSXJ',
+    '6AT',
+    '4WD',
+    '2800',
+    'S/WAGON',
+    NULL,
+    NULL,
+    'DIESEL',
+    7592000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'GR COROLLA RZ',
+    '4BA-GZEA14H-BHFRZ',
+    'MT',
+    '4WD',
+    '1618',
+    'HATCHBACK',
+    '1745',
+    5,
+    'GASOLINE',
+    9169542
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'GR RZ',
+    '3BA-ZN8-C2E8',
+    '6MT',
+    '2WD',
+    '2387',
+    'HATCHBACK',
+    '1490',
+    4,
+    'GASOLINE',
+    6071110
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'GR RZ',
+    '3BA-ZN8-B2E8',
+    '6MT',
+    '2WD',
+    '2387',
+    'HATCHBACK',
+    '1490',
+    4,
+    'GASOLINE',
+    5849294
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'GR SUPRA',
+    '3BA-DB02-ZURW',
+    'CVT',
+    '2WD',
+    '2997',
+    'HATCHBACK',
+    '1640',
+    5,
+    'GASOLINE',
+    12772735
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'GR YARIS RZ',
+    '4BA-GXPA16-AGFGZ(H)',
+    'MT',
+    '4WD',
+    '1618',
+    'HATCHBACK',
+    '1500',
+    4,
+    'GASOLINE',
+    7964402
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'GR YARIS RZ',
+    '4BA-GXPA16-AGFG(H)',
+    '6MT',
+    '2WD',
+    '1618',
+    'HATCHBACK',
+    '1500',
+    4,
+    'GASOLINE',
+    7645826
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'GR YARIS RZ',
+    '4BA-GXPA16-AGFGZ(H)',
+    '5MT',
+    '2WD',
+    '1618',
+    'HATCHBACK',
+    '1500',
+    4,
+    'GASOLINE',
+    7240366
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'GR YARIS RZ HIGH PERFORMANCE',
+    '4BA-GXPA16-AGFGZ(H)',
+    'CVT',
+    '2WD',
+    '1618',
+    'HATCHBACK',
+    '1500',
+    5,
+    'GASOLINE',
+    7964402
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'GR86 RZ',
+    '3BA-ZN8-A2E8',
+    'CVT',
+    '2WD',
+    '2387',
+    'COUPE',
+    '1490',
+    5,
+    'GASOLINE',
+    5849294
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'GRANACE',
+    '3DA-GDH303W-RDTDJY',
+    '5AT',
+    '2WD',
+    '2754',
+    'MINIVAN',
+    '3210',
+    5,
+    'DIESEL',
+    16033599
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'GRANACE PREMIUM',
+    '3DA-GDH303W-RDTJY',
+    'CVT',
+    '2WD',
+    '2754',
+    'MINIVAN',
+    '3070',
+    6,
+    'DIESEL',
+    12260987
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'GRANACE PREMIUM',
+    '3DA-GDH303W-RDTJY',
+    '6AT',
+    '2WD',
+    '2754',
+    'MINIVAN',
+    '3070',
+    6,
+    'DIESEL',
+    12677861
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HARRIER',
+    'DBA-ASU60W-ANTST(S)',
+    '6AT',
+    '2WD',
+    '1998',
+    'SUV',
+    '1975',
+    5,
+    'GASOLINE',
+    7084126
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HARRIER PHEV Z (PLUG-IN-HYBRID)',
+    '6LA-AXUP85-ANKSB',
+    'CVT',
+    '4WD',
+    '2487',
+    'SUV',
+    '2225',
+    5,
+    'GASOLINE',
+    10828792
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HARRIER PHEV Z (PLUG-IN-HYBRID)',
+    '6LA-AXUP85-ANXSB',
+    'CVT',
+    '2WD',
+    '2487',
+    'SUV',
+    '2225',
+    5,
+    'GASOLINE',
+    10828792
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HARRIER PROGRESS',
+    'DBA-ASU60W-ANTST(S)',
+    '6AT',
+    '2WD',
+    '1996',
+    'SUV',
+    '1975',
+    5,
+    'GASOLINE',
+    7106567
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HARRIER Z',
+    '6AA-AXUH80-ANXSB(S)',
+    'CVT',
+    '2WD',
+    '2487',
+    'SUV',
+    '1965',
+    5,
+    'GASOLINE',
+    8607143
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HARRIER Z "LEATHER PACKAGE" HYBRID',
+    '6AA-AXHU80-ANXSB(S)',
+    'CVT',
+    '2WD',
+    '2487',
+    'SUV',
+    '1965',
+    5,
+    'GASOLINE',
+    8418513
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HARRIER Z LEATHER PACKAGE',
+    '6AA-AXUH80-ANXSB(S)',
+    '6AT',
+    '2WD',
+    '2487',
+    'SUV',
+    '1965',
+    5,
+    'GASOLINE',
+    8607143
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE COMMUTER GL',
+    '3BF-TRH223B-LETNK',
+    '6AT',
+    '2WD',
+    '2693',
+    'VAN',
+    '2860',
+    14,
+    'GASOLINE',
+    5193691
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE COMMUTER GL',
+    'CBF-TRH223B-LETNK',
+    '6AT',
+    '2WD',
+    '2693',
+    'VAN',
+    '2860',
+    14,
+    'DIESEL',
+    5162889
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE COMMUTER GL',
+    'CBF-TRH223B-LETNK',
+    '6AT',
+    '2WD',
+    '2693',
+    'VAN',
+    '2860',
+    14,
+    'GASOLINE',
+    5162889
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE DX',
+    '3BF-TRH200K-VTZYF',
+    'CVT',
+    '2WD',
+    '1998',
+    'VAN',
+    '2670',
+    10,
+    'GASOLINE',
+    6570632
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE DX',
+    'CBF-TRH200K-VTZYF',
+    'CVT',
+    '2WD',
+    '1998',
+    'VAN',
+    '2670',
+    10,
+    'GASOLINE',
+    6532207
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE FINE TECH TOURER',
+    'CBA-TRH224W-VTNGTQ',
+    '6AT',
+    '2WD',
+    '2693',
+    'VAN',
+    '2820',
+    10,
+    'GASOLINE',
+    7814196
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE FINE TECH TOURER',
+    'CBA-TRH224W-VTNGTQ',
+    '6AT',
+    '2WD',
+    '2693',
+    'VAN',
+    '2820',
+    10,
+    'DIESEL',
+    7814196
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'TOYOTA',
+    'HIACE FINE TECH TOURER',

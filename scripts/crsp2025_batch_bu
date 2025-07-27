@@ -1,0 +1,500 @@
+    NULL,
+    'DIESEL',
+    9997567
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 SUPER CAB (LWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8007880
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 SUPER CAB (LWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8423890
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 SUPER CAB (MWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    7963427
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX6 SUPER CAB (MWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8936556
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX8 SUPER CAB (ELWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8996362
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX8 SUPER CAB (ELWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8675398
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX8 SUPER CAB (LWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8838731
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX8 SUPER CAB (LWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    8559295
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX8 SUPER CAB FLAT DECK (ELWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10447209
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX8 SUPER CAB FLAT DECK (ELWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10366785
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX8 SUPER CAB FLAT DECK (LWB)',
+    NULL,
+    'AUT',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10269692
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'EX8 SUPER CAB FLAT DECK (LWB)',
+    NULL,
+    'MAN',
+    NULL,
+    '3900',
+    'S/CABIN',
+    NULL,
+    NULL,
+    'DIESEL',
+    10051816
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'SONATA N LINE',
+    'SONATA N LINE',
+    'AUT',
+    NULL,
+    '4500',
+    'SEDAN',
+    NULL,
+    NULL,
+    'PETROL',
+    8791793
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 6 IONIQ 6 2WD (53.0KWH)',
+    'IONIQ 6 IONIQ 6 2WD (53.0KWH)',
+    'AUT',
+    NULL,
+    '53.0',
+    'SEDAN',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    9723979
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 IONIQ 5 2WD (63KWH)',
+    'IONIQ 5 IONIQ 5 2WD (63KWH)',
+    'AUT',
+    NULL,
+    '63',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    10206522
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 6 2WD (77.4KWH)',
+    'IONIQ 6 2WD (77.4KWH)',
+    'AUT',
+    NULL,
+    '77.4',
+    'SEDAN',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    10601331
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 6 DYNAMIQ 2WD (77.4KWH)',
+    'IONIQ 6 DYNAMIQ 2WD (77.4KWH)',
+    'AUT',
+    NULL,
+    '77.4',
+    'SEDAN',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    11478682
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 6 DYNAMIQ AWD (77.4KWH)',
+    'IONIQ 6 DYNAMIQ AWD (77.4KWH)',
+    'AUT',
+    NULL,
+    '77.4',
+    'SEDAN',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    12136696
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 6 EPIQ 2WD (77.4KWH)',
+    'IONIQ 6 EPIQ 2WD (77.4KWH)',
+    'AUT',
+    NULL,
+    '77.4',
+    'SEDAN',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    11990471
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 6 EPIQ AWD (77.4KWH)',
+    'IONIQ 6 EPIQ AWD (77.4KWH)',
+    'AUT',
+    NULL,
+    '77.4',
+    'SEDAN',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    12648484
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 6 EPIQ DSM 2WD (77.4KWH)',
+    'IONIQ 6 EPIQ DSM 2WD (77.4KWH)',
+    'AUT',
+    NULL,
+    '77.4',
+    'SEDAN',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    12429146
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 6 EPIQ DSM AWD (77.4KWH)',
+    'IONIQ 6 EPIQ DSM AWD (77.4KWH)',
+    'AUT',
+    NULL,
+    '77.4',
+    'SEDAN',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    13087160
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 2WD (84KWH)',
+    'IONIQ 5 2WD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    11083874
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 DYNAMIQ 2WD (84KWH)',
+    'IONIQ 5 DYNAMIQ 2WD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    11815000
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 DYNAMIQ AWD (84KWH)',
+    'IONIQ 5 DYNAMIQ AWD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    12473014
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 DYNAMIQ N LINE 2WD (84KWH)',
+    'IONIQ 5 DYNAMIQ N LINE 2WD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    12180563
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 DYNAMIQ N LINE AWD (84KWH)',
+    'IONIQ 5 DYNAMIQ N LINE AWD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    NULL,
+    NULL,
+    NULL,
+    'ELECTRIC',
+    12838577
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 EPIQ 2WD (84KWH)',
+    'IONIQ 5 EPIQ 2WD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    12326789
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 EPIQ AWD (84KWH)',
+    'IONIQ 5 EPIQ AWD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    12984802
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 EPIQ DSM 2WD (84KWH)',
+    'IONIQ 5 EPIQ DSM 2WD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    12765464
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 EPIQ DSM AWD (84KWH)',
+    'IONIQ 5 EPIQ DSM AWD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    13423478
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 EPIQ N LINE 2WD (84KWH)',
+    'IONIQ 5 EPIQ N LINE 2WD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    12692352
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 EPIQ N LINE AWD (84KWH)',
+    'IONIQ 5 EPIQ N LINE AWD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    13350365
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 EPIQ N LINE DSM 2WD (84KWH)',
+    'IONIQ 5 EPIQ N LINE DSM 2WD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    13131027
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 EPIQ N LINE DSM AWD (84KWH)',
+    'IONIQ 5 EPIQ N LINE DSM AWD (84KWH)',
+    'AUT',
+    NULL,
+    '84',
+    'STATION WAGON',
+    NULL,
+    NULL,
+    'ELECTRIC',
+    13789041
+);
+
+INSERT INTO vehicle_references_2025 (make, model, model_number, transmission, drive_configuration, engine_capacity, body_type, gvw, seating, fuel_type, crsp_2025) VALUES (
+    'HYUNDAI',
+    'IONIQ 5 N (84.0KWH)',
+    'IONIQ 5 N (84.0KWH)',
+    'AUT',

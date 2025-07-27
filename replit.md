@@ -381,6 +381,7 @@ The platform now features a sophisticated role-based navigation system that dyna
 - **User Experience**: All major vehicle brands (Mercedes, BMW, AUDI, Toyota, Nissan, etc.) now have authentic CRSP 2025 values for accurate 2025 duty calculations
 - **API Enhancement**: Updated CRSP statistics endpoints to reflect true coverage across 6,654 total vehicles in database
 - **Drive Configuration Fix**: Fixed missing drive configurations for 286 vehicles and enhanced model matching logic for seamless vehicle selection
+- **URL Encoding & Model Matching Fix**: Resolved drive configuration loading issues for complex model names (like "DEFENDER T/C 3 DOOR 300PS X-DYNAMIC SE") by implementing proper URL decoding and flexible model name matching
 - **Result**: Complete CRSP 2025 ecosystem covering premium brands (Mercedes G-Class: KES 52M+), luxury vehicles, and mainstream models for comprehensive duty calculation coverage
 
 **ECOSYSTEM REGISTRATION WITH GOOGLE MAPS AND LOGO UPLOAD - January 24, 2025:**

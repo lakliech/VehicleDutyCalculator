@@ -2479,10 +2479,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { make, model } = req.params;
       const { category } = req.query;
       
-      // Use flexible model matching to handle variations in model names
+      // Use flexible model matching to handle variations in model names and URL decoding
+      const decodedModel = decodeURIComponent(model).trim();
       let whereConditions = [
         sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`,
-        sql`LOWER(${vehicleReferences.model}) LIKE LOWER(${`%${model}%`})`,
+        sql`LOWER(${vehicleReferences.model}) LIKE LOWER(${`%${decodedModel}%`})`,
         sql`${vehicleReferences.driveConfiguration} IS NOT NULL`
       ];
       
@@ -2539,9 +2540,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { make, model } = req.params;
       const { category, driveConfig } = req.query;
       
+      // Use flexible model matching to handle variations in model names and URL decoding
+      const decodedModel = decodeURIComponent(model).trim();
       let whereConditions = [
         sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`,
-        sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`,
+        sql`(
+          LOWER(${vehicleReferences.model}) LIKE LOWER(${`%${decodedModel}%`}) OR
+          LOWER(${vehicleReferences.model}) = LOWER(${decodedModel}) OR
+          LOWER(REPLACE(${vehicleReferences.model}, '  ', ' ')) LIKE LOWER(${`%${decodedModel.replace(/\s+/g, ' ')}%`})
+        )`,
         sql`${vehicleReferences.engineCapacity} IS NOT NULL`
       ];
       

@@ -8,8 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Car, Settings, Fuel, AlertCircle, Calculator, Database, Edit, Calendar } from "lucide-react";
+import { Car, Settings, Fuel, AlertCircle, Calculator, Database, Edit } from "lucide-react";
 import type { VehicleReference, ManualVehicleData } from "@shared/schema";
 
 interface VehicleSelectorProps {
@@ -17,16 +16,9 @@ interface VehicleSelectorProps {
   onManualVehicleData?: (data: ManualVehicleData | null) => void;
   categoryFilter?: string; // Filter vehicles by category
   hideCrsp?: boolean; // Hide CRSP information (for transfer cost calculator)
-  onCrspYearChange?: (year: string) => void; // Callback for CRSP year changes
 }
 
-interface CrspYear {
-  year: string;
-  label: string;
-  description: string;
-}
-
-export function VehicleSelector({ onVehicleSelect, onManualVehicleData, categoryFilter, hideCrsp, onCrspYearChange }: VehicleSelectorProps) {
+export function VehicleSelector({ onVehicleSelect, onManualVehicleData, categoryFilter, hideCrsp }: VehicleSelectorProps) {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [selectedDriveConfig, setSelectedDriveConfig] = useState<string>("");
@@ -34,8 +26,6 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
   const [manualEngineSize, setManualEngineSize] = useState<string>("");
   const [useManualEngine, setUseManualEngine] = useState<boolean>(false);
-  const [selectedCrspYear, setSelectedCrspYear] = useState<string>("2020"); // Default to 2020
-
   
   // Manual entry mode state
   const [isManualEntry, setIsManualEntry] = useState<boolean>(false);
@@ -46,43 +36,13 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   const [isCalculatingProration, setIsCalculatingProration] = useState<boolean>(false);
   const [selectedReferenceVehicle, setSelectedReferenceVehicle] = useState<VehicleReference | null>(null);
 
-  // Fetch available CRSP years
-  const { data: crspYears = [] } = useQuery<CrspYear[]>({
-    queryKey: ["/api/vehicle-references/crsp-years"],
-    queryFn: async () => {
-      const response = await fetch("/api/vehicle-references/crsp-years");
-      if (!response.ok) throw new Error('Failed to fetch CRSP years');
-      return response.json();
-    },
-  });
-
-
-
-  // Handle CRSP year changes
-  const handleCrspYearChange = (year: string) => {
-    setSelectedCrspYear(year);
-    if (onCrspYearChange) {
-      onCrspYearChange(year);
-    }
-    // Clear current selection to force refresh with new CRSP year
-    setSelectedVehicle(null);
-    onVehicleSelect(null);
-  };
-
-  // Fetch all makes (filtered by category and CRSP year if provided)
+  // Fetch all makes (filtered by category if provided)
   const { data: makes = [], isLoading: makesLoading } = useQuery<string[]>({
-    queryKey: ["/api/vehicle-references/makes", categoryFilter, selectedCrspYear],
+    queryKey: ["/api/vehicle-references/makes", categoryFilter],
     queryFn: async () => {
       let url = "/api/vehicle-references/makes";
-      const params = [];
       if (categoryFilter) {
-        params.push(`category=${categoryFilter}`);
-      }
-      if (selectedCrspYear) {
-        params.push(`crspYear=${selectedCrspYear}`);
-      }
-      if (params.length > 0) {
-        url += `?${params.join('&')}`;
+        url += `?category=${categoryFilter}`;
       }
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch makes');
@@ -90,22 +50,15 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     },
   });
 
-  // Fetch models for selected make (filtered by category and CRSP year if provided)
+  // Fetch models for selected make (filtered by category if provided)
   const { data: models = [], isLoading: modelsLoading } = useQuery<{
     model: string;
   }[]>({
-    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models`, categoryFilter, selectedCrspYear],
+    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models`, categoryFilter],
     queryFn: async () => {
       let url = `/api/vehicle-references/makes/${selectedMake}/models`;
-      const params = [];
       if (categoryFilter) {
-        params.push(`category=${categoryFilter}`);
-      }
-      if (selectedCrspYear) {
-        params.push(`crspYear=${selectedCrspYear}`);
-      }
-      if (params.length > 0) {
-        url += `?${params.join('&')}`;
+        url += `?category=${categoryFilter}`;
       }
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch models');
@@ -114,20 +67,13 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     enabled: !!selectedMake,
   });
 
-  // Fetch drive configurations for selected make and model (with CRSP year support)
+  // Fetch drive configurations for selected make and model
   const { data: driveConfigs = [], isLoading: driveConfigsLoading } = useQuery<string[]>({
-    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives`, categoryFilter, selectedCrspYear],
+    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives`, categoryFilter],
     queryFn: async () => {
       let url = `/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives`;
-      const params = [];
       if (categoryFilter) {
-        params.push(`category=${categoryFilter}`);
-      }
-      if (selectedCrspYear) {
-        params.push(`crspYear=${selectedCrspYear}`);
-      }
-      if (params.length > 0) {
-        url += `?${params.join('&')}`;
+        url += `?category=${categoryFilter}`;
       }
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch drive configurations');
@@ -136,23 +82,18 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     enabled: !!selectedMake && !!selectedModel,
   });
 
-  // Fetch engine sizes for selected make, model, and drive config (with CRSP year support)
+  // Fetch engine sizes for selected make, model, and drive config (filtered by category if provided)
   const { data: engineSizes = [], isLoading: engineSizesLoading } = useQuery<number[]>({
-    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives/${selectedDriveConfig}/engines`, categoryFilter, selectedCrspYear],
+    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives/${selectedDriveConfig}/engines`, categoryFilter],
     queryFn: async () => {
       let url = `/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/engines`;
-      const params = [];
       if (selectedDriveConfig) {
-        params.push(`driveConfig=${selectedDriveConfig}`);
-      }
-      if (categoryFilter) {
-        params.push(`category=${categoryFilter}`);
-      }
-      if (selectedCrspYear) {
-        params.push(`crspYear=${selectedCrspYear}`);
-      }
-      if (params.length > 0) {
-        url += `?${params.join('&')}`;
+        url += `?driveConfig=${selectedDriveConfig}`;
+        if (categoryFilter) {
+          url += `&category=${categoryFilter}`;
+        }
+      } else if (categoryFilter) {
+        url += `?category=${categoryFilter}`;
       }
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch engine sizes');
@@ -163,43 +104,30 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
 
   // Search for specific vehicle
   const { data: vehicleDetails = [] } = useQuery<VehicleReference[]>({
-    queryKey: [`/api/vehicle-references/search`, selectedMake, selectedModel, selectedDriveConfig, selectedEngineSize, categoryFilter, selectedCrspYear],
+    queryKey: [`/api/vehicle-references/search`, selectedMake, selectedModel, selectedDriveConfig, selectedEngineSize, categoryFilter],
     queryFn: async () => {
-      let url = `/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}&engineCapacity=${selectedEngineSize}&crspYear=${selectedCrspYear}`;
+      let url = `/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}&engineCapacity=${selectedEngineSize}`;
       if (selectedDriveConfig) {
         url += `&driveConfig=${selectedDriveConfig}`;
       }
       if (categoryFilter) {
         url += `&category=${categoryFilter}`;
       }
-      console.log('🔍 Fetching vehicle details from:', url);
-      console.log('🔍 Query enabled conditions:', {
-        isManualEntry,
-        selectedMake: !!selectedMake,
-        selectedModel: !!selectedModel,
-        selectedDriveConfig: !!selectedDriveConfig,
-        selectedEngineSize: !!selectedEngineSize,
-        useManualEngine,
-        manualEngineSize: !!manualEngineSize,
-        queryEnabled: !isManualEntry && !!selectedMake && !!selectedModel && !!selectedDriveConfig && (!!selectedEngineSize || (useManualEngine && !!manualEngineSize))
-      });
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch vehicle details');
-      const data = await response.json();
-      console.log('📋 Vehicle details response:', data.map((v: any) => ({id: v.id, make: v.make, model: v.model})));
-      return data;
+      return response.json();
     },
-    enabled: !isManualEntry && !!selectedMake && !!selectedModel && !!selectedDriveConfig,
+    enabled: !isManualEntry && !!selectedMake && !!selectedModel && !!selectedDriveConfig && (!!selectedEngineSize || (useManualEngine && !!manualEngineSize)),
   });
 
   // Search for reference vehicles for proration (manual entry mode)
   // Filter by make to get relevant reference vehicles for better efficiency
   const { data: referenceVehicles = [], isLoading: referenceVehiclesLoading, error: referenceVehiclesError } = useQuery<VehicleReference[]>({
-    queryKey: [`/api/vehicle-references/proration-references`, manualMake, selectedCrspYear],
+    queryKey: [`/api/vehicle-references/proration-references`, manualMake],
     queryFn: async () => {
       if (!manualMake) return [];
       const trimmedMake = manualMake.trim();
-      const response = await fetch(`/api/vehicle-references/proration-references?make=${encodeURIComponent(trimmedMake)}&crspYear=${selectedCrspYear}`);
+      const response = await fetch(`/api/vehicle-references/proration-references?make=${encodeURIComponent(trimmedMake)}`);
       if (!response.ok) throw new Error('Failed to fetch reference vehicles');
       return response.json();
     },
@@ -254,10 +182,8 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   // Check if we need manual engine input when engine sizes load
   useEffect(() => {
     if (!isManualEntry && !engineSizesLoading && engineSizes.length === 0 && selectedModel) {
-      console.log('🔧 No engine sizes found, enabling manual engine input');
       setUseManualEngine(true);
     } else if (engineSizes.length > 0) {
-      console.log('✅ Engine sizes found:', engineSizes);
       setUseManualEngine(false);
       setManualEngineSize("");
     }
@@ -303,23 +229,9 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     }
   }, [isManualEntry, onVehicleSelect, onManualVehicleData]);
 
-
-
   useEffect(() => {
-    console.log('🔍 VehicleSelector useEffect triggered:', {
-      vehicleDetailsLength: vehicleDetails.length,
-      vehicleDetails: vehicleDetails.map(v => ({id: v.id, make: v.make, model: v.model, engineCapacity: v.engineCapacity})),
-      useManualEngine,
-      manualEngineSize,
-      selectedMake,
-      selectedModel
-    });
-    
     if (vehicleDetails.length === 1) {
       const vehicle = vehicleDetails[0];
-      console.log('✅ Single vehicle found, selecting:', {id: vehicle.id, make: vehicle.make, model: vehicle.model, engineCapacity: vehicle.engineCapacity});
-      
-      // Always select the vehicle, regardless of engine status
       // If using manual engine size, add it to the vehicle object
       if (useManualEngine && manualEngineSize) {
         const vehicleWithEngine = {
@@ -329,12 +241,10 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
         setSelectedVehicle(vehicleWithEngine);
         onVehicleSelect(vehicleWithEngine);
       } else {
-        // Select vehicle even if engine capacity is null/undefined
         setSelectedVehicle(vehicle);
         onVehicleSelect(vehicle);
       }
     } else if (vehicleDetails.length === 0 && selectedMake && selectedModel && useManualEngine && manualEngineSize) {
-      console.log('🔧 No vehicle details but manual engine, searching...');
       // For vehicles without engine capacity in DB, find by make and model only
       const searchQuery = `/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}`;
       fetch(searchQuery)
@@ -350,7 +260,6 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
           }
         });
     } else {
-      console.log('❌ Clearing vehicle selection - conditions not met');
       setSelectedVehicle(null);
       onVehicleSelect(null);
     }
@@ -414,34 +323,6 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
           <Edit className="h-4 w-4 text-gray-600" />
         </div>
       </div>
-
-      {/* CRSP Year Selection */}
-      {!hideCrsp && crspYears.length > 0 && (
-        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <Label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-            <Calendar className="h-4 w-4 mr-1" />
-            CRSP Dataset <span className="text-red-500 ml-1">*</span>
-          </Label>
-          <Select value={selectedCrspYear} onValueChange={handleCrspYearChange}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select CRSP dataset..." />
-            </SelectTrigger>
-            <SelectContent>
-              {crspYears.map((crspYear) => (
-                <SelectItem key={crspYear.year} value={crspYear.year}>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{crspYear.label}</span>
-                    <span className="text-xs text-gray-500">{crspYear.description}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-gray-600 mt-1">
-            Choose which CRSP dataset to use for duty calculations. CRSP 2025 contains updated values.
-          </p>
-        </div>
-      )}
 
       {/* Manual Entry Form */}
       {isManualEntry ? (
@@ -742,8 +623,6 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
         </div>
         </div>
       )}
-
-
 
       {selectedVehicle && (
         <Card className="bg-green-50 border-green-200">

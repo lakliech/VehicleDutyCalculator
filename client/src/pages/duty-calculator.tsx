@@ -132,7 +132,6 @@ export default function DutyCalculator() {
   const [selectedTrailer, setSelectedTrailer] = useState<Trailer | null>(null);
   const [selectedMachinery, setSelectedMachinery] = useState<HeavyMachinery | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [selectedCrspYear, setSelectedCrspYear] = useState<string>("2020");
   
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
@@ -147,7 +146,6 @@ export default function DutyCalculator() {
 
   // Handle vehicle selection from database
   const handleVehicleSelect = (vehicle: VehicleReference | null) => {
-    console.log('🚗 handleVehicleSelect called with:', vehicle ? {id: vehicle.id, make: vehicle.make, model: vehicle.model} : null);
     setSelectedVehicle(vehicle);
     if (vehicle) {
       // Determine which CRSP value to use (current CRSP_KES has priority over CRSP2020)
@@ -223,19 +221,6 @@ export default function DutyCalculator() {
     }
     
     setCategoryConflict(null);
-  };
-
-  // Handle CRSP year changes  
-  const handleCrspYearChange = (year: string) => {
-    setSelectedCrspYear(year);
-    // Clear current selections to force refresh with new CRSP year
-    setSelectedVehicle(null);
-    setManualVehicleData(null);
-    toast({
-      title: "CRSP Dataset Changed",
-      description: `Now using ${year === '2025' ? 'CRSP 2025 (Updated)' : 'CRSP 2018/2020 (Standard)'} dataset`,
-      variant: "default",
-    });
   };
 
   // Function to detect vehicle category based on engine size and fuel type (for validation only)
@@ -508,53 +493,22 @@ export default function DutyCalculator() {
   });
 
   const onSubmit = (data: DutyCalculation) => {
-    console.log('🚀 Form submission triggered:', data);
-    console.log('🔍 Form validation state:', {
-      isValid: form.formState.isValid,
-      errors: form.formState.errors,
-      isDirty: form.formState.isDirty,
-      isSubmitting: form.formState.isSubmitting
-    });
-    
     // Check authentication first
-    console.log('🔍 Auth state:', { isAuthenticated, isLoading, user: !!user });
-    
-    if (isLoading) {
-      console.log('⏳ Authentication still loading, waiting...');
-      toast({
-        title: "Please Wait",
-        description: "Checking authentication status...",
-        variant: "default",
-      });
-      return;
-    }
-    
     if (!isAuthenticated) {
-      console.log('❌ Authentication failed');
       toast({
-        title: "Authentication Required", 
+        title: "Authentication Required",
         description: "Please sign in to calculate vehicle import duties",
         variant: "destructive",
       });
       setShowAuthDialog(true);
       return;
     }
-    
-    console.log('✅ Authentication passed');
 
     // Validate all required fields are selected based on category
     const currentCategory = form.getValues('vehicleCategory');
-    console.log('🔍 Validating category requirements:', { 
-      currentCategory, 
-      selectedVehicle: !!selectedVehicle,
-      selectedTrailer: !!selectedTrailer,
-      selectedMachinery: !!selectedMachinery,
-      manualVehicleData: !!manualVehicleData
-    });
     
     if (currentCategory === 'trailer') {
       if (!selectedTrailer) {
-        console.log('❌ Missing trailer selection');
         toast({
           title: "Trailer Required",
           description: "Please select a trailer from the database",
@@ -564,7 +518,6 @@ export default function DutyCalculator() {
       }
     } else if (currentCategory === 'heavyMachinery') {
       if (!selectedMachinery) {
-        console.log('❌ Missing machinery selection');
         toast({
           title: "Heavy Machinery Required",
           description: "Please select heavy machinery from the database",
@@ -575,23 +528,18 @@ export default function DutyCalculator() {
     } else {
       // Regular vehicle categories
       if (!selectedVehicle && !manualVehicleData) {
-        console.log('❌ Missing vehicle selection');
         toast({
-          title: "Vehicle Selection Required",
-          description: "Please select a vehicle from Step 2 above, or use the Manual Entry toggle to enter vehicle details manually",
+          title: "Vehicle Required",
+          description: "Please select a vehicle from the database or use manual entry",
           variant: "destructive",
         });
         return;
       }
     }
-    
-    console.log('✅ Category requirements validated');
 
     // Year validation (only for regular vehicles, not for trailers/machinery that may not need it)
     if (currentCategory !== 'trailer' && currentCategory !== 'heavyMachinery') {
-      console.log('🔍 Validating year:', { yearOfManufacture, vehicleAge: form.getValues('vehicleAge') });
       if (!yearOfManufacture || yearOfManufacture === 0) {
-        console.log('❌ Missing year of manufacture');
         toast({
           title: "Year Required", 
           description: "Please select the year of manufacture",
@@ -600,25 +548,18 @@ export default function DutyCalculator() {
         return;
       }
     }
-    
-    console.log('✅ Year validation passed');
 
     // Category validation is now handled in the main validation above
 
     // Check for category conflicts before submitting
     // CRITICAL: Enhanced category conflict validation - prevent submission with conflicts
-    console.log('🔍 Checking for conflicts before submission:', { 
-      categoryConflict, 
-      currentCategory: form.getValues('vehicleCategory'),
-      selectedVehicle: !!selectedVehicle,
-      manualVehicleData: !!manualVehicleData
-    });
+    console.log('Checking for conflicts before submission:', { categoryConflict, currentCategory: form.getValues('vehicleCategory') });
     
     // Re-validate the current selection to catch any missed conflicts
     const isValid = validateCategorySelection(form.getValues('vehicleCategory'));
     
     if (categoryConflict || !isValid) {
-      console.log('❌ BLOCKING SUBMISSION due to category conflict:', categoryConflict);
+      console.log('BLOCKING SUBMISSION due to category conflict:', categoryConflict);
       toast({
         title: "Category Conflict Detected",
         description: categoryConflict || "Selected category conflicts with vehicle specifications. Please choose the correct category.",
@@ -626,8 +567,6 @@ export default function DutyCalculator() {
       });
       return;
     }
-    
-    console.log('✅ Category validation passed');
 
     // Additional validation: ensure category is selected
     if (!currentCategory) {
@@ -672,7 +611,6 @@ export default function DutyCalculator() {
         fuelType: "diesel", // Most heavy machinery is diesel
       } : undefined
     };
-    console.log('🚀 Submitting calculation data:', submissionData);
     calculateDutyMutation.mutate(submissionData);
   };
 
@@ -808,7 +746,6 @@ export default function DutyCalculator() {
                                   onVehicleSelect={handleVehicleSelect} 
                                   onManualVehicleData={handleManualVehicleData}
                                   categoryFilter={selectedCategory}
-                                  onCrspYearChange={handleCrspYearChange}
                                 />
                               </>
                             )}
@@ -883,7 +820,7 @@ export default function DutyCalculator() {
                       )}
 
                       {/* Discontinuation Warning - Only for Direct Import */}
-                      {selectedVehicle && selectedVehicle.discontinuationYear && form.watch('isDirectImport') === true && (
+                      {selectedVehicle && selectedVehicle.discontinuationYear && form.watch('importType') === 'direct' && (
                         (() => {
                           const currentYear = new Date().getFullYear();
                           const yearsSinceDiscontinuation = currentYear - selectedVehicle.discontinuationYear;
@@ -935,64 +872,19 @@ export default function DutyCalculator() {
                       </div>
                     )}
 
-                    {/* Missing Requirements Warning */}
-                    {(!selectedVehicle && !manualVehicleData && !selectedTrailer && !selectedMachinery) && selectedCategory && (
-                      <Alert className="border-orange-200 bg-orange-50">
-                        <AlertCircle className="h-4 w-4 text-orange-600" />
-                        <AlertDescription className="text-orange-800">
-                          <strong>Vehicle Selection Required:</strong> Please complete Step 2 above by selecting a vehicle from the database, or enable Manual Entry to proceed.
-                        </AlertDescription>
-                      </Alert>
-                    )}
-
-                    {yearOfManufacture === 0 && selectedCategory && selectedCategory !== 'trailer' && selectedCategory !== 'heavyMachinery' && (selectedVehicle || manualVehicleData) && (
-                      <Alert className="border-orange-200 bg-orange-50">
-                        <AlertCircle className="h-4 w-4 text-orange-600" />
-                        <AlertDescription className="text-orange-800">
-                          <strong>Year Required:</strong> Please select the year of manufacture below.
-                        </AlertDescription>
-                      </Alert>
-                    )}
-
-                    {/* Submit Button Debug */}
-                    {(() => {
-                      const isButtonDisabled = calculateDutyMutation.isPending || 
-                        (selectedVehicle?.discontinuationYear && form.watch('isDirectImport') === true && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
-                        categoryConflict ||
-                        (!selectedVehicle && !manualVehicleData && !selectedTrailer && !selectedMachinery) ||
-                        (yearOfManufacture === 0 && selectedCategory !== 'trailer' && selectedCategory !== 'heavyMachinery');
-                      
-                      console.log('🔘 BUTTON DEBUG:', {
-                        isButtonDisabled,
-                        reason1_isPending: calculateDutyMutation.isPending,
-                        reason2_discontinued: selectedVehicle?.discontinuationYear && form.watch('isDirectImport') === true && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8,
-                        reason3_categoryConflict: categoryConflict,
-                        reason4_noVehicleSelected: (!selectedVehicle && !manualVehicleData && !selectedTrailer && !selectedMachinery),
-                        reason5_noYear: (yearOfManufacture === 0 && selectedCategory !== 'trailer' && selectedCategory !== 'heavyMachinery'),
-                        selectedVehicle: selectedVehicle ? {id: selectedVehicle.id, make: selectedVehicle.make, model: selectedVehicle.model} : null,
-                        yearOfManufacture,
-                        selectedCategory,
-                        formValues: form.getValues()
-                      });
-                      
-                      return null;
-                    })()}
-
                     {/* Submit Button */}
                     <Button 
                       type="submit" 
                       className="w-full bg-purple-600 hover:bg-purple-700"
                       disabled={
                         calculateDutyMutation.isPending || 
-                        (selectedVehicle?.discontinuationYear && form.watch('isDirectImport') === true && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
-                        categoryConflict ||
-                        (!selectedVehicle && !manualVehicleData && !selectedTrailer && !selectedMachinery) ||
-                        (yearOfManufacture === 0 && selectedCategory !== 'trailer' && selectedCategory !== 'heavyMachinery')
+                        (selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
+                        categoryConflict
                       }
                     >
                       {calculateDutyMutation.isPending ? (
                         <>Calculating...</>
-                      ) : selectedVehicle?.discontinuationYear && form.watch('isDirectImport') === true && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8 ? (
+                      ) : selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8 ? (
                         <>
                           <AlertCircle className="h-4 w-4 mr-2" />
                           Cannot Import (Discontinued)

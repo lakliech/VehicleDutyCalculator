@@ -94,7 +94,7 @@ export default function BuyACar() {
   const [selectedDrive, setSelectedDrive] = useState('all');
   const [mileageRange, setMileageRange] = useState({ min: '', max: '' });
   const [selectedEngineSize, setSelectedEngineSize] = useState('all');
-
+  const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
 
   // Mobile detection
@@ -342,7 +342,7 @@ export default function BuyACar() {
     console.log('🔄 Auto-applying filters:', filters);
     setAppliedFilters(filters);
     setCurrentPage(1);
-  }, [selectedMake, selectedModel, selectedFuelType, selectedTransmission, selectedBodyType, priceRange, yearRange]);
+  }, [selectedMake, selectedModel, selectedFuelType, selectedTransmission, selectedBodyType, priceRange, yearRange, selectedSeats]);
 
   // Clear all filters
   const clearFilters = () => {
@@ -359,7 +359,7 @@ export default function BuyACar() {
     setYearRange({ min: '', max: '' });
     setMileageRange({ min: '', max: '' });
     setSelectedEngineSize('all');
-
+    setSelectedSeats([]);
     setSelectedFeatures([]);
     setCurrentPage(1);
   };
@@ -899,7 +899,35 @@ export default function BuyACar() {
                     </Select>
                   </div>
 
-
+                  {/* Seats */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-gray-900">Seats</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['2', '4', '5', '6', '7', '8', '9', '10+'].map((seatOption) => (
+                        <div key={seatOption} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={`seats-${seatOption}`}
+                            checked={selectedSeats.includes(seatOption)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedSeats(prev => [...prev, seatOption]);
+                              } else {
+                                setSelectedSeats(prev => prev.filter(s => s !== seatOption));
+                              }
+                            }}
+                            className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+                          />
+                          <label 
+                            htmlFor={`seats-${seatOption}`}
+                            className="text-sm font-medium text-gray-700 cursor-pointer"
+                          >
+                            {seatOption === '10+' ? 'Above 10' : `${seatOption} seats`}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
                   {/* Drive */}
                   <div className="space-y-3">

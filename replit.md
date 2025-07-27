@@ -351,42 +351,6 @@ The platform now features a sophisticated role-based navigation system that dyna
 
 ## Changelog
 
-**SEATS FILTERING IMPLEMENTATION REMOVAL - January 27, 2025:**
-- **Problem Solved**: Completely removed seats filtering implementation from duty calculator as requested by user
-- **Frontend Changes**: 
-  - Removed seats state variables, API calls, and UI components from VehicleSelector component
-  - Removed seats filtering section from buy-a-car page filters
-  - Cleaned up all useEffect dependencies and form reset functions
-- **Backend Changes**: Removed `/api/vehicle-references/seats` endpoint from server routes
-- **User Interface**: Duty calculator now focuses on core vehicle selection without seats filtering complexity
-- **Technical Achievement**: Complete removal of seats functionality while maintaining all other vehicle selection features
-- **Result**: Simplified and streamlined duty calculator interface without seats filtering distractions
-
-**CRSP 2025 MAJOR IMPORT EXPANSION AND CATEGORIZATION FIX - January 27, 2025:**
-- **Import Achievement**: Successfully expanded CRSP 2025 dataset from 157 to 307 records (+95% improvement)
-- **Coverage**: Dataset now includes 69 makes, 291 models covering 5.79% of full dataset
-- **Comprehensive Categories**: Added passenger cars, SUVs, trucks, motorcycles, tractors, trailers, electric vehicles
-- **Major Categorization Fix**: Fixed vehicle category filtering to properly exclude motorcycles from passenger car categories
-- **Technical Solution**: Enhanced getEngineCapacityFilter2025 function to filter out motorcycles/scooters from under1500cc, over1500cc, and largeEngine categories
-- **User Impact**: CRSP 2025 now provides much better vehicle coverage with accurate categorization
-- **Documentation**: Updated manual_crsp2025_import.md with current progress and status
-- **Result**: Users can reliably use CRSP 2025 for diverse vehicle types with proper category filtering
-
-**CRSP 2025 DATASET INTEGRATION FULLY OPERATIONAL - January 27, 2025:**
-- **Problem Solved**: CRSP 2025 vehicles not loading due to data type mismatches in engine capacity column
-- **Complete CRSP Year Support**: Users can now select between CRSP 2018/2020 (Standard) and CRSP 2025 (Updated) datasets
-- **Backend API Enhancement**: Updated `/api/vehicle-references/makes` and `/api/vehicle-references/makes/:make/models` endpoints with crspYear parameter support
-- **Data Type Handling**: Fixed engine capacity filtering for CRSP 2025 which stores values as text including "EV" and "63 kWh" for electric vehicles
-- **Category Filtering**: Implemented separate filtering functions for both datasets with proper type casting for CRSP 2025
-- **Frontend Integration**: VehicleSelector component passes CRSP year parameter to all API calls and clears selections when switching datasets
-- **Technical Implementation**:
-  - Added `getEngineCapacityFilter2025()` function with regex validation for numeric values
-  - Enhanced category filtering to handle electric vehicles ("EV", "kWh" values)
-  - Backend logs confirm dataset switching: "Found X makes in 2025 dataset" vs "Found X makes in 2020 dataset"
-  - Proper error handling for non-numeric engine capacity values in CRSP 2025
-- **User Experience**: Seamless switching between datasets with different vehicle options displayed based on CRSP year selection
-- **Verification**: API tests confirm different vehicle catalogs (161 records in CRSP 2025 vs 3687 in CRSP 2020) with unique makes and models per dataset
-
 **LOCATION-BASED SEARCH FUNCTIONALITY IMPLEMENTATION - January 24, 2025:**
 - **Problem Solved**: Search bar was not searching by location data (county, area, specific location)
 - **Enhanced Search Capability**: Updated getServiceProviders method to include location-based searching

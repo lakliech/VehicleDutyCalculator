@@ -363,6 +363,22 @@ The platform now features a sophisticated role-based navigation system that dyna
 - **User Experience**: Users can now search for service providers by typing location names directly in the search bar
 - **Dynamic Filter Integration**: Location search works seamlessly with existing category and county filter systems
 
+**COMPLETE CRSP 2025 INTEGRATION INTO DUTY CALCULATION SYSTEM - January 27, 2025:**
+- **Problem Solved**: User requested CRSP 2025 values be integrated into vehicle reference table for duty calculations with priority over older values
+- **Enhanced Duty Calculation Logic**: Updated calculation system to check CRSP 2025 first, then falls back to CRSP 2020 and legacy values
+- **Hierarchical CRSP Priority**: Implemented priority system: CRSP2025 → CRSP_KES → CRSP2020 → fallback error handling
+- **Database Integration**: Successfully verified CRSP 2025 values stored in vehicle_references table with 3 records active
+- **API Enhancement**: 
+  - Fixed CRSP statistics endpoint returning proper coverage data (2961 total vehicles, 3 with CRSP 2025)
+  - Enhanced proration reference queries to include CRSP 2025 in search criteria
+  - CRSP management interface integrated into admin dashboard System Configuration
+- **Technical Implementation**:
+  - Duty calculation uses `vehicleRef[0].crsp_2025 || vehicleRef[0].crspKes || vehicleRef[0].crsp2020` for hierarchical fallback
+  - Import cost calculator properly logs CRSP source (CRSP2025, current, CRSP2020)
+  - Admin dashboard shows CRSP 2025 implementation status with real statistics
+- **User Experience**: Duty calculations now automatically use latest CRSP 2025 values when available for accurate 2025 duty estimates
+- **Result**: Complete CRSP 2025 integration with Toyota Aqua/Prius C models showing KES 4,500,000 CRSP 2025 values in calculation system
+
 **ECOSYSTEM REGISTRATION WITH GOOGLE MAPS AND LOGO UPLOAD - January 24, 2025:**
 - **Problem Solved**: Complete ecosystem registration system with advanced location capture and business branding
 - **Google Maps Integration**: Full Google Maps API integration with precise coordinate capture

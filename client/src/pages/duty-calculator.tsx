@@ -147,6 +147,7 @@ export default function DutyCalculator() {
 
   // Handle vehicle selection from database
   const handleVehicleSelect = (vehicle: VehicleReference | null) => {
+    console.log('🚗 handleVehicleSelect called with:', vehicle ? {id: vehicle.id, make: vehicle.make, model: vehicle.model} : null);
     setSelectedVehicle(vehicle);
     if (vehicle) {
       // Determine which CRSP value to use (current CRSP_KES has priority over CRSP2020)

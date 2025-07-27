@@ -2634,33 +2634,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get drive configurations for a specific make and model (with optional category filtering)
+  // Get drive configurations for a specific make and model (with optional category filtering and CRSP year support)
   app.get("/api/vehicle-references/makes/:make/models/:model/drives", async (req, res) => {
     try {
       const { make, model } = req.params;
-      const { category } = req.query;
+      const { category, crspYear } = req.query;
+      const selectedCrspYear = crspYear === '2025' ? '2025' : '2020';
       
-      let whereConditions = [
-        sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`,
-        sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`,
-        sql`${vehicleReferences.driveConfiguration} IS NOT NULL`
-      ];
-      
-      // Apply category filtering based on engine capacity
-      if (category && typeof category === 'string') {
-        const engineFilter = getEngineCapacityFilter(category);
-        if (engineFilter) {
-          whereConditions.push(engineFilter);
+      let results;
+      if (selectedCrspYear === '2025') {
+        // Query CRSP 2025 table
+        let whereConditions = [
+          sql`LOWER(${vehicleReferences2025.make}) = LOWER(${make})`,
+          sql`LOWER(${vehicleReferences2025.model}) = LOWER(${model})`,
+          sql`${vehicleReferences2025.driveConfiguration} IS NOT NULL`
+        ];
+        
+        // Apply category filtering based on engine capacity for CRSP 2025
+        if (category && typeof category === 'string') {
+          const engineFilter = getEngineCapacityFilter2025(category);
+          if (engineFilter) {
+            whereConditions.push(engineFilter);
+          }
         }
+        
+        results = await db
+          .selectDistinct({ 
+            driveConfiguration: vehicleReferences2025.driveConfiguration
+          })
+          .from(vehicleReferences2025)
+          .where(sql.join(whereConditions, sql` AND `))
+          .orderBy(vehicleReferences2025.driveConfiguration);
+      } else {
+        // Query CRSP 2020 table
+        let whereConditions = [
+          sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`,
+          sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`,
+          sql`${vehicleReferences.driveConfiguration} IS NOT NULL`
+        ];
+        
+        // Apply category filtering based on engine capacity for CRSP 2020
+        if (category && typeof category === 'string') {
+          const engineFilter = getEngineCapacityFilter(category);
+          if (engineFilter) {
+            whereConditions.push(engineFilter);
+          }
+        }
+        
+        results = await db
+          .selectDistinct({ 
+            driveConfiguration: vehicleReferences.driveConfiguration
+          })
+          .from(vehicleReferences)
+          .where(sql.join(whereConditions, sql` AND `))
+          .orderBy(vehicleReferences.driveConfiguration);
       }
-      
-      const results = await db
-        .selectDistinct({ 
-          driveConfiguration: vehicleReferences.driveConfiguration
-        })
-        .from(vehicleReferences)
-        .where(sql.join(whereConditions, sql` AND `))
-        .orderBy(vehicleReferences.driveConfiguration);
         
       // Normalize drive configurations to common values
       const driveConfigsMap = new Map();
@@ -2693,59 +2721,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get engine sizes for a specific make and model (with optional category and drive filtering)
+  // Get engine sizes for a specific make and model (with optional category, drive filtering, and CRSP year support)
   app.get("/api/vehicle-references/makes/:make/models/:model/engines", async (req, res) => {
     try {
       const { make, model } = req.params;
-      const { category, driveConfig } = req.query;
+      const { category, driveConfig, crspYear } = req.query;
+      const selectedCrspYear = crspYear === '2025' ? '2025' : '2020';
       
-      let whereConditions = [
-        sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`,
-        sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`,
-        sql`${vehicleReferences.engineCapacity} IS NOT NULL`
-      ];
-      
-      // Apply category filtering based on engine capacity
-      if (category && typeof category === 'string') {
-        const engineFilter = getEngineCapacityFilter(category);
-        if (engineFilter) {
-          whereConditions.push(engineFilter);
+      let results;
+      if (selectedCrspYear === '2025') {
+        // Query CRSP 2025 table
+        let whereConditions = [
+          sql`LOWER(${vehicleReferences2025.make}) = LOWER(${make})`,
+          sql`LOWER(${vehicleReferences2025.model}) = LOWER(${model})`,
+          sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND ${vehicleReferences2025.engineCapacity} != ''`
+        ];
+        
+        // Add drive configuration filter if provided
+        if (driveConfig && typeof driveConfig === 'string') {
+          whereConditions.push(sql`LOWER(${vehicleReferences2025.driveConfiguration}) = LOWER(${driveConfig})`);
         }
-      }
-      
-      // Apply drive configuration filtering
-      if (driveConfig && typeof driveConfig === 'string') {
-        // Map normalized values back to database values
-        if (driveConfig === '2WD') {
-          whereConditions.push(sql`(
-            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%2wd%' OR 
-            ${vehicleReferences.driveConfiguration} = '2' OR 
-            LOWER(${vehicleReferences.driveConfiguration}) = '2x4' OR
-            LOWER(${vehicleReferences.driveConfiguration}) = '2*4'
-          )`);
-        } else if (driveConfig === '4WD') {
-          whereConditions.push(sql`(
-            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4wd%' OR 
-            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4x4%' OR 
-            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4*4%' OR
-            LOWER(${vehicleReferences.driveConfiguration}) = '4x2' OR
-            LOWER(${vehicleReferences.driveConfiguration}) = '4*2'
-          )`);
-        } else if (driveConfig === 'AWD') {
-          whereConditions.push(sql`LOWER(${vehicleReferences.driveConfiguration}) LIKE '%awd%'`);
-        } else {
-          // Exact match for other configurations
-          whereConditions.push(sql`${vehicleReferences.driveConfiguration} = ${driveConfig}`);
+        
+        // Apply category filtering based on engine capacity for CRSP 2025
+        if (category && typeof category === 'string') {
+          const engineFilter = getEngineCapacityFilter2025(category);
+          if (engineFilter) {
+            whereConditions.push(engineFilter);
+          }
         }
+        
+        results = await db
+          .selectDistinct({ 
+            engineCapacity: vehicleReferences2025.engineCapacity
+          })
+          .from(vehicleReferences2025)
+          .where(sql.join(whereConditions, sql` AND `))
+          .orderBy(vehicleReferences2025.engineCapacity);
+      } else {
+        // Query CRSP 2020 table - original logic
+        let whereConditions = [
+          sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`,
+          sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`,
+          sql`${vehicleReferences.engineCapacity} IS NOT NULL`
+        ];
+        
+        // Apply category filtering based on engine capacity
+        if (category && typeof category === 'string') {
+          const engineFilter = getEngineCapacityFilter(category);
+          if (engineFilter) {
+            whereConditions.push(engineFilter);
+          }
+        }
+        
+        // Apply drive configuration filtering
+        if (driveConfig && typeof driveConfig === 'string') {
+          // Map normalized values back to database values
+          if (driveConfig === '2WD') {
+            whereConditions.push(sql`(
+              LOWER(${vehicleReferences.driveConfiguration}) LIKE '%2wd%' OR 
+              ${vehicleReferences.driveConfiguration} = '2' OR 
+              LOWER(${vehicleReferences.driveConfiguration}) = '2x4' OR
+              LOWER(${vehicleReferences.driveConfiguration}) = '2*4'
+            )`);
+          } else if (driveConfig === '4WD') {
+            whereConditions.push(sql`(
+              LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4wd%' OR 
+              LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4x4%' OR 
+              LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4*4%' OR
+              LOWER(${vehicleReferences.driveConfiguration}) = '4x2' OR
+              LOWER(${vehicleReferences.driveConfiguration}) = '4*2'
+            )`);
+          } else if (driveConfig === 'AWD') {
+            whereConditions.push(sql`LOWER(${vehicleReferences.driveConfiguration}) LIKE '%awd%'`);
+          } else {
+            // Exact match for other configurations
+            whereConditions.push(sql`${vehicleReferences.driveConfiguration} = ${driveConfig}`);
+          }
+        }
+        
+        results = await db
+          .selectDistinct({ 
+            engineCapacity: vehicleReferences.engineCapacity
+          })
+          .from(vehicleReferences)
+          .where(sql.join(whereConditions, sql` AND `))
+          .orderBy(sql`CAST(${vehicleReferences.engineCapacity} AS INTEGER)`);
       }
-      
-      const results = await db
-        .selectDistinct({ 
-          engineCapacity: vehicleReferences.engineCapacity
-        })
-        .from(vehicleReferences)
-        .where(sql.join(whereConditions, sql` AND `))
-        .orderBy(vehicleReferences.engineCapacity);
         
       res.json(results.map(r => r.engineCapacity).filter(Boolean));
     } catch (error) {

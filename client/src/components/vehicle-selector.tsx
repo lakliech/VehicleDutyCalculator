@@ -110,13 +110,20 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     enabled: !!selectedMake,
   });
 
-  // Fetch drive configurations for selected make and model
+  // Fetch drive configurations for selected make and model (with CRSP year support)
   const { data: driveConfigs = [], isLoading: driveConfigsLoading } = useQuery<string[]>({
-    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives`, categoryFilter],
+    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives`, categoryFilter, selectedCrspYear],
     queryFn: async () => {
       let url = `/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives`;
+      const params = [];
       if (categoryFilter) {
-        url += `?category=${categoryFilter}`;
+        params.push(`category=${categoryFilter}`);
+      }
+      if (selectedCrspYear) {
+        params.push(`crspYear=${selectedCrspYear}`);
+      }
+      if (params.length > 0) {
+        url += `?${params.join('&')}`;
       }
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch drive configurations');
@@ -125,18 +132,23 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
     enabled: !!selectedMake && !!selectedModel,
   });
 
-  // Fetch engine sizes for selected make, model, and drive config (filtered by category if provided)
+  // Fetch engine sizes for selected make, model, and drive config (with CRSP year support)
   const { data: engineSizes = [], isLoading: engineSizesLoading } = useQuery<number[]>({
-    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives/${selectedDriveConfig}/engines`, categoryFilter],
+    queryKey: [`/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/drives/${selectedDriveConfig}/engines`, categoryFilter, selectedCrspYear],
     queryFn: async () => {
       let url = `/api/vehicle-references/makes/${selectedMake}/models/${selectedModel}/engines`;
+      const params = [];
       if (selectedDriveConfig) {
-        url += `?driveConfig=${selectedDriveConfig}`;
-        if (categoryFilter) {
-          url += `&category=${categoryFilter}`;
-        }
-      } else if (categoryFilter) {
-        url += `?category=${categoryFilter}`;
+        params.push(`driveConfig=${selectedDriveConfig}`);
+      }
+      if (categoryFilter) {
+        params.push(`category=${categoryFilter}`);
+      }
+      if (selectedCrspYear) {
+        params.push(`crspYear=${selectedCrspYear}`);
+      }
+      if (params.length > 0) {
+        url += `?${params.join('&')}`;
       }
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch engine sizes');

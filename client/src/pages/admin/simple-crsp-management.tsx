@@ -5,10 +5,10 @@ import { Calculator, Database, TrendingUp, CheckCircle } from "lucide-react";
 export default function SimpleCrspManagement() {
   // Use known data from our SQL queries
   const stats = {
-    totalVehicles: 2961,
-    crsp2025Coverage: 3,
-    anyCrspCoverage: 2961,
-    crsp2025Percentage: '0.10',
+    totalVehicles: 2967,
+    crsp2025Coverage: 9,
+    anyCrspCoverage: 2967,
+    crsp2025Percentage: '0.30',
     coveragePercentage: '100.00'
   };
 
@@ -128,7 +128,7 @@ export default function SimpleCrspManagement() {
                 <Database className="h-5 w-5 text-blue-500" />
                 <span className="font-medium">5,260 CRSP 2025 records processed</span>
               </div>
-              <Badge variant="secondary">0.10% coverage</Badge>
+              <Badge variant="secondary">0.30% coverage</Badge>
             </div>
           </div>
         </CardContent>
@@ -157,11 +157,22 @@ export default function SimpleCrspManagement() {
             
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div>
-                <span className="font-medium">TOYOTA Aqua/Prius C (1800cc)</span>
-                <p className="text-sm text-gray-600">Hybrid vehicle</p>
+                <span className="font-medium">AUDI Q4 E-TRON 40 E-TRON</span>
+                <p className="text-sm text-gray-600">Electric SUV</p>
               </div>
               <div className="text-right">
-                <div className="font-medium text-green-600">KES 4,500,000</div>
+                <div className="font-medium text-green-600">KES 8,565,779</div>
+                <Badge variant="outline" className="text-xs">CRSP 2025</Badge>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div>
+                <span className="font-medium">AUDI Q4 SPORTBACK E-TRON ADVANCED</span>
+                <p className="text-sm text-gray-600">Electric SUV</p>
+              </div>
+              <div className="text-right">
+                <div className="font-medium text-green-600">KES 10,995,001</div>
                 <Badge variant="outline" className="text-xs">CRSP 2025</Badge>
               </div>
             </div>

@@ -140,13 +140,15 @@ function getEngineCapacityFilter(category: string) {
 function getEngineCapacityFilter2025(category: string) {
   switch (category) {
     case 'under1500cc':
-      return sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND ${vehicleReferences2025.engineCapacity} != '' AND ${vehicleReferences2025.engineCapacity} ~ '^[0-9]+$' AND ${vehicleReferences2025.engineCapacity}::integer < 1500`;
+      return sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND ${vehicleReferences2025.engineCapacity} != '' AND ${vehicleReferences2025.engineCapacity} ~ '^[0-9]+$' AND ${vehicleReferences2025.engineCapacity}::integer < 1500 AND LOWER(${vehicleReferences2025.bodyType}) NOT IN ('motorcycle', 'scooter')`;
     case 'over1500cc':
-      return sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND ${vehicleReferences2025.engineCapacity} != '' AND ${vehicleReferences2025.engineCapacity} ~ '^[0-9]+$' AND ${vehicleReferences2025.engineCapacity}::integer >= 1500 AND ${vehicleReferences2025.engineCapacity}::integer < 3000`;
+      return sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND ${vehicleReferences2025.engineCapacity} != '' AND ${vehicleReferences2025.engineCapacity} ~ '^[0-9]+$' AND ${vehicleReferences2025.engineCapacity}::integer >= 1500 AND ${vehicleReferences2025.engineCapacity}::integer < 3000 AND LOWER(${vehicleReferences2025.bodyType}) NOT IN ('motorcycle', 'scooter')`;
     case 'largeEngine':
-      return sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND ${vehicleReferences2025.engineCapacity} != '' AND ${vehicleReferences2025.engineCapacity} ~ '^[0-9]+$' AND ${vehicleReferences2025.engineCapacity}::integer >= 2500`;
+      return sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND ${vehicleReferences2025.engineCapacity} != '' AND ${vehicleReferences2025.engineCapacity} ~ '^[0-9]+$' AND ${vehicleReferences2025.engineCapacity}::integer >= 2500 AND LOWER(${vehicleReferences2025.bodyType}) NOT IN ('motorcycle', 'scooter')`;
     case 'electric':
-      return sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND (${vehicleReferences2025.engineCapacity} = 'EV' OR ${vehicleReferences2025.engineCapacity} LIKE '%kWh%')`;
+      return sql`${vehicleReferences2025.engineCapacity} IS NOT NULL AND (${vehicleReferences2025.engineCapacity} = 'EV' OR ${vehicleReferences2025.engineCapacity} LIKE '%kWh%') AND LOWER(${vehicleReferences2025.bodyType}) NOT IN ('motorcycle', 'scooter')`;
+    case 'motorcycle':
+      return sql`LOWER(${vehicleReferences2025.bodyType}) IN ('motorcycle', 'scooter')`;
     default:
       return null;
   }

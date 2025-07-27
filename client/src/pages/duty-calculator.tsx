@@ -507,8 +507,17 @@ export default function DutyCalculator() {
   });
 
   const onSubmit = (data: DutyCalculation) => {
+    console.log('🚀 Form submission triggered:', data);
+    console.log('🔍 Form validation state:', {
+      isValid: form.formState.isValid,
+      errors: form.formState.errors,
+      isDirty: form.formState.isDirty,
+      isSubmitting: form.formState.isSubmitting
+    });
+    
     // Check authentication first
     if (!isAuthenticated) {
+      console.log('❌ Authentication failed');
       toast({
         title: "Authentication Required",
         description: "Please sign in to calculate vehicle import duties",
@@ -517,6 +526,8 @@ export default function DutyCalculator() {
       setShowAuthDialog(true);
       return;
     }
+    
+    console.log('✅ Authentication passed');
 
     // Validate all required fields are selected based on category
     const currentCategory = form.getValues('vehicleCategory');
@@ -567,13 +578,18 @@ export default function DutyCalculator() {
 
     // Check for category conflicts before submitting
     // CRITICAL: Enhanced category conflict validation - prevent submission with conflicts
-    console.log('Checking for conflicts before submission:', { categoryConflict, currentCategory: form.getValues('vehicleCategory') });
+    console.log('🔍 Checking for conflicts before submission:', { 
+      categoryConflict, 
+      currentCategory: form.getValues('vehicleCategory'),
+      selectedVehicle: !!selectedVehicle,
+      manualVehicleData: !!manualVehicleData
+    });
     
     // Re-validate the current selection to catch any missed conflicts
     const isValid = validateCategorySelection(form.getValues('vehicleCategory'));
     
     if (categoryConflict || !isValid) {
-      console.log('BLOCKING SUBMISSION due to category conflict:', categoryConflict);
+      console.log('❌ BLOCKING SUBMISSION due to category conflict:', categoryConflict);
       toast({
         title: "Category Conflict Detected",
         description: categoryConflict || "Selected category conflicts with vehicle specifications. Please choose the correct category.",
@@ -581,6 +597,8 @@ export default function DutyCalculator() {
       });
       return;
     }
+    
+    console.log('✅ Category validation passed');
 
     // Additional validation: ensure category is selected
     if (!currentCategory) {
@@ -625,6 +643,7 @@ export default function DutyCalculator() {
         fuelType: "diesel", // Most heavy machinery is diesel
       } : undefined
     };
+    console.log('🚀 Submitting calculation data:', submissionData);
     calculateDutyMutation.mutate(submissionData);
   };
 

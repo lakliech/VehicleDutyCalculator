@@ -351,6 +351,25 @@ The platform now features a sophisticated role-based navigation system that dyna
 
 ## Changelog
 
+**SEATS FILTER IMPLEMENTATION WITH CRSP DATASET SUPPORT - January 27, 2025:**
+- **Problem Solved**: Added comprehensive seats filtering functionality to vehicle selection interface
+- **API Implementation**: Created `/api/vehicle-references/seats` endpoint supporting both CRSP 2020 and CRSP 2025 datasets
+- **Frontend Interface**: Added checkbox-based seats filter UI with multiple selection capability
+- **Data Validation**: Successfully validated seating data across both datasets:
+  - CRSP 2020: 50 seating options (2-67+ seats including buses and special vehicles)
+  - CRSP 2025: 1 seating option (5 seats from current 130 imported records)
+- **User Experience Features**:
+  - Multiple seat selection with checkboxes (e.g., "5 seats", "7 seats", "29 seats +1")
+  - Selection count display and clear button for easy management
+  - Conditional display - only shows when seating data is available
+  - Integrated into vehicle selector component alongside make, model, engine filtering
+- **Technical Implementation**:
+  - Enhanced VehicleSelector component with seats state management
+  - API endpoint returns distinct seating values filtered by CRSP year
+  - Proper error handling and loading states for seats data
+  - Fixed syntax errors and ensured application stability
+- **Verification**: API endpoints working correctly with backend logs showing "Found 50 seating options in 2020 dataset" and "Found 1 seating options in 2025 dataset"
+
 **CRSP 2025 DATASET INTEGRATION FULLY OPERATIONAL - January 27, 2025:**
 - **Problem Solved**: CRSP 2025 vehicles not loading due to data type mismatches in engine capacity column
 - **Complete CRSP Year Support**: Users can now select between CRSP 2018/2020 (Standard) and CRSP 2025 (Updated) datasets

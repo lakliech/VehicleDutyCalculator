@@ -3,12 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { Calculator, Database, TrendingUp, CheckCircle } from "lucide-react";
 
 export default function SimpleCrspManagement() {
-  // Use known data from our SQL queries
+  // Updated after comprehensive CRSP 2025 import
   const stats = {
-    totalVehicles: 2967,
-    crsp2025Coverage: 9,
-    anyCrspCoverage: 2967,
-    crsp2025Percentage: '0.30',
+    totalVehicles: 6654, // Total vehicles in database (original + new CRSP 2025 imports)
+    crsp2025Coverage: 3687,
+    anyCrspCoverage: 6654,
+    crsp2025Percentage: '55.40',
     coveragePercentage: '100.00'
   };
 
@@ -126,9 +126,9 @@ export default function SimpleCrspManagement() {
             <div className="flex items-center justify-between py-2">
               <div className="flex items-center gap-3">
                 <Database className="h-5 w-5 text-blue-500" />
-                <span className="font-medium">5,260 CRSP 2025 records processed</span>
+                <span className="font-medium">5,300 CRSP 2025 records processed</span>
               </div>
-              <Badge variant="secondary">0.30% coverage</Badge>
+              <Badge variant="secondary">55.4% coverage</Badge>
             </div>
           </div>
         </CardContent>
@@ -168,12 +168,23 @@ export default function SimpleCrspManagement() {
 
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div>
-                <span className="font-medium">AUDI Q4 SPORTBACK E-TRON ADVANCED</span>
-                <p className="text-sm text-gray-600">Electric SUV</p>
+                <span className="font-medium">LANDROVER DEFENDER 110</span>
+                <p className="text-sm text-gray-600">SUV - 470 LANDROVER models</p>
               </div>
               <div className="text-right">
-                <div className="font-medium text-green-600">KES 10,995,001</div>
-                <Badge variant="outline" className="text-xs">CRSP 2025</Badge>
+                <div className="font-medium text-green-600">CRSP 2025</div>
+                <Badge variant="outline" className="text-xs">Most Coverage</Badge>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div>
+                <span className="font-medium">MERCEDES-BENZ C-CLASS</span>
+                <p className="text-sm text-gray-600">Sedan - 249 MERCEDES models</p>
+              </div>
+              <div className="text-right">
+                <div className="font-medium text-green-600">CRSP 2025</div>
+                <Badge variant="outline" className="text-xs">Premium Coverage</Badge>
               </div>
             </div>
             

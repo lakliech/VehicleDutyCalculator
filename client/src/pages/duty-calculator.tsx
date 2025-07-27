@@ -576,8 +576,8 @@ export default function DutyCalculator() {
       if (!selectedVehicle && !manualVehicleData) {
         console.log('❌ Missing vehicle selection');
         toast({
-          title: "Vehicle Required",
-          description: "Please select a vehicle from the database or enable manual entry",
+          title: "Vehicle Selection Required",
+          description: "Please select a vehicle from Step 2 above, or use the Manual Entry toggle to enter vehicle details manually",
           variant: "destructive",
         });
         return;
@@ -934,6 +934,25 @@ export default function DutyCalculator() {
                       </div>
                     )}
 
+                    {/* Missing Requirements Warning */}
+                    {(!selectedVehicle && !manualVehicleData && !selectedTrailer && !selectedMachinery) && selectedCategory && (
+                      <Alert className="border-orange-200 bg-orange-50">
+                        <AlertCircle className="h-4 w-4 text-orange-600" />
+                        <AlertDescription className="text-orange-800">
+                          <strong>Vehicle Selection Required:</strong> Please complete Step 2 above by selecting a vehicle from the database, or enable Manual Entry to proceed.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    {yearOfManufacture === 0 && selectedCategory && selectedCategory !== 'trailer' && selectedCategory !== 'heavyMachinery' && (selectedVehicle || manualVehicleData) && (
+                      <Alert className="border-orange-200 bg-orange-50">
+                        <AlertCircle className="h-4 w-4 text-orange-600" />
+                        <AlertDescription className="text-orange-800">
+                          <strong>Year Required:</strong> Please select the year of manufacture below.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
                     {/* Submit Button */}
                     <Button 
                       type="submit" 
@@ -941,7 +960,9 @@ export default function DutyCalculator() {
                       disabled={
                         calculateDutyMutation.isPending || 
                         (selectedVehicle?.discontinuationYear && form.watch('importType') === 'direct' && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
-                        categoryConflict
+                        categoryConflict ||
+                        (!selectedVehicle && !manualVehicleData && !selectedTrailer && !selectedMachinery) ||
+                        (yearOfManufacture === 0 && selectedCategory !== 'trailer' && selectedCategory !== 'heavyMachinery')
                       }
                     >
                       {calculateDutyMutation.isPending ? (

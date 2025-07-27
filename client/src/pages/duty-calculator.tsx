@@ -132,6 +132,7 @@ export default function DutyCalculator() {
   const [selectedTrailer, setSelectedTrailer] = useState<Trailer | null>(null);
   const [selectedMachinery, setSelectedMachinery] = useState<HeavyMachinery | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [selectedCrspYear, setSelectedCrspYear] = useState<string>("2020");
   
   const form = useForm<DutyCalculation>({
     resolver: zodResolver(dutyCalculationSchema),
@@ -221,6 +222,19 @@ export default function DutyCalculator() {
     }
     
     setCategoryConflict(null);
+  };
+
+  // Handle CRSP year changes  
+  const handleCrspYearChange = (year: string) => {
+    setSelectedCrspYear(year);
+    // Clear current selections to force refresh with new CRSP year
+    setSelectedVehicle(null);
+    setManualVehicleData(null);
+    toast({
+      title: "CRSP Dataset Changed",
+      description: `Now using ${year === '2025' ? 'CRSP 2025 (Updated)' : 'CRSP 2018/2020 (Standard)'} dataset`,
+      variant: "default",
+    });
   };
 
   // Function to detect vehicle category based on engine size and fuel type (for validation only)
@@ -746,6 +760,7 @@ export default function DutyCalculator() {
                                   onVehicleSelect={handleVehicleSelect} 
                                   onManualVehicleData={handleManualVehicleData}
                                   categoryFilter={selectedCategory}
+                                  onCrspYearChange={handleCrspYearChange}
                                 />
                               </>
                             )}

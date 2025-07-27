@@ -35,7 +35,8 @@ import {
 
 import { 
   dutyCalculationSchema, 
-  vehicleReferences, 
+  vehicleReferences,
+  vehicleReferences2025, 
   taxRates, 
   processingFees,
   vehicleCategoryRules, 
@@ -2183,69 +2184,155 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Search vehicle references
   app.get("/api/vehicle-references/search", async (req, res) => {
     try {
-      const { make, model, engineCapacity, driveConfig, limit = "20" } = req.query;
+      const { make, model, engineCapacity, driveConfig, crspYear, limit = "20" } = req.query;
       
-      // Build base query
+      // Default to 2020 CRSP if not specified
+      const selectedCrspYear = crspYear === '2025' ? '2025' : '2020';
+      
+      // Build base query conditions
       let whereConditions = [];
       
       if (make && typeof make === 'string') {
-        whereConditions.push(sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`);
+        whereConditions.push(make);
       }
       
       if (model && typeof model === 'string') {
-        whereConditions.push(sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`);
-      }
-      
-      if (engineCapacity && typeof engineCapacity === 'string') {
-        whereConditions.push(sql`${vehicleReferences.engineCapacity} = ${parseInt(engineCapacity)}`);
-      }
-      
-      // Apply drive configuration filtering
-      if (driveConfig && typeof driveConfig === 'string') {
-        // Map normalized values back to database values
-        if (driveConfig === '2WD') {
-          whereConditions.push(sql`(
-            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%2wd%' OR 
-            ${vehicleReferences.driveConfiguration} = '2' OR 
-            LOWER(${vehicleReferences.driveConfiguration}) = '2x4' OR
-            LOWER(${vehicleReferences.driveConfiguration}) = '2*4'
-          )`);
-        } else if (driveConfig === '4WD') {
-          whereConditions.push(sql`(
-            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4wd%' OR 
-            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4x4%' OR 
-            LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4*4%' OR
-            LOWER(${vehicleReferences.driveConfiguration}) = '4x2' OR
-            LOWER(${vehicleReferences.driveConfiguration}) = '4*2'
-          )`);
-        } else if (driveConfig === 'AWD') {
-          whereConditions.push(sql`LOWER(${vehicleReferences.driveConfiguration}) LIKE '%awd%'`);
-        } else {
-          // Exact match for other configurations
-          whereConditions.push(sql`${vehicleReferences.driveConfiguration} = ${driveConfig}`);
-        }
-      }
-
-      // For proration reference vehicles, ensure vehicles have CRSP values and engine capacity
-      // Remove make-only restriction to allow any model for proration
-      if (!model && !engineCapacity) {
-        whereConditions.push(sql`(${vehicleReferences.crspKes} IS NOT NULL OR ${vehicleReferences.crsp2020} IS NOT NULL)`);
-        whereConditions.push(sql`${vehicleReferences.engineCapacity} IS NOT NULL`);
+        whereConditions.push(model);
       }
       
       let results;
-      if (whereConditions.length > 0) {
-        const whereClause = sql.join(whereConditions, sql` AND `);
-        results = await db
-          .select()
-          .from(vehicleReferences)
-          .where(whereClause)
-          .orderBy(vehicleReferences.make, vehicleReferences.model)
+      
+      if (selectedCrspYear === '2025') {
+        // Query CRSP2025 table
+        let query = db
+          .select({
+            id: vehicleReferences2025.id,
+            make: vehicleReferences2025.make,
+            model: vehicleReferences2025.model,
+            modelNumber: vehicleReferences2025.modelNumber,
+            transmission: vehicleReferences2025.transmission,
+            driveConfiguration: vehicleReferences2025.driveConfiguration,
+            engineCapacity: vehicleReferences2025.engineCapacity,
+            bodyType: vehicleReferences2025.bodyType,
+            fuelType: vehicleReferences2025.fuelType,
+            seating: vehicleReferences2025.seating,
+            crspKes: vehicleReferences2025.crsp2025,
+            crsp2020: sql<number>`NULL`,
+            crspYear: sql<string>`'2025'`
+          })
+          .from(vehicleReferences2025);
+
+        let conditions = [];
+        
+        if (make && typeof make === 'string') {
+          conditions.push(sql`LOWER(${vehicleReferences2025.make}) = LOWER(${make})`);
+        }
+        
+        if (model && typeof model === 'string') {
+          // Use fuzzy matching for CRSP 2025 since model names are more detailed
+          conditions.push(sql`LOWER(${vehicleReferences2025.model}) LIKE LOWER(${`%${model}%`})`);
+        }
+        
+        if (engineCapacity && typeof engineCapacity === 'string') {
+          conditions.push(sql`${vehicleReferences2025.engineCapacity} = ${engineCapacity}`);
+        }
+        
+        if (driveConfig && typeof driveConfig === 'string') {
+          if (driveConfig === '2WD') {
+            conditions.push(sql`LOWER(${vehicleReferences2025.driveConfiguration}) LIKE '%2wd%'`);
+          } else if (driveConfig === '4WD') {
+            conditions.push(sql`LOWER(${vehicleReferences2025.driveConfiguration}) LIKE '%4wd%'`);
+          } else if (driveConfig === 'AWD') {
+            conditions.push(sql`LOWER(${vehicleReferences2025.driveConfiguration}) LIKE '%awd%'`);
+          } else {
+            conditions.push(sql`${vehicleReferences2025.driveConfiguration} = ${driveConfig}`);
+          }
+        }
+
+        // For proration reference vehicles, ensure vehicles have CRSP values
+        if (!model && !engineCapacity) {
+          conditions.push(sql`${vehicleReferences2025.crsp2025} IS NOT NULL`);
+          conditions.push(sql`${vehicleReferences2025.engineCapacity} IS NOT NULL`);
+        }
+        
+        if (conditions.length > 0) {
+          const whereClause = sql.join(conditions, sql` AND `);
+          query = query.where(whereClause);
+        }
+        
+        results = await query
+          .orderBy(vehicleReferences2025.make, vehicleReferences2025.model)
           .limit(parseInt(limit as string));
+          
       } else {
-        results = await db
-          .select()
-          .from(vehicleReferences)
+        // Query original vehicle_references table  
+        let query = db
+          .select({
+            id: vehicleReferences.id,
+            make: vehicleReferences.make,
+            model: vehicleReferences.model,
+            modelNumber: sql<string>`NULL`,
+            transmission: sql<string>`NULL`,
+            driveConfiguration: vehicleReferences.driveConfiguration,
+            engineCapacity: sql<string>`CAST(${vehicleReferences.engineCapacity} AS TEXT)`,
+            bodyType: vehicleReferences.bodyType,
+            fuelType: vehicleReferences.fuelType,
+            seating: sql<number>`NULL`,
+            crspKes: vehicleReferences.crspKes,
+            crsp2020: vehicleReferences.crsp2020,
+            crspYear: sql<string>`'2020'`
+          })
+          .from(vehicleReferences);
+
+        let conditions = [];
+        
+        if (make && typeof make === 'string') {
+          conditions.push(sql`LOWER(${vehicleReferences.make}) = LOWER(${make})`);
+        }
+        
+        if (model && typeof model === 'string') {
+          conditions.push(sql`LOWER(${vehicleReferences.model}) = LOWER(${model})`);
+        }
+        
+        if (engineCapacity && typeof engineCapacity === 'string') {
+          conditions.push(sql`${vehicleReferences.engineCapacity} = ${parseInt(engineCapacity)}`);
+        }
+        
+        if (driveConfig && typeof driveConfig === 'string') {
+          if (driveConfig === '2WD') {
+            conditions.push(sql`(
+              LOWER(${vehicleReferences.driveConfiguration}) LIKE '%2wd%' OR 
+              ${vehicleReferences.driveConfiguration} = '2' OR 
+              LOWER(${vehicleReferences.driveConfiguration}) = '2x4' OR
+              LOWER(${vehicleReferences.driveConfiguration}) = '2*4'
+            )`);
+          } else if (driveConfig === '4WD') {
+            conditions.push(sql`(
+              LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4wd%' OR 
+              LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4x4%' OR 
+              LOWER(${vehicleReferences.driveConfiguration}) LIKE '%4*4%' OR
+              LOWER(${vehicleReferences.driveConfiguration}) = '4x2' OR
+              LOWER(${vehicleReferences.driveConfiguration}) = '4*2'
+            )`);
+          } else if (driveConfig === 'AWD') {
+            conditions.push(sql`LOWER(${vehicleReferences.driveConfiguration}) LIKE '%awd%'`);
+          } else {
+            conditions.push(sql`${vehicleReferences.driveConfiguration} = ${driveConfig}`);
+          }
+        }
+
+        // For proration reference vehicles, ensure vehicles have CRSP values and engine capacity
+        if (!model && !engineCapacity) {
+          conditions.push(sql`(${vehicleReferences.crspKes} IS NOT NULL OR ${vehicleReferences.crsp2020} IS NOT NULL)`);
+          conditions.push(sql`${vehicleReferences.engineCapacity} IS NOT NULL`);
+        }
+        
+        if (conditions.length > 0) {
+          const whereClause = sql.join(conditions, sql` AND `);
+          query = query.where(whereClause);
+        }
+        
+        results = await query
           .orderBy(vehicleReferences.make, vehicleReferences.model)
           .limit(parseInt(limit as string));
       }
@@ -2256,6 +2343,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         error: "Failed to search vehicle references" 
       });
+    }
+  });
+
+  // Get available CRSP years
+  app.get("/api/vehicle-references/crsp-years", async (req, res) => {
+    try {
+      const crspYears = [
+        { year: '2020', label: 'CRSP 2018/2020', description: 'Standard CRSP values' },
+        { year: '2025', label: 'CRSP 2025', description: 'Updated CRSP values' }
+      ];
+      res.json(crspYears);
+    } catch (error) {
+      console.error("Failed to get CRSP years:", error);
+      res.status(500).json({ error: "Failed to get CRSP years" });
     }
   });
 

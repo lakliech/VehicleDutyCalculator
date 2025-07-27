@@ -97,6 +97,23 @@ export const vehicleReferences = pgTable("vehicle_references", {
   createdAt: text("created_at").default("now()").notNull(),
 });
 
+// CRSP 2025 reference table for updated vehicle valuations
+export const vehicleReferences2025 = pgTable("vehicle_references_2025", {
+  id: serial("id").primaryKey(),
+  make: text("make").notNull(),
+  model: text("model").notNull(),
+  modelNumber: text("model_number"),
+  transmission: text("transmission"),
+  driveConfiguration: text("drive_configuration"),
+  engineCapacity: text("engine_capacity"), // Some entries have kWh for electric vehicles
+  bodyType: text("body_type"),
+  gvw: text("gvw"),
+  seating: integer("seating"),
+  fuelType: text("fuel_type"),
+  crsp2025: decimal("crsp_2025", { precision: 12, scale: 2 }),
+  createdAt: text("created_at").default("now()").notNull(),
+});
+
 // Trailers reference table
 export const trailers = pgTable("trailers", {
   id: serial("id").primaryKey(),

@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Car, Settings, Fuel, AlertCircle, Calculator, Database, Edit } from "lucide-react";
+import { Car, Settings, Fuel, AlertCircle, Calculator, Database, Edit, Calendar } from "lucide-react";
 import type { VehicleReference, ManualVehicleData } from "@shared/schema";
 
 interface VehicleSelectorProps {
@@ -16,9 +16,16 @@ interface VehicleSelectorProps {
   onManualVehicleData?: (data: ManualVehicleData | null) => void;
   categoryFilter?: string; // Filter vehicles by category
   hideCrsp?: boolean; // Hide CRSP information (for transfer cost calculator)
+  onCrspYearChange?: (year: string) => void; // Callback for CRSP year changes
 }
 
-export function VehicleSelector({ onVehicleSelect, onManualVehicleData, categoryFilter, hideCrsp }: VehicleSelectorProps) {
+interface CrspYear {
+  year: string;
+  label: string;
+  description: string;
+}
+
+export function VehicleSelector({ onVehicleSelect, onManualVehicleData, categoryFilter, hideCrsp, onCrspYearChange }: VehicleSelectorProps) {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [selectedDriveConfig, setSelectedDriveConfig] = useState<string>("");
@@ -26,6 +33,7 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleReference | null>(null);
   const [manualEngineSize, setManualEngineSize] = useState<string>("");
   const [useManualEngine, setUseManualEngine] = useState<boolean>(false);
+  const [selectedCrspYear, setSelectedCrspYear] = useState<string>("2020"); // Default to 2020
   
   // Manual entry mode state
   const [isManualEntry, setIsManualEntry] = useState<boolean>(false);
@@ -35,6 +43,27 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   const [manualVehicleData, setManualVehicleData] = useState<ManualVehicleData | null>(null);
   const [isCalculatingProration, setIsCalculatingProration] = useState<boolean>(false);
   const [selectedReferenceVehicle, setSelectedReferenceVehicle] = useState<VehicleReference | null>(null);
+
+  // Fetch available CRSP years
+  const { data: crspYears = [] } = useQuery<CrspYear[]>({
+    queryKey: ["/api/vehicle-references/crsp-years"],
+    queryFn: async () => {
+      const response = await fetch("/api/vehicle-references/crsp-years");
+      if (!response.ok) throw new Error('Failed to fetch CRSP years');
+      return response.json();
+    },
+  });
+
+  // Handle CRSP year changes
+  const handleCrspYearChange = (year: string) => {
+    setSelectedCrspYear(year);
+    if (onCrspYearChange) {
+      onCrspYearChange(year);
+    }
+    // Clear current selection to force refresh with new CRSP year
+    setSelectedVehicle(null);
+    onVehicleSelect(null);
+  };
 
   // Fetch all makes (filtered by category if provided)
   const { data: makes = [], isLoading: makesLoading } = useQuery<string[]>({
@@ -104,9 +133,9 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
 
   // Search for specific vehicle
   const { data: vehicleDetails = [] } = useQuery<VehicleReference[]>({
-    queryKey: [`/api/vehicle-references/search`, selectedMake, selectedModel, selectedDriveConfig, selectedEngineSize, categoryFilter],
+    queryKey: [`/api/vehicle-references/search`, selectedMake, selectedModel, selectedDriveConfig, selectedEngineSize, categoryFilter, selectedCrspYear],
     queryFn: async () => {
-      let url = `/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}&engineCapacity=${selectedEngineSize}`;
+      let url = `/api/vehicle-references/search?make=${selectedMake}&model=${selectedModel}&engineCapacity=${selectedEngineSize}&crspYear=${selectedCrspYear}`;
       if (selectedDriveConfig) {
         url += `&driveConfig=${selectedDriveConfig}`;
       }
@@ -123,11 +152,11 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
   // Search for reference vehicles for proration (manual entry mode)
   // Filter by make to get relevant reference vehicles for better efficiency
   const { data: referenceVehicles = [], isLoading: referenceVehiclesLoading, error: referenceVehiclesError } = useQuery<VehicleReference[]>({
-    queryKey: [`/api/vehicle-references/proration-references`, manualMake],
+    queryKey: [`/api/vehicle-references/proration-references`, manualMake, selectedCrspYear],
     queryFn: async () => {
       if (!manualMake) return [];
       const trimmedMake = manualMake.trim();
-      const response = await fetch(`/api/vehicle-references/proration-references?make=${encodeURIComponent(trimmedMake)}`);
+      const response = await fetch(`/api/vehicle-references/proration-references?make=${encodeURIComponent(trimmedMake)}&crspYear=${selectedCrspYear}`);
       if (!response.ok) throw new Error('Failed to fetch reference vehicles');
       return response.json();
     },
@@ -323,6 +352,34 @@ export function VehicleSelector({ onVehicleSelect, onManualVehicleData, category
           <Edit className="h-4 w-4 text-gray-600" />
         </div>
       </div>
+
+      {/* CRSP Year Selection */}
+      {!hideCrsp && crspYears.length > 0 && (
+        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <Label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+            <Calendar className="h-4 w-4 mr-1" />
+            CRSP Dataset <span className="text-red-500 ml-1">*</span>
+          </Label>
+          <Select value={selectedCrspYear} onValueChange={handleCrspYearChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select CRSP dataset..." />
+            </SelectTrigger>
+            <SelectContent>
+              {crspYears.map((crspYear) => (
+                <SelectItem key={crspYear.year} value={crspYear.year}>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{crspYear.label}</span>
+                    <span className="text-xs text-gray-500">{crspYear.description}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-gray-600 mt-1">
+            Choose which CRSP dataset to use for duty calculations. CRSP 2025 contains updated values.
+          </p>
+        </div>
+      )}
 
       {/* Manual Entry Form */}
       {isManualEntry ? (

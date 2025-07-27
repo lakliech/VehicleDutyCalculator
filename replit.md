@@ -351,6 +351,17 @@ The platform now features a sophisticated role-based navigation system that dyna
 
 ## Changelog
 
+**SEATS FILTERING IMPLEMENTATION REMOVAL - January 27, 2025:**
+- **Problem Solved**: Completely removed seats filtering implementation from duty calculator as requested by user
+- **Frontend Changes**: 
+  - Removed seats state variables, API calls, and UI components from VehicleSelector component
+  - Removed seats filtering section from buy-a-car page filters
+  - Cleaned up all useEffect dependencies and form reset functions
+- **Backend Changes**: Removed `/api/vehicle-references/seats` endpoint from server routes
+- **User Interface**: Duty calculator now focuses on core vehicle selection without seats filtering complexity
+- **Technical Achievement**: Complete removal of seats functionality while maintaining all other vehicle selection features
+- **Result**: Simplified and streamlined duty calculator interface without seats filtering distractions
+
 **CRSP 2025 MAJOR IMPORT EXPANSION AND CATEGORIZATION FIX - January 27, 2025:**
 - **Import Achievement**: Successfully expanded CRSP 2025 dataset from 157 to 307 records (+95% improvement)
 - **Coverage**: Dataset now includes 69 makes, 291 models covering 5.79% of full dataset

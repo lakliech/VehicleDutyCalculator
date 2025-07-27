@@ -2378,40 +2378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get available seating options
-  app.get("/api/vehicle-references/seats", async (req, res) => {
-    try {
-      const { crspYear = "2020" } = req.query;
-      
-      let availableSeats;
-      
-      if (crspYear === '2025') {
-        // Query CRSP 2025 table for available seating options
-        const seatsQuery = await db
-          .selectDistinct({ seating: vehicleReferences2025.seating })
-          .from(vehicleReferences2025)
-          .where(sql`${vehicleReferences2025.seating} IS NOT NULL`)
-          .orderBy(vehicleReferences2025.seating);
-        
-        availableSeats = seatsQuery.map(row => row.seating).filter(s => s !== null);
-      } else {
-        // Query CRSP 2020 table for available seating options
-        const seatsQuery = await db
-          .selectDistinct({ seating: vehicleReferences.seating })
-          .from(vehicleReferences)
-          .where(sql`${vehicleReferences.seating} IS NOT NULL`)
-          .orderBy(vehicleReferences.seating);
-        
-        availableSeats = seatsQuery.map(row => row.seating).filter(s => s !== null);
-      }
-      
-      console.log(`Found ${availableSeats.length} seating options in ${crspYear} dataset:`, availableSeats);
-      res.json(availableSeats);
-    } catch (error) {
-      console.error("Seats fetch error:", error);
-      res.status(500).json({ error: "Failed to fetch seating options" });
-    }
-  });
+
 
   // Trailers endpoints
   app.get('/api/trailers', async (req, res) => {

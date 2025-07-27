@@ -953,6 +953,30 @@ export default function DutyCalculator() {
                       </Alert>
                     )}
 
+                    {/* Submit Button Debug */}
+                    {(() => {
+                      const isButtonDisabled = calculateDutyMutation.isPending || 
+                        (selectedVehicle?.discontinuationYear && form.watch('isDirectImport') === true && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8) ||
+                        categoryConflict ||
+                        (!selectedVehicle && !manualVehicleData && !selectedTrailer && !selectedMachinery) ||
+                        (yearOfManufacture === 0 && selectedCategory !== 'trailer' && selectedCategory !== 'heavyMachinery');
+                      
+                      console.log('🔘 BUTTON DEBUG:', {
+                        isButtonDisabled,
+                        reason1_isPending: calculateDutyMutation.isPending,
+                        reason2_discontinued: selectedVehicle?.discontinuationYear && form.watch('isDirectImport') === true && (new Date().getFullYear() - selectedVehicle.discontinuationYear) > 8,
+                        reason3_categoryConflict: categoryConflict,
+                        reason4_noVehicleSelected: (!selectedVehicle && !manualVehicleData && !selectedTrailer && !selectedMachinery),
+                        reason5_noYear: (yearOfManufacture === 0 && selectedCategory !== 'trailer' && selectedCategory !== 'heavyMachinery'),
+                        selectedVehicle: selectedVehicle ? {id: selectedVehicle.id, make: selectedVehicle.make, model: selectedVehicle.model} : null,
+                        yearOfManufacture,
+                        selectedCategory,
+                        formValues: form.getValues()
+                      });
+                      
+                      return null;
+                    })()}
+
                     {/* Submit Button */}
                     <Button 
                       type="submit" 

@@ -65,10 +65,30 @@ export function SwipeInterface({
   // Track favorite mutation
   const favoriteMutation = useMutation({
     mutationFn: async (vehicleId: number) => {
-      return apiRequest('POST', `/api/track-favorite`, { listingId: vehicleId });
+      console.log('❤️ Favorite mutation: Starting API call for vehicle:', vehicleId);
+      return apiRequest('POST', `/api/track-favorite`, { 
+        listingId: vehicleId, 
+        action: 'add',
+        userId: null, // Anonymous user for now
+        searchQuery: null,
+        viewerId: null
+      });
     },
-    onSuccess: () => {
+    onSuccess: (data, vehicleId) => {
+      console.log('❤️ Favorite mutation: Success for vehicle:', vehicleId, 'Response:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/car-listings'] });
+      toast({
+        title: "Added to favorites!",
+        description: "Vehicle has been added to your favorites.",
+      });
+    },
+    onError: (error, vehicleId) => {
+      console.error('❤️ Favorite mutation: Error for vehicle:', vehicleId, 'Error:', error);
+      toast({
+        title: "Failed to add to favorites",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
     }
   });
 
@@ -149,7 +169,7 @@ export function SwipeInterface({
       favoriteMutation.mutate(currentVehicle.id);
       onSwipeRight?.(currentVehicle);
       nextVehicle();
-      toast({ title: "Added to favorites!" });
+      // Don't show duplicate toast here since mutation success will handle it
     }
   };
 

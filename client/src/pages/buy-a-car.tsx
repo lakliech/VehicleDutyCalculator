@@ -656,12 +656,225 @@ export default function BuyACar() {
           </CardContent>
         </Card>
 
+        {/* Mobile Filter Button */}
+        {isMobile && (
+          <div className="mb-6">
+            <Button
+              onClick={() => setShowFilters(true)}
+              className="w-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Show filters
+            </Button>
+          </div>
+        )}
+
+        {/* Mobile Filter Overlay */}
+        {isMobile && showFilters && (
+          <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setShowFilters(false)}>
+            <div 
+              className="fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="h-full flex flex-col">
+                <div className="flex items-center justify-between p-4 border-b bg-purple-50">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Filter className="h-5 w-5 text-purple-600" />
+                    Filter cars
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowFilters(false)}
+                    className="h-8 w-8 p-0"
+                  >
+                    ✕
+                  </Button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4">
+                  <div className="space-y-6">
+                    {/* Make */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold text-gray-900">Make</Label>
+                      <Select 
+                        value={selectedMake} 
+                        onValueChange={(value) => {
+                          setSelectedMake(value);
+                          setSelectedModel('all');
+                        }}
+                      >
+                        <SelectTrigger className="text-sm h-10">
+                          <SelectValue placeholder="Any make" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Any make</SelectItem>
+                          {filterOptions?.makes?.map((make: string) => (
+                            <SelectItem key={make} value={make}>{make}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Model */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold text-gray-900">Model</Label>
+                      <Select 
+                        value={selectedModel} 
+                        onValueChange={setSelectedModel}
+                        disabled={selectedMake === 'all' || modelsLoading}
+                      >
+                        <SelectTrigger className="text-sm h-10">
+                          <SelectValue placeholder={
+                            selectedMake === 'all' ? "Select make first" : 
+                            modelsLoading ? "Loading models..." :
+                            "Any model"
+                          } />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Any model</SelectItem>
+                          {selectedMake !== 'all' && modelsForMake?.map((model: string) => (
+                            <SelectItem key={model} value={model}>{model}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Price Range */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold text-gray-900">Price (KES)</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          placeholder="Min"
+                          value={priceRange.min}
+                          onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
+                          type="number"
+                          className="text-sm h-10"
+                        />
+                        <Input
+                          placeholder="Max"
+                          value={priceRange.max}
+                          onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
+                          type="number"
+                          className="text-sm h-10"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Fuel Type */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold text-gray-900">Fuel type</Label>
+                      <Select value={selectedFuelType} onValueChange={setSelectedFuelType}>
+                        <SelectTrigger className="text-sm h-10">
+                          <SelectValue placeholder="Any fuel type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Any fuel type</SelectItem>
+                          <SelectItem value="petrol">Petrol</SelectItem>
+                          <SelectItem value="diesel">Diesel</SelectItem>
+                          <SelectItem value="electric">Electric</SelectItem>
+                          <SelectItem value="hybrid">Hybrid</SelectItem>
+                          <SelectItem value="plug-in hybrid">Plug-in hybrid</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Transmission */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold text-gray-900">Transmission</Label>
+                      <Select value={selectedTransmission} onValueChange={setSelectedTransmission}>
+                        <SelectTrigger className="text-sm h-10">
+                          <SelectValue placeholder="Any transmission" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Any transmission</SelectItem>
+                          <SelectItem value="manual">Manual</SelectItem>
+                          <SelectItem value="automatic">Automatic</SelectItem>
+                          <SelectItem value="cvt">CVT</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Location */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold text-gray-900">Location</Label>
+                      <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                        <SelectTrigger className="text-sm h-10">
+                          <SelectValue placeholder="Any location" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Any location</SelectItem>
+                          {countiesLoading ? (
+                            <SelectItem value="loading" disabled>Loading counties...</SelectItem>
+                          ) : kenyanCounties?.map((county: string) => (
+                            <SelectItem key={county} value={county.toLowerCase()}>{county}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Seats */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold text-gray-900">Seats</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {['2', '4', '5', '6', '7', '8', '9', '10+'].map((seatOption) => (
+                          <div key={seatOption} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id={`mobile-seats-${seatOption}`}
+                              checked={selectedSeats.includes(seatOption)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedSeats(prev => [...prev, seatOption]);
+                                } else {
+                                  setSelectedSeats(prev => prev.filter(s => s !== seatOption));
+                                }
+                              }}
+                              className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+                            />
+                            <label 
+                              htmlFor={`mobile-seats-${seatOption}`}
+                              className="text-sm font-medium text-gray-700 cursor-pointer"
+                            >
+                              {seatOption === '10+' ? 'Above 10' : `${seatOption} seats`}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="border-t p-4 bg-gray-50">
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => {
+                        applyManualFilters();
+                        setShowFilters(false);
+                      }}
+                      className="flex-1 bg-purple-600 hover:bg-purple-700"
+                    >
+                      Show results
+                    </Button>
+                    <Button 
+                      onClick={clearFilters}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      Clear all
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Main Content with Sidebar Layout */}
         <div className="flex gap-8">
-          {/* Left Sidebar - Advanced Filters */}
-          <div className="w-80 flex-shrink-0">
-            <Card className="border-purple-200 sticky top-4">
-              <CardContent className="p-6 max-h-[80vh] overflow-y-auto">
+          {/* Left Sidebar - Advanced Filters (Desktop only) */}
+          {!isMobile && (
+            <div className="w-80 flex-shrink-0">
+              <Card className="border-purple-200 sticky top-4">
+                <CardContent className="p-6 max-h-[80vh] overflow-y-auto">
                 <div className="flex items-center gap-2 mb-6">
                   <Filter className="h-5 w-5 text-purple-600" />
                   <h3 className="text-lg font-semibold text-gray-900">Filter cars</h3>
@@ -1016,7 +1229,8 @@ export default function BuyACar() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+            </div>
+          )}
 
           {/* Main Content Area */}
           <div className="flex-1 min-w-0">

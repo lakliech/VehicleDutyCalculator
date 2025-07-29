@@ -1244,7 +1244,28 @@ export default function BuyACar() {
                 Mobile Mode
               </Badge>
             </div>
-            <SwipeInterface vehicles={listings} />
+            <SwipeInterface 
+              vehicles={listings}
+              onSwipeLeft={(vehicle) => {
+                console.log('🛑 Passed on vehicle:', vehicle.id);
+                toast({
+                  title: "Passed on vehicle",
+                  description: `You passed on ${vehicle.make} ${vehicle.model}`,
+                });
+              }}
+              onSwipeRight={(vehicle) => {
+                console.log('❤️ Liked vehicle:', vehicle.id);
+                setFavorites(prev => new Set([...prev, vehicle.id]));
+                toast({
+                  title: "Added to favorites!",
+                  description: `${vehicle.make} ${vehicle.model} saved to your favorites`,
+                });
+              }}
+              onViewDetails={(vehicle) => {
+                console.log('📋 Viewing details for vehicle:', vehicle.id);
+                setLocation(`/car/${vehicle.id}`);
+              }}
+            />
           </div>
         ) : (
           <div className="space-y-6">

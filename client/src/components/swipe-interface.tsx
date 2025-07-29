@@ -136,6 +136,7 @@ export function SwipeInterface({
 
   const handleSwipeLeft = () => {
     if (currentVehicle) {
+      console.log('🛑 SwipeInterface: Pass button clicked for vehicle:', currentVehicle.id);
       onSwipeLeft?.(currentVehicle);
       nextVehicle();
       toast({ title: "Passed on this vehicle" });
@@ -144,6 +145,7 @@ export function SwipeInterface({
 
   const handleSwipeRight = () => {
     if (currentVehicle) {
+      console.log('❤️ SwipeInterface: Like button clicked for vehicle:', currentVehicle.id);
       favoriteMutation.mutate(currentVehicle.id);
       onSwipeRight?.(currentVehicle);
       nextVehicle();
@@ -182,13 +184,33 @@ export function SwipeInterface({
 
   const handlePhoneClick = () => {
     if (currentVehicle) {
+      console.log('📞 SwipeInterface: Call button clicked for vehicle:', currentVehicle.id);
+      console.log('📞 Vehicle phone data:', { phoneNumber: currentVehicle.phoneNumber, contactPhone: currentVehicle.contactPhone });
+      
       phoneClickMutation.mutate(currentVehicle.id);
-      window.open(`tel:${currentVehicle.contactPhone}`, '_self');
+      // Use phoneNumber field to match the CarListing interface
+      const phoneNumber = currentVehicle.phoneNumber || currentVehicle.contactPhone;
+      if (phoneNumber) {
+        console.log('📞 Initiating call to:', phoneNumber);
+        window.open(`tel:${phoneNumber}`, '_self');
+        toast({
+          title: "Calling seller",
+          description: `Calling ${phoneNumber}`,
+        });
+      } else {
+        console.log('📞 No phone number found for vehicle:', currentVehicle.id);
+        toast({
+          title: "Phone number not available",
+          description: "This listing doesn't have a contact phone number.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
   const handleViewDetails = () => {
     if (currentVehicle && onViewDetails) {
+      console.log('📋 SwipeInterface: Info button clicked for vehicle:', currentVehicle.id);
       onViewDetails(currentVehicle);
     }
   };
@@ -315,42 +337,60 @@ export function SwipeInterface({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-center gap-4 mt-6">
-        <Button
-          size="lg"
-          variant="outline"
-          className="rounded-full w-14 h-14 border-red-200 hover:border-red-400 hover:bg-red-50"
-          onClick={handleSwipeLeft}
-        >
-          <X className="h-6 w-6 text-red-500" />
-        </Button>
+      <div className="flex justify-center gap-3 mt-6">
+        <div className="flex flex-col items-center">
+          <Button
+            size="lg"
+            variant="outline"
+            className="rounded-full w-14 h-14 border-red-200 hover:border-red-400 hover:bg-red-50 transition-all duration-200 hover:scale-105 active:scale-95"
+            onClick={handleSwipeLeft}
+            title="Pass on this vehicle"
+          >
+            <X className="h-6 w-6 text-red-500" />
+          </Button>
+          <span className="text-xs text-gray-500 mt-1">Pass</span>
+        </div>
 
-        <Button
-          size="lg"
-          variant="outline"
-          className="rounded-full w-14 h-14"
-          onClick={handleViewDetails}
-        >
-          <Info className="h-6 w-6" />
-        </Button>
+        <div className="flex flex-col items-center">
+          <Button
+            size="lg"
+            variant="outline"
+            className="rounded-full w-14 h-14 border-blue-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 hover:scale-105 active:scale-95"
+            onClick={handleViewDetails}
+            title="View vehicle details"
+          >
+            <Info className="h-6 w-6 text-blue-500" />
+          </Button>
+          <span className="text-xs text-gray-500 mt-1">Info</span>
+        </div>
 
-        <Button
-          size="lg"
-          variant="outline"
-          className="rounded-full w-14 h-14"
-          onClick={handlePhoneClick}
-        >
-          <Phone className="h-6 w-6" />
-        </Button>
+        <div className="flex flex-col items-center">
+          <Button
+            size="lg"
+            variant="outline"
+            className="rounded-full w-14 h-14 border-purple-200 hover:border-purple-400 hover:bg-purple-50 transition-all duration-200 hover:scale-105 active:scale-95"
+            onClick={handlePhoneClick}
+            title="Call seller"
+            disabled={phoneClickMutation.isPending}
+          >
+            <Phone className="h-6 w-6 text-purple-500" />
+          </Button>
+          <span className="text-xs text-gray-500 mt-1">Call</span>
+        </div>
 
-        <Button
-          size="lg"
-          variant="outline"
-          className="rounded-full w-14 h-14 border-green-200 hover:border-green-400 hover:bg-green-50"
-          onClick={handleSwipeRight}
-        >
-          <Heart className="h-6 w-6 text-green-500" />
-        </Button>
+        <div className="flex flex-col items-center">
+          <Button
+            size="lg"
+            variant="outline"
+            className="rounded-full w-14 h-14 border-green-200 hover:border-green-400 hover:bg-green-50 transition-all duration-200 hover:scale-105 active:scale-95"
+            onClick={handleSwipeRight}
+            title="Add to favorites"
+            disabled={favoriteMutation.isPending}
+          >
+            <Heart className="h-6 w-6 text-green-500" />
+          </Button>
+          <span className="text-xs text-gray-500 mt-1">Like</span>
+        </div>
       </div>
 
       {/* Navigation controls */}

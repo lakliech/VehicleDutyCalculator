@@ -144,13 +144,22 @@ export default function CarDetails() {
   });
 
   // Fetch financial products for this listing
-  const { data: financialProducts, isLoading: financialLoading } = useQuery({
+  const { data: financialProducts, isLoading: financialLoading, error: financialError } = useQuery({
     queryKey: ['/api/listing/financial-products', id],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/listing/${id}/financial-products`);
       return response.json();
     },
     enabled: !!id,
+  });
+
+  // Debug financial products
+  console.log('Financial Query State:', {
+    isLoading: financialLoading,
+    error: financialError,
+    data: financialProducts,
+    hasLoanProducts: financialProducts?.loanProducts?.length > 0,
+    loanProductsCount: financialProducts?.loanProducts?.length
   });
 
   // Fetch other listings from the same seller
@@ -672,8 +681,7 @@ export default function CarDetails() {
                       </div>
                     ) : (
                       <div className="space-y-6">
-                        {/* Debug financial products data */}
-                        {console.log('Financial Products Data:', financialProducts)}
+                        {/* Financial products section */}
                         
                         {/* Loan Products Section */}
                         {financialProducts?.loanProducts?.length > 0 ? (
@@ -777,9 +785,15 @@ export default function CarDetails() {
                               <h3 className="text-lg font-medium mb-2">No Loan Products Available</h3>
                               <p className="text-sm">No financing options are currently available for this vehicle.</p>
                               {financialProducts && (
-                                <p className="text-xs mt-2 text-gray-400">
-                                  Debug: {JSON.stringify(financialProducts, null, 2).substring(0, 200)}...
-                                </p>
+                                <div className="text-xs mt-2 text-gray-400 p-2 bg-gray-50 rounded">
+                                  <p><strong>Debug Info:</strong></p>
+                                  <p>Total Products: {financialProducts.totalProducts || 0}</p>
+                                  <p>Loan Products Length: {financialProducts.loanProducts?.length || 0}</p>
+                                  <p>Has Loan Products: {financialProducts.loanProducts ? 'Yes' : 'No'}</p>
+                                  {financialProducts.loanProducts && financialProducts.loanProducts.length > 0 && (
+                                    <p>First Product: {financialProducts.loanProducts[0].bankName} - {financialProducts.loanProducts[0].productName}</p>
+                                  )}
+                                </div>
                               )}
                             </div>
                           </div>

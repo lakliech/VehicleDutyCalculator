@@ -154,13 +154,25 @@ export default function CarDetails() {
   });
 
   // Debug financial products
-  console.log('Financial Query State:', {
+  console.log('🏦 Financial Query State:', {
     isLoading: financialLoading,
     error: financialError,
     data: financialProducts,
     hasLoanProducts: financialProducts?.loanProducts?.length > 0,
-    loanProductsCount: financialProducts?.loanProducts?.length
+    loanProductsCount: financialProducts?.loanProducts?.length,
+    queryEnabled: !!id,
+    vehicleId: id
   });
+
+  // Log individual loan products for debugging
+  if (financialProducts?.loanProducts) {
+    console.log('💰 Individual Loan Products:', financialProducts.loanProducts.map(p => ({
+      bank: p.bankName,
+      product: p.productName,
+      amount: p.recommendedLoanAmount,
+      monthly: p.estimatedMonthlyPayment
+    })));
+  }
 
   // Fetch other listings from the same seller
   const { data: sellerListings, isLoading: sellerListingsLoading } = useQuery({
@@ -683,6 +695,17 @@ export default function CarDetails() {
                       <div className="space-y-6">
                         {/* Financial products section */}
                         
+                        {/* Debug: Show raw data structure */}
+                        {financialProducts && (
+                          <div className="mb-4 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                            <strong>Debug - Raw API Response:</strong>
+                            <div>Keys: {Object.keys(financialProducts).join(', ')}</div>
+                            <div>Total Products: {financialProducts.totalProducts}</div>
+                            <div>Loan Products Array Length: {financialProducts.loanProducts?.length || 'undefined'}</div>
+                            <div>Has loanProducts key: {financialProducts.hasOwnProperty('loanProducts') ? 'Yes' : 'No'}</div>
+                          </div>
+                        )}
+
                         {/* Loan Products Section */}
                         {financialProducts?.loanProducts?.length > 0 ? (
                           <div>

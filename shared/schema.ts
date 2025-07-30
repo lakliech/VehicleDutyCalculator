@@ -844,7 +844,6 @@ export const loanProducts = pgTable("loan_products", {
   
   // Vehicle eligibility criteria
   maxVehicleAge: integer("max_vehicle_age"), // Maximum vehicle age in years
-  minVehicleYear: integer("min_vehicle_year"), // Minimum manufacturing year
   blacklistedMakes: json("blacklisted_makes").$type<string[]>(), // Array of excluded makes
   blacklistedModels: json("blacklisted_models").$type<string[]>(), // Array of excluded models (format: "Make Model")
   allowedVehicleTypes: json("allowed_vehicle_types").$type<string[]>(), // Array of allowed body types

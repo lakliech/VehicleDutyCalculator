@@ -8299,7 +8299,6 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           lp.eligibility_criteria,
           lp.features,
           lp.max_vehicle_age,
-          lp.min_vehicle_year,
           lp.blacklisted_makes,
           lp.blacklisted_models,
           lp.allowed_vehicle_types,
@@ -8326,11 +8325,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           return false;
         }
         
-        // Check minimum vehicle year
-        if (product.min_vehicle_year && vehicle.year < product.min_vehicle_year) {
-          console.log(`  ❌ Vehicle year too old: ${vehicle.year} < ${product.min_vehicle_year}`);
-          return false;
-        }
+
         
         // Check blacklisted makes
         if (product.blacklisted_makes && Array.isArray(product.blacklisted_makes)) {

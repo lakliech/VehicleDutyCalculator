@@ -5946,6 +5946,14 @@ function AddLoanProductDialog({ banks, onSubmit, isLoading }: { banks: any[]; on
               />
               <FormField
                 control={form.control}
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
                 name="maxMileage"
                 render={({ field }) => (
                   <FormItem>
@@ -5962,9 +5970,6 @@ function AddLoanProductDialog({ banks, onSubmit, isLoading }: { banks: any[]; on
                   </FormItem>
                 )}
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="allowedVehicleTypes"
@@ -6378,6 +6383,11 @@ function EditLoanProductDialog({ product, banks, onSubmit, isLoading }: { produc
                       />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                   </FormItem>
                 )}
               />

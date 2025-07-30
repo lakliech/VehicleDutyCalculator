@@ -930,6 +930,14 @@ The platform now features a sophisticated role-based navigation system that dyna
 - **Results**: Page loading should now be significantly faster with cached responses and optimized queries
 
 Changelog:
+- January 30, 2025. Schema optimization - removed confusing "minimum vehicle year" field:
+  - Eliminated duplicate constraint where both "minimum vehicle year" and "maximum vehicle age" represented same eligibility criteria
+  - Removed min_vehicle_year column references from loan_products database table
+  - Updated backend API filtering logic to use only maxVehicleAge constraint for vehicle eligibility
+  - Simplified admin dashboard forms by removing "Minimum Vehicle Year" field from loan product creation and editing
+  - Fixed TypeScript validation schemas and form rendering to exclude minVehicleYear references
+  - Resolved JSX syntax errors and form validation issues during field removal process
+  - Result: Clean database schema with single clear age constraint providing unambiguous vehicle eligibility filtering
 - January 17, 2025. Enhanced transaction display in admin dashboard for better user experience:
   - Added "provider" field to payment_transactions table to capture Paystack provider information (visa, mastercard, mpesa, etc.)
   - Updated PaystackService to store provider data from payment verification responses

@@ -7815,45 +7815,47 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
   // Get all loan products for admin management
   app.get('/api/admin/financial/loan-products', authenticateUser, requireRole(['admin', 'superadmin', 'super_admin']), async (req: Request, res: Response) => {
     try {
-      const dbProducts = await db.select({
-        id: loanProducts.id,
-        bankId: loanProducts.bankId,
-        productName: loanProducts.productName,
-        productType: loanProducts.productType,
-        minLoanAmount: loanProducts.minLoanAmount,
-        maxLoanAmount: loanProducts.maxLoanAmount,
-        minInterestRate: loanProducts.minInterestRate,
-        maxInterestRate: loanProducts.maxInterestRate,
-        minTenureMonths: loanProducts.minTenureMonths,
-        maxTenureMonths: loanProducts.maxTenureMonths,
-        maxFinancingPercentage: loanProducts.maxFinancingPercentage,
-        minDownPaymentPercentage: loanProducts.minDownPaymentPercentage,
-        processingFeeRate: loanProducts.processingFeeRate,
-        processingFeeFixed: loanProducts.processingFeeFixed,
-        insuranceRequired: loanProducts.insuranceRequired,
-        guarantorRequired: loanProducts.guarantorRequired,
-        minMonthlyIncome: loanProducts.minMonthlyIncome,
-        maxAge: loanProducts.maxAge,
-        // Vehicle eligibility criteria
-        maxVehicleAge: loanProducts.maxVehicleAge,
-        minVehicleYear: loanProducts.minVehicleYear,
-        blacklistedMakes: loanProducts.blacklistedMakes,
-        blacklistedModels: loanProducts.blacklistedModels,
-        allowedVehicleTypes: loanProducts.allowedVehicleTypes,
-        maxMileage: loanProducts.maxMileage,
-        eligibilityCriteria: loanProducts.eligibilityCriteria,
-        requiredDocuments: loanProducts.requiredDocuments,
-        features: loanProducts.features,
-        isActive: loanProducts.isActive,
-        createdAt: loanProducts.createdAt,
-        updatedAt: loanProducts.updatedAt,
-        bankName: bankPartners.bankName,
-      }).from(loanProducts)
-        .leftJoin(bankPartners, eq(loanProducts.bankId, bankPartners.id))
-        .orderBy(bankPartners.bankName, loanProducts.productName);
+      // Use raw SQL to avoid Drizzle ORM issues with undefined columns
+      const dbProducts = await db.execute(sql`
+        SELECT 
+          lp.id,
+          lp.bank_id as "bankId",
+          lp.product_name as "productName",
+          lp.product_type as "productType",
+          lp.min_loan_amount as "minLoanAmount",
+          lp.max_loan_amount as "maxLoanAmount",
+          lp.min_interest_rate as "minInterestRate",
+          lp.max_interest_rate as "maxInterestRate",
+          lp.min_tenure_months as "minTenureMonths",
+          lp.max_tenure_months as "maxTenureMonths",
+          lp.max_financing_percentage as "maxFinancingPercentage",
+          lp.min_down_payment_percentage as "minDownPaymentPercentage",
+          lp.processing_fee_rate as "processingFeeRate",
+          lp.processing_fee_fixed as "processingFeeFixed",
+          lp.insurance_required as "insuranceRequired",
+          lp.guarantor_required as "guarantorRequired",
+          lp.min_monthly_income as "minMonthlyIncome",
+          lp.max_age as "maxAge",
+          lp.max_vehicle_age as "maxVehicleAge",
+          lp.min_vehicle_year as "minVehicleYear",
+          lp.blacklisted_makes as "blacklistedMakes",
+          lp.blacklisted_models as "blacklistedModels",
+          lp.allowed_vehicle_types as "allowedVehicleTypes",
+          lp.max_mileage as "maxMileage",
+          lp.eligibility_criteria as "eligibilityCriteria",
+          lp.required_documents as "requiredDocuments",
+          lp.features,
+          lp.is_active as "isActive",
+          lp.created_at as "createdAt",
+          lp.updated_at as "updatedAt",
+          bp.bank_name as "bankName"
+        FROM loan_products lp
+        LEFT JOIN bank_partners bp ON lp.bank_id = bp.id
+        ORDER BY bp.bank_name, lp.product_name
+      `);
       
       // Map database fields to frontend expected field names
-      const products = dbProducts.map(product => ({
+      const products = dbProducts.rows.map((product: any) => ({
         ...product,
         maxLtvRatio: product.maxFinancingPercentage, // Map to frontend field name
         processingFeePercentage: product.processingFeeRate, // Map to frontend field name

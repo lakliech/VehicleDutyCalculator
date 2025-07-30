@@ -159,6 +159,13 @@ const loanProductSchema = z.object({
   eligibilityRequirements: z.array(z.string()).optional(),
   features: z.array(z.string()).optional(),
   isActive: z.boolean().default(true),
+  // Vehicle eligibility criteria
+  maxVehicleAge: z.number().optional(),
+  minVehicleYear: z.number().optional(),
+  maxMileage: z.number().optional(),
+  blacklistedMakes: z.array(z.string()).optional(),
+  blacklistedModels: z.array(z.string()).optional(),
+  allowedVehicleTypes: z.array(z.string()).optional(),
 });
 
 const listingApprovalSchema = z.object({
@@ -5610,6 +5617,13 @@ function AddLoanProductDialog({ banks, onSubmit, isLoading }: { banks: any[]; on
       eligibilityRequirements: [],
       features: [],
       isActive: true,
+      // Vehicle eligibility defaults
+      maxVehicleAge: undefined,
+      minVehicleYear: undefined,
+      maxMileage: undefined,
+      blacklistedMakes: [],
+      blacklistedModels: [],
+      allowedVehicleTypes: [],
     },
   });
 
@@ -5909,6 +5923,125 @@ function AddLoanProductDialog({ banks, onSubmit, isLoading }: { banks: any[]; on
             />
           </div>
 
+          {/* Vehicle Eligibility Criteria Section */}
+          <div className="space-y-4 border-t pt-4">
+            <h4 className="font-semibold text-sm text-gray-700">Vehicle Eligibility Criteria</h4>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="maxVehicleAge"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Maximum Vehicle Age (Years)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="8" 
+                        {...field} 
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="minVehicleYear"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Minimum Vehicle Year</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="2016" 
+                        {...field} 
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="maxMileage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Maximum Mileage (KM)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="150000" 
+                        {...field} 
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="allowedVehicleTypes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Allowed Vehicle Types</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="sedan,suv,hatchback (comma-separated)" 
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(s => s))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <FormField
+                control={form.control}
+                name="blacklistedMakes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Blacklisted Makes</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter blacklisted makes (comma-separated, e.g. Proton,Geely)" 
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(s => s))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="blacklistedModels"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Blacklisted Models</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter blacklisted models (comma-separated, e.g. Wira,Saga)" 
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(s => s))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
           <div className="flex gap-2">
             <Button type="submit" disabled={isLoading} className="flex-1">
               {isLoading ? "Adding..." : "Add Loan Product"}
@@ -5940,6 +6073,13 @@ function EditLoanProductDialog({ product, banks, onSubmit, isLoading }: { produc
       eligibilityRequirements: product.eligibilityRequirements || [],
       features: product.features || [],
       isActive: product.isActive ?? true,
+      // Vehicle eligibility defaults
+      maxVehicleAge: product.maxVehicleAge,
+      minVehicleYear: product.minVehicleYear,
+      maxMileage: product.maxMileage,
+      blacklistedMakes: product.blacklistedMakes || [],
+      blacklistedModels: product.blacklistedModels || [],
+      allowedVehicleTypes: product.allowedVehicleTypes || [],
     },
   });
 
@@ -6237,6 +6377,125 @@ function EditLoanProductDialog({ product, banks, onSubmit, isLoading }: { produc
                 </FormItem>
               )}
             />
+          </div>
+
+          {/* Vehicle Eligibility Criteria Section */}
+          <div className="space-y-4 border-t pt-4">
+            <h4 className="font-semibold text-sm text-gray-700">Vehicle Eligibility Criteria</h4>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="maxVehicleAge"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Maximum Vehicle Age (Years)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="8" 
+                        {...field} 
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="minVehicleYear"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Minimum Vehicle Year</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="2016" 
+                        {...field} 
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="maxMileage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Maximum Mileage (KM)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="150000" 
+                        {...field} 
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="allowedVehicleTypes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Allowed Vehicle Types</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="sedan,suv,hatchback (comma-separated)" 
+                        value={Array.isArray(field.value) ? field.value.join(',') : field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(s => s))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <FormField
+                control={form.control}
+                name="blacklistedMakes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Blacklisted Makes</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter blacklisted makes (comma-separated, e.g. Proton,Geely)" 
+                        value={Array.isArray(field.value) ? field.value.join(',') : field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(s => s))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="blacklistedModels"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Blacklisted Models</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter blacklisted models (comma-separated, e.g. Wira,Saga)" 
+                        value={Array.isArray(field.value) ? field.value.join(',') : field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(s => s))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
 
           <div className="flex gap-2">

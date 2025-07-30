@@ -315,7 +315,7 @@ export default function CarDetails() {
   };
 
   const handleTemplateSelect = (templateId: string) => {
-    const template = messageTemplates.find((t: any) => t.id === templateId);
+    const template = (messageTemplates as any[])?.find((t: any) => t.id === templateId);
     if (template) {
       setMessageText(template.content);
       setSelectedTemplate(templateId);
@@ -541,7 +541,7 @@ export default function CarDetails() {
                 {/* Image Thumbnails */}
                 {vehicle.images?.length > 1 && (
                   <div className="p-4 flex gap-2 overflow-x-auto">
-                    {vehicle.images.map((image, index) => (
+                    {vehicle.images.map((image: string, index: number) => (
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
@@ -859,7 +859,7 @@ export default function CarDetails() {
                   
                   <TabsContent value="features" className="mt-6">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {vehicle.features?.map((feature, index) => (
+                      {vehicle.features?.map((feature: string, index: number) => (
                         <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
                           <CheckCircle className="h-4 w-4 text-green-500" />
                           <span className="text-sm">{feature}</span>
@@ -1172,7 +1172,7 @@ export default function CarDetails() {
           
           <div className="space-y-4">
             {/* Message Templates */}
-            {messageTemplates.length > 0 && (
+            {(messageTemplates as any[])?.length > 0 && (
               <div>
                 <Label htmlFor="template">Quick Templates</Label>
                 <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
@@ -1180,9 +1180,9 @@ export default function CarDetails() {
                     <SelectValue placeholder="Choose a template (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    {messageTemplates
-                      .filter((template: any) => !template.isAdminOnly)
-                      .map((template: any) => (
+                    {(messageTemplates as any[])
+                      ?.filter((template: any) => !template.isAdminOnly)
+                      ?.map((template: any) => (
                         <SelectItem key={template.id} value={template.id}>
                           {template.title}
                         </SelectItem>

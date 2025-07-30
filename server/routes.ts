@@ -7834,6 +7834,13 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         guarantorRequired: loanProducts.guarantorRequired,
         minMonthlyIncome: loanProducts.minMonthlyIncome,
         maxAge: loanProducts.maxAge,
+        // Vehicle eligibility criteria
+        maxVehicleAge: loanProducts.maxVehicleAge,
+        minVehicleYear: loanProducts.minVehicleYear,
+        blacklistedMakes: loanProducts.blacklistedMakes,
+        blacklistedModels: loanProducts.blacklistedModels,
+        allowedVehicleTypes: loanProducts.allowedVehicleTypes,
+        maxMileage: loanProducts.maxMileage,
         eligibilityCriteria: loanProducts.eligibilityCriteria,
         requiredDocuments: loanProducts.requiredDocuments,
         features: loanProducts.features,
@@ -7884,6 +7891,13 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         guarantorRequired: formData.guarantorRequired,
         minMonthlyIncome: formData.minMonthlyIncome,
         maxAge: formData.maxAge,
+        // Vehicle eligibility criteria
+        maxVehicleAge: formData.maxVehicleAge,
+        minVehicleYear: formData.minVehicleYear,
+        blacklistedMakes: formData.blacklistedMakes,
+        blacklistedModels: formData.blacklistedModels,
+        allowedVehicleTypes: formData.allowedVehicleTypes,
+        maxMileage: formData.maxMileage,
         eligibilityCriteria: formData.eligibilityRequirements, // Frontend field name: eligibilityRequirements
         requiredDocuments: formData.requiredDocuments,
         features: formData.features,
@@ -7923,6 +7937,13 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         guarantorRequired: formData.guarantorRequired,
         minMonthlyIncome: formData.minMonthlyIncome,
         maxAge: formData.maxAge,
+        // Vehicle eligibility criteria
+        maxVehicleAge: formData.maxVehicleAge,
+        minVehicleYear: formData.minVehicleYear,
+        blacklistedMakes: formData.blacklistedMakes,
+        blacklistedModels: formData.blacklistedModels,
+        allowedVehicleTypes: formData.allowedVehicleTypes,
+        maxMileage: formData.maxMileage,
         eligibilityCriteria: formData.eligibilityRequirements, // Frontend field name: eligibilityRequirements
         requiredDocuments: formData.requiredDocuments,
         features: formData.features,
@@ -8236,7 +8257,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
 
 
 
-  // Get financial products for a specific listing
+  // Get financial products for a specific listing with smart eligibility filtering
   app.get('/api/listing/:id/financial-products', async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -8252,49 +8273,125 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       
       const vehicle = listing[0];
       const vehiclePrice = parseFloat(vehicle.price.toString());
+      const currentYear = new Date().getFullYear();
+      const vehicleAge = currentYear - vehicle.year;
+      const vehicleMakeModel = `${vehicle.make} ${vehicle.model}`;
       
-      // Get all active loan products
-      const financialProducts = await db.select({
-        id: loanProducts.id,
-        bankName: bankPartners.bankName,
-        bankCode: bankPartners.bankCode,
-        productName: loanProducts.productName,
-        productType: loanProducts.productType,
-        minInterestRate: loanProducts.minInterestRate,
-        maxInterestRate: loanProducts.maxInterestRate,
-        minLoanAmount: loanProducts.minLoanAmount,
-        maxLoanAmount: loanProducts.maxLoanAmount,
-        minTenureMonths: loanProducts.minTenureMonths,
-        maxTenureMonths: loanProducts.maxTenureMonths,
-        processingFeeRate: loanProducts.processingFeeRate,
-        minDownPaymentPercentage: loanProducts.minDownPaymentPercentage,
-        maxFinancingPercentage: loanProducts.maxFinancingPercentage,
-        eligibilityCriteria: loanProducts.eligibilityCriteria,
-        features: loanProducts.features,
-        contactInfo: bankPartners.contactEmail,
-        contactPhone: bankPartners.contactPhone
-      })
-      .from(loanProducts)
-      .innerJoin(bankPartners, eq(loanProducts.bankId, bankPartners.id))
-      .where(and(
-        eq(loanProducts.isActive, true),
-        eq(bankPartners.isActive, true),
-        or(
-          eq(loanProducts.productType, 'new_vehicle'),
-          eq(loanProducts.productType, 'used_vehicle'),
-          eq(loanProducts.productType, 'auto_loan'),
-          eq(loanProducts.productType, 'asset_finance'),
-          eq(loanProducts.productType, 'vehicle_loan')
-        ),
-        gte(loanProducts.maxLoanAmount, vehiclePrice * 0.5) // Show products that can finance at least 50% of vehicle price
-      ));
+      console.log(`🏦 Evaluating financing for ${vehicleMakeModel} (${vehicle.year}) - Age: ${vehicleAge} years, Price: ${vehiclePrice}`);
       
-      // Calculate personalized loan options for each product
-      const personalizedProducts = financialProducts.map(product => {
-        const maxFinancingPercentage = parseFloat(product.maxFinancingPercentage.toString());
-        const maxLoanAmount = parseFloat(product.maxLoanAmount.toString());
-        const minInterestRate = parseFloat(product.minInterestRate.toString());
-        const processingFeeRate = parseFloat(product.processingFeeRate?.toString() || '0.02');
+      // Get all active loan products - using raw SQL to handle new columns properly
+      const allLoanProducts = await db.execute(sql`
+        SELECT 
+          lp.id,
+          lp.product_name,
+          lp.product_type,
+          lp.min_interest_rate,
+          lp.max_interest_rate,
+          lp.min_loan_amount,
+          lp.max_loan_amount,
+          lp.min_tenure_months,
+          lp.max_tenure_months,
+          lp.processing_fee_rate,
+          lp.min_down_payment_percentage,
+          lp.max_financing_percentage,
+          lp.eligibility_criteria,
+          lp.features,
+          lp.max_vehicle_age,
+          lp.min_vehicle_year,
+          lp.blacklisted_makes,
+          lp.blacklisted_models,
+          lp.allowed_vehicle_types,
+          lp.max_mileage,
+          bp.bank_name,
+          bp.bank_code,
+          bp.contact_email AS contact_info,
+          bp.contact_phone
+        FROM loan_products lp
+        INNER JOIN bank_partners bp ON lp.bank_id = bp.id
+        WHERE lp.is_active = true 
+          AND bp.is_active = true
+          AND lp.product_type IN ('new_vehicle', 'used_vehicle', 'auto_loan', 'asset_finance', 'vehicle_loan')
+          AND lp.max_loan_amount >= ${vehiclePrice * 0.5}
+      `);
+      
+      // Filter products based on vehicle eligibility criteria
+      const eligibleProducts = allLoanProducts.rows.filter((product: any) => {
+        console.log(`📋 Evaluating ${product.bank_name} - ${product.product_name}:`);
+        
+        // Check vehicle age eligibility
+        if (product.max_vehicle_age && vehicleAge > product.max_vehicle_age) {
+          console.log(`  ❌ Vehicle too old: ${vehicleAge} years > ${product.max_vehicle_age} years`);
+          return false;
+        }
+        
+        // Check minimum vehicle year
+        if (product.min_vehicle_year && vehicle.year < product.min_vehicle_year) {
+          console.log(`  ❌ Vehicle year too old: ${vehicle.year} < ${product.min_vehicle_year}`);
+          return false;
+        }
+        
+        // Check blacklisted makes
+        if (product.blacklisted_makes && Array.isArray(product.blacklisted_makes)) {
+          const isBlacklistedMake = product.blacklisted_makes.some((make: string) => 
+            make.toLowerCase() === vehicle.make.toLowerCase()
+          );
+          if (isBlacklistedMake) {
+            console.log(`  ❌ Make blacklisted: ${vehicle.make}`);
+            return false;
+          }
+        }
+        
+        // Check blacklisted models (format: "Make Model")
+        if (product.blacklisted_models && Array.isArray(product.blacklisted_models)) {
+          const isBlacklistedModel = product.blacklisted_models.some((model: string) => 
+            model.toLowerCase() === vehicleMakeModel.toLowerCase()
+          );
+          if (isBlacklistedModel) {
+            console.log(`  ❌ Model blacklisted: ${vehicleMakeModel}`);
+            return false;
+          }
+        }
+        
+        // Check vehicle type/body type restrictions
+        if (product.allowed_vehicle_types && Array.isArray(product.allowed_vehicle_types) && product.allowed_vehicle_types.length > 0) {
+          const isAllowedType = product.allowed_vehicle_types.some((type: string) => 
+            type.toLowerCase() === (vehicle.bodyType || 'sedan').toLowerCase()
+          );
+          if (!isAllowedType) {
+            console.log(`  ❌ Body type not allowed: ${vehicle.bodyType} not in [${product.allowed_vehicle_types.join(', ')}]`);
+            return false;
+          }
+        }
+        
+        // Check mileage restrictions
+        if (product.max_mileage && vehicle.mileage && vehicle.mileage > product.max_mileage) {
+          console.log(`  ❌ Mileage too high: ${vehicle.mileage}km > ${product.max_mileage}km`);
+          return false;
+        }
+        
+        // Check new vs used vehicle product type alignment
+        const isNewVehicle = vehicleAge <= 1; // Consider vehicles 1 year or less as "new"
+        if (product.product_type === 'new_vehicle' && !isNewVehicle) {
+          console.log(`  ❌ New vehicle product for used car: ${vehicleAge} years old`);
+          return false;
+        }
+        if (product.product_type === 'used_vehicle' && isNewVehicle) {
+          console.log(`  ❌ Used vehicle product for new car: ${vehicleAge} years old`);
+          return false;
+        }
+        
+        console.log(`  ✅ Product eligible for vehicle`);
+        return true;
+      });
+      
+      console.log(`🎯 ${eligibleProducts.length} of ${allLoanProducts.rows.length} products are eligible for this vehicle`);
+      
+      // Calculate personalized loan options for eligible products only
+      const personalizedProducts = eligibleProducts.map((product: any) => {
+        const maxFinancingPercentage = parseFloat(product.max_financing_percentage.toString());
+        const maxLoanAmount = parseFloat(product.max_loan_amount.toString());
+        const minInterestRate = parseFloat(product.min_interest_rate.toString());
+        const processingFeeRate = parseFloat(product.processing_fee_rate?.toString() || '0.02');
         
         const loanAmount = Math.min(vehiclePrice * maxFinancingPercentage, maxLoanAmount);
         const downPayment = vehiclePrice - loanAmount;
@@ -8302,12 +8399,29 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         
         // Calculate monthly payment (approximate)
         const monthlyRate = (minInterestRate / 100) / 12;
-        const months = product.maxTenureMonths;
+        const months = product.max_tenure_months;
         const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
                               (Math.pow(1 + monthlyRate, months) - 1);
         
         return {
-          ...product,
+          id: product.id,
+          bankName: product.bank_name,
+          bankCode: product.bank_code,
+          productName: product.product_name,
+          productType: product.product_type,
+          minInterestRate: product.min_interest_rate,
+          maxInterestRate: product.max_interest_rate,
+          minLoanAmount: product.min_loan_amount,
+          maxLoanAmount: product.max_loan_amount,
+          minTenureMonths: product.min_tenure_months,
+          maxTenureMonths: product.max_tenure_months,
+          processingFeeRate: product.processing_fee_rate,
+          minDownPaymentPercentage: product.min_down_payment_percentage,
+          maxFinancingPercentage: product.max_financing_percentage,
+          eligibilityCriteria: product.eligibility_criteria,
+          features: product.features,
+          contactInfo: product.contact_info,
+          contactPhone: product.contact_phone,
           vehiclePrice: vehiclePrice,
           recommendedLoanAmount: Math.round(loanAmount),
           recommendedDownPayment: Math.round(downPayment),

@@ -841,6 +841,15 @@ export const loanProducts = pgTable("loan_products", {
   guarantorRequired: boolean("guarantor_required").default(false),
   minMonthlyIncome: decimal("min_monthly_income", { precision: 10, scale: 2 }),
   maxAge: integer("max_age"), // Maximum borrower age
+  
+  // Vehicle eligibility criteria
+  maxVehicleAge: integer("max_vehicle_age"), // Maximum vehicle age in years
+  minVehicleYear: integer("min_vehicle_year"), // Minimum manufacturing year
+  blacklistedMakes: json("blacklisted_makes").$type<string[]>(), // Array of excluded makes
+  blacklistedModels: json("blacklisted_models").$type<string[]>(), // Array of excluded models (format: "Make Model")
+  allowedVehicleTypes: json("allowed_vehicle_types").$type<string[]>(), // Array of allowed body types
+  maxMileage: integer("max_mileage"), // Maximum allowed mileage in km
+  
   eligibilityCriteria: json("eligibility_criteria").$type<string[]>(), // Array of criteria
   requiredDocuments: json("required_documents").$type<string[]>(), // Array of required documents
   features: json("features").$type<string[]>(), // Array of product features

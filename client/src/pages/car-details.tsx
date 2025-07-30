@@ -672,8 +672,11 @@ export default function CarDetails() {
                       </div>
                     ) : (
                       <div className="space-y-6">
+                        {/* Debug financial products data */}
+                        {console.log('Financial Products Data:', financialProducts)}
+                        
                         {/* Loan Products Section */}
-                        {financialProducts?.loanProducts?.length > 0 && (
+                        {financialProducts?.loanProducts?.length > 0 ? (
                           <div>
                             <div className="flex items-center gap-2 mb-4">
                               <Building2 className="h-5 w-5 text-purple-600" />
@@ -765,6 +768,19 @@ export default function CarDetails() {
                                   </CardContent>
                                 </Card>
                               ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <div className="text-gray-500">
+                              <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                              <h3 className="text-lg font-medium mb-2">No Loan Products Available</h3>
+                              <p className="text-sm">No financing options are currently available for this vehicle.</p>
+                              {financialProducts && (
+                                <p className="text-xs mt-2 text-gray-400">
+                                  Debug: {JSON.stringify(financialProducts, null, 2).substring(0, 200)}...
+                                </p>
+                              )}
                             </div>
                           </div>
                         )}

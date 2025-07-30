@@ -8388,10 +8388,10 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       
       // Calculate personalized loan options for eligible products only
       const personalizedProducts = eligibleProducts.map((product: any) => {
-        const maxFinancingPercentage = parseFloat(product.max_financing_percentage.toString());
+        const maxFinancingPercentage = parseFloat(product.max_financing_percentage.toString()); // Already in decimal format
         const maxLoanAmount = parseFloat(product.max_loan_amount.toString());
         const minInterestRate = parseFloat(product.min_interest_rate.toString());
-        const processingFeeRate = parseFloat(product.processing_fee_rate?.toString() || '0.02');
+        const processingFeeRate = parseFloat(product.processing_fee_rate?.toString() || '0.02'); // Already in decimal format
         
         const loanAmount = Math.min(vehiclePrice * maxFinancingPercentage, maxLoanAmount);
         const downPayment = vehiclePrice - loanAmount;

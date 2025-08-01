@@ -249,7 +249,10 @@ export default function CarDetails() {
     },
   });
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | undefined | null) => {
+    if (amount === undefined || amount === null || isNaN(amount)) {
+      return 'KES 0';
+    }
     return `KES ${amount.toLocaleString()}`;
   };
 
@@ -590,7 +593,7 @@ export default function CarDetails() {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="text-center p-3 bg-gray-50 rounded-lg">
                           <Gauge className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-                          <div className="text-sm font-medium">{vehicle.mileage?.toLocaleString()} km</div>
+                          <div className="text-sm font-medium">{vehicle.mileage?.toLocaleString() || '0'} km</div>
                           <div className="text-xs text-gray-500">Mileage</div>
                         </div>
                         <div className="text-center p-3 bg-gray-50 rounded-lg">
@@ -1129,14 +1132,14 @@ export default function CarDetails() {
                           {listing.year} {listing.make} {listing.model}
                         </h3>
                         <p className="text-2xl font-bold text-purple-600">
-                          KES {parseInt(listing.price).toLocaleString()}
+                          KES {(parseInt(listing.price) || 0).toLocaleString()}
                         </p>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <div className="flex items-center gap-1">
                           <Gauge className="h-4 w-4" />
-                          {listing.mileage?.toLocaleString() || 'N/A'} km
+                          {listing.mileage ? listing.mileage.toLocaleString() : 'N/A'} km
                         </div>
                         <div className="flex items-center gap-1">
                           <Fuel className="h-4 w-4" />

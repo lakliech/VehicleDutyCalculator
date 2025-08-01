@@ -10383,6 +10383,15 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     console.error("Failed to load upload routes:", error);
   }
 
+  // Register analytics routes (MongoDB/hybrid)
+  try {
+    const analyticsRoutes = await import("./routes/analytics-routes");
+    app.use(analyticsRoutes.default);
+    console.log("Analytics routes registered successfully");
+  } catch (error) {
+    console.error("Failed to load analytics routes:", error);
+  }
+
   const httpServer = createServer(app);
 
   return httpServer;

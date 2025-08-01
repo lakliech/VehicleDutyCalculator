@@ -12,7 +12,10 @@ Preferred communication style: Simple, everyday language.
 
 ### Core Application
 - **Frontend**: React 18 with TypeScript, styled using Tailwind CSS and shadcn/ui (Kenya-themed green color scheme transitioned to Gariyangu purple/cyan). State managed with React Query, forms with React Hook Form and Zod validation, and client-side routing with Wouter. Built with Vite.
-- **Backend**: Express.js with TypeScript, using PostgreSQL as the database with Drizzle ORM (via Neon Database). Zod schemas are shared for validation.
+- **Backend**: Express.js with TypeScript, using a hybrid database approach: PostgreSQL (via Neon Database) for critical business data and MongoDB for analytics, caching, and messaging. Drizzle ORM manages PostgreSQL schemas while MongoDB uses native driver for document operations.
+- **Hybrid Database Strategy**: 
+  - **PostgreSQL**: User accounts, financial transactions, vehicle data, duty calculations, payments, subscriptions
+  - **MongoDB**: User analytics, search analytics, messaging, performance metrics, cached search results, SMS logs
 - **Key Features**:
     - **Duty Calculation**: Implements KRA formulas for various vehicle categories (e.g., under 1500cc, electric, heavy machinery), applying depreciation and tax components (Import Duty, Excise Duty, VAT, RDL, IDF). Supports CRSP proration for vehicles not in the database.
     - **Location System**: Auto-populates Kenya locations (counties and areas) from CSV data, used in a cascading selector.
@@ -51,3 +54,8 @@ User inputs vehicle details → Frontend validation → Data sent to backend API
 - **Charting**: Recharts
 - **External Services**:
     - http://www.qisj.co.uk/processVerifyCertificate.php (for mileage verification)
+- **Hybrid Database Services**:
+    - MongoDB analytics service for user behavior tracking
+    - Hybrid cache service for search result optimization
+    - MongoDB-based messaging system for real-time communication
+    - Performance monitoring and metrics collection

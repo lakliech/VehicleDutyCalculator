@@ -74,8 +74,14 @@ export default function CompareCars() {
   }, []);
 
   // Fetch car details for comparison
-  const { data: cars, isLoading, error } = useQuery({
-    queryKey: ['/api/car-listings/compare', compareIds],
+  const { data: cars = [], isLoading, error } = useQuery<CarListing[]>({
+    queryKey: ['/api/car-listings/compare', compareIds.join(',')],
+    queryFn: async () => {
+      if (compareIds.length === 0) return [];
+      const response = await fetch(`/api/car-listings/compare?ids=${compareIds.join(',')}`);
+      if (!response.ok) throw new Error('Failed to fetch cars for comparison');
+      return response.json();
+    },
     enabled: compareIds.length > 0,
     retry: 2,
   });

@@ -3931,7 +3931,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .leftJoin(sql`dealer_profiles`, sql`dealer_profiles.user_id = ${carListings.sellerId}`)
         .where(and(
           eq(carListings.status, 'active'),
-          sql`${carListings.id} IN (${carIds.join(',')})`
+          inArray(carListings.id, carIds)
         ));
 
       // Transform to match frontend interface

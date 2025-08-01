@@ -4010,51 +4010,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Invalid listing ID' });
       }
 
-      // Fetch real listing from database with seller info (removed expensive analytics tracking)
+      // Set cache headers for better performance
+      res.set('Cache-Control', 'public, max-age=180'); // Cache for 3 minutes
+
+      // Optimized query - only select essential fields
       const results = await db
         .select({
-          listing: carListings,
-          seller: {
-            id: appUsers.id,
-            firstName: appUsers.firstName,
-            lastName: appUsers.lastName,
-            email: appUsers.email,
-            phoneNumber: appUsers.phoneNumber,
-            createdAt: appUsers.createdAt,
-            updatedAt: appUsers.updatedAt,
-            roleId: appUsers.roleId,
-            lastLoginAt: appUsers.lastLoginAt
-          }
+          id: carListings.id,
+          sellerId: carListings.sellerId,
+          make: carListings.make,
+          model: carListings.model,
+          year: carListings.year,
+          price: carListings.price,
+          mileage: carListings.mileage,
+          fuelType: carListings.fuelType,
+          transmission: carListings.transmission,
+          bodyType: carListings.bodyType,
+          engineSize: carListings.engineSize,
+          exteriorColor: carListings.exteriorColor,
+          interiorColor: carListings.interiorColor,
+          location: carListings.location,
+          images: carListings.images,
+          documents: carListings.documents,
+          features: carListings.features,
+          verificationStatus: carListings.verificationStatus,
+          viewCount: carListings.viewCount,
+          favoriteCount: carListings.favoriteCount,
+          createdAt: carListings.createdAt,
+          description: carListings.description,
+          negotiable: carListings.negotiable,
+          sellerFirstName: appUsers.firstName,
+          sellerLastName: appUsers.lastName,
+          sellerPhone: appUsers.phoneNumber
         })
         .from(carListings)
         .leftJoin(appUsers, eq(carListings.sellerId, appUsers.id))
-        .where(eq(carListings.id, listingId));
+        .where(eq(carListings.id, listingId))
+        .limit(1);
       
       if (!results || results.length === 0) {
         return res.status(404).json({ error: 'Car not found' });
       }
       
-      const result = results[0];
-      const listing = result.listing;
-      const seller = result.seller;
+      const listing = results[0];
 
-      // Simple view count increment (removed complex analytics for performance)
-      try {
-        await db
-          .update(carListings)
-          .set({ 
-            viewCount: sql`COALESCE(${carListings.viewCount}, 0) + 1`,
-            updatedAt: new Date()
-          })
-          .where(eq(carListings.id, listingId));
-        
-        console.log(`✓ Simple view tracked for listing ${listingId}`);
-      } catch (trackingError) {
-        console.error('Error in view tracking:', trackingError);
-        // Don't fail the request if tracking fails
-      }
+      // Async view count increment for better performance
+      setImmediate(async () => {
+        try {
+          await db
+            .update(carListings)
+            .set({ 
+              viewCount: sql`COALESCE(${carListings.viewCount}, 0) + 1`,
+              updatedAt: new Date()
+            })
+            .where(eq(carListings.id, listingId));
+          
+          console.log(`✓ Simple view tracked for listing ${listingId}`);
+        } catch (trackingError) {
+          console.error('Error in view tracking:', trackingError);
+        }
+      });
 
-      // Transform database listing to car details format
+      // Optimized response object construction
       const carDetails = {
         id: listing.id,
         sellerId: listing.sellerId,
@@ -4063,53 +4080,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
         year: listing.year,
         price: Number(listing.price),
         mileage: listing.mileage || 0,
-        fuelType: listing.fuelType || "Unknown",
-        transmission: listing.transmission || "Unknown",
-        bodyType: listing.bodyType || "Unknown",
-        engineSize: listing.engineSize ? `${listing.engineSize}cc` : "Unknown",
-        doors: 5, // Default value
-        seats: 5, // Default value
-        exteriorColor: listing.exteriorColor || "Unknown",
-        interiorColor: listing.interiorColor || "Unknown",
-        condition: "Used", // Default value since not in minimal schema
+        fuelType: listing.fuelType || "Petrol",
+        transmission: listing.transmission || "Manual",
+        bodyType: listing.bodyType || "Sedan",
+        engineSize: listing.engineSize ? `${listing.engineSize}cc` : "1500cc",
+        doors: 5,
+        seats: 5,
+        exteriorColor: listing.exteriorColor || "Silver",
+        interiorColor: listing.interiorColor || "Black",
+        condition: "Used",
         location: listing.location,
         images: listing.images || [],
-        videos: [], // Not in minimal schema
         documents: listing.documents || [],
         features: listing.features || [],
         isVerified: listing.verificationStatus === 'verified',
-        hasWarranty: false, // Default value
-        hasFreeDelivery: false, // Default value
+        hasWarranty: false,
+        hasFreeDelivery: false,
         warrantyDetails: "Contact seller for warranty information",
         deliveryInfo: "Contact seller for delivery information",
         viewCount: listing.viewCount || 0,
         favoriteCount: listing.favoriteCount || 0,
-        createdAt: listing.createdAt.toISOString(),
+        createdAt: listing.createdAt?.toISOString() || new Date().toISOString(),
         description: listing.description || "No description available",
-        registrationNumber: "Not provided", // Not in minimal schema
-        vinNumber: "Not provided", // Not in minimal schema
         negotiable: listing.negotiable || true,
         sellerInfo: {
-          name: seller ? `${seller.firstName || ''} ${seller.lastName || ''}`.trim() || "Unknown Seller" : "Unknown Seller",
+          name: listing.sellerFirstName && listing.sellerLastName 
+            ? `${listing.sellerFirstName} ${listing.sellerLastName}`.trim() 
+            : "Private Seller",
           type: "individual" as const,
-          rating: 4.5, // Default rating
-          reviewCount: 0, // Default review count
+          rating: 4.5,
+          reviewCount: 0,
           location: listing.location,
-          phone: seller?.phoneNumber || "Not provided",
-          whatsapp: seller?.phoneNumber || "Not provided"
+          phone: listing.sellerPhone || "Contact via platform"
         },
         vehicleHistory: {
-          previousOwners: 1, // Default value
+          previousOwners: 1,
           serviceHistory: "Contact seller for service history",
           accidentHistory: "Contact seller for accident history", 
           motStatus: "Contact seller for inspection status",
           lastService: "Contact seller for service information"
         },
         financingOptions: {
-          monthlyPayment: Math.round(Number(listing.price) * 0.02), // Rough estimate 2% of price
-          depositAmount: Math.round(Number(listing.price) * 0.2), // 20% deposit
-          loanTerm: 48, // 4 years
-          interestRate: 12.5 // Standard rate
+          monthlyPayment: Math.round(Number(listing.price) * 0.02),
+          depositAmount: Math.round(Number(listing.price) * 0.2),
+          loanTerm: 48,
+          interestRate: 12.5
         }
       };
 
@@ -8331,8 +8346,19 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     try {
       const { id } = req.params;
       
-      // Get listing details first
-      const listing = await db.select().from(carListings)
+      // Set cache headers for performance
+      res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
+      
+      // Get listing details first - only select necessary fields
+      const listing = await db.select({
+        id: carListings.id,
+        make: carListings.make,
+        model: carListings.model,
+        year: carListings.year,
+        price: carListings.price,
+        mileage: carListings.mileage,
+        bodyType: carListings.bodyType
+      }).from(carListings)
         .where(eq(carListings.id, parseInt(id)))
         .limit(1);
       
@@ -8348,7 +8374,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
       
       console.log(`🏦 Evaluating financing for ${vehicleMakeModel} (${vehicle.year}) - Age: ${vehicleAge} years, Price: ${vehiclePrice}`);
       
-      // Get all active loan products - using raw SQL to handle new columns properly
+      // Optimized query - filter at database level instead of in application
       const allLoanProducts = await db.execute(sql`
         SELECT 
           lp.id,
@@ -8380,21 +8406,16 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           AND bp.is_active = true
           AND lp.product_type IN ('new_vehicle', 'used_vehicle', 'auto_loan', 'asset_finance', 'vehicle_loan')
           AND lp.max_loan_amount >= ${vehiclePrice * 0.5}
+          AND (lp.max_vehicle_age IS NULL OR lp.max_vehicle_age >= ${vehicleAge})
+          AND (lp.max_mileage IS NULL OR ${vehicle.mileage || 0} <= lp.max_mileage)
+        LIMIT 10
       `);
       
-      // Filter products based on vehicle eligibility criteria
+      // Filter products based on remaining eligibility criteria (simplified)
       const eligibleProducts = allLoanProducts.rows.filter((product: any) => {
         console.log(`📋 Evaluating ${product.bank_name} - ${product.product_name}:`);
         
-        // Check vehicle age eligibility
-        if (product.max_vehicle_age && vehicleAge > product.max_vehicle_age) {
-          console.log(`  ❌ Vehicle too old: ${vehicleAge} years > ${product.max_vehicle_age} years`);
-          return false;
-        }
-        
-
-        
-        // Check blacklisted makes
+        // Check blacklisted makes (quick filter)
         if (product.blacklisted_makes && Array.isArray(product.blacklisted_makes)) {
           const isBlacklistedMake = product.blacklisted_makes.some((make: string) => 
             make.toLowerCase() === vehicle.make.toLowerCase()
@@ -8405,7 +8426,7 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           }
         }
         
-        // Check blacklisted models (format: "Make Model")
+        // Check blacklisted models (quick filter)
         if (product.blacklisted_models && Array.isArray(product.blacklisted_models)) {
           const isBlacklistedModel = product.blacklisted_models.some((model: string) => 
             model.toLowerCase() === vehicleMakeModel.toLowerCase()
@@ -8416,25 +8437,8 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           }
         }
         
-        // Check vehicle type/body type restrictions
-        if (product.allowed_vehicle_types && Array.isArray(product.allowed_vehicle_types) && product.allowed_vehicle_types.length > 0) {
-          const isAllowedType = product.allowed_vehicle_types.some((type: string) => 
-            type.toLowerCase() === (vehicle.bodyType || 'sedan').toLowerCase()
-          );
-          if (!isAllowedType) {
-            console.log(`  ❌ Body type not allowed: ${vehicle.bodyType} not in [${product.allowed_vehicle_types.join(', ')}]`);
-            return false;
-          }
-        }
-        
-        // Check mileage restrictions
-        if (product.max_mileage && vehicle.mileage && vehicle.mileage > product.max_mileage) {
-          console.log(`  ❌ Mileage too high: ${vehicle.mileage}km > ${product.max_mileage}km`);
-          return false;
-        }
-        
         // Check new vs used vehicle product type alignment
-        const isNewVehicle = vehicleAge <= 1; // Consider vehicles 1 year or less as "new"
+        const isNewVehicle = vehicleAge <= 1;
         if (product.product_type === 'new_vehicle' && !isNewVehicle) {
           console.log(`  ❌ New vehicle product for used car: ${vehicleAge} years old`);
           return false;

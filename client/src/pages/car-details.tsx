@@ -128,60 +128,45 @@ export default function CarDetails() {
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
 
-  // Fetch vehicle details
+  // Fetch vehicle details with caching
   const { data: vehicle, isLoading } = useQuery({
     queryKey: ['/api/car-details', id],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/car-listings/${id}/details`);
       return response.json();
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
-  // Fetch message templates
+  // Fetch message templates only when needed
   const { data: messageTemplates = [] } = useQuery({
     queryKey: ['/api/messaging/templates'],
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && showMessageDialog,
+    staleTime: 30 * 60 * 1000, // 30 minutes
   });
 
-  // Fetch financial products for this listing
+  // Fetch financial products for this listing only when needed
   const { data: financialProducts, isLoading: financialLoading, error: financialError } = useQuery({
     queryKey: ['/api/listing/financial-products', id],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/listing/${id}/financial-products`);
       return response.json();
     },
-    enabled: !!id,
+    enabled: !!id && activeTab === 'financial',
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2, // Reduce retries for faster failures
   });
 
-  // Debug financial products
-  console.log('🏦 Financial Query State:', {
-    isLoading: financialLoading,
-    error: financialError,
-    data: financialProducts,
-    hasLoanProducts: financialProducts?.loanProducts?.length > 0,
-    loanProductsCount: financialProducts?.loanProducts?.length,
-    queryEnabled: !!id,
-    vehicleId: id
-  });
-
-  // Log individual loan products for debugging
-  if (financialProducts?.loanProducts) {
-    console.log('💰 Individual Loan Products:', financialProducts.loanProducts.map((p: any) => ({
-      bank: p.bankName,
-      product: p.productName,
-      amount: p.recommendedLoanAmount,
-      monthly: p.estimatedMonthlyPayment
-    })));
-  }
-
-  // Fetch other listings from the same seller
+  // Fetch other listings from the same seller only when needed
   const { data: sellerListings, isLoading: sellerListingsLoading } = useQuery({
     queryKey: ['/api/seller/listings', vehicle?.sellerId, id],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/seller/${vehicle?.sellerId}/listings?limit=6&excludeId=${id}`);
       return response.json();
     },
-    enabled: !!vehicle?.sellerId && !!id,
+    enabled: !!vehicle?.sellerId && !!id && activeTab === 'seller',
+    staleTime: 10 * 60 * 1000, // 10 minutes
   });
 
   // Video call scheduling mutation

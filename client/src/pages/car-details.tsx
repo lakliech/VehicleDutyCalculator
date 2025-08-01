@@ -133,7 +133,8 @@ export default function CarDetails() {
     queryKey: ['/api/car-details', id],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/car-listings/${id}/details`);
-      return response.json();
+      const data = await response.json();
+      return data.carDetails; // Extract carDetails from response
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes

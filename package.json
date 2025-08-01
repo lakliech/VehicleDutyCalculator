@@ -135,3 +135,57 @@
     "bufferutil": "^4.0.8"
   }
 }
+{
+  "name": "rest-express",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_ENV=development tsx server/index.ts",
+    "build": "tsc -b",
+    "start": "NODE_ENV=production tsx server/index.ts",
+    "build:client": "cd client && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "test:e2e": "start-server-and-test dev http://0.0.0.0:5000 cypress:run",
+    "test:e2e:dev": "start-server-and-test dev http://0.0.0.0:5000 cypress:open"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/multer": "^1.4.12",
+    "compression": "^1.7.4",
+    "csv-parse": "^5.6.0",
+    "drizzle-orm": "^0.36.3",
+    "drizzle-zod": "^0.5.1",
+    "express": "^4.21.1",
+    "pg": "^8.13.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "ulid": "^2.3.0",
+    "zod": "^3.23.8",
+    "bcrypt": "^5.1.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "express-session": "^1.18.1",
+    "memorystore": "^1.6.7",
+    "openai": "^4.68.4",
+    "multer": "^1.4.5-lts.1",
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.7.5",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.8.6",
+    "@types/pg": "^8.11.10",
+    "@types/bcrypt": "^5.0.2",
+    "@types/passport": "^1.0.16",
+    "@types/passport-google-oauth20": "^2.0.16",
+    "@types/express-session": "^1.18.0",
+    "cypress": "^13.6.0",
+    "start-server-and-test": "^2.0.3"
+  }
+}

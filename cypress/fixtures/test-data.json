@@ -1,0 +1,60 @@
+
+{
+  "users": {
+    "testUser": {
+      "email": "testuser@example.com",
+      "password": "TestPassword123!",
+      "firstName": "Test",
+      "lastName": "User",
+      "phoneNumber": "0712345678"
+    },
+    "admin": {
+      "email": "admin@gariyangu.co.ke",
+      "password": "AdminPassword123!"
+    }
+  },
+  "vehicles": {
+    "toyota_vitz": {
+      "make": "Toyota",
+      "model": "Vitz",
+      "year": 2019,
+      "price": 1200000,
+      "mileage": 45000,
+      "fuelType": "petrol",
+      "transmission": "automatic",
+      "bodyType": "hatchback",
+      "condition": "excellent",
+      "engineSize": 1300
+    },
+    "honda_fit": {
+      "make": "Honda",
+      "model": "Fit",
+      "year": 2018,
+      "price": 1150000,
+      "mileage": 52000,
+      "fuelType": "petrol",
+      "transmission": "cvt",
+      "bodyType": "hatchback",
+      "condition": "good",
+      "engineSize": 1300
+    }
+  },
+  "dutyCalculations": {
+    "under1500cc": {
+      "vehicleCategory": "under1500cc",
+      "vehicleValue": 800000,
+      "engineSize": 1300,
+      "vehicleAge": 5,
+      "isDirectImport": true,
+      "fuelType": "petrol"
+    },
+    "electric": {
+      "vehicleCategory": "electric",
+      "vehicleValue": 2000000,
+      "engineSize": 0,
+      "vehicleAge": 2,
+      "isDirectImport": true,
+      "fuelType": "electric"
+    }
+  }
+}

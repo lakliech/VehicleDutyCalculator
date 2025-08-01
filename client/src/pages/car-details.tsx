@@ -128,46 +128,60 @@ export default function CarDetails() {
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
 
-  // Fetch vehicle details with caching
+  // Fetch vehicle details
   const { data: vehicle, isLoading } = useQuery({
     queryKey: ['/api/car-details', id],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/car-listings/${id}/details`);
-      const data = await response.json();
-      return data.carDetails; // Extract carDetails from response
+      return response.json();
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
-  // Fetch message templates only when needed
+  // Fetch message templates
   const { data: messageTemplates = [] } = useQuery({
     queryKey: ['/api/messaging/templates'],
-    enabled: isAuthenticated && showMessageDialog,
-    staleTime: 30 * 60 * 1000, // 30 minutes
+    enabled: isAuthenticated,
   });
 
-  // Fetch financial products for this listing only when needed
+  // Fetch financial products for this listing
   const { data: financialProducts, isLoading: financialLoading, error: financialError } = useQuery({
     queryKey: ['/api/listing/financial-products', id],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/listing/${id}/financial-products`);
       return response.json();
     },
-    enabled: !!id && activeTab === 'financial',
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 2, // Reduce retries for faster failures
+    enabled: !!id,
   });
 
-  // Fetch other listings from the same seller only when needed
+  // Debug financial products
+  console.log('🏦 Financial Query State:', {
+    isLoading: financialLoading,
+    error: financialError,
+    data: financialProducts,
+    hasLoanProducts: financialProducts?.loanProducts?.length > 0,
+    loanProductsCount: financialProducts?.loanProducts?.length,
+    queryEnabled: !!id,
+    vehicleId: id
+  });
+
+  // Log individual loan products for debugging
+  if (financialProducts?.loanProducts) {
+    console.log('💰 Individual Loan Products:', financialProducts.loanProducts.map((p: any) => ({
+      bank: p.bankName,
+      product: p.productName,
+      amount: p.recommendedLoanAmount,
+      monthly: p.estimatedMonthlyPayment
+    })));
+  }
+
+  // Fetch other listings from the same seller
   const { data: sellerListings, isLoading: sellerListingsLoading } = useQuery({
     queryKey: ['/api/seller/listings', vehicle?.sellerId, id],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/seller/${vehicle?.sellerId}/listings?limit=6&excludeId=${id}`);
       return response.json();
     },
-    enabled: !!vehicle?.sellerId && !!id && activeTab === 'seller',
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    enabled: !!vehicle?.sellerId && !!id,
   });
 
   // Video call scheduling mutation
@@ -250,10 +264,7 @@ export default function CarDetails() {
     },
   });
 
-  const formatCurrency = (amount: number | undefined | null) => {
-    if (amount === undefined || amount === null || isNaN(amount)) {
-      return 'KES 0';
-    }
+  const formatCurrency = (amount: number) => {
     return `KES ${amount.toLocaleString()}`;
   };
 
@@ -594,7 +605,7 @@ export default function CarDetails() {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="text-center p-3 bg-gray-50 rounded-lg">
                           <Gauge className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-                          <div className="text-sm font-medium">{vehicle.mileage?.toLocaleString() || '0'} km</div>
+                          <div className="text-sm font-medium">{vehicle.mileage?.toLocaleString()} km</div>
                           <div className="text-xs text-gray-500">Mileage</div>
                         </div>
                         <div className="text-center p-3 bg-gray-50 rounded-lg">
@@ -1133,14 +1144,14 @@ export default function CarDetails() {
                           {listing.year} {listing.make} {listing.model}
                         </h3>
                         <p className="text-2xl font-bold text-purple-600">
-                          KES {(parseInt(listing.price) || 0).toLocaleString()}
+                          KES {parseInt(listing.price).toLocaleString()}
                         </p>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <div className="flex items-center gap-1">
                           <Gauge className="h-4 w-4" />
-                          {listing.mileage ? listing.mileage.toLocaleString() : 'N/A'} km
+                          {listing.mileage?.toLocaleString() || 'N/A'} km
                         </div>
                         <div className="flex items-center gap-1">
                           <Fuel className="h-4 w-4" />

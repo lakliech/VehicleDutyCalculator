@@ -33,6 +33,115 @@ app.use(compression({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: false }));
 
+// EMERGENCY BYPASS: Direct car details route (before any problematic middleware)
+import { carListings, appUsers } from "@shared/schema-minimal";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+
+app.get('/api/car-listings/:id/details', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const listingId = parseInt(id);
+    
+    if (isNaN(listingId)) {
+      return res.status(400).json({ error: 'Invalid listing ID' });
+    }
+
+    res.set('Cache-Control', 'public, max-age=180');
+
+    const listingResults = await db
+      .select()
+      .from(carListings)
+      .where(eq(carListings.id, listingId))
+      .limit(1);
+    
+    if (!listingResults || listingResults.length === 0) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    
+    const listing = listingResults[0];
+    
+    let seller = null;
+    if (listing.sellerId) {
+      try {
+        const sellerResults = await db
+          .select({
+            firstName: appUsers.firstName,
+            lastName: appUsers.lastName,
+            phoneNumber: appUsers.phoneNumber
+          })
+          .from(appUsers)
+          .where(eq(appUsers.id, listing.sellerId))
+          .limit(1);
+        
+        seller = sellerResults[0] || null;
+      } catch (sellerError) {
+        console.warn('Could not fetch seller info:', sellerError);
+      }
+    }
+
+    const carDetails = {
+      id: listing.id,
+      sellerId: listing.sellerId,
+      make: listing.make,
+      model: listing.model,
+      year: listing.year,
+      price: Number(listing.price),
+      mileage: listing.mileage || 0,
+      fuelType: listing.fuelType || "Petrol",
+      transmission: listing.transmission || "Manual",
+      bodyType: listing.bodyType || "Sedan",
+      engineSize: listing.engineSize ? `${listing.engineSize}cc` : "1500cc",
+      doors: 5,
+      seats: 5,
+      exteriorColor: listing.exteriorColor || "Silver",
+      interiorColor: listing.interiorColor || "Black",
+      condition: "Used",
+      location: listing.location,
+      images: listing.images || [],
+      documents: listing.documents || [],
+      features: listing.features || [],
+      isVerified: listing.verificationStatus === 'verified',
+      hasWarranty: false,
+      hasFreeDelivery: false,
+      warrantyDetails: "Contact seller for warranty information",
+      deliveryInfo: "Contact seller for delivery information",
+      viewCount: listing.viewCount || 0,
+      favoriteCount: listing.favoriteCount || 0,
+      createdAt: listing.createdAt?.toISOString() || new Date().toISOString(),
+      description: listing.description || "No description available",
+      negotiable: listing.negotiable || true,
+      sellerInfo: {
+        name: seller ? `${seller.firstName || ''} ${seller.lastName || ''}`.trim() || "Unknown Seller" : "Unknown Seller",
+        type: "individual" as const,
+        rating: 4.5,
+        reviewCount: 0,
+        location: listing.location,
+        phone: seller?.phoneNumber || "Not provided",
+        whatsapp: seller?.phoneNumber || "Not provided"
+      },
+      vehicleHistory: {
+        previousOwners: 1,
+        serviceHistory: "Contact seller for service history",
+        accidentHistory: "Contact seller for accident history", 
+        motStatus: "Contact seller for inspection status",
+        lastService: "Contact seller for service information"
+      },
+      financingOptions: {
+        monthlyPayment: Math.round(Number(listing.price) * 0.02),
+        depositAmount: Math.round(Number(listing.price) * 0.2),
+        loanTerm: 48,
+        interestRate: 12.5
+      }
+    };
+
+    res.json({ carDetails });
+  } catch (error) {
+    console.error('Failed to fetch car details:', error);
+    res.status(500).json({ error: 'Failed to fetch car details' });
+  }
+});
+
 // Serve uploaded files statically
 app.use('/uploads', express.static('uploads'));
 

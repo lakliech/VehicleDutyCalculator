@@ -166,7 +166,7 @@ export default function CarDetails() {
 
   // Log individual loan products for debugging
   if (financialProducts?.loanProducts) {
-    console.log('💰 Individual Loan Products:', financialProducts.loanProducts.map(p => ({
+    console.log('💰 Individual Loan Products:', financialProducts.loanProducts.map((p: any) => ({
       bank: p.bankName,
       product: p.productName,
       amount: p.recommendedLoanAmount,

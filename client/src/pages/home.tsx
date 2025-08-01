@@ -23,9 +23,7 @@ import {
   Sparkles,
   Star,
   User,
-  Building2,
-  DollarSign,
-  Truck
+  Building2
 
 } from "lucide-react";
 
@@ -251,70 +249,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Main Navigation Menu */}
-      <section className="py-8 px-4 bg-white border-t border-gray-100">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link href="/buy-a-car">
-              <Card className="group cursor-pointer border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 p-6 text-center">
-                <CardContent className="p-0">
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className="p-3 bg-blue-50 rounded-full group-hover:bg-blue-100 transition-colors">
-                      <Search className="h-8 w-8 text-blue-600" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 text-lg">Find Cars</h3>
-                    <p className="text-sm text-gray-600">Browse verified vehicles</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/sell-my-car">
-              <Card className="group cursor-pointer border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 p-6 text-center">
-                <CardContent className="p-0">
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className="p-3 bg-green-50 rounded-full group-hover:bg-green-100 transition-colors">
-                      <Car className="h-8 w-8 text-green-600" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 text-lg">Sell Vehicle</h3>
-                    <p className="text-sm text-gray-600">List your car easily</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/duty-calculator">
-              <Card className="group cursor-pointer border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 p-6 text-center">
-                <CardContent className="p-0">
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className="p-3 bg-purple-50 rounded-full group-hover:bg-purple-100 transition-colors">
-                      <Calculator className="h-8 w-8 text-purple-600" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 text-lg">Calculate Duty</h3>
-                    <p className="text-sm text-gray-600">KRA import taxes</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/import-cost-estimate">
-              <Card className="group cursor-pointer border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 p-6 text-center">
-                <CardContent className="p-0">
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className="p-3 bg-amber-50 rounded-full group-hover:bg-amber-100 transition-colors">
-                      <Truck className="h-8 w-8 text-amber-600" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 text-lg">Import Cost Estimate</h3>
-                    <p className="text-sm text-gray-600">Full import calculations</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* Featured Tools - Compact Layout */}
       <section className="pb-12 px-4">
         <div className="max-w-7xl mx-auto">

@@ -695,16 +695,7 @@ export default function CarDetails() {
                       <div className="space-y-6">
                         {/* Financial products section */}
                         
-                        {/* Debug: Show raw data structure */}
-                        {financialProducts && (
-                          <div className="mb-4 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                            <strong>Debug - Raw API Response:</strong>
-                            <div>Keys: {Object.keys(financialProducts).join(', ')}</div>
-                            <div>Total Products: {financialProducts.totalProducts}</div>
-                            <div>Loan Products Array Length: {financialProducts.loanProducts?.length || 'undefined'}</div>
-                            <div>Has loanProducts key: {financialProducts.hasOwnProperty('loanProducts') ? 'Yes' : 'No'}</div>
-                          </div>
-                        )}
+
 
                         {/* Loan Products Section */}
                         {financialProducts?.loanProducts?.length > 0 ? (

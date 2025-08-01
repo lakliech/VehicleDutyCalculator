@@ -7837,7 +7837,6 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
           lp.min_monthly_income as "minMonthlyIncome",
           lp.max_age as "maxAge",
           lp.max_vehicle_age as "maxVehicleAge",
-          lp.min_vehicle_year as "minVehicleYear",
           lp.blacklisted_makes as "blacklistedMakes",
           lp.blacklisted_models as "blacklistedModels",
           lp.allowed_vehicle_types as "allowedVehicleTypes",
@@ -7895,7 +7894,6 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         maxAge: formData.maxAge,
         // Vehicle eligibility criteria
         maxVehicleAge: formData.maxVehicleAge,
-        minVehicleYear: formData.minVehicleYear,
         blacklistedMakes: formData.blacklistedMakes,
         blacklistedModels: formData.blacklistedModels,
         allowedVehicleTypes: formData.allowedVehicleTypes,
@@ -7941,7 +7939,6 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
         maxAge: formData.maxAge,
         // Vehicle eligibility criteria
         maxVehicleAge: formData.maxVehicleAge,
-        minVehicleYear: formData.minVehicleYear,
         blacklistedMakes: formData.blacklistedMakes,
         blacklistedModels: formData.blacklistedModels,
         allowedVehicleTypes: formData.allowedVehicleTypes,

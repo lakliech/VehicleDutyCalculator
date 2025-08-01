@@ -1330,16 +1330,34 @@ export default function BuyACar() {
         {compareList.size > 0 && (
           <div className="fixed bottom-6 left-6 z-50">
             <Button 
-              className="bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg"
+              className={`rounded-full shadow-lg ${
+                compareList.size >= 2 
+                  ? 'bg-blue-600 hover:bg-blue-700' 
+                  : 'bg-gray-400 cursor-not-allowed'
+              }`}
+              disabled={compareList.size < 2}
               onClick={() => {
-                // Store comparison IDs in localStorage
-                localStorage.setItem('compareIds', JSON.stringify(Array.from(compareList)));
-                // Navigate to comparison page
-                setLocation(`/compare?ids=${Array.from(compareList).join(',')}`);
+                if (compareList.size >= 2) {
+                  // Store comparison IDs in localStorage
+                  localStorage.setItem('compareIds', JSON.stringify(Array.from(compareList)));
+                  // Navigate to comparison page
+                  setLocation(`/compare?ids=${Array.from(compareList).join(',')}`);
+                } else {
+                  toast({
+                    title: "Select more vehicles",
+                    description: "Please select at least 2 vehicles to compare.",
+                    variant: "destructive",
+                  });
+                }
               }}
             >
               <GitCompare className="h-4 w-4 mr-2" />
               Compare ({compareList.size})
+              {compareList.size < 2 && (
+                <span className="ml-1 text-xs opacity-75">
+                  - Need {2 - compareList.size} more
+                </span>
+              )}
             </Button>
           </div>
         )}

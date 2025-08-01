@@ -155,6 +155,21 @@ export default function CompareCars() {
     );
   }
 
+  if (compareIds.length === 1) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Need more vehicles to compare</h2>
+          <p className="text-gray-600 mb-6">Select at least 2 vehicles to make a meaningful comparison.</p>
+          <Button onClick={() => setLocation('/buy-a-car')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Browse More Vehicles
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 p-4">

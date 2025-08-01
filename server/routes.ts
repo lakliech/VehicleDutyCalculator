@@ -3898,6 +3898,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get car listings for comparison
+  app.get('/api/car-listings/compare', async (req: Request, res: Response) => {
+    try {
+      const { ids } = req.query;
+      
+      if (!ids || typeof ids !== 'string') {
+        return res.status(400).json({ error: 'Car IDs are required' });
+      }
+
+      const carIds = ids.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+      
+      if (carIds.length === 0) {
+        return res.status(400).json({ error: 'Valid car IDs are required' });
+      }
+
+      if (carIds.length > 3) {
+        return res.status(400).json({ error: 'Maximum 3 cars can be compared at once' });
+      }
+
+      // Query cars with dealer info
+      const carListingsWithDealer = await db
+        .select({
+          listing: carListings,
+          dealerName: sql<string>`dealer_profiles.dealer_name`,
+          dealerLogoUrl: sql<string>`dealer_profiles.logo_url`,
+          isVerifiedDealer: sql<boolean>`dealer_profiles.is_verified`,
+          phoneNumber: sql<string>`app_users.phone_number`,
+        })
+        .from(carListings)
+        .innerJoin(appUsers, eq(carListings.sellerId, appUsers.id))
+        .leftJoin(sql`dealer_profiles`, sql`dealer_profiles.user_id = ${carListings.sellerId}`)
+        .where(and(
+          eq(carListings.status, 'active'),
+          sql`${carListings.id} IN (${carIds.join(',')})`
+        ));
+
+      // Transform to match frontend interface
+      const transformedCars = carListingsWithDealer.map(row => ({
+        id: row.listing.id,
+        make: row.listing.make,
+        model: row.listing.model,
+        year: row.listing.year,
+        price: parseInt(row.listing.price),
+        mileage: parseInt(row.listing.mileage || '0'),
+        fuelType: row.listing.fuelType,
+        transmission: row.listing.transmission,
+        bodyType: row.listing.bodyType,
+        location: row.listing.location,
+        images: row.listing.images || [],
+        features: row.listing.features || [],
+        favoriteCount: 0,
+        viewCount: 0,
+        phoneNumber: row.phoneNumber || '',
+        dealerName: row.dealerName,
+        dealerLogoUrl: row.dealerLogoUrl,
+        isVerifiedDealer: row.isVerifiedDealer || false,
+        engineSize: row.listing.engineSize,
+        drivetrain: row.listing.drivetrain,
+        seats: row.listing.seats,
+        color: row.listing.exteriorColor,
+        condition: row.listing.condition,
+      }));
+
+      res.json(transformedCars);
+    } catch (error) {
+      console.error('Failed to fetch cars for comparison:', error);
+      res.status(500).json({ error: 'Failed to fetch cars for comparison' });
+    }
+  });
+
   // Add car to favorites
   app.post('/api/car-listings/:id/favorite', async (req: Request, res: Response) => {
     try {

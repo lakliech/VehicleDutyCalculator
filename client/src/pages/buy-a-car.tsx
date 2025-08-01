@@ -1332,10 +1332,10 @@ export default function BuyACar() {
             <Button 
               className="bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg"
               onClick={() => {
-                toast({
-                  title: "Comparison feature",
-                  description: `You have ${compareList.size} vehicles selected for comparison.`,
-                });
+                // Store comparison IDs in localStorage
+                localStorage.setItem('compareIds', JSON.stringify(Array.from(compareList)));
+                // Navigate to comparison page
+                setLocation(`/compare?ids=${Array.from(compareList).join(',')}`);
               }}
             >
               <GitCompare className="h-4 w-4 mr-2" />

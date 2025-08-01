@@ -30,6 +30,7 @@ Preferred communication style: Simple, everyday language.
     - **Loan Application System**: Integration for viewing loan applications by sellers.
     - **Image Management**: Sharp image optimization service for WebP conversion and automatic compression, with Redis caching.
     - **Monetization**: Full subscription management (Basic, Professional, Enterprise tiers) with feature enforcement, product catalog, and revenue strategy management.
+    - **Real-Time Messaging**: WebSocket-powered instant message delivery with MongoDB conversation storage and automatic PostgreSQL integration.
 
 ### Data Flow
 User inputs vehicle details → Frontend validation → Data sent to backend API → Backend applies depreciation and KRA formulas → Results returned including customs value, taxes, and total payable amount.
@@ -54,8 +55,9 @@ User inputs vehicle details → Frontend validation → Data sent to backend API
 - **Charting**: Recharts
 - **External Services**:
     - http://www.qisj.co.uk/processVerifyCertificate.php (for mileage verification)
+- **Real-Time Communication**: WebSocket (ws library) for instant messaging notifications
 - **Hybrid Database Services**:
     - MongoDB analytics service for user behavior tracking
     - Hybrid cache service for search result optimization
-    - MongoDB-based messaging system for real-time communication
+    - MongoDB-based messaging system with WebSocket real-time delivery
     - Performance monitoring and metrics collection

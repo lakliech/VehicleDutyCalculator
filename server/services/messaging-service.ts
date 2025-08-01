@@ -114,8 +114,19 @@ export class MessagingService {
           }
         );
 
-        // TODO: Trigger real-time notification
-        await this.notifyParticipants(conversationId, messageResult.insertedId.toString());
+        // Trigger real-time WebSocket notification
+        const wsService = (global as any).webSocketService;
+        if (wsService) {
+          await wsService.notifyNewMessage(
+            conversationId,
+            messageResult.insertedId.toString(),
+            senderId,
+            receiverId,
+            content,
+            type,
+            metadata
+          );
+        }
 
         return messageResult.insertedId.toString();
       } else {

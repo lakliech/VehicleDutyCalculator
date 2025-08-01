@@ -586,7 +586,7 @@ export default function MessagingArchitecture() {
                   <h3 className="font-semibold mb-3">3. API Endpoint Integration</h3>
                   <div className="bg-gray-50 p-4 rounded-lg font-mono text-sm">
                     <div className="text-purple-600">// Message sending with analytics</div>
-                    <div>app.post('/api/messaging/conversations/:id/messages', async (req, res) => &#123;</div>
+                    <div>app.post('/api/messaging/conversations/:id/messages', async (req, res) =&gt; &#123;</div>
                     <div className="ml-4">const messageId = await messagingService.sendMessage(...);</div>
                     <div className="ml-4">await analyticsService.trackMessage(...);</div>
                     <div className="ml-4">res.json(&#123; messageId, timestamp: new Date() &#125;);</div>
@@ -598,7 +598,7 @@ export default function MessagingArchitecture() {
                   <h3 className="font-semibold mb-3">4. Frontend Integration</h3>
                   <div className="bg-gray-50 p-4 rounded-lg font-mono text-sm">
                     <div className="text-orange-600">// React component integration</div>
-                    <div>const startConversation = async (listingId) => &#123;</div>
+                    <div>const startConversation = async (listingId) =&gt; &#123;</div>
                     <div className="ml-4">const response = await fetch('/api/messaging/conversations', &#123;</div>
                     <div className="ml-8">method: 'POST',</div>
                     <div className="ml-8">body: JSON.stringify(&#123; listingId &#125;)</div>

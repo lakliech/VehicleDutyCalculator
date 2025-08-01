@@ -10392,6 +10392,22 @@ Always respond in JSON format. If no specific recommendations, set "recommendati
     console.error("Failed to load analytics routes:", error);
   }
 
+  // WebSocket stats endpoint (WebSocket service initialized after server starts)
+  app.get('/api/websocket/stats', (req: Request, res: Response) => {
+    const webSocketService = (global as any).webSocketService;
+    if (webSocketService) {
+      const stats = webSocketService.getStats();
+      res.json(stats);
+    } else {
+      res.json({
+        error: 'WebSocket service not initialized',
+        totalConnections: 0,
+        authenticatedUsers: 0,
+        activeConversations: 0
+      });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

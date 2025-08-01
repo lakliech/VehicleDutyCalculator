@@ -146,7 +146,18 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
     reusePort: true,
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
+    
+    // Initialize WebSocket service after server starts
+    try {
+      const { WebSocketService } = await import("./services/websocket-service");
+      const { storage } = await import("./storage");
+      const webSocketService = new WebSocketService(server, storage);
+      (global as any).webSocketService = webSocketService;
+      console.log("WebSocket service initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize WebSocket service:", error);
+    }
   });
 })();

@@ -386,9 +386,11 @@ export default function BuyACar() {
 
   const handleAddToComparison = (carId: number, e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('🔄 Adding car to comparison:', carId, 'Current size:', compareList.size);
     const newCompareList = new Set(compareList);
     if (newCompareList.has(carId)) {
       newCompareList.delete(carId);
+      console.log('🗑️ Removed car from comparison:', carId);
       toast({
         title: "Removed from comparison",
         description: "Vehicle removed from comparison list.",
@@ -402,6 +404,7 @@ export default function BuyACar() {
       return;
     } else {
       newCompareList.add(carId);
+      console.log('✅ Added car to comparison:', carId, 'New size:', newCompareList.size);
       toast({
         title: "Added to comparison",
         description: "Vehicle added to comparison list.",
@@ -1332,6 +1335,7 @@ export default function BuyACar() {
             <Button 
               className="bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg"
               onClick={() => {
+                console.log('🔄 Compare button clicked, IDs:', Array.from(compareList));
                 // Store comparison IDs in localStorage
                 localStorage.setItem('compareIds', JSON.stringify(Array.from(compareList)));
                 // Navigate to comparison page
@@ -1341,6 +1345,13 @@ export default function BuyACar() {
               <GitCompare className="h-4 w-4 mr-2" />
               Compare ({compareList.size})
             </Button>
+          </div>
+        )}
+
+        {/* Debug comparison state */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="fixed bottom-20 right-6 z-40 bg-black/80 text-white p-2 rounded text-xs">
+            Compare List: {Array.from(compareList).join(', ')} ({compareList.size})
           </div>
         )}
 

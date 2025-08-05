@@ -3767,6 +3767,31 @@ export class DatabaseStorage implements IStorage {
       averageRating: Number(avgRating.avg) || 0
     };
   }
+
+  // Missing product pricing method
+  async getProductPricing(productId: number): Promise<any> {
+    // Return placeholder for now - implement based on actual product schema
+    return {
+      productId,
+      basePrice: 0,
+      discountedPrice: 0,
+      currency: 'KES',
+      validFrom: new Date(),
+      validTo: null
+    };
+  }
+
+  // Missing listing activation method
+  async activateListing(listingId: string): Promise<void> {
+    const numericId = parseInt(listingId);
+    await db
+      .update(carListings)
+      .set({ 
+        status: 'active',
+        updatedAt: new Date()
+      })
+      .where(eq(carListings.id, numericId));
+  }
 }
 
 export const storage = new DatabaseStorage();

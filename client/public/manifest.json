@@ -1,0 +1,26 @@
+{
+  "name": "Gariyangu - Kenya Motor Vehicle Duty Calculator",
+  "short_name": "Gariyangu",
+  "description": "Calculate Kenya Revenue Authority (KRA) import duties and taxes for motor vehicles. Browse Kenya's premier car marketplace.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8B5CF6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["finance", "automotive", "utilities"],
+  "lang": "en",
+  "orientation": "portrait-primary",
+  "scope": "/"
+}

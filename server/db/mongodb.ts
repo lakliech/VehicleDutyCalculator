@@ -35,10 +35,18 @@ class MongoDBConnection {
     this.isConnecting = true;
     
     try {
-      const mongoUri = process.env.MONGODB_URI;
+      let mongoUri = process.env.MONGODB_URI;
       
       if (!mongoUri) {
         console.log('MongoDB URI not configured, analytics will use memory storage only');
+        this.isConnecting = false;
+        return;
+      }
+
+      // Fix URI format if missing protocol
+      if (!mongoUri.startsWith('mongodb://') && !mongoUri.startsWith('mongodb+srv://')) {
+        console.log('MongoDB URI missing protocol. Please update your MONGODB_URI to include credentials and protocol.');
+        console.log('Expected format: mongodb+srv://username:password@your-cluster.mongodb.net/database?retryWrites=true&w=majority');
         this.isConnecting = false;
         return;
       }

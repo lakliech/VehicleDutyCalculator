@@ -141,6 +141,21 @@ app.use((req, res, next) => {
     throw err;
   });
 
+  // Initialize WebSocket service BEFORE Vite to avoid conflicts
+  let webSocketService: any = null;
+  if (app.get("env") !== "development") {
+    // Only initialize custom WebSocket in production
+    try {
+      const { WebSocketService } = await import("./services/websocket-service");
+      const { storage } = await import("./storage");
+      webSocketService = new WebSocketService(server, storage);
+      (global as any).webSocketService = webSocketService;
+      console.log("WebSocket service initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize WebSocket service:", error);
+    }
+  }
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
@@ -161,15 +176,8 @@ app.use((req, res, next) => {
   }, async () => {
     log(`serving on port ${port}`);
     
-    // Initialize WebSocket service after server starts
-    try {
-      const { WebSocketService } = await import("./services/websocket-service");
-      const { storage } = await import("./storage");
-      const webSocketService = new WebSocketService(server, storage);
-      (global as any).webSocketService = webSocketService;
-      console.log("WebSocket service initialized successfully");
-    } catch (error) {
-      console.error("Failed to initialize WebSocket service:", error);
+    if (app.get("env") === "development") {
+      console.log("Development mode: Vite HMR WebSocket active, custom WebSocket service disabled");
     }
   });
 })();

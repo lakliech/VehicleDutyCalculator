@@ -54,6 +54,9 @@ type ProductFeature = {
   limitType: string;
   limitValue: number | null;
   limitDuration: number | null;
+  limitSize: number | null;
+  limitFrequency: number | null;
+  frequencyPeriod: number | null;
   isIncluded: boolean;
   additionalCost: string;
   sortOrder: number;

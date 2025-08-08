@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import paymentRoutes from "./routes/payment-routes";
-import dealerRoutes from "./routes/dealer-routes";
+import dealerRoutesImport from "./routes/dealer-routes";
 import { mongodbTestRoutes } from "./routes/mongodb-test-routes";
 import { 
   appUsers,
@@ -16,10 +16,6 @@ import {
   sellerBlockedSlots,
   sellerAppointmentPreferences,
   seasonalPricingTrends,
-  priceAlerts,
-  marketInsights,
-  depreciationForecasts,
-  marketPriceAnalysis,
   userActivities,
   bankPartners,
   loanProducts,
@@ -82,11 +78,7 @@ import {
   loanCalculations,
   updateVideoCallAppointmentSchema,
   updateTestDriveAppointmentSchema,
-  marketPriceAnalysis,
-  pricingRecommendations,
-  priceAlerts,
-  depreciationForecasts,
-  marketInsights
+  pricingRecommendations
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from "./db";
@@ -109,7 +101,7 @@ import { UsageLimiter } from './middleware/usage-limiter';
 import fs from 'fs/promises';
 import path from 'path';
 import productCatalogRoutes from './routes/product-catalog-routes';
-import dealerRoutes from './routes/dealer-routes';
+// dealerRoutes already imported as dealerRoutesImport
 import featureEnforcementRoutes from './routes/feature-enforcement-routes';
 import { registerMileageVerificationRoutes } from './routes/mileage-verification';
 import roleManagementRoutes from './routes/role-management-routes';
@@ -217,12 +209,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         // Create new user
         user = await storage.createUser({
-          id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           email: profile.emails?.[0]?.value || '',
           firstName: profile.name?.givenName || '',
           lastName: profile.name?.familyName || '',
           profileImageUrl: profile.photos?.[0]?.value || null,
           password: crypto.randomBytes(32).toString('hex'), // Random password for OAuth users
+          oauthProvider: 'google',
         });
       }
       
@@ -256,12 +248,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!user && email) {
           // Create new user
           user = await storage.createUser({
-            id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             email: email,
             firstName: firstName,
             lastName: lastName,
             profileImageUrl: null, // Apple doesn't provide profile images
             password: crypto.randomBytes(32).toString('hex'), // Random password for OAuth users
+            oauthProvider: 'apple',
           });
         }
         
@@ -369,7 +361,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Create new user
       const user = await storage.createUser({
-        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         email,
         firstName,
         lastName,
@@ -1508,8 +1499,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/login", async (req, res) => {
     const { password } = req.body;
     
-    if (password === ADMIN_PASSWORD) {
-      res.json({ token: ADMIN_PASSWORD, success: true });
+    if (password === process.env.ADMIN_PASSWORD) {
+      res.json({ token: process.env.ADMIN_PASSWORD, success: true });
     } else {
       res.status(401).json({ error: "Invalid password" });
     }
@@ -2096,7 +2087,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Product Catalog Routes - removed async wrapper causing issues
   
   // Dealer Routes
-  app.use('/api/dealers', dealerRoutes);
+  app.use('/api/dealers', dealerRoutesImport);
   
   // SMS Routes
   app.use('/api/sms', smsRoutes);
@@ -2875,10 +2866,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const results = await db
         .select()
         .from(savedSearches)
-        .where(and(
-          eq(savedSearches.userId, userId),
-          eq(savedSearches.isActive, true)
-        ))
+        .where(eq(savedSearches.userId, userId))
         .orderBy(desc(savedSearches.createdAt));
 
       res.json(results);

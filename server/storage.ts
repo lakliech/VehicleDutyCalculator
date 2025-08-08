@@ -747,42 +747,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getListingsByUser(userId: string): Promise<CarListing[]> {
-    // Optimized query with selective fields and limit
     return await db
-      .select({
-        id: carListings.id,
-        title: carListings.title,
-        make: carListings.make,
-        model: carListings.model,
-        year: carListings.year,
-        price: carListings.price,
-        location: carListings.location,
-        mileage: carListings.mileage,
-        fuelType: carListings.fuelType,
-        transmission: carListings.transmission,
-        bodyType: carListings.bodyType,
-        exteriorColor: carListings.exteriorColor,
-        status: carListings.status,
-        viewCount: carListings.viewCount,
-        favoriteCount: carListings.favoriteCount,
-        createdAt: carListings.createdAt,
-        updatedAt: carListings.updatedAt,
-        images: carListings.images,
-        sellerId: carListings.sellerId
-      })
+      .select()
       .from(carListings)
       .where(eq(carListings.sellerId, userId))
       .orderBy(desc(carListings.createdAt))
-      .limit(100); // Limit to 100 most recent listings
+      .limit(100);
   }
 
   async createListing(listingData: InsertCarListing & { sellerId: string }): Promise<CarListing> {
     const [listing] = await db
       .insert(carListings)
-      .values({
-        ...listingData,
-        price: listingData.price.toString()
-      })
+      .values(listingData)
       .returning();
 
     // Create approval record
@@ -2557,7 +2533,10 @@ export class DatabaseStorage implements IStorage {
     }));
     
     return {
-      users: enhancedUsers,
+      users: enhancedUsers.map(user => ({
+        ...user,
+        role: user.role || undefined
+      })),
       totalCount,
       pageCount
     };

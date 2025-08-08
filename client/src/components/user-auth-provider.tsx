@@ -49,7 +49,7 @@ export function UserAuthProvider({ children }: { children: ReactNode }) {
   return (
     <UserAuthContext.Provider
       value={{
-        user: user || null,
+        user: (user as AppUser) || null,
         token,
         isAuthenticated: !!user,
         isLoading,

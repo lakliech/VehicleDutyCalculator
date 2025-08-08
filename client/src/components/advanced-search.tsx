@@ -91,11 +91,13 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
     const words = query.toLowerCase().split(' ');
     
     // Extract make/model
-    filterOptions?.makes?.forEach((make: string) => {
-      if (words.includes(make.toLowerCase())) {
-        newFilters.make = make;
-      }
-    });
+    if (Array.isArray(filterOptions?.makes)) {
+      filterOptions.makes.forEach((make: string) => {
+        if (words.includes(make.toLowerCase())) {
+          newFilters.make = make;
+        }
+      });
+    }
 
     // Extract price hints - support "budget" keyword
     const priceMatch = query.match(/(?:under|budget)\s+(\d+(?:,?\d+)*(?:\.\d+)?)[mk]?/i);

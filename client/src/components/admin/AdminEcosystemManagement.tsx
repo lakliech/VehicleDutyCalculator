@@ -305,7 +305,7 @@ export default function AdminEcosystemManagement() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(providersData?.providers || []).map((provider: any) => (
+                      {(Array.isArray(providersData?.providers) ? providersData.providers : []).map((provider: any) => (
                         <TableRow key={provider.id}>
                           <TableCell>
                             <div>

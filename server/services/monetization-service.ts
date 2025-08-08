@@ -612,28 +612,22 @@ export class MonetizationService {
         lte(billingTransactions.createdAt, endDate)
       ));
 
-    // Get loan referral fees
-    const loanRevenue = await db.select({ total: sum(loanReferrals.referralFee) })
-      .from(loanReferrals)
-      .where(and(
-        eq(loanReferrals.feeStatus, 'earned'),
-        gte(loanReferrals.createdAt, startDate),
-        lte(loanReferrals.createdAt, endDate)
-      ));
+    // Get loan referral fees (TODO: implement when loanReferrals table is available)
+    const loanRevenue = [{ total: '0' }]; // Temporary fallback
 
     const subscriptions = parseFloat(subscriptionRevenue[0]?.total || '0');
     const listings = parseFloat(listingRevenue[0]?.total || '0');
-    const loanReferrals = parseFloat(loanRevenue[0]?.total || '0');
+    const loanReferralsAmount = parseFloat(loanRevenue[0]?.total || '0');
     const insurance = 0; // TODO: Implement insurance revenue tracking
     const apiUsage = 0; // TODO: Implement API usage revenue
 
     return {
       subscriptions,
       listings,
-      loanReferrals,
+      loanReferrals: loanReferralsAmount,
       insurance,
       apiUsage,
-      total: subscriptions + listings + loanReferrals + insurance + apiUsage
+      total: subscriptions + listings + loanReferralsAmount + insurance + apiUsage
     };
   }
 

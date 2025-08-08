@@ -91,6 +91,7 @@ export class MessagingService {
         receiverId,
         content,
         type,
+        status: 'sent' as const,
         metadata
       };
 
@@ -202,7 +203,7 @@ export class MessagingService {
                 id: listing.id,
                 title: listing.title,
                 price: listing.price,
-                imageUrl: listing.imageUrl || null,
+                imageUrl: (listing as any).imageUrl || listing.images?.[0] || null,
                 location: listing.location
               } : null
             };

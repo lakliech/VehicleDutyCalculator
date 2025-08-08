@@ -1001,7 +1001,7 @@ function FeatureForm({ defaultValues, onSubmit, isLoading = false }: FeatureForm
   const cleanedDefaultValues = defaultValues ? {
     name: typeof defaultValues.name === 'string' ? defaultValues.name.replace(/^"|"$/g, '') : defaultValues.name || "",
     description: typeof defaultValues.description === 'string' ? defaultValues.description.replace(/^"|"$/g, '') : defaultValues.description || "",
-    limitType: defaultValues.limitType || "unlimited",
+    limitType: (defaultValues.limitType || "unlimited") as "count" | "duration" | "size" | "frequency" | "concurrent" | "boolean" | "unlimited",
     limitValue: defaultValues.limitValue || undefined,
     limitDuration: defaultValues.limitDuration || undefined,
     limitSize: defaultValues.limitSize || undefined,
@@ -1013,7 +1013,7 @@ function FeatureForm({ defaultValues, onSubmit, isLoading = false }: FeatureForm
   } : {
     name: "",
     description: "",
-    limitType: "unlimited",
+    limitType: "unlimited" as const,
     isIncluded: true,
     additionalCost: 0,
     sortOrder: 0,
@@ -1028,7 +1028,7 @@ function FeatureForm({ defaultValues, onSubmit, isLoading = false }: FeatureForm
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit((data) => onSubmit(data as FeatureConstraint))} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}

@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import paymentRoutes from "./routes/payment-routes";
 import dealerRoutes from "./routes/dealer-routes";
+import { mongodbTestRoutes } from "./routes/mongodb-test-routes";
 import { 
   appUsers,
   carListings,

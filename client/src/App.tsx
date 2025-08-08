@@ -73,8 +73,6 @@ import { useAuthRedirect } from "@/hooks/use-auth-redirect";
 import { useDealerRedirect } from "@/hooks/use-dealer-redirect";
 import { FloatingAd } from "@/components/floating-ad";
 import { ConciergeFAB } from "@/components/concierge-fab";
-import WebSocketDemo from "@/pages/WebSocketDemo";
-import MessagingArchitecture from "@/pages/MessagingArchitecture";
 
 
 function Router() {
@@ -169,8 +167,6 @@ function Router() {
             </ProtectedRoute>
           </Route>
           <Route path="/messages" component={Messages} />
-          <Route path="/websocket-demo" component={WebSocketDemo} />
-          <Route path="/messaging-architecture" component={MessagingArchitecture} />
           <Route path="/payment-success" component={PaymentSuccess} />
           <Route path="/subscription-management">
             <ProtectedRoute>

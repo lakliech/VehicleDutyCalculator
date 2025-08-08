@@ -10,7 +10,10 @@ interface AuthenticatedWebSocket extends WebSocket {
 }
 
 interface WebSocketMessage {
-  type: 'join_conversation' | 'leave_conversation' | 'send_message' | 'ping' | 'pong';
+  type: 'join_conversation' | 'leave_conversation' | 'send_message' | 'ping' | 'pong' | 
+        'connection' | 'authenticate' | 'authenticated' | 'joined_conversation' | 
+        'left_conversation' | 'new_message' | 'message_sent' | 'message_notification' |
+        'conversation_updated' | 'error';
   data?: any;
   conversationId?: string;
   messageId?: string;
@@ -28,7 +31,7 @@ export class WebSocketService {
     this.wss = new WebSocketServer({ 
       server, 
       path: '/ws',
-      verifyClient: (info) => {
+      verifyClient: (info: any) => {
         // Allow all connections - we'll authenticate on message
         return true;
       }
@@ -269,12 +272,12 @@ export class WebSocketService {
       }
 
       // Remove from all conversation rooms
-      for (const [conversationId, room] of this.conversationRooms.entries()) {
+      this.conversationRooms.forEach((room, conversationId) => {
         room.delete(ws);
         if (room.size === 0) {
           this.conversationRooms.delete(conversationId);
         }
-      }
+      });
 
       console.log(`User ${ws.userId} disconnected from WebSocket`);
     }

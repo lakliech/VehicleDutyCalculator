@@ -43,7 +43,7 @@ export function ImageUpload({
     setPhotoLimit({
       allowed: true,
       limit: -1,
-      constraintType: 'unlimited'
+      message: 'unlimited uploads allowed'
     });
   }, []);
 

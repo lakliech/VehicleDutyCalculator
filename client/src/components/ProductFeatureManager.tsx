@@ -130,9 +130,10 @@ export default function ProductFeatureManager() {
 
   // Add feature to product mutation
   const addFeatureMutation = useMutation({
-    mutationFn: (data: any) => {
+    mutationFn: async (data: any) => {
       console.log('Adding feature with data:', data);
-      return apiRequest('POST', `/api/products/${selectedProduct}/features`, data);
+      const response = await apiRequest('POST', `/api/products/${selectedProduct}/features`, data);
+      return await response.json();
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Feature added to product successfully" });

@@ -19,17 +19,19 @@ export function UserAuth({ onAuthSuccess }: UserAuthProps) {
     email: "",
     password: ""
   });
-  const [registerForm, setRegisterForm] = useState<UserRegistration>({
+  const [registerForm, setRegisterForm] = useState<UserRegistration & { confirmPassword?: string }>({
     email: "",
     password: "",
     firstName: "",
     lastName: "",
-    phoneNumber: ""
+    phoneNumber: "",
+    confirmPassword: ""
   });
 
   const loginMutation = useMutation({
     mutationFn: async (data: UserLogin) => {
-      return await apiRequest("POST", "/api/auth/login", data);
+      const response = await apiRequest("POST", "/api/auth/login", data);
+      return await response.json();
     },
     onSuccess: (data) => {
       onAuthSuccess(data.user, data.token);
@@ -49,7 +51,8 @@ export function UserAuth({ onAuthSuccess }: UserAuthProps) {
 
   const registerMutation = useMutation({
     mutationFn: async (data: UserRegistration) => {
-      return await apiRequest("POST", "/api/auth/register", data);
+      const response = await apiRequest("POST", "/api/auth/register", data);
+      return await response.json();
     },
     onSuccess: (data) => {
       onAuthSuccess(data.user, data.token);

@@ -91,13 +91,12 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
     const words = query.toLowerCase().split(' ');
     
     // Extract make/model
-    if (Array.isArray(filterOptions?.makes)) {
-      filterOptions.makes.forEach((make: string) => {
-        if (words.includes(make.toLowerCase())) {
-          newFilters.make = make;
-        }
-      });
-    }
+    const makes = (filterOptions && typeof filterOptions === 'object' && 'makes' in filterOptions && Array.isArray(filterOptions.makes)) ? filterOptions.makes : [];
+    makes.forEach((make: string) => {
+      if (words.includes(make.toLowerCase())) {
+        newFilters.make = make;
+      }
+    });
 
     // Extract price hints - support "budget" keyword
     const priceMatch = query.match(/(?:under|budget)\s+(\d+(?:,?\d+)*(?:\.\d+)?)[mk]?/i);
@@ -273,7 +272,7 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
               <DialogTitle>Your Saved Searches</DialogTitle>
             </DialogHeader>
             <div className="space-y-3">
-              {savedSearches?.map((search: SavedSearch) => (
+              {Array.isArray(savedSearches) && savedSearches.map((search: SavedSearch) => (
                 <Card key={search.id} className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -306,7 +305,7 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
                   </div>
                 </Card>
               ))}
-              {(!savedSearches || savedSearches.length === 0) && (
+              {(!Array.isArray(savedSearches) || savedSearches.length === 0) && (
                 <p className="text-center text-muted-foreground py-8">
                   No saved searches yet. Set up some filters and save them!
                 </p>
@@ -356,7 +355,7 @@ export function AdvancedSearch({ onFiltersChange, initialFilters, className }: A
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Any make</SelectItem>
-                    {filterOptions?.makes?.map((make: string) => (
+                    {(filterOptions && typeof filterOptions === 'object' && 'makes' in filterOptions && Array.isArray(filterOptions.makes)) && filterOptions.makes.map((make: string) => (
                       <SelectItem key={make} value={make}>{make}</SelectItem>
                     ))}
                   </SelectContent>

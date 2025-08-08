@@ -36,7 +36,7 @@ export function UserAuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("userToken");
   };
 
-  const getAuthHeaders = () => {
+  const getAuthHeaders = (): Record<string, string> => {
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 

@@ -305,7 +305,7 @@ export default function AdminEcosystemManagement() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(Array.isArray(providersData?.providers) ? providersData.providers : []).map((provider: any) => (
+                      {((providersData && 'providers' in providersData && Array.isArray(providersData.providers)) ? providersData.providers : []).map((provider: any) => (
                         <TableRow key={provider.id}>
                           <TableCell>
                             <div>
@@ -494,7 +494,7 @@ export default function AdminEcosystemManagement() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(categories || []).map((category: any) => (
+                      {Array.isArray(categories) && categories.map((category: any) => (
                         <TableRow key={category.id}>
                           <TableCell className="font-medium">{category.name}</TableCell>
                           <TableCell>{category.description}</TableCell>
@@ -547,7 +547,7 @@ export default function AdminEcosystemManagement() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {(categories || []).map((category: any) => (
+                                {Array.isArray(categories) && categories.map((category: any) => (
                                   <SelectItem key={category.id} value={category.id.toString()}>
                                     {category.name}
                                   </SelectItem>
@@ -627,11 +627,11 @@ export default function AdminEcosystemManagement() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(subcategories || []).map((subcategory: any) => (
+                      {Array.isArray(subcategories) && subcategories.map((subcategory: any) => (
                         <TableRow key={subcategory.id}>
                           <TableCell className="font-medium">{subcategory.name}</TableCell>
                           <TableCell>
-                            {(categories || []).find((c: any) => c.id === subcategory.categoryId)?.name}
+                            {Array.isArray(categories) ? categories.find((c: any) => c.id === subcategory.categoryId)?.name : ''}
                           </TableCell>
                           <TableCell>{subcategory.description}</TableCell>
                           <TableCell>

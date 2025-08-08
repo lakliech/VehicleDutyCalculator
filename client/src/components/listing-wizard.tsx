@@ -231,7 +231,8 @@ export function ListingWizard({ onComplete, onCancel }: ListingWizardProps) {
   // Submit final listing
   const submitListingMutation = useMutation({
     mutationFn: async (listingData: any) => {
-      return apiRequest("POST", "/api/listings", listingData);
+      const response = await apiRequest("POST", "/api/listings", listingData);
+      return await response.json();
     },
     onSuccess: (data) => {
       localStorage.removeItem("listing-wizard-progress");

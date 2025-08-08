@@ -83,7 +83,8 @@ export default function RoleManagementTab() {
   // Create role mutation
   const createRoleMutation = useMutation({
     mutationFn: async (roleData: Omit<UserRole, 'id' | 'createdAt'>) => {
-      await apiRequest("POST", "/api/admin/roles", roleData);
+      const response = await apiRequest("POST", "/api/admin/roles", roleData);
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/roles"] });
@@ -105,7 +106,8 @@ export default function RoleManagementTab() {
   // Update user role mutation
   const updateUserRoleMutation = useMutation({
     mutationFn: async ({ userId, roleId }: { userId: string; roleId: number }) => {
-      await apiRequest("PUT", `/api/admin/users/${userId}/role`, { roleId });
+      const response = await apiRequest("PUT", `/api/admin/users/${userId}/role`, { roleId });
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users-with-roles"] });
@@ -201,9 +203,9 @@ export default function RoleManagementTab() {
         <TabsContent value="roles" className="space-y-4">
           <div className="grid gap-4">
             {Object.entries(roleCategories).map(([categoryName, category]) => {
-              const categoryRoles = roles.filter((role: UserRole) => 
+              const categoryRoles = Array.isArray(roles) ? roles.filter((role: UserRole) => 
                 category.roles.includes(role.name)
-              );
+              ) : [];
               
               if (categoryRoles.length === 0) return null;
 
@@ -264,7 +266,7 @@ export default function RoleManagementTab() {
 
         <TabsContent value="users" className="space-y-4">
           <div className="grid gap-4">
-            {users.map((user: AppUser) => (
+            {Array.isArray(users) && users.map((user: AppUser) => (
               <Card key={user.id}>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
@@ -314,7 +316,7 @@ export default function RoleManagementTab() {
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
-                <PermissionMatrix roles={roles} />
+                <PermissionMatrix roles={Array.isArray(roles) ? roles : []} />
               </div>
             </CardContent>
           </Card>
@@ -339,7 +341,7 @@ export default function RoleManagementTab() {
               <div className="grid gap-2">
                 <Label>Select New Role</Label>
                 <div className="grid gap-2 max-h-60 overflow-y-auto">
-                  {roles.map((role: UserRole) => (
+                  {Array.isArray(roles) && roles.map((role: UserRole) => (
                     <Button
                       key={role.id}
                       variant={selectedUser.roleId === role.id ? "default" : "outline"}

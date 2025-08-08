@@ -92,7 +92,7 @@ export interface IStorage {
   getPaymentTransactions(userId: string, limit?: number, offset?: number): Promise<any[]>;
   
   createCreditTransaction(creditData: any): Promise<any>;
-  getCreditTransactions(userId: string, limit?: number): Promise<any[]>;
+  getCreditTransactions(accountId: number, limit?: number): Promise<any[]>;
   
   createPaymentSchedule(scheduleData: any): Promise<any>;
   getPaymentSchedule(scheduleId: number): Promise<any>;
@@ -2563,14 +2563,7 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async updateUserRole(userId: string, roleId: number): Promise<void> {
-    await db.update(appUsers)
-      .set({ 
-        roleId, 
-        updatedAt: new Date() 
-      })
-      .where(eq(appUsers.id, userId));
-  }
+
 
   async bulkUserAction(userIds: string[], action: string, adminId: string, data?: any): Promise<void> {
     const now = new Date();

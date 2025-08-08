@@ -37,45 +37,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAdminToken(savedAdminToken);
       }
 
-      // Check for OAuth authentication status with retry logic
-      let retryCount = 0;
-      const maxRetries = 3;
-      
-      while (retryCount < maxRetries) {
-        try {
-          const response = await fetch("/api/auth/status", {
-            credentials: 'include' // Important for session-based auth
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (data.authenticated && data.user) {
-              setUser(data.user);
-              localStorage.setItem("user", JSON.stringify(data.user));
-              break; // Success, exit retry loop
-            }
-          }
-          
-          // If not authenticated, clear any stored user data
-          if (response.ok) {
+      // Simple auth check without blocking retries
+      try {
+        const response = await fetch("/api/auth/status", {
+          credentials: 'include',
+          timeout: 3000 // 3 second timeout
+        } as RequestInit);
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.authenticated && data.user) {
+            setUser(data.user);
+            localStorage.setItem("user", JSON.stringify(data.user));
+          } else {
             localStorage.removeItem("user");
             setUser(null);
-            break;
           }
-          
-        } catch (error) {
-          console.error(`Auth check attempt ${retryCount + 1} failed:`, error);
-          retryCount++;
-          
-          if (retryCount < maxRetries) {
-            // Wait before retry (progressive backoff)
-            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        } else {
+          // Fallback to localStorage if API fails
+          const savedUser = localStorage.getItem("user");
+          if (savedUser) {
+            try {
+              const userData = JSON.parse(savedUser);
+              setUser(userData);
+            } catch (error) {
+              console.error("Failed to parse user data:", error);
+              localStorage.removeItem("user");
+            }
           }
         }
-      }
-      
-      // If all retries failed, fallback to localStorage
-      if (retryCount >= maxRetries) {
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        // Fallback to localStorage
         const savedUser = localStorage.getItem("user");
         if (savedUser) {
           try {

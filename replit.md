@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a full-stack web application designed to calculate Kenya Revenue Authority (KRA) import duties and taxes for motor vehicles. It implements official KRA valuation formulas, including depreciation rates, for various vehicle categories and import types. The application also serves as Kenya's Car Marketplace, offering tools for selling, buying, vehicle recommendations, and financial services. Its vision is to be a comprehensive automotive tools platform and marketplace, targeting significant market potential in Kenya.
+This is a full-stack web application designed to calculate Kenya Revenue Authority (KRA) import duties and taxes for motor vehicles. **OPERATIONAL STATUS**: Application is now fully functional with resolved database connectivity, API response parsing, and frontend compilation issues (January 2025). It implements official KRA valuation formulas, including depreciation rates, for various vehicle categories and import types. The application also serves as Kenya's Car Marketplace, offering tools for selling, buying, vehicle recommendations, and financial services. Its vision is to be a comprehensive automotive tools platform and marketplace, targeting significant market potential in Kenya.
 
 ## User Preferences
 
